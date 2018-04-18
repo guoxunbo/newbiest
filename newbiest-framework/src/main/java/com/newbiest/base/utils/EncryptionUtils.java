@@ -1,9 +1,6 @@
 package com.newbiest.base.utils;
 
-import java.security.MessageDigest;
-
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

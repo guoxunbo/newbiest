@@ -11,6 +11,7 @@
         <module>newbiest-core</module>
         <module>newbiest-core</module>
         <module>newbiest-core</module>
+        <module>newbiest-core</module>
     </modules>
     <packaging>pom</packaging>
 

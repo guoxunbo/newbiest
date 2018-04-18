@@ -96,44 +96,44 @@ public class ExcelUtilsTest {
         List<NBField> nbFields = Lists.newArrayList();
         NBField nbField = new NBField();
         nbField.setName("name");
-        nbField.setLabel_zh("名字");
+        nbField.setLabelZh("名字");
         nbField.setSeqNo(10L);
-        nbField.setExport(true);
+        nbField.setExportFlag(true);
         nbFields.add(nbField);
 
         nbField = new NBField();
         nbField.setName("age");
-        nbField.setLabel_zh("年龄");
-        nbField.setExport(true);
+        nbField.setLabelZh("年龄");
+        nbField.setExportFlag(true);
         nbField.setSeqNo(20L);
         nbFields.add(nbField);
 
         nbField = new NBField();
         nbField.setName("job");
-        nbField.setLabel_zh("工作");
-        nbField.setExport(true);
+        nbField.setLabelZh("工作");
+        nbField.setExportFlag(true);
         nbField.setSeqNo(40L);
         nbFields.add(nbField);
 
         nbField = new NBField();
         nbField.setName("birthDay");
-        nbField.setLabel_zh("出生日期");
-        nbField.setExport(true);
+        nbField.setLabelZh("出生日期");
+        nbField.setExportFlag(true);
         nbField.setSeqNo(30L);
         nbFields.add(nbField);
 
         nbField = new NBField();
         nbField.setName("birthDay");
-        nbField.setLabel_zh("出生日期");
-        nbField.setExport(false);
+        nbField.setLabelZh("出生日期");
+        nbField.setExportFlag(false);
         nbField.setSeqNo(50L);
         nbFields.add(nbField);
 
-        nbFields = nbFields.stream().filter(nbField1 -> nbField1.getExport()).sorted(Comparator.comparing(NBField :: getSeqNo)).collect(Collectors.toList());
+        nbFields = nbFields.stream().filter(nbField1 -> nbField1.getExportFlag()).sorted(Comparator.comparing(NBField :: getSeqNo)).collect(Collectors.toList());
 
         Map<String, String> map = Maps.newLinkedHashMap();
         for (NBField nbField1: nbFields) {
-            map.put(nbField1.getName(), nbField1.getLabel_zh());
+            map.put(nbField1.getName(), nbField1.getLabelZh());
         }
 
         List<People> list = Lists.newArrayList();

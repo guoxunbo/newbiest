@@ -125,13 +125,13 @@ public class NBField extends NBBase {
      * 中文标签
      */
     @Column(name="LABEL_ZH")
-    private String label_zh;
+    private String labelZh;
 
     /**
      * 其它语言标签
      */
     @Column(name="LABEL_RES")
-    private String label_res;
+    private String labelRes;
 
     /**
      * 栏位是否显示
