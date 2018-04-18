@@ -6,6 +6,8 @@ package com.newbiest.base.exception;
  */
 public class NewbiestException {
 
+    public static final String BASE_TABLE_IS_NOT_FOUND = "base.table_is_null";
+
     public static final String COMMON_FILE_IS_NOT_EXIST = "common.file_is_not_exist";
 
     public static final String COMMON_SYSTEM_OCCURRED_ERROR = "common.system_occurred_error";
@@ -35,5 +37,6 @@ public class NewbiestException {
     public static final String COMMON_PASSWORD_IS_EXPIRY = "common.pwd_expiry";
 
     public static final String COMMON_HANDLER_IS_NOT_FOUND = "common.handler_not_found";
+
 
 }

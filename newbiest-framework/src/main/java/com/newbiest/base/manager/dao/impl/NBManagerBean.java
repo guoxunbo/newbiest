@@ -7,8 +7,8 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.manager.dao.NBManager;
 import com.newbiest.base.model.*;
-import com.newbiest.base.repository.NBQueryRepository;
-import com.newbiest.base.repository.NBRelationRepository;
+import com.newbiest.base.repository.QueryRepository;
+import com.newbiest.base.repository.RelationRepository;
 import com.newbiest.base.utils.*;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.model.NBOrg;
@@ -40,10 +40,10 @@ public class NBManagerBean implements NBManager {
     private EntityManager em;
 
     @Autowired
-    private NBRelationRepository nbRelationRepository;
+    private RelationRepository relationRepository;
 
     @Autowired
-    private NBQueryRepository nbQueryRepository;
+    private QueryRepository queryRepository;
 
     /**
      * 获取实体列表
@@ -208,7 +208,7 @@ public class NBManagerBean implements NBManager {
     @Override
     public List<Map> getEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException {
         try {
-            NBQuery nbQuery = nbQueryRepository.getByName(queryName);
+            NBQuery nbQuery = queryRepository.getByName(queryName);
             if (nbQuery == null) {
                 throw new ClientException(NewbiestException.COMMON_QUERY_IS_NOT_FOUND);
             }
@@ -310,7 +310,7 @@ public class NBManagerBean implements NBManager {
      */
     public void deleteRelationObject(NBBase nbBase, boolean throwExistException) throws ClientException{
         try {
-            List<NBRelation> relations = nbRelationRepository.getBySource(nbBase.getClass().getName());
+            List<NBRelation> relations = relationRepository.getBySource(nbBase.getClass().getName());
             if (CollectionUtils.isNotEmpty(relations)) {
                 Query query;
                 for (NBRelation relation : relations) {

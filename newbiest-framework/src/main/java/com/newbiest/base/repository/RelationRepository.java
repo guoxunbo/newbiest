@@ -13,7 +13,7 @@ import java.util.List;
  * Created by guoxunbo on 2017/10/13.
  */
 @Repository
-public interface NBRelationRepository extends JpaRepository<NBRelation, Long> {
+public interface RelationRepository extends JpaRepository<NBRelation, Long> {
 
     List<NBRelation> getBySource(String source);
 

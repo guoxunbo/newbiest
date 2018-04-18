@@ -1,5 +1,7 @@
 package com.newbiest.base.exception;
 
+import org.slf4j.Logger;
+
 import javax.persistence.OptimisticLockException;
 
 /**
@@ -19,4 +21,5 @@ public class ExceptionManager {
 			return new ClientException(e);
 		}
 	}
+
 }
