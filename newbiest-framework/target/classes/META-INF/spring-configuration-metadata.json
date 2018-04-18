@@ -1,0 +1,96 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.newbiest.main.NewbiestConfiguration",
+      "name": "newbiest",
+      "type": "com.newbiest.main.NewbiestConfiguration"
+    },
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api",
+      "type": "com.newbiest.main.SwaggerConfig"
+    },
+    {
+      "sourceType": "com.newbiest.main.DruidConfiguration",
+      "name": "spring.datasource.druid",
+      "sourceMethod": "dataSource()",
+      "type": "javax.sql.DataSource"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api.contact-email",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api.contact-name",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api.contact-url",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api.description",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api.license",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api.license-url",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api.terms-of-service-url",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api.title",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.SwaggerConfig",
+      "name": "newbiest.api.version",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.NewbiestConfiguration",
+      "defaultValue": 0,
+      "name": "newbiest.pwd-life",
+      "description": "密码有效期",
+      "type": "java.lang.Long"
+    },
+    {
+      "sourceType": "com.newbiest.main.NewbiestConfiguration",
+      "defaultValue": "fixed",
+      "name": "newbiest.pwd-policy",
+      "description": "密码生成策略",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.newbiest.main.NewbiestConfiguration",
+      "defaultValue": 0,
+      "name": "newbiest.pwd-wrong-count",
+      "description": "密码错误次数",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.newbiest.main.NewbiestConfiguration",
+      "defaultValue": 0,
+      "name": "newbiest.query-max-count",
+      "description": "查询最大数量",
+      "type": "java.lang.Integer"
+    }
+  ]
+}

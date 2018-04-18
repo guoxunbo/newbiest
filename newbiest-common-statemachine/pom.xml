@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.newbiest</groupId>
+    <artifactId>common-statemachine</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>framework</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+    </build>
+
+    <inceptionYear>2017</inceptionYear>
+
+    <developers>
+        <developer>
+            <id>Guo</id>
+            <name>Guo Xunbo</name>
+            <email>11603652@qq.com</email>
+            <roles>
+                <role>Project Manager</role>
+            </roles>
+            <organization>Newbiest</organization>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.baidu.com/banseon/LICENSE-2.0.txt </url>
+            <distribution>repo</distribution>
+            <comments> A business-friendly OSS license </comments>
+        </license>
+    </licenses>
+
+
+    <repositories>
+        <repository>
+            <id>newbiest</id>
+            <name>maven-public</name>
+            <url>http://118.31.35.66:8081/repository/maven-public/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>newbiest</id>
+            <url>http://118.31.35.66:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>newbiest</id>
+            <url>http://118.31.35.66:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+</project>

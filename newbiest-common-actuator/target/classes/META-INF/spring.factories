@@ -1,0 +1,1 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\com.newbiest.common.actuator.config.NewbiestHealthIndicatorConfiguration
