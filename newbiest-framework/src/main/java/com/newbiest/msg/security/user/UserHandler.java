@@ -40,7 +40,7 @@ public class UserHandler extends AbstractTransHandler {
 
         if (requestUser.getObjectRrn() != null) {
             user = context.getUserRepository().getByObjectRrn(requestUser.getObjectRrn());
-        } else if (!StringUtils.isEmpty(requestUser.getUsername()) && !UserRequest.ACTION_CREATE.equals(actionType)) {
+        } else if (!StringUtils.isNullOrEmpty(requestUser.getUsername()) && !UserRequest.ACTION_CREATE.equals(actionType)) {
             user = context.getUserRepository().getByUsername(requestUser.getUsername());
         }
 
@@ -48,7 +48,7 @@ public class UserHandler extends AbstractTransHandler {
             user = new NBUser();
             user.setUsername(requestUser.getUsername());
             // 如果没设置密码。则生成随机的6位数
-            if (StringUtils.isEmpty(requestUser.getPassword())) {
+            if (StringUtils.isNullOrEmpty(requestUser.getPassword())) {
                 requestUser.setPassword(getPassword());
             }
             // 对密码进行加密

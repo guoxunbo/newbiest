@@ -113,7 +113,7 @@ public class ExcelUtils {
                         Object value = getCellValue(cell);
                         // 日期类型单独处理
                         if (org.apache.commons.beanutils.PropertyUtils.getPropertyType(object, propertyName) == Date.class) {
-                            if (StringUtils.isEmpty(pattern)) {
+                            if (StringUtils.isNullOrEmpty(pattern)) {
                                 pattern = DEFAULT_DATE_PATTERN;
                             }
                             SimpleDateFormat sdf = new SimpleDateFormat(pattern);
@@ -140,7 +140,7 @@ public class ExcelUtils {
      * @return
      */
     private static Object getCellValue(Cell cell) {
-        if (cell == null || (cell.getCellTypeEnum() == CellType.STRING && StringUtils.isEmpty(cell.getStringCellValue()))) {
+        if (cell == null || (cell.getCellTypeEnum() == CellType.STRING && StringUtils.isNullOrEmpty(cell.getStringCellValue()))) {
             return StringUtils.EMPTY;
         }
         CellType cellType = cell.getCellTypeEnum();
@@ -179,7 +179,7 @@ public class ExcelUtils {
         while (row.cellIterator().hasNext()) {
             Cell cell = row.cellIterator().next();
             String value = cell.getStringCellValue();
-            if (!StringUtils.isEmpty(value)) {
+            if (!StringUtils.isNullOrEmpty(value)) {
                 nullRowFlag = false;
                 break;
             }
@@ -300,7 +300,7 @@ public class ExcelUtils {
         try {
             PreConditionalUtils.checkNotNull(headers, "Excel Headers");
             PreConditionalUtils.checkNotNull(data, "Excel Data");
-            if (StringUtils.isEmpty(pattern)) {
+            if (StringUtils.isNullOrEmpty(pattern)) {
                 pattern = DEFAULT_DATE_PATTERN;
             }
 

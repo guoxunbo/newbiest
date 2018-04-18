@@ -41,7 +41,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             sql.append(" WHERE ");
             sql.append(NBBase.BASE_CONDITION);
             sql.append(" AND category = :category ");
-            if (!StringUtils.isEmpty(statusModel.getObjectType())) {
+            if (!StringUtils.isNullOrEmpty(statusModel.getObjectType())) {
                 sql.append(" AND objectType IS NULL ");
             } else {
                 sql.append(" AND objectType = :objectType ");
@@ -51,7 +51,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             Query query = em.createQuery(sql.toString());
             query.setParameter("orgRrn", statusModel.getOrgRrn());
             query.setParameter("category", statusModel.getCategory());
-            if (!StringUtils.isEmpty(statusModel.getObjectType())) {
+            if (!StringUtils.isNullOrEmpty(statusModel.getObjectType())) {
                 query.setParameter("objectType", statusModel.getObjectType());
             }
             query.setParameter("state", state);

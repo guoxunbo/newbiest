@@ -34,7 +34,7 @@ public class ClientException extends RuntimeException {
         if (cause.getCause() != null) {
             if (cause.getCause() instanceof ConstraintViolationException) {
                 String message = ((ConstraintViolationException) cause.getCause()).getSQLException().getMessage();
-                if (!StringUtils.isEmpty(message) && message.contains(DUPLICATIE_ENTRY)) {
+                if (!StringUtils.isNullOrEmpty(message) && message.contains(DUPLICATIE_ENTRY)) {
                     errorCode = "Value is exist :" + message.substring(DUPLICATIE_ENTRY.length(), message.indexOf(FOR_KEY));
                 }
             } //TODO 处理其他异常
@@ -46,7 +46,7 @@ public class ClientException extends RuntimeException {
 
     @Override
     public String toString() {
-        if (!StringUtils.isEmpty(errorCode)) {
+        if (!StringUtils.isNullOrEmpty(errorCode)) {
             return errorCode;
         }
         return super.toString();

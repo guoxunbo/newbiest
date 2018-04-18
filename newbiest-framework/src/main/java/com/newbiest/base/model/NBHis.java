@@ -11,6 +11,7 @@ import org.hibernate.Session;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
@@ -26,23 +27,18 @@ public class NBHis extends NBUpdatable {
     public static final String TRANS_TYPE_DELETE = "Delete";
 
     @Column(name="HISTORY_SEQ")
-    @XmlElement(name="HisSeq")
     private String hisSeq;
 
     @Column(name="TRANS_TYPE")
-    @XmlElement(name="TransType")
     private String transType;
 
     @Column(name="ACTION_CODE")
-    @XmlElement(name="ActionCode")
     private String actionCode;
 
     @Column(name="ACTION_REASON")
-    @XmlElement(name="ActionReason")
     private String actionReason;
 
     @Column(name="ACTION_COMMENT")
-    @XmlElement(name="ActionComment")
     private String actionComment;
 
     public NBHis(NBBase base, SessionContext sc) {

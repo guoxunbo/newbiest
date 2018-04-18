@@ -32,29 +32,23 @@ public class NBVersionControl extends NBUpdatable {
 	public static final String STATUS_DELETE = "Delete";
 
 	@Column(name = "NAME")
-	@XmlElement(name="Name")
 	private String name;
 
 	@Column(name = "DESCRIPTION")
-	@XmlElement(name="Description")
 	private String description;
 
 	@Column(name="VERSION")
-	@XmlElement(name="Version")
 	private Long version;
 
 	@Column(name="STATUS")
-	@XmlElement(name="Status")
 	private String status;
 
 	@Column(name="ACTIVE_TIME")
 	@JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
-	@XmlElement(name="ActiveTime")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date activeTime;
 
 	@Column(name="ACTIVE_USER")
-	@XmlElement(name="ActiveUser")
 	private String activeUser;
 
 	public String getId() {

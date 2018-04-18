@@ -92,11 +92,11 @@ public class NBManagerBean implements NBManager {
             } else {
                 sql.append(" 1=1 ");
             }
-            if (!StringUtils.isEmpty(whereClause)) {
+            if (!StringUtils.isNullOrEmpty(whereClause)) {
                 sql.append(" AND ");
                 sql.append(whereClause);
             }
-            if (!StringUtils.isEmpty(orderBy)) {
+            if (!StringUtils.isNullOrEmpty(orderBy)) {
                 sql.append(" ORDER BY ");
                 sql.append(orderBy);
             }
@@ -155,11 +155,11 @@ public class NBManagerBean implements NBManager {
                 } else {
                     sql.append(" 1=1 ");
                 }
-                if (!StringUtils.isEmpty(whereClause)){
+                if (!StringUtils.isNullOrEmpty(whereClause)){
                     sql.append(" AND ");
                     sql.append(whereClause);
                 }
-                if (!StringUtils.isEmpty(orderBy)) {
+                if (!StringUtils.isNullOrEmpty(orderBy)) {
                     sql.append(" ORDER BY ");
                     sql.append(orderBy);
                 }
@@ -237,11 +237,11 @@ public class NBManagerBean implements NBManager {
             sqlBuffer.append("SELECT * FROM (");
             sqlBuffer.append(queryText);
             sqlBuffer.append(")");
-            if (!StringUtils.isEmpty(whereClause)) {
+            if (!StringUtils.isNullOrEmpty(whereClause)) {
                 sqlBuffer.append(" WHERE ");
                 sqlBuffer.append(whereClause);
             }
-            if (!StringUtils.isEmpty(orderByClause)) {
+            if (!StringUtils.isNullOrEmpty(orderByClause)) {
                 sqlBuffer.append(" ORDER BY ");
                 sqlBuffer.append(orderByClause);
             }

@@ -6,7 +6,6 @@ import net.sf.cglib.core.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -43,7 +42,7 @@ public class PropertyUtils {
 
     public static void setProperty(Object sourceBean, String propertyName, Object value) {
         try {
-            if (!StringUtils.isEmpty(propertyName)) {
+            if (!StringUtils.isNullOrEmpty(propertyName)) {
                 org.apache.commons.beanutils.PropertyUtils.setSimpleProperty(sourceBean, propertyName, value);
             }
         } catch (IllegalArgumentException e) {

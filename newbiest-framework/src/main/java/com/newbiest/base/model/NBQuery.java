@@ -19,15 +19,12 @@ import javax.xml.bind.annotation.XmlElement;
 public class NBQuery extends NBBase {
 
     @Column(name="NAME")
-    @XmlElement(name="name")
     private String name;
 
     @Column(name="DESCRIPTION")
-    @XmlElement(name="Description")
     private String description;
 
     @Column(name="QUERY_TEXT")
-    @XmlElement(name="QueryText")
     private String queryText;
 
 }

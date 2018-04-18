@@ -7,7 +7,6 @@ import lombok.Data;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlElement;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * 需要管控操作人 操作时间的POJO基类
@@ -24,27 +23,22 @@ public class NBUpdatable extends NBBase {
 
     @Column(name="CREATED", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    @XmlElement(name="Created")
     @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     protected Date created;
 
     @Column(name="CREATED_BY", updatable = false)
-    @XmlElement(name="CreatedBy")
     protected String createdBy;
 
     @Column(name="UPDATED")
     @Temporal(TemporalType.TIMESTAMP)
-    @XmlElement(name="Updated")
     @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     protected Date updated;
 
     @Column(name="UPDATED_BY")
-    @XmlElement(name="UpdatedBy")
     protected String updatedBy;
 
     @Version
     @Column(name="LOCK_VERSION")
-    @XmlElement(name="LockVersion")
     private Long lockVersion = 1L;
 
     @PrePersist

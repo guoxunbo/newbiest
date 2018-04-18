@@ -77,7 +77,7 @@ public class PreConditionalUtils {
      */
     public static void checkNotNull(Object object, String objectType) {
         try {
-            if (StringUtils.isEmpty(objectType)) {
+            if (StringUtils.isNullOrEmpty(objectType)) {
                 Preconditions.checkNotNull(object);
             } else {
                 Preconditions.checkNotNull(object, NULL_MESSAGE, objectType);

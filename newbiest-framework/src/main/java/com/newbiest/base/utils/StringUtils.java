@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 public class StringUtils {
 
     public static final String EMPTY = "";
+    public static final String YES = "Y";
+    public static final String NO = "N";
+
     public static final String SPLIT_CODE = "-";
 
     public static final String CHARSET_GBK = "GBK";
@@ -54,7 +57,7 @@ public class StringUtils {
         return Strings.padEnd(source, length, padChar);
     }
 
-    public static boolean isEmpty(String str) {
+    public static boolean isNullOrEmpty(String str) {
         return Strings.isNullOrEmpty(str);
     }
 

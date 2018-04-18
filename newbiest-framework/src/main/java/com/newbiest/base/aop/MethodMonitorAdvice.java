@@ -24,7 +24,7 @@ public class MethodMonitorAdvice {
     @Around("@annotation(methodMonitor)")
     public Object invoke(ProceedingJoinPoint joinPoint, MethodMonitor methodMonitor) throws Throwable {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-        String name = StringUtils.isEmpty(methodMonitor.value()) ? methodSignature.getName() : methodMonitor.value();
+        String name = StringUtils.isNullOrEmpty(methodMonitor.value()) ? methodSignature.getName() : methodMonitor.value();
 
         Stopwatch stopwatch = Stopwatch.createStarted();
         Object object = joinPoint.proceed();

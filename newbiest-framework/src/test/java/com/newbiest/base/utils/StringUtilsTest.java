@@ -1,16 +1,10 @@
 package com.newbiest.base.utils;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * StringUtils类单元测试
@@ -47,7 +41,7 @@ public class StringUtilsTest {
 
     @Test
     public void isEmpty() throws Exception {
-        assert StringUtils.isEmpty("");
+        assert StringUtils.isNullOrEmpty("");
     }
 
     @Test

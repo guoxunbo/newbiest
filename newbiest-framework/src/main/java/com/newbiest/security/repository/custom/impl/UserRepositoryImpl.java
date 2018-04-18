@@ -176,7 +176,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 nbUserHis.setTransType(NBHis.TRANS_TYPE_CRAETE);
                 em.persist(nbUserHis);
 
-                if (!StringUtils.isEmpty(nbUser.getEmail())) {
+                if (!StringUtils.isNullOrEmpty(nbUser.getEmail())) {
                     Map<String, Object> map = Maps.newHashMap();
                     map.put("user", nbUser);
                     mailService.sendTemplateMessage(Arrays.asList(nbUser.getEmail()), "CreateUser", MailService.CREATE_USER_TEMPLATE, map);
@@ -231,7 +231,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             sc.buildTransInfo();
 
             nbUser = em.find(NBUser.class, nbUser.getObjectRrn());
-            if (StringUtils.isEmpty(newPassword)) {
+            if (StringUtils.isNullOrEmpty(newPassword)) {
                 throw new ClientException(NewbiestException.COMMON_NEW_PASSWORD_IS_NULL);
             }
             Date pwdChanged = new Date();
@@ -252,7 +252,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             em.persist(his);
 
             // 发邮件
-            if (!StringUtils.isEmpty(nbUser.getEmail())) {
+            if (!StringUtils.isNullOrEmpty(nbUser.getEmail())) {
                 Map<String, Object> map = Maps.newHashMap();
                 map.put("user", nbUser);
                 mailService.sendTemplateMessage(Arrays.asList(nbUser.getEmail()), "ResetPassword", MailService.RESET_PASSWORD_TEMPLATE, map);
@@ -272,7 +272,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         try {
             sc.buildTransInfo();
 
-            if (StringUtils.isEmpty(newPassword)) {
+            if (StringUtils.isNullOrEmpty(newPassword)) {
                 throw new ClientException(NewbiestException.COMMON_NEW_PASSWORD_IS_NULL);
             }
 

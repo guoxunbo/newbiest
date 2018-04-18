@@ -1,13 +1,10 @@
 package com.newbiest.base.model;
 
+import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlElement;
 import java.io.Serializable;
 
 /**
@@ -15,8 +12,8 @@ import java.io.Serializable;
  * Created by guoxunbo on 2017/9/7.
  */
 @MappedSuperclass
-@ToString
 @Accessors(chain = true)
+@Data
 public class NBBase implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -4455314847475119658L;
@@ -39,27 +36,20 @@ public class NBBase implements Serializable, Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="OBJECT_RRN")
-    @XmlElement(name="ObjectRrn")
-    @Getter
-    @Setter
     private Long objectRrn;
 
     @Column(name="ORG_RRN")
-    @XmlElement(name="OrgRrn")
-    @Getter
-    @Setter
     private Long orgRrn = 0L;
 
     @Column(name="ACTIVE_FLAG")
-    @XmlElement(name="ActiveFlag")
-    private String activeFlag = "Y";
+    private String activeFlag = StringUtils.YES;
 
     public Boolean getActiveFlag() {
-        return "Y".equalsIgnoreCase(activeFlag);
+        return StringUtils.YES.equalsIgnoreCase(activeFlag);
     }
 
     public void setActiveFlag(Boolean activeFlag) {
-        this.activeFlag = activeFlag ? "Y" : "N";
+        this.activeFlag = activeFlag ? StringUtils.YES : StringUtils.NO;
     }
 
 }

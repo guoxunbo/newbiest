@@ -1,9 +1,7 @@
 package com.newbiest.security;
 
-import com.newbiest.base.model.NBBase;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.security.model.NBUser;
-import com.newbiest.security.model.NBUserHis;
 import com.newbiest.security.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,19 +64,19 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
     public String getIpAddress(HttpServletRequest request){
         String ip = request.getHeader(X_FORWARDED_FOR);
 
-        if (StringUtils.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+        if (StringUtils.isNullOrEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getHeader(Proxy_Client_IP);
         }
-        if (StringUtils.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+        if (StringUtils.isNullOrEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getHeader(WL_Proxy_Client_IP);
         }
-        if (StringUtils.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+        if (StringUtils.isNullOrEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getHeader(HTTP_CLIENT_IP);
         }
-        if (StringUtils.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+        if (StringUtils.isNullOrEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getHeader(HTTP_X_FORWARDED_FOR);
         }
-        if (StringUtils.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+        if (StringUtils.isNullOrEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
         return ip;

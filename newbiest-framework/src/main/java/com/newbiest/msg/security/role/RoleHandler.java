@@ -38,7 +38,7 @@ public class RoleHandler extends AbstractTransHandler {
 
         if (requestRole.getObjectRrn() != null) {
             role = context.getRoleRepository().getByObjectRrn(requestRole.getObjectRrn());
-        } else if (!StringUtils.isEmpty(requestRole.getRoleId()) && !RoleRequest.ACTION_CREATE.equals(actionType)) {
+        } else if (!StringUtils.isNullOrEmpty(requestRole.getRoleId()) && !RoleRequest.ACTION_CREATE.equals(actionType)) {
             role = context.getRoleRepository().getByRoleId(requestRole.getRoleId());
         }
 
