@@ -1,4 +1,4 @@
-package com.newbiest.base.utils;
+package com.newbiest.core.utils;
 
 import com.google.common.base.*;
 import com.google.common.collect.Lists;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-/**
+/**Ø
  * Created by guoxunbo on 2017/9/29.
  */
 public class StringUtils {

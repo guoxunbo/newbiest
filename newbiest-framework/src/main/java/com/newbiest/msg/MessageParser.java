@@ -1,20 +1,9 @@
 package com.newbiest.msg;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.newbiest.base.exception.ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * 消息实例化对象

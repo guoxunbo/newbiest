@@ -9,9 +9,7 @@
     <modules>
         <module>newbiest-common-excel</module>
         <module>newbiest-core</module>
-        <module>newbiest-core</module>
-        <module>newbiest-core</module>
-        <module>newbiest-core</module>
+        <module>newbiest-framework</module>
     </modules>
     <packaging>pom</packaging>
 

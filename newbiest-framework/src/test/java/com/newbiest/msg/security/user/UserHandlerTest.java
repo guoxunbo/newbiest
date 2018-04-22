@@ -5,7 +5,6 @@ import com.newbiest.base.rest.AbstractHandlerTest;
 import com.newbiest.base.utils.EncryptionUtils;
 import com.newbiest.main.FrameworkApplication;
 import com.newbiest.msg.*;
-import com.newbiest.msg.security.role.RoleResponse;
 import com.newbiest.security.model.NBUser;
 import org.junit.Assert;
 import org.junit.Before;

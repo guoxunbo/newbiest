@@ -1,4 +1,4 @@
-package com.newbiest.base.utils;
+package com.newbiest.core.utils;
 
 import com.google.common.base.Preconditions;
 import com.newbiest.base.exception.ExceptionManager;

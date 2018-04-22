@@ -4,7 +4,6 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBRole;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.EntityManager;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.newbiest.base.utils;
+package com.newbiest.core.utils;
 
 import com.newbiest.base.model.NBBase;
 import net.sf.cglib.beans.BeanCopier;
