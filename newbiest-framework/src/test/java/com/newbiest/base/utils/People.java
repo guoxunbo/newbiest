@@ -1,6 +1,6 @@
-package com.newbiest.common.excel.utils;
+package com.newbiest.base.utils;
 
-import com.newbiest.common.excel.annotation.Export;
+import com.newbiest.base.annotation.Export;
 import lombok.Data;
 
 import java.io.Serializable;

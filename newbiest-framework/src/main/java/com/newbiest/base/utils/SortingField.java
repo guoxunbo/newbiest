@@ -1,4 +1,4 @@
-package com.newbiest.common.excel.utils;
+package com.newbiest.base.utils;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

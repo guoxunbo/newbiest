@@ -1,24 +1,18 @@
-package com.newbiest.common.excel.utils;
+package com.newbiest.base.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.ui.model.NBField;
 import com.newbiest.base.ui.model.NBTable;
-import com.newbiest.base.utils.DateUtils;
-import jdk.internal.util.xml.impl.Input;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by guoxunbo on 2018/4/2.

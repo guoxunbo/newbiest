@@ -1,12 +1,8 @@
-package com.newbiest.common.excel.utils;
+package com.newbiest.base.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.utils.PreConditionalUtils;
-import com.newbiest.base.utils.PropertyUtils;
-import com.newbiest.base.utils.StringUtils;
-import com.newbiest.common.excel.annotation.Export;
+import com.newbiest.base.annotation.Export;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
@@ -19,7 +15,6 @@ import java.util.*;
 
 /**
  * 导入导出excel的正常操作 支持从bean直接导出 支持从map上导出Map<propertyName, value>
- * //TODO 处理导入
  * Created by guoxunbo on 2018/4/2.
  */
 @Slf4j
@@ -113,7 +108,7 @@ public class ExcelUtils {
                         Object value = getCellValue(cell);
                         // 日期类型单独处理
                         if (org.apache.commons.beanutils.PropertyUtils.getPropertyType(object, propertyName) == Date.class) {
-                            if (StringUtils.isEmpty(pattern)) {
+                            if (StringUtils.isNullOrEmpty(pattern)) {
                                 pattern = DEFAULT_DATE_PATTERN;
                             }
                             SimpleDateFormat sdf = new SimpleDateFormat(pattern);
@@ -140,7 +135,7 @@ public class ExcelUtils {
      * @return
      */
     private static Object getCellValue(Cell cell) {
-        if (cell == null || (cell.getCellTypeEnum() == CellType.STRING && StringUtils.isEmpty(cell.getStringCellValue()))) {
+        if (cell == null || (cell.getCellTypeEnum() == CellType.STRING && StringUtils.isNullOrEmpty(cell.getStringCellValue()))) {
             return StringUtils.EMPTY;
         }
         CellType cellType = cell.getCellTypeEnum();
@@ -179,7 +174,7 @@ public class ExcelUtils {
         while (row.cellIterator().hasNext()) {
             Cell cell = row.cellIterator().next();
             String value = cell.getStringCellValue();
-            if (!StringUtils.isEmpty(value)) {
+            if (!StringUtils.isNullOrEmpty(value)) {
                 nullRowFlag = false;
                 break;
             }
@@ -300,7 +295,7 @@ public class ExcelUtils {
         try {
             PreConditionalUtils.checkNotNull(headers, "Excel Headers");
             PreConditionalUtils.checkNotNull(data, "Excel Data");
-            if (StringUtils.isEmpty(pattern)) {
+            if (StringUtils.isNullOrEmpty(pattern)) {
                 pattern = DEFAULT_DATE_PATTERN;
             }
 
