@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.*;
 import com.newbiest.base.exception.ClientException;
 import org.junit.Test;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.*;
 
 /**

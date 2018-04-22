@@ -1,11 +1,11 @@
-package com.newbiest.core.utils;
+package com.newbiest.base.utils;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import com.newbiest.core.exception.ClientException;
-import com.newbiest.core.exception.ExceptionManager;
-import com.newbiest.core.exception.NewbiestException;
+import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.exception.NewbiestException;
 
 import java.io.File;
 import java.nio.charset.Charset;
