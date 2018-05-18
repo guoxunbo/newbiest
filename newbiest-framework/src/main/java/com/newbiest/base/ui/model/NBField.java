@@ -202,7 +202,7 @@ public class NBField extends NBBase {
     /**
      * 是否是导出栏位
      */
-    @Column(name="QUERY_FLAG")
+    @Column(name="EXPORT_FLAG")
     private String exportFlag;
 
     @ManyToOne

@@ -1,5 +1,10 @@
 
 .idea/*
 log/*
+.idea
+target/
+bin/
+*.iml
+*git.properties
 newbiest-amazon/*
 newbiest-client/*

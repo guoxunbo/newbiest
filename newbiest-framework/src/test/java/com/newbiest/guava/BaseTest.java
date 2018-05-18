@@ -29,6 +29,25 @@ public class BaseTest {
         preConditionTest();
     }
 
+    @Test
+    public void optionalTest() {
+        String str1 = null;
+        String str2 = "str2";
+
+        Optional<String> a = Optional.fromNullable(str1);
+        //返回包含给定的非空引用Optional实例
+        Optional<String> b = Optional.of(str2);
+
+        // 如果为空则isPresent为false
+        assert !a.isPresent();
+        assert b.isPresent();
+        //返回Optional所包含的引用,若引用缺失,返回指定的值
+        String value1 = a.or("1111");
+        //返回所包含的实例,它必须存在, 如果不存在则会抛出异常，故通常在调用该方法时会调用isPresent()判断是否为null
+        String value2 = b.get();
+        Assert.assertEquals("1111str2", value1+value2);
+    }
+
     /**
      * 先决条件检查
      */

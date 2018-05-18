@@ -109,6 +109,26 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         }
     }
 
+    public List<NBUser> testGetDeepUser() throws ClientException {
+        try {
+            StringBuffer sqlBuffer = new StringBuffer();
+            sqlBuffer.append("SELECT NBUser FROM NBUser NBUser ");
+
+            EntityGraph graph = em.createEntityGraph(NBUser.class);
+            graph.addSubgraph("roles");
+
+            Query query = em.createQuery(sqlBuffer.toString());
+            query.setHint(NBBase.LAZY_LOAD_PROP, graph);
+            query.setFirstResult(1);
+            query.setMaxResults(2);
+            List<NBUser> users = query.getResultList();
+            return users;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
     @MethodMonitor
     @Override
     public NBUser getDeepUser(String username, boolean orgFlag) throws ClientException {

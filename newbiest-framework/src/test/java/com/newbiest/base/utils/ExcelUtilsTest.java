@@ -195,7 +195,7 @@ public class ExcelUtilsTest {
 
             Assert.assertEquals(2, dataList.size());
             Assert.assertEquals("张三", dataList.get(0).getName());
-            Assert.assertEquals("10", dataList.get(0).getAge());
+            Assert.assertEquals(10, dataList.get(0).getAge());
             inputStream.close();
         } catch (Exception e) {
             e.printStackTrace();

@@ -7,6 +7,7 @@ import com.newbiest.base.utils.SessionContext;
 import com.newbiest.security.model.NBUser;
 import com.newbiest.security.repository.RoleRepository;
 import com.newbiest.security.repository.UserRepository;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class FrameworkApplicationTests {
 
 	@Test
 	public void test() {
+		List<NBUser> nbUsers = userRepository.testGetDeepUser();
+		Assert.assertEquals(3, nbUsers.size());
 	}
 
 }

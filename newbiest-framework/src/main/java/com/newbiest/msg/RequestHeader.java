@@ -1,13 +1,9 @@
 package com.newbiest.msg;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
-import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class RequestHeader implements Serializable {

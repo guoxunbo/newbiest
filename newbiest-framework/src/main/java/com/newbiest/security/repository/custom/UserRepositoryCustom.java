@@ -16,6 +16,8 @@ public interface UserRepositoryCustom {
 
     EntityManager getEntityManager();
 
+    List<NBUser> testGetDeepUser() throws ClientException;
+
     NBUser getDeepUser(Long userRrn, boolean orgFlag) throws ClientException;
     NBUser getDeepUser(String username, boolean orgFlag) throws ClientException;
 
