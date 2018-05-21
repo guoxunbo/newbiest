@@ -9,7 +9,10 @@ import {
 import IceIcon from '@icedesign/icon';
 import './UserLogin.scss';
 import DataBinder from '@icedesign/data-binder';
-import {application} from '../../../../js/application';
+
+import {Application} from '../../../../js/Application';
+import {MessageUtils} from '../../../../js/MessageUtils';
+
 
 const { Row, Col } = Grid;
 
@@ -48,6 +51,7 @@ export default class UserLogin extends Component {
         console.log('errors', errors);
         return;
       }
+      MessageUtils.sendJsonMessgae("aaa");
 
       console.log('values:', values);
       Feedback.toast.success('登录成功');
@@ -66,7 +70,7 @@ export default class UserLogin extends Component {
         />
         <div style={styles.contentWrapper} className="content-wrapper">
           <h2 style={styles.slogan} className="slogan">
-            欢迎使用 <br /> {application.name}
+            欢迎使用 <br /> {Application.name} - {Application.version}
           </h2>
           <div style={styles.formContainer}>
             <h4 style={styles.formTitle}>登录</h4>
