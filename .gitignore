@@ -7,4 +7,3 @@ bin/
 *.iml
 *git.properties
 newbiest-amazon/*
-newbiest-client/*
