@@ -9,6 +9,7 @@ import {
 import IceIcon from '@icedesign/icon';
 import './UserLogin.scss';
 import DataBinder from '@icedesign/data-binder';
+import {application} from '../../../../js/application';
 
 const { Row, Col } = Grid;
 
@@ -16,15 +17,6 @@ const { Row, Col } = Grid;
 const backgroundImage =
   'https://img.alicdn.com/tfs/TB1zsNhXTtYBeNjy1XdXXXXyVXa-2252-1500.png';
 
-@DataBinder({
-  application: {
-    //TODO 解决为何不从application.json取值
-    url: '/src/application.json',
-    defaultBindingData: {
-      name: "KMS管理系统",
-    }
-  }
-})
 export default class UserLogin extends Component {
   static displayName = 'UserLogin';
 
@@ -64,11 +56,6 @@ export default class UserLogin extends Component {
   };
 
   render() {
-    const application = this.props.bindingData.application;
-    const tableData = this.props.bindingData.tableData;
-
-    console.log(application);
-    console.log(tableData);
     return (
       <div style={styles.userLogin} className="user-login">
         <div
