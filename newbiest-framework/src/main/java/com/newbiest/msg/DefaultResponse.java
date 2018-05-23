@@ -44,6 +44,7 @@ public class DefaultResponse extends Response {
 				message = StringUtils.format(nbMessage.getMessage(), parameters);
 				messageRes = StringUtils.format(nbMessage.getMessageRes(), parameters);
 			}
+			header.setMessageRrn(nbMessage.getObjectRrn());
 			header.setResultChinese(messageZh);
 			header.setResultEnglish(message);
 			header.setResultRes(messageRes);

@@ -51,7 +51,7 @@ export default class UserLogin extends Component {
         console.log('errors', errors);
         return;
       }
-      MessageUtils.sendJsonMessgae("aaa");
+      MessageUtils.getEntityList();
 
       console.log('values:', values);
       Feedback.toast.success('登录成功');
@@ -121,11 +121,7 @@ export default class UserLogin extends Component {
                 </Row>
 
                 <Row style={styles.formItem}>
-                  <Button
-                    type="primary"
-                    onClick={this.handleSubmit}
-                    style={styles.submitBtn}
-                  >
+                  <Button type="primary" onClick={this.handleSubmit} style={styles.submitBtn}>
                     登 录
                   </Button>
                 </Row>

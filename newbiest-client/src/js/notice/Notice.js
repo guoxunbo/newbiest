@@ -19,8 +19,9 @@ class Notification {
         });
     }
 
-    static showError(message) {
+    static showError(errorCode, message) {
         PNotify.error({
+            title: errorCode,
             text: message,
             delay: Application.notice.delay,
             modules: {
@@ -90,6 +91,7 @@ class Notification {
     }
 }
 
+// 写在组件外面表示私有，外部不可调用。
 /**
  * 构建button组件
  */
@@ -101,6 +103,9 @@ function buildButton() {
     }
 };
 
+/**
+ * 构建Mobile组件
+ */
 function buildMobile() {
     return {
         swipeDismiss: Application.notice.mobile.swipeDismiss,

@@ -257,7 +257,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             Date pwdChanged = new Date();
             nbUser.setPwdChanged(pwdChanged);
             //对Password进行加密
-            nbUser.setPassword(EncryptionUtils.encode(newPassword));
+//            nbUser.setPassword(EncryptionUtils.encode(newPassword));
             // 重置密码之后，对所有密码有效期及错误次数重新设置
             nbUser.setInValidFlag(true);
             nbUser.setPwdWrongCount(0);

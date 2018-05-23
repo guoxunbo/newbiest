@@ -10,13 +10,10 @@ import java.util.List;
 /**
  * Created by guoxunbo on 2017/9/29.
  */
-@XmlAccessorType(XmlAccessType.NONE)
 public class EntityListResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
-	@XmlElementWrapper(name="DataList")
-	@XmlElementRef
 	private List<NBBase> datas;
 
 	public List<NBBase> getDatas() {

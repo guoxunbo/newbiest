@@ -52,7 +52,7 @@ public class UserHandler extends AbstractTransHandler {
                 requestUser.setPassword(getPassword());
             }
             // 对密码进行加密
-            requestUser.setPassword(EncryptionUtils.encode(requestUser.getPassword()));
+//            requestUser.setPassword(EncryptionUtils.encode(requestUser.getPassword()));
             user.setPassword(requestUser.getPassword());
             user.setDescription(requestUser.getDescription());
             user.setDepartment(requestUser.getDepartment());
@@ -83,7 +83,7 @@ public class UserHandler extends AbstractTransHandler {
                 user.setSex(requestUser.getSex());
                 context.getUserRepository().save(user, sc);
             } else if (UserRequest.ACTION_CHANGE_PASSWORD.equals(actionType)) {
-                requestUser.setNewPassword(EncryptionUtils.encode(requestUser.getNewPassword()));
+//                requestUser.setNewPassword(EncryptionUtils.encode(requestUser.getNewPassword()));
                 user = context.getUserRepository().changePassword(user, requestUser.getPassword(), requestUser.getNewPassword(), sc);
             } else if (UserRequest.ACTION_GET_BY_RRN.equals(actionType)) {
                 user = context.getUserRepository().getDeepUser(user.getObjectRrn(), true);

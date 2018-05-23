@@ -10,13 +10,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Created by guoxunbo on 2017/9/29.
  */
-@XmlRootElement(name = "Response")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class EntityListResponse extends Response {
 	
 	private static final long serialVersionUID = 1L;
 	
-	@XmlElement(name="Body")
 	private EntityListResponseBody body;
 
 	public EntityListResponseBody getBody() {
