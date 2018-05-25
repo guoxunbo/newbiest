@@ -16,7 +16,7 @@ import NotFound from './pages/NotFound';
 const routerConfig = [
   {
     path: '/',
-    layout: HeaderAsideFooterLayout,
+    layout: HeaderAsideFooterResponsiveLayout,
     component: Home,
   },
   {
@@ -31,7 +31,7 @@ const routerConfig = [
   },
   {
     path: '*',
-    layout: HeaderAsideFooterLayout,
+    layout: HeaderAsideFooterResponsiveLayout,
     component: NotFound,
   },
 ];

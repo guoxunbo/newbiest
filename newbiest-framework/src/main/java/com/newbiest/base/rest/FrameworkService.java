@@ -46,7 +46,7 @@ public class FrameworkService {
     }
 
     @ApiOperation("DoSomethingInTheFramework")
-    @ApiImplicitParam(name = "request", value = "The String in json format!(The Json must extend Request Class)", required = true, dataType = "String")
+    @ApiImplicitParam(name = "request", value = "The str is json format!(The Json must extend Request Class)", required = true, dataType = "String")
     @ApiResponse(code = 400, message = "Parameter Error")
     @RequestMapping(value = "/execute", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public String execute(@RequestParam("request") String requestJson) throws Exception{

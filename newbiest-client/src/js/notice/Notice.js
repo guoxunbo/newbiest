@@ -46,7 +46,7 @@ class Notification {
                 Mobile: buildMobile()
             }
         });
-        notice.on('click', function () {
+        notice.on('click', () => {
             notice.close();
         });
     }
@@ -80,14 +80,14 @@ class Notification {
               }
             }
           });
-          notice.on('pnotify.confirm', function () {
-            confirmObject.okAdaptor();
-            self.showSuccess("操作成功");
+        notice.on('pnotify.confirm', () => {
+        confirmObject.okAdaptor();
+        self.showSuccess("操作成功");
             notice.close();
-          });
-          notice.on('pnotify.cancel', function () {
+        });
+        notice.on('pnotify.cancel', () => {
             notice.close();
-          });
+        });
     }
 }
 

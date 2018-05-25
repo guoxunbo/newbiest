@@ -3,8 +3,8 @@ import {RequestHeader} from '../js/dataModel/RequestHeader';
 import {Request} from '../js/dataModel/Request';
 import {Notification} from '../js/notice/Notice';
 
-import {EntityListRequestHeader} from "../js/dataModel/entitylist/EntityListRequestHeader";
-import {EntityListRequestBody} from "../js/dataModel/entitylist/EntityListRequestBody";
+import {EntityListRequestHeader} from "../js/dataModel/entityList/EntityListRequestHeader";
+import {EntityListRequestBody} from "../js/dataModel/entityList/EntityListRequestBody";
 import {EntityModel} from "../js/const/ConstDefine"
 import {Response} from "../js/dataModel/Response";
 import {ResponseHeader} from "../js/dataModel/ResponseHeader";

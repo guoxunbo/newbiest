@@ -1,5 +1,7 @@
 /* eslint react/no-string-refs:0 */
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+
 import { Input, Button, Checkbox, Grid, Feedback } from '@icedesign/base';
 import {
   FormBinderWrapper as IceFormBinderWrapper,
@@ -7,6 +9,7 @@ import {
   FormError as IceFormError,
 } from '@icedesign/form-binder';
 import IceIcon from '@icedesign/icon';
+
 import './UserLogin.scss';
 import DataBinder from '@icedesign/data-binder';
 
@@ -20,6 +23,7 @@ const { Row, Col } = Grid;
 const backgroundImage =
   'https://img.alicdn.com/tfs/TB1zsNhXTtYBeNjy1XdXXXXyVXa-2252-1500.png';
 
+@withRouter
 export default class UserLogin extends Component {
   static displayName = 'UserLogin';
 
@@ -44,18 +48,20 @@ export default class UserLogin extends Component {
     });
   };
 
+  
+
   handleSubmit = (e) => {
     e.preventDefault();
     this.refs.form.validateAll((errors, values) => {
       if (errors) {
-        console.log('errors', errors);
         return;
       }
       MessageUtils.getEntityList();
-
+      
       console.log('values:', values);
       Feedback.toast.success('登录成功');
       // 登录成功后可通过 hashHistory.push('/') 跳转首页
+      this.props.history.push('/');
     });
   };
 
@@ -143,6 +149,7 @@ export default class UserLogin extends Component {
     );
   }
 }
+withRouter(UserLogin);
 
 const styles = {
   userLogin: {

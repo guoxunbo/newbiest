@@ -1,5 +1,5 @@
 const Application = {
-    name: 'KMS管理系统',
+    name: '智行管理系统',
     version: "0.0.1",
     notice: {
         delay: 5000,

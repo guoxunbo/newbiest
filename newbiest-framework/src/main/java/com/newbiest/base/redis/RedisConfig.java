@@ -82,20 +82,20 @@ public class RedisConfig extends CachingConfigurerSupport {
         return template;
     }
 
-    @Bean
-    public CacheManager cacheManager(RedisTemplate redisTemplate) {
-        RedisCacheManager redisCacheManager = new RedisCacheManager(redisTemplate);
-        if (defaultExpiration != 0L) {
-            redisCacheManager.setDefaultExpiration(defaultExpiration);
-        }
-        return redisCacheManager;
-    }
-
-    public Long getDefaultExpiration() {
-        return defaultExpiration;
-    }
-
-    public void setDefaultExpiration(Long defaultExpiration) {
-        this.defaultExpiration = defaultExpiration;
-    }
+//    @Bean
+//    public CacheManager cacheManager(RedisTemplate redisTemplate) {
+//        RedisCacheManager redisCacheManager = new RedisCacheManager(redisTemplate);
+//        if (defaultExpiration != 0L) {
+//            redisCacheManager.setDefaultExpiration(defaultExpiration);
+//        }
+//        return redisCacheManager;
+//    }
+//
+//    public Long getDefaultExpiration() {
+//        return defaultExpiration;
+//    }
+//
+//    public void setDefaultExpiration(Long defaultExpiration) {
+//        this.defaultExpiration = defaultExpiration;
+//    }
 }
