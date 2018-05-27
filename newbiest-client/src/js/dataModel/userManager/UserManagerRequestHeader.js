@@ -1,7 +1,7 @@
 import { RequestHeader } from "../RequestHeader";
 import { MessageName } from "../../const/ConstDefine";
 
-const MESSAGE_NAME = "UserManager";
+const MESSAGE_NAME = "UserManage";
 
 class UserManagerRequestHeader extends RequestHeader{
 

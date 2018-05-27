@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import Layout from '@icedesign/layout';
 import cx from 'classnames';
 import Logo from './Logo';
-
+import {Application} from '../js/Application'
 export default class Footer extends PureComponent {
   render() {
     const { className, style } = this.props;
@@ -19,14 +19,14 @@ export default class Footer extends PureComponent {
             <Logo />
           </div>
           <div className="copyright">
-            © 2018 Theme designed by{' '}
+            {Application.version} 
             <a
-              href="https://github.com/alibaba/ice"
+              href={Application.copyright.url}
               target="_blank"
               className="copyright-link"
               rel="noopener noreferrer"
             >
-              ICE
+              {Application.copyright.name} 
             </a>
           </div>
         </div>

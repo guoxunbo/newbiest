@@ -44,6 +44,11 @@ class MessageUtils {
             if (ResultIdentify.Fail == response.header.result) {
                 self.handleException(response.header);
             } else {
+                if (object.success != undefined) {
+                    object.success();
+                } else {
+                    Notification.showSuccess("操作成功")
+                }
                 //TODO 操作成功之后如何处理
                 console.log(response.body);
             }

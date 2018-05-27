@@ -81,14 +81,14 @@ export default class Header extends PureComponent {
                 />
                 <div className="user-profile">
                   <span className="user-name" style={{ fontSize: '13px' }}>
-                    淘小宝
+                    admin
                   </span>
                   <br />
                   <span
                     className="user-department"
                     style={{ fontSize: '12px', color: '#999' }}
                   >
-                    技术部
+                    admin
                   </span>
                 </div>
                 <Icon

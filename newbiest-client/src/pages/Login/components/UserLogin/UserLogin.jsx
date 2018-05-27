@@ -16,6 +16,10 @@ import DataBinder from '@icedesign/data-binder';
 import {Application} from '../../../../js/Application';
 import {MessageUtils} from '../../../../js/MessageUtils';
 
+import {Request} from '../../../../js/dataModel/Request';
+import {UserManagerRequestHeader} from "../../../../js/dataModel/userManager/UserManagerRequestHeader"
+import {UserManagerRequestBody} from "../../../../js/dataModel/userManager/UserManagerRequestBody"
+
 
 const { Row, Col } = Grid;
 
@@ -48,20 +52,27 @@ export default class UserLogin extends Component {
     });
   };
 
-  
-
   handleSubmit = (e) => {
     e.preventDefault();
     this.refs.form.validateAll((errors, values) => {
       if (errors) {
         return;
       }
-      MessageUtils.getEntityList();
+      let requestBody = UserManagerRequestBody.buildLoginRequestBody(values.account, values.password);
+      let requestHeader = new UserManagerRequestHeader(0, "11", values.account);
+      let request = new Request(requestHeader, requestBody);
+
+      let requestObject = {
+        request: request,
+        success: function() {
+          // 登录成功后可通过 hashHistory.push('/') 跳转首页
+          this.props.history.push('/');
+        }
+      }
+      MessageUtils.sendRequest(requestObject);
+
+      console.log(request);
       
-      console.log('values:', values);
-      Feedback.toast.success('登录成功');
-      // 登录成功后可通过 hashHistory.push('/') 跳转首页
-      this.props.history.push('/');
     });
   };
 

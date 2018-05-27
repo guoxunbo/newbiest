@@ -1,7 +1,8 @@
+import {ResponseHeader  } from "../dataModel/ResponseHeader";
 class Response{
 
     constructor(responseHeader, responseBody) {
-        this.header = responseHeader;
+        this.header = new ResponseHeader(responseHeader);
         this.body = responseBody;
     }
     

@@ -1,6 +1,11 @@
 const Application = {
     name: '智行管理系统',
     version: "0.0.1",
+    copyright: {
+        name: "© 2018 By Newbiest",
+        url: "https://www.baidu.com"
+    },
+    
     notice: {
         delay: 5000,
         // 构建button组件是否支持关闭 支持点击锁定
