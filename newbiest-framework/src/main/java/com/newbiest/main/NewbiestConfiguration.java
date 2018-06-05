@@ -81,4 +81,5 @@ public class NewbiestConfiguration implements Serializable {
     public static void setPwdLife(long pwdLife) {
         NewbiestConfiguration.pwdLife = pwdLife;
     }
+
 }

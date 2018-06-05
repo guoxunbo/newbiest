@@ -7,7 +7,6 @@ import com.newbiest.base.ui.model.NBField;
 import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.ExcelUtils;
-import com.newbiest.security.SecurityException;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.repository.AuthorityRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +41,7 @@ public class UIServiceImpl implements UIService {
         try {
             NBAuthority nbAuthority = authorityRepository.getByObjectRrn(authorityRrn);
             if (nbAuthority == null) {
-                throw new ClientException(SecurityException.AUTHORITY_IS_NULL);
+//                throw new ClientException(SecurityException.AUTHORITY_IS_NULL);
             }
             return tableRepository.getDeepTable(nbAuthority.getTableRrn());
         } catch (Exception e) {

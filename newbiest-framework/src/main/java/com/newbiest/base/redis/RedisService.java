@@ -6,6 +6,7 @@ import com.newbiest.main.NewbiestConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -23,6 +24,7 @@ public class RedisService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    @Qualifier("RestJsonTemplate")
     private RedisTemplate redisTemplate;
 
     public void put(Object key, Object value) throws ClientException{
@@ -54,10 +56,10 @@ public class RedisService {
         }
     }
 
-    public void delele(List<Object> keys) throws ClientException{
+    public void delete(List<Object> keys) throws ClientException{
         try {
             for (Object key : keys) {
-                delele(key);
+                delete(key);
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -66,7 +68,7 @@ public class RedisService {
 
     }
 
-    public void delele(Object key) throws ClientException{
+    public void delete(Object key) throws ClientException{
         try {
             if (contains(key)) {
                 redisTemplate.delete(key);

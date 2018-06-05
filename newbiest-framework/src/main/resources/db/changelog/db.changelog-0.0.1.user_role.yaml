@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user-role-table
+      author: Xunbo Guo
+      comment: Create table NB_USER_ROLE
+      changes:
+        - createTable:
+            tableName: NB_USER_ROLE
+            remarks: User Role Info
+            columns:
+              - column:
+                  name: role_rrn
+                  type: bigint
+                  remarks: 角色主键
+              - column:
+                  name: user_rrn
+                  type: bigint
+                  remarks: 用户主键
+  - changeSet:
+      id: add-foreign-constraint-nb_user_role(role_rrn)-references-nb_role(object_rrn)
+      author: Xunbo Guo
+      comment: Apply foreign constraint NB_USER_ROLE(role_rrn) references NB_ROLE(object_rrn)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: role_rrn
+            baseTableName: NB_USER_ROLE
+            constraintName: fk_user_role_rolerrn
+            referencedColumnNames: object_rrn
+            referencedTableName: NB_ROLE
+  - changeSet:
+      id: add-foreign-constraint-nb_user_role(user_rrn)-references-nb_user(object_rrn)
+      author: Xunbo Guo
+      comment: Apply foreign constraint NB_USER_ROLE(user_rrn) references NB_USER(object_rrn)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_rrn
+            baseTableName: NB_USER_ROLE
+            constraintName: fk_user_role_userrrn
+            referencedColumnNames: object_rrn
+            referencedTableName: NB_USER

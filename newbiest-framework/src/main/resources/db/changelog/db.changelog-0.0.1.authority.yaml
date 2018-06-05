@@ -1,0 +1,84 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-authority-table
+      author: Xunbo Guo
+      comment: Create table NB_AUTHORITY
+      changes:
+        - createTable:
+            tableName: NB_AUTHORITY
+            remarks: Authority Info
+            columns:
+              - column:
+                  name: object_rrn
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: active_flag
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: org_rrn
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: name
+                  type: varchar(32)
+                  remarks: 名称
+              - column:
+                  name: description
+                  type: varchar(256)
+                  remarks: 描述
+              - column:
+                  name: authority_type
+                  type: varchar(32)
+                  defaultValue: M
+                  remarks: 权限类型 M/Menu B/Button
+              - column:
+                  name: authority_category
+                  type: varchar(32)
+                  defaultValue: Framework
+                  remarks: 权限类别 一般by系统划分
+              - column:
+                  name: image
+                  type: varchar(32)
+                  remarks: 功能的图标
+              - column:
+                  name: label_en
+                  type: varchar(64)
+                  remarks: 英文标题
+              - column:
+                  name: label_zh
+                  type: varchar(64)
+                  remarks: 中文标题
+              - column:
+                  name: label_res
+                  type: varchar(64)
+                  remarks: 其他语言
+              - column:
+                  name: seq_no
+                  type: bigint
+                  remarks: 序号
+              - column:
+                  name: table_rrn
+                  type: bigint
+                  remarks: 对应的NB_TABLE的主键
+              - column:
+                  name: url
+                  type: varchar(256)
+                  remarks: url路径
+  - changeSet:
+      id: add-unique-constraint-for-authority-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (org_rrn, name) for table NB_AUTHORITY
+      changes:
+        - addUniqueConstraint:
+            tableName: NB_AUTHORITY
+            columnNames: org_rrn, name
+
+

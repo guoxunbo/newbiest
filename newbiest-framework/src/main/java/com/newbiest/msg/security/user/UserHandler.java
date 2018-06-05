@@ -3,14 +3,13 @@ package com.newbiest.msg.security.user;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.utils.DateUtils;
-import com.newbiest.base.exception.NewbiestException;
-import com.newbiest.base.utils.EncryptionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.msg.*;
 import com.newbiest.msg.trans.AbstractTransHandler;
 import com.newbiest.msg.trans.TransContext;
+import com.newbiest.security.exception.SecurityException;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBUser;
 
@@ -73,7 +72,7 @@ public class UserHandler extends AbstractTransHandler {
             context.getUserRepository().save(user, sc);
         } else {
             if (user == null) {
-                throw new ClientParameterException(NewbiestException.COMMON_USER_IS_NULL, requestUser.getUsername());
+                throw new ClientParameterException(SecurityException.COMMON_USER_IS_NOT_FOUND, requestUser.getUsername());
             }
             if (UserRequest.ACTION_UPDATE.equals(actionType)) {
                 user.setDescription(requestUser.getDescription());

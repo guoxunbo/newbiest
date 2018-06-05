@@ -1,6 +1,9 @@
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 
 spring:
+  application:
+    name: framework
+
   jpa:
     show-sql: true
     properties:
@@ -70,19 +73,37 @@ spring:
             required: true
   # redis配置
   redis:
-    # 默认的数据库索引
+    # 默认的数据库分片
     database: 0
     host: localhost
     port: 6379
     password:
     default-expiration: 3000
-    pool:
-      max-active: 20
-      # 最大等待时间,负数表示没限制
-      max-wait: -1
-      max-idle: 10
+    lettuce:
+      pool:
+        #最大active的连接
+        max-active: 8
+        # 最大空闲数和最小空闲数
+        min-idle: 0
+        max-idle: 8
+        # 连接池最大阻塞等待时间 -1表示没有限制
+        max-wait: -1
     # 连接超时时间 单位毫秒
     timeout: 30000
+  #数据库版本管理
+  liquibase:
+    #changelog所在的位置。
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    #是否启动liqubase
+    enabled: true
+    #每次都是否把表删除在处理
+    drop-first: false
+#设置server的基本信息
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
 newbiest:
   api:
     title: NewbiestInterfaceDocumentation
@@ -94,6 +115,12 @@ newbiest:
     contact-name: Newbiest
     contact-url: www.newbiest8.com
     contact-email: 11603652@qq.com
+  token:
+    secret-string: Secret
+    issuer: Newbiest
+    audience: userOfNewbiest
+    expire: 5
+    time-unit: DAYS
   # 注册之后第一次登录是否需要修改密码
   first-login-change-pwd: Y
   # 不输入密码的时候，密码的生成策略

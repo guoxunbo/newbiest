@@ -6,6 +6,9 @@ package com.newbiest.base.exception;
  */
 public class NewbiestException {
 
+    public static final String COMMON_UNKNOWN_TIME_UNIT = "common.unknown_time_unit";
+    public static final String COMMON_TOKEN_IS_EXPIRED = "common.token_is_expired";
+
     public static final String BASE_TABLE_IS_NOT_FOUND = "base.table_is_null";
 
     public static final String COMMON_FILE_IS_NOT_EXIST = "common.file_is_not_exist";
@@ -24,7 +27,6 @@ public class NewbiestException {
     public static final String COMMON_OBJECT_IS_NOT_NEWEST = "common.obj_is_not_newest";
 
     public static final String COMMON_USER_IS_NOT_ACTIVE = "common.user_is_not_active";
-    public static final String COMMON_USER_IS_NULL = "common.user_is_null";
     public static final String COMMON_ROLE_IS_NULL = "common.role_is_null";
 
     public static final String COMMON_CHG_PWD_FIRST = "common.chg_pwd_first";

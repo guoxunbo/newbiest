@@ -9,8 +9,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +21,11 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 public class NBAuthority extends NBBase{
+
+    /**
+     * 菜单
+     */
+    public static String AUTHORITY_TYPE_MENU = "M";
 
     /**
      * 按钮
@@ -43,11 +46,10 @@ public class NBAuthority extends NBBase{
     @Column(name="AUTHORITY_CATEGORY")
     private String authorityCategory = AUTHORITY_CATEGORY_FRAMEWORK;
 
-    @Column(name="ACTION")
-    private String action;
+    @Column(name="AUTHORITY_TYPE")
+    private String authorityType = AUTHORITY_TYPE_MENU;
 
     @Column(name="URL")
-    @XmlElement(name="Url")
     private String url;
 
     @Column(name="TABLE_RRN")

@@ -30,10 +30,4 @@ public class FrameworkApplicationTests {
 	@Autowired
 	private UserRepository userRepository;
 
-	@Test
-	public void test() {
-		List<NBUser> nbUsers = userRepository.testGetDeepUser();
-		Assert.assertEquals(3, nbUsers.size());
-	}
-
 }
