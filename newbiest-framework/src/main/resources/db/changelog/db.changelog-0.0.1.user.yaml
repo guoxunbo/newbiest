@@ -80,7 +80,11 @@ databaseChangeLog:
               - column:
                   name: phone
                   type: varchar(32)
-                  remarks: 其他消息
+                  remarks: 电话
+              - column:
+                  name: department
+                  type: varchar(32)
+                  remarks: 部门
               - column:
                   name: sex
                   type: varchar(1)

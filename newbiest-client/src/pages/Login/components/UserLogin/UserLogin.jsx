@@ -17,9 +17,9 @@ import {Application} from '../../../../js/Application';
 import {MessageUtils} from '../../../../js/MessageUtils';
 
 import {Request} from '../../../../js/dataModel/Request';
-import {UserManagerRequestHeader} from "../../../../js/dataModel/userManager/UserManagerRequestHeader"
-import {UserManagerRequestBody} from "../../../../js/dataModel/userManager/UserManagerRequestBody"
-
+import {UserManagerRequestHeader} from "../../../../js/dataModel/userManager/UserManagerRequestHeader";
+import {UserManagerRequestBody} from "../../../../js/dataModel/userManager/UserManagerRequestBody";
+import {User} from "../../../../js/dataModel/userManager/User";
 
 const { Row, Col } = Grid;
 
@@ -53,26 +53,23 @@ export default class UserLogin extends Component {
   };
 
   handleSubmit = (e) => {
-    e.preventDefault();
     this.refs.form.validateAll((errors, values) => {
+      let self = this;
       if (errors) {
         return;
       }
       let requestBody = UserManagerRequestBody.buildLoginRequestBody(values.account, values.password);
       let requestHeader = new UserManagerRequestHeader(0, "11", values.account);
       let request = new Request(requestHeader, requestBody);
-
       let requestObject = {
         request: request,
-        success: function() {
+        success: function(responseBody) {
+          User.saveUserStorage(responseBody.user.username, responseBody.user.department, "11");
           // 登录成功后可通过 hashHistory.push('/') 跳转首页
-          this.props.history.push('/');
+          self.props.history.push('/Home');
         }
       }
       MessageUtils.sendRequest(requestObject);
-
-      console.log(request);
-      
     });
   };
 
@@ -160,7 +157,6 @@ export default class UserLogin extends Component {
     );
   }
 }
-withRouter(UserLogin);
 
 const styles = {
   userLogin: {

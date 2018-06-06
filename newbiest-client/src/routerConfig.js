@@ -16,13 +16,13 @@ import NotFound from './pages/NotFound';
 const routerConfig = [
   {
     path: '/',
-    layout: HeaderAsideFooterResponsiveLayout,
-    component: Home,
-  },
-  {
-    path: '/login',
     layout: BlankLayout,
     component: Login,
+  },
+  {
+    path: '/Home',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: Home,
   },
   {
     path: '/ListTableManager',

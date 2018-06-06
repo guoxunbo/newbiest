@@ -1,4 +1,4 @@
-package com.newbiest.base.manager.dao.impl;
+package com.newbiest.base.dao.impl;
 
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.security.model.NBRole;

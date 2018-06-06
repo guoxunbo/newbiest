@@ -23,6 +23,11 @@ public class RedisServiceTest {
     private RedisService redisService;
 
     @Test
+    public void put2() throws Exception {
+        redisService.put("admin", "admin");
+    }
+
+    @Test
     public void put() throws Exception {
         NBUser nbUser = new NBUser();
         nbUser.setUsername("admin");

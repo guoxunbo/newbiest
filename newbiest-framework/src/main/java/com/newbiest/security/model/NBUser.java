@@ -4,14 +4,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
-import com.newbiest.main.NewbiestConfiguration;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.List;
 
@@ -52,7 +47,7 @@ public class NBUser extends NBUpdatable {
     private Date pwdChanged;
 
     @Column(name="PWD_LIFE")
-    private Long pwdLife = NewbiestConfiguration.getPwdLife();
+    private Long pwdLife;
 
     @Column(name="PWD_EXPIRY")
     @JsonFormat(timezone = "GMT+8",pattern = DateUtils.DEFAULT_DATETIME_PATTERN)

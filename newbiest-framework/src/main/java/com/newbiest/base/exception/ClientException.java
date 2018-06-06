@@ -13,7 +13,7 @@ public class ClientException extends RuntimeException {
     /**
      * 当违反唯一约束时会出现的字符
      */
-    private static final String DUPLICATIE_ENTRY = "Duplicate entry";
+    private static final String DUPLICATE_ENTRY = "Duplicate entry";
     /**
      * sqlMessage里面索引名称前缀字符
      */
@@ -34,13 +34,17 @@ public class ClientException extends RuntimeException {
         if (cause.getCause() != null) {
             if (cause.getCause() instanceof ConstraintViolationException) {
                 String message = ((ConstraintViolationException) cause.getCause()).getSQLException().getMessage();
-                if (!StringUtils.isNullOrEmpty(message) && message.contains(DUPLICATIE_ENTRY)) {
-                    errorCode = "Value is exist :" + message.substring(DUPLICATIE_ENTRY.length(), message.indexOf(FOR_KEY));
+                if (!StringUtils.isNullOrEmpty(message) && message.contains(DUPLICATE_ENTRY)) {
+                    errorCode = "Value is exist :" + message.substring(DUPLICATE_ENTRY.length(), message.indexOf(FOR_KEY));
                 }
-            } //TODO 处理其他异常
+            } else {
+                //TODO 处理其他异常
+                errorCode = NewbiestException.COMMON_SYSTEM_OCCURRED_ERROR;
+            }
         } else {
             errorCode = cause.getMessage();
         }
+        errorCode = StringUtils.isNullOrEmpty(errorCode) ? NewbiestException.COMMON_SYSTEM_OCCURRED_ERROR : errorCode;
 
     }
 
@@ -50,6 +54,14 @@ public class ClientException extends RuntimeException {
             return errorCode;
         }
         return super.toString();
+    }
+
+    @Override
+    public String getMessage() {
+        if (!StringUtils.isNullOrEmpty(errorCode)) {
+            return errorCode;
+        }
+        return super.getMessage();
     }
 
     public String getErrorCode() {

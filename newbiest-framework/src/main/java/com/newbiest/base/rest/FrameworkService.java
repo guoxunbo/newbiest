@@ -3,7 +3,7 @@ package com.newbiest.base.rest;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.factory.TransHandlerFactory;
-import com.newbiest.base.manager.dao.NBManager;
+import com.newbiest.base.dao.BaseDao;
 import com.newbiest.msg.DefaultRequestParser;
 import com.newbiest.msg.DefaultResponse;
 import com.newbiest.msg.DefaultResponseParser;
@@ -12,6 +12,7 @@ import com.newbiest.msg.trans.ITransHandler;
 import com.newbiest.msg.trans.TransContext;
 import com.newbiest.security.repository.RoleRepository;
 import com.newbiest.security.repository.UserRepository;
+import com.newbiest.security.service.SecurityService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -29,13 +30,16 @@ import org.springframework.web.bind.annotation.*;
 public class FrameworkService {
 
     @Autowired
+    private SecurityService securityService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
-    private NBManager nbManager;
+    private BaseDao nbManager;
 
     @ApiOperation("DoSomethingInTheFramework")
     @ApiImplicitParam(name = "request", value = "The String in json format!(The Json must extend Request Class)", required = true, dataType = "String")
@@ -66,6 +70,7 @@ public class FrameworkService {
                 context.setNbManager(nbManager);
                 context.setUserRepository(userRepository);
                 context.setRoleRepository(roleRepository);
+                context.setSecurityService(securityService);
 
                 context.setRequest(requestJson);
                 String response = handler.execute(context);

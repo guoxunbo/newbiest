@@ -80,7 +80,11 @@ databaseChangeLog:
               - column:
                   name: phone
                   type: varchar(32)
-                  remarks: 其他消息
+                  remarks: 电话
+              - column:
+                  name: department
+                  type: varchar(32)
+                  remarks: 部门
               - column:
                   name: sex
                   type: varchar(1)
@@ -93,6 +97,14 @@ databaseChangeLog:
                   name: in_valid_flag
                   type: varchar(1)
                   remarks: 是否在密码有效期之内
+              - column:
+                  name: role_list
+                  type: varchar(256)
+                  remarks: 角色列表
+              - column:
+                  name: org_list
+                  type: varchar(64)
+                  remarks: 区域列表
               - column:
                   name: last_logon
                   type: dateTime

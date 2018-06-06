@@ -1,11 +1,12 @@
 package com.newbiest.base.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlElement;
 import java.util.Date;
 
 /**
@@ -52,4 +53,17 @@ public class NBUpdatable extends NBBase {
         updated = new Date();
     }
 
+    /**
+     * 对象不是最新的不允许修改
+     * @param lockVersion
+     * @return
+     * @throws ClientException
+     */
+    public void isNewiest(Long lockVersion) throws ClientException {
+        if (lockVersion != null) {
+            if(!this.lockVersion.equals(lockVersion)) {
+                throw new ClientException(NewbiestException.COMMON_OBJECT_IS_UPDATED_BY_ANOTHER);
+            }
+        }
+    }
 }

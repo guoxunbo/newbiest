@@ -113,10 +113,4 @@ public class RoleHandler extends AbstractTransHandler {
         return context;
     }
 
-    private String getPassword() {
-        if (NewbiestConfiguration.PASSWORD_POLICY_RANDOM.equals(NewbiestConfiguration.getPwdPolicy())) {
-            return String.valueOf((int)((Math.random() * 9 + 1) * 100000));
-        }
-        return "111111";
-    }
 }

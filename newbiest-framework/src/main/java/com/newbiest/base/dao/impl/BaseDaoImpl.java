@@ -1,11 +1,11 @@
-package com.newbiest.base.manager.dao.impl;
+package com.newbiest.base.dao.impl;
 
 import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
-import com.newbiest.base.manager.dao.NBManager;
+import com.newbiest.base.dao.BaseDao;
 import com.newbiest.base.model.*;
 import com.newbiest.base.repository.QueryRepository;
 import com.newbiest.base.repository.RelationRepository;
@@ -33,7 +33,7 @@ import java.util.Map;
 @Component
 @Transactional
 @Slf4j
-public class NBManagerBean implements NBManager {
+public class BaseDaoImpl implements BaseDao {
 
     @Autowired
     @PersistenceContext
@@ -44,6 +44,19 @@ public class NBManagerBean implements NBManager {
 
     @Autowired
     private QueryRepository queryRepository;
+
+    @Autowired
+    private NewbiestConfiguration newbiestConfiguration;
+
+    @Override
+    public List<NBBase> getEntityList(long orgRrn, Class clazz) throws ClientException {
+        try {
+            return getEntityList(orgRrn, clazz, newbiestConfiguration.getQueryMaxCount(), StringUtils.EMPTY, StringUtils.EMPTY);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
 
     /**
      * 获取实体列表
@@ -105,10 +118,10 @@ public class NBManagerBean implements NBManager {
             if (firstResult > 0) {
                 query.setFirstResult(firstResult);
             }
-            if (maxResult < NewbiestConfiguration.getQueryMaxCount()) {
+            if (maxResult < newbiestConfiguration.getQueryMaxCount()) {
                 query.setMaxResults(maxResult);
             } else {
-                query.setMaxResults(NewbiestConfiguration.getQueryMaxCount());
+                query.setMaxResults(newbiestConfiguration.getQueryMaxCount());
             }
             if (orgRrn != 0) {
                 query.setParameter("orgRrn", orgRrn);
@@ -168,10 +181,10 @@ public class NBManagerBean implements NBManager {
                 if (firstResult > 0) {
                     query.setFirstResult(firstResult);
                 }
-                if (maxResult < NewbiestConfiguration.getQueryMaxCount()) {
+                if (maxResult < newbiestConfiguration.getQueryMaxCount()) {
                     query.setMaxResults(maxResult);
                 } else {
-                    query.setMaxResults(NewbiestConfiguration.getQueryMaxCount());
+                    query.setMaxResults(newbiestConfiguration.getQueryMaxCount());
                 }
                 if (orgRrn != 0) {
                     query.setParameter("orgRrn", orgRrn);
@@ -250,10 +263,10 @@ public class NBManagerBean implements NBManager {
             if (firstResult > 0) {
                 query.setFirstResult(firstResult);
             }
-            if (maxResult < NewbiestConfiguration.getQueryMaxCount()) {
+            if (maxResult < newbiestConfiguration.getQueryMaxCount()) {
                 query.setMaxResults(maxResult);
             } else {
-                query.setMaxResults(NewbiestConfiguration.getQueryMaxCount());
+                query.setMaxResults(newbiestConfiguration.getQueryMaxCount());
             }
             if (paramMap != null) {
                 for (String key : paramMap.keySet()) {
@@ -327,7 +340,7 @@ public class NBManagerBean implements NBManager {
                             query = em.createQuery(sqlBuffer.toString());
                             query.executeUpdate();
                         } else {
-                            relationObjects = getEntityList(NBOrg.GLOBAL_ORG_RRN, clazz, NewbiestConfiguration.getQueryMaxCount(), whereClause, null);
+                            relationObjects = getEntityList(NBOrg.GLOBAL_ORG_RRN, clazz, newbiestConfiguration.getQueryMaxCount(), whereClause, null);
                         }
                     } else if (NBRelation.RELATION_TYPE_SQL.equals(relation.getRelationType())) {
                         if (!throwExistException) {

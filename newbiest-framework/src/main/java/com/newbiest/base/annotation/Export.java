@@ -1,8 +1,6 @@
 package com.newbiest.base.annotation;
 
 
-import com.newbiest.base.utils.StringUtils;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

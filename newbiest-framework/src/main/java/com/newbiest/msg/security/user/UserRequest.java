@@ -21,8 +21,8 @@ public class UserRequest extends Request {
 	public static final String ACTION_CHANGE_PASSWORD = "ChangePassword";
 	public static final String ACTION_RESET_PASSWORD = "RestPassword";
 	public static final String ACTION_GET_AUTHORITY = "GetAuthority";
-	public static final String ACTION_Login = "Login";
-	public static final String ACTION_Register = "Register";
+	public static final String ACTION_LOGIN = "Login";
+	public static final String ACTION_REGISTER = "Register";
 
 	private UserRequestBody body;
 

@@ -1,17 +1,13 @@
 package com.newbiest.jwt;
 
-import com.newbiest.base.exception.ClientException;
 import com.newbiest.main.FrameworkApplication;
-import com.newbiest.main.JwtTokenConfiguration;
+import com.newbiest.main.JwtSigner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by guoxunbo on 2018/5/25.
@@ -20,15 +16,17 @@ import java.util.Map;
 @SpringBootTest(classes = FrameworkApplication.class)
 public class JwtTest {
 
+    @Autowired
+    JwtSigner jwtSigner;
+
     @Test
     public void validationTest() {
         try {
-            String token = JwtTokenConfiguration.sign("aaa");
-
-            String str = JwtTokenConfiguration.validate(token);
+            String token = jwtSigner.sign("aaa");
+            String str = jwtSigner.validate(token);
             Assert.assertEquals("aaa", str);
             Thread.sleep(1000 * 61 * 2);
-            str = JwtTokenConfiguration.validate(token);
+            str = jwtSigner.validate(token);
             Assert.assertEquals("aaa", str);
         } catch (Exception e) {
             e.printStackTrace();

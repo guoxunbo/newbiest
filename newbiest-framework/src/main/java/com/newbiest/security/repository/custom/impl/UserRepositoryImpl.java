@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
  * 用户操作相关类
  * Created by guoxunbo on 2017/9/27.
  */
-@Transactional
 @Slf4j
 public class UserRepositoryImpl implements UserRepositoryCustom {
 
@@ -208,10 +207,11 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     /**
      * 登录失败
      */
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void loginFail(NBUser nbUser) throws ClientException {
         try {
             nbUser = em.find(NBUser.class, nbUser.getObjectRrn());
-            // 清空密码错误次数
+
             int pwdWrongCount = nbUser.getPwdWrongCount() != null ? nbUser.getPwdWrongCount() + 1 : 1;
             nbUser.setPwdWrongCount(pwdWrongCount);
             em.merge(nbUser);

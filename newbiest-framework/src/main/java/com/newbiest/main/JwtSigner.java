@@ -15,7 +15,9 @@ import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -31,48 +33,49 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 @ConfigurationProperties(prefix = "newbiest.token")
-public class JwtTokenConfiguration implements Serializable{
+@Data
+public class JwtSigner implements Serializable{
 
     private static final long serialVersionUID = 4278757044452416702L;
 
     /**
      * 生成token的时候的加密字符串
      */
-    private static String secretString = "Newbiest";
+    private String secretString;
 
     /**
      * 发行者
      */
-    private static String issuer;
+    private String issuer;
 
     /**
      * 受发者
      */
-    private static String audience;
+    private String audience;
 
     /**
      * token过期时间
      */
-    private static Integer expire = 2;
+    private Integer expire;
 
     /**
      * token过期时间单位 支持SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS
      * @return
      */
-    private static String timeUnit = ChronoUnit.MINUTES.name();
+    private String timeUnit = ChronoUnit.HOURS.name();
 
-    private static Map<String, Object> buildHeader() {
+    private Map<String, Object> buildHeader() {
         // 使用HS256加密
         return ImmutableMap.of("alg", "HS256");
     }
 
     /**
-     *
+     * 加密
      * @param waitSignStr
      * @return
      * @throws ClientException
      */
-    public static String sign(String waitSignStr) throws ClientException{
+    public String sign(String waitSignStr) throws ClientException{
         try {
             JWTCreator.Builder builder = JWT.create();
             // 对payload进行加密
@@ -91,14 +94,13 @@ public class JwtTokenConfiguration implements Serializable{
         }
     }
 
-
     /**
      * 验证token是否有效 并且返回解密后的payload
      * @param token
      * @return
      * @throws ClientException
      */
-    public static String validate(String token) throws ClientException {
+    public String validate(String token) throws ClientException {
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretString)).build();
             // 验证token是否过期等

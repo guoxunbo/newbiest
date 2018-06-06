@@ -31,26 +31,24 @@ class MessageUtils {
         this.sendRequest(object)
     }
 
-    static sendRequest(object) {
+    static sendRequest(requestObject) {
         let self = this;
         let requestUrl = UrlConstant.BaseUrl;
-        if (object.url != undefined) {
-            requestUrl = object.url;
+        if (requestObject.url != undefined) {
+            requestUrl = requestObject.url;
         }
         let parameters = new URLSearchParams();
-        parameters.append("request", JsonUtils.object2Json(object.request));
+        parameters.append("request", JsonUtils.object2Json(requestObject.request));
         axios.post(requestUrl, parameters).then(function(object) {
             let response = new Response(object.data.header, object.data.body);
             if (ResultIdentify.Fail == response.header.result) {
                 self.handleException(response.header);
             } else {
-                if (object.success != undefined) {
-                    object.success();
+                if (requestObject.success != undefined) {
+                    requestObject.success(response.body);
                 } else {
                     Notification.showSuccess("操作成功")
                 }
-                //TODO 操作成功之后如何处理
-                console.log(response.body);
             }
         }).catch(function(exception) {
             self.handleException(exception);
@@ -61,7 +59,6 @@ class MessageUtils {
     static handleException(exception) {
         let error = "";
         let errroCode = 0;
-        //TODO 处理国际化
         let language = Language.Chinese;
         if (exception instanceof ResponseHeader) {
             if (language == Language.Chinese) {
@@ -74,7 +71,7 @@ class MessageUtils {
             }
             errroCode = exception.messageRrn;
         } else {
-            // String的不是后台的错误 需要重新去查询NBMessage返回
+            // String的不是后台的错误 需要去加载Client端的i18N信息
             if (exception == "Error: Network Error") {
                 error = ErrorCode.NetworkError;
             }  

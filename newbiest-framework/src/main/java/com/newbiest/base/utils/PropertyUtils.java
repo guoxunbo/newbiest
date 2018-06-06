@@ -22,16 +22,13 @@ public class PropertyUtils {
     }
 
     /**
-     * 属性复制 如果是继承NBBase的话就不复制ObjectRrn
+     * 属性复制
      * @param sourceBean
      * @param targetBean
      * @param converter
      */
     public static void copyProperties(Object sourceBean, Object targetBean, Converter converter) {
         BeanCopier beanCopier;
-        if (sourceBean instanceof NBBase) {
-            ((NBBase) sourceBean).setObjectRrn(null);
-        }
         if (converter != null) {
             beanCopier = BeanCopier.create(sourceBean.getClass(), targetBean.getClass(), true);
         } else {

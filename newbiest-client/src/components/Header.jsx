@@ -1,4 +1,6 @@
 import React, { PureComponent } from 'react';
+import { withRouter } from 'react-router-dom';
+
 import { Balloon, Icon } from '@icedesign/base';
 import IceImg from '@icedesign/img';
 import Layout from '@icedesign/layout';
@@ -8,9 +10,22 @@ import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import { headerMenuConfig } from './../menuConfig';
 import Logo from './Logo';
+import {User} from '../js/dataModel/userManager/User';
+import {Notification} from '../js/notice/Notice';
 
+@withRouter
 export default class Header extends PureComponent {
+
+  logout= (e) => {
+    User.clearUserStorage();
+  }
+  
   render() {
+    let user = User.getUserStorage();
+    if (user == undefined) {
+      Notification.showInfo("请先登陆");
+      this.props.history.push('/');
+    }
     const { width, theme, isMobile, className, style } = this.props;
 
     return (
@@ -81,14 +96,14 @@ export default class Header extends PureComponent {
                 />
                 <div className="user-profile">
                   <span className="user-name" style={{ fontSize: '13px' }}>
-                    admin
+                    {user != undefined ? user.username : ""}
                   </span>
                   <br />
                   <span
                     className="user-department"
                     style={{ fontSize: '12px', color: '#999' }}
                   >
-                    admin
+                    {user != undefined ? user.department : ""}
                   </span>
                 </div>
                 <Icon
@@ -113,7 +128,7 @@ export default class Header extends PureComponent {
                 </Link>
               </li>
               <li className="user-profile-menu-item">
-                <Link to="/">
+                <Link to="/" onClick={this.logout}>
                   <FoundationSymbol type="compass" size="small" />退出
                 </Link>
               </li>

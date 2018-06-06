@@ -126,7 +126,7 @@ newbiest:
   # 不输入密码的时候，密码的生成策略
   pwd-policy: fixed
   # 密码错误次数(修改密码)
-  pwd-wrong-count: 10
+  pwd-wrong-count: 30
   # 最大查询数量
   query-max-count: 9999
   # 默认的密码有效天数

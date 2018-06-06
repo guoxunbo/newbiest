@@ -39,6 +39,7 @@ public class MailService {
 
     public static final String CREATE_USER_TEMPLATE = "create_user";
     public static final String RESET_PASSWORD_TEMPLATE = "reset_password";
+    public static final String USER_NOT_IN_VALIDATION_TEMPLATE = "user_not_in_validation";
 
     @Autowired
     private JavaMailSender mailSender;
