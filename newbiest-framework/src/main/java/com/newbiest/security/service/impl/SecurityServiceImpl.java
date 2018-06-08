@@ -10,6 +10,7 @@ import com.newbiest.main.JwtSigner;
 import com.newbiest.main.MailService;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.exception.SecurityException;
+import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBUser;
 import com.newbiest.security.repository.UserRepository;
 import com.newbiest.security.service.SecurityService;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 
 /**
@@ -79,5 +81,19 @@ public class SecurityServiceImpl implements SecurityService  {
         }
     }
 
+    /**
+     * 获取权限并转换成相应的DTO返回
+     * @param userRrn
+     * @return
+     * @throws ClientException
+     */
+    public List<NBAuthority> getAuthorities(Long userRrn) throws ClientException{
+        try {
+            return userRepository.getTreeAuthorities(userRrn);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
 
 }

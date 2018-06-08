@@ -32,4 +32,8 @@ const Language = {
     English: "English"
 };
 
-export {UrlConstant, ErrorCode, EntityModel, ResultIdentify, Language};
+const Org = {
+    zhixing: "zhixing"
+}
+
+export {UrlConstant, ErrorCode, EntityModel, ResultIdentify, Language, Org};

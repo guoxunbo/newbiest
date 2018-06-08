@@ -20,6 +20,7 @@ import java.util.List;
 public class NBUser extends NBUpdatable {
 
     private static final long serialVersionUID = 1L;
+    public static final String ADMIN_USER = "admin";
 
     @Column(name="USERNAME")
     private String username;

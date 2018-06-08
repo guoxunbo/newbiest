@@ -6,7 +6,10 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.msg.*;
 import com.newbiest.msg.trans.AbstractTransHandler;
 import com.newbiest.msg.trans.TransContext;
+import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBUser;
+
+import java.util.List;
 
 /**
  * 用户相关接口处理类
@@ -31,15 +34,19 @@ public class UserHandler extends AbstractTransHandler {
         if (UserRequest.ACTION_LOGIN.equals(actionType)) {
             context.getSecurityService().login(requestUser.getUsername(), requestUser.getPassword());
         } else {
-            throw new ClientException(Request.UN_SUPPORT_ACTION_TYPE + requestBody.getActionType());
-        }
-        if (requestUser.getObjectRrn() != null) {
-            user = context.getUserRepository().getByObjectRrn(requestUser.getObjectRrn());
-        } else if (!StringUtils.isNullOrEmpty(requestUser.getUsername()) && !UserRequest.ACTION_CREATE.equals(actionType)) {
-            user = context.getUserRepository().getByUsername(requestUser.getUsername());
+            if (requestUser.getObjectRrn() != null) {
+                user = context.getUserRepository().getByObjectRrn(requestUser.getObjectRrn());
+            } else if (!StringUtils.isNullOrEmpty(requestUser.getUsername()) && !UserRequest.ACTION_CREATE.equals(actionType)) {
+                user = context.getUserRepository().getByUsername(requestUser.getUsername());
+            }
+            if (UserRequest.ACTION_GET_AUTHORITY.equals(actionType)) {
+                List<NBAuthority> authorityList = context.getSecurityService().getAuthorities(user.getObjectRrn());
+                user.setAuthorities(authorityList);
+            } else {
+                throw new ClientException(Request.UN_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+            }
         }
 
-//
 //        if (UserRequest.ACTION_CREATE.equals(actionType)) {
 //            user = new NBUser();
 //            user.setUsername(requestUser.getUsername());

@@ -2,24 +2,22 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 
-import { Input, Button, Checkbox, Grid, Feedback } from '@icedesign/base';
+import { Input, Button, Checkbox, Grid, Feedback,LocaleProvider, Select} from '@icedesign/base';
+
 import {
   FormBinderWrapper as IceFormBinderWrapper,
   FormBinder as IceFormBinder,
   FormError as IceFormError,
 } from '@icedesign/form-binder';
 import IceIcon from '@icedesign/icon';
-
 import './UserLogin.scss';
-import DataBinder from '@icedesign/data-binder';
 
-import {Application} from '../../../../js/Application';
+import {Application, SessionContext} from '../../../../js/Application';
 import {MessageUtils} from '../../../../js/MessageUtils';
 
 import {Request} from '../../../../js/dataModel/Request';
 import {UserManagerRequestHeader} from "../../../../js/dataModel/userManager/UserManagerRequestHeader";
 import {UserManagerRequestBody} from "../../../../js/dataModel/userManager/UserManagerRequestBody";
-import {User} from "../../../../js/dataModel/userManager/User";
 
 const { Row, Col } = Grid;
 
@@ -41,6 +39,8 @@ export default class UserLogin extends Component {
       value: {
         account: undefined,
         password: undefined,
+        language: undefined,
+        org: undefined,
         checkbox: false,
       },
     };
@@ -59,12 +59,12 @@ export default class UserLogin extends Component {
         return;
       }
       let requestBody = UserManagerRequestBody.buildLoginRequestBody(values.account, values.password);
-      let requestHeader = new UserManagerRequestHeader(0, "11", values.account);
+      let requestHeader = new UserManagerRequestHeader();
       let request = new Request(requestHeader, requestBody);
       let requestObject = {
         request: request,
         success: function(responseBody) {
-          User.saveUserStorage(responseBody.user.username, responseBody.user.department, "11");
+          SessionContext.saveSessionContext(values.account, values.org, values.language);
           // 登录成功后可通过 hashHistory.push('/') 跳转首页
           self.props.history.push('/Home');
         }
@@ -128,11 +128,51 @@ export default class UserLogin extends Component {
 
                 <Row style={styles.formItem}>
                   <Col>
+                    <IceIcon
+                      type="location"
+                      size="medium"
+                      style={styles.selectIcon}
+                    />
+                    <IceFormBinder name="org" required message="必填">
+                      <Select placeholder="区域"
+                        style={styles.formSelect}
+                        dataSource={Application.orgs}
+                      >
+                      </Select>
+                    </IceFormBinder>
+                  </Col>
+                  <Col>
+                    <IceFormError name="org" />
+                  </Col>
+                </Row>
+
+                <Row style={styles.formItem}>
+                  <Col>
+                    <IceIcon
+                      type="requ"
+                      size="medium"
+                      style={styles.selectIcon}
+                    />
+                    <IceFormBinder name="language" required message="必填">
+                      <Select placeholder="语言"
+                        style={styles.formSelect}
+                        dataSource={Application.language}
+                      >
+                      </Select>
+                    </IceFormBinder>
+                  </Col>
+                  <Col>
+                    <IceFormError name="language" />
+                  </Col>
+                </Row>
+
+                {/* <Row style={styles.formItem}>
+                  <Col>
                     <IceFormBinder name="checkbox">
                       <Checkbox style={styles.checkbox}>记住账号</Checkbox>
                     </IceFormBinder>
                   </Col>
-                </Row>
+                </Row> */}
 
                 <Row style={styles.formItem}>
                   <Button type="primary" onClick={this.handleSubmit} style={styles.submitBtn}>
@@ -185,6 +225,10 @@ const styles = {
     marginBottom: '25px',
     flexDirection: 'column',
   },
+  formSelect: {
+    marginLeft: "20px",
+    width: "80%"
+  },
   formTitle: {
     margin: '0 0 20px',
     textAlign: 'center',
@@ -197,6 +241,13 @@ const styles = {
     top: '3px',
     color: '#999',
   },
+  selectIcon: {
+    position: 'absolute',
+    left: '-1px',
+    top: '3px',
+    color: '#999',
+  },
+
   submitBtn: {
     width: '240px',
     background: '#3080fe',

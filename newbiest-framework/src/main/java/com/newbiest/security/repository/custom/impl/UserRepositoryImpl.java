@@ -3,6 +3,7 @@ package com.newbiest.security.repository.custom.impl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.annotation.MethodMonitor;
+import com.newbiest.base.dao.BaseDao;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
@@ -22,10 +23,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +42,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private BaseDao baseDao;
 
     @MethodMonitor
     @Override
@@ -81,25 +82,30 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     public List<NBAuthority> getTreeAuthorities(long userRrn) throws ClientException {
         try {
             NBUser nbUser = getDeepUser(userRrn, false);
-            List<NBRole> roles = nbUser.getRoles();
-            if (CollectionUtils.isNotEmpty(roles)) {
-                List<NBAuthority> authorities = Lists.newArrayList();
-                for (NBRole role : roles) {
-                    List<NBAuthority> roleAuthorities = roleRepository.getRoleAuthorities(role.getObjectRrn());
-                    if (CollectionUtils.isNotEmpty(roleAuthorities)) {
-                        authorities.addAll(roleAuthorities);
+            List<NBAuthority> authorities = Lists.newArrayList();
+            // 如果是admin用户的话代表拥有所有权限
+            if (NBUser.ADMIN_USER.equals(nbUser.getUsername())) {
+                authorities.addAll((Collection<? extends NBAuthority>) baseDao.getEntityList(nbUser.getOrgRrn(), NBAuthority.class));
+            } else {
+                List<NBRole> roles = nbUser.getRoles();
+                if (CollectionUtils.isNotEmpty(roles)) {
+                    for (NBRole role : roles) {
+                        List<NBAuthority> roleAuthorities = roleRepository.getRoleAuthorities(role.getObjectRrn());
+                        if (CollectionUtils.isNotEmpty(roleAuthorities)) {
+                            authorities.addAll(roleAuthorities);
+                        }
                     }
                 }
-                if (CollectionUtils.isNotEmpty(authorities)) {
-                    // 取出父级菜单
-                    List<NBAuthority> firstLevelAuthorities = authorities.stream().filter(nbAuthority -> nbAuthority.getParentRrn() == null).collect(Collectors.toList());
-                    authorities.removeAll(firstLevelAuthorities);
-                    // 组织树形结构
-                    List<NBAuthority> nbAuthorities = firstLevelAuthorities.stream().map(authority -> {
-                        return authority.recursionAuthority(authority, authorities);
-                    }).collect(Collectors.toList());
-                    return nbAuthorities;
-                }
+            }
+            if (CollectionUtils.isNotEmpty(authorities)) {
+                // 取出父级菜单
+                List<NBAuthority> firstLevelAuthorities = authorities.stream().filter(nbAuthority -> nbAuthority.getParentRrn() == null).collect(Collectors.toList());
+                authorities.removeAll(firstLevelAuthorities);
+                // 组织树形结构
+                List<NBAuthority> nbAuthorities = firstLevelAuthorities.stream().map(authority -> {
+                     return authority.recursionAuthority(authority, authorities);
+                }).collect(Collectors.toList());
+                return nbAuthorities;
             }
             return null;
         } catch (Exception e) {

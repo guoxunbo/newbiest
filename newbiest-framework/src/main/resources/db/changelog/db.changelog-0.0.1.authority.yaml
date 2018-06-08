@@ -35,6 +35,10 @@ databaseChangeLog:
                   type: varchar(256)
                   remarks: 描述
               - column:
+                  name: parent_rrn
+                  type: bigint
+                  remarks: 父级菜单主键
+              - column:
                   name: authority_type
                   type: varchar(32)
                   defaultValue: M
@@ -80,5 +84,4 @@ databaseChangeLog:
         - addUniqueConstraint:
             tableName: NB_AUTHORITY
             columnNames: org_rrn, name
-
 

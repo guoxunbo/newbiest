@@ -1,10 +1,10 @@
 import {User} from "../userManager/User"
 
 const ActionType = {
-    login: "Login",
-    changePassword: "ChangePassword",
-    resetPassword: "RestPassword",
-    getAuthority: "GetAuthority"
+    Login: "Login",
+    ChangePassword: "ChangePassword",
+    ResetPassword: "RestPassword",
+    GetAuthority: "GetAuthority"
 }
 class UserManagerRequestBody {
 
@@ -18,7 +18,13 @@ class UserManagerRequestBody {
 
     static buildLoginRequestBody(username, password) {
         let user = User.buildLoginUser(username, password);
-        return new UserManagerRequestBody(ActionType.login, user);
+        return new UserManagerRequestBody(ActionType.Login, user);
+    }
+
+    static buildGetAuthorityBody(username) {
+        let user = new User();
+        user.setUsername(username);
+        return new UserManagerRequestBody(ActionType.GetAuthority, user);
     }
 }
 

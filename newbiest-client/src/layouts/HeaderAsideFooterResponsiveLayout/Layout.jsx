@@ -11,9 +11,16 @@ import { enquire } from 'enquire-js';
 import Header from './../../components/Header';
 import Footer from './../../components/Footer';
 import Logo from './../../components/Logo';
-import { asideMenuConfig } from './../../menuConfig';
 import './scss/light.scss';
 import './scss/dark.scss';
+
+import {Request} from '../../js/dataModel/Request';
+import {UserManagerRequestHeader} from "../../js/dataModel/userManager/UserManagerRequestHeader";
+import {UserManagerRequestBody} from "../../js/dataModel/userManager/UserManagerRequestBody";
+import {MessageUtils} from '../../js/MessageUtils';
+import {Menu as AsideMenu} from '../../js/ui/Menu';
+import { SessionContext } from '../../js/Application';
+import { Notification } from '../../js/notice/Notice';
 
 // 设置默认的皮肤配置，支持 dark 和 light 两套皮肤配置
 const theme = typeof THEME === 'undefined' ? 'dark' : THEME;
@@ -26,17 +33,17 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
 
   constructor(props) {
     super(props);
-
-    const openKeys = this.getOpenKeys();
+    
     this.state = {
       collapse: false,
       openDrawer: false,
       isScreen: undefined,
-      openKeys,
+      asideMenuConfig: this.getAsideMenuConfig()
     };
-    this.openKeysCache = openKeys;
+    // this.openKeysCache = openKeys;
   }
 
+  
   componentDidMount() {
     this.enquireScreenRegister();
   }
@@ -112,6 +119,28 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
     this.openKeysCache = openKeys;
   };
 
+  getAsideMenuConfig = () => {
+    let sessionContext = SessionContext.getSessionContext();
+    if (sessionContext == undefined) {
+      Notification.showInfo("请先登陆");
+      this.props.history.push('/');
+      return;
+    }
+
+    let requestBody = UserManagerRequestBody.buildGetAuthorityBody(SessionContext.getUsername());
+    let requestHeader = new UserManagerRequestHeader();
+    let request = new Request(requestHeader, requestBody);
+    var self = this;
+    let requestObject = {
+      request: request,
+      success: function(responseBody) {
+        let menuConfig = AsideMenu.buildMenu(responseBody.user.authorities);
+        self.setState({asideMenuConfig: menuConfig});
+      }
+    }
+    MessageUtils.sendRequest(requestObject);
+  }
+
   /**
    * 响应式时点击菜单进行切换
    */
@@ -119,29 +148,29 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
     this.toggleMenu();
   };
 
-  /**
-   * 获取当前展开的菜单项
-   */
-  getOpenKeys = () => {
-    const { match } = this.props;
-    const matched = match.path;
-    let openKeys = [];
+  // /**
+  //  * 获取当前展开的菜单项
+  //  */
+  // getOpenKeys = () => {
+  //   const { match } = this.props;
+  //   const matched = match.path;
+  //   let openKeys = [];
 
-    Array.isArray(asideMenuConfig) &&
-      asideMenuConfig.forEach((item, index) => {
-        if (matched.startsWith(item.path)) {
-          openKeys = [`${index}`];
-        }
-      });
+  //   Array.isArray(asideMenuConfig) &&
+  //     asideMenuConfig.forEach((item, index) => {
+  //       if (matched.startsWith(item.path)) {
+  //         openKeys = [`${index}`];
+  //       }
+  //     });
 
-    return openKeys;
-  };
+  //   return openKeys;
+  // };
 
-  render() {
+  render() {    
     const { location = {} } = this.props;
     const { pathname } = location;
-
     return (
+      !this.state.asideMenuConfig ? "" : 
       <Layout
         style={{ minHeight: '100vh' }}
         className={cx(
@@ -191,9 +220,9 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
               onOpenChange={this.onOpenChange}
               onClick={this.onMenuClick}
             >
-              {Array.isArray(asideMenuConfig) &&
-                asideMenuConfig.length > 0 &&
-                asideMenuConfig.map((nav, index) => {
+              {Array.isArray(this.state.asideMenuConfig) &&
+                this.state.asideMenuConfig.length > 0 &&
+                this.state.asideMenuConfig.map((nav, index) => {
                   if (nav.children && nav.children.length > 0) {
                     return (
                       <SubMenu
@@ -221,7 +250,10 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                           }
                           return (
                             <MenuItem key={item.path}>
-                              <Link {...linkProps}>{item.name}</Link>
+                              <Link {...linkProps}>
+                              {item.icon ? (
+                              <FoundationSymbol size="small" type={item.icon} />) : null}
+                              {item.name}</Link>
                             </MenuItem>
                           );
                         })}

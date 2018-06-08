@@ -10,19 +10,19 @@ import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import { headerMenuConfig } from './../menuConfig';
 import Logo from './Logo';
-import {User} from '../js/dataModel/userManager/User';
 import {Notification} from '../js/notice/Notice';
+import {SessionContext} from '../js/Application';
 
 @withRouter
 export default class Header extends PureComponent {
 
   logout= (e) => {
-    User.clearUserStorage();
+    SessionContext.clearSessionContext();
   }
   
   render() {
-    let user = User.getUserStorage();
-    if (user == undefined) {
+    let sessionContext = SessionContext.getSessionContext();
+    if (sessionContext == undefined) {
       Notification.showInfo("请先登陆");
       this.props.history.push('/');
     }
@@ -96,14 +96,14 @@ export default class Header extends PureComponent {
                 />
                 <div className="user-profile">
                   <span className="user-name" style={{ fontSize: '13px' }}>
-                    {user != undefined ? user.username : ""}
+                    {sessionContext != undefined ? sessionContext.username : ""}
                   </span>
                   <br />
                   <span
                     className="user-department"
                     style={{ fontSize: '12px', color: '#999' }}
                   >
-                    {user != undefined ? user.department : ""}
+                    {sessionContext != undefined ? sessionContext.orgName : ""}
                   </span>
                 </div>
                 <Icon

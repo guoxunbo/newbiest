@@ -1,28 +1,26 @@
 import {UrlConstant, ErrorCode, ResultIdentify, Language} from '../js/const/ConstDefine';
-import {RequestHeader} from '../js/dataModel/RequestHeader';
 import {Request} from '../js/dataModel/Request';
 import {Notification} from '../js/notice/Notice';
 
 import {EntityListRequestHeader} from "../js/dataModel/entityList/EntityListRequestHeader";
 import {EntityListRequestBody} from "../js/dataModel/entityList/EntityListRequestBody";
-import {EntityModel} from "../js/const/ConstDefine"
 import {Response} from "../js/dataModel/Response";
 import {ResponseHeader} from "../js/dataModel/ResponseHeader";
 
 import {JsonUtils} from "../js/JsonUtils"
 
 import axios from "axios";
-import qs from "qs";
 
 /**
  *  消息主要发送类
  */
 class MessageUtils {
 
-    static getEntityList() {
-        let requestHeader = new EntityListRequestHeader(0, "11", "admin");
+    static getEntityList(entityModel) {
+        //TODO 处理SessionContext
+        let requestHeader = new EntityListRequestHeader();
         let requestBody = new EntityListRequestBody();
-        requestBody.setEntityModel(EntityModel.NBUser);
+        requestBody.setEntityModel(entityModel);
         let request = new Request(requestHeader, requestBody);
         
         let object = {
@@ -74,7 +72,9 @@ class MessageUtils {
             // String的不是后台的错误 需要去加载Client端的i18N信息
             if (exception == "Error: Network Error") {
                 error = ErrorCode.NetworkError;
-            }  
+            } else {
+                error = exception;
+            }
         }
         
         Notification.showError(errroCode, error);

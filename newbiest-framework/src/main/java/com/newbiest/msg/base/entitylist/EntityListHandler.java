@@ -33,6 +33,8 @@ public class EntityListHandler extends AbstractTransHandler {
 
         List<NBBase> dataList = context.getNbManager().getEntityListForFiled(sc.getOrgRrn(), entityModel, firstResult, maxResult, whereClause, orderBy, properties);
         EntityListResponseBody responseBody = new EntityListResponseBody();
+        
+
         responseBody.setDatas(dataList);
         response.setBody(responseBody);
         return response;

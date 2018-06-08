@@ -1,17 +1,21 @@
+import { SessionContext } from "../Application";
+
 class RequestHeader{  
 
     messageName;
     transactionId;
-    orgRrn;
     orgName;
     userName;
     
-    constructor(messageName, orgRrn, orgName, userName){  
+    constructor(messageName){  
+        let sessionContext = SessionContext.getSessionContext();
         this.messageName = messageName;
+        console.log(messageName);
         this.transactionId = this.generatorUUID();
-        this.orgRrn = orgRrn;
-        this.orgName = orgName;
-        this.userName = userName;
+        if (sessionContext != undefined) {
+            this.orgName = sessionContext.orgName;
+            this.userName = sessionContext.userName;
+        } 
     }
 
     generatorUUID() {
@@ -20,6 +24,7 @@ class RequestHeader{
             v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         }).toUpperCase();
+
     }
 }  
 export {RequestHeader};  
