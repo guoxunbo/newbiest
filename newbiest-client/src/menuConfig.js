@@ -4,7 +4,7 @@
 const headerMenuConfig = [
   {
     name: '首页',
-    path: '/',
+    path: '/Home',
     icon: 'home',
   },
   {

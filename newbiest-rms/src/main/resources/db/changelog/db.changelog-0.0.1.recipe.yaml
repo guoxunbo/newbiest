@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-recipe-table
+      author: Xunbo Guo
+      comment: Create table RMS_RECIPE
+      changes:
+        - createTable:
+            tableName: RMS_RECIPE
+            remarks: Recipe Info
+            columns:
+              - column:
+                  name: object_rrn
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: active_flag
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: org_rrn
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: name
+                  type: varchar(32)
+                  remarks: 名称
+              - column:
+                  name: description
+                  type: varchar(64)
+                  remarks: 描述
+              - column:
+                  name: category
+                  type: varchar(32)
+                  remarks: 种类

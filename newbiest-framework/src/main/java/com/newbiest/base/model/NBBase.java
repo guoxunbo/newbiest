@@ -39,7 +39,7 @@ public class NBBase implements Serializable, Cloneable {
     private Long objectRrn;
 
     @Column(name="ORG_RRN")
-    private Long orgRrn = 0L;
+    protected Long orgRrn = 0L;
 
     @Column(name="ACTIVE_FLAG")
     private String activeFlag = StringUtils.YES;

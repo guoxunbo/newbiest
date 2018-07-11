@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-rms_equipment-table
+      author: Xunbo Guo
+      comment: Create table RMS_EQUIPMENT
+      changes:
+        - createTable:
+            tableName: RMS_EQUIPMENT
+            remarks: Equipment Info
+            columns:
+              - column:
+                  name: object_rrn
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: active_flag
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: org_rrn
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: created
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 创建时间
+              - column:
+                  name: created_by
+                  type: varchar(32)
+                  remarks: 创建者
+              - column:
+                  name: updated
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 更新时间
+              - column:
+                  name: updated_by
+                  type: varchar(32)
+                  remarks: 更新者
+              - column:
+                  name: lock_version
+                  type: bigint
+                  defaultValueNumeric: 1
+                  remarks: 乐观锁版本 程序自己更新 不可人为改变
+              - column:
+                  name: equipment_id
+                  type: varchar(32)
+                  remarks: 设备号
+              - column:
+                  name: equipment_type
+                  type: varchar(32)
+                  remarks: 设备类型

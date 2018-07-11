@@ -27,19 +27,19 @@ public class NBHis extends NBUpdatable {
     public static final String TRANS_TYPE_DELETE = "Delete";
 
     @Column(name="HISTORY_SEQ")
-    private String hisSeq;
+    protected String hisSeq;
 
     @Column(name="TRANS_TYPE")
-    private String transType;
+    protected String transType;
 
     @Column(name="ACTION_CODE")
-    private String actionCode;
+    protected String actionCode;
 
     @Column(name="ACTION_REASON")
-    private String actionReason;
+    protected String actionReason;
 
     @Column(name="ACTION_COMMENT")
-    private String actionComment;
+    protected String actionComment;
 
     public NBHis(NBBase base, SessionContext sc) {
         setNbBase(base, sc);

@@ -10,14 +10,14 @@ import {ResponseHeader} from "../js/dataModel/ResponseHeader";
 import {JsonUtils} from "../js/JsonUtils"
 
 import axios from "axios";
+import { SessionContext } from './Application';
 
 /**
  *  消息主要发送类
  */
 class MessageUtils {
-
+    
     static getEntityList(entityModel) {
-        //TODO 处理SessionContext
         let requestHeader = new EntityListRequestHeader();
         let requestBody = new EntityListRequestBody();
         requestBody.setEntityModel(entityModel);
@@ -57,7 +57,10 @@ class MessageUtils {
     static handleException(exception) {
         let error = "";
         let errroCode = 0;
-        let language = Language.Chinese;
+        let language = SessionContext.getLanguage();
+        if (language == undefined) {
+            language = Language.Chinese;
+        }
         if (exception instanceof ResponseHeader) {
             if (language == Language.Chinese) {
                 error = exception.resultChinese;

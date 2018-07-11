@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-com_context-table
+      author: Xunbo Guo
+      comment: Create table COM_CONTEXT
+      changes:
+        - createTable:
+            tableName: COM_CONTEXT
+            remarks: Context Info
+            columns:
+              - column:
+                  name: object_rrn
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: active_flag
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: org_rrn
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: name
+                  type: varchar(32)
+                  remarks: 名称
+              - column:
+                  name: description
+                  type: varchar(32)
+                  remarks: 描述
+  - changeSet:
+      id: insert-context-table_rms_data
+      author: Xunbo Guo
+      comment: Insert rms on context message to COM_CONTEXT
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/context-data-0.0.1.sql

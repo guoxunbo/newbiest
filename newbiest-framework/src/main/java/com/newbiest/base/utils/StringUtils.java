@@ -3,6 +3,7 @@ package com.newbiest.base.utils;
 import com.google.common.base.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.newbiest.base.exception.ClientParameterException;
 
 import java.nio.charset.Charset;
 import java.util.List;
@@ -132,7 +133,7 @@ public class StringUtils {
         int i;
         int placeholderStart;
         for(i = 0; i < args.length; templateStart = placeholderStart + 2) {
-            placeholderStart = template.indexOf("%s", templateStart);
+            placeholderStart = template.indexOf(ClientParameterException.PARAMETER_PLACEHOLDER, templateStart);
             if(placeholderStart == -1) {
                 break;
             }
