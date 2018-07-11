@@ -17,7 +17,6 @@
         <module>newbiest-framework</module>
         <module>newbiest-rms</module>
         <module>newbiest-dist</module>
-        <module>newbiest-context</module>
         <module>newbiest-common-context</module>
     </modules>
     <packaging>pom</packaging>
@@ -36,7 +35,7 @@
         <common.beanutils.version>1.9.3</common.beanutils.version>
         <druid.version>1.1.9</druid.version>
         <cglib.version>3.2.5</cglib.version>
-        <swaager.version>2.7.0</swaager.version>
+        <swaager.version>2.8.0</swaager.version>
         <log4j.version>1.2.17</log4j.version>
         <jwt.verison>3.3.0</jwt.verison>
         <liquibase.version>3.6.1</liquibase.version>
@@ -184,6 +183,7 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${swaager.version}</version>
         </dependency>
+
     </dependencies>
 
 

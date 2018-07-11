@@ -104,33 +104,6 @@ server:
     session:
       cookie:
         http-only: true
-newbiest:
-  api:
-    title: NewbiestInterfaceDocumentation
-    description: Interface Docunmentation Of Newbiest
-    version: 1.0
-    terms-of-service-url: www.newbiest8.com
-    license: Apache 2
-    license-url: http://www.baidu.com/banseon/LICENSE-2.0.txt
-    contact-name: Newbiest
-    contact-url: www.newbiest8.com
-    contact-email: 11603652@qq.com
-  token:
-    secret-string: Secret
-    issuer: Newbiest
-    audience: userOfNewbiest
-    expire: 5
-    time-unit: DAYS
-  # 注册之后第一次登录是否需要修改密码
-  first-login-change-pwd: Y
-  # 不输入密码的时候，密码的生成策略
-  pwd-policy: fixed
-  # 密码错误次数(修改密码)
-  pwd-wrong-count: 30
-  # 最大查询数量
-  query-max-count: 9999
-  # 默认的密码有效天数
-  pwd-life: 300
 # actuator配置
 management:
   port: 9990

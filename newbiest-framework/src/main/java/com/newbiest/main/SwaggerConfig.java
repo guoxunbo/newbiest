@@ -1,9 +1,14 @@
 package com.newbiest.main;
 
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -19,8 +24,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 @ConfigurationProperties(prefix = "newbiest.api")
+@PropertySource(value = "classpath:newbiest.yml", factory = YmlPropertyLoaderFactory.class)
 @Data
 public class SwaggerConfig {
+
+    @Autowired
+    Environment environment;
 
     private String title;
 
@@ -50,6 +59,7 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
+        String a = environment.getProperty("newbiest.api.title");
         return new ApiInfoBuilder()
                 .title(title)
                 .description(description)

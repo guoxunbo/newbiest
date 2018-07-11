@@ -21,6 +21,7 @@ public class SessionContext implements Serializable {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private Long orgRrn;
+	private String orgName;
 	private String username;
 
 	/**

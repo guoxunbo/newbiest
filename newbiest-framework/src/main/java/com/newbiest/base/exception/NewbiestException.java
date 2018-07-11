@@ -9,6 +9,8 @@ public class NewbiestException {
     public static final String COMMON_UNKNOWN_TIME_UNIT = "common.unknown_time_unit";
     public static final String COMMON_TOKEN_IS_EXPIRED = "common.token_is_expired";
 
+    public static final String COMMON_ORG_IS_NOT_EXIST = "common.org_is_not_exist";
+
     public static final String COMMON_OBJECT_IS_UPDATED_BY_ANOTHER = "common.obj_is_updated_by_others";
 
     public static final String BASE_TABLE_IS_NOT_FOUND = "base.table_is_null";
