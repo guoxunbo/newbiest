@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
+import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
@@ -51,7 +52,7 @@ public class AbstractRestController {
             nbOrg = baseService.getOrgByName(orgName);
         }
         if (nbOrg == null) {
-            throw new ClientParameterException("COMMON_ORG_IS_NOT_EXIST", orgRrn != null ? orgRrn : orgName);
+            throw new ClientParameterException(NewbiestException.COMMON_ORG_IS_NOT_EXIST, orgRrn != null ? orgRrn : orgName);
         }
         sc.setOrgRrn(nbOrg.getObjectRrn());
         sc.setOrgName(nbOrg.getName());

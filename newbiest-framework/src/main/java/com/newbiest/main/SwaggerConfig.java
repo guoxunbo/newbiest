@@ -28,9 +28,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Data
 public class SwaggerConfig {
 
-    @Autowired
-    Environment environment;
-
     private String title;
 
     private String description;
@@ -59,7 +56,6 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        String a = environment.getProperty("newbiest.api.title");
         return new ApiInfoBuilder()
                 .title(title)
                 .description(description)
