@@ -67,14 +67,14 @@ public class NBUser extends NBUpdatable {
     @Column(name="IN_VALID_FLAG")
     private String inValidFlag;
 
-    @ManyToMany(fetch=FetchType.LAZY)
+    @ManyToMany(targetEntity = NBRole.class, fetch=FetchType.LAZY)
     @JoinTable(name = "NB_USER_ROLE",
             inverseJoinColumns = @JoinColumn(name = "ROLE_RRN", referencedColumnName = "OBJECT_RRN"),
             joinColumns = @JoinColumn(name = "USER_RRN", referencedColumnName = "OBJECT_RRN"))
     @JsonBackReference("roles")
     private List<NBRole> roles;
 
-    @ManyToMany(fetch=FetchType.LAZY)
+    @ManyToMany(targetEntity = NBOrg.class, fetch=FetchType.LAZY)
     @JoinTable(name = "NB_USER_ORG",
             inverseJoinColumns = @JoinColumn(name = "ORG_RRN", referencedColumnName = "OBJECT_RRN"),
             joinColumns = @JoinColumn(name = "USER_RRN", referencedColumnName = "OBJECT_RRN"))

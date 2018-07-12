@@ -16,8 +16,10 @@ import com.newbiest.main.MailService;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.exception.SecurityException;
 import com.newbiest.security.model.NBAuthority;
+import com.newbiest.security.model.NBRole;
 import com.newbiest.security.model.NBUser;
 import com.newbiest.security.model.NBUserHis;
+import com.newbiest.security.repository.RoleRepository;
 import com.newbiest.security.repository.UserHistoryRepository;
 import com.newbiest.security.repository.UserRepository;
 import com.newbiest.security.service.SecurityService;
@@ -45,13 +47,18 @@ public class SecurityServiceImpl implements SecurityService  {
     UserRepository userRepository;
 
     @Autowired
+    UserHistoryRepository userHistoryRepository;
+
+    @Autowired
+    RoleRepository roleRepository;
+
+    @Autowired
     MailService mailService;
 
     @Autowired
     NewbiestConfiguration newbiestConfiguration;
 
-    @Autowired
-    UserHistoryRepository userHistoryRepository;
+
 
     @Autowired
     RedisService redisService;
@@ -292,6 +299,16 @@ public class SecurityServiceImpl implements SecurityService  {
         }
     }
 
+    @Override
+    public void deleteUser(NBUser user) throws ClientException {
+        try {
+            userRepository.delete(user);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
     /**
      * 生成密码 如果是随机生成就返回随机的6位数字，否则则返回111111
      * @return
@@ -301,6 +318,61 @@ public class SecurityServiceImpl implements SecurityService  {
             return String.valueOf((int)((Math.random() * 9 + 1) * 100000));
         }
         return "111111";
+    }
+
+    /**
+     * 保存role
+     * @param nbRole
+     * @return
+     * @throws ClientException
+     */
+    public NBRole saveRole(NBRole nbRole) throws ClientException {
+        try {
+            return roleRepository.save(nbRole);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+        //TODO 处理历史
+    }
+
+    @Override
+    public NBRole getRoleByObjectRrn(Long objectRrn) throws ClientException {
+        try {
+            return roleRepository.getByObjectRrn(objectRrn);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    @Override
+    public NBRole getRoleByRoleId(String roleId) throws ClientException {
+        try {
+            return roleRepository.getByRoleId(roleId);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    public NBRole getDeepRole(Long roleRrn, boolean authorityFlag, SessionContext sc) throws ClientException {
+        try {
+            return roleRepository.getDeepRole(roleRrn, authorityFlag, sc);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    @Override
+    public void deleteRole(NBRole nbRole) throws ClientException {
+        try {
+            roleRepository.delete(nbRole);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
     }
 
 }

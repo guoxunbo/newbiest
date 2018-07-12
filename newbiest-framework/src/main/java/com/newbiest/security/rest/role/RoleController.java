@@ -1,57 +1,67 @@
-package com.newbiest.msg.security.role;
+package com.newbiest.security.rest.role;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
-import com.newbiest.base.exception.NewbiestException;
+import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.main.NewbiestConfiguration;
-import com.newbiest.msg.*;
-import com.newbiest.msg.trans.AbstractTransHandler;
-import com.newbiest.msg.trans.TransContext;
+import com.newbiest.msg.Request;
+import com.newbiest.security.exception.SecurityException;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBRole;
 import com.newbiest.security.model.NBUser;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 /**
- * UserRole相关接口处理类
- * Created by guoxunbo on 2017/9/29.
+ * Created by guoxunbo on 2018/7/12.
  */
-public class RoleHandler extends AbstractTransHandler {
+@RestController
+@RequestMapping("/security")
+@Slf4j
+@Api(value="/security", tags="SecurityService", description = "安全管理比如用户，用户组，菜单等的管理")
+public class RoleController extends AbstractRestController {
 
-    @Override
-    public Response executeRequest(Request request, TransContext context) throws ClientException {
-        context.setTransactionId(request.getHeader().getTransactionId());
-        SessionContext sc = getSessionContext(request, context);
+    @ApiOperation(value = "对用户组做操作", notes = "支持DispatchUser, DispatchAuthority, DispatchAll等")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "RoleRequest")
+    @RequestMapping(value = "/handlerRole", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    public RoleResponse execute(@RequestBody RoleRequest request) throws Exception {
+        log(log, request);
+        SessionContext sc = getSessionContext(request);
 
         RoleResponse response = new RoleResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         RoleResponseBody responseBody = new RoleResponseBody();
 
-        RoleRequestBody requestBody = (RoleRequestBody)request.getBody();
+        RoleRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
         NBRole requestRole = requestBody.getNbRole();
         NBRole role = null;
 
-        if (requestRole.getObjectRrn() != null) {
-            role = context.getRoleRepository().getByObjectRrn(requestRole.getObjectRrn());
-        } else if (!StringUtils.isNullOrEmpty(requestRole.getRoleId()) && !RoleRequest.ACTION_CREATE.equals(actionType)) {
-            role = context.getRoleRepository().getByRoleId(requestRole.getRoleId());
-        }
-
         if (RoleRequest.ACTION_CREATE.equals(actionType)) {
             role = new NBRole();
             PropertyUtils.copyProperties(requestRole, role);
-            role = context.getRoleRepository().save(role);
+            role = securityService.saveRole(role);
         } else {
+            if (requestRole.getObjectRrn() != null) {
+                role = securityService.getRoleByObjectRrn(requestRole.getObjectRrn());
+            } else if (!StringUtils.isNullOrEmpty(requestRole.getRoleId()) && !RoleRequest.ACTION_CREATE.equals(actionType)) {
+                role = securityService.getRoleByRoleId(requestRole.getRoleId());
+            }
             if (role == null) {
-                throw new ClientParameterException(NewbiestException.COMMON_ROLE_IS_NULL, requestRole.getRoleId());
+                throw new ClientParameterException(SecurityException.SECURITY_ROLE_IS_NOT_EXIST, requestRole.getObjectRrn() != null ? requestRole.getObjectRrn() : requestRole.getRoleId());
             }
             if (!RoleRequest.ACTION_DELETE.equals(actionType)) {
-                role = context.getRoleRepository().getDeepRole(role.getObjectRrn(), true, sc);
+                role = securityService.getDeepRole(role.getObjectRrn(), true, sc);
                 List<NBUser> users = role.getUsers();
                 List<NBAuthority> authorities = role.getAuthorities();
                 if (RoleRequest.ACTION_UPDATE.equals(actionType) ) {
@@ -75,42 +85,18 @@ public class RoleHandler extends AbstractTransHandler {
                 } else {
                     throw new ClientException(Request.UN_SUPPORT_ACTION_TYPE + requestBody.getActionType());
                 }
-
-                if (!(RoleRequest.ACTION_GET_BY_ID.equals(actionType) ||
-                        RoleRequest.ACTION_GET_BY_RRN.equals(actionType))) {
-                    role = context.getRoleRepository().save(role);
+                if (!(RoleRequest.ACTION_GET_BY_ID.equals(actionType) || RoleRequest.ACTION_GET_BY_RRN.equals(actionType))) {
+                    role = securityService.saveRole(role);
                 }
             } else {
-                context.getNbManager().deleteEntity(role, true, sc);
+                securityService.deleteRole(role);
+                role = null;
             }
         }
+
         responseBody.setNbRole(role);
         response.setBody(responseBody);
         return response;
-    }
-
-    @Override
-    public void initMessageParser() {
-        MessageParserModel parserModel = new MessageParserModel();
-        parserModel.setMessageName(RoleRequest.MESSAGE_NAME);
-        parserModel.setRequestClass(RoleRequest.class);
-        parserModel.setResponseClass(RoleResponse.class);
-        MessageParserFactory.registerMessageParser(RoleRequest.MESSAGE_NAME, parserModel);
-    }
-
-    @Override
-    public MessageParser getMessageParser() {
-        return getMessageParser(RoleRequest.MESSAGE_NAME);
-    }
-
-    @Override
-    protected TransContext internalExecute(TransContext context) throws Exception {
-        MessageParser parser = getMessageParser(RoleRequest.MESSAGE_NAME);
-        RoleRequest request = (RoleRequest)parser.readRequest(context.getRequest());
-        RoleResponse response = (RoleResponse)executeRequest(request, context);
-
-        context.setResponse(parser.writeResponse(response));
-        return context;
     }
 
 }

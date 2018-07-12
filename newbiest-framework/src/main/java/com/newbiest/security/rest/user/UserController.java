@@ -28,20 +28,20 @@ import java.util.List;
 @RequestMapping("/security")
 @Slf4j
 @Api(value="/security", tags="SecurityService", description = "安全管理比如用户，用户组，菜单等的管理")
-public class UserRestController extends AbstractRestController {
+public class UserController extends AbstractRestController {
 
     @ApiOperation(value = "对用户做操作", notes = "支持ChangePassword, RestPassword, GetAuthority, Login, Register")
-    @ApiImplicitParam(name="userRequest", value="userRequest", required = true, dataType = "UserRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "UserRequest")
     @RequestMapping(value = "/handlerUser", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-    public UserResponse executeUser(@RequestBody UserRequest userRequest) throws Exception {
-        log(log, userRequest);
-        SessionContext sc = getSessionContext(userRequest);
+    public UserResponse execute(@RequestBody UserRequest request) throws Exception {
+        log(log, request);
+        SessionContext sc = getSessionContext(request);
 
         UserResponse response = new UserResponse();
-        response.getHeader().setTransactionId(userRequest.getHeader().getTransactionId());
+        response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         UserResponseBody responseBody = new UserResponseBody();
 
-        UserRequestBody requestBody = userRequest.getBody();
+        UserRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
         NBUser requestUser = requestBody.getUser();
         NBUser user = null;
@@ -76,6 +76,9 @@ public class UserRestController extends AbstractRestController {
                 user = securityService.resetPassword(user, sc);
             } else if (UserRequest.ACTION_GET_BY_RRN.equals(actionType)) {
                 user = securityService.getDeepUser(user.getObjectRrn(), true);
+            } else if (UserRequest.ACTION_DELETE.equals(actionType)) {
+                securityService.deleteUser(user);
+                user = null;
             } else {
                 throw new ClientException(Request.UN_SUPPORT_ACTION_TYPE + requestBody.getActionType());
             }

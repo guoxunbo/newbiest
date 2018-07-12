@@ -1,7 +1,6 @@
 package com.newbiest.rms.service;
 
 import com.google.common.collect.Lists;
-import com.newbiest.base.dao.BaseDao;
 import com.newbiest.rms.model.AbstractRecipeEquipment;
 import com.newbiest.rms.model.RecipeEquipment;
 import com.newbiest.rms.model.RecipeEquipmentParameter;

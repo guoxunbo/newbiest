@@ -48,7 +48,7 @@ public class RoleRepositoryImpl implements RoleRepositoryCustom {
             if (authorityFlag) {
                 List<NBAuthority> authorities = getRoleAuthorities(role.getObjectRrn());
                 role.setAuthorities(authorities);
-            };
+            }
             return role;
         } catch (Exception e) {
             log.error(e.getMessage(), e);

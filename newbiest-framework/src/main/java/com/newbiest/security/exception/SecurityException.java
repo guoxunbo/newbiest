@@ -15,6 +15,7 @@ public class SecurityException implements Serializable  {
     public static final String SECURITY_USER_PASSWORD_IS_INCORRECT = "security.user_pwd_is_incorrect";
     public static final String SECURITY_PASSWORD_IS_EXPIRY = "security.pwd_expiry";
 
+    public static final String SECURITY_ROLE_IS_NOT_EXIST = "security.role_is_not_exist";
 
 
 }
