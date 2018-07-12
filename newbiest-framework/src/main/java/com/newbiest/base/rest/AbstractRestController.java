@@ -12,6 +12,7 @@ import com.newbiest.msg.DefaultParser;
 import com.newbiest.msg.Request;
 import com.newbiest.msg.trans.TransContext;
 import com.newbiest.security.model.NBOrg;
+import com.newbiest.security.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AbstractRestController {
 
     @Autowired
-    BaseService baseService;
+    protected BaseService baseService;
+
+    @Autowired
+    protected SecurityService securityService;
 
     private final String requestToJson(Request request) throws Exception{
         ObjectMapper objectMapper = DefaultParser.getObjectMapper();

@@ -15,6 +15,5 @@ public interface UserRepository extends JpaRepository<NBUser, Long>, UserReposit
     NBUser getByObjectRrn(Long objectRrn) throws ClientException;
     NBUser getByUsername(String username) throws ClientException;
 
-    NBUser getByUsernameAndPassword(String username, String password) throws ClientException;
-    
+
 }

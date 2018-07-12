@@ -2,11 +2,12 @@ package com.newbiest.msg.security.user;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractHandlerTest;
-import com.newbiest.base.utils.EncryptionUtils;
 import com.newbiest.main.FrameworkApplication;
 import com.newbiest.msg.*;
-import com.newbiest.msg.security.role.RoleResponse;
 import com.newbiest.security.model.NBUser;
+import com.newbiest.security.rest.user.UserRequest;
+import com.newbiest.security.rest.user.UserRequestBody;
+import com.newbiest.security.rest.user.UserResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

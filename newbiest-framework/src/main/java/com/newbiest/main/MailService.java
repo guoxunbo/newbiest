@@ -180,6 +180,7 @@ public class MailService {
      * @throws ClientException
      */
     @MethodMonitor
+    @Async
     public void sendTemplateMessage(List<String> to, String subject, String templateName, Map<String, Object> parameterMap) throws ClientException{
         try {
             if (to == null || to.isEmpty()) {

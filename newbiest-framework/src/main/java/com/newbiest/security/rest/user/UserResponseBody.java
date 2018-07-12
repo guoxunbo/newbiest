@@ -1,4 +1,4 @@
-package com.newbiest.msg.security.user;
+package com.newbiest.security.rest.user;
 
 import com.newbiest.msg.ResponseBody;
 import com.newbiest.security.model.NBUser;

@@ -1,5 +1,6 @@
 package com.newbiest.main;
 
+import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +34,7 @@ public class NewbiestConfiguration implements Serializable {
     /**
      * 第一次登录是否需要修改密码
      */
-    private String firstLoginChangePwd = "N";
+    private String firstLoginChangePwd = StringUtils.NO;
 
     /**
      * 查询最大数量
@@ -44,5 +45,10 @@ public class NewbiestConfiguration implements Serializable {
      * 密码有效期
      */
     private long pwdLife;
+
+    public Boolean getFirstLoginChangePwd() {
+        return StringUtils.YES.equalsIgnoreCase(firstLoginChangePwd);
+    }
+
 
 }

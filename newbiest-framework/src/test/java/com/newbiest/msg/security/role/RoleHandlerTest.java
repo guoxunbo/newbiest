@@ -4,9 +4,6 @@ import com.google.common.collect.Lists;
 import com.newbiest.base.rest.AbstractHandlerTest;
 import com.newbiest.main.FrameworkApplication;
 import com.newbiest.msg.*;
-import com.newbiest.msg.security.user.UserRequest;
-import com.newbiest.msg.security.user.UserRequestBody;
-import com.newbiest.msg.security.user.UserResponse;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBRole;
 import com.newbiest.security.model.NBUser;
@@ -19,7 +16,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**

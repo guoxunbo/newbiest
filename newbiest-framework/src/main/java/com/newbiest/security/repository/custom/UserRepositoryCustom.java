@@ -19,10 +19,6 @@ public interface UserRepositoryCustom {
     NBUser getDeepUser(Long userRrn, boolean orgFlag) throws ClientException;
     NBUser getDeepUser(String username, boolean orgFlag) throws ClientException;
 
-    void save(NBUser nbUser, SessionContext sc) throws ClientException;
-    NBUser resetPassword(NBUser nbUser, String newPassword, SessionContext sc) throws ClientException;
-    NBUser changePassword(NBUser user, String oldPassword, String newPassword, SessionContext sc) throws ClientException;
-
     List<NBAuthority> getTreeAuthorities(long userRrn) throws ClientException;
 
     void loginSuccess(NBUser nbUser) throws ClientException;

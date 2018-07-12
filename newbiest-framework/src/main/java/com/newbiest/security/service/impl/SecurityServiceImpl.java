@@ -1,17 +1,24 @@
 package com.newbiest.security.service.impl;
 
+import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.exception.NewbiestException;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.redis.RedisService;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.EncryptionUtils;
+import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.main.JwtSigner;
 import com.newbiest.main.MailService;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.exception.SecurityException;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBUser;
+import com.newbiest.security.model.NBUserHis;
+import com.newbiest.security.repository.UserHistoryRepository;
 import com.newbiest.security.repository.UserRepository;
 import com.newbiest.security.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -40,6 +51,9 @@ public class SecurityServiceImpl implements SecurityService  {
     NewbiestConfiguration newbiestConfiguration;
 
     @Autowired
+    UserHistoryRepository userHistoryRepository;
+
+    @Autowired
     RedisService redisService;
 
     @Autowired
@@ -50,7 +64,7 @@ public class SecurityServiceImpl implements SecurityService  {
             // 1. 先查找用户 用户如果没找到直接抛出异常
             NBUser nbUser = userRepository.getByUsername(username);
             if (nbUser == null) {
-                throw new ClientParameterException(SecurityException.SECURITY_USER_IS_NOT_FOUND, username);
+                throw new ClientParameterException(SecurityException.SECURITY_USER_IS_NOT_EXIST, username);
             }
             // 验证用户是否被锁住
             if (!nbUser.getInValidFlag()) {
@@ -94,6 +108,199 @@ public class SecurityServiceImpl implements SecurityService  {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
         }
+    }
+
+    public NBUser getUserByObjectRrn(Long userRrn) throws ClientException {
+        try {
+            return userRepository.getByObjectRrn(userRrn);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    @Override
+    public NBUser getUserByUsername(String username) throws ClientException {
+        try {
+            return userRepository.getByUsername(username);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 保存用户
+     * @param nbUser
+     * @param sc
+     * @return
+     * @throws ClientException
+     */
+    public NBUser saveUser(NBUser nbUser, SessionContext sc) throws ClientException {
+        try {
+            sc.buildTransInfo();
+            if (nbUser.getObjectRrn() != null) {
+                NBUser oldUser = userRepository.getByObjectRrn(nbUser.getObjectRrn());
+                //不允许修改用户密码
+                String oldPassword = oldUser.getPassword();
+                nbUser.setPassword(oldPassword);
+                nbUser.setUpdatedBy(sc.getUsername());
+                nbUser.setRoles(oldUser.getRoles());
+                nbUser.setOrgs(oldUser.getOrgs());
+                nbUser = userRepository.saveAndFlush(nbUser);
+
+                NBUserHis nbUserHis = new NBUserHis(nbUser, sc);
+                nbUserHis.setUpdatedBy(sc.getUsername());
+                nbUserHis.setTransType(NBHis.TRANS_TYPE_UPDATE);
+                userHistoryRepository.save(nbUserHis);
+            } else {
+                NBUser newUser = new NBUser();
+                newUser.setUsername(nbUser.getUsername());
+                // 如果没设置密码。则生成随机的6位数
+                if (StringUtils.isNullOrEmpty(nbUser.getPassword())) {
+                    newUser.setPassword(EncryptionUtils.md5Hex(getPassword()));
+                }
+                // 对密码进行加密
+                newUser.setDescription(nbUser.getDescription());
+                newUser.setDepartment(nbUser.getDepartment());
+                newUser.setEmail(nbUser.getEmail());
+                newUser.setPhone(nbUser.getPhone());
+                newUser.setSex(nbUser.getSex());
+                // 第一次登录是否需要修改密码
+                if (newbiestConfiguration.getFirstLoginChangePwd()) {
+                    newUser.setInValidFlag(false);
+                } else {
+                    newUser.setInValidFlag(true);
+                }
+                if (newbiestConfiguration.getPwdLife() != 0) {
+                    newUser.setPwdLife(newbiestConfiguration.getPwdLife());
+                    Date pwdExpiry = DateUtils.plus(new Date(), nbUser.getPwdLife().intValue(), ChronoUnit.DAYS);
+                    newUser.setPwdExpiry(pwdExpiry);
+                }
+                newUser.setOrgRrn(sc.getOrgRrn());
+                newUser.setCreatedBy(sc.getUsername());
+                newUser.setUpdatedBy(sc.getUsername());
+                nbUser = userRepository.saveAndFlush(newUser);
+
+                NBUserHis nbUserHis = new NBUserHis(nbUser, sc);
+                nbUserHis.setTransType(NBHis.TRANS_TYPE_CRAETE);
+                userHistoryRepository.save(nbUserHis);
+
+                if (!StringUtils.isNullOrEmpty(nbUser.getEmail())) {
+                    Map<String, Object> map = Maps.newHashMap();
+                    map.put("user", nbUser);
+                    mailService.sendTemplateMessage(Arrays.asList(nbUser.getEmail()), "CreateUser", MailService.CREATE_USER_TEMPLATE, map);
+                }
+            }
+            return nbUser;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 修改密码
+     * @param user
+     * @param oldPassword
+     * @param newPassword
+     * @param sc
+     * @return
+     * @throws ClientException
+     */
+    public NBUser changePassword(NBUser user, String oldPassword, String newPassword, SessionContext sc) throws ClientException {
+        try {
+            sc.buildTransInfo();
+
+            if (StringUtils.isNullOrEmpty(newPassword)) {
+                throw new ClientException(NewbiestException.COMMON_NEW_PASSWORD_IS_NULL);
+            }
+            NBUser oldUser = userRepository.getByObjectRrn(user.getObjectRrn());
+            String oldPwd = oldUser.getPassword();
+
+            if (!oldPwd.equals(oldPassword)) {
+                throw new ClientException(NewbiestException.COMMON_OLD_PASSWORD_IS_INCORRECT);
+            }
+            if (newPassword.equals(oldPassword)) {
+                throw new ClientException(NewbiestException.COMMON_NEW_PASSWORD_EQUALS_OLD_PASSWORD);
+            }
+
+            Date pwdChanged = new Date();
+            oldUser.setPwdChanged(new Date());
+            oldUser.setPassword(newPassword);
+            // 修改密码之后，对所有密码有效期及错误次数重新设置
+            oldUser.setInValidFlag(true);
+            oldUser.setPwdWrongCount(0);
+            oldUser.setUpdatedBy(sc.getUsername());
+            if (oldUser.getPwdLife() != null) {
+                oldUser.setPwdExpiry(DateUtils.plus(pwdChanged, oldUser.getPwdLife().intValue(), ChronoUnit.DAYS));
+            }
+            oldUser = userRepository.saveAndFlush(oldUser);
+
+            NBUserHis his = new NBUserHis(oldUser, sc);
+            his.setTransType(NBUserHis.TRANS_TYPE_CHANGE_PASSWORD);
+            userHistoryRepository.saveAndFlush(his);
+
+            return oldUser;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    public NBUser resetPassword(NBUser nbUser, SessionContext sc) throws ClientException {
+        try {
+            sc.buildTransInfo();
+            nbUser = userRepository.getByObjectRrn(nbUser.getObjectRrn());
+            Date pwdChanged = new Date();
+            nbUser.setPwdChanged(pwdChanged);
+            //对Password进行加密
+            nbUser.setPassword(EncryptionUtils.md5Hex(getPassword()));
+            // 重置密码之后，对所有密码有效期及错误次数重新设置
+            nbUser.setInValidFlag(true);
+            nbUser.setPwdWrongCount(0);
+
+            if (nbUser.getPwdLife() != null) {
+                nbUser.setPwdExpiry(DateUtils.plus(pwdChanged, nbUser.getPwdLife().intValue(), ChronoUnit.DAYS));
+            }
+            nbUser = userRepository.saveAndFlush(nbUser);
+
+            NBUserHis his = new NBUserHis(nbUser, sc);
+            his.setTransType(NBUserHis.TRANS_TYPE_RESET_PASSWORD);
+            userHistoryRepository.save(his);
+
+            // 发邮件
+            if (!StringUtils.isNullOrEmpty(nbUser.getEmail())) {
+                Map<String, Object> map = Maps.newHashMap();
+                map.put("user", nbUser);
+                mailService.sendTemplateMessage(Arrays.asList(nbUser.getEmail()), "ResetPassword", MailService.RESET_PASSWORD_TEMPLATE, map);
+            }
+            return nbUser;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    @Override
+    public NBUser getDeepUser(long userRrn, boolean orgFlag) throws ClientException {
+        try {
+            return userRepository.getDeepUser(userRrn, orgFlag);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 生成密码 如果是随机生成就返回随机的6位数字，否则则返回111111
+     * @return
+     */
+    private String getPassword() {
+        if (NewbiestConfiguration.PASSWORD_POLICY_RANDOM.equals(newbiestConfiguration.getPwdPolicy())) {
+            return String.valueOf((int)((Math.random() * 9 + 1) * 100000));
+        }
+        return "111111";
     }
 
 }

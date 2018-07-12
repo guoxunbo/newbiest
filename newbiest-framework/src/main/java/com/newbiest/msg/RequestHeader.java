@@ -1,67 +1,30 @@
 package com.newbiest.msg;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
 import java.io.Serializable;
 
-@XmlAccessorType(XmlAccessType.NONE)
+@Data
+@ApiModel(value = "请求的头信息", description = "所有请求都必须要携带")
 public class RequestHeader implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@XmlElement(name="MessageName")
+	@ApiModelProperty(value = "消息名称")
 	private String messageName;
-	
-	@XmlElement(name="TransactionId")
+
+	@ApiModelProperty(value = "请求携带的UUID确保唯一", required = true)
 	private String transactionId;
-	
-	@XmlElement(name="OrgRrn")
+
+	@ApiModelProperty(value = "区域主键")
 	private Long orgRrn;
-	
-	@XmlElement(name="OrgName")
+
+	@ApiModelProperty(value = "区域名称")
 	private String orgName;
-	
-	@XmlElement(name="Username")
+
+	@ApiModelProperty(value = "请求操作的用户名", required = true)
 	private String username;
-	
-	public String getMessageName() {
-		return messageName;
-	}
 
-	public void setMessageName(String messageName) {
-		this.messageName = messageName;
-	}
-	
-	public String getTransactionId() {
-		return transactionId;
-	}
-
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
-	}
-
-	public Long getOrgRrn() {
-		return orgRrn;
-	}
-
-	public void setOrgRrn(Long orgRrn) {
-		this.orgRrn = orgRrn;
-	}
-	
-	public String getOrgName() {
-		return orgName;
-	}
-
-	public void setOrgName(String orgName) {
-		this.orgName = orgName;
-	}
-	
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String userName) {
-		this.username = userName;
-	}
 }

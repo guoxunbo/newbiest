@@ -46,7 +46,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     @Autowired
     private BaseDao baseDao;
 
-    @MethodMonitor
     @Override
     public NBUser getDeepUser(Long userRrn, boolean orgFlag) throws ClientException {
         try {
@@ -146,53 +145,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         }
     }
 
-    /**
-     * 保存用户 当前不支持用户赋给那几个Role,支持Role下赋用户 Org同理
-     * @param nbUser
-     * @param sc
-     * @throws ClientException
-     */
-    @Override
-    public void save(NBUser nbUser, SessionContext sc) throws ClientException {
-        try {
-            sc.buildTransInfo();
-            if (nbUser.getObjectRrn() != null) {
-                NBUser oldUser = em.find(NBUser.class, nbUser.getObjectRrn());
-                //不允许修改用户密码
-                String oldPassword = oldUser.getPassword();
-                nbUser.setPassword(oldPassword);
-
-                nbUser.setUpdatedBy(sc.getUsername());
-                nbUser.setRoles(oldUser.getRoles());
-                nbUser.setOrgs(oldUser.getOrgs());
-                nbUser = em.merge(nbUser);
-
-                NBUserHis nbUserHis = new NBUserHis(nbUser, sc);
-                nbUserHis.setUpdatedBy(sc.getUsername());
-                nbUserHis.setTransType(NBHis.TRANS_TYPE_UPDATE);
-                em.persist(nbUserHis);
-            } else {
-                nbUser.setOrgRrn(sc.getOrgRrn());
-                nbUser.setCreatedBy(sc.getUsername());
-                nbUser.setUpdatedBy(sc.getUsername());
-                em.persist(nbUser);
-
-                NBUserHis nbUserHis = new NBUserHis(nbUser, sc);
-                nbUserHis.setTransType(NBHis.TRANS_TYPE_CRAETE);
-                em.persist(nbUserHis);
-
-                if (!StringUtils.isNullOrEmpty(nbUser.getEmail())) {
-                    Map<String, Object> map = Maps.newHashMap();
-                    map.put("user", nbUser);
-                    mailService.sendTemplateMessage(Arrays.asList(nbUser.getEmail()), "CreateUser", MailService.CREATE_USER_TEMPLATE, map);
-                }
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
     public void loginSuccess(NBUser nbUser) throws ClientException {
         try {
             nbUser = em.find(NBUser.class, nbUser.getObjectRrn());
@@ -225,90 +177,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             NBUserHis nbUserHis = new NBUserHis(nbUser, SessionContext.buildSessionContext(nbUser.getOrgRrn()));
             nbUserHis.setTransType(NBUserHis.TRANS_TYPE_LOGIN_FAIL);
             em.persist(nbUserHis);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
-    @Override
-    public NBUser resetPassword(NBUser nbUser, String newPassword, SessionContext sc) throws ClientException {
-        try {
-            sc.buildTransInfo();
-
-            nbUser = em.find(NBUser.class, nbUser.getObjectRrn());
-            if (StringUtils.isNullOrEmpty(newPassword)) {
-                throw new ClientException(NewbiestException.COMMON_NEW_PASSWORD_IS_NULL);
-            }
-            Date pwdChanged = new Date();
-            nbUser.setPwdChanged(pwdChanged);
-            //对Password进行加密
-//            nbUser.setPassword(EncryptionUtils.encode(newPassword));
-            // 重置密码之后，对所有密码有效期及错误次数重新设置
-            nbUser.setInValidFlag(true);
-            nbUser.setPwdWrongCount(0);
-
-            if (nbUser.getPwdLife() != null) {
-                nbUser.setPwdExpiry(DateUtils.plus(pwdChanged, nbUser.getPwdLife().intValue(), ChronoUnit.DAYS));
-            }
-            nbUser = em.merge(nbUser);
-            em.createNativeQuery("");
-            NBUserHis his = new NBUserHis(nbUser, sc);
-            his.setTransType(NBUserHis.TRANS_TYPE_RESET_PASSWORD);
-            em.persist(his);
-
-            // 发邮件
-            if (!StringUtils.isNullOrEmpty(nbUser.getEmail())) {
-                Map<String, Object> map = Maps.newHashMap();
-                map.put("user", nbUser);
-                mailService.sendTemplateMessage(Arrays.asList(nbUser.getEmail()), "ResetPassword", MailService.RESET_PASSWORD_TEMPLATE, map);
-            }
-            return nbUser;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
-    /**
-     * 修改用户密码
-     */
-    @Override
-    public NBUser changePassword(NBUser user, String oldPassword, String newPassword, SessionContext sc) throws ClientException {
-        try {
-            sc.buildTransInfo();
-
-            if (StringUtils.isNullOrEmpty(newPassword)) {
-                throw new ClientException(NewbiestException.COMMON_NEW_PASSWORD_IS_NULL);
-            }
-
-            NBUser oldUser = em.find(NBUser.class, user.getObjectRrn());
-            String oldPwd = oldUser.getPassword();
-
-            if (!oldPwd.equals(oldPassword)) {
-                throw new ClientException(NewbiestException.COMMON_OLD_PASSWORD_IS_INCORRECT);
-            }
-            if (newPassword.equals(oldPassword)) {
-                throw new ClientException(NewbiestException.COMMON_NEW_PASSWORD_EQUALS_OLD_PASSWORD);
-            }
-
-            Date pwdChanged = new Date();
-            oldUser.setPwdChanged(new Date());
-            oldUser.setPassword(newPassword);
-            // 修改密码之后，对所有密码有效期及错误次数重新设置
-            oldUser.setInValidFlag(true);
-            oldUser.setPwdWrongCount(0);
-            oldUser.setUpdatedBy(sc.getUsername());
-            if (oldUser.getPwdLife() != null) {
-                oldUser.setPwdExpiry(DateUtils.plus(pwdChanged, oldUser.getPwdLife().intValue(), ChronoUnit.DAYS));
-            }
-            oldUser = em.merge(oldUser);
-
-            NBUserHis his = new NBUserHis(oldUser, sc);
-            his.setTransType(NBUserHis.TRANS_TYPE_CHANGE_PASSWORD);
-            em.persist(his);
-
-            return oldUser;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);

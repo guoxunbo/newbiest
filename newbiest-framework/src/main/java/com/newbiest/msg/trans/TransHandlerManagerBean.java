@@ -8,8 +8,6 @@ import com.newbiest.msg.base.entitylist.EntityListHandler;
 import com.newbiest.msg.base.entitylist.EntityListRequest;
 import com.newbiest.msg.security.role.RoleHandler;
 import com.newbiest.msg.security.role.RoleRequest;
-import com.newbiest.msg.security.user.UserHandler;
-import com.newbiest.msg.security.user.UserRequest;
 import com.newbiest.security.model.NBRole;
 import com.newbiest.security.model.NBUser;
 import org.springframework.stereotype.Component;
@@ -27,7 +25,6 @@ public class TransHandlerManagerBean {
         TransHandlerFactory.registerTransHandler(EntityListRequest.MESSAGE_NAME, new EntityListHandler());
         TransHandlerFactory.registerTransHandler(EntityManagerRequest.MESSAGE_NAME, new EntityManagerHandler());
 
-        TransHandlerFactory.registerTransHandler(UserRequest.MESSAGE_NAME, new UserHandler());
         TransHandlerFactory.registerTransHandler(RoleRequest.MESSAGE_NAME, new RoleHandler());
 
         ModelFactory.registerModelClassLoader(NBUser.class.getName(), NBUser.class.getClassLoader());
