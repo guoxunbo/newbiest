@@ -59,7 +59,6 @@ public class SecurityServiceImpl implements SecurityService  {
     NewbiestConfiguration newbiestConfiguration;
 
 
-
     @Autowired
     RedisService redisService;
 

@@ -1,5 +1,6 @@
 package com.newbiest.main;
 
+import com.newbiest.base.repository.custom.RepositoryFactoryBean;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true) // 启动事务管理以及CGLIB代理
-@EnableJpaRepositories(basePackages = "com.newbiest")
+@EnableJpaRepositories(basePackages = "com.newbiest", repositoryFactoryBeanClass = RepositoryFactoryBean.class)
 @EntityScan(basePackages = "com.newbiest.**.model")
 public class JpaConfiguration {
 

@@ -2,15 +2,17 @@ package com.newbiest.base.ui.service.impl;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.repository.TableRepository;
+import com.newbiest.base.model.NBBase;
 import com.newbiest.base.ui.model.NBField;
 import com.newbiest.base.ui.model.NBTable;
+import com.newbiest.base.ui.repository.TableRepository;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.ExcelUtils;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.repository.AuthorityRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -51,6 +53,26 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
+     *
+     * @return
+     * @throws ClientException
+     */
+    public List<NBBase> getDataFromTableRrn(Long tableRrn) throws ClientException {
+        try {
+            NBTable nbTable = tableRepository.getByObjectRrn(tableRrn);
+            if (nbTable == null) {
+
+            }
+
+            return null;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+
+    }
+
+    /**
      * 导入数据
      * @param tableRrn table主键
      * @param titleCh 标题是否是中文/必须是field的LABEL_ZH
@@ -76,7 +98,7 @@ public class UIServiceImpl implements UIService {
         try {
             NBTable nbTable = tableRepository.getDeepTable(tableRrn);
             // 组成MAP 形式为LABEL/LABEL_ZH, name
-            Map<String, String> headersMapped = null;
+            Map<String, String> headersMapped;
             if (titleCh) {
                 headersMapped =  nbTable.getFields().stream().filter(nbField -> nbField.getExportFlag()).collect(Collectors.toConcurrentMap(NBField :: getLabelZh, NBField :: getName));
             } else {

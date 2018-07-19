@@ -1,4 +1,4 @@
-package com.newbiest.base.repository.custom;
+package com.newbiest.base.ui.repository.custom;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -8,6 +8,7 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBHis;
+import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.utils.*;
 import com.newbiest.main.MailService;

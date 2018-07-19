@@ -1,10 +1,10 @@
-package com.newbiest.base.repository.custom.impl;
+package com.newbiest.base.ui.repository.custom.impl;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
-import com.newbiest.base.repository.custom.TableRepositoryCustom;
+import com.newbiest.base.repository.custom.impl.AbstractRepositoryImpl;
 import com.newbiest.base.ui.model.NBTable;
+import com.newbiest.base.ui.repository.custom.TableRepositoryCustom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,7 +16,6 @@ import javax.transaction.Transactional;
  * 用户操作相关类
  * Created by guoxunbo on 2017/9/27.
  */
-@Transactional
 @Slf4j
 public class TableRepositoryImpl implements TableRepositoryCustom {
 
