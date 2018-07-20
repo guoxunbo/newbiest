@@ -8,8 +8,6 @@ import com.newbiest.security.model.NBOrg;
  */
 public interface BaseService {
 
-    void loadMessages() throws ClientException;
-
     NBOrg getOrgByName(String name) throws ClientException;
     NBOrg getOrgByObjectRrn(Long objectRrn) throws ClientException;
 

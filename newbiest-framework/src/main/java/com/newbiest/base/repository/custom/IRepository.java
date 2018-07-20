@@ -14,11 +14,14 @@ import java.util.List;
 @NoRepositoryBean
 public interface IRepository<T extends NBBase, ID> extends JpaRepository<T, ID>{
 
-    List<NBBase> findAll(long orgRrn) throws ClientException;
-    List<NBBase> findAll(long orgRrn, int maxResult, String whereClause, String orderBy) throws ClientException;
-    List<NBBase> findAll(long orgRrn, int firstResult, int maxResult, String whereClause, String orderBy) throws ClientException;
+    List<? extends NBBase> findAll(long orgRrn) throws ClientException;
+    List<? extends NBBase> findAll(long orgRrn, int maxResult, String whereClause, String orderBy) throws ClientException;
+    List<? extends NBBase> findAll(long orgRrn, int firstResult, int maxResult, String whereClause, String orderBy) throws ClientException;
 
     boolean support(String className) throws ClientException;
+
+    NBBase findByObjectRrn(long objectRrn) throws ClientException;
+    List<? extends NBBase> findByNameAndOrgRrn(String name, long orgRrn) throws ClientException;
 
 }
 

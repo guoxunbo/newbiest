@@ -221,7 +221,7 @@ public class BaseDaoImpl implements BaseDao {
     @Override
     public List<Map> getEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException {
         try {
-            NBQuery nbQuery = queryRepository.getByName(queryName);
+            NBQuery nbQuery = queryRepository.findByName(queryName);
             if (nbQuery == null) {
                 throw new ClientException(NewbiestException.COMMON_QUERY_IS_NOT_FOUND);
             }
@@ -323,7 +323,7 @@ public class BaseDaoImpl implements BaseDao {
      */
     public void deleteRelationObject(NBBase nbBase, boolean throwExistException) throws ClientException{
         try {
-            List<NBRelation> relations = relationRepository.getBySource(nbBase.getClass().getName());
+            List<NBRelation> relations = relationRepository.findBySource(nbBase.getClass().getName());
             if (CollectionUtils.isNotEmpty(relations)) {
                 Query query;
                 for (NBRelation relation : relations) {

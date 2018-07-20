@@ -2,8 +2,6 @@ package com.newbiest.rms.repository.custom;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.rms.model.AbstractRecipeEquipment;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 

@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends IRepository<NBUser, Long>, UserRepositoryCustom {
 
-    NBUser getByObjectRrn(Long objectRrn) throws ClientException;
-    NBUser getByUsername(String username) throws ClientException;
+    NBUser findByUsername(String username) throws ClientException;
 
 
 }

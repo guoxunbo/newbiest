@@ -1,6 +1,8 @@
 package com.newbiest.main;
 
+import com.newbiest.base.service.BaseService;
 import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;

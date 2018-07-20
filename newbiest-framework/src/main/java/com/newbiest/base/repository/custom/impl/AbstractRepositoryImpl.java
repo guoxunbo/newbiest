@@ -1,20 +1,28 @@
 package com.newbiest.base.repository.custom.impl;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.factory.SqlBuilder;
 import com.newbiest.base.factory.SqlBuilderFactory;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.repository.custom.IRepository;
+import com.newbiest.base.utils.CollectionUtils;
+import com.newbiest.base.utils.EntityRefelectUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.main.ApplicationContextProvider;
 import com.newbiest.main.NewbiestConfiguration;
+import com.newbiest.security.model.NBOrg;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -26,7 +34,7 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
 
     private final EntityManager em;
 
-    private AtomicBoolean initFlag;
+    private AtomicBoolean initFlag = new AtomicBoolean(false);
 
     private NewbiestConfiguration newbiestConfiguration;
 
@@ -34,11 +42,11 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
     /**
      * 对应这个Repository具体的Class
      */
-    private final Class<T> domainClass;
+    private final Class<T> entityClass;
 
-    public AbstractRepositoryImpl(Class<T> domainClass, EntityManager entityManager) {
-        super(domainClass, entityManager);
-        this.domainClass = domainClass;
+    public AbstractRepositoryImpl(Class<T> entityClass, EntityManager entityManager) {
+        super(entityClass, entityManager);
+        this.entityClass = entityClass;
         this.em = entityManager;
     }
 
@@ -58,13 +66,68 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
      */
     @Override
     public boolean support(String fullClassName) throws ClientException {
-        return domainClass.getName().equals(fullClassName);
+        return entityClass.getName().equals(fullClassName);
     }
 
-    public List<NBBase> findAll(long orgRrn) throws ClientException {
+    @Override
+    public NBBase findByObjectRrn(long objectRrn) throws ClientException {
+        try {
+            List<? extends NBBase> nbBases = findAll(NBOrg.GLOBAL_ORG_RRN, 1, "objectRrn = " + objectRrn, null);
+            if (CollectionUtils.isNotEmpty(nbBases)) {
+                return nbBases.get(0);
+            } else {
+                throw new ClientParameterException(NewbiestException.COMMON_ENTITY_IS_NOT_EXIST, entityClass.getName(), objectRrn);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    @Override
+    public List<? extends NBBase> findByNameAndOrgRrn(String name, long orgRrn) throws ClientException {
+        try {
+            // 检查entityClass中是否有name持久化栏位
+            checkFiled("name");
+            List<? extends NBBase> nbBases = findAll(orgRrn, "name = '" + name + "'", null);
+            if (CollectionUtils.isNotEmpty(nbBases)) {
+                return nbBases;
+            } else {
+                return Lists.newArrayList();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 检查栏位是否存在 以及是否具有domainClass的@Column栏位
+     * @param fieldName
+     */
+    private void checkFiled(String fieldName) throws ClientException {
+        List<Field> fields = Lists.newArrayList(entityClass.getDeclaredFields());
+        Optional optional = fields.stream()
+                .filter(field -> EntityRefelectUtils.checkFieldPersist(field) && field.getName().equals(fieldName)).findFirst();
+        if (!optional.isPresent()) {
+            throw new ClientParameterException(NewbiestException.COMMON_ENTITY_FIELD_IS_NOT_PERSIST, entityClass.getName(), fieldName);
+        }
+    }
+
+    public List<? extends NBBase> findAll(long orgRrn) throws ClientException {
         try {
             init();
             return findAll(orgRrn, newbiestConfiguration.getQueryMaxCount(), StringUtils.EMPTY, StringUtils.EMPTY);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    public List<? extends NBBase> findAll(long orgRrn, String whereClause, String orderBy) throws ClientException {
+        try {
+            init();
+            return findAll(orgRrn, newbiestConfiguration.getQueryMaxCount(), whereClause, orderBy);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -80,9 +143,8 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
      * @return
      * @throws ClientException
      */
-    public List<NBBase> findAll(long orgRrn, int maxResult, String whereClause, String orderBy) throws ClientException {
+    public List<? extends NBBase> findAll(long orgRrn, int maxResult, String whereClause, String orderBy) throws ClientException {
         try {
-            init();
             return findAll(orgRrn, 0, maxResult, whereClause, orderBy);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -100,11 +162,11 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
      * @return
      * @throws ClientException
      */
-    public List<NBBase> findAll(long orgRrn, int firstResult, int maxResult, String whereClause, String orderBy) throws ClientException {
+    public List<? extends NBBase> findAll(long orgRrn, int firstResult, int maxResult, String whereClause, String orderBy) throws ClientException {
         try {
             init();
-            SqlBuilder sqlBuilder = SqlBuilderFactory.getInstance().createSqlBuilder();
-            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(domainClass, orgRrn).build();
+            SqlBuilder sqlBuilder = sqlBuilderFactory.createSqlBuilder();
+            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(entityClass, orgRrn).build();
 
             if (!StringUtils.isNullOrEmpty(whereClause)) {
                 sqlBuffer.append(" AND ");
@@ -124,9 +186,7 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
             } else {
                 query.setMaxResults(newbiestConfiguration.getQueryMaxCount());
             }
-            if (orgRrn != 0) {
-                query.setParameter("orgRrn", orgRrn);
-            }
+            query.setParameter("orgRrn", orgRrn);
             return query.getResultList();
         } catch (Exception e) {
             log.error(e.getMessage(), e);

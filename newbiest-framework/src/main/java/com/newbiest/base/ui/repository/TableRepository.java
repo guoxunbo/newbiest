@@ -17,7 +17,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TableRepository extends IRepository<NBTable, Long>, TableRepositoryCustom {
 
-    NBTable getByName(String name) throws ClientException;
-    NBTable getByObjectRrn(Long objectRrn) throws ClientException;
-
 }

@@ -68,7 +68,7 @@ public class SecurityServiceImpl implements SecurityService  {
     public void login(String username, String password) throws ClientException {
         try {
             // 1. 先查找用户 用户如果没找到直接抛出异常
-            NBUser nbUser = userRepository.getByUsername(username);
+            NBUser nbUser = userRepository.findByUsername(username);
             if (nbUser == null) {
                 throw new ClientParameterException(SecurityException.SECURITY_USER_IS_NOT_EXIST, username);
             }
@@ -118,7 +118,7 @@ public class SecurityServiceImpl implements SecurityService  {
 
     public NBUser getUserByObjectRrn(Long userRrn) throws ClientException {
         try {
-            return userRepository.getByObjectRrn(userRrn);
+            return (NBUser) userRepository.findByObjectRrn(userRrn);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -128,7 +128,7 @@ public class SecurityServiceImpl implements SecurityService  {
     @Override
     public NBUser getUserByUsername(String username) throws ClientException {
         try {
-            return userRepository.getByUsername(username);
+            return userRepository.findByUsername(username);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -146,7 +146,7 @@ public class SecurityServiceImpl implements SecurityService  {
         try {
             sc.buildTransInfo();
             if (nbUser.getObjectRrn() != null) {
-                NBUser oldUser = userRepository.getByObjectRrn(nbUser.getObjectRrn());
+                NBUser oldUser = (NBUser) userRepository.findByObjectRrn(nbUser.getObjectRrn());
                 //不允许修改用户密码
                 String oldPassword = oldUser.getPassword();
                 nbUser.setPassword(oldPassword);
@@ -221,7 +221,7 @@ public class SecurityServiceImpl implements SecurityService  {
             if (StringUtils.isNullOrEmpty(newPassword)) {
                 throw new ClientException(NewbiestException.COMMON_NEW_PASSWORD_IS_NULL);
             }
-            NBUser oldUser = userRepository.getByObjectRrn(user.getObjectRrn());
+            NBUser oldUser = (NBUser) userRepository.findByObjectRrn(user.getObjectRrn());
             String oldPwd = oldUser.getPassword();
 
             if (!oldPwd.equals(oldPassword)) {
@@ -257,7 +257,7 @@ public class SecurityServiceImpl implements SecurityService  {
     public NBUser resetPassword(NBUser nbUser, SessionContext sc) throws ClientException {
         try {
             sc.buildTransInfo();
-            nbUser = userRepository.getByObjectRrn(nbUser.getObjectRrn());
+            nbUser = (NBUser) userRepository.findByObjectRrn(nbUser.getObjectRrn());
             Date pwdChanged = new Date();
             nbUser.setPwdChanged(pwdChanged);
             //对Password进行加密
@@ -338,7 +338,7 @@ public class SecurityServiceImpl implements SecurityService  {
     @Override
     public NBRole getRoleByObjectRrn(Long objectRrn) throws ClientException {
         try {
-            return roleRepository.getByObjectRrn(objectRrn);
+            return (NBRole) roleRepository.findByObjectRrn(objectRrn);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -348,7 +348,7 @@ public class SecurityServiceImpl implements SecurityService  {
     @Override
     public NBRole getRoleByRoleId(String roleId) throws ClientException {
         try {
-            return roleRepository.getByRoleId(roleId);
+            return roleRepository.findByRoleId(roleId);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);

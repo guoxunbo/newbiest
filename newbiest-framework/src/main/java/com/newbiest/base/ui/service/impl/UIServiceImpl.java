@@ -41,10 +41,7 @@ public class UIServiceImpl implements UIService {
      */
     public NBTable getNBTableByAuthority(Long authorityRrn) throws ClientException {
         try {
-            NBAuthority nbAuthority = authorityRepository.getByObjectRrn(authorityRrn);
-            if (nbAuthority == null) {
-//                throw new ClientException(SecurityException.AUTHORITY_IS_NULL);
-            }
+            NBAuthority nbAuthority = (NBAuthority) authorityRepository.findByObjectRrn(authorityRrn);
             return tableRepository.getDeepTable(nbAuthority.getTableRrn());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -59,7 +56,7 @@ public class UIServiceImpl implements UIService {
      */
     public List<NBBase> getDataFromTableRrn(Long tableRrn) throws ClientException {
         try {
-            NBTable nbTable = tableRepository.getByObjectRrn(tableRrn);
+            NBTable nbTable = (NBTable) tableRepository.findByObjectRrn(tableRrn);
             if (nbTable == null) {
 
             }
