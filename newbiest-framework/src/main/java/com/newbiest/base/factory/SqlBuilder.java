@@ -62,6 +62,13 @@ public class SqlBuilder {
         return this;
     }
 
+    public SqlBuilder delete(Class clazz) throws Exception {
+        sqlBuffer.append(" DELETE FROM ");
+        sqlBuffer.append(clazz.getSimpleName());
+        where();
+        return this;
+    }
+
     public String buildString() throws Exception{
         return sqlBuffer.toString();
     }

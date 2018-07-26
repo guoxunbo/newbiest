@@ -6,13 +6,9 @@ import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.SessionContext;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.sf.cglib.beans.BeanCopier;
-import org.hibernate.Session;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Created by guoxunbo on 2017/10/5.
@@ -43,10 +39,6 @@ public class NBHis extends NBUpdatable {
 
     public NBHis(NBBase base, SessionContext sc) {
         setNbBase(base, sc);
-    }
-
-    public String getHisSeq() {
-        return hisSeq;
     }
 
     public static NBHis getHistoryBean(NBBase nbBase) throws Exception{

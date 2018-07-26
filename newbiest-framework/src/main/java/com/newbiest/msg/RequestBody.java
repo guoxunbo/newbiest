@@ -1,5 +1,8 @@
 package com.newbiest.msg;
 
+import com.newbiest.base.model.NBBase;
+import lombok.Data;
+
 import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -11,6 +14,5 @@ import javax.xml.bind.annotation.XmlAccessorType;
 public class RequestBody implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
-	
+
 }

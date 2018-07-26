@@ -1,6 +1,6 @@
 package com.newbiest.msg.trans;
 
-import com.newbiest.base.dao.BaseDao;
+import com.newbiest.base.service.BaseService;
 import com.newbiest.security.repository.RoleRepository;
 import com.newbiest.security.repository.UserRepository;
 import com.newbiest.security.service.SecurityService;
@@ -17,7 +17,7 @@ public class TransContext {
     private String request;
     private String response;
 
-    private BaseDao nbManager;
+    private BaseService baseService;
     private SecurityService securityService;
 
     private UserRepository userRepository;

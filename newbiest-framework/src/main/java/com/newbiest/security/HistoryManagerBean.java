@@ -1,4 +1,4 @@
-package com.newbiest.base.dao.impl;
+package com.newbiest.security;
 
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.security.model.NBRole;
@@ -22,6 +22,5 @@ public class HistoryManagerBean {
 
         ModelFactory.registerHistoryModelClassLoader(NBRole.class.getName(), NBUserHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(NBRole.class.getName(), NBRoleHis.class.getName());
-
     }
 }

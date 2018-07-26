@@ -6,8 +6,21 @@ package com.newbiest.base.exception;
  */
 public class NewbiestException {
 
+    // repository相关
+    public static final String COMMON_REPOSITORY_IS_NOT_EXIST = "common.repository_is_not_exist";
+    // entity相关
     public static final String COMMON_ENTITY_IS_NOT_EXIST = "common.entity_is_not_exist";
     public static final String COMMON_ENTITY_FIELD_IS_NOT_PERSIST = "common.entity_field_is_not_persist";
+    public static final String COMMON_RELATION_OBJECT_IS_EXIST = "common.rel_obj_is_exist";
+    public static final String COMMON_NONSUPPORT_RELATION_TYPE = "common.nonsupport_rel_type";
+    public static final String COMMON_NONSUPPORT_DELETE_ALL_TABLE_DATA = "common.nonsupport_del_all_table_data";
+
+    public static final String COMMON_MODEL_CLASS_LOADER_IS_NOT_EXIST = "common.class_loader_is_not_exist";
+    public static final String COMMON_ENTITY_IS_NOT_NEWEST = "common.entity_is_not_newest";
+
+    // query
+    public static final String COMMON_QUERY_IS_NOT_EXIST= "common.query_is_not_exist";
+
 
     public static final String COMMON_UNKNOWN_TIME_UNIT = "common.unknown_time_unit";
     public static final String COMMON_TOKEN_IS_EXPIRED = "common.token_is_expired";
@@ -28,12 +41,7 @@ public class NewbiestException {
 
     public static final String COMMON_OPTIMISTIC_LOCK= "common.optimistic_lock";
 
-    public static final String COMMON_QUERY_IS_NOT_FOUND= "common.query_is_not_found";
 
-    public static final String COMMON_RELATION_OBJECT_IS_EXIST = "common.rel_obj_is_exist";
-    public static final String COMMON_MODEL_CLASS_LOADER_IS_NULL = "common.class_loader_is_null";
-    public static final String COMMON_ENTITY_IS_NOT_EXIST_OR_DELETE = "common.entity_is_not_exist_or_delete";
-    public static final String COMMON_OBJECT_IS_NOT_NEWEST = "common.obj_is_not_newest";
 
     public static final String COMMON_ROLE_IS_NULL = "common.role_is_null";
 

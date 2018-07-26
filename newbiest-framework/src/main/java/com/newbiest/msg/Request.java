@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Data
 public abstract class Request implements Serializable{
 
-    public static final String UN_SUPPORT_ACTION_TYPE = "UnSupport ActionType : ";
+    public static final String NON_SUPPORT_ACTION_TYPE = "NonSupport ActionType : ";
 
     public static final String ACTION_GET_BY_RRN = "GetByRrn";
     public static final String ACTION_GET_BY_ID = "GetById";

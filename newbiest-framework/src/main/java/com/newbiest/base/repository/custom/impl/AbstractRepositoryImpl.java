@@ -11,17 +11,20 @@ import com.newbiest.base.model.NBBase;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.EntityRefelectUtils;
+import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.main.ApplicationContextProvider;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.model.NBOrg;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.transform.Transformers;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -70,6 +73,11 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
     }
 
     @Override
+    public EntityManager getEntityManager() throws ClientException {
+        return em;
+    }
+
+    @Override
     public NBBase findByObjectRrn(long objectRrn) throws ClientException {
         try {
             List<? extends NBBase> nbBases = findAll(NBOrg.GLOBAL_ORG_RRN, 1, "objectRrn = " + objectRrn, null);
@@ -95,6 +103,26 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
             } else {
                 return Lists.newArrayList();
             }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 根据条件删除
+     * @param whereClause 如name = 'a'
+     * @throws ClientException
+     */
+    @Override
+    public void delete(String whereClause) throws ClientException {
+        try {
+            if (StringUtils.isNullOrEmpty(whereClause)) {
+                throw new ClientException(NewbiestException.COMMON_NONSUPPORT_DELETE_ALL_TABLE_DATA);
+            }
+            StringBuffer sqlBuffer = sqlBuilderFactory.createSqlBuilder().delete(entityClass).and().build();
+            sqlBuffer.append(whereClause);
+            em.createQuery(sqlBuffer.toString()).executeUpdate();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -187,6 +215,55 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
                 query.setMaxResults(newbiestConfiguration.getQueryMaxCount());
             }
             query.setParameter("orgRrn", orgRrn);
+            return query.getResultList();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 根据自定义定义的SQL语句进行以返回Map的形式查询返回
+     * @param queryText 自定义的SQL语句
+     * @param paramMap WhereClause的参数值
+     * @param firstResult 起始
+     * @param maxResult 最大返回数据
+     * @param whereClause 查询条件
+     * @param orderByClause 排序条件
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public List<Map> findEntityMapListByQueryText(String queryText, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException {
+        try {
+            StringBuffer sqlBuffer = new StringBuffer();
+            sqlBuffer.append("SELECT * FROM (");
+            sqlBuffer.append(queryText);
+            sqlBuffer.append(")");
+            if (!StringUtils.isNullOrEmpty(whereClause)) {
+                sqlBuffer.append(" WHERE ");
+                sqlBuffer.append(whereClause);
+            }
+            if (!StringUtils.isNullOrEmpty(orderByClause)) {
+                sqlBuffer.append(" ORDER BY ");
+                sqlBuffer.append(orderByClause);
+            }
+
+            Query query = em.createNativeQuery(sqlBuffer.toString());
+            if (firstResult > 0) {
+                query.setFirstResult(firstResult);
+            }
+            if (maxResult < newbiestConfiguration.getQueryMaxCount()) {
+                query.setMaxResults(maxResult);
+            } else {
+                query.setMaxResults(newbiestConfiguration.getQueryMaxCount());
+            }
+            if (paramMap != null) {
+                for (String key : paramMap.keySet()) {
+                    query.setParameter(key, paramMap.get(key));
+                }
+            }
+            query.unwrap(org.hibernate.query.Query.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
             return query.getResultList();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
