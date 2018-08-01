@@ -72,8 +72,8 @@ public class NBTable extends NBBase {
     @Column(name="WHERE_CLAUSE")
     private String whereClause;
 
-    @Column(name="ORDER_BY_CLAUSE")
-    private String orderByClause;
+    @Column(name="ORDER_BY")
+    private String orderBy;
 
     /**
      * 初始的查询条件,只在刚生产动态页面时有效
@@ -111,13 +111,11 @@ public class NBTable extends NBBase {
     @Column(name="LABEL_RES")
     private String label_res;
 
-    @OneToMany(mappedBy = "table", fetch=FetchType.LAZY,
-            targetEntity = NBTab.class)
+    @OneToMany(mappedBy = "table", fetch=FetchType.LAZY, targetEntity = NBTab.class)
     @OrderBy(value = "seqNo ASC")
     private List<NBTab> tabs;
 
-    @OneToMany(mappedBy = "table", fetch=FetchType.LAZY,
-            targetEntity = NBField.class)
+    @OneToMany(mappedBy = "table", fetch=FetchType.LAZY, targetEntity = NBField.class)
     @OrderBy(value = "seqNo ASC")
     private List<NBField> fields;
 

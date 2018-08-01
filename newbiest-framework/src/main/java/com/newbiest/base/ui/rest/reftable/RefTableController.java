@@ -35,7 +35,7 @@ public class RefTableController extends AbstractRestController {
     private UIService uiService;
 
     @ApiOperation(value = "对RefTable做操作", notes = "GetData")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "RefListRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "RefTableRequest")
     @RequestMapping(value = "/refTableManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public RefTableResponse execute(@RequestBody RefTableRequest request) throws Exception {
         log(log, request);

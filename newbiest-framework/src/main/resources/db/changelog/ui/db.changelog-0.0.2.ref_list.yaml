@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-language-info-ref-list
+      author: Xunbo Guo
+      comment: Insert language info to NB_REFERENCE_LIST
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/ref_list-data-0.0.1.sql

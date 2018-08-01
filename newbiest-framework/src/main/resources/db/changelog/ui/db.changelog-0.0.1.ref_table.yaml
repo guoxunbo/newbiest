@@ -1,0 +1,64 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-ref_table-table
+      author: Xunbo Guo
+      comment: Create table NB_REFERENCE_TABLE
+      changes:
+        - createTable:
+            tableName: NB_REFERENCE_TABLE
+            remarks: ReferenceTable Info
+            columns:
+              - column:
+                  name: object_rrn
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: active_flag
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: org_rrn
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: name
+                  type: varchar(64)
+                  remarks: 名字
+              - column:
+                  name: description
+                  type: varchar(256)
+                  remarks: 描述
+              - column:
+                  name: TABLE_RRN
+                  type: bigint
+                  remarks: 对应nbTable的主键
+              - column:
+                  name: KEY_FIELD
+                  type: varchar(64)
+                  remarks: 参考表所对应Key栏位, 保存到数据库中的值
+              - column:
+                  name: TEXT_FIELD
+                  type: varchar(128)
+                  remarks: 参考表所对应Text栏位,显示在页面上的值
+              - column:
+                  name: WHERE_CLAUSE
+                  type: varchar(128)
+                  remarks: 查询条件
+              - column:
+                  name: ORDER_BY
+                  type: varchar(128)
+                  remarks: 排序条件
+  - changeSet:
+      id: add-unique-constraint-for-reference-table-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (org_rrn, name) for table NB_REFERENCE_TABLE
+      changes:
+        - addUniqueConstraint:
+            tableName: NB_REFERENCE_TABLE
+            columnNames: org_rrn, name

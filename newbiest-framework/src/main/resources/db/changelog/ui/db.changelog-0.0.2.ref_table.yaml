@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-org_ref_table-nb_reftable
+      author: Xunbo Guo
+      comment: Insert org_ref_table info to NB_REFERENCE_TABLE
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/ref_table-data-0.0.1.sql

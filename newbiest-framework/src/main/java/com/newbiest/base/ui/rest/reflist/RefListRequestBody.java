@@ -19,5 +19,4 @@ public class RefListRequestBody extends RequestBody {
     @ApiModelProperty("动态栏位参考名称")
     private String referenceName;
 
-
 }

@@ -13,6 +13,6 @@ import java.util.List;
 @Repository
 public interface OwnerReferenceListRepository extends IRepository<NBOwnerReferenceList, Long> {
 
-    List<NBOwnerReferenceList> findByReferenceNameAAndOrgRrn(String referenceName, Long orgRrn) throws ClientException;
+    List<NBOwnerReferenceList> findByReferenceNameAndOrgRrn(String referenceName, Long orgRrn) throws ClientException;
 
 }

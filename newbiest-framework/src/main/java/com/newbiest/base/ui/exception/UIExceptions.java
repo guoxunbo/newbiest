@@ -11,7 +11,6 @@ public class UIExceptions {
 
     public static final String UI_REF_LIST_NONSUPPORT_CATEGORY = "ui.ref_list_nonsupport_category";
 
-
     public static final String UI_REF_TABLE_NOT_EXIST = "ui.ref_table_is_not_exist";
 
 }

@@ -1,0 +1,2 @@
+INSERT INTO NB_TABLE(name, description, category, table_name, MODEL_NAME, MODEL_CLASS, GRID_Y_BASIC, GRID_Y_QUERY, LABEL, LABEL_ZH)
+  VALUES ('NBOrg', '区域', 'Framework', 'NB_ORG', 'NBOrg', 'com.newbiest.security.model.NBOrg', 2, 2, 'Org', '区域');

@@ -1,0 +1,4 @@
+INSERT INTO NB_REFERENCE_LIST(REFERENCE_NAME, `KEY`, `VALUE`, SEQ_NO, category)
+  VALUES ('NBLanguage', 'ZH', '中文', 10, 'System');
+INSERT INTO NB_REFERENCE_LIST(REFERENCE_NAME, `KEY`, `VALUE`, SEQ_NO, category)
+VALUES ('NBLanguage', 'EN', '英文', 20, 'System');

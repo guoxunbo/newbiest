@@ -80,7 +80,7 @@ public class UIServiceImpl implements UIService {
         try {
             NBTable nbTable = (NBTable) tableRepository.findByObjectRrn(tableRrn);
             if (!nbTable.getView()) {
-                List<? extends NBBase> datas = baseService.findAll(nbTable.getModelClass(), sc.getOrgRrn(), nbTable.getInitWhereClause(), nbTable.getOrderByClause());
+                List<? extends NBBase> datas = baseService.findAll(nbTable.getModelClass(), sc.getOrgRrn(), nbTable.getInitWhereClause(), nbTable.getOrderBy());
                 return datas;
             } else {
                 //TODO 暂时只支持实体查询不支持直接SQL查询
@@ -161,7 +161,7 @@ public class UIServiceImpl implements UIService {
      */
     public List<NBOwnerReferenceList> getOwnerReferenceList(String referenceName, SessionContext sc) throws ClientException {
         try {
-            return ownerReferenceListRepository.findByReferenceNameAAndOrgRrn(referenceName, sc.getOrgRrn());
+            return ownerReferenceListRepository.findByReferenceNameAndOrgRrn(referenceName, sc.getOrgRrn());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
