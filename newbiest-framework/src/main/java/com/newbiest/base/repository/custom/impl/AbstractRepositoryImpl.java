@@ -209,7 +209,7 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
             if (firstResult > 0) {
                 query.setFirstResult(firstResult);
             }
-            if (maxResult < newbiestConfiguration.getQueryMaxCount()) {
+            if (maxResult != 0 && maxResult < newbiestConfiguration.getQueryMaxCount()) {
                 query.setMaxResults(maxResult);
             } else {
                 query.setMaxResults(newbiestConfiguration.getQueryMaxCount());

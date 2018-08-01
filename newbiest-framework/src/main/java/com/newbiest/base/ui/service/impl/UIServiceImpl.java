@@ -6,10 +6,13 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.exception.UIExceptions;
-import com.newbiest.base.ui.model.NBField;
-import com.newbiest.base.ui.model.NBTable;
+import com.newbiest.base.ui.model.*;
+import com.newbiest.base.ui.repository.OwnerReferenceListRepository;
+import com.newbiest.base.ui.repository.ReferenceTableRepository;
+import com.newbiest.base.ui.repository.SystemReferenceListRepository;
 import com.newbiest.base.ui.repository.TableRepository;
 import com.newbiest.base.ui.service.UIService;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.ExcelUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.security.model.NBAuthority;
@@ -39,6 +42,15 @@ public class UIServiceImpl implements UIService {
     @Autowired
     private BaseService baseService;
 
+    @Autowired
+    private OwnerReferenceListRepository ownerReferenceListRepository;
+
+    @Autowired
+    private SystemReferenceListRepository systemReferenceListRepository;
+
+    @Autowired
+    private ReferenceTableRepository referenceTableRepository;
+
     /**
      * 页面上点击authority的时候触发
      * @param authorityRrn
@@ -51,7 +63,7 @@ public class UIServiceImpl implements UIService {
             NBTable nbTable = new NBTable();
             nbTable.setObjectRrn(nbAuthority.getTableRrn());
 
-            nbTable = (NBTable) baseService.findEntity(nbTable);
+            nbTable = (NBTable) baseService.findEntity(nbTable, true);
             return nbTable;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -67,9 +79,6 @@ public class UIServiceImpl implements UIService {
     public List<? extends NBBase> getDataFromTableRrn(Long tableRrn, SessionContext sc) throws ClientException {
         try {
             NBTable nbTable = (NBTable) tableRepository.findByObjectRrn(tableRrn);
-            if (nbTable == null) {
-                throw new ClientParameterException(UIExceptions.UI_TABLE_NOT_EXIST, tableRrn);
-            }
             if (!nbTable.getView()) {
                 List<? extends NBBase> datas = baseService.findAll(nbTable.getModelClass(), sc.getOrgRrn(), nbTable.getInitWhereClause(), nbTable.getOrderByClause());
                 return datas;
@@ -81,7 +90,96 @@ public class UIServiceImpl implements UIService {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
         }
+    }
 
+    /**
+     * 根据tableRrn获取数据 覆盖Table上的whereClause和orderBy
+     * @param tableRrn NBTable的主键
+     * @param whereClause 查询条件
+     * @param orderBy 排序条件
+     * @return
+     * @throws ClientException
+     */
+    public List<? extends NBBase> getDataFromTableRrn(Long tableRrn, String whereClause, String orderBy, SessionContext sc) throws ClientException {
+        try {
+            NBTable nbTable = (NBTable) tableRepository.findByObjectRrn(tableRrn);
+            if (!nbTable.getView()) {
+                List<? extends NBBase> datas = baseService.findAll(nbTable.getModelClass(), sc.getOrgRrn(), whereClause, orderBy);
+                return datas;
+            } else {
+                //TODO 暂时只支持实体查询不支持直接SQL查询
+                throw new ClientException(UIExceptions.UI_TABLE_NON_SUPPORT_VIEW);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 获取栏位参考值
+     * @param referenceName 参考名称
+     * @param category 类型 系统栏位参考值还是用户栏位参考值
+     * @return
+     * @throws ClientException
+     */
+    public List<? extends NBReferenceList> getReferenceList(String referenceName, String category, SessionContext sc) throws ClientException {
+        try {
+            if (NBReferenceList.CATEGORY_SYSTEM.equals(category)) {
+                return getSystemReferenceList(referenceName);
+            } else if (NBReferenceList.CATEGORY_OWNER.equals(category)) {
+                return getOwnerReferenceList(referenceName, sc);
+            } else {
+                throw new ClientParameterException(UIExceptions.UI_REF_LIST_NONSUPPORT_CATEGORY, category);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 获取系统栏位参考值
+     * @param referenceName 参考名称
+     * @return
+     * @throws ClientException
+     */
+    public List<NBSystemReferenceList> getSystemReferenceList(String referenceName) throws ClientException {
+        try {
+            return systemReferenceListRepository.findByReferenceName(referenceName);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 根据区域获取用户栏位参考值
+     * @param referenceName 参考名称
+     * @return
+     * @throws ClientException
+     */
+    public List<NBOwnerReferenceList> getOwnerReferenceList(String referenceName, SessionContext sc) throws ClientException {
+        try {
+            return ownerReferenceListRepository.findByReferenceNameAAndOrgRrn(referenceName, sc.getOrgRrn());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    public NBReferenceTable getReferenceTableByName(String name, SessionContext sc) throws ClientException {
+        try {
+            List<NBReferenceTable> referenceTables = (List<NBReferenceTable>) referenceTableRepository.findByNameAndOrgRrn(name, sc.getOrgRrn());
+            if (CollectionUtils.isNotEmpty(referenceTables)) {
+                return referenceTables.get(0);
+            } else {
+                throw new ClientParameterException(UIExceptions.UI_REF_TABLE_NOT_EXIST, name);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
     }
 
     /**
@@ -110,7 +208,7 @@ public class UIServiceImpl implements UIService {
         try {
             NBTable nbTable = new NBTable();
             nbTable.setObjectRrn(tableRrn);
-            nbTable = (NBTable) baseService.findEntity(nbTable);
+            nbTable = (NBTable) baseService.findEntity(nbTable, true);
             // 组成MAP 形式为LABEL/LABEL_ZH, name
             Map<String, String> headersMapped;
             if (titleCh) {

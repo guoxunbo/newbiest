@@ -83,7 +83,7 @@ public class RoleController extends AbstractRestController {
                     role.setUsers(requestRole.getUsers());
                     role.setAuthorities(requestRole.getAuthorities());
                 } else {
-                    throw new ClientException(Request.UN_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+                    throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
                 }
                 if (!(RoleRequest.ACTION_GET_BY_ID.equals(actionType) || RoleRequest.ACTION_GET_BY_RRN.equals(actionType))) {
                     role = securityService.saveRole(role);

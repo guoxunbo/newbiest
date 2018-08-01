@@ -278,7 +278,6 @@ public class BaseServiceImpl implements BaseService  {
      * 根据ObjectRrn取得相应的实体 并根据deepFlag加载出所有的懒加载对象
      * @param nbBase 实体必带objectRrn
      * @param deepFlag 是否加载懒加载对象
-     * @return
      * @throws ClientException
      */
     public NBBase findEntity(NBBase nbBase, boolean deepFlag) throws ClientException{

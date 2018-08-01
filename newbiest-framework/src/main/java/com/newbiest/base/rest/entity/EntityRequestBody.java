@@ -18,12 +18,12 @@ public class EntityRequestBody extends RequestBody {
     private String actionType;
 
     @ApiModelProperty("类全名，从NBTable上的modelClass带过来")
-    private String modelClass;
+    private String entityModel;
 
     @ApiModelProperty("需要操作的entity的具体JSON字符串")
     private String entityString;
 
-    @ApiModelProperty(value = "需要操作的entity的具体JSON", example = "Y/N")
+    @ApiModelProperty(value = "是否删除连带数据", example = "Y/N")
     private String throwExistRelationException;
 
     public Boolean getThrowExistRelationException() {

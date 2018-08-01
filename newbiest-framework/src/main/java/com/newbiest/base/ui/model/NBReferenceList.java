@@ -20,6 +20,10 @@ public class NBReferenceList extends NBBase{
 
     private static final long serialVersionUID = -5309380552527153511L;
 
+    public static final String CATEGORY_OWNER = "Owner";
+    public static final String CATEGORY_SYSTEM = "System";
+
+
     @Column(name = "REFERENCE_NAME")
     private String referenceName;
 

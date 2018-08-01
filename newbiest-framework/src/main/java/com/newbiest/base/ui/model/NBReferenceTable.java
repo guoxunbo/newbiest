@@ -47,7 +47,7 @@ public class NBReferenceTable extends NBBase {
     @Column(name="WHERE_CLAUSE")
     private String whereClause;
 
-    @Column(name="ORDER_BY_CLAUSE")
-    private String orderByClause;
+    @Column(name="ORDER_BY")
+    private String orderBy;
 
 }

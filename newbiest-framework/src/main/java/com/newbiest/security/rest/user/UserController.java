@@ -80,7 +80,7 @@ public class UserController extends AbstractRestController {
                 securityService.deleteUser(user);
                 user = null;
             } else {
-                throw new ClientException(Request.UN_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+                throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
             }
         }
         responseBody.setUser(user);

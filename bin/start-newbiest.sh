@@ -2,7 +2,7 @@
 set -x
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
-WAR_PATH=$(find $ROOT -name framework*.war)
+JAR_PATH=$(find $ROOT -name framework*.jar)
 
-echo "Start WAR from ${WAR_PATH}"
-java -jar "${WAR_PATH}"
+echo "Start JAR from ${JAR_PATH}"
+java -jar "${JAR_PATH}" --spring.profiles.active=aliyun --logging.path=/app_newbiest/logs

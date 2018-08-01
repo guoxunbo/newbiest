@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/framework")
 @Slf4j
-@Api(value="/framework", tags="FrameworkService", description = "对实体进行默认的增删改查操作")
+@Api(value="/framework", tags="FrameworkService", description = "系统一些通用功能")
 public class EntityController extends AbstractRestController {
 
     @ApiOperation(value = "对实体做操作", notes = "Create, Update, Delete,GetByRrn,GetById等")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "EntityRequest")
-    @RequestMapping(value = "/handleEntity", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/EntityManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public EntityResponse execute(@RequestBody EntityRequest request) throws Exception {
         log(log, request);
         SessionContext sc = getSessionContext(request);
@@ -42,16 +42,16 @@ public class EntityController extends AbstractRestController {
 
         EntityRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
-        String modelClassName = requestBody.getModelClass();
+        String entityModel = requestBody.getEntityModel();
 
-        ClassLoader classLoader = ModelFactory.getModelClassLoader(modelClassName);
+        ClassLoader classLoader = ModelFactory.getModelClassLoader(entityModel);
         if (classLoader == null) {
-            throw new ClientParameterException(NewbiestException.COMMON_MODEL_CLASS_LOADER_IS_NOT_EXIST, modelClassName);
+            throw new ClientParameterException(NewbiestException.COMMON_MODEL_CLASS_LOADER_IS_NOT_EXIST, entityModel);
         }
         if (log.isDebugEnabled()) {
-            log.debug("User [" + sc.getUsername() + "], actionType is ["+ actionType + "], modelClass is [" + modelClassName + "]");
+            log.debug("User [" + sc.getUsername() + "], actionType is ["+ actionType + "], modelClass is [" + entityModel + "]");
         }
-        NBBase nbBase = parser(requestBody.getEntityString(), classLoader.loadClass(modelClassName));
+        NBBase nbBase = parser(requestBody.getEntityString(), classLoader.loadClass(entityModel));
         if (EntityRequest.ACTION_CREATE.equals(actionType)) {
             saveEntity(nbBase, sc);
         } else if (EntityRequest.ACTION_UPDATE.equals(actionType)) {

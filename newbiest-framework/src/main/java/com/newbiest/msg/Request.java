@@ -16,11 +16,11 @@ public abstract class Request implements Serializable{
 
     public static final String NON_SUPPORT_ACTION_TYPE = "NonSupport ActionType : ";
 
-    public static final String ACTION_GET_BY_RRN = "GetByRrn";
-    public static final String ACTION_GET_BY_ID = "GetById";
     public static final String ACTION_CREATE = "Create";
     public static final String ACTION_UPDATE = "Update";
     public static final String ACTION_DELETE = "Delete";
+    public static final String ACTION_GET_BY_RRN = "GetByRrn";
+    public static final String ACTION_GET_BY_ID = "GetById";
 
     private RequestHeader header;
 

@@ -8,7 +8,7 @@ import javax.persistence.Entity;
  * Created by guoxunbo on 2018/2/7.
  */
 @Entity
-@DiscriminatorValue("OWNER")
+@DiscriminatorValue(NBReferenceList.CATEGORY_OWNER)
 public class NBOwnerReferenceList extends NBReferenceList {
 
     private static final long serialVersionUID = 6386249265802846381L;
