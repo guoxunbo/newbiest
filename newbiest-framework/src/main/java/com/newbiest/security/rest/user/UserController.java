@@ -32,7 +32,7 @@ public class UserController extends AbstractRestController {
 
     @ApiOperation(value = "对用户做操作", notes = "支持ChangePassword, RestPassword, GetAuthority, Login, Register")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "UserRequest")
-    @RequestMapping(value = "/handlerUser", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/userManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public UserResponse execute(@RequestBody UserRequest request) throws Exception {
         log(log, request);
         SessionContext sc = getSessionContext(request);
@@ -49,7 +49,7 @@ public class UserController extends AbstractRestController {
         if (UserRequest.ACTION_CREATE.equals(actionType)) {
             securityService.saveUser(requestUser, sc);
         } else if (UserRequest.ACTION_LOGIN.equals(actionType)) {
-            securityService.login(requestUser.getUsername(), requestUser.getPassword());
+            securityService.login(requestUser.getUsername(), requestUser.getPassword(), sc);
         } else {
             if (requestUser.getObjectRrn() != null) {
                 user = securityService.getUserByObjectRrn(requestUser.getObjectRrn());

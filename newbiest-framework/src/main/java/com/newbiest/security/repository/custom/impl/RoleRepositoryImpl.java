@@ -23,18 +23,12 @@ import java.util.stream.Collectors;
 /**
  * Created by guoxunbo on 2017/11/5.
  */
-@Transactional
 @Slf4j
 public class RoleRepositoryImpl implements RoleRepositoryCustom {
 
     @Autowired
     @PersistenceContext
     private EntityManager em;
-
-    @Override
-    public EntityManager getEntityManager() {
-        return em;
-    }
 
     @Override
     public NBRole getDeepRole(Long roleRrn, boolean authorityFlag, SessionContext sc) throws ClientException {

@@ -52,16 +52,31 @@ public class UIServiceImpl implements UIService {
     private ReferenceTableRepository referenceTableRepository;
 
     /**
-     * 页面上点击authority的时候触发
+     * 根据菜单获取动态表
      * @param authorityRrn
-     * @return 返回带有所有栏位以及TAB的NBTABLE
+     * @return 返回带有所有栏位以及TAB的NBTable
      * @throws ClientException
      */
     public NBTable getNBTableByAuthority(Long authorityRrn) throws ClientException {
         try {
             NBAuthority nbAuthority = (NBAuthority) authorityRepository.findByObjectRrn(authorityRrn);
+            return getNBTable(nbAuthority.getTableRrn());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 根据主键获取动态表
+     * @param tableRrn 主键
+     * @return 返回带有所有栏位以及TAB的NBTable
+     * @throws ClientException
+     */
+    public NBTable getNBTable(Long tableRrn) throws ClientException {
+        try {
             NBTable nbTable = new NBTable();
-            nbTable.setObjectRrn(nbAuthority.getTableRrn());
+            nbTable.setObjectRrn(tableRrn);
 
             nbTable = (NBTable) baseService.findEntity(nbTable, true);
             return nbTable;

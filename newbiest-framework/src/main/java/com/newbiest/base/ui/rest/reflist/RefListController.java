@@ -27,7 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/ui")
 @Slf4j
-@Api(value="/ui", tags="UIService", description = "根据动态栏位的commbox管理")
+@Api(value="/ui", tags="UIService", description = "动态页面生成，比如Table,栏位，参考值, 参考表等的定义")
 public class RefListController extends AbstractRestController {
 
     @Autowired

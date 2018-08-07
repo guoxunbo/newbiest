@@ -1,5 +1,6 @@
 package com.newbiest.base.ui.model;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.model.NBBase;
 import lombok.Data;
 
@@ -113,11 +114,11 @@ public class NBTable extends NBBase {
 
     @OneToMany(mappedBy = "table", fetch=FetchType.LAZY, targetEntity = NBTab.class)
     @OrderBy(value = "seqNo ASC")
-    private List<NBTab> tabs;
+    private List<NBTab> tabs = Lists.newArrayList();
 
     @OneToMany(mappedBy = "table", fetch=FetchType.LAZY, targetEntity = NBField.class)
     @OrderBy(value = "seqNo ASC")
-    private List<NBField> fields;
+    private List<NBField> fields = Lists.newArrayList();
 
     public Boolean getView() {
         return (style & STYLE_VIEW) == STYLE_VIEW;

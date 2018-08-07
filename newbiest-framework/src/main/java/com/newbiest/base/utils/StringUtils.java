@@ -20,6 +20,7 @@ public class StringUtils {
     public static final String NO = "N";
 
     public static final String SPLIT_CODE = "-";
+    public static final String UNDERLINE_CODE = "_";
 
     public static final String CHARSET_GBK = "GBK";
     public static final String CHARSET_UTF_8 = "UTF-8";

@@ -2,6 +2,7 @@ package com.newbiest.security.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
@@ -72,20 +73,20 @@ public class NBUser extends NBUpdatable {
             inverseJoinColumns = @JoinColumn(name = "ROLE_RRN", referencedColumnName = "OBJECT_RRN"),
             joinColumns = @JoinColumn(name = "USER_RRN", referencedColumnName = "OBJECT_RRN"))
     @JsonBackReference("roles")
-    private List<NBRole> roles;
+    private List<NBRole> roles = Lists.newArrayList();
 
     @ManyToMany(targetEntity = NBOrg.class, fetch=FetchType.LAZY)
     @JoinTable(name = "NB_USER_ORG",
             inverseJoinColumns = @JoinColumn(name = "ORG_RRN", referencedColumnName = "OBJECT_RRN"),
             joinColumns = @JoinColumn(name = "USER_RRN", referencedColumnName = "OBJECT_RRN"))
     @JsonBackReference("orgs")
-    private List<NBOrg> orgs;
+    private List<NBOrg> orgs = Lists.newArrayList();
 
     @Transient
     private String newPassword;
 
     @Transient
-    private List<NBAuthority> authorities;
+    private List<NBAuthority> authorities = Lists.newArrayList();
 
     public Boolean getInValidFlag() {
         return "Y".equalsIgnoreCase(inValidFlag);

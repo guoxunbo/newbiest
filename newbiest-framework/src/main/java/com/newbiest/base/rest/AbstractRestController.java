@@ -44,7 +44,7 @@ public class AbstractRestController {
         }
     }
 
-    public SessionContext getSessionContext(Request request) throws ClientException {
+    protected SessionContext getSessionContext(Request request) throws ClientException {
         SessionContext sc = new SessionContext();
         NBOrg nbOrg = null;
         Long orgRrn = request.getHeader().getOrgRrn();

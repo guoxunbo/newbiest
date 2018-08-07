@@ -14,7 +14,7 @@ import java.util.List;
 public interface SecurityService {
 
     // ----User相关-----
-    void login(String username, String password) throws ClientException;
+    void login(String username, String password, SessionContext sc) throws ClientException;
     NBUser getUserByObjectRrn(Long userRrn) throws ClientException;
     NBUser getUserByUsername(String username) throws ClientException;
 

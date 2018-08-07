@@ -1,6 +1,5 @@
 package com.newbiest.base.ui.rest.table;
 
-import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.ui.model.NBTable;
@@ -32,8 +31,8 @@ public class TableController extends AbstractRestController {
     private UIService uiService;
 
     @ApiOperation(value = "对Table做操作", notes = "GetByAuthority, GetData")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "EntityRequest")
-    @RequestMapping(value = "/handlerTable", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "TableRequest")
+    @RequestMapping(value = "/tableManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public TableResponse execute(@RequestBody TableRequest request) throws Exception {
         log(log, request);
         SessionContext sc = getSessionContext(request);
@@ -47,6 +46,9 @@ public class TableController extends AbstractRestController {
 
         if (TableRequest.GET_BY_AUTHORITY.equals(actionType)) {
             NBTable nbTable = uiService.getNBTableByAuthority(requestBody.getAuthorityRrn());
+            responseBody.setTable(nbTable);
+        } else if (TableRequest.ACTION_GET_BY_RRN.equals(actionType)) {
+            NBTable nbTable = uiService.getNBTable(requestBody.getTable().getObjectRrn());
             responseBody.setTable(nbTable);
         } else if (TableRequest.GET_DATA.equals(actionType)) {
             List<? extends NBBase> dataList = uiService.getDataFromTableRrn(requestBody.getTable().getObjectRrn(), sc);

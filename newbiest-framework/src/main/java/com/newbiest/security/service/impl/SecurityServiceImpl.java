@@ -15,10 +15,7 @@ import com.newbiest.main.JwtSigner;
 import com.newbiest.main.MailService;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.exception.SecurityException;
-import com.newbiest.security.model.NBAuthority;
-import com.newbiest.security.model.NBRole;
-import com.newbiest.security.model.NBUser;
-import com.newbiest.security.model.NBUserHis;
+import com.newbiest.security.model.*;
 import com.newbiest.security.repository.RoleRepository;
 import com.newbiest.security.repository.UserHistoryRepository;
 import com.newbiest.security.repository.UserRepository;
@@ -29,10 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -58,14 +52,13 @@ public class SecurityServiceImpl implements SecurityService  {
     @Autowired
     NewbiestConfiguration newbiestConfiguration;
 
+//    @Autowired
+//    RedisService redisService;
+//
+//    @Autowired
+//    JwtSigner jwtSigner;
 
-    @Autowired
-    RedisService redisService;
-
-    @Autowired
-    JwtSigner jwtSigner;
-
-    public void login(String username, String password) throws ClientException {
+    public void login(String username, String password, SessionContext sc) throws ClientException {
         try {
             // 1. 先查找用户 用户如果没找到直接抛出异常
             NBUser nbUser = userRepository.findByUsername(username);
@@ -85,6 +78,15 @@ public class SecurityServiceImpl implements SecurityService  {
             if (nbUser.getPwdExpiry() != null && nbUser.getPwdExpiry().before(DateUtils.now())) {
                 throw new ClientException(SecurityException.SECURITY_PASSWORD_IS_EXPIRY);
             }
+            // admin用户具有所有区域的权限
+            if (!NBUser.ADMIN_USER.equals(username)) {
+                List<NBOrg> orgList = userRepository.getUserOrgs(nbUser.getObjectRrn());
+                Optional optional = orgList.stream().filter(org -> org.getName().equals(sc.getOrgName()) || org.getObjectRrn().equals(sc.getOrgRrn())).findFirst();
+                if (!optional.isPresent()) {
+                    throw new ClientException(SecurityException.SECURITY_USER_IS_NOT_IN_ORG);
+                }
+            }
+
             // 验证密码
             password = EncryptionUtils.md5Hex(password);
             if (!password.equals(nbUser.getPassword())) {
@@ -93,8 +95,8 @@ public class SecurityServiceImpl implements SecurityService  {
             }
             userRepository.loginSuccess(nbUser);
             // 生成jwtToken并存入redis
-            String signStr = jwtSigner.sign(nbUser.getUsername());
-            redisService.put(nbUser.getUsername(), signStr);
+//            String signStr = jwtSigner.sign(nbUser.getUsername());
+//            redisService.put(nbUser.getUsername(), signStr);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);

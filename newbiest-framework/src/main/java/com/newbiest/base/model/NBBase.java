@@ -36,13 +36,13 @@ public class NBBase implements Serializable, Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="OBJECT_RRN")
-    private Long objectRrn;
+    protected Long objectRrn;
 
     @Column(name="ORG_RRN")
     protected Long orgRrn = 0L;
 
     @Column(name="ACTIVE_FLAG")
-    private String activeFlag = StringUtils.YES;
+    protected String activeFlag = StringUtils.YES;
 
     public Boolean getActiveFlag() {
         return StringUtils.YES.equalsIgnoreCase(activeFlag);

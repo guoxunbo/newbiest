@@ -3,6 +3,7 @@ package com.newbiest.security.repository.custom;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.security.model.NBAuthority;
+import com.newbiest.security.model.NBOrg;
 import com.newbiest.security.model.NBUser;
 
 import javax.persistence.EntityManager;
@@ -16,6 +17,7 @@ public interface UserRepositoryCustom {
 
     NBUser getDeepUser(Long userRrn, boolean orgFlag) throws ClientException;
     NBUser getDeepUser(String username, boolean orgFlag) throws ClientException;
+    List<NBOrg> getUserOrgs(long userRrn) throws ClientException;
 
     List<NBAuthority> getTreeAuthorities(long userRrn) throws ClientException;
 

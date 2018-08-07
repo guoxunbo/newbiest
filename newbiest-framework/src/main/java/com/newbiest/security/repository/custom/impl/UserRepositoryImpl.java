@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserRepositoryImpl implements UserRepositoryCustom {
 
-    @Autowired
     @PersistenceContext
     private EntityManager em;
 
@@ -184,7 +183,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         }
     }
 
-    private List<NBOrg> getUserOrgs(long userRrn) throws ClientException {
+    public List<NBOrg> getUserOrgs(long userRrn) throws ClientException {
         try {
             EntityGraph graph = em.createEntityGraph(NBUser.class);
             graph.addSubgraph("orgs");

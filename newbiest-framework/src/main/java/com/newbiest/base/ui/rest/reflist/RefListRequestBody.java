@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class RefListRequestBody extends RequestBody {
 
+    @ApiModelProperty(example = "GetData")
     private String actionType;
 
     @ApiModelProperty(value = "类别。系统栏位参考值还是用户栏位参考值", example = "Owner/System")
