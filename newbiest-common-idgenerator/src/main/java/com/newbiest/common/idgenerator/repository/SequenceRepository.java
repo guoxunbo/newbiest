@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SequenceRepository extends IRepository<Sequence, Long>, SequenceRepositoryCustom {
 
-    Sequence getByNameAndGeneratorRrn(String name, long generatorRrn);
+    Sequence getByNameAndGeneratorLineRrn(String name, long generatorLineRrn);
 
 }

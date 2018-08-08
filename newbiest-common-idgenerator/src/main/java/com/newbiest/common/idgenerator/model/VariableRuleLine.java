@@ -58,9 +58,6 @@ public class VariableRuleLine extends GeneratorRuleLine {
     @Column(name="VARIABLE_DIRECTION")
     private String variableDirection = VARIABLE_DIRECTION_LEFT;
 
-    @Column(name="LENGTH")
-    private Long length = 1L;
-
     /**
      * 如果超出长度，默认从第一位开始截取
      */
@@ -68,7 +65,7 @@ public class VariableRuleLine extends GeneratorRuleLine {
     private Long startPosition = 1L;
 
     @Column(name="PLACEHOLDER")
-    private String placeholder;
+    private String placeholder = "0";
 
     @Override
     public String generator(GeneratorContext context) throws Exception {

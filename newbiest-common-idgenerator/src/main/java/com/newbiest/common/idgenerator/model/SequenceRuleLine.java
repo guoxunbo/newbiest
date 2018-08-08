@@ -8,6 +8,7 @@ import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.common.idgenerator.exception.GeneratorExceptions;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +36,8 @@ public class SequenceRuleLine extends GeneratorRuleLine{
     public static final String SEQUENCE_TYPE_DIGITS = "Digits";
 
     /**
-     *  序列号由数字和字母混合组成(1,2,3,4,...,A,B,C,D,...Z)
-     *  到达一定进制则开始进位比如A01->A99 之后B01....
+     *  序列号由数字和字母混合组成(1,2,3,4,...,A,B,C,D,...Z) 36进制即0-9 A-Z
+     *  到达一定进制则开始进位比如01-ZZ，01...0Z...10...ZZ
      */
     public static final String SEQUENCE_TYPE_RADIX = "Radix";
 
@@ -48,7 +49,7 @@ public class SequenceRuleLine extends GeneratorRuleLine{
     /**
      * 递减
      */
-    public static final String SEQUENCE_TYPE_DOWN = "Down";
+    public static final String SEQUENCE_DIRECTION_DOWN = "Down";
 
     public static final String EXCLUDE_TYPE_STRING = "All";
     public static final String EXCLUDE_TYPE_ALPHA = "Include";
@@ -58,9 +59,6 @@ public class SequenceRuleLine extends GeneratorRuleLine{
 
     @Column(name="SEQUENCE_DIRECTION")
     private String sequenceDirection = SEQUENCE_DIRECTION_UP;
-
-    @Column(name="LENGTH")
-    private Long length;
 
     @Column(name="EXCLUDE")
     private String exclude;
@@ -107,7 +105,7 @@ public class SequenceRuleLine extends GeneratorRuleLine{
         }
         // 没设置最大值时。超过了位数限制抛出异常
         if (currentSeq.length() > length.intValue()) {
-            throw new ClientException("bas.id_more_than_size");
+            throw new ClientException(GeneratorExceptions.COM_GENERATOR_ID_MORE_THAN_SIZE);
         }
         return currentSeq;
     }
@@ -138,7 +136,7 @@ public class SequenceRuleLine extends GeneratorRuleLine{
      * @return
      */
     public String translate(int currentSeq, GeneratorContext context) {
-        String currentString = "";
+        String currentString;
         if (StringUtils.isNullOrEmpty(referenceName)) {
             currentString = translate(currentSeq);
         } else {
@@ -167,7 +165,7 @@ public class SequenceRuleLine extends GeneratorRuleLine{
      * @return
      */
     public String toCustomNumericString(int decimal, int radix, char[] digits) {
-        long num = 0;
+        long num;
         if (decimal < 0) {
             num = ((long) 2 * 0x7fffffff) + decimal + 2;
         } else {

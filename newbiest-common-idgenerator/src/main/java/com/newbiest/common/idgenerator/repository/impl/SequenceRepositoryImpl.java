@@ -63,12 +63,13 @@ public class SequenceRepositoryImpl implements SequenceRepositoryCustom {
             sequence.setOrgRrn(orgRrn);
             sequence.setActiveFlag(true);
             sequence.setName(name);
-            sequence.setGeneratorRrn(generatorRrn);
+            sequence.setGeneratorLineRrn(generatorRrn);
             if (minValue > 0) {
                 sequence.setNextSeq((long)minValue);
             } else {
                 sequence.setNextSeq(1L);
             }
+            em.persist(sequence);
             em.flush();
             return sequence;
         } catch(Exception e) {

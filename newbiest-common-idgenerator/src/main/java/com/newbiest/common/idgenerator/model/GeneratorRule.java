@@ -1,6 +1,6 @@
 package com.newbiest.common.idgenerator.model;
 
-import com.newbiest.base.model.NBVersionControl;
+import com.newbiest.base.model.NBUpdatable;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -12,13 +12,19 @@ import java.util.List;
 @Entity
 @Table(name = "COM_GENERATOR_RULE")
 @Data
-public class GeneratorRule extends NBVersionControl {
+public class GeneratorRule extends NBUpdatable {
+
+    @Column(name = "NAME")
+    private String name;
+
+    @Column(name = "DESCRIPTION")
+    private String description;
 
     @Column(name = "RULE_TYPE")
     private String ruleType;
 
     @OneToMany(fetch= FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "RULE_RRN", referencedColumnName = "OBJECT_RRN", nullable = true)
+    @JoinColumn(name = "RULE_RRN", referencedColumnName = "OBJECT_RRN")
     @OrderBy(value="seqNo ASC")
     private List<GeneratorRuleLine> ruleLines;
 

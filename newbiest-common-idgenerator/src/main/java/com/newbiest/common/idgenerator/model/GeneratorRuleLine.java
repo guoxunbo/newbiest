@@ -44,16 +44,19 @@ public abstract class GeneratorRuleLine extends NBBase {
     public static final String DATA_TYPE_SEQUENCE = "S";
 
     @Column(name="RULE_RRN")
-    private Long ruleRrn;
+    protected Long ruleRrn;
 
     @Column(name="RULE_ID")
-    private String ruleId;
+    protected String ruleId;
 
     @Column(name="SEQ_NO")
-    private Long seqNo;
+    protected Long seqNo;
+
+    @Column(name="LENGTH")
+    protected Long length;
 
     @Column(name="DATA_TYPE", insertable=false, updatable=false)
-    private String dataType;
+    protected String dataType;
 
     /**
      * 用户栏位参考值中的参考名称
@@ -63,7 +66,7 @@ public abstract class GeneratorRuleLine extends NBBase {
 
     @ManyToOne
     @JoinColumn(name="RULE_RRN", referencedColumnName="OBJECT_RRN", insertable = false, updatable = false)
-    private GeneratorRule rule;
+    protected GeneratorRule rule;
 
     public abstract String generator(GeneratorContext context) throws Exception;
 

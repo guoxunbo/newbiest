@@ -214,7 +214,9 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
             } else {
                 query.setMaxResults(newbiestConfiguration.getQueryMaxCount());
             }
-            query.setParameter("orgRrn", orgRrn);
+            if (orgRrn != NBOrg.GLOBAL_ORG_RRN) {
+                query.setParameter("orgRrn", orgRrn);
+            }
             return query.getResultList();
         } catch (Exception e) {
             log.error(e.getMessage(), e);

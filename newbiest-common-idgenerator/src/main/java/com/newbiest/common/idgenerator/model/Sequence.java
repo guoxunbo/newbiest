@@ -22,7 +22,7 @@ public class Sequence extends NBUpdatable {
     @Column(name = "NEXT_SEQ")
     private Long nextSeq;
 
-    @Column(name = "GENERATOR_RRN")
-    private Long generatorRrn;
+    @Column(name = "GENERATOR_LINE_RRN")
+    private Long generatorLineRrn;
 
 }

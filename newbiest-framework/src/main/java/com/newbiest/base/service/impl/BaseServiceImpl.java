@@ -222,6 +222,7 @@ public class BaseServiceImpl implements BaseService  {
             NBHis nbHis = NBHis.getHistoryBean(nbBase);
             IRepository modelRepsitory = getRepositoryByClassName(nbBase.getClass().getName());
 
+            nbBase = modelRepsitory.findByObjectRrn(nbBase.getObjectRrn());
             if (nbHis != null) {
                 IRepository historyRepository = getRepositoryByClassName(nbHis.getClass().getName());
                 if (nbHis != null) {
@@ -349,8 +350,6 @@ public class BaseServiceImpl implements BaseService  {
             throw ExceptionManager.handleException(e);
         }
     }
-
-
 
     /**
      * 根据class名称找到相应的repository

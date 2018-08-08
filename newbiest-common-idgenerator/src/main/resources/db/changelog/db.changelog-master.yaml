@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      file: db.changelog-0.0.1.sequence.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.generator_rule.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.generator_rule_line.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.message_data.yaml
+      relativeToChangelogFile: true

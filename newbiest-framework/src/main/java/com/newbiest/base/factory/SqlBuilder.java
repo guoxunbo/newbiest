@@ -14,6 +14,7 @@ public class SqlBuilder {
     public StringBuffer sqlBuffer = new StringBuffer();
 
     public SqlBuilder selectWithBasedCondition(Class clazz, long orgRrn) throws Exception {
+
         String entityName = clazz.getSimpleName();
         sqlBuffer.append("SELECT ");
         sqlBuffer.append(entityName);
@@ -22,7 +23,7 @@ public class SqlBuilder {
         sqlBuffer.append(" ");
         sqlBuffer.append(entityName);
         this.where();
-        if (NBBase.class.isAssignableFrom(clazz)) {
+        if (NBBase.class.isAssignableFrom(clazz) && orgRrn != NBOrg.GLOBAL_ORG_RRN) {
             this.and();
             this.buildBaseConditon();
         }
