@@ -1,7 +1,9 @@
 package com.newbiest.commom.sm.model;
 
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.security.model.NBRole;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
  */
 @Entity
 @Table(name="COM_SM_STATUS_MODEL_EVENT")
+@Data
 public class StatusModelEvent extends NBUpdatable{
 
     @Column(name="MODEL_RRN")
@@ -36,52 +39,12 @@ public class StatusModelEvent extends NBUpdatable{
             joinColumns = @JoinColumn(name = "MODEL_EVENT_RRN", referencedColumnName = "OBJECT_RRN"))
     private List<NBRole> roles;
 
-    public Long getModelRrn() {
-        return modelRrn;
-    }
-
-    public void setModelRrn(Long modelRrn) {
-        this.modelRrn = modelRrn;
-    }
-
-    public Long getSeqNo() {
-        return seqNo;
-    }
-
-    public void setSeqNo(Long seqNo) {
-        this.seqNo = seqNo;
-    }
-
-    public Long getLimitCount() {
-        return limitCount;
-    }
-
-    public void setLimitCount(Long limitCount) {
-        this.limitCount = limitCount;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public List<NBRole> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<NBRole> roles) {
-        this.roles = roles;
-    }
-
     private Long getEventRrn() {
-        return event != null ? event.getObjectRrn(): null;
+        return event != null ? event.getObjectRrn() : null;
     }
 
     public String getEventId() {
-        return event != null ? event.getEventId() : "";
+        return event != null ? event.getEventId() : StringUtils.EMPTY;
     }
 
 }

@@ -1,6 +1,8 @@
 package com.newbiest.commom.sm.model;
 
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.StringUtils;
+import lombok.Data;
 
 import javax.persistence.*;
 
@@ -12,6 +14,7 @@ import javax.persistence.*;
 @Table(name="COM_SM_STATUS")
 @Inheritance(strategy= InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="CATEGORY", discriminatorType = DiscriminatorType.STRING, length = 32)
+@Data
 public class Status extends NBUpdatable {
 
     @Column(name="OBJECT_TYPE")
@@ -29,43 +32,11 @@ public class Status extends NBUpdatable {
     @Column(name="AVAILABLE_FLAG")
     private String availableFlag;
 
-    public String getObjectType() {
-        return objectType;
-    }
-
-    public void setObjectType(String objectType) {
-        this.objectType = objectType;
-    }
-
-    public String getStateCategory() {
-        return stateCategory;
-    }
-
-    public void setStateCategory(String stateCategory) {
-        this.stateCategory = stateCategory;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Boolean getAvailableFlag() {
-        return "Y".equalsIgnoreCase(availableFlag);
+        return StringUtils.YES.equalsIgnoreCase(availableFlag);
     }
 
     public void setAvailableFlag(Boolean availableFlag) {
-        this.availableFlag = availableFlag ? "Y" : "N";
+        this.availableFlag = availableFlag ? StringUtils.YES : StringUtils.NO;
     }
 }

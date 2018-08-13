@@ -18,6 +18,8 @@
         <module>newbiest-rms</module>
         <module>newbiest-dist</module>
         <module>newbiest-common-context</module>
+        <module>newbiest-common-idgenerator</module>
+        <module>newbiest-common-workflow</module>
     </modules>
     <packaging>pom</packaging>
 
