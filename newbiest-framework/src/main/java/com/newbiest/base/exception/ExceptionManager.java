@@ -22,4 +22,10 @@ public class ExceptionManager {
 		}
 	}
 
+	public static ClientException handleException(Exception e, Logger logger) {
+		logger.error(e.getMessage(), e);
+		return handleException(e);
+	}
+
+
 }

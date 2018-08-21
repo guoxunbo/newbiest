@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>workflow</artifactId>
-    <description>Workflow of Newbiest</description>
+    <description>Workflow of Newbiest.Workflow一共有3层 分别是process route step</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

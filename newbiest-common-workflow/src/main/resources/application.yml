@@ -1,7 +1,7 @@
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 spring:
   application:
-    name: idGenerator
+    name: workflow
   jpa:
     show-sql: true
     properties:
@@ -82,3 +82,4 @@ spring:
     drop-first: false
 flowable:
   async-executor-activate: false
+  database-schema-update: false

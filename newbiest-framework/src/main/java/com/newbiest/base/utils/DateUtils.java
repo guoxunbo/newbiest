@@ -103,4 +103,15 @@ public class DateUtils {
             throw new ClientParameterException(NewbiestException.COMMON_UNKNOWN_TIME_UNIT, unit);
         }
     }
+
+    /**
+     * 从现在到结束时间的间隔
+     * @param date 结束时间
+     * @param chronoUnit 时间单位
+     * @return
+     */
+    public static Long until(Date date, ChronoUnit chronoUnit) {
+        LocalDateTime localDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        return LocalDateTime.now().until(localDate, chronoUnit);
+    }
 }
