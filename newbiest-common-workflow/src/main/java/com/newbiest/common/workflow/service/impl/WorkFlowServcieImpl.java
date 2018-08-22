@@ -11,8 +11,11 @@ import com.newbiest.common.workflow.service.WorkFlowServcie;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.engine.RepositoryService;
-import org.flowable.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.task.api.Task;
+import org.flowable.validation.ValidationError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,14 +35,22 @@ public class WorkFlowServcieImpl implements WorkFlowServcie {
     @Autowired
     RepositoryService repositoryService;
 
+    @Autowired
+    RuntimeService runtimeService;
+
+    @Autowired
+    TaskService taskService;
+
     /**
-     * 保存流程 如果是Process或者Route的话创建BPMNModel
+     * 保存流程 如果是Process或者Route的话创建BPMNModel 并验证bpmnModel是否正确
      * @param definition 流程对象
      * @return
      */
     public WorkflowDefinition saveWorkFlowDefinition(WorkflowDefinition definition, SessionContext sc) throws ClientException{
         try {
             // TODO
+//            repositoryService.createDeployment().addBpmnModel().deploy();
+
             return definition;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -51,9 +62,9 @@ public class WorkFlowServcieImpl implements WorkFlowServcie {
      * @param definition 流程对象
      * @throws ClientException
      */
-    public void deleteWorkflowDefnition(WorkflowDefinition definition, SessionContext sc) throws ClientException{
+    public void deleteWorkflowDefinition(WorkflowDefinition definition, SessionContext sc) throws ClientException{
         try {
-            deleteWorkflowDefnition(definition, false, sc);
+            deleteWorkflowDefinition(definition, false, sc);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -65,13 +76,13 @@ public class WorkFlowServcieImpl implements WorkFlowServcie {
      * @param cascade 是否强制删除已经启动的流程实例
      * @throws ClientException
      */
-    public void deleteWorkflowDefnition(WorkflowDefinition definition, boolean cascade, SessionContext sc) throws ClientException{
+    public void deleteWorkflowDefinition(WorkflowDefinition definition, boolean cascade, SessionContext sc) throws ClientException{
         try {
             if (!(definition instanceof WorkflowStep)) {
                 ProcessDefinition processDefinition = getProcessDefinitionByWorkflowDefinition(definition);
                 repositoryService.deleteDeployment(processDefinition.getDeploymentId(), cascade);
             }
-            // 删除defnition信息
+            // TODO 删除defnition信息
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -103,7 +114,6 @@ public class WorkFlowServcieImpl implements WorkFlowServcie {
             return inputStream;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
-
         } finally {
             if (inputStream != null) {
                 try {
@@ -115,10 +125,49 @@ public class WorkFlowServcieImpl implements WorkFlowServcie {
         }
     }
 
+    /**
+     * 启动流程
+     * @param businessKey 业务ID，比如批次的主键，流程创建人的主键等等 保证唯一
+     * @param definition 流程
+     * @param sc
+     */
+    public void startProcess(String businessKey, WorkflowDefinition definition, SessionContext sc) throws ClientException {
+        try {
+            ProcessDefinition processDefinition = getProcessDefinitionByWorkflowDefinition(definition);
+            runtimeService.startProcessInstanceById(processDefinition.getId(), businessKey);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 完成任务
+     * @throws ClientException
+     */
+    public void completeTask(WorkflowStep step, SessionContext sc) throws ClientException {
+        try {
+            //TODO
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据businessKey获取该业务的未来流程信息
+     * @param businessKey
+     */
+    public List<Task> getFutureFlow(String businessKey) {
+        try {
+            List<Task> task = taskService.createTaskQuery().processInstanceBusinessKey(businessKey).list();
+            return task;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     private ProcessDefinition getProcessDefinitionByWorkflowDefinition(WorkflowDefinition definition) throws ClientException{
         try {
-            List<ProcessDefinition> processDefinitions = repositoryService.createProcessDefinitionQuery().processDefinitionId(definition.getId()).list();
+            List<ProcessDefinition> processDefinitions = repositoryService.createProcessDefinitionQuery().processDefinitionName(definition.getId().toString()).list();
             if (!CollectionUtils.isNotEmpty(processDefinitions)) {
                 throw new ClientException("");
             }
@@ -129,7 +178,19 @@ public class WorkFlowServcieImpl implements WorkFlowServcie {
     }
 
     /**
-     * 根据WorkFlowDefnition获取BpmnModel
+     * 验证bpmn的model是否生效
+     * @param bpmnModel
+     * @throws Exception
+     */
+    private void validateBpmnModel(BpmnModel bpmnModel) throws Exception {
+        List<ValidationError> validationErrors = repositoryService.validateProcess(bpmnModel);
+        if (CollectionUtils.isNotEmpty(validationErrors)) {
+            throw new ClientException("");
+        }
+    }
+
+    /**
+     * 根据WorkFlowDefinition获取BpmnModel
      * @param definition 流程对象
      * @return
      * @throws ClientException

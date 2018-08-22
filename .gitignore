@@ -7,3 +7,7 @@ bin/
 *.iml
 *git.properties
 newbiest-amazon/*
+
+*.log
+
+*.zip

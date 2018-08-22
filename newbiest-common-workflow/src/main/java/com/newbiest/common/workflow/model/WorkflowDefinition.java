@@ -26,6 +26,9 @@ public class WorkflowDefinition extends NBVersionControl {
     @Column(name="COMMENTS")
     private String comments;
 
+    @Column(name="SEQ_NO")
+    private Long seqNo;
+
     @Column(name="RESERVED1")
     private String reserved1;
 
