@@ -6,6 +6,7 @@ import com.newbiest.common.workflow.model.WorkflowStep;
 import com.newbiest.common.workflow.utils.WorkflowUtils;
 import org.assertj.core.util.Lists;
 import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.editor.language.json.converter.BpmnJsonConverter;
 import org.flowable.engine.*;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
@@ -28,13 +29,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * 普通的流程建立 一步步走
  * Created by guoxunbo on 2018/8/22.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class)
-public class FlowableTest {
+public class FlowableNormalTest {
 
-    private String lotId = "TestLot3";
+    private String lotId = "TestLot4";
 
     @Autowired
     RepositoryService repositoryService;
@@ -49,14 +51,14 @@ public class FlowableTest {
     HistoryService historyService;
 
     @Autowired
-    private ProcessEngine processEngine;
+    ProcessEngine processEngine;
 
     @Test
     public void deploymentNormalRouteTest() {
         try {
             WorkflowRoute route = new WorkflowRoute();
             route.setObjectRrn(1L);
-            route.setName("TestRoute3");
+            route.setName("TestRoute4");
 
             List<WorkflowStep> steps = Lists.newArrayList();
 
@@ -92,7 +94,7 @@ public class FlowableTest {
     @Test
     public void startProcessTest() {
         WorkflowRoute route = new WorkflowRoute();
-        route.setName("TestRoute3");
+        route.setName("TestRoute4");
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionName(route.getId().toString()).singleResult();
 
         ProcessInstance processInstance = runtimeService.startProcessInstanceById(processDefinition.getId(), lotId);
@@ -126,7 +128,6 @@ public class FlowableTest {
             System.out.println("startTime ->" + hpi.getStartTime() + "EndTime->" + hpi.getEndTime() + "duration" + hpi.getDurationInMillis());
         }
 
-
         //业务流转过程中每站的记录
         List<HistoricActivityInstance> list1 = historyService.createHistoricActivityInstanceQuery().processInstanceId(instanceId).list().stream().sorted(Comparator.comparing(HistoricActivityInstance :: getStartTime)).collect(Collectors.toList());
         for (HistoricActivityInstance historicActivityInstance : list1) {
@@ -140,11 +141,7 @@ public class FlowableTest {
 
     }
 
-    /**
-     * 通过BPMNModel创建的流程没有坐标信息。故无法生成图片
-     */
-    @Test
-    public void createProcessInstanceImage() {
+    public void createProcessInstanceImage(String lotId) {
         try {
             ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(lotId).singleResult();
 
