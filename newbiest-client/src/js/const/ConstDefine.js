@@ -2,7 +2,8 @@
  * 定义URL 有可能请求多个URL
  */
 const UrlConstant = {
-    BaseUrl: "http://127.0.0.1:8080/framework/execute"
+    BaseUrl: "http://127.0.0.1:8080/framework/execute",
+    SecruityUrl: "http://127.0.0.1:8080//security/userManage"
 };
 
 /**

@@ -3,6 +3,7 @@ package com.newbiest.main;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @ConfigurationProperties(prefix = "newbiest.api")
 @PropertySource(value = "classpath:newbiest.yml", factory = YmlPropertyLoaderFactory.class)
 @Data
+@ConditionalOnProperty(name="show.swagger", havingValue = "true")
 public class SwaggerConfig {
 
     private String title;

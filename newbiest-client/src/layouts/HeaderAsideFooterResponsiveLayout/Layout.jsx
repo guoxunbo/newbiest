@@ -22,6 +22,8 @@ import {Menu as AsideMenu} from '../../js/ui/Menu';
 import { SessionContext } from '../../js/Application';
 import { Notification } from '../../js/notice/Notice';
 
+import { UrlConstant } from '../../js/const/ConstDefine';
+
 // 设置默认的皮肤配置，支持 dark 和 light 两套皮肤配置
 const theme = typeof THEME === 'undefined' ? 'dark' : THEME;
 
@@ -129,7 +131,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
 
     let requestBody = UserManagerRequestBody.buildGetAuthorityBody(SessionContext.getUsername());
     let requestHeader = new UserManagerRequestHeader();
-    let request = new Request(requestHeader, requestBody);
+    let request = new Request(requestHeader, requestBody, UrlConstant.SecruityUrl);
     var self = this;
     let requestObject = {
       request: request,
@@ -246,7 +248,11 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                           } else if (item.external) {
                             linkProps.href = item.path;
                           } else {
-                            linkProps.to = item.path;
+                            let query = {
+                                pathname: item.path,
+                                query: item.tableRrn
+                            }
+                            linkProps.to = query;
                           }
                           return (
                             <MenuItem key={item.path}>
@@ -269,6 +275,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                   } else {
                     linkProps.to = nav.path;
                   }
+
                   return (
                     <MenuItem key={nav.path}>
                       <Link {...linkProps}>

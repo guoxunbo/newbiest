@@ -10,7 +10,6 @@ class RequestHeader{
     constructor(messageName){  
         let sessionContext = SessionContext.getSessionContext();
         this.messageName = messageName;
-        console.log(messageName);
         this.transactionId = this.generatorUUID();
         if (sessionContext != undefined) {
             this.orgName = sessionContext.orgName;

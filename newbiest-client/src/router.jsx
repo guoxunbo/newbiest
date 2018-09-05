@@ -1,5 +1,5 @@
 /**
- * 定义应用路
+ * 定义应用路由
  */
 import { HashRouter as Router } from 'react-router-dom';
 import { Switch, Route } from 'react-router';

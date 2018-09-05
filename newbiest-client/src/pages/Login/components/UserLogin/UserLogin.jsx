@@ -18,6 +18,7 @@ import {MessageUtils} from '../../../../js/MessageUtils';
 import {Request} from '../../../../js/dataModel/Request';
 import {UserManagerRequestHeader} from "../../../../js/dataModel/userManager/UserManagerRequestHeader";
 import {UserManagerRequestBody} from "../../../../js/dataModel/userManager/UserManagerRequestBody";
+import {UrlConstant} from "../../../../js/const/ConstDefine";
 
 const { Row, Col } = Grid;
 
@@ -60,12 +61,13 @@ export default class UserLogin extends Component {
       }
       let requestBody = UserManagerRequestBody.buildLoginRequestBody(values.account, values.password);
       let requestHeader = new UserManagerRequestHeader();
-      let request = new Request(requestHeader, requestBody);
+      requestHeader.orgName = values.org;
+      requestHeader.language = values.language;
+      let request = new Request(requestHeader, requestBody, UrlConstant.SecruityUrl);
       let requestObject = {
         request: request,
         success: function(responseBody) {
           SessionContext.saveSessionContext(values.account, values.org, values.language);
-          // 登录成功后可通过 hashHistory.push('/') 跳转首页
           self.props.history.push('/Home');
         }
       }

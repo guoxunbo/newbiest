@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import ListTableManager from './pages/ListTableManager';
 import HeaderAsideFooterResponsiveLayout from './layouts/HeaderAsideFooterResponsiveLayout';
 
+import Page6 from './pages/Page6';
 import NotFound from './pages/NotFound';
 
 const routerConfig = [
@@ -20,9 +21,19 @@ const routerConfig = [
     component: Home,
   },
   {
+    path: '/DynamicTable/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: ListTableManager,
+  },
+  {
     path: '/ListTableManager',
     layout: HeaderAsideFooterResponsiveLayout,
     component: ListTableManager,
+  },
+  {
+    path: '/page6',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: Page6,
   },
   {
     path: '*',

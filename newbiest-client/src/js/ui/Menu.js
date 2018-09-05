@@ -8,12 +8,11 @@ class Menu {
     icon;
     tableRrn;
     children;
-
+    
     constructor(authority) {
-        this.path = authority.url;
         this.icon = authority.image;
         this.tableRrn = authority.tableRrn;
-        
+        this.path = authority.url + "/" + this.tableRrn;
         let language = SessionContext.getLanguage();
         if (language == Language.Chinese) {
             this.name = authority.labelZh;

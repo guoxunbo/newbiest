@@ -31,13 +31,10 @@ class MessageUtils {
 
     static sendRequest(requestObject) {
         let self = this;
-        let requestUrl = UrlConstant.BaseUrl;
-        if (requestObject.url != undefined) {
-            requestUrl = requestObject.url;
-        }
-        let parameters = new URLSearchParams();
-        parameters.append("request", JsonUtils.object2Json(requestObject.request));
-        axios.post(requestUrl, parameters).then(function(object) {
+        let request = requestObject.request;
+        // let parameters = new URLSearchParams();
+        // parameters.append("request", JsonUtils.object2Json(request));
+        axios.post(request.url, request).then(function(object) {
             let response = new Response(object.data.header, object.data.body);
             if (ResultIdentify.Fail == response.header.result) {
                 self.handleException(response.header);

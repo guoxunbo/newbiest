@@ -103,6 +103,10 @@ server:
       cookie:
         http-only: true
 # actuator配置
+show:
+  swagger: true
+log:
+  path: /Users/apple/Documents/newbiest/log
 management:
   port: 9990
   address: 127.0.0.1
