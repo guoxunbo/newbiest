@@ -3,6 +3,15 @@ databaseChangeLog:
       file: db.changelog-0.0.1.table.yaml
       relativeToChangelogFile: true
   - include:
+      file: db.changelog-0.0.1.tab.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.field.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.field.yaml
+      relativeToChangelogFile: true
+  - include:
       file: db.changelog-0.0.1.ref_table.yaml
       relativeToChangelogFile: true
   - include:

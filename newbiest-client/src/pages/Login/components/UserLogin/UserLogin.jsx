@@ -63,7 +63,7 @@ export default class UserLogin extends Component {
       let requestHeader = new UserManagerRequestHeader();
       requestHeader.orgName = values.org;
       requestHeader.language = values.language;
-      let request = new Request(requestHeader, requestBody, UrlConstant.SecruityUrl);
+      let request = new Request(requestHeader, requestBody, UrlConstant.UserManagerUrl);
       let requestObject = {
         request: request,
         success: function(responseBody) {

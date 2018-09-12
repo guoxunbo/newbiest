@@ -1,7 +1,7 @@
 const USER_STORAGE_NAME = "User";
 
 class User {
-
+    objectRrn;
     username;
     password;
     department;

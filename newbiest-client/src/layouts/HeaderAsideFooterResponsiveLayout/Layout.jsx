@@ -131,7 +131,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
 
     let requestBody = UserManagerRequestBody.buildGetAuthorityBody(SessionContext.getUsername());
     let requestHeader = new UserManagerRequestHeader();
-    let request = new Request(requestHeader, requestBody, UrlConstant.SecruityUrl);
+    let request = new Request(requestHeader, requestBody, UrlConstant.UserManagerUrl);
     var self = this;
     let requestObject = {
       request: request,

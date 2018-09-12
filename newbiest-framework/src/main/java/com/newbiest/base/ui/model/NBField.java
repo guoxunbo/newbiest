@@ -1,5 +1,6 @@
 package com.newbiest.base.ui.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
@@ -206,10 +207,12 @@ public class NBField extends NBBase {
     private String exportFlag;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "TABLE_RRN", referencedColumnName = "OBJECT_RRN",
             insertable = false, updatable = false)
     private NBTable table;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "TAB_RRN", referencedColumnName = "OBJECT_RRN",
             insertable = false, updatable = false)

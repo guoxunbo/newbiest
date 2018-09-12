@@ -1,0 +1,77 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-nb_tab-table
+      author: Xunbo Guo
+      comment: Create table NB_TAB
+      changes:
+        - createTable:
+            tableName: NB_TAB
+            remarks: tab Info
+            columns:
+              - column:
+                  name: object_rrn
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: active_flag
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: org_rrn
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: name
+                  type: varchar(64)
+                  remarks: 名字
+              - column:
+                  name: description
+                  type: varchar(256)
+                  remarks: 描述
+              - column:
+                  name: TABLE_RRN
+                  type: bigint
+                  remarks: 动态表主键
+              - column:
+                  name: SEQ_NO
+                  type: bigint
+                  remarks: 顺序
+              - column:
+                  name: TAB_TYPE
+                  type: varchar(256)
+                  defaultValue: 'Tab'
+                  remarks: 样式
+              - column:
+                  name: HEIGHT_HINT
+                  type: bigint
+                  remarks: tab高度
+              - column:
+                  name: GRID_Y
+                  type: bigint
+                  remarks: 列数
+              - column:
+                  name: LABEL
+                  type: varchar(128)
+                  remarks: 英文标签
+              - column:
+                  name: LABEL_ZH
+                  type: varchar(128)
+                  remarks: 中文标签
+              - column:
+                  name: LABEL_RES
+                  type: varchar(128)
+                  remarks: 其他语言标签
+  - changeSet:
+      id: add-unique-constraint-for-nb-tab-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (table_rrn, name) for table NB_TAB
+      changes:
+        - addUniqueConstraint:
+            tableName: NB_TAB
+            columnNames: table_rrn, name
