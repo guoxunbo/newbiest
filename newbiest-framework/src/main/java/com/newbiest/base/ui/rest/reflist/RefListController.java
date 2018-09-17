@@ -4,10 +4,12 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.ui.model.NBReferenceList;
+import com.newbiest.base.ui.model.NBReferenceName;
 import com.newbiest.base.ui.model.NBReferenceTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.msg.Request;
+import com.newbiest.security.model.NBOrg;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -35,7 +37,7 @@ public class RefListController extends AbstractRestController {
 
     @ApiOperation(value = "对RefList做操作", notes = "GetData")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "RefListRequest")
-    @RequestMapping(value = "/refListManager", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/refListManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public RefListResponse execute(@RequestBody RefListRequest request) throws Exception {
         log(log, request);
         SessionContext sc = getSessionContext(request);
@@ -59,5 +61,15 @@ public class RefListController extends AbstractRestController {
         return response;
     }
 
-
+    @Override
+    protected SessionContext getSessionContext(Request request) throws ClientException {
+        RefListRequestBody requestBody = (RefListRequestBody) request.getBody();
+        if (NBReferenceName.REFERENCE_NAME_LANGUAGE.equals(requestBody.getReferenceName())) {
+            SessionContext sc = new SessionContext();
+            sc.setOrgRrn(NBOrg.GLOBAL_ORG_RRN);
+            sc.setUsername(request.getHeader().getUsername());
+            return sc;
+        }
+        return super.getSessionContext(request);
+    }
 }

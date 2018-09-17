@@ -1,4 +1,4 @@
-import Table from "../../model/ui/Table"
+import Table from "../dto/ui/Table"
 
 const ActionType = {
     GetByRrn: "GetByRrn",

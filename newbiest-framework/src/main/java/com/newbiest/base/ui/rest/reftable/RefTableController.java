@@ -9,6 +9,7 @@ import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.msg.Request;
+import com.newbiest.security.model.NBOrg;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -53,6 +54,7 @@ public class RefTableController extends AbstractRestController {
             referenceTable = uiService.getReferenceTableByName(referenceTable.getName(), sc);
             List<? extends NBBase> dataList = uiService.getDataFromTableRrn(referenceTable.getTableRrn(), referenceTable.getWhereClause(), referenceTable.getOrderBy(), sc);
             responseBody.setDataList(dataList);
+            responseBody.setReferenceTable(referenceTable);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
@@ -60,5 +62,15 @@ public class RefTableController extends AbstractRestController {
         return response;
     }
 
-
+    @Override
+    protected SessionContext getSessionContext(Request request) throws ClientException {
+        RefTableRequestBody requestBody = (RefTableRequestBody) request.getBody();
+        if (NBReferenceTable.REFERENCE_NAME_ORG.equals(requestBody.getReferenceTable().getName())) {
+            SessionContext sc = new SessionContext();
+            sc.setOrgRrn(NBOrg.GLOBAL_ORG_RRN);
+            sc.setUsername(request.getHeader().getUsername());
+            return sc;
+        }
+        return super.getSessionContext(request);
+    }
 }

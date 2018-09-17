@@ -47,10 +47,6 @@ const Language = {
     English: "English"
 };
 
-const Org = {
-    zhixing: "zhixing"
-};
-
 const DefaultRowKey = "objectRrn";
 
 //js里面typeof判断所需要的类型

@@ -1,6 +1,6 @@
 package com.newbiest.base.ui.rest.reflist;
 
-import com.newbiest.base.model.NBBase;
+import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.msg.ResponseBody;
 import lombok.Data;
 
@@ -14,6 +14,6 @@ public class RefListResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<? extends NBBase> dataList;
+	private List<? extends NBReferenceList> dataList;
 
 }

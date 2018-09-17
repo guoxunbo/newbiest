@@ -18,6 +18,8 @@ public class NBReferenceName extends NBBase {
 
     private static final long serialVersionUID = -7783610191753111906L;
 
+    public static final String REFERENCE_NAME_LANGUAGE = "Language";
+
     @Column(name = "NAME")
     private String name;
 

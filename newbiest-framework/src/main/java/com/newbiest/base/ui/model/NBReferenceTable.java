@@ -20,6 +20,8 @@ public class NBReferenceTable extends NBBase {
 
     private static final long serialVersionUID = -2393311151290133616L;
 
+    public static final String REFERENCE_NAME_ORG = "NBOrg";
+
     @Column(name="NAME")
     private String name;
 

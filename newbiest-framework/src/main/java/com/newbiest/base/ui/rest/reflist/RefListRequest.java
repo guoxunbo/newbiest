@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class RefListRequest extends Request {
 
-    public static final String MESSAGE_NAME = "RefTableManage";
+    public static final String MESSAGE_NAME = "RefListManage";
 
     public static final String GET_DATA = "GetData";
 

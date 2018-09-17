@@ -2,13 +2,14 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 
-import { Input, Button, Checkbox, Grid, Feedback,LocaleProvider, Select} from '@icedesign/base';
+import { Input, Button, Grid} from '@icedesign/base';
 
 import {
   FormBinderWrapper as IceFormBinderWrapper,
   FormBinder as IceFormBinder,
   FormError as IceFormError,
 } from '@icedesign/form-binder';
+
 import IceIcon from '@icedesign/icon';
 import './UserLogin.scss';
 
@@ -18,7 +19,9 @@ import {MessageUtils} from '../../../../js/MessageUtils';
 import {Request} from '../../../../js/dataModel/Request';
 import {UserManagerRequestHeader} from "../../../../js/dataModel/userManager/UserManagerRequestHeader";
 import {UserManagerRequestBody} from "../../../../js/dataModel/userManager/UserManagerRequestBody";
-import {UrlConstant} from "../../../../js/const/ConstDefine";
+import {UrlConstant, SystemRefListName, RefTableName} from "../../../../js/const/ConstDefine";
+import RefListField from '../../../../components/Field/RefListField';
+import RefTableField from '../../../../components/Field/RefTableField';
 
 const { Row, Col } = Grid;
 
@@ -61,7 +64,7 @@ export default class UserLogin extends Component {
       }
       let requestBody = UserManagerRequestBody.buildLoginRequestBody(values.account, values.password);
       let requestHeader = new UserManagerRequestHeader();
-      requestHeader.orgName = values.org;
+      requestHeader.orgRrn = values.org;
       requestHeader.language = values.language;
       let request = new Request(requestHeader, requestBody, UrlConstant.UserManagerUrl);
       let requestObject = {
@@ -136,11 +139,7 @@ export default class UserLogin extends Component {
                       style={styles.selectIcon}
                     />
                     <IceFormBinder name="org" required message="必填">
-                      <Select placeholder="区域"
-                        style={styles.formSelect}
-                        dataSource={Application.orgs}
-                      >
-                      </Select>
+                      <RefTableField refTableName={RefTableName.NBOrg} style={styles.formSelect} placeholder="区域"/>
                     </IceFormBinder>
                   </Col>
                   <Col>
@@ -156,11 +155,7 @@ export default class UserLogin extends Component {
                       style={styles.selectIcon}
                     />
                     <IceFormBinder name="language" required message="必填">
-                      <Select placeholder="语言"
-                        style={styles.formSelect}
-                        dataSource={Application.language}
-                      >
-                      </Select>
+                      <RefListField referenceName={SystemRefListName.Language} style={styles.formSelect} placeholder="语言"/>
                     </IceFormBinder>
                   </Col>
                   <Col>
@@ -245,8 +240,8 @@ const styles = {
   },
   selectIcon: {
     position: 'absolute',
-    left: '-1px',
-    top: '3px',
+    left: '-4px',
+    top: '5px',
     color: '#999',
   },
 

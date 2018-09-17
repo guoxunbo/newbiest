@@ -3,12 +3,12 @@ import { Table } from 'antd';
 import './EntityListTable.scss';
 import {Application} from '../../js/Application'
 import {DefaultRowKey, Type} from '../../js/const/ConstDefine'
-import {TableManagerRequestBody} from '../../js/dataModel/tableManager/TableManagerRequestBody';
-import {TableManagerRequestHeader} from '../../js/dataModel/tableManager/TableManagerRequestHeader';
+import {TableManagerRequestBody} from '../../api/table-manager/TableManagerRequestBody';
+import {TableManagerRequestHeader} from '../../api/table-manager/TableManagerRequestHeader';
 import {Request} from '../../js/dataModel/Request';
 import {UrlConstant} from "../../js/const/ConstDefine";
 import {MessageUtils} from '../../js/MessageUtils';
-import Field from '../../js/model/ui/Field';
+import Field from '../../api/dto/ui/Table';
 
 export default class EntityListTable extends Component {
 
@@ -21,7 +21,7 @@ export default class EntityListTable extends Component {
         let check = this.props.check;
         this.state = {
             tableRrn: tableRrn,
-            columns: this.getColumns(tableRrn),
+            columns: [],
             data: this.getData(this.props.tableRrn),
             pagination: this.props.pagination == null ? Application.pagination : this.props.pagination,
             rowkey: this.props.rowkey == null ? DefaultRowKey : this.props.rowkey,
@@ -31,12 +31,20 @@ export default class EntityListTable extends Component {
             loading: true,
             // 是否带有选择框
             check: check,
+            rowSelection: undefined,
             selectedRowKeys: [],
             selectedRows: []
 
         };
     }
 
+    componentDidMount() {
+        this.setState({
+            columns: this.getColumns(this.state.tableRrn),
+            rowSelection: this.getRowSelection(),
+        })
+    }
+    
     getRowClassName = (record, index) => {
         if(index % 2 ===0) {
             return 'even-row'; 
@@ -72,7 +80,7 @@ export default class EntityListTable extends Component {
             success: function(responseBody) {
                 self.setState({
                     data: responseBody.dataList,
-                    loading: false
+                    loading: false,
                 });
             }
           }
@@ -81,7 +89,6 @@ export default class EntityListTable extends Component {
 
     getColumns = (tableRrn) => {
         let self = this;
-        //TODO 结合length算出最大宽度
         let requestBody = TableManagerRequestBody.buildGetByRrn(tableRrn);
         let requestHeader = new TableManagerRequestHeader();
         let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
@@ -121,7 +128,7 @@ export default class EntityListTable extends Component {
               rowKey = {this.state.rowkey}
               loading = {this.state.loading}
               rowClassName = {this.state.rowClassName.bind(this)}
-              rowSelection = {this.state.check ? this.getRowSelection() : undefined}
+              rowSelection = {this.state.check ? this.state.rowSelection : undefined}
             >
             </Table>
           </div>

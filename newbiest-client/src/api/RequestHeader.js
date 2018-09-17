@@ -6,13 +6,14 @@ class RequestHeader{
     transactionId;
     orgName;
     userName;
+    orgRrn;
     
     constructor(messageName){  
         let sessionContext = SessionContext.getSessionContext();
         this.messageName = messageName;
         this.transactionId = this.generatorUUID();
         if (sessionContext != undefined) {
-            this.orgName = sessionContext.orgName;
+            this.orgRrn = sessionContext.orgRrn;
             this.userName = sessionContext.userName;
         } 
     }
