@@ -1,4 +1,4 @@
-import { RequestHeader } from "../RequestHeader";
+import RequestHeader from "../RequestHeader";
 const MESSAGE_NAME = "RefListManager";
 
 export default class RefListManagerRequestHeader extends RequestHeader{

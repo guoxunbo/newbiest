@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { Table } from 'antd';
 import './EntityListTable.scss';
-import {Application} from '../../js/Application'
-import {DefaultRowKey, Type} from '../../js/const/ConstDefine'
-import {TableManagerRequestBody} from '../../api/table-manager/TableManagerRequestBody';
-import {TableManagerRequestHeader} from '../../api/table-manager/TableManagerRequestHeader';
-import {Request} from '../../js/dataModel/Request';
-import {UrlConstant} from "../../js/const/ConstDefine";
-import {MessageUtils} from '../../js/MessageUtils';
-import Field from '../../api/dto/ui/Table';
+import {Application} from '../../api/Application'
+import {DefaultRowKey, Type} from '../../api/const/ConstDefine'
+import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
+import TableManagerRequestHeader from '../../api/table-manager/TableManagerRequestHeader';
+import Request from '../../api/Request';
+import {UrlConstant} from "../../api/const/ConstDefine";
+import MessageUtils from '../../api/utils/MessageUtils';
+import Field from '../../api/dto/ui/Field';
 
 export default class EntityListTable extends Component {
 

@@ -1,4 +1,4 @@
-import {User} from "../userManager/User"
+import User from "../dto/security/User"
 
 const ActionType = {
     Login: "Login",
@@ -6,7 +6,7 @@ const ActionType = {
     ResetPassword: "RestPassword",
     GetAuthority: "GetAuthority"
 }
-class UserManagerRequestBody {
+export default class UserManagerRequestBody {
 
     actionType;
     user;
@@ -27,5 +27,3 @@ class UserManagerRequestBody {
         return new UserManagerRequestBody(ActionType.GetAuthority, user);
     }
 }
-
-export {UserManagerRequestBody}

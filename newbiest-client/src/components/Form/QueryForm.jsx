@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { Form, Row, Col, Button, Icon, Select } from 'antd';
 import './QueryForm.scss';
 
-import {TableManagerRequestBody} from '../../api/table-manager/TableManagerRequestBody';
-import {TableManagerRequestHeader} from '../../api/table-manager/TableManagerRequestHeader';
-import {Request} from '../../js/dataModel/Request';
-import {UrlConstant} from "../../js/const/ConstDefine";
-import {MessageUtils} from '../../js/MessageUtils';
+import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
+import TableManagerRequestHeader from '../../api/table-manager/TableManagerRequestHeader';
+import Request from '../../api/Request';
+import {UrlConstant} from "../../api/const/ConstDefine";
+import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
 
 const FormItem = Form.Item;

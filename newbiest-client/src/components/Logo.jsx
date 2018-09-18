@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
-import {Application} from '../js/Application';
+import {Application} from '../api/Application';
 
 
 export default class Logo extends PureComponent {

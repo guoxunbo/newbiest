@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Select } from 'antd';
-import RefListManagerRequestBody from '../../js/dataModel/refListManager/RefListManagerRequestBody';
-import RefListManagerRequestHeader from '../../js/dataModel/refListManager/RefListManagerRequestHeader';
-import {UrlConstant} from "../../js/const/ConstDefine";
-import {MessageUtils} from "../../js/MessageUtils";
+import RefListManagerRequestBody from '../../api/ref-list-manager/RefListManagerRequestBody';
+import RefListManagerRequestHeader from '../../api/ref-list-manager/RefListManagerRequestHeader';
+import {UrlConstant} from "../../api/const/ConstDefine";
+import MessageUtils from "../../api/utils/MessageUtils";
 
-import {Request} from '../../js/dataModel/Request';
+import Request from '../../api/Request';
 
 const { Option} = Select;
 

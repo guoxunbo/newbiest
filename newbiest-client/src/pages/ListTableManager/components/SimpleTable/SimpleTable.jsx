@@ -31,8 +31,9 @@ export default class SimpleTable extends Component {
 
   constructor(props) {
     super(props);
+    console.log("aaa->" + this.props.tableRrn);
     this.state = {
-      isMobile: false,
+      isMobile: false
     };
   }
 
@@ -128,7 +129,6 @@ export default class SimpleTable extends Component {
 
   render() {
     const tableData = this.props.bindingData.tableData;
-    
     return (
       <div className="simple-table">
         <IceContainer>

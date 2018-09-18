@@ -14,15 +14,15 @@ import Logo from './../../components/Logo';
 import './scss/light.scss';
 import './scss/dark.scss';
 
-import {Request} from '../../js/dataModel/Request';
-import {UserManagerRequestHeader} from "../../js/dataModel/userManager/UserManagerRequestHeader";
-import {UserManagerRequestBody} from "../../js/dataModel/userManager/UserManagerRequestBody";
-import {MessageUtils} from '../../js/MessageUtils';
-import {Menu as AsideMenu} from '../../js/ui/Menu';
-import { SessionContext } from '../../js/Application';
-import { Notification } from '../../js/notice/Notice';
+import Request from '../../api/Request';
+import UserManagerRequestHeader from "../../api/user-manager/UserManagerRequestHeader";
+import UserManagerRequestBody from "../../api/user-manager/UserManagerRequestBody";
+import MessageUtils from '../../api/utils/MessageUtils';
+import {Menu as AsideMenu} from '../../api/dto/ui/Menu';
+import { SessionContext } from '../../api/Application';
+import { Notification } from '../../components/notice/Notice';
 
-import { UrlConstant } from '../../js/const/ConstDefine';
+import { UrlConstant } from '../../api/const/ConstDefine';
 
 // 设置默认的皮肤配置，支持 dark 和 light 两套皮肤配置
 const theme = typeof THEME === 'undefined' ? 'dark' : THEME;

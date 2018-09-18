@@ -1,5 +1,3 @@
-import {Org} from './const/ConstDefine';
-
 const Application = {
     name: '智行管理系统',
     version: "0.0.1",
@@ -20,10 +18,6 @@ const Application = {
         hideOnSinglePage: true
     },
 
-    orgs: [
-        {label: Org.zhixing, value: Org.zhixing}
-    ],
-    
     notice: {
         delay: 5000,
         // 构建button组件是否支持关闭 支持点击锁定

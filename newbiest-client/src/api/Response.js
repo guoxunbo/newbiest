@@ -1,4 +1,4 @@
-import {ResponseHeader  } from "../dataModel/ResponseHeader";
+import {ResponseHeader  } from "./ResponseHeader";
 class Response{
 
     constructor(responseHeader, responseBody) {

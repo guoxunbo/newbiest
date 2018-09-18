@@ -10,8 +10,8 @@ import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import { headerMenuConfig } from './../menuConfig';
 import Logo from './Logo';
-import {Notification} from '../js/notice/Notice';
-import {SessionContext} from '../js/Application';
+import {Notification} from './notice/Notice';
+import {SessionContext} from '../api/Application';
 
 @withRouter
 export default class Header extends PureComponent {

@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import Layout from '@icedesign/layout';
 import cx from 'classnames';
 import Logo from './Logo';
-import {Application} from '../js/Application'
+import {Application} from '../api/Application'
+
 export default class Footer extends PureComponent {
   render() {
     const { className, style } = this.props;

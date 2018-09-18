@@ -1,6 +1,6 @@
-import { SessionContext } from "../Application";
+import { SessionContext } from "./Application";
 
-class RequestHeader{  
+export default class RequestHeader{  
 
     messageName;
     transactionId;
@@ -27,4 +27,3 @@ class RequestHeader{
 
     }
 }  
-export {RequestHeader};  

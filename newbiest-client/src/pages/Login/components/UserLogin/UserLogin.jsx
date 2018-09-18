@@ -13,13 +13,13 @@ import {
 import IceIcon from '@icedesign/icon';
 import './UserLogin.scss';
 
-import {Application, SessionContext} from '../../../../js/Application';
-import {MessageUtils} from '../../../../js/MessageUtils';
+import {Application, SessionContext} from '../../../../api/Application';
+import MessageUtils from '../../../../api/utils/MessageUtils';
 
-import {Request} from '../../../../js/dataModel/Request';
-import {UserManagerRequestHeader} from "../../../../js/dataModel/userManager/UserManagerRequestHeader";
-import {UserManagerRequestBody} from "../../../../js/dataModel/userManager/UserManagerRequestBody";
-import {UrlConstant, SystemRefListName, RefTableName} from "../../../../js/const/ConstDefine";
+import Request from '../../../../api/Request';
+import UserManagerRequestHeader from "../../../../api/user-manager/UserManagerRequestHeader";
+import UserManagerRequestBody from "../../../../api/user-manager/UserManagerRequestBody";
+import {UrlConstant, SystemRefListName, RefTableName} from "../../../../api/const/ConstDefine";
 import RefListField from '../../../../components/Field/RefListField';
 import RefTableField from '../../../../components/Field/RefTableField';
 
@@ -178,10 +178,10 @@ export default class UserLogin extends Component {
                 </Row>
 
                 <Row className="tips" style={styles.tips}>
-                  <a href="/" style={styles.link}>
+                  {/* <a href="/" style={styles.link}>
                     立即注册
-                  </a>
-                  <span style={styles.line}>|</span>
+                  </a> */}
+                  {/* <span style={styles.line}>|</span> */}
                   <a href="/" style={styles.link}>
                     忘记密码
                   </a>

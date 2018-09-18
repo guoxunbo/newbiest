@@ -1,6 +1,6 @@
-import {UrlConstant} from "../const/ConstDefine"
+import {UrlConstant} from "./const/ConstDefine"
 
-class Request{
+export default class Request{
 
     constructor(requestHeader, requestBody, url) {
         this.header = requestHeader;
@@ -13,4 +13,3 @@ class Request{
     }
     
 }
-export {Request};

@@ -1,10 +1,11 @@
 import RequestHeader from "../RequestHeader";
-const MESSAGE_NAME = "TableManager";
+const MESSAGE_NAME = "UserManage";
 
-export default class TableManagerRequestHeader extends RequestHeader{
+export default class UserManagerRequestHeader extends RequestHeader{
 
     constructor() {  
         super(MESSAGE_NAME);
     }
     
 }
+

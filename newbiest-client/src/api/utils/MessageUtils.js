@@ -1,32 +1,17 @@
-import {ErrorCode, ResultIdentify, Language} from './const/ConstDefine';
-import {Request} from './dataModel/Request';
-import {Notification} from './notice/Notice';
+import {ErrorCode, ResultIdentify, Language} from '../const/ConstDefine';
+import {Notification} from '../../components/notice/Notice';
 
-import {EntityListRequestHeader} from "./dataModel/entityList/EntityListRequestHeader";
-import {EntityListRequestBody} from "./dataModel/entityList/EntityListRequestBody";
-import {Response} from "./dataModel/Response";
-import {ResponseHeader} from "./dataModel/ResponseHeader";
+import {Response} from "../Response";
+import {ResponseHeader} from "../ResponseHeader";
 
 import axios from "axios";
-import { SessionContext } from './Application';
+import { SessionContext } from '../Application';
 
 /**
  *  消息主要发送类
  */
-class MessageUtils {
+export default class MessageUtils {
     
-    static getEntityList(entityModel) {
-        let requestHeader = new EntityListRequestHeader();
-        let requestBody = new EntityListRequestBody();
-        requestBody.setEntityModel(entityModel);
-        let request = new Request(requestHeader, requestBody);
-        
-        let object = {
-            request: request
-        }
-        this.sendRequest(object)
-    }
-
     /**
      * 发送异步请求
      */
@@ -80,5 +65,4 @@ class MessageUtils {
         Notification.showError(errroCode, error);
     }
 }
-export {MessageUtils};
 

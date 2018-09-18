@@ -54,4 +54,4 @@ const Type = {
     function: "function"
 }
 
-export {UrlConstant, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, Org, DefaultRowKey, Type};
+export {UrlConstant, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, DefaultRowKey, Type};

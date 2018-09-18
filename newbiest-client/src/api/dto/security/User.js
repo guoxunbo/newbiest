@@ -1,6 +1,4 @@
-const USER_STORAGE_NAME = "User";
-
-class User {
+export default class User {
     objectRrn;
     username;
     password;
@@ -35,5 +33,3 @@ class User {
     }
 
 }
-
-export {User}

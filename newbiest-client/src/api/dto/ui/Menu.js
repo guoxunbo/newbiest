@@ -1,5 +1,5 @@
-import { SessionContext } from "../Application";
-import {Language} from "../const/ConstDefine"
+import { SessionContext } from "../../Application"
+import {Language} from "../../const/ConstDefine"
 
 class Menu {
 

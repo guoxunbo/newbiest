@@ -4,7 +4,7 @@ import PNotifyButtons from 'pnotify/dist/es/PNotifyButtons';
 import PNotifyMobile from 'pnotify/dist/es/PNotifyMobile';
 import PNotifyConfirm from 'pnotify/dist/es/PNotifyConfirm';
 
-import {Application} from '../../js/Application';
+import {Application} from '../../api/Application';
 
 class Notification {
 

@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { Select } from 'antd';
 import RefTableManagerRequestBody from '../../api/ref-table-manager/RefTableManagerRequestBody';
 import RefTableManagerRequestHeader from '../../api/ref-table-manager/RefTableManagerRequestHeader';
-import {UrlConstant} from "../../js/const/ConstDefine";
-import {MessageUtils} from "../../js/MessageUtils";
+import {UrlConstant} from "../../api/const/ConstDefine";
+import MessageUtils from "../../api/utils/MessageUtils";
 
-import {Request} from '../../js/dataModel/Request';
+import Request from '../../api/Request';
 const { Option} = Select;
 
 export default class RefTableField extends Component {

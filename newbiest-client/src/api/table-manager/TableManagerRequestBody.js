@@ -4,7 +4,7 @@ const ActionType = {
     GetByRrn: "GetByRrn",
     GetData: "GetData",
 }
-class TableManagerRequestBody {
+export default class TableManagerRequestBody {
 
     actionType;
     table;
@@ -26,5 +26,3 @@ class TableManagerRequestBody {
         return new TableManagerRequestBody(ActionType.GetData, table);
     }
 }
-
-export {TableManagerRequestBody}
