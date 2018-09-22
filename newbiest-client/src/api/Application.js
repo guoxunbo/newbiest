@@ -6,16 +6,23 @@ const Application = {
         url: "https://www.baidu.com"
     },
 
-    // 默认的分页配置
-    pagination: {
-        // 默认页数
-        pageSize: 10,
-        // 是否允许快速跳转到第几页
-        showQuickJumper: true,
-        // 是否可以改变 pageSize
-        showSizeChanger: true,
-        // 当只有1页的时候是否隐藏分页器
-        hideOnSinglePage: true
+    table: {
+        //TODO 默认的长宽暂时未知怎么计算
+        scroll: {
+            x: 1500,
+            y: 350
+        },
+        // 默认的分页配置
+        pagination: {
+            // 默认页数
+            pageSize: 10,
+            // 是否允许快速跳转到第几页
+            showQuickJumper: true,
+            // 是否可以改变 pageSize
+            showSizeChanger: true,
+            // 当只有1页的时候是否隐藏分页器
+            hideOnSinglePage: true
+        },
     },
 
     notice: {

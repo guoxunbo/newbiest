@@ -3,12 +3,9 @@ import { Input, DatePicker, Select } from 'antd';
 import {SessionContext} from '../../Application'
 import {Language} from "../../const/ConstDefine";
 import RefListField from '../../../components/Field/RefListField';
+import RefTableField from '../../../components/Field/RefTableField';
 
 const { RangePicker} = DatePicker;
-
-const DisplayLength = {
-    Min: 50
-};
 
 const DisplayType = {
     text : "text",
@@ -18,7 +15,8 @@ const DisplayType = {
     datetime : "datetime",
     datetimeFromTo: "datetimeFromTo",
     sysRefList: "sysRefList",
-    userRefList: "userRefList"
+    userRefList: "userRefList",
+    referenceTable: "referenceTable"
 }
 
 const NumberType = ["int", "double"];
@@ -29,9 +27,9 @@ const Aligin = {
 
 export default class Field {
 
+    objectRrn;
     name;
     dataType;
-    displayLength;
     displayFlag;
     mainFlag;
     label;
@@ -40,13 +38,23 @@ export default class Field {
     queryFlag;
     displayType;
     refListName;
+    refTableName;
+
+    //验证栏位
+    readonlyFlag;
+    editable;
+    requiredFlag;
+    namingRule;
+
     // 前端栏位
     title;
+    placeHolder;
+    disabled;
 
     constructor(field) {
+        this.objectRrn = field.objectRrn;
         this.name = field.name;
         this.dataType = field.dataType;
-        this.displayLength = field.displayLength;
         this.displayFlag = field.displayFlag;
         this.mainFlag = field.mainFlag;
         this.queryFlag = field.queryFlag;
@@ -55,6 +63,12 @@ export default class Field {
         this.labelRes = field.labelRes;
         this.displayType = field.displayType;
         this.refListName = field.refListName;
+        this.refTableName = field.refTableName;
+        this.readonlyFlag = field.readonlyFlag;
+        this.requiredFlag = field.requiredFlag;
+        this.namingRule = field.namingRule;
+        this.editable = field.editable;
+        this.title = this.buildTitle();
     }
 
     //TODO 处理fixed和sorter
@@ -67,10 +81,10 @@ export default class Field {
             }
             let column = {
                 key: this.name,
-                title: this.buildTitle(),
+                title: this.title,
                 dataIndex: this.name,
                 align: aligin,
-                width: this.displayLength < DisplayLength.Min ? DisplayLength.Min : this.displayLength,
+                // width: this.displayLength < DisplayLength.Min ? DisplayLength.Min : this.displayLength,
                 // fixed: 'left',
                 // sorter: (a, b) => a.id - b.id
             }
@@ -81,7 +95,6 @@ export default class Field {
 
     isQueryField() {
         if (this.displayFlag && this.mainFlag && this.queryFlag) {
-            this.title = this.buildTitle();
             return true;
         }
         return false;
@@ -104,21 +117,62 @@ export default class Field {
      * 根据不同的DisplayType创建不同的组件
      * //TODO 处理默认时间今天，以及默认时间为最后一个月
      */
-    buildControl() {
+    buildControl(edit) {
+        this.buildDisabled(edit);
         if (this.displayType == DisplayType.text) {
-            return <Input placeholder = {this.title} />;
+            return <Input placeholder = {this.placeHolder} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.password) {
-            return <Input placeholder = {this.title} type="password"/>;
+            return <Input placeholder = {this.placeHolder} type="password" disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.calendar) {
-            return <DatePicker />
+            return <DatePicker disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.calendarFromTo) {
-            return <RangePicker />
+            return <RangePicker disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.datetime) {
-            return <DatePicker showTime format="YYYY-MM-DD HH:mm:ss"/>
+            return <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.datetimeFromTo) {
-            return <RangePicker showTime format="YYYY-MM-DD HH:mm:ss"/>
+            return <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.sysRefList) {
-            return <RefListField referenceName="NBLanguage"/>
+            return <RefListField referenceName={this.refListName} disabled={this.disabled}/>
+        } else if (this.displayType == DisplayType.userRefList) {
+            return <RefListField referenceName={this.refListName} owner disabled={this.disabled}/>
+        } else if (this.displayType == DisplayType.referenceTable) {
+            return <RefTableField refTableName={this.refTableName} disabled={this.disabled}/>
         }
+    }
+    
+    buildDisabled = (editor) => {
+        if (this.readonlyFlag) {
+            this.disabled = true;
+            this.placeHolder = "";
+        }
+        // 当进行编辑(修改)对象的时候，判断其栏位是否是可编辑
+        if (editor && !this.editable) {
+            this.disabled = true;
+            this.placeHolder = "";
+        }
+    }
+    /**
+     * 根据nbfield创建不同的规则rule
+     *  只有当displayType为text才去检验规则，其他只处理是否只读
+     */
+    buildRule() {
+        let rules = [];
+        let rule = {};
+        if (this.requiredFlag) {
+            rule.required = true;
+            rule.whitespace = true;
+        }
+        if (this.displayType == DisplayType.text) {
+            // 正则
+            if (this.namingRule != null && this.namingRule != undefined) {
+                rule.pattern = this.namingRule;
+            }
+            // 数字
+            if (NumberType.includes(this.dataType)) {
+                rule.type = "number";
+            }
+        }
+        rules.push(rule);
+        return rules;
     }
 }

@@ -17,10 +17,6 @@ import javax.persistence.*;
 public class NBField extends NBBase {
     private static final long serialVersionUID = 2536500351356282982L;
 
-    /**
-     * 默认长度
-     */
-    public static final Long DISPLAY_LENGTH = 32L;
 
     @Column(name="NAME")
     private String name;
@@ -39,12 +35,6 @@ public class NBField extends NBBase {
 
     @Column(name="SEQ_NO")
     private Long seqNo;
-
-    /**
-     * 栏位的长度
-     */
-    @Column(name="DISPLAY_LENGTH")
-    private Long displayLength = DISPLAY_LENGTH;
 
     /**
      * 栏位的显示类型
@@ -89,20 +79,14 @@ public class NBField extends NBBase {
     /**
      * 栏位所对应的参考表
      */
-    @Column(name="REF_TABLE_RRN")
-    private Long refTableRrn;
+    @Column(name="REF_TABLE_NAME")
+    private Long refTableName;
 
     /**
-     * 栏位所对应的系统参考值
+     * 栏位所对应的参考值名称
      */
     @Column(name="REF_LIST_NAME")
     private String refListName;
-
-    /**
-     * 栏位所对应的用户参考值
-     */
-    @Column(name="USER_REF_LIST_NAME")
-    private String user_Ref_ListName;
 
     /**
      * 栏位的参考规则

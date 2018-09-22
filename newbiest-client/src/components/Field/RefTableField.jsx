@@ -29,9 +29,11 @@ export default class RefTableField extends Component {
     componentWillReceiveProps(nextProps) {
         if ('value' in nextProps) {
             const value = nextProps.value;
-            this.setState({
-                value: value.value
-            });
+            if (value != undefined && value != null) {
+                this.setState({
+                    value: value.value
+                });
+            }
         }
     }
 
@@ -84,6 +86,7 @@ export default class RefTableField extends Component {
             placeholder={this.props.placeholder}
             style={this.props.style ? this.props.style : { width: "150px" }}
             onChange={this.handleChange}
+            disabled={this.props.disabled}
             // defaultValue={options == null ? "" : options[0].key}
           >
             {options}

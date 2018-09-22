@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table } from 'antd';
+import { Table, Popconfirm, Button, Divider,Form } from 'antd';
 import './EntityListTable.scss';
 import {Application} from '../../api/Application'
 import {DefaultRowKey, Type} from '../../api/const/ConstDefine'
@@ -9,6 +9,8 @@ import Request from '../../api/Request';
 import {UrlConstant} from "../../api/const/ConstDefine";
 import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
+import EntityForm from '../Form/EntityForm';
+import * as PropTypes from 'prop-types';
 
 export default class EntityListTable extends Component {
 
@@ -16,33 +18,35 @@ export default class EntityListTable extends Component {
 
     constructor(props) {
         super(props);
-        let tableRrn = this.props.tableRrn;
-        let rowClassname = this.props.rowClassName;
-        let check = this.props.check;
         this.state = {
-            tableRrn: tableRrn,
+            tableRrn: this.props.tableRrn,
             columns: [],
-            data: this.getData(this.props.tableRrn),
-            pagination: this.props.pagination == null ? Application.pagination : this.props.pagination,
+            data: [],
+            pagination: this.props.pagination == null ? Application.table.pagination : this.props.pagination,
             rowkey: this.props.rowkey == null ? DefaultRowKey : this.props.rowkey,
-            scollx: "",
-            rowClassName: (rowClassname == null || typeof rowClassname != Type.function) ? 
-                            (record, index) => this.getRowClassName(record, index) : this.props.rowClassName,
+            rowClassName: (record, index) => {},
             loading: true,
             // 是否带有选择框
-            check: check,
+            check: this.props.check,
             rowSelection: undefined,
             selectedRowKeys: [],
-            selectedRows: []
-
+            selectedRows: [],
+            formVisible: false,
+            fields: [],
+            editorObject: undefined
         };
     }
 
-    componentDidMount() {
+    componentWillMount = () => {
         this.setState({
-            columns: this.getColumns(this.state.tableRrn),
-            rowSelection: this.getRowSelection(),
-        })
+            rowClassName: (record, index) => this.getRowClassName(record, index),
+            rowSelection: this.state.check ? this.getRowSelection() : undefined, 
+            loading: true,
+        });
+    }
+
+    componentDidMount() {
+        this.buildTable(this.state.tableRrn);
     }
     
     getRowClassName = (record, index) => {
@@ -56,84 +60,145 @@ export default class EntityListTable extends Component {
     // 默认的table框的选择框属性
     getRowSelection = () => {
         const rowSelection = {
-            // TODO 不知道为啥这几个属性不生效，设置了fixed会出现2个checkbox。待确认
-            // columnWidth: '10',
-            // fixed: true,
-            // hideDefaultSelections: true,
+            columnWidth: 10,
+            fixed: true,
             onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
                     selectedRowKeys: selectedRowKeys,
                     selectedRows: selectedRows
                 })
-            },
+            }
         }
         return rowSelection;
     }
-
-    getData = (tableRrn) => {
-        let self = this;
+    
+    buildTable = (tableRrn) => {
+        const self = this;
         let requestBody = TableManagerRequestBody.buildGetData(tableRrn);
         let requestHeader = new TableManagerRequestHeader();
         let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
         let requestObject = {
             request: request,
             success: function(responseBody) {
+                let fields = responseBody.table.fields;
+                let columnData = self.buildColumn(fields);
                 self.setState({
                     data: responseBody.dataList,
+                    columns: columnData.columns,
                     loading: false,
+                    fields: fields
                 });
             }
           }
         MessageUtils.sendRequest(requestObject);
     }
 
-    getColumns = (tableRrn) => {
-        let self = this;
-        let requestBody = TableManagerRequestBody.buildGetByRrn(tableRrn);
-        let requestHeader = new TableManagerRequestHeader();
-        let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
-        let requestObject = {
-            request: request,
-            success: function(responseBody) {
-                let fields = responseBody.table.fields;
-                let columns = [];
-                let scollx;
-                for (let field of fields) {
-                    let f  = new Field(field);
-                    let column = f.buildColumn();
-                    if (column != null) {
-                        scollx += column.width;
-                        columns.push(column);
-                    }
-                }
-                self.setState({
-                    columns: columns,
-                    scollx: scollx
-                });
+    buildColumn = (fields) => {
+        let columns = [];
+        for (let field of fields) {
+            let f  = new Field(field);
+            let column = f.buildColumn();
+            if (column != null) {
+                columns.push(column);
             }
-          }
-        MessageUtils.sendRequest(requestObject);
+        }
+        let oprationColumn = this.buildOprationColumn();
+        columns.push(oprationColumn);
+
+        // 根据长度算宽度才能保证fixed栏位不重复出现
+        for (let column of columns) {
+            column.width = Application.table.scroll.x / columns.length;
+        }
+        return {
+            columns: columns,
+        };
     }
+
+    buildOprationColumn() {
+        let self = this;
+        let oprationColumn = {
+            key: "opration",
+            title: "opration",
+            dataIndex: "opration",
+            align: "center",
+            fixed: 'right',
+            render: (text, record) => {
+                return (
+                    <div>
+                        <Button  icon="form" onClick={() => self.handleEdit(record)} size="small" href="javascript:;">编辑</Button>
+                        <Divider type="vertical" />
+                        <Popconfirm title="Sure to delete?">
+                            <Button icon="delete" size="small" type="danger">删除</Button>
+                        </Popconfirm>
+                    </div>
+                );
+            }
+        };
+        return oprationColumn;
+    }
+
+    handleEdit(record) {
+        this.setState({
+            formVisible : true,
+            editorObject: record
+        })
+        console.log(record);
+    }
+
+    handleSave = (e) => {
+        const form = this.form;
+        form.validateFields((err, values) => {
+            if (err) {
+                return;
+            }
+            //TODO 处理保存。注意copy值的问题
+            this.setState({
+                formVisible: false
+            })
+        });
+        
+    }
+
+    handleCancel = (e) => {
+        this.setState({
+            formVisible: false
+        })
+    }
+
+    formRef = (form) => {
+        this.form = form;
+    };
 
     render() {
+        const {data, pagination, columns, rowkey, loading, rowClassName, rowSelection} = this.state;
+        const WrappedAdvancedEntityForm = Form.create()(EntityForm);
         return (
           <div style={styles.tableContainer}>
             <Table
-              dataSource={this.state.data}
+              dataSource={data}
               bordered
               className="custom-table"
-              pagination={this.state.pagination}
-              columns = {this.state.columns}
-              scroll = {{ y: 350, x: this.state.scollx }}
-              rowKey = {this.state.rowkey}
-              loading = {this.state.loading}
-              rowClassName = {this.state.rowClassName.bind(this)}
-              rowSelection = {this.state.check ? this.state.rowSelection : undefined}
+              pagination={pagination}
+              columns = {columns}
+              scroll = {Application.table.scroll}
+              rowKey = {rowkey}
+              loading = {loading}
+              rowClassName = {rowClassName.bind(this)}
+              rowSelection = {rowSelection}
             >
             </Table>
+            <WrappedAdvancedEntityForm ref={this.formRef} object={this.state.editorObject} visible={this.state.formVisible} fields={this.state.fields}
+                onOk={this.handleSave} onCancel={this.handleCancel} />
           </div>
         );
     }
+}
+EntityListTable.prototypes = {
+    tableRrn: PropTypes.number.isRequired,
+    check: PropTypes.bool,
+    rowClassName: PropTypes.func,
+    rowkey: PropTypes.string,
+    pagination: PropTypes.pagination
 }
 
 const styles = {
@@ -159,4 +224,7 @@ const styles = {
     stateText: {
       color: '#28a745',
     },
+    opration: {
+      width: '100%'
+    }
 };

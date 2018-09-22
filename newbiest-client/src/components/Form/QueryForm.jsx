@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Row, Col, Button, Icon, Select } from 'antd';
+import { Form, Row, Col, Button, Icon } from 'antd';
 import './QueryForm.scss';
 
 import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
@@ -8,9 +8,9 @@ import Request from '../../api/Request';
 import {UrlConstant} from "../../api/const/ConstDefine";
 import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
+import * as PropTypes from 'prop-types';
 
 const FormItem = Form.Item;
-const { Option} = Select;
 
 export default class QueryForm extends Component {
     static displayName = 'QueryForm';
@@ -70,13 +70,10 @@ export default class QueryForm extends Component {
 
     getFormItem = (field) => {
         const { getFieldDecorator } = this.props.form;
-        //TODO 处理下拉框和search框不需要feedback问题
+        let rules = field.buildRule();
         return <FormItem hasFeedback label={field.title}>
           {getFieldDecorator(field.name, {
-            rules: [{
-              required: true,
-              message: 'Input something!',
-            }],
+            rules: rules,
           })
           (
             field.buildControl()
@@ -122,6 +119,9 @@ export default class QueryForm extends Component {
     }
 }
 
+QueryForm.prototypes = {
+    tableRrn: PropTypes.number.isRequired
+}
 
 const styles = {
     tableFilter: {

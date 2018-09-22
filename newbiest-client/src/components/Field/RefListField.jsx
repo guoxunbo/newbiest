@@ -20,7 +20,7 @@ export default class RefListField extends Component {
             owner: this.props.owner,
             referenceName: this.props.referenceName,
             data: [],
-            value: value
+            value: value,
         };
     }
 
@@ -31,9 +31,11 @@ export default class RefListField extends Component {
     componentWillReceiveProps(nextProps) {
         if ('value' in nextProps) {
             const value = nextProps.value;
-            this.setState({
-                value: value.value
-            });
+            if (value != undefined && value != null) {
+                this.setState({
+                    value: value.value
+                });
+            }
         }
     }
 
@@ -82,7 +84,7 @@ export default class RefListField extends Component {
             placeholder={this.props.placeholder}
             style={this.props.style ? this.props.style : { width: "150px" }}
             onChange={this.handleChange}
-            // defaultValue={options == null ? "" : options[0].key}
+            disabled={this.props.disabled}
           >
             {options}
           </Select>
