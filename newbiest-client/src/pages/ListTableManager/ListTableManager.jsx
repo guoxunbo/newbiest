@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import EntityListTable from '../../components/Table/EntityListTable';
-import QueryForm from '../../components/Form/QueryForm';
+import WrappedAdvancedQueryForm from '../../components/Form/QueryForm';
 
 import {Form} from 'antd';
 
@@ -15,10 +15,9 @@ export default class ListTableManager extends Component {
   }
 
   render() {
-    const WrappedAdvancedSearchForm = Form.create()(QueryForm);
     return (
       <div className="list-table-manager-page">
-        <WrappedAdvancedSearchForm tableRrn={this.state.tableRrn} />
+        <WrappedAdvancedQueryForm tableRrn={this.state.tableRrn} />
         <EntityListTable tableRrn={this.state.tableRrn} check/>
       </div>
     );

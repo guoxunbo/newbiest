@@ -1,4 +1,4 @@
-import { Input, DatePicker, Select } from 'antd';
+import { Input, DatePicker, Switch,Form } from 'antd';
 
 import {SessionContext} from '../../Application'
 import {Language} from "../../const/ConstDefine";
@@ -6,6 +6,7 @@ import RefListField from '../../../components/Field/RefListField';
 import RefTableField from '../../../components/Field/RefTableField';
 
 const { RangePicker} = DatePicker;
+const FormItem = Form.Item;
 
 const DisplayType = {
     text : "text",
@@ -16,7 +17,8 @@ const DisplayType = {
     datetimeFromTo: "datetimeFromTo",
     sysRefList: "sysRefList",
     userRefList: "userRefList",
-    referenceTable: "referenceTable"
+    referenceTable: "referenceTable",
+    radio: "radio"
 }
 
 const NumberType = ["int", "double"];
@@ -39,6 +41,8 @@ export default class Field {
     displayType;
     refListName;
     refTableName;
+    defaultValue;
+    tabRrn;
 
     //验证栏位
     readonlyFlag;
@@ -68,6 +72,8 @@ export default class Field {
         this.requiredFlag = field.requiredFlag;
         this.namingRule = field.namingRule;
         this.editable = field.editable;
+        this.defaultValue = field.defaultValue;
+        this.tabRrn = field.tabRrn;
         this.title = this.buildTitle();
     }
 
@@ -137,9 +143,31 @@ export default class Field {
             return <RefListField referenceName={this.refListName} owner disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.referenceTable) {
             return <RefTableField refTableName={this.refTableName} disabled={this.disabled}/>
+        } else if (this.displayType == DisplayType.radio) {
+            let defaultChecked = this.defaultValue;
+            return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled} 
+            defaultChecked={defaultChecked}/>
         }
     }
     
+    buildFormItem = (fieldDecorator, formItemProperties, edit) => {
+        //处理formItemPorperties TODO暂时不支持file上传组件检验
+        if (formItemProperties == undefined) {
+            formItemProperties = {};
+        } 
+        if (this.displayType == DisplayType.radio) {
+            formItemProperties.valuePropName = "checked";
+        }
+        return (<FormItem {...formItemProperties} hasFeedback label={this.title}>
+            {fieldDecorator(this.name, {
+            rules: this.buildRule(),
+          })
+          (
+            this.buildControl(edit)
+          )}
+        </FormItem>);
+    }
+
     buildDisabled = (editor) => {
         if (this.readonlyFlag) {
             this.disabled = true;

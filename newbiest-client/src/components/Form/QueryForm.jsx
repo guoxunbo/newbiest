@@ -10,9 +10,7 @@ import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
 import * as PropTypes from 'prop-types';
 
-const FormItem = Form.Item;
-
-export default class QueryForm extends Component {
+class QueryForm extends Component {
     static displayName = 'QueryForm';
     
     constructor(props) {
@@ -68,28 +66,16 @@ export default class QueryForm extends Component {
         this.setState({ expand: !expand });
     }
 
-    getFormItem = (field) => {
-        const { getFieldDecorator } = this.props.form;
-        let rules = field.buildRule();
-        return <FormItem hasFeedback label={field.title}>
-          {getFieldDecorator(field.name, {
-            rules: rules,
-          })
-          (
-            field.buildControl()
-          )}
-        </FormItem>
-    }
-    
     getFields = (queryFields) => {
         const count = this.state.expand ? 10 : 3;
         const children = [];
+        const { getFieldDecorator } = this.props.form;
         let colSpan = queryFields.length >= 3 ? 8 : 24 / queryFields.length;
         for (let i in queryFields) {
           let field = queryFields[i];
           children.push(
             <Col span={colSpan} key={i} style={{ display: i < count ? 'block' : 'none' }}>
-              {this.getFormItem(field)}
+              {field.buildFormItem(getFieldDecorator, undefined, false)}
             </Col>
           );
         }
@@ -122,6 +108,9 @@ export default class QueryForm extends Component {
 QueryForm.prototypes = {
     tableRrn: PropTypes.number.isRequired
 }
+
+const WrappedAdvancedQueryForm = Form.create()(QueryForm);
+export default WrappedAdvancedQueryForm;
 
 const styles = {
     tableFilter: {
