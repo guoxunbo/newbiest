@@ -5,10 +5,12 @@ import './QueryForm.scss';
 import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
 import TableManagerRequestHeader from '../../api/table-manager/TableManagerRequestHeader';
 import Request from '../../api/Request';
-import {UrlConstant} from "../../api/const/ConstDefine";
+import {UrlConstant, SqlType} from "../../api/const/ConstDefine";
 import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
 import * as PropTypes from 'prop-types';
+
+import StringBuffer from '../../api/StringBuffer';
 
 class QueryForm extends Component {
     static displayName = 'QueryForm';
@@ -50,10 +52,47 @@ class QueryForm extends Component {
         MessageUtils.sendRequest(requestObject);
     }
 
+    buildWhereClause = (formValues) => {
+        const queryFields = this.state.queryFields;
+        let whereClause = new StringBuffer();
+        let firstFlag = true;
+        for (let queryField of queryFields) {
+            let fieldName = queryField.name;
+            if (formValues[fieldName] != null && formValues[fieldName] != undefined) {
+                if (!firstFlag) {
+                    whereClause.append(SqlType.And);
+                }
+                whereClause.append(fieldName);
+                whereClause.append(SqlType.Eq);
+                whereClause.append("'")
+                whereClause.append(formValues[fieldName]);
+                whereClause.append("'")
+                firstFlag = false;
+            }
+        }
+        return whereClause.toString();
+    }
+
     handleSearch = (e) => {
         e.preventDefault();
+        var self = this;
         this.props.form.validateFields((err, values) => {
-          console.log('Received values of form: ', values);
+            if (err) {
+                return;
+            }
+            let whereClause = self.buildWhereClause(values);
+            console.log(whereClause);
+            let requestBody = TableManagerRequestBody.buildGetData(self.state.tableRrn, whereClause);
+            let requestHeader = new TableManagerRequestHeader();
+            let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
+            let requestObject = {
+                request: request,
+                success: function(responseBody) {
+                    //TODO 将值传递给表格
+                    console.log(responseBody);
+                }  
+            }
+            MessageUtils.sendRequest(requestObject);
         });
     }
     

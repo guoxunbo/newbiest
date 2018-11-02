@@ -1,6 +1,7 @@
 export default class Table{
 
     objectRrn;
+    whereClause;
 
     constructor() {
 
@@ -8,5 +9,9 @@ export default class Table{
 
     setObjectRrn(objectRrn) {
         this.objectRrn = objectRrn;
+    }
+
+    setWhereClause(whereClause) {
+        this.whereClause = whereClause;
     }
 }

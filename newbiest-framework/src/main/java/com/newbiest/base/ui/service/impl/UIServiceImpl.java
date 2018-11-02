@@ -15,6 +15,7 @@ import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.ExcelUtils;
 import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.repository.AuthorityRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -94,13 +95,7 @@ public class UIServiceImpl implements UIService {
     public List<? extends NBBase> getDataFromTableRrn(Long tableRrn, SessionContext sc) throws ClientException {
         try {
             NBTable nbTable = (NBTable) tableRepository.findByObjectRrn(tableRrn);
-            if (!nbTable.getView()) {
-                List<? extends NBBase> datas = baseService.findAll(nbTable.getModelClass(), sc.getOrgRrn(), nbTable.getInitWhereClause(), nbTable.getOrderBy());
-                return datas;
-            } else {
-                //TODO 暂时只支持实体查询不支持直接SQL查询
-                throw new ClientException(UIExceptions.UI_TABLE_NON_SUPPORT_VIEW);
-            }
+            return getDataFromTableRrn(tableRrn, nbTable.getInitWhereClause(), nbTable.getOrderBy(), sc);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -119,7 +114,7 @@ public class UIServiceImpl implements UIService {
         try {
             NBTable nbTable = (NBTable) tableRepository.findByObjectRrn(tableRrn);
             if (!nbTable.getView()) {
-                List<? extends NBBase> datas = baseService.findAll(nbTable.getModelClass(), sc.getOrgRrn(), whereClause, orderBy);
+                List<? extends NBBase> datas = baseService.findAll(nbTable.getModelClass(), whereClause, orderBy, sc.getOrgRrn());
                 return datas;
             } else {
                 //TODO 暂时只支持实体查询不支持直接SQL查询

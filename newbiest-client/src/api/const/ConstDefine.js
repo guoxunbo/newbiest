@@ -54,4 +54,10 @@ const Type = {
     function: "function"
 }
 
-export {UrlConstant, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, DefaultRowKey, Type};
+const SqlType = {
+    And: " AND ",
+    Eq: " = ",
+    Where: " WHERE "
+}
+
+export {UrlConstant, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, DefaultRowKey, Type, SqlType};

@@ -52,7 +52,7 @@ public class TableController extends AbstractRestController {
             responseBody.setTable(nbTable);
         } else if (TableRequest.GET_DATA.equals(actionType)) {
             NBTable nbTable = uiService.getNBTable(requestBody.getTable().getObjectRrn());
-            List<? extends NBBase> dataList = uiService.getDataFromTableRrn(requestBody.getTable().getObjectRrn(), sc);
+            List<? extends NBBase> dataList = uiService.getDataFromTableRrn(requestBody.getTable().getObjectRrn(), requestBody.getTable().getWhereClause(), requestBody.getTable().getOrderBy(), sc);
             responseBody.setTable(nbTable);
             responseBody.setDataList(dataList);
         }
