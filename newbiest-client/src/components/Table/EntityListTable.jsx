@@ -83,7 +83,6 @@ export default class EntityListTable extends Component {
             success: function(responseBody) {
                 let fields = responseBody.table.fields;
                 let columnData = self.buildColumn(fields);
-                console.log(columnData);
                 self.setState({
                     data: responseBody.dataList,
                     columns: columnData.columns,
@@ -114,10 +113,6 @@ export default class EntityListTable extends Component {
         if (this.state.check) {
             scrollX += 10;
         }
-        // 根据长度算宽度才能保证fixed栏位不重复出现
-        // for (let column of columns) {
-        //     column.width = Application.table.scroll.x / columns.length;
-        // }
         return {
             columns: columns,
             scrollX: scrollX
