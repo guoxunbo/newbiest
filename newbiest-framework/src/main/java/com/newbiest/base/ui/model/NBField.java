@@ -37,6 +37,12 @@ public class NBField extends NBBase {
     private Long seqNo;
 
     /**
+     * 就支持100 150 200 250 300这些宽度
+     */
+    @Column(name="DISPLAY_LENGTH")
+    private Long displayLength;
+
+    /**
      * 栏位的显示类型
      * 如text、password、refTable等
      */

@@ -33,7 +33,8 @@ export default class EntityListTable extends Component {
             selectedRows: [],
             formVisible: false,
             fields: [],
-            editorObject: undefined
+            editorObject: undefined,
+            scrollX: undefined
         };
     }
 
@@ -60,7 +61,7 @@ export default class EntityListTable extends Component {
     // 默认的table框的选择框属性
     getRowSelection = () => {
         const rowSelection = {
-            columnWidth: 10,
+            columnWidth: Application.table.checkBox.width,
             fixed: true,
             onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
@@ -82,11 +83,13 @@ export default class EntityListTable extends Component {
             success: function(responseBody) {
                 let fields = responseBody.table.fields;
                 let columnData = self.buildColumn(fields);
+                console.log(columnData);
                 self.setState({
                     data: responseBody.dataList,
                     columns: columnData.columns,
                     loading: false,
-                    fields: fields
+                    fields: fields,
+                    scrollX: columnData.scrollX
                 });
             }
           }
@@ -95,22 +98,29 @@ export default class EntityListTable extends Component {
 
     buildColumn = (fields) => {
         let columns = [];
+        let scrollX = 0;
         for (let field of fields) {
             let f  = new Field(field);
             let column = f.buildColumn();
             if (column != null) {
                 columns.push(column);
+                scrollX += column.width;
             }
         }
         let oprationColumn = this.buildOprationColumn();
-        columns.push(oprationColumn);
+        scrollX += oprationColumn.width;
 
-        // 根据长度算宽度才能保证fixed栏位不重复出现
-        for (let column of columns) {
-            column.width = Application.table.scroll.x / columns.length;
+        columns.push(oprationColumn);
+        if (this.state.check) {
+            scrollX += 10;
         }
+        // 根据长度算宽度才能保证fixed栏位不重复出现
+        // for (let column of columns) {
+        //     column.width = Application.table.scroll.x / columns.length;
+        // }
         return {
             columns: columns,
+            scrollX: scrollX
         };
     }
 
@@ -122,6 +132,7 @@ export default class EntityListTable extends Component {
             dataIndex: "opration",
             align: "center",
             fixed: 'right',
+            width: Application.table.oprationColumn.width,
             render: (text, record) => {
                 return (
                     <div>
@@ -170,7 +181,7 @@ export default class EntityListTable extends Component {
     };
 
     render() {
-        const {data, pagination, columns, rowkey, loading, rowClassName, rowSelection} = this.state;
+        const {data, pagination, columns, rowkey, loading, rowClassName, rowSelection, scrollX} = this.state;
         const WrappedAdvancedEntityForm = Form.create()(EntityForm);
         return (
           <div style={styles.tableContainer}>
@@ -180,7 +191,7 @@ export default class EntityListTable extends Component {
               className="custom-table"
               pagination={pagination}
               columns = {columns}
-              scroll = {Application.table.scroll}
+              scroll = {{ x: scrollX, y: 350 }}
               rowKey = {rowkey}
               loading = {loading}
               rowClassName = {rowClassName.bind(this)}

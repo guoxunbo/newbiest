@@ -7,9 +7,13 @@ const Application = {
     },
 
     table: {
-        //TODO 默认的长宽暂时未知怎么计算
+        oprationColumn: {
+            width: 200
+        },
+        checkBox: {
+            width: 10
+        },
         scroll: {
-            x: 1500,
             y: 350
         },
         // 默认的分页配置
@@ -49,6 +53,7 @@ class SessionContext {
     username;
     orgName;
     orgRrn;
+    token;
 
     setLanguage(language) {
         this.language = language;
@@ -66,11 +71,16 @@ class SessionContext {
         this.orgRrn = orgRrn;
     }
 
-    static saveSessionContext(username, orgRrn, language) {
+    setToken(token) {
+        this.token = token;
+    }
+
+    static saveSessionContext(username, orgRrn, language, token) {
         let sc = new SessionContext();
         sc.setLanguage(language);
         sc.setUsername(username);
         sc.setOrgRrn(orgRrn);
+        sc.setToken(token);
         sessionStorage.setItem(SC_STORAGE_NAME, JSON.stringify(sc));
     }
 
@@ -92,6 +102,14 @@ class SessionContext {
             return undefined;
         }
         return sessionContext.language;
+    }
+
+    static getToken() {
+        let sessionContext = this.getSessionContext();
+        if (sessionContext == undefined) {
+            return "";
+        }
+        return sessionContext.token;
     }
 
     static getUsername() {

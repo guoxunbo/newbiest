@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-nb_field-table_0.0.4
+      author: Xunbo Guo
+      comment: ADD column DISPLAY_LENGTH for NB_FIELD
+      changes:
+        - addColumn:
+            tableName: NB_FIELD
+            columns:
+              - column:
+                  name: DISPLAY_LENGTH
+                  type: bigint
+                  remarks: 长度
+                  defaultValueNumeric: 200
+
+

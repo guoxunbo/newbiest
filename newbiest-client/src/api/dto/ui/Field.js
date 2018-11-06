@@ -27,6 +27,10 @@ const Aligin = {
     right : "right"
 }
 
+const DisplayLength = {
+    min: 100,
+    max: 300
+}
 export default class Field {
 
     objectRrn;
@@ -43,6 +47,7 @@ export default class Field {
     refTableName;
     defaultValue;
     tabRrn;
+    displayLength;
 
     //验证栏位
     readonlyFlag;
@@ -73,6 +78,7 @@ export default class Field {
         this.namingRule = field.namingRule;
         this.editable = field.editable;
         this.defaultValue = field.defaultValue;
+        this.displayLength = field.displayLength;
         this.tabRrn = field.tabRrn;
         this.title = this.buildTitle();
     }
@@ -90,7 +96,7 @@ export default class Field {
                 title: this.title,
                 dataIndex: this.name,
                 align: aligin,
-                // width: this.displayLength < DisplayLength.Min ? DisplayLength.Min : this.displayLength,
+                width: this.buildWidth()
                 // fixed: 'left',
                 // sorter: (a, b) => a.id - b.id
             }
@@ -99,7 +105,18 @@ export default class Field {
         return null;
     }
 
-    isQueryField() {
+    buildWidth = () => {
+        let width = this.displayLength;
+        if (width < DisplayLength.min) {
+            width = DisplayLength.min;
+        }
+        if (width > DisplayLength.max) {
+            width = DisplayLength.max;
+        }
+        return width;
+    }
+
+    isQueryField = () => {
         if (this.displayFlag && this.mainFlag && this.queryFlag) {
             return true;
         }
