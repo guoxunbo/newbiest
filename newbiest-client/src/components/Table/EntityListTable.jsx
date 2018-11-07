@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import { Table, Popconfirm, Button, Divider,Form } from 'antd';
-import './EntityListTable.scss';
+import './ListTable.scss';
 import {Application} from '../../api/Application'
-import {DefaultRowKey, Type} from '../../api/const/ConstDefine'
+import {DefaultRowKey, UrlConstant} from '../../api/const/ConstDefine'
 import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
 import TableManagerRequestHeader from '../../api/table-manager/TableManagerRequestHeader';
 import Request from '../../api/Request';
-import {UrlConstant} from "../../api/const/ConstDefine";
 import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
 import EntityForm from '../Form/EntityForm';
 import * as PropTypes from 'prop-types';
 
+/**
+ * 基本表格。每一行都带有编辑和删除的列
+ */
 export default class EntityListTable extends Component {
 
     static displayName = 'EntityListTable';
@@ -19,15 +21,8 @@ export default class EntityListTable extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tableRrn: this.props.tableRrn,
             columns: [],
-            data: [],
-            pagination: this.props.pagination == null ? Application.table.pagination : this.props.pagination,
-            rowkey: this.props.rowkey == null ? DefaultRowKey : this.props.rowkey,
             rowClassName: (record, index) => {},
-            loading: true,
-            // 是否带有选择框
-            check: this.props.check,
             rowSelection: undefined,
             selectedRowKeys: [],
             selectedRows: [],
@@ -41,13 +36,11 @@ export default class EntityListTable extends Component {
     componentWillMount = () => {
         this.setState({
             rowClassName: (record, index) => this.getRowClassName(record, index),
-            rowSelection: this.state.check ? this.getRowSelection() : undefined, 
-            loading: true,
         });
     }
 
     componentDidMount() {
-        this.buildTable(this.state.tableRrn);
+        this.buildTable(this.props.tableRrn);
     }
     
     getRowClassName = (record, index) => {
@@ -58,24 +51,9 @@ export default class EntityListTable extends Component {
         }
     };
 
-    // 默认的table框的选择框属性
-    getRowSelection = () => {
-        const rowSelection = {
-            columnWidth: Application.table.checkBox.width,
-            fixed: true,
-            onChange: (selectedRowKeys, selectedRows) => {
-                this.setState({
-                    selectedRowKeys: selectedRowKeys,
-                    selectedRows: selectedRows
-                })
-            }
-        }
-        return rowSelection;
-    }
-    
     buildTable = (tableRrn) => {
         const self = this;
-        let requestBody = TableManagerRequestBody.buildGetData(tableRrn);
+        let requestBody = TableManagerRequestBody.buildGetByRrn(tableRrn);
         let requestHeader = new TableManagerRequestHeader();
         let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
         let requestObject = {
@@ -84,9 +62,7 @@ export default class EntityListTable extends Component {
                 let fields = responseBody.table.fields;
                 let columnData = self.buildColumn(fields);
                 self.setState({
-                    data: responseBody.dataList,
                     columns: columnData.columns,
-                    loading: false,
                     fields: fields,
                     scrollX: columnData.scrollX
                 });
@@ -110,7 +86,7 @@ export default class EntityListTable extends Component {
         scrollX += oprationColumn.width;
 
         columns.push(oprationColumn);
-        if (this.state.check) {
+        if (this.props.check) {
             scrollX += 10;
         }
         return {
@@ -176,19 +152,19 @@ export default class EntityListTable extends Component {
     };
 
     render() {
-        const {data, pagination, columns, rowkey, loading, rowClassName, rowSelection, scrollX} = this.state;
+        const {columns, rowClassName, rowSelection, scrollX} = this.state;
         const WrappedAdvancedEntityForm = Form.create()(EntityForm);
         return (
           <div style={styles.tableContainer}>
             <Table
-              dataSource={data}
+              dataSource={this.props.data}
               bordered
               className="custom-table"
-              pagination={pagination}
+              pagination={this.props.pagination == null ? Application.table.pagination : this.props.pagination}
               columns = {columns}
               scroll = {{ x: scrollX, y: 350 }}
-              rowKey = {rowkey}
-              loading = {loading}
+              rowKey = {this.props.rowkey == null ? DefaultRowKey : this.props.rowkey}
+              loading = {this.props.loading}
               rowClassName = {rowClassName.bind(this)}
               rowSelection = {rowSelection}
             >

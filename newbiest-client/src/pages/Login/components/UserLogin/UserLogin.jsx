@@ -22,6 +22,7 @@ import UserManagerRequestBody from "../../../../api/user-manager/UserManagerRequ
 import {UrlConstant, SystemRefListName, RefTableName} from "../../../../api/const/ConstDefine";
 import RefListField from '../../../../components/Field/RefListField';
 import RefTableField from '../../../../components/Field/RefTableField';
+import Authority from '../../../../api/dto/ui/Authority';
 
 const { Row, Col } = Grid;
 
@@ -69,9 +70,19 @@ export default class UserLogin extends Component {
       let request = new Request(requestHeader, requestBody, UrlConstant.UserManagerUrl);
       let requestObject = {
         request: request,
-        success: function(responseBody) {
-          SessionContext.saveSessionContext(values.account, values.org, values.language);
-          self.props.history.push('/Home');
+        success: function(responseBody, authorization) {
+          // 登录成功要去获取菜单并把菜单存入sessionContext
+          let authortityRequestBody = UserManagerRequestBody.buildGetAuthorityBody(values.account);
+          let authorityRequest = new Request(requestHeader, authortityRequestBody, UrlConstant.UserManagerUrl);
+          let authorityRequestObject = {
+            request: authorityRequest,
+            success: function(responseBody) {
+              let authorities = responseBody.user.authorities;
+              SessionContext.saveSessionContext(values.account, values.org, values.language, authorization, Authority.buildMenu(authorities, values.language));
+              self.props.history.push('/Home');
+            }
+          }
+          MessageUtils.sendRequest(authorityRequestObject);
         }
       }
       MessageUtils.sendRequest(requestObject);

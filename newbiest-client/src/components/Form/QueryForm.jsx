@@ -81,18 +81,9 @@ class QueryForm extends Component {
                 return;
             }
             let whereClause = self.buildWhereClause(values);
-            console.log(whereClause);
-            let requestBody = TableManagerRequestBody.buildGetData(self.state.tableRrn, whereClause);
-            let requestHeader = new TableManagerRequestHeader();
-            let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
-            let requestObject = {
-                request: request,
-                success: function(responseBody) {
-                    //TODO 将值传递给表格
-                    console.log(responseBody);
-                }  
-            }
-            MessageUtils.sendRequest(requestObject);
+            if (self.props.onSearch) {
+                self.props.onSearch(whereClause);
+            } 
         });
     }
     

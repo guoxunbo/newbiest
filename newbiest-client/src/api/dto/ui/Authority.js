@@ -1,7 +1,6 @@
-import { SessionContext } from "../../Application"
 import {Language} from "../../const/ConstDefine"
 
-class Menu {
+export default class Authority {
 
     name;
     path;
@@ -9,11 +8,10 @@ class Menu {
     tableRrn;
     children;
     
-    constructor(authority) {
+    constructor(authority, language) {
         this.icon = authority.image;
         this.tableRrn = authority.tableRrn;
         this.path = authority.url + "/" + this.tableRrn;
-        let language = SessionContext.getLanguage();
         if (language == Language.Chinese) {
             this.name = authority.labelZh;
         } else if (language == Language.English) {
@@ -26,18 +24,18 @@ class Menu {
         if (subAuthorities != null && subAuthorities != undefined) {
             let subMenus = [];
             subAuthorities.map((authority, index) => {
-                let subMenu = new Menu(authority);
+                let subMenu = new Authority(authority, language);
                 subMenus[index] = subMenu;
             });
             this.children = subMenus;
         }
     }
 
-    static buildMenu(authorityList) {
+    static buildMenu(authorityList, language) {
         if (Array.isArray(authorityList) && authorityList.length > 0) {
             let menus = [];
             authorityList.map((authority, index) => {
-                let menu = new Menu(authority);
+                let menu = new Authority(authority, language);
                 menus[index] = menu;
             });
             return menus;
@@ -45,4 +43,3 @@ class Menu {
         return null;
     }
 }
-export {Menu};

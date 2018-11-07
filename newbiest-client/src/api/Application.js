@@ -54,6 +54,7 @@ class SessionContext {
     orgName;
     orgRrn;
     token;
+    authories;
 
     setLanguage(language) {
         this.language = language;
@@ -75,12 +76,17 @@ class SessionContext {
         this.token = token;
     }
 
-    static saveSessionContext(username, orgRrn, language, token) {
+    setAuthorities(authories) {
+        this.authories = authories;
+    }
+
+    static saveSessionContext(username, orgRrn, language, token, authories) {
         let sc = new SessionContext();
         sc.setLanguage(language);
         sc.setUsername(username);
         sc.setOrgRrn(orgRrn);
         sc.setToken(token);
+        sc.setAuthorities(authories);
         sessionStorage.setItem(SC_STORAGE_NAME, JSON.stringify(sc));
     }
 
@@ -102,6 +108,14 @@ class SessionContext {
             return undefined;
         }
         return sessionContext.language;
+    }
+
+    static getAuthorities() {
+        let sessionContext = this.getSessionContext();
+        if (sessionContext == undefined) {
+            return undefined;
+        }
+        return sessionContext.authories;
     }
 
     static getToken() {
