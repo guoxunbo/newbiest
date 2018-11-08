@@ -22,12 +22,15 @@
     "enquire-js": "^0.1.2",
     "foundation-symbol": "^0.1.0",
     "node-forge": "^0.7.5",
-    "prop-types": "^15.5.8",
+    "prop-types": "^15.6.2",
     "qs": "^6.5.2",
     "react": "^16.4.0",
     "react-document-title": "^2.0.3",
+    "react-redux": "^5.1.0",
     "react-router": "^4.2.0",
-    "react-router-dom": "^4.2.2"
+    "react-router-dom": "^4.2.2",
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.3",

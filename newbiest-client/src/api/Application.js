@@ -1,6 +1,8 @@
 const Application = {
     name: '智行管理系统',
     version: "0.0.1",
+    tableY:650,
+    scrollNum:10,
     copyright: {
         name: "© 2018 By Newbiest",
         url: "https://www.baidu.com"
@@ -10,7 +12,6 @@ const Application = {
         //TODO 默认的长宽暂时未知怎么计算
         scroll: {
             x: 1500,
-            y: 350
         },
         // 默认的分页配置
         pagination: {

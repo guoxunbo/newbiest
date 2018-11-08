@@ -2,11 +2,11 @@
  * 定义URL 有可能请求多个URL
  */
 const ModuleUrlConstant = {
-    Security: "http://127.0.0.1:8080/security/",
-    UI: "http://127.0.0.1:8080/ui/"
+    Security: "http://118.31.35.66:8080/security/",
+    UI: "http://118.31.35.66:8080/ui/"
 }
 const UrlConstant = {
-    BaseUrl: "http://127.0.0.1:8080/framework/execute",
+    BaseUrl: "http://118.31.35.66:8080/framework/execute",
     UserManagerUrl: ModuleUrlConstant.Security + "userManage",
     TableMangerUrl: ModuleUrlConstant.UI + "tableManage",
     RefListMangerUrl: ModuleUrlConstant.UI + "refListManage",    

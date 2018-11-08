@@ -9,3 +9,12 @@
   .ant-advanced-search-form .ant-form-item-control-wrapper {
     flex: 1;
   }
+  .search-button {
+    position: absolute !important;
+    margin-left: 12px;
+    top:4px;
+  }
+
+  .ant-form {
+    position: relative;
+  } 

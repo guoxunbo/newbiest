@@ -88,7 +88,7 @@ export default class QueryForm extends Component {
         for (let i in queryFields) {
           let field = queryFields[i];
           children.push(
-            <Col span={colSpan} key={i} style={{ display: i < count ? 'block' : 'none' }}>
+            <Col span={colSpan} key={i} style={{ display: i < count ? 'inline-block' : 'none' }}>
               {this.getFormItem(field)}
             </Col>
           );
@@ -100,19 +100,9 @@ export default class QueryForm extends Component {
         return (
         <div style={styles.tableFilter}>
             <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
-            <Row >
-                <Row gutter={24}>{this.getFields(this.state.queryFields)}</Row>
-                <Col span={24} style={{ textAlign: 'right' }}>
-                    <Button type="primary" htmlType="submit">查找</Button>
-                    <Button style={{ marginLeft: 8 }} onClick={this.handleReset}>
-                    重置
-                    </Button>
-                    <a style={{ marginLeft: 8, fontSize: 12 }} onClick={this.toggle}>
-                    展开 <Icon type={this.state.expand ? 'up' : 'down'} />
-                    </a>
-                </Col>
-            </Row>
-
+                <Row gutter={24} style={{display:'inline-block'}}>{this.getFields(this.state.queryFields)}
+                </Row>
+                <Button type="primary" className="search-button" htmlType="submit">查找</Button>
             </Form>
         </div>
         );
@@ -129,7 +119,6 @@ const styles = {
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '20px',
-      marginBottom: '20px',
       background: '#fff',
     }
 };

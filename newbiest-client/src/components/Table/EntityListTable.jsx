@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Table, Popconfirm, Button, Divider,Form } from 'antd';
+import { Table, Popconfirm, Button, Icon, Divider,Form } from 'antd';
+import { Link } from 'react-router-dom';
 import './EntityListTable.scss';
 import {Application} from '../../api/Application'
 import {DefaultRowKey, Type} from '../../api/const/ConstDefine'
@@ -87,7 +88,7 @@ export default class EntityListTable extends Component {
                     columns: columnData.columns,
                     loading: false,
                     fields: fields
-                });
+                });                
             }
           }
         MessageUtils.sendRequest(requestObject);
@@ -125,8 +126,7 @@ export default class EntityListTable extends Component {
             render: (text, record) => {
                 return (
                     <div>
-                        <Button  icon="form" onClick={() => self.handleEdit(record)} size="small" href="javascript:;">编辑</Button>
-                        <Divider type="vertical" />
+                        <Button style={{marginRight:'1px'}} icon="form" onClick={() => self.handleEdit(record)} size="small" href="javascript:;">编辑</Button>
                         <Popconfirm title="Sure to delete?">
                             <Button icon="delete" size="small" type="danger">删除</Button>
                         </Popconfirm>
@@ -172,23 +172,31 @@ export default class EntityListTable extends Component {
     render() {
         const {data, pagination, columns, rowkey, loading, rowClassName, rowSelection} = this.state;
         const WrappedAdvancedEntityForm = Form.create()(EntityForm);
+        if(data.length >= Application.scrollNum){
+            Application.table.scroll.y = Application.tableY
+        }
         return (
-          <div style={styles.tableContainer}>
-            <Table
-              dataSource={data}
-              bordered
-              className="custom-table"
-              pagination={pagination}
-              columns = {columns}
-              scroll = {Application.table.scroll}
-              rowKey = {rowkey}
-              loading = {loading}
-              rowClassName = {rowClassName.bind(this)}
-              rowSelection = {rowSelection}
-            >
-            </Table>
-            <WrappedAdvancedEntityForm ref={this.formRef} object={this.state.editorObject} visible={this.state.formVisible} fields={this.state.fields}
-                onOk={this.handleSave} onCancel={this.handleCancel} />
+          <div >
+            <Link to="" style={styles.tableButton}>
+                <Button type="primary" icon="plus">添加内容</Button>
+            </Link>
+            <div style={styles.tableContainer}>
+                <Table
+                dataSource={data}
+                bordered
+                className="custom-table"
+                pagination={pagination}
+                columns = {columns}
+                scroll = {Application.table.scroll}
+                rowKey = {rowkey}
+                loading = {loading}
+                rowClassName = {rowClassName.bind(this)}
+                rowSelection = {rowSelection}
+                >
+                </Table>
+                <WrappedAdvancedEntityForm ref={this.formRef} object={this.state.editorObject} visible={this.state.formVisible} fields={this.state.fields}
+                    onOk={this.handleSave} onCancel={this.handleCancel} />
+            </div>
           </div>
         );
     }
@@ -226,5 +234,10 @@ const styles = {
     },
     opration: {
       width: '100%'
+    },
+    tableButton: {
+        position:'absolute',
+        top:'120px',
+        right:'120px'
     }
 };
