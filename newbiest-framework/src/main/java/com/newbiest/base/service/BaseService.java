@@ -28,8 +28,8 @@ public interface BaseService {
     NBBase findEntity(NBBase nbBase, boolean deepFlag) throws ClientException;
 
     List<? extends NBBase> findAll(String fullClassName, long orgRrn) throws ClientException;
-    List<? extends NBBase> findAll(String fullClassName, long orgRrn, String whereClause, String orderBy) throws ClientException;
-    List<? extends NBBase> findAll(String fullClassName, long orgRrn, int firstResult, int maxResult, String whereClause, String orderBy) throws ClientException;
+    List<? extends NBBase> findAll(String fullClassName, String whereClause, String orderBy, long orgRrn) throws ClientException;
+    List<? extends NBBase> findAll(String fullClassName, int firstResult, int maxResult, String whereClause, String orderBy, long orgRrn) throws ClientException;
     List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause, SessionContext sc) throws ClientException;
     List<Map> findEntityMapListByQueryText(String queryText, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
 

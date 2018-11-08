@@ -10,6 +10,7 @@ import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.EncryptionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.main.JwtSigner;
 import com.newbiest.main.MailService;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.exception.SecurityException;
@@ -53,10 +54,10 @@ public class SecurityServiceImpl implements SecurityService  {
 //    @Autowired
 //    RedisService redisService;
 //
-//    @Autowired
-//    JwtSigner jwtSigner;
+    @Autowired
+    JwtSigner jwtSigner;
 
-    public void login(String username, String password, SessionContext sc) throws ClientException {
+    public NBUser login(String username, String password, SessionContext sc) throws ClientException {
         try {
             // 1. 先查找用户 用户如果没找到直接抛出异常
             NBUser nbUser = userRepository.findByUsername(username);
@@ -92,9 +93,16 @@ public class SecurityServiceImpl implements SecurityService  {
                 throw new ClientException(SecurityException.SECURITY_USER_PASSWORD_IS_INCORRECT);
             }
             userRepository.loginSuccess(nbUser);
-            // 生成jwtToken并存入redis
-//            String signStr = jwtSigner.sign(nbUser.getUsername());
-//            redisService.put(nbUser.getUsername(), signStr);
+
+            // 获取菜单权限
+            List<NBAuthority> authorities = getAuthorities(nbUser.getObjectRrn());
+            nbUser.setAuthorities(authorities);
+            // 生成jwtToken 后续存入redis
+            String token = jwtSigner.sign(nbUser.getUsername());
+            //            redisService.put(nbUser.getUsername(), signStr);
+
+            nbUser.setToken(token);
+            return nbUser;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);

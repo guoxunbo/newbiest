@@ -88,6 +88,10 @@ public class NBUser extends NBUpdatable {
     @Transient
     private List<NBAuthority> authorities = Lists.newArrayList();
 
+    @Transient
+    private String token;
+
+
     public Boolean getInValidFlag() {
         return "Y".equalsIgnoreCase(inValidFlag);
     }

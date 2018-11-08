@@ -1,4 +1,4 @@
-import { Input, DatePicker, Select } from 'antd';
+import { Input, DatePicker, Switch,Form } from 'antd';
 
 import {SessionContext} from '../../Application'
 import {Language} from "../../const/ConstDefine";
@@ -6,6 +6,7 @@ import RefListField from '../../../components/Field/RefListField';
 import RefTableField from '../../../components/Field/RefTableField';
 
 const { RangePicker} = DatePicker;
+const FormItem = Form.Item;
 
 const DisplayType = {
     text : "text",
@@ -16,7 +17,8 @@ const DisplayType = {
     datetimeFromTo: "datetimeFromTo",
     sysRefList: "sysRefList",
     userRefList: "userRefList",
-    referenceTable: "referenceTable"
+    referenceTable: "referenceTable",
+    radio: "radio"
 }
 
 const NumberType = ["int", "double"];
@@ -25,6 +27,10 @@ const Aligin = {
     right : "right"
 }
 
+const DisplayLength = {
+    min: 100,
+    max: 300
+}
 export default class Field {
 
     objectRrn;
@@ -39,6 +45,9 @@ export default class Field {
     displayType;
     refListName;
     refTableName;
+    defaultValue;
+    tabRrn;
+    displayLength;
 
     //验证栏位
     readonlyFlag;
@@ -68,6 +77,9 @@ export default class Field {
         this.requiredFlag = field.requiredFlag;
         this.namingRule = field.namingRule;
         this.editable = field.editable;
+        this.defaultValue = field.defaultValue;
+        this.displayLength = field.displayLength;
+        this.tabRrn = field.tabRrn;
         this.title = this.buildTitle();
     }
 
@@ -84,7 +96,7 @@ export default class Field {
                 title: this.title,
                 dataIndex: this.name,
                 align: aligin,
-                // width: this.displayLength < DisplayLength.Min ? DisplayLength.Min : this.displayLength,
+                width: this.buildWidth()
                 // fixed: 'left',
                 // sorter: (a, b) => a.id - b.id
             }
@@ -93,7 +105,18 @@ export default class Field {
         return null;
     }
 
-    isQueryField() {
+    buildWidth = () => {
+        let width = this.displayLength;
+        if (width < DisplayLength.min) {
+            width = DisplayLength.min;
+        }
+        if (width > DisplayLength.max) {
+            width = DisplayLength.max;
+        }
+        return width;
+    }
+
+    isQueryField = () => {
         if (this.displayFlag && this.mainFlag && this.queryFlag) {
             return true;
         }
@@ -137,9 +160,31 @@ export default class Field {
             return <RefListField referenceName={this.refListName} owner disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.referenceTable) {
             return <RefTableField refTableName={this.refTableName} disabled={this.disabled}/>
+        } else if (this.displayType == DisplayType.radio) {
+            let defaultChecked = this.defaultValue;
+            return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled} 
+            defaultChecked={defaultChecked}/>
         }
     }
     
+    buildFormItem = (fieldDecorator, formItemProperties, edit) => {
+        //处理formItemPorperties TODO暂时不支持file上传组件检验
+        if (formItemProperties == undefined) {
+            formItemProperties = {};
+        } 
+        if (this.displayType == DisplayType.radio) {
+            formItemProperties.valuePropName = "checked";
+        }
+        return (<FormItem {...formItemProperties} hasFeedback label={this.title}>
+            {fieldDecorator(this.name, {
+            rules: this.buildRule(),
+          })
+          (
+            this.buildControl(edit)
+          )}
+        </FormItem>);
+    }
+
     buildDisabled = (editor) => {
         if (this.readonlyFlag) {
             this.disabled = true;

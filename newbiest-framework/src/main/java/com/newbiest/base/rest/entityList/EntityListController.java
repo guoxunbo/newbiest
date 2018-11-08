@@ -61,7 +61,7 @@ public class EntityListController extends AbstractRestController {
         //TODO 暂时不处理根据field查询
         List<String> properties = requestBody.getFields();
 
-        List<? extends NBBase> dataList = baseService.findAll(entityModel, sc.getOrgRrn(), firstResult, maxResult, whereClause, orderBy);
+        List<? extends NBBase> dataList = baseService.findAll(entityModel, firstResult, maxResult, whereClause, orderBy, sc.getOrgRrn());
 
         responseBody.setDataList(dataList);
         response.setBody(responseBody);

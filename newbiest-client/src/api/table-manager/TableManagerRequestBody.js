@@ -20,9 +20,11 @@ export default class TableManagerRequestBody {
         return new TableManagerRequestBody(ActionType.GetByRrn, table);
     }
 
-    static buildGetData(objectRrn) {
+    static buildGetData(objectRrn, whereClause) {
         let table = new Table();
         table.setObjectRrn(objectRrn);
+        table.setWhereClause(whereClause);
         return new TableManagerRequestBody(ActionType.GetData, table);
     }
+   
 }

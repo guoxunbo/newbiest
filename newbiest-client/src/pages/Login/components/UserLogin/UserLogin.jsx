@@ -22,6 +22,7 @@ import UserManagerRequestBody from "../../../../api/user-manager/UserManagerRequ
 import {UrlConstant, SystemRefListName, RefTableName} from "../../../../api/const/ConstDefine";
 import RefListField from '../../../../components/Field/RefListField';
 import RefTableField from '../../../../components/Field/RefTableField';
+import Authority from '../../../../api/dto/ui/Authority';
 
 const { Row, Col } = Grid;
 
@@ -70,7 +71,8 @@ export default class UserLogin extends Component {
       let requestObject = {
         request: request,
         success: function(responseBody) {
-          SessionContext.saveSessionContext(values.account, values.org, values.language);
+          let user = responseBody.user;
+          SessionContext.saveSessionContext(values.account, values.org, values.language, user.token, Authority.buildMenu(user.authorities, values.language));
           self.props.history.push('/Home');
         }
       }

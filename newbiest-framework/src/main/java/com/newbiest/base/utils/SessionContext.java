@@ -25,6 +25,11 @@ public class SessionContext implements Serializable {
 	private String username;
 
 	/**
+	 * 登录之后产生的鉴权码
+	 */
+	private String token;
+
+	/**
 	 * 事务序列号
 	 */
 	private String transRrn;

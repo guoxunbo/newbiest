@@ -18,12 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 @ConfigurationProperties(prefix = "newbiest.token")
+@PropertySource(value = "classpath:newbiest.yml", factory = YmlPropertyLoaderFactory.class)
 @Data
 public class JwtSigner implements Serializable{
 
@@ -57,6 +60,16 @@ public class JwtSigner implements Serializable{
      * token过期时间
      */
     private Integer expire;
+
+    /**
+     * 白名单列表 即可以不登录就可以直接访问系统 一般用于和第三方通讯
+     */
+    private List<String> whiteIPList;
+
+    /**
+     * 对URL进行过滤不验证是否登录
+     */
+    private List<String> whiteUrlList;
 
     /**
      * token过期时间单位 支持SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS

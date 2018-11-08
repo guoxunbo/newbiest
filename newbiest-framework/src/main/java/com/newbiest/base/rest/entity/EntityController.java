@@ -31,7 +31,7 @@ public class EntityController extends AbstractRestController {
 
     @ApiOperation(value = "对实体做操作", notes = "Create, Update, Delete,GetByRrn,GetById等")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "EntityRequest")
-    @RequestMapping(value = "/EntityManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/entityManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public EntityResponse execute(@RequestBody EntityRequest request) throws Exception {
         log(log, request);
         SessionContext sc = getSessionContext(request);
@@ -57,7 +57,7 @@ public class EntityController extends AbstractRestController {
         } else if (EntityRequest.ACTION_UPDATE.equals(actionType)) {
             updateEntity(nbBase, sc);
         } else if (EntityRequest.ACTION_DELETE.equals(actionType)) {
-            deleteEntity(nbBase, requestBody.getThrowExistRelationException(), sc);
+            deleteEntity(nbBase, requestBody.getDeleteRelationEntityFlag(), sc);
         } else if (EntityRequest.ACTION_GET_BY_RRN.equals(actionType)) {
             nbBase = findEntity(nbBase);
             responseBody.setData(nbBase);

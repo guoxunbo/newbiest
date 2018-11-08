@@ -5,14 +5,14 @@ import './QueryForm.scss';
 import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
 import TableManagerRequestHeader from '../../api/table-manager/TableManagerRequestHeader';
 import Request from '../../api/Request';
-import {UrlConstant} from "../../api/const/ConstDefine";
+import {UrlConstant, SqlType} from "../../api/const/ConstDefine";
 import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
 import * as PropTypes from 'prop-types';
 
-const FormItem = Form.Item;
+import StringBuffer from '../../api/StringBuffer';
 
-export default class QueryForm extends Component {
+class QueryForm extends Component {
     static displayName = 'QueryForm';
     
     constructor(props) {
@@ -52,10 +52,38 @@ export default class QueryForm extends Component {
         MessageUtils.sendRequest(requestObject);
     }
 
+    buildWhereClause = (formValues) => {
+        const queryFields = this.state.queryFields;
+        let whereClause = new StringBuffer();
+        let firstFlag = true;
+        for (let queryField of queryFields) {
+            let fieldName = queryField.name;
+            if (formValues[fieldName] != null && formValues[fieldName] != undefined) {
+                if (!firstFlag) {
+                    whereClause.append(SqlType.And);
+                }
+                whereClause.append(fieldName);
+                whereClause.append(SqlType.Eq);
+                whereClause.append("'")
+                whereClause.append(formValues[fieldName]);
+                whereClause.append("'")
+                firstFlag = false;
+            }
+        }
+        return whereClause.toString();
+    }
+
     handleSearch = (e) => {
         e.preventDefault();
+        var self = this;
         this.props.form.validateFields((err, values) => {
-          console.log('Received values of form: ', values);
+            if (err) {
+                return;
+            }
+            let whereClause = self.buildWhereClause(values);
+            if (self.props.onSearch) {
+                self.props.onSearch(whereClause);
+            } 
         });
     }
     
@@ -68,28 +96,16 @@ export default class QueryForm extends Component {
         this.setState({ expand: !expand });
     }
 
-    getFormItem = (field) => {
-        const { getFieldDecorator } = this.props.form;
-        let rules = field.buildRule();
-        return <FormItem hasFeedback label={field.title}>
-          {getFieldDecorator(field.name, {
-            rules: rules,
-          })
-          (
-            field.buildControl()
-          )}
-        </FormItem>
-    }
-    
     getFields = (queryFields) => {
         const count = this.state.expand ? 10 : 3;
         const children = [];
+        const { getFieldDecorator } = this.props.form;
         let colSpan = queryFields.length >= 3 ? 8 : 24 / queryFields.length;
         for (let i in queryFields) {
           let field = queryFields[i];
           children.push(
-            <Col span={colSpan} key={i} style={{ display: i < count ? 'inline-block' : 'none' }}>
-              {this.getFormItem(field)}
+            <Col span={colSpan} key={i} style={{ display: i < count ? 'block' : 'none' }}>
+              {field.buildFormItem(getFieldDecorator, undefined, false)}
             </Col>
           );
         }
@@ -112,6 +128,9 @@ export default class QueryForm extends Component {
 QueryForm.prototypes = {
     tableRrn: PropTypes.number.isRequired
 }
+
+const WrappedAdvancedQueryForm = Form.create()(QueryForm);
+export default WrappedAdvancedQueryForm;
 
 const styles = {
     tableFilter: {

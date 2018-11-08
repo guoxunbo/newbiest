@@ -14,15 +14,8 @@ import Logo from './../../components/Logo';
 import './scss/light.scss';
 import './scss/dark.scss';
 
-import Request from '../../api/Request';
-import UserManagerRequestHeader from "../../api/user-manager/UserManagerRequestHeader";
-import UserManagerRequestBody from "../../api/user-manager/UserManagerRequestBody";
-import MessageUtils from '../../api/utils/MessageUtils';
-import {Menu as AsideMenu} from '../../api/dto/ui/Menu';
 import { SessionContext } from '../../api/Application';
 import { Notification } from '../../components/notice/Notice';
-
-import { UrlConstant } from '../../api/const/ConstDefine';
 
 // 设置默认的皮肤配置，支持 dark 和 light 两套皮肤配置
 const theme = typeof THEME === 'undefined' ? 'dark' : THEME;
@@ -128,19 +121,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
       this.props.history.push('/');
       return;
     }
-
-    let requestBody = UserManagerRequestBody.buildGetAuthorityBody(SessionContext.getUsername());
-    let requestHeader = new UserManagerRequestHeader();
-    let request = new Request(requestHeader, requestBody, UrlConstant.UserManagerUrl);
-    var self = this;
-    let requestObject = {
-      request: request,
-      success: function(responseBody) {
-        let menuConfig = AsideMenu.buildMenu(responseBody.user.authorities);
-        self.setState({asideMenuConfig: menuConfig});
-      }
-    }
-    MessageUtils.sendRequest(requestObject);
+    return SessionContext.getAuthorities();
   }
 
   /**

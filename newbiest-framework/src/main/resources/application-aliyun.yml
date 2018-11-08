@@ -88,7 +88,7 @@ spring:
         max-wait: -1
     # 连接超时时间 单位毫秒
     timeout: 30000
-  #数据库版本管理
+  #数据库版本管理VisualVM Launcher
   liquibase:
     #changelog所在的位置。
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -102,6 +102,8 @@ server:
     session:
       cookie:
         http-only: true
+show:
+  swagger: true
 # actuator配置
 management:
   port: 9990

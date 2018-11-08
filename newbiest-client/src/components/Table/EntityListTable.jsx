@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
 import { Table, Popconfirm, Button, Icon, Divider,Form } from 'antd';
 import { Link } from 'react-router-dom';
-import './EntityListTable.scss';
+import './ListTable.scss';
 import {Application} from '../../api/Application'
-import {DefaultRowKey, Type} from '../../api/const/ConstDefine'
+import {DefaultRowKey, UrlConstant} from '../../api/const/ConstDefine'
 import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
 import TableManagerRequestHeader from '../../api/table-manager/TableManagerRequestHeader';
 import Request from '../../api/Request';
-import {UrlConstant} from "../../api/const/ConstDefine";
 import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
 import EntityForm from '../Form/EntityForm';
 import * as PropTypes from 'prop-types';
+import EntityManagerRequestBody from '../../api/entity-manager/EntityManagerRequestBody';
+import EntityManagerRequestHeader from '../../api/entity-manager/EntityManagerRequestHeader';
 
+/**
+ * 基本表格。每一行都带有编辑和删除的列
+ */
 export default class EntityListTable extends Component {
 
     static displayName = 'EntityListTable';
@@ -20,34 +24,34 @@ export default class EntityListTable extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tableRrn: this.props.tableRrn,
+            table: {fields: []},
             columns: [],
-            data: [],
-            pagination: this.props.pagination == null ? Application.table.pagination : this.props.pagination,
-            rowkey: this.props.rowkey == null ? DefaultRowKey : this.props.rowkey,
             rowClassName: (record, index) => {},
-            loading: true,
-            // 是否带有选择框
-            check: this.props.check,
             rowSelection: undefined,
             selectedRowKeys: [],
             selectedRows: [],
             formVisible: false,
-            fields: [],
-            editorObject: undefined
+            editorObject: undefined,
+            scrollX: undefined,
+            scrollY:undefined,
+            data: []
         };
+    }
+
+    componentWillReceiveProps = (props) => {
+        this.setState({
+            data: props.data
+        })
     }
 
     componentWillMount = () => {
         this.setState({
             rowClassName: (record, index) => this.getRowClassName(record, index),
-            rowSelection: this.state.check ? this.getRowSelection() : undefined, 
-            loading: true,
         });
     }
 
     componentDidMount() {
-        this.buildTable(this.state.tableRrn);
+        this.buildTable(this.props.tableRrn);
     }
     
     getRowClassName = (record, index) => {
@@ -58,37 +62,21 @@ export default class EntityListTable extends Component {
         }
     };
 
-    // 默认的table框的选择框属性
-    getRowSelection = () => {
-        const rowSelection = {
-            columnWidth: 10,
-            fixed: true,
-            onChange: (selectedRowKeys, selectedRows) => {
-                this.setState({
-                    selectedRowKeys: selectedRowKeys,
-                    selectedRows: selectedRows
-                })
-            }
-        }
-        return rowSelection;
-    }
-    
     buildTable = (tableRrn) => {
         const self = this;
-        let requestBody = TableManagerRequestBody.buildGetData(tableRrn);
+        let requestBody = TableManagerRequestBody.buildGetByRrn(tableRrn);
         let requestHeader = new TableManagerRequestHeader();
         let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
         let requestObject = {
             request: request,
             success: function(responseBody) {
-                let fields = responseBody.table.fields;
-                let columnData = self.buildColumn(fields);
+                let table = responseBody.table;
+                let columnData = self.buildColumn(table.fields);
                 self.setState({
-                    data: responseBody.dataList,
+                    table: responseBody.table,
                     columns: columnData.columns,
-                    loading: false,
-                    fields: fields
-                });                
+                    scrollX: columnData.scrollX
+                });
             }
           }
         MessageUtils.sendRequest(requestObject);
@@ -96,22 +84,21 @@ export default class EntityListTable extends Component {
 
     buildColumn = (fields) => {
         let columns = [];
+        let scrollX = 0;
         for (let field of fields) {
             let f  = new Field(field);
             let column = f.buildColumn();
             if (column != null) {
                 columns.push(column);
+                scrollX += column.width;
             }
         }
         let oprationColumn = this.buildOprationColumn();
+        scrollX += oprationColumn.width;
         columns.push(oprationColumn);
-
-        // 根据长度算宽度才能保证fixed栏位不重复出现
-        for (let column of columns) {
-            column.width = Application.table.scroll.x / columns.length;
-        }
         return {
             columns: columns,
+            scrollX: scrollX
         };
     }
 
@@ -123,11 +110,12 @@ export default class EntityListTable extends Component {
             dataIndex: "opration",
             align: "center",
             fixed: 'right',
+            width: Application.table.oprationColumn.width,
             render: (text, record) => {
                 return (
                     <div>
                         <Button style={{marginRight:'1px'}} icon="form" onClick={() => self.handleEdit(record)} size="small" href="javascript:;">编辑</Button>
-                        <Popconfirm title="Sure to delete?">
+                        <Popconfirm title="Sure to delete?" onConfirm={() => self.handleDelete(record)}>
                             <Button icon="delete" size="small" type="danger">删除</Button>
                         </Popconfirm>
                     </div>
@@ -137,12 +125,33 @@ export default class EntityListTable extends Component {
         return oprationColumn;
     }
 
-    handleEdit(record) {
+    handleDelete = (record) => {
+        const self = this;
+        let requestBody = EntityManagerRequestBody.buildDeleteEntity(this.state.table.modelClass, record, false);
+        let requestHeader = new EntityManagerRequestHeader();
+        let request = new Request(requestHeader, requestBody, UrlConstant.EntityManagerUrl);
+        let requestObject = {
+            request: request,
+            success: function(responseBody) {
+                let datas = self.state.data;
+                let dataIndex = datas.indexOf(record);
+                if (dataIndex > -1 ) {
+                    datas.splice(dataIndex, 1);
+                    self.setState({
+                        data: datas
+                    })
+                }
+                MessageUtils.showOperationSuccess();
+            }
+        }
+        MessageUtils.sendRequest(requestObject);
+    } 
+
+    handleEdit = (record) => {
         this.setState({
             formVisible : true,
             editorObject: record
         })
-        console.log(record);
     }
 
     handleSave = (e) => {
@@ -151,12 +160,34 @@ export default class EntityListTable extends Component {
             if (err) {
                 return;
             }
-            //TODO 处理保存。注意copy值的问题
-            this.setState({
-                formVisible: false
-            })
+            var self = this;
+            //TODO 当有1对多的情况。需要考虑是否更新还是多的保持原状。
+            let requestBody = EntityManagerRequestBody.buildUpdateEntity(this.state.table.modelClass, values);
+            let requestHeader = new EntityManagerRequestHeader();
+            let request = new Request(requestHeader, requestBody, UrlConstant.EntityManagerUrl);
+            let requestObject = {
+                request: request,
+                success: function(responseBody) {
+                    let datas = self.state.data;
+                    let dataIndex = -1;
+                    datas.map((data, index) => {
+                        if (data.objectRrn == values.objectRrn) {
+                            dataIndex = index;
+                        }
+                    });
+                    if (dataIndex > -1) {
+                        datas.splice(dataIndex, 1, values);
+                        self.setState({
+                            data: datas,
+                            formVisible: false
+                        })
+                    }
+                    MessageUtils.showOperationSuccess();
+                }
+            }
+            MessageUtils.sendRequest(requestObject);
+            
         });
-        
     }
 
     handleCancel = (e) => {
@@ -170,10 +201,10 @@ export default class EntityListTable extends Component {
     };
 
     render() {
-        const {data, pagination, columns, rowkey, loading, rowClassName, rowSelection} = this.state;
+        const {data, columns, rowClassName, rowSelection, scrollX} = this.state;
         const WrappedAdvancedEntityForm = Form.create()(EntityForm);
         if(data.length >= Application.scrollNum){
-            Application.table.scroll.y = Application.tableY
+            this.state.scrollY = Application.tableY
         }
         return (
           <div >
@@ -185,24 +216,26 @@ export default class EntityListTable extends Component {
                 dataSource={data}
                 bordered
                 className="custom-table"
-                pagination={pagination}
+                pagination={this.props.pagination == null ? Application.table.pagination : this.props.pagination}
                 columns = {columns}
-                scroll = {Application.table.scroll}
-                rowKey = {rowkey}
-                loading = {loading}
+                scroll = {{ x: scrollX, y: this.state.scrollY }}
+                rowKey = {this.props.rowkey == null ? DefaultRowKey : this.props.rowkey}
+                loading = {this.props.loading}
                 rowClassName = {rowClassName.bind(this)}
                 rowSelection = {rowSelection}
                 >
                 </Table>
-                <WrappedAdvancedEntityForm ref={this.formRef} object={this.state.editorObject} visible={this.state.formVisible} fields={this.state.fields}
+                <WrappedAdvancedEntityForm ref={this.formRef} object={this.state.editorObject} visible={this.state.formVisible} fields={this.state.table.fields}
                     onOk={this.handleSave} onCancel={this.handleCancel} />
             </div>
           </div>
         );
     }
 }
+
 EntityListTable.prototypes = {
     tableRrn: PropTypes.number.isRequired,
+    data: PropTypes.array,
     check: PropTypes.bool,
     rowClassName: PropTypes.func,
     rowkey: PropTypes.string,

@@ -102,7 +102,7 @@ public class BaseServiceImpl implements BaseService  {
      */
     public List<? extends NBBase> findAll(String fullClassName, long orgRrn) throws ClientException {
         try {
-            return findAll(fullClassName, orgRrn, StringUtils.EMPTY, StringUtils.EMPTY);
+            return findAll(fullClassName, StringUtils.EMPTY, StringUtils.EMPTY, orgRrn);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -118,9 +118,9 @@ public class BaseServiceImpl implements BaseService  {
      * @return
      * @throws ClientException
      */
-    public List<? extends NBBase> findAll(String fullClassName, long orgRrn, String whereClause, String orderBy) throws ClientException {
+    public List<? extends NBBase> findAll(String fullClassName, String whereClause, String orderBy, long orgRrn) throws ClientException {
         try {
-            return findAll(fullClassName, orgRrn, 0, newbiestConfiguration.getQueryMaxCount(), whereClause, orderBy);
+            return findAll(fullClassName, 0, newbiestConfiguration.getQueryMaxCount(), whereClause, orderBy, orgRrn);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -138,7 +138,7 @@ public class BaseServiceImpl implements BaseService  {
      * @return
      * @throws ClientException
      */
-    public List<? extends NBBase> findAll(String fullClassName, long orgRrn, int firstResult, int maxResult, String whereClause, String orderBy) throws ClientException {
+    public List<? extends NBBase> findAll(String fullClassName, int firstResult, int maxResult, String whereClause, String orderBy, long orgRrn) throws ClientException {
         try {
             IRepository repository = getRepositoryByClassName(fullClassName);
             List<NBBase> nbBases = repository.findAll(orgRrn, firstResult, maxResult, whereClause, orderBy);

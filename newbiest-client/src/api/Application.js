@@ -9,7 +9,12 @@ const Application = {
     },
 
     table: {
-        //TODO 默认的长宽暂时未知怎么计算
+        oprationColumn: {
+            width: 200
+        },
+        checkBox: {
+            width: 10
+        },
         scroll: {
             x: 1500,
         },
@@ -27,7 +32,7 @@ const Application = {
     },
 
     notice: {
-        delay: 5000,
+        delay: 1000,
         // 构建button组件是否支持关闭 支持点击锁定
         button: {
             closer: true,
@@ -50,6 +55,8 @@ class SessionContext {
     username;
     orgName;
     orgRrn;
+    token;
+    authories;
 
     setLanguage(language) {
         this.language = language;
@@ -67,11 +74,21 @@ class SessionContext {
         this.orgRrn = orgRrn;
     }
 
-    static saveSessionContext(username, orgRrn, language) {
+    setToken(token) {
+        this.token = token;
+    }
+
+    setAuthorities(authories) {
+        this.authories = authories;
+    }
+
+    static saveSessionContext(username, orgRrn, language, token, authories) {
         let sc = new SessionContext();
         sc.setLanguage(language);
         sc.setUsername(username);
         sc.setOrgRrn(orgRrn);
+        sc.setToken(token);
+        sc.setAuthorities(authories);
         sessionStorage.setItem(SC_STORAGE_NAME, JSON.stringify(sc));
     }
 
@@ -93,6 +110,22 @@ class SessionContext {
             return undefined;
         }
         return sessionContext.language;
+    }
+
+    static getAuthorities() {
+        let sessionContext = this.getSessionContext();
+        if (sessionContext == undefined) {
+            return undefined;
+        }
+        return sessionContext.authories;
+    }
+
+    static getToken() {
+        let sessionContext = this.getSessionContext();
+        if (sessionContext == undefined) {
+            return "";
+        }
+        return sessionContext.token;
     }
 
     static getUsername() {

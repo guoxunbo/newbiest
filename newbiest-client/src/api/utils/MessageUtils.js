@@ -1,4 +1,4 @@
-import {ErrorCode, ResultIdentify, Language} from '../const/ConstDefine';
+import {ErrorCode, ResultIdentify, Language, i18N} from '../const/ConstDefine';
 import {Notification} from '../../components/notice/Notice';
 
 import {Response} from "../Response";
@@ -18,8 +18,6 @@ export default class MessageUtils {
     static sendRequest(requestObject) {
         let self = this;
         let request = requestObject.request;
-        // let parameters = new URLSearchParams();
-        // parameters.append("request", JsonUtils.object2Json(request));
         axios.post(request.url, request).then(function(object) {
             let response = new Response(object.data.header, object.data.body);
             if (ResultIdentify.Fail == response.header.result) {
@@ -28,7 +26,7 @@ export default class MessageUtils {
                 if (requestObject.success != undefined) {
                     requestObject.success(response.body);
                 } else {
-                    Notification.showSuccess("操作成功")
+                    self.showOperationSuccess();
                 }
             }
         }).catch(function(exception) {
@@ -36,6 +34,22 @@ export default class MessageUtils {
         }); 
     }
     
+    static showOperationSuccess = () => {
+        let language = SessionContext.getLanguage();
+        let notice = "";
+        if (language == undefined) {
+            language == Language.Chinese;
+        }
+        if (language == Language.Chinese) {
+            notice = i18N.OperationSucceed.Chinese;
+        } else if (language == Language.English) {
+            notice = i18N.OperationSucceed.English;
+        } else {
+            notice = i18N.OperationSucceed.Res;
+        }
+        Notification.showSuccess(notice);
+    }
+
     static handleException(exception) {
         let error = "";
         let errroCode = 0;

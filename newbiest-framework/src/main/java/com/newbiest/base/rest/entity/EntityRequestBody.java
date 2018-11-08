@@ -23,14 +23,7 @@ public class EntityRequestBody extends RequestBody {
     @ApiModelProperty("需要操作的entity的具体JSON字符串")
     private String entityString;
 
-    @ApiModelProperty(value = "是否删除连带数据", example = "Y/N")
-    private String throwExistRelationException;
+    @ApiModelProperty(value = "是否删除连带数据")
+    private Boolean deleteRelationEntityFlag;
 
-    public Boolean getThrowExistRelationException() {
-        return StringUtils.YES.equalsIgnoreCase(throwExistRelationException);
-    }
-
-    public void setThrowExistRelationException(Boolean throwExistRelationException) {
-        this.throwExistRelationException = throwExistRelationException ? StringUtils.YES : StringUtils.NO;
-    }
 }
