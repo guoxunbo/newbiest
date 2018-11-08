@@ -10,17 +10,27 @@ import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.main.JwtSigner;
 import com.newbiest.msg.DefaultParser;
 import com.newbiest.msg.Request;
+import com.newbiest.msg.RequestHeader;
 import com.newbiest.security.model.NBOrg;
 import com.newbiest.security.service.SecurityService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.Serializable;
 
 /**
  * Created by guoxunbo on 2018/7/11.
  */
-public class AbstractRestController {
+@Component
+public class AbstractRestController implements Serializable{
+
+    private static final long serialVersionUID = 5792313127796577694L;
+
+    protected static final String AUTHORITY_HEAD_NAME = "Authorization";
 
     @Autowired
     protected BaseService baseService;
@@ -28,7 +38,10 @@ public class AbstractRestController {
     @Autowired
     protected SecurityService securityService;
 
-    private final String requestToJson(Request request) throws Exception{
+    @Autowired
+    private JwtSigner jwtSigner;
+
+    private final String requestToJson(Request request) throws Exception {
         ObjectMapper objectMapper = DefaultParser.getObjectMapper();
         ObjectWriter jsonWriter = objectMapper.writerWithView(request.getClass());
         return jsonWriter.writeValueAsString(request);
@@ -42,6 +55,14 @@ public class AbstractRestController {
         if (!logger.isDebugEnabled() && logger.isInfoEnabled()) {
             logger.info(request.getHeader().getTransactionId());
         }
+    }
+
+    /**
+     * 验证是否登录
+     */
+    public void validationLogin(Request request) {
+        RequestHeader requestHeader = request.getHeader();
+
     }
 
     protected SessionContext getSessionContext(Request request) throws ClientException {

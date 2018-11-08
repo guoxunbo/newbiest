@@ -70,19 +70,10 @@ export default class UserLogin extends Component {
       let request = new Request(requestHeader, requestBody, UrlConstant.UserManagerUrl);
       let requestObject = {
         request: request,
-        success: function(responseBody, authorization) {
-          // 登录成功要去获取菜单并把菜单存入sessionContext
-          let authortityRequestBody = UserManagerRequestBody.buildGetAuthorityBody(values.account);
-          let authorityRequest = new Request(requestHeader, authortityRequestBody, UrlConstant.UserManagerUrl);
-          let authorityRequestObject = {
-            request: authorityRequest,
-            success: function(responseBody) {
-              let authorities = responseBody.user.authorities;
-              SessionContext.saveSessionContext(values.account, values.org, values.language, authorization, Authority.buildMenu(authorities, values.language));
-              self.props.history.push('/Home');
-            }
-          }
-          MessageUtils.sendRequest(authorityRequestObject);
+        success: function(responseBody) {
+          let user = responseBody.user;
+          SessionContext.saveSessionContext(values.account, values.org, values.language, user.token, Authority.buildMenu(user.authorities, values.language));
+          self.props.history.push('/Home');
         }
       }
       MessageUtils.sendRequest(requestObject);

@@ -30,7 +30,7 @@ const Application = {
     },
 
     notice: {
-        delay: 5000,
+        delay: 1000,
         // 构建button组件是否支持关闭 支持点击锁定
         button: {
             closer: true,

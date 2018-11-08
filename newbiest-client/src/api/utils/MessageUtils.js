@@ -18,28 +18,15 @@ export default class MessageUtils {
     static sendRequest(requestObject) {
         let self = this;
         let request = requestObject.request;
-        axios.defaults.headers.common['Authorization'] = SessionContext.getToken();
         axios.post(request.url, request).then(function(object) {
             let response = new Response(object.data.header, object.data.body);
             if (ResultIdentify.Fail == response.header.result) {
                 self.handleException(response.header);
             } else {
                 if (requestObject.success != undefined) {
-                    requestObject.success(response.body, object.headers.authorization);
+                    requestObject.success(response.body);
                 } else {
-                    let language = SessionContext.getLanguage();
-                    let notice = "";
-                    if (language == undefined) {
-                        language == Language.Chinese;
-                    }
-                    if (language == Language.Chinese) {
-                        notice = i18N.OperationSucceed.Chinese;
-                    } else if (language == Language.English) {
-                        notice = i18N.OperationSucceed.English;
-                    } else {
-                        notice = i18N.OperationSucceed.Res;
-                    }
-                    Notification.showSuccess(notice);
+                    self.showOperationSuccess();
                 }
             }
         }).catch(function(exception) {
@@ -47,6 +34,22 @@ export default class MessageUtils {
         }); 
     }
     
+    static showOperationSuccess = () => {
+        let language = SessionContext.getLanguage();
+        let notice = "";
+        if (language == undefined) {
+            language == Language.Chinese;
+        }
+        if (language == Language.Chinese) {
+            notice = i18N.OperationSucceed.Chinese;
+        } else if (language == Language.English) {
+            notice = i18N.OperationSucceed.English;
+        } else {
+            notice = i18N.OperationSucceed.Res;
+        }
+        Notification.showSuccess(notice);
+    }
+
     static handleException(exception) {
         let error = "";
         let errroCode = 0;

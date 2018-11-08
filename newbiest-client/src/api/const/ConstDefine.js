@@ -2,15 +2,16 @@
  * 定义URL 有可能请求多个URL
  */
 const ModuleUrlConstant = {
+    Framework: "http://127.0.0.1:8080/framework/",
     Security: "http://127.0.0.1:8080/security/",
     UI: "http://127.0.0.1:8080/ui/"
 }
 const UrlConstant = {
-    BaseUrl: "http://127.0.0.1:8080/framework/execute",
     UserManagerUrl: ModuleUrlConstant.Security + "userManage",
     TableMangerUrl: ModuleUrlConstant.UI + "tableManage",
     RefListMangerUrl: ModuleUrlConstant.UI + "refListManage",    
-    RefTableManagerUrl: ModuleUrlConstant.UI + "refTableManage"
+    RefTableManagerUrl: ModuleUrlConstant.UI + "refTableManage",
+    EntityManagerUrl: ModuleUrlConstant.Framework + "entityManage"
 };
 
 const SystemRefListName = {
@@ -44,7 +45,7 @@ const i18N = {
 
 const EntityModel = {
     NBMessage: "com.newbiest.base.model.NBMessage",
-    NBUser: "com.newbiest.security.model.NBUser"
+    NBUser: "com.newbiest.security.model.NBUser",
 };
 
 /**

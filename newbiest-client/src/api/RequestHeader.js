@@ -7,7 +7,8 @@ export default class RequestHeader{
     orgName;
     userName;
     orgRrn;
-    
+    token;
+
     constructor(messageName){  
         let sessionContext = SessionContext.getSessionContext();
         this.messageName = messageName;
@@ -15,6 +16,7 @@ export default class RequestHeader{
         if (sessionContext != undefined) {
             this.orgRrn = sessionContext.orgRrn;
             this.userName = sessionContext.userName;
+            this.token = SessionContext.getToken();
         } 
     }
 

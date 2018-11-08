@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ public class UserController extends AbstractRestController {
     @ApiOperation(value = "对用户做操作", notes = "支持ChangePassword, RestPassword, GetAuthority, Login, Register")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "UserRequest")
     @RequestMapping(value = "/userManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-    public UserResponse execute(@RequestBody UserRequest request) throws Exception {
+    public UserResponse execute(@RequestBody UserRequest request, HttpServletResponse servletResponse) throws Exception {
         log(log, request);
         SessionContext sc = getSessionContext(request);
 
@@ -49,7 +50,8 @@ public class UserController extends AbstractRestController {
         if (UserRequest.ACTION_CREATE.equals(actionType)) {
             securityService.saveUser(requestUser, sc);
         } else if (UserRequest.ACTION_LOGIN.equals(actionType)) {
-            securityService.login(requestUser.getUsername(), requestUser.getPassword(), sc);
+            user = securityService.login(requestUser.getUsername(), requestUser.getPassword(), sc);
+            servletResponse.setHeader(AUTHORITY_HEAD_NAME, user.getToken());
         } else {
             if (requestUser.getObjectRrn() != null) {
                 user = securityService.getUserByObjectRrn(requestUser.getObjectRrn());
