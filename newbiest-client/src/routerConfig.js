@@ -20,7 +20,7 @@ const routerConfig = [
     component: Home,
   },
   {
-    path: '/DynamicTable/:tableRrn',
+    path: 'System/DynamicTable/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
     component: ListTableManager,
   },

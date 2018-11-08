@@ -1,7 +1,7 @@
 /**
  * 定义应用路由
  */
-import { BrowserRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 import { Switch, Route } from 'react-router';
 import React from 'react';
 

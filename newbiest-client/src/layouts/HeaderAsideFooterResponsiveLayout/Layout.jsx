@@ -28,14 +28,15 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
 
   constructor(props) {
     super(props);
-    
+    const openKeys = this.getOpenKeys();
     this.state = {
+      openKeys,
       collapse: false,
       openDrawer: false,
       isScreen: undefined,
       asideMenuConfig: this.getAsideMenuConfig()
     };
-    // this.openKeysCache = openKeys;
+    this.openKeysCache = openKeys;
   }
 
   
@@ -131,23 +132,26 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
     this.toggleMenu();
   };
 
-  // /**
-  //  * 获取当前展开的菜单项
-  //  */
-  // getOpenKeys = () => {
-  //   const { match } = this.props;
-  //   const matched = match.path;
-  //   let openKeys = [];
+  /**
+   * 获取当前展开的菜单项
+   */
+  getOpenKeys = () => {
+    const { match } = this.props;
+    const matched = match.url;
+    let openKeys = [];
 
-  //   Array.isArray(asideMenuConfig) &&
-  //     asideMenuConfig.forEach((item, index) => {
-  //       if (matched.startsWith(item.path)) {
-  //         openKeys = [`${index}`];
-  //       }
-  //     });
+    let asideMenuConfig = this.getAsideMenuConfig();
+    if (Array.isArray(asideMenuConfig)) {
+      asideMenuConfig.forEach((item, index) => {
+        let path = item.path.substring(0, item.path.lastIndexOf("/"));
+        if (matched.startsWith(path)) {
+          openKeys = [`${index}`];
+        }
+      });
+    }
 
-  //   return openKeys;
-  // };
+    return openKeys;
+  };
 
   render() {    
     const { location = {} } = this.props;
