@@ -132,7 +132,6 @@ export default class EntityListTable extends Component {
         let requestObject = {
             request: request,
             success: function(responseBody) {
-                MessageUtils.showOperationSuccess();
                 let datas = self.state.data;
                 let dataIndex = datas.indexOf(record);
                 if (dataIndex > -1 ) {
@@ -141,6 +140,7 @@ export default class EntityListTable extends Component {
                         data: datas
                     })
                 }
+                MessageUtils.showOperationSuccess();
             }
         }
         MessageUtils.sendRequest(requestObject);
@@ -151,7 +151,6 @@ export default class EntityListTable extends Component {
             formVisible : true,
             editorObject: record
         })
-        console.log(record);
     }
 
     handleSave = (e) => {
@@ -160,12 +159,34 @@ export default class EntityListTable extends Component {
             if (err) {
                 return;
             }
-            //TODO 处理保存。注意copy值的问题
-            this.setState({
-                formVisible: false
-            })
+            var self = this;
+            //TODO 当有1对多的情况。需要考虑是否更新还是多的保持原状。
+            let requestBody = EntityManagerRequestBody.buildUpdateEntity(this.state.table.modelClass, values);
+            let requestHeader = new EntityManagerRequestHeader();
+            let request = new Request(requestHeader, requestBody, UrlConstant.EntityManagerUrl);
+            let requestObject = {
+                request: request,
+                success: function(responseBody) {
+                    let datas = self.state.data;
+                    let dataIndex = -1;
+                    datas.map((data, index) => {
+                        if (data.objectRrn == values.objectRrn) {
+                            dataIndex = index;
+                        }
+                    });
+                    if (dataIndex > -1) {
+                        datas.splice(dataIndex, 1, values);
+                        self.setState({
+                            data: datas,
+                            formVisible: false
+                        })
+                    }
+                    MessageUtils.showOperationSuccess();
+                }
+            }
+            MessageUtils.sendRequest(requestObject);
+            
         });
-        
     }
 
     handleCancel = (e) => {
@@ -202,8 +223,10 @@ export default class EntityListTable extends Component {
         );
     }
 }
+
 EntityListTable.prototypes = {
     tableRrn: PropTypes.number.isRequired,
+    data: PropTypes.array,
     check: PropTypes.bool,
     rowClassName: PropTypes.func,
     rowkey: PropTypes.string,

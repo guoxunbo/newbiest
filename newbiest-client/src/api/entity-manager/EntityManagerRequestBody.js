@@ -18,11 +18,15 @@ export default class EntityManagerRequestBody {
     entityString;
     deleteRelationEntityFlag;
 
-    constructor(actionType, entityModel, entityString, deleteRelationEntityFlag){
+    constructor(actionType, entityModel, entity, deleteRelationEntityFlag){
         this.actionType = actionType;
         this.entityModel = entityModel;
-        this.entityString = entityString;
+        this.entityString = JSON.stringify(entity);
         this.deleteRelationEntityFlag = deleteRelationEntityFlag;
+    }
+
+    static buildUpdateEntity(entityModel, entity) {
+        return new EntityManagerRequestBody(ActionType.Update, entityModel, entity);
     }
 
     static buildDeleteEntity(entityModel, entity, deleteRelationEntityFlag) {
@@ -31,7 +35,7 @@ export default class EntityManagerRequestBody {
         } else {
             deleteRelationEntityFlag = false;
         }
-        return new EntityManagerRequestBody(ActionType.Delete, entityModel, JSON.stringify(entity), deleteRelationEntityFlag);
+        return new EntityManagerRequestBody(ActionType.Delete, entityModel, entity, deleteRelationEntityFlag);
     }
 
 }
