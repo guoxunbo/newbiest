@@ -86,6 +86,7 @@ export default class RefListField extends Component {
             showSearch
             defaultValue={this.state.value}
             placeholder={this.props.placeholder}
+            style={this.props.style ? this.props.style : { width: "150px" }}
             onChange={this.handleChange}
             disabled={this.props.disabled}
           >
