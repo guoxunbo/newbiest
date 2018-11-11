@@ -91,7 +91,7 @@ export default class EntityForm extends Component {
     render() {
         return (
             <div>
-                <Modal width={740} title="编辑" object={this.props.object} visible={this.props.visible} confirmLoading={this.props.confirmLoading}
+                <Modal width={740} centered title="编辑" object={this.props.object} visible={this.props.visible} confirmLoading={this.props.confirmLoading}
                     onOk={this.props.onOk} onCancel={this.props.onCancel}>
                     {this.buildForm()}
                 </Modal>

@@ -34,7 +34,6 @@ export default class Table{
                 object[field.name] = value;
             })
         }
-        console.log(object);
         return object;
     }
 

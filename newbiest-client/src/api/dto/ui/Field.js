@@ -251,7 +251,7 @@ export default class Field {
         }
 
         if (DisplaySelectType.includes(this.displayType)) {
-            rule.transform = defaultTransform();
+            rule.transform = (value) => defaultTransform(value);
         }
 
         if (DisplayType.radio == this.displayType) {
