@@ -4,6 +4,7 @@ import {SessionContext} from '../../Application'
 import {Language} from "../../const/ConstDefine";
 import RefListField from '../../../components/Field/RefListField';
 import RefTableField from '../../../components/Field/RefTableField';
+import {Icon} from 'antd';
 
 const { RangePicker} = DatePicker;
 const FormItem = Form.Item;
@@ -11,17 +12,23 @@ const FormItem = Form.Item;
 const DisplayType = {
     text : "text",
     password : "password",
+    //日期相关
     calendar : "calendar",
     calendarFromTo : "calendarFromTo",
     datetime : "datetime",
     datetimeFromTo: "datetimeFromTo",
+    //选择框
     sysRefList: "sysRefList",
     userRefList: "userRefList",
     referenceTable: "referenceTable",
+    //单选
     radio: "radio"
 }
 
 const NumberType = ["int", "double"];
+
+const DisplaySelectType = [DisplayType.sysRefList, DisplayType.userRefList, DisplayType.referenceTable];
+
 const Aligin = {
     left : "left",
     right : "right"
@@ -33,15 +40,17 @@ const DisplayLength = {
 }
 export default class Field {
 
+    displayFlag;
+    queryFlag;
+    mainFlag;
+    basicFlag;
+    
     objectRrn;
     name;
     dataType;
-    displayFlag;
-    mainFlag;
     label;
     labelZh;    
     labelRes;
-    queryFlag;
     displayType;
     refListName;
     refTableName;
@@ -49,11 +58,13 @@ export default class Field {
     tabRrn;
     displayLength;
 
+
     //验证栏位
     readonlyFlag;
     editable;
     requiredFlag;
     namingRule;
+    queryRequireFlag;
 
     // 前端栏位
     title;
@@ -81,6 +92,8 @@ export default class Field {
         this.displayLength = field.displayLength;
         this.tabRrn = field.tabRrn;
         this.title = this.buildTitle();
+        this.basicFlag = field.basicFlag;
+        this.queryRequireFlag = field.queryRequireFlag;
     }
 
     //TODO 处理fixed和sorter
@@ -117,7 +130,7 @@ export default class Field {
     }
 
     isQueryField = () => {
-        if (this.displayFlag && this.mainFlag && this.queryFlag) {
+        if (this.displayFlag && this.queryFlag) {
             return true;
         }
         return false;
@@ -161,24 +174,32 @@ export default class Field {
         } else if (this.displayType == DisplayType.referenceTable) {
             return <RefTableField refTableName={this.refTableName} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.radio) {
-            let defaultChecked = this.defaultValue;
-            return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled} 
-            defaultChecked={defaultChecked}/>
+            return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled}/>
         }
     }
     
-    buildFormItem = (fieldDecorator, formItemProperties, edit) => {
+    /**
+     * 根据field类型不同创建不同的组件 以及规则
+     * @param fieldDecorator form
+     * @param formItemProperties form属性比如样式等
+     * @param edit 是否是编辑form 编辑form会处理editable栏位
+     * @param query 是否是queryForm queryForm的是否必输根据queryRequireFlag决定
+     */
+    buildFormItem = (fieldDecorator, formItemProperties, edit, query) => {
         //处理formItemPorperties TODO暂时不支持file上传组件检验
         if (formItemProperties == undefined) {
             formItemProperties = {};
         } 
+        let valuePropName = "value";
         if (this.displayType == DisplayType.radio) {
-            formItemProperties.valuePropName = "checked";
-        }
-        return (<FormItem {...formItemProperties} hasFeedback label={this.title}>
+            valuePropName = "checked";
+        } 
+        let rules = this.buildRule(query);
+        return (<FormItem {...formItemProperties} label={this.title}>
             {fieldDecorator(this.name, {
-            rules: this.buildRule(),
-          })
+                rules: rules,
+                valuePropName: valuePropName,
+            })
           (
             this.buildControl(edit)
           )}
@@ -199,22 +220,51 @@ export default class Field {
     /**
      * 根据nbfield创建不同的规则rule
      *  只有当displayType为text才去检验规则，其他只处理是否只读
+     * @param 是否是查询form生成。如果是则根据queryRequired来生成必输
      */
-    buildRule() {
+    buildRule(query) {
         let rules = [];
+
         let rule = {};
+        rule.whitespace = true;
         if (this.requiredFlag) {
             rule.required = true;
-            rule.whitespace = true;
         }
+        if (query) {
+            if (!this.queryRequireFlag) {
+                rule.required = false;
+            }
+        }
+        
+        let defaultTransform = (value) => {
+            if (value) {
+                return value.toString();
+            }
+        };
+
+        //根据dataType以及disPlayType处理transform
         if (this.displayType == DisplayType.text) {
-            // 正则
+            // 只有当text的时候才支持正则
             if (this.namingRule != null && this.namingRule != undefined) {
                 rule.pattern = this.namingRule;
             }
-            // 数字
-            if (NumberType.includes(this.dataType)) {
-                rule.type = "number";
+        }
+
+        if (DisplaySelectType.includes(this.displayType)) {
+            rule.transform = defaultTransform();
+        }
+
+        if (DisplayType.radio == this.displayType) {
+            rule.type = "boolean";
+        }
+
+         // 数字
+        if (NumberType.includes(this.dataType)) {
+            rule.type = "number";
+            rule.transform = (value) => {
+                if(value){
+                    return Number(value);
+                  }
             }
         }
         rules.push(rule);

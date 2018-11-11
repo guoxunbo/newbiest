@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-nb_tab_0.0.2
+      author: Xunbo Guo
+      comment: Delete column GRID_Y, HEIGHT_HINT for NB_TAB
+      changes:
+        - dropColumn:
+            columnName: GRID_Y
+            tableName: NB_TAB
+        - dropColumn:
+            columnName: HEIGHT_HINT
+            tableName: NB_TAB

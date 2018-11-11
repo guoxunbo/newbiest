@@ -19,14 +19,14 @@ public class NBTab extends NBBase {
     private static final long serialVersionUID = 6867153457631553866L;
 
     /**
-     * 在Tab中显示(默认风格)
+     * 以栏位的形式展现
      */
-    public static final String TAB_TYPE_TAB  = "Tab";
+    public static final String TAB_TYPE_FIELD = "Field";
 
     /**
-     * 上下衔接风格
+     * 以表格的形式展现
      */
-    public static final String TAB_TYPE_SECTION = "Section";
+    public static final String TAB_TYPE_TABLE = "Table";
 
 
     @Column(name="NAME")
@@ -42,16 +42,7 @@ public class NBTab extends NBBase {
     private Long seqNo;
 
     @Column(name="TAB_TYPE")
-    private String tabType = TAB_TYPE_TAB;
-
-    @Column(name="HEIGHT_HINT")
-    private Long heightHint;
-
-    /**
-     * 定义Tab页面的列数
-     */
-    @Column(name="GRID_Y")
-    private Long gridY;
+    private String tabType = TAB_TYPE_FIELD;
 
     /**
      * 英文标签
@@ -63,13 +54,13 @@ public class NBTab extends NBBase {
      * 中文标签
      */
     @Column(name="LABEL_ZH")
-    private String label_zh;
+    private String labelZh;
 
     /**
      * 其它语言标签
      */
     @Column(name="LABEL_RES")
-    private String label_res;
+    private String labelRes;
 
     @OneToMany(mappedBy = "tab", fetch= FetchType.LAZY,
             targetEntity = NBField.class)

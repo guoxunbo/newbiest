@@ -86,7 +86,7 @@ public class NBField extends NBBase {
      * 栏位所对应的参考表
      */
     @Column(name="REF_TABLE_NAME")
-    private Long refTableName;
+    private String refTableName;
 
     /**
      * 栏位所对应的参考值名称
@@ -189,6 +189,12 @@ public class NBField extends NBBase {
      */
     @Column(name="QUERY_FLAG")
     private String queryFlag;
+
+    /**
+     * 是否是查询必须
+     */
+    @Column(name="QUERY_REQUIRE_FLAG")
+    private String queryRequireFlag;
 
     /**
      * 是否是导出栏位
@@ -295,6 +301,15 @@ public class NBField extends NBBase {
     public void setQueryFlag(Boolean queryFlag) {
         this.queryFlag = queryFlag ? StringUtils.YES : StringUtils.NO;
     }
+
+    public Boolean getQueryRequireFlag() {
+        return StringUtils.YES.equalsIgnoreCase(queryRequireFlag);
+    }
+
+    public void setQueryRequireFlag(Boolean queryRequireFlag) {
+        this.queryRequireFlag = queryRequireFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
 
     public Boolean getExportFlag() {
         return StringUtils.YES.equalsIgnoreCase(exportFlag);

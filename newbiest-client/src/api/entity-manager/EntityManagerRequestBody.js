@@ -25,8 +25,14 @@ export default class EntityManagerRequestBody {
         this.deleteRelationEntityFlag = deleteRelationEntityFlag;
     }
 
-    static buildUpdateEntity(entityModel, entity) {
-        return new EntityManagerRequestBody(ActionType.Update, entityModel, entity);
+    static buildMergeEntity(entityModel, entity) {
+        let actionType;
+        if (entity.objectRrn) {
+            actionType = ActionType.Update;         
+        } else {
+            actionType = ActionType.Creata;         
+        }
+        return new EntityManagerRequestBody(actionType, entityModel, entity);
     }
 
     static buildDeleteEntity(entityModel, entity, deleteRelationEntityFlag) {

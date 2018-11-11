@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Popconfirm, Button, Icon, Divider,Form } from 'antd';
-import { Link } from 'react-router-dom';
+import { Table, Popconfirm, Button,Form } from 'antd';
 import './ListTable.scss';
 import {Application} from '../../api/Application'
 import {DefaultRowKey, UrlConstant} from '../../api/const/ConstDefine'
@@ -13,7 +12,7 @@ import EntityForm from '../Form/EntityForm';
 import * as PropTypes from 'prop-types';
 import EntityManagerRequestBody from '../../api/entity-manager/EntityManagerRequestBody';
 import EntityManagerRequestHeader from '../../api/entity-manager/EntityManagerRequestHeader';
-
+import TableObject from '../../api/dto/ui/Table';
 /**
  * 基本表格。每一行都带有编辑和删除的列
  */
@@ -31,10 +30,10 @@ export default class EntityListTable extends Component {
             selectedRowKeys: [],
             selectedRows: [],
             formVisible: false,
-            editorObject: undefined,
+            editorObject: {},
             scrollX: undefined,
             scrollY:undefined,
-            data: []
+            data: [],
         };
     }
 
@@ -78,7 +77,7 @@ export default class EntityListTable extends Component {
                     scrollX: columnData.scrollX
                 });
             }
-          }
+        }
         MessageUtils.sendRequest(requestObject);
     }
 
@@ -114,9 +113,10 @@ export default class EntityListTable extends Component {
             render: (text, record) => {
                 return (
                     <div>
-                        <Button style={{marginRight:'1px'}} icon="form" onClick={() => self.handleEdit(record)} size="small" href="javascript:;">编辑</Button>
+                        <Button style={{marginRight:'1px'}} icon="eye" onClick={() => self.handleEdit(record)} size="small" href="javascript:;"></Button>
+                        <Button style={{marginRight:'1px'}} icon="form" onClick={() => self.handleEdit(record)} size="small" href="javascript:;"></Button>
                         <Popconfirm title="Sure to delete?" onConfirm={() => self.handleDelete(record)}>
-                            <Button icon="delete" size="small" type="danger">删除</Button>
+                            <Button icon="delete" size="small" type="danger"></Button>
                         </Popconfirm>
                     </div>
                 );
@@ -154,6 +154,13 @@ export default class EntityListTable extends Component {
         })
     }
 
+    handleAdd = () => {
+        this.setState({
+            formVisible : true,
+            editorObject: TableObject.buildDefaultModel(this.state.table.fields)
+        })
+    }
+
     handleSave = (e) => {
         const form = this.form;
         form.validateFields((err, values) => {
@@ -162,26 +169,30 @@ export default class EntityListTable extends Component {
             }
             var self = this;
             //TODO 当有1对多的情况。需要考虑是否更新还是多的保持原状。
-            let requestBody = EntityManagerRequestBody.buildUpdateEntity(this.state.table.modelClass, values);
+            let requestBody = EntityManagerRequestBody.buildMergeEntity(this.state.table.modelClass, values);
             let requestHeader = new EntityManagerRequestHeader();
             let request = new Request(requestHeader, requestBody, UrlConstant.EntityManagerUrl);
             let requestObject = {
                 request: request,
                 success: function(responseBody) {
+                    let responseData = responseBody.data;
                     let datas = self.state.data;
                     let dataIndex = -1;
                     datas.map((data, index) => {
-                        if (data.objectRrn == values.objectRrn) {
+                        if (data.objectRrn == responseData.objectRrn) {
                             dataIndex = index;
                         }
                     });
                     if (dataIndex > -1) {
-                        datas.splice(dataIndex, 1, values);
-                        self.setState({
-                            data: datas,
-                            formVisible: false
-                        })
+                        datas.splice(dataIndex, 1, responseData);
+                    } else {
+                        // 新增的就放在第一位
+                        datas.unshift(responseData);
                     }
+                    self.setState({
+                        data: datas,
+                        formVisible: false
+                    }) 
                     MessageUtils.showOperationSuccess();
                 }
             }
@@ -200,33 +211,35 @@ export default class EntityListTable extends Component {
         this.form = form;
     };
 
+    /**
+     * 创建btn组。不同的table对button的组合要求不一样时。可以重载其方法做处理
+     */
+    createButtonGroup = () => {
+        return <Button style={styles.tableButton} type="primary" icon="plus" onClick={() => this.handleAdd()}>新增</Button>;
+    }
+
     render() {
         const {data, columns, rowClassName, rowSelection, scrollX} = this.state;
         const WrappedAdvancedEntityForm = Form.create()(EntityForm);
-        if(data.length >= Application.scrollNum){
-            this.state.scrollY = Application.tableY
-        }
         return (
           <div >
-            <Link to="" style={styles.tableButton}>
-                <Button type="primary" icon="plus">添加内容</Button>
-            </Link>
+            {this.createButtonGroup()}
             <div style={styles.tableContainer}>
                 <Table
-                dataSource={data}
-                bordered
-                className="custom-table"
-                pagination={this.props.pagination == null ? Application.table.pagination : this.props.pagination}
-                columns = {columns}
-                scroll = {{ x: scrollX, y: this.state.scrollY }}
-                rowKey = {this.props.rowkey == null ? DefaultRowKey : this.props.rowkey}
-                loading = {this.props.loading}
-                rowClassName = {rowClassName.bind(this)}
-                rowSelection = {rowSelection}
+                    dataSource={data}
+                    bordered
+                    className="custom-table"
+                    pagination={this.props.pagination == null ? Application.table.pagination : this.props.pagination}
+                    columns = {columns}
+                    scroll = {{ x: scrollX, y: 350 }}
+                    rowKey = {this.props.rowkey == null ? DefaultRowKey : this.props.rowkey}
+                    loading = {this.props.loading}
+                    rowClassName = {rowClassName.bind(this)}
+                    rowSelection = {rowSelection}
                 >
                 </Table>
                 <WrappedAdvancedEntityForm ref={this.formRef} object={this.state.editorObject} visible={this.state.formVisible} fields={this.state.table.fields}
-                    onOk={this.handleSave} onCancel={this.handleCancel} />
+                    onOk={this.handleSave} onCancel={this.handleCancel} tabs={this.state.table.tabs}/>
             </div>
           </div>
         );
@@ -236,38 +249,12 @@ export default class EntityListTable extends Component {
 EntityListTable.prototypes = {
     tableRrn: PropTypes.number.isRequired,
     data: PropTypes.array,
-    check: PropTypes.bool,
     rowClassName: PropTypes.func,
     rowkey: PropTypes.string,
     pagination: PropTypes.pagination
 }
 
 const styles = {
-    tableContainer: {
-      background: '#fff',
-      paddingBottom: '10px',
-    },
-    highlightRow : {
-      backgroundo: '#ff0000'
-    },
-    editIcon: {
-      color: '#999',
-      cursor: 'pointer',
-    },
-    circle: {
-      display: 'inline-block',
-      background: '#28a745',
-      width: '8px',
-      height: '8px',
-      borderRadius: '50px',
-      marginRight: '4px',
-    },
-    stateText: {
-      color: '#28a745',
-    },
-    opration: {
-      width: '100%'
-    },
     tableButton: {
         position:'absolute',
         top:'120px',

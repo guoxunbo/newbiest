@@ -25,6 +25,16 @@ const routerConfig = [
     component: ListTableManager,
   },
   {
+    path: 'System/DynamicTab/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: ListTableManager,
+  },
+  {
+    path: 'System/DynamicField/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: ListTableManager,
+  },
+  {
     path: '/ListTableManager',
     layout: HeaderAsideFooterResponsiveLayout,
     component: ListTableManager,

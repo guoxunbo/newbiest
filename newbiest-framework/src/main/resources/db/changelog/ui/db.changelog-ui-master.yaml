@@ -41,3 +41,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.2.ref_list.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.tab.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.5.field.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.6.field.yaml
+      relativeToChangelogFile: true

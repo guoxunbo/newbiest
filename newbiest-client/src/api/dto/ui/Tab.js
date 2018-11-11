@@ -5,6 +5,14 @@ import {Language} from '../../const/ConstDefine';
 
 const TabPane = Tabs.TabPane;
 
+/**
+ * Table的类型 栏位展示还是表格展示 表格展示需要制定refTableRrn
+ */
+const TabType = {
+    Field: "Field",
+    Table: "Table"
+}
+
 export default class Tab {
     name;
     description;
@@ -12,7 +20,10 @@ export default class Tab {
     seqNo;
     tabType;
     fields;
-
+    
+    labelZh;
+    label;
+    labelRes;
     //前端栏位
     title;
 
@@ -23,68 +34,42 @@ export default class Tab {
         this.seqNo = tab.seqNo;
         this.tabType = tab.tabType;
         this.fields = tab.fields;
-        this.title = this.buildTitle();
+        this.title = this.buildTitle(tab);
     }
 
-    buildTitle = () => {
+    buildTitle = (tab) => {
         let title;
         let language = SessionContext.getLanguage();
         if (language == Language.Chinese) {
-            title = this.labelZh;
+            title = tab.labelZh;
         } else if (language == Language.English) {
-            title = this.label;
+            title = tab.label;
         } else {
-            title = this.labelRes;
+            title = tab.labelRes;
         }
         return title;
     }
 
-    buildFields = (fields) => {
-        const { getFieldDecorator } = this.props.form;
-        const formItemLayout = {
-            labelCol: {span: 6},
-            wrapperCol: {span: 18},
-        };
-
+    buildTab = (form, formLayout) => {
+        const fields = this.fields;
         let children = [];
-        for (let f of fields) {
-            let field = new Field(f);
-            if (field.displayFlag && field.name != "objectRrn") {
-                children.push(<Col span={12} key={field.objectRrn}>
-                    {field.buildFormItem(getFieldDecorator, formItemLayout, true)}
-                </Col>);
+        if (TabType.Field == this.tabType) {
+            for (let f of fields) {
+                let field = new Field(f);
+                if (!field.basicFlag && field.displayFlag && field.name != "objectRrn") {
+                    children.push(<Col span={12} key={field.objectRrn}>
+                        {field.buildFormItem(form, formLayout, true)}
+                    </Col>);
+                }
             }
+        } else if (TabType.Table == this.tabType) {
+
         }
-        return children;
+        return <TabPane tab={this.title} key={this.name}>
+                    <Row gutter={16}>
+                        {children}
+                    </Row>
+                </TabPane>
     }
 
-    buildFormPanel = () => {
-        const {getFieldDecorator} = this.props.form;
-        return (<TabPane tab={this.title} key={this.name}>
-                    <Form>
-                        {getFieldDecorator('objectRrn')(
-                            <Input type='hidden'/>
-                        )}
-                        <Row gutter={16}>
-                            {this.buildFields(this.fields)}
-                        </Row>
-                    </Form>
-                </TabPane>)
-    }
-    /**
-     * 所有页面都会有basicTab。用来保存没有指定tabRrn的Field
-     */
-    static buildBasicTabPanel = (fields) => {
-        // 取出没有指定tab的所有栏位都属于BasicTab
-        console.log(fields);
-        const basicFields = fields.filter(field => field.tabRrn);   
-        let tab = new Tab({
-            name: "Basic",
-            seqNo: 1,
-            fields: basicFields,
-            label: "BasicInfo",
-            labelZh: "基本信息"
-        });
-        return tab.buildFormPanel(tab);
-    }
 }

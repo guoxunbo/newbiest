@@ -28,13 +28,14 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
 
   constructor(props) {
     super(props);
-    const openKeys = this.getOpenKeys();
+    const asideMenuConfig = this.getAsideMenuConfig();
+    const openKeys = this.getOpenKeys(asideMenuConfig);
     this.state = {
       openKeys,
       collapse: false,
       openDrawer: false,
       isScreen: undefined,
-      asideMenuConfig: this.getAsideMenuConfig()
+      asideMenuConfig: asideMenuConfig
     };
     this.openKeysCache = openKeys;
   }
@@ -135,12 +136,11 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
   /**
    * 获取当前展开的菜单项
    */
-  getOpenKeys = () => {
+  getOpenKeys = (asideMenuConfig) => {
     const { match } = this.props;
     const matched = match.url;
     let openKeys = [];
 
-    let asideMenuConfig = this.getAsideMenuConfig();
     if (Array.isArray(asideMenuConfig)) {
       asideMenuConfig.forEach((item, index) => {
         let path = item.path.substring(0, item.path.lastIndexOf("/"));

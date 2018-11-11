@@ -53,9 +53,9 @@ public class EntityController extends AbstractRestController {
         }
         NBBase nbBase = parser(requestBody.getEntityString(), classLoader.loadClass(entityModel));
         if (EntityRequest.ACTION_CREATE.equals(actionType)) {
-            saveEntity(nbBase, sc);
+            nbBase = saveEntity(nbBase, sc);
         } else if (EntityRequest.ACTION_UPDATE.equals(actionType)) {
-            updateEntity(nbBase, sc);
+            nbBase = updateEntity(nbBase, sc);
         } else if (EntityRequest.ACTION_DELETE.equals(actionType)) {
             deleteEntity(nbBase, requestBody.getDeleteRelationEntityFlag(), sc);
         } else if (EntityRequest.ACTION_GET_BY_RRN.equals(actionType)) {
@@ -64,6 +64,7 @@ public class EntityController extends AbstractRestController {
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
+        responseBody.setData(nbBase);
         response.setBody(responseBody);
         return response;
     }

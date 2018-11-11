@@ -22,6 +22,7 @@ public class UIComponent {
         ModelFactory.registerModelClassLoader(NBTable.class.getName(), NBTable.class.getClassLoader());
         ModelFactory.registerModelClassLoader(NBTab.class.getName(), NBTab.class.getClassLoader());
         ModelFactory.registerModelClassLoader(NBTable.class.getName(), NBTable.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(NBField.class.getName(), NBField.class.getClassLoader());
 
     }
 }

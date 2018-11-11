@@ -1,10 +1,12 @@
+import * as PropTypes from 'prop-types';
+
 export default class Table{
 
     objectRrn;
     whereClause;
+    fields;
 
     constructor() {
-
     }
 
     setObjectRrn(objectRrn) {
@@ -14,4 +16,31 @@ export default class Table{
     setWhereClause(whereClause) {
         this.whereClause = whereClause;
     }
+    
+    /**
+     * 在新建的时候创建默认值
+     */
+    static buildDefaultModel(fields) {
+        let object = {};
+        if (Array.isArray(fields)) {
+            fields.map((field) => {
+                let value = field.defaultValue;
+                if ("radio" == field.displayType) {
+                    value = false;
+                    if (field.defaultValue && "Y" == field.defaultValue.toUpperCase()) {
+                        value = true;
+                    } 
+                }
+                object[field.name] = value;
+            })
+        }
+        console.log(object);
+        return object;
+    }
+
+}
+Table.prototypes = {
+    objectRrn: PropTypes.number.isRequired,
+    fields: PropTypes.array,
+    whereClause: PropTypes.string
 }

@@ -14,11 +14,14 @@ export default class RefTableField extends Component {
 
     constructor(props) {
         super(props);
-        const value = "";
+        let value = "";
+        if (props.value && props.value.toString().length > 0) {
+            value = props.value.toString();
+        }
         this.state = {
             refTableName: this.props.refTableName,
             data: [],
-            value: value
+            value: value 
         };
     }
 
@@ -79,15 +82,16 @@ export default class RefTableField extends Component {
     }
 
     render() {
-        const options = this.state.data.map(data => <Option key={data.key}>{data.value}</Option>);
+        const {data, value} = this.state;
+        const options = data.map(data => <Option key={data.key.toString()}>{data.value}</Option>);
         return (
           <Select
             showSearch
+            defaultValue={value}
             placeholder={this.props.placeholder}
             style={this.props.style ? this.props.style : { width: "150px" }}
             onChange={this.handleChange}
             disabled={this.props.disabled}
-            // defaultValue={options == null ? "" : options[0].key}
           >
             {options}
           </Select>

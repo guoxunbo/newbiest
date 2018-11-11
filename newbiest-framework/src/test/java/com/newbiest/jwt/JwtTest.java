@@ -25,9 +25,11 @@ public class JwtTest {
             String token = jwtSigner.sign("aaa");
             String str = jwtSigner.validate(token);
             Assert.assertEquals("aaa", str);
-            Thread.sleep(1000 * 61 * 2);
+//            Thread.sleep(1000 * 61 * 2);
             str = jwtSigner.validate(token);
             Assert.assertEquals("aaa", str);
+
+            System.out.println(jwtSigner.getWhiteIPList());
         } catch (Exception e) {
             e.printStackTrace();
         }

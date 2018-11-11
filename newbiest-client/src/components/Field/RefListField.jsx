@@ -15,7 +15,10 @@ export default class RefListField extends Component {
 
     constructor(props) {
         super(props);
-        const value = "";
+        let value = "";
+        if (props.value && props.value.length > 0) {
+            value = props.value
+        }
         this.state = {
             owner: this.props.owner,
             referenceName: this.props.referenceName,
@@ -81,8 +84,8 @@ export default class RefListField extends Component {
         return (
           <Select
             showSearch
+            defaultValue={this.state.value}
             placeholder={this.props.placeholder}
-            style={this.props.style ? this.props.style : { width: "150px" }}
             onChange={this.handleChange}
             disabled={this.props.disabled}
           >

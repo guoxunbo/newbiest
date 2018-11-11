@@ -58,7 +58,9 @@ class QueryForm extends Component {
         let firstFlag = true;
         for (let queryField of queryFields) {
             let fieldName = queryField.name;
-            if (formValues[fieldName] != null && formValues[fieldName] != undefined) {
+            if (formValues[fieldName] != null && formValues[fieldName] != undefined
+                && formValues[fieldName] != "") {
+                console.log(formValues[fieldName])
                 if (!firstFlag) {
                     whereClause.append(SqlType.And);
                 }
@@ -105,7 +107,7 @@ class QueryForm extends Component {
           let field = queryFields[i];
           children.push(
             <Col span={colSpan} key={i} style={{ display: i < count ? 'block' : 'none' }}>
-              {field.buildFormItem(getFieldDecorator, undefined, false)}
+              {field.buildFormItem(getFieldDecorator, undefined, false, true)}
             </Col>
           );
         }
@@ -113,15 +115,21 @@ class QueryForm extends Component {
     }
 
     render() {
-        return (
-        <div style={styles.tableFilter}>
-            <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
-                <Row gutter={24} style={{display:'inline-block'}}>{this.getFields(this.state.queryFields)}
-                </Row>
-                <Button type="primary" className="search-button" htmlType="submit">查找</Button>
-            </Form>
-        </div>
-        );
+        const queryFields = this.getFields(this.state.queryFields)
+        if (Array.isArray(queryFields) && queryFields.length > 0) {
+            return (
+                <div style={styles.tableFilter}>
+                   
+                    <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
+                        <Row gutter={24} style={{display:'inline-block'}}>{queryFields}
+                        </Row>
+                        <Button type="primary" className="search-button" htmlType="submit">查找</Button>
+                    </Form>
+                </div>);
+        } else {
+            return <div></div>
+        }
+        
     }
 }
 

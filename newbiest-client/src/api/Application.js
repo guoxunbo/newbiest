@@ -1,8 +1,6 @@
 const Application = {
     name: '智行管理系统',
     version: "0.0.1",
-    tableY:650,
-    scrollNum:10,
     copyright: {
         name: "© 2018 By Newbiest",
         url: "https://www.baidu.com"
@@ -14,9 +12,6 @@ const Application = {
         },
         checkBox: {
             width: 10
-        },
-        scroll: {
-            x: 1500,
         },
         // 默认的分页配置
         pagination: {
