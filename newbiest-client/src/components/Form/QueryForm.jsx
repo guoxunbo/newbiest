@@ -97,6 +97,9 @@ class QueryForm extends Component {
         const children = [];
         const { getFieldDecorator } = this.props.form;
         let colSpan = queryFields.length >= 3 ? 8 : 24 / queryFields.length - 2 ;
+        if(queryFields.length === 1){
+            colSpan = 16
+        }
         for (let i in queryFields) {
           let field = queryFields[i];
           children.push(
@@ -115,8 +118,9 @@ class QueryForm extends Component {
                 <div style={styles.tableFilter}>
                    
                     <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
-                        <Row gutter={20} style={{display:'inline-block'}}>{queryFields}
-                        <Button type="primary" className="search-button ant-col-3" htmlType="submit">查找</Button>
+                        <Row gutter={24} style={{display:'inline-block'}}>{queryFields}
+                        {queryFields.length > 1 ?<Button type="primary" className="search-button ant-col-3" htmlType="submit">查找</Button> :
+                        <Button type="primary" className="search-button ant-col-6" htmlType="submit">查找</Button> }
                         </Row>
                     </Form>
                  
