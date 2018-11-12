@@ -91,14 +91,9 @@ class QueryForm extends Component {
     handleReset = () => {
         this.props.form.resetFields();
     }
-    
-    toggle = () => {
-        const { expand } = this.state;
-        this.setState({ expand: !expand });
-    }
 
     getFields = (queryFields) => {
-        const count = this.state.expand ? 10 : 3;
+        const count = 10;
         const children = [];
         const { getFieldDecorator } = this.props.form;
         let colSpan = queryFields.length >= 3 ? 8 : 24 / queryFields.length;
@@ -121,9 +116,10 @@ class QueryForm extends Component {
                    
                     <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
                         <Row gutter={24} style={{display:'inline-block'}}>{queryFields}
+                        <div><Button type="primary" className="search-button" htmlType="submit">查找</Button></div>
                         </Row>
-                        <Button type="primary" className="search-button" htmlType="submit">查找</Button>
                     </Form>
+                 
                 </div>);
         } else {
             return <div></div>
@@ -145,6 +141,7 @@ const styles = {
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '20px',
+      paddingBottom:'0px',
       background: '#fff',
     }
 };

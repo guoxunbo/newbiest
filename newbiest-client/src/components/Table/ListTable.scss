@@ -3,3 +3,13 @@
     background-color: #ff000021
 }
 .ant-table > td { white-space: nowrap;}
+
+.ant-table-tbody > tr > td {
+    padding: 10px 16px;
+    word-break: break-word;
+}
+
+.ant-table-bordered .ant-table-thead > tr > th,
+.ant-table-bordered .ant-table-tbody > tr > td {
+    padding: 10px 16px;
+}

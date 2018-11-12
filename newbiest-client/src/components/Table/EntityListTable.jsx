@@ -13,6 +13,8 @@ import * as PropTypes from 'prop-types';
 import EntityManagerRequestBody from '../../api/entity-manager/EntityManagerRequestBody';
 import EntityManagerRequestHeader from '../../api/entity-manager/EntityManagerRequestHeader';
 import TableObject from '../../api/dto/ui/Table';
+import { max } from 'moment';
+import $ from 'jquery';
 /**
  * 基本表格。每一行都带有编辑和删除的列
  */
@@ -33,6 +35,7 @@ export default class EntityListTable extends Component {
             editorObject: {},
             scrollX: undefined,
             scrollY:undefined,
+            beforescrollX:undefined,
             data: [],
         };
     }
@@ -51,6 +54,17 @@ export default class EntityListTable extends Component {
 
     componentDidMount() {
         this.buildTable(this.props.tableRrn);
+
+        $(window).bind('resize',() => {
+            let maxWidth = document.querySelector('.custom-table').clientWidth
+            this.setState({maxWidth})
+            this.buildTable(this.props.tableRrn);
+        })
+    }
+
+    componentWillUnmount() {
+        $(window).unbind('resize',function() {
+        })
     }
     
     getRowClassName = (record, index) => {
@@ -92,6 +106,7 @@ export default class EntityListTable extends Component {
                 scrollX += column.width;
             }
         }
+        this.setState({beforescrollX:scrollX})
         let oprationColumn = this.buildOprationColumn();
         scrollX += oprationColumn.width;
         columns.push(oprationColumn);
@@ -102,13 +117,14 @@ export default class EntityListTable extends Component {
     }
 
     buildOprationColumn() {
+        let maxWidth = this.state.maxWidth ? this.state.maxWidth : document.querySelector('.custom-table').clientWidth;
         let self = this;
         let oprationColumn = {
             key: "opration",
             title: "opration",
             dataIndex: "opration",
             align: "center",
-            fixed: 'right',
+            fixed:maxWidth > this.state.beforescrollX+Application.table.oprationColumn.width ? false : 'right',
             width: Application.table.oprationColumn.width,
             render: (text, record) => {
                 return (
@@ -215,17 +231,25 @@ export default class EntityListTable extends Component {
      * 创建btn组。不同的table对button的组合要求不一样时。可以重载其方法做处理
      */
     createButtonGroup = () => {
-        return <Button style={styles.tableButton} type="primary" icon="plus" onClick={() => this.handleAdd()}>新增</Button>;
+    return (
+            <div style={styles.buttonGroup}>
+                <Button type="primary" style={styles.tableButton} icon="plus" onClick={() => this.handleAdd()}>新增</Button>
+                <Button type="primary" style={styles.tableButton} icon="file-add" onClick={() => this.handleAdd()}>导入</Button>
+                <Button type="primary" style={styles.tableButton} icon="export" onClick={() => this.handleAdd()}>导出</Button>
+            </div>
+           );
     }
 
     render() {
         const {data, columns, rowClassName, rowSelection, scrollX} = this.state;
         const WrappedAdvancedEntityForm = Form.create()(EntityForm);
+
         return (
           <div >
             {this.createButtonGroup()}
             <div style={styles.tableContainer}>
                 <Table
+                    ref= {el => this.table = el}
                     dataSource={data}
                     bordered
                     className="custom-table"
@@ -256,8 +280,11 @@ EntityListTable.prototypes = {
 
 const styles = {
     tableButton: {
-        position:'absolute',
-        top:'120px',
-        right:'120px'
+        marginLeft:'20px'
+    },
+    buttonGroup:{
+        marginBottom:'10px',
+        marginRight:'30px',
+        textAlign:'right'
     }
 };
