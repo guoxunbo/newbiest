@@ -12,8 +12,13 @@
   .search-button {
     margin-left: 12px;
     top:4px;
+    margin-left: 20px;
   }
 
   .ant-form {
     position: relative;
-  } 
+  }
+  
+  .ant-form-item-label {
+    overflow: inherit !important;
+  }
