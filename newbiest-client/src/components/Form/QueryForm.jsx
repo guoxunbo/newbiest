@@ -58,15 +58,22 @@ class QueryForm extends Component {
         let firstFlag = true;
         for (let queryField of queryFields) {
             let fieldName = queryField.name;
-            if (formValues[fieldName] != null && formValues[fieldName] != undefined
-                && formValues[fieldName] != "") {
+            let fieldValue = formValues[fieldName];
+            if (fieldValue != null && fieldValue != undefined && fieldValue != "") {
                 if (!firstFlag) {
                     whereClause.append(SqlType.And);
                 }
                 whereClause.append(fieldName);
-                whereClause.append(SqlType.Eq);
+                fieldValue = fieldValue.toString();
+                //加/g表示全部替换
+                if (fieldValue.indexOf('*') != -1) {
+                    whereClause.append(SqlType.Like);
+                    fieldValue = fieldValue.replace(/\*/g, '%');
+                } else {
+                    whereClause.append(SqlType.Eq);
+                }
                 whereClause.append("'")
-                whereClause.append(formValues[fieldName]);
+                whereClause.append(fieldValue);
                 whereClause.append("'")
                 firstFlag = false;
             }

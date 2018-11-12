@@ -1,4 +1,4 @@
-import { Input, DatePicker, Switch,Form } from 'antd';
+import { Input, InputNumber, DatePicker, Switch,Form } from 'antd';
 
 import {SessionContext} from '../../Application'
 import {Language} from "../../const/ConstDefine";
@@ -12,6 +12,8 @@ const FormItem = Form.Item;
 const DisplayType = {
     text : "text",
     password : "password",
+    int: "int",
+    double: "double",
     //日期相关
     calendar : "calendar",
     calendarFromTo : "calendarFromTo",
@@ -47,7 +49,6 @@ export default class Field {
     
     objectRrn;
     name;
-    dataType;
     label;
     labelZh;    
     labelRes;
@@ -74,7 +75,6 @@ export default class Field {
     constructor(field) {
         this.objectRrn = field.objectRrn;
         this.name = field.name;
-        this.dataType = field.dataType;
         this.displayFlag = field.displayFlag;
         this.mainFlag = field.mainFlag;
         this.queryFlag = field.queryFlag;
@@ -101,7 +101,7 @@ export default class Field {
         if (this.displayFlag && this.mainFlag) {
             // 文本靠左 数字靠右
             let aligin = Aligin.left;
-            if (NumberType.includes(this.dataType)) {
+            if (DisplayType.number == this.displayType) {
                 aligin = Aligin.right;
             }
             let column = {
@@ -157,6 +157,10 @@ export default class Field {
         this.buildDisabled(edit);
         if (this.displayType == DisplayType.text) {
             return <Input placeholder = {this.placeHolder} disabled={this.disabled}/>;
+        } else if (this.displayType == DisplayType.int) {
+            return <InputNumber disabled={this.disabled}/>;
+        } else if (this.displayType == DisplayType.double) {
+            return <InputNumber step={0.01} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.password) {
             return <Input placeholder = {this.placeHolder} type="password" disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.calendar) {
@@ -242,8 +246,7 @@ export default class Field {
             }
         };
 
-        //根据dataType以及disPlayType处理transform
-        if (this.displayType == DisplayType.text) {
+        if (DisplayType.text == this.displayType) {
             // 只有当text的时候才支持正则
             if (this.namingRule != null && this.namingRule != undefined) {
                 rule.pattern = this.namingRule;
@@ -259,7 +262,7 @@ export default class Field {
         }
 
          // 数字
-        if (NumberType.includes(this.dataType)) {
+        if (NumberType.includes(this.displayType)) {
             rule.type = "number";
             rule.transform = (value) => {
                 if(value){

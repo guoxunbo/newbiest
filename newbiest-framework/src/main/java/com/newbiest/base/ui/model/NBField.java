@@ -50,12 +50,6 @@ public class NBField extends NBBase {
     private String displayType;
 
     /**
-     * 栏位输入值的类型
-     */
-    @Column(name="DATA_TYPE")
-    private String dataType;
-
-    /**
      * 栏位输入值的命名规则
      * 正则表达式
      */

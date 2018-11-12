@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-nb_field-table_0.0.7
+      author: Xunbo Guo
+      comment: DELETE column DATA_TYPE for NB_FIELD
+      changes:
+        - dropColumn:
+            columnName: DATA_TYPE
+            tableName: NB_FIELD

@@ -34,7 +34,7 @@ spring:
       pool-prepared-statements: false
       max-pool-prepared-statement-per-connection-size: 20
       # 监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙(检测SQL注入)
-      filters: stat,wall,slf4j
+      filters: stat,slf4j,config
       web-stat-filter:
         enabled: true
         url-pattern: /*
