@@ -61,11 +61,21 @@ public class UIServiceImpl implements UIService {
     public NBTable getNBTableByAuthority(Long authorityRrn) throws ClientException {
         try {
             NBAuthority nbAuthority = (NBAuthority) authorityRepository.findByObjectRrn(authorityRrn);
-            return getNBTable(nbAuthority.getTableRrn());
+            return getDeepNBTable(nbAuthority.getTableRrn());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
         }
+    }
+
+    @Override
+    public NBTable getNBTableByName(String tableName, long orgRrn) throws ClientException {
+        List<NBTable> tables = (List<NBTable>) tableRepository.findByNameAndOrgRrn(tableName, orgRrn);
+
+        if (CollectionUtils.isNotEmpty(tables)) {
+            return tables.get(0);
+        }
+        throw new ClientParameterException(UIExceptions.UI_TABLE_NOT_EXIST, tableName);
     }
 
     /**
@@ -74,7 +84,7 @@ public class UIServiceImpl implements UIService {
      * @return 返回带有所有栏位以及TAB的NBTable
      * @throws ClientException
      */
-    public NBTable getNBTable(Long tableRrn) throws ClientException {
+    public NBTable getDeepNBTable(Long tableRrn) throws ClientException {
         try {
             NBTable nbTable = new NBTable();
             nbTable.setObjectRrn(tableRrn);

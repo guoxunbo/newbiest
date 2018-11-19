@@ -5,7 +5,10 @@ import {Application} from '../../api/Application'
 /**
  * 具有选择框的table。不具备操作列
  */
+
 export default class EntityListCheckTable extends EntityListTable {
+
+    static displayName = 'EntityListCheckTable';
 
     constructor(props) {
         super(props);

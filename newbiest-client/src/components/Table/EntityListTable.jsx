@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import  React, { Component } from 'react';
+
 import { Table, Popconfirm, Button,Form } from 'antd';
 import './ListTable.scss';
 import {Application} from '../../api/Application'
@@ -13,8 +14,8 @@ import * as PropTypes from 'prop-types';
 import EntityManagerRequestBody from '../../api/entity-manager/EntityManagerRequestBody';
 import EntityManagerRequestHeader from '../../api/entity-manager/EntityManagerRequestHeader';
 import TableObject from '../../api/dto/ui/Table';
-import { max } from 'moment';
 import $ from 'jquery';
+
 /**
  * 基本表格。每一行都带有编辑和删除的列
  */
@@ -41,8 +42,12 @@ export default class EntityListTable extends Component {
     }
 
     componentWillReceiveProps = (props) => {
+        let columnData = this.buildColumn(props.table.fields);
         this.setState({
-            data: props.data
+            data: props.data,
+            table: props.table,
+            columns: columnData.columns,
+            scrollX: columnData.scrollX
         })
     }
 
@@ -53,12 +58,9 @@ export default class EntityListTable extends Component {
     }
 
     componentDidMount() {
-        this.buildTable(this.props.tableRrn);
-
         $(window).bind('resize',() => {
             let maxWidth = document.querySelector('.custom-table').clientWidth
             this.setState({maxWidth})
-            this.buildTable(this.props.tableRrn);
         })
     }
 
@@ -75,26 +77,6 @@ export default class EntityListTable extends Component {
         }
     };
 
-    buildTable = (tableRrn) => {
-        const self = this;
-        let requestBody = TableManagerRequestBody.buildGetByRrn(tableRrn);
-        let requestHeader = new TableManagerRequestHeader();
-        let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
-        let requestObject = {
-            request: request,
-            success: function(responseBody) {
-                let table = responseBody.table;
-                let columnData = self.buildColumn(table.fields);
-                self.setState({
-                    table: responseBody.table,
-                    columns: columnData.columns,
-                    scrollX: columnData.scrollX
-                });
-            }
-        }
-        MessageUtils.sendRequest(requestObject);
-    }
-
     buildColumn = (fields) => {
         let columns = [];
         let scrollX = 0;
@@ -107,16 +89,16 @@ export default class EntityListTable extends Component {
             }
         }
         this.setState({beforescrollX:scrollX})
-        let oprationColumn = this.buildOprationColumn();
-        scrollX += oprationColumn.width;
-        columns.push(oprationColumn);
+        let operationColumn = this.buildOperationColumn();
+        scrollX += operationColumn.width;
+        columns.push(operationColumn);
         return {
             columns: columns,
             scrollX: scrollX
         };
     }
 
-    buildOprationColumn() {
+    buildOperationColumn() {
         let maxWidth = this.state.maxWidth ? this.state.maxWidth : document.querySelector('.custom-table').clientWidth;
         let self = this;
         let oprationColumn = {
@@ -271,7 +253,7 @@ export default class EntityListTable extends Component {
 }
 
 EntityListTable.prototypes = {
-    tableRrn: PropTypes.number.isRequired,
+    table: PropTypes.object.isRequired,
     data: PropTypes.array,
     rowClassName: PropTypes.func,
     rowkey: PropTypes.string,

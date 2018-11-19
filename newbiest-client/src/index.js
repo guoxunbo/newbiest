@@ -4,6 +4,7 @@ import '@icedesign/base/reset.scss';
 import router from './router';
 import "antd/dist/antd.css";
 import './global.scss';
+import '../src/api/Extend';
 
 const ICE_CONTAINER = document.getElementById('ice-container');
 

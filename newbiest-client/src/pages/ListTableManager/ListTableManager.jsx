@@ -17,6 +17,7 @@ export default class ListTableManager extends Component {
     this.state = {
       tableRrn : this.props.match.params.tableRrn,
       tableData: undefined,
+      table: {fields: []},
       loading: true
     };
   }
@@ -31,14 +32,15 @@ export default class ListTableManager extends Component {
     let requestHeader = new TableManagerRequestHeader();
     let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
     let requestObject = {
-        request: request,
-        success: function(responseBody) {
-            self.setState({
-              tableData: responseBody.dataList,
-              loading: false
-            });
-        }
+      request: request,
+      success: function(responseBody) {
+        self.setState({
+          tableData: responseBody.dataList,
+          table: responseBody.table,
+          loading: false
+        });
       }
+    }
     MessageUtils.sendRequest(requestObject);
   }
   
@@ -52,7 +54,7 @@ export default class ListTableManager extends Component {
       <div className="list-table-manager-page">
         <div className="router-body">
           <WrappedAdvancedQueryForm tableRrn={this.state.tableRrn} onSearch={this.handleSearch.bind(this)} />
-          <EntityListTable tableRrn={this.state.tableRrn} data={this.state.tableData} loading={this.state.loading}/>
+          <EntityListTable table={this.state.table} data={this.state.tableData} loading={this.state.loading}/>
         </div>
       </div>
     );

@@ -1,7 +1,8 @@
 import Field from './Field';
-import {Form, Input, Row, Col, Tabs} from 'antd';
+import { Row, Col, Tabs} from 'antd';
 import {SessionContext} from '../../Application';
 import {Language} from '../../const/ConstDefine';
+import EditorTable from '../../../components/Table/edit/EditorTable'
 
 const TabPane = Tabs.TabPane;
 
@@ -24,6 +25,12 @@ export default class Tab {
     labelZh;
     label;
     labelRes;
+
+    //tabType是Table的时候
+    refTableName;
+    editFlag;
+    whereClause;
+    
     //前端栏位
     title;
 
@@ -34,6 +41,10 @@ export default class Tab {
         this.seqNo = tab.seqNo;
         this.tabType = tab.tabType;
         this.fields = tab.fields;
+
+        this.refTableName = tab.refTableName;
+        this.editFlag = tab.editFlag;
+        this.whereClause = tab.whereClause;
         this.title = this.buildTitle(tab);
     }
 
@@ -50,10 +61,10 @@ export default class Tab {
         return title;
     }
 
-    buildTab = (form, formLayout) => {
-        const fields = this.fields;
+    buildTab = (form, formLayout, formObject) => {
         let children = [];
         if (TabType.Field == this.tabType) {
+            const fields = this.fields;
             for (let f of fields) {
                 let field = new Field(f);
                 if (!field.basicFlag && field.displayFlag && field.name != "objectRrn") {
@@ -63,7 +74,12 @@ export default class Tab {
                 }
             }
         } else if (TabType.Table == this.tabType) {
-
+            let whereClause = " 1 != 1";
+            if (this.whereClause) {
+                whereClause = this.whereClause.format(formObject);
+            }
+            // 生成一个editorTable
+            children.push(<EditorTable editFlag={this.editFlag} refTableName={this.refTableName} whereClause={whereClause} key={this.name}></EditorTable>)
         }
         return <TabPane tab={this.title} key={this.name}>
                     <Row gutter={16}>

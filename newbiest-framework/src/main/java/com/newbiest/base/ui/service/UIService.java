@@ -17,7 +17,9 @@ import java.util.List;
 public interface UIService {
 
     // table相关
-    NBTable getNBTable(Long tableRrn) throws ClientException;
+    NBTable getNBTableByName(String tableName, long orgRrn) throws ClientException;
+
+    NBTable getDeepNBTable(Long tableRrn) throws ClientException;
     NBTable getNBTableByAuthority(Long authorityRrn) throws ClientException;
     List<? extends NBBase> getDataFromTableRrn(Long tableRrn, SessionContext sc) throws ClientException;
     List<? extends NBBase> getDataFromTableRrn(Long tableRrn, String whereClause, String orderBy, SessionContext sc) throws ClientException;

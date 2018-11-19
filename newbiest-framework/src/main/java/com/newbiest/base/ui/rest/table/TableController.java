@@ -44,18 +44,25 @@ public class TableController extends AbstractRestController {
         TableRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
 
-        if (TableRequest.GET_BY_AUTHORITY.equals(actionType)) {
-            NBTable nbTable = uiService.getNBTableByAuthority(requestBody.getAuthorityRrn());
-            responseBody.setTable(nbTable);
+        NBTable nbTable = null;
+        if (TableRequest.ACTION_GET_BY_AUTHORITY.equals(actionType)) {
+            nbTable = uiService.getNBTableByAuthority(requestBody.getAuthorityRrn());
         } else if (TableRequest.ACTION_GET_BY_RRN.equals(actionType)) {
-            NBTable nbTable = uiService.getNBTable(requestBody.getTable().getObjectRrn());
-            responseBody.setTable(nbTable);
-        } else if (TableRequest.GET_DATA.equals(actionType)) {
-            NBTable nbTable = uiService.getNBTable(requestBody.getTable().getObjectRrn());
-            List<? extends NBBase> dataList = uiService.getDataFromTableRrn(requestBody.getTable().getObjectRrn(), requestBody.getTable().getWhereClause(), requestBody.getTable().getOrderBy(), sc);
-            responseBody.setTable(nbTable);
+            nbTable = uiService.getDeepNBTable(requestBody.getTable().getObjectRrn());
+        } else if (TableRequest.ACTION_GET_DATA.equals(actionType)) {
+            if (requestBody.getTable().getObjectRrn() != null) {
+                nbTable = uiService.getDeepNBTable(requestBody.getTable().getObjectRrn());
+            } else {
+                nbTable = uiService.getNBTableByName(requestBody.getTable().getName(), sc.getOrgRrn());
+                nbTable = uiService.getDeepNBTable(nbTable.getObjectRrn());
+            }
+            List<? extends NBBase> dataList = uiService.getDataFromTableRrn(nbTable.getObjectRrn(), requestBody.getTable().getWhereClause(), requestBody.getTable().getOrderBy(), sc);
             responseBody.setDataList(dataList);
+        } else if (TableRequest.ACTION_GET_BY_NAME.equals(actionType)) {
+            nbTable = uiService.getNBTableByName(requestBody.getTable().getName(), sc.getOrgRrn());
+            nbTable = uiService.getDeepNBTable(nbTable.getObjectRrn());
         }
+        responseBody.setTable(nbTable);
         response.setBody(responseBody);
         return response;
     }

@@ -2,6 +2,7 @@ package com.newbiest.base.ui.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.newbiest.base.model.NBBase;
+import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -45,6 +46,26 @@ public class NBTab extends NBBase {
     private String tabType = TAB_TYPE_FIELD;
 
     /**
+     * 当类型是table的时候需要绑定一下具体的动态表
+     */
+    @Column(name="REF_TABLE_NAME")
+    private String refTableName;
+
+    /**
+     * 当类型是table的时候和主对象的关联关系
+     * 比如 tableRrn = :objectRrn
+     */
+    @Column(name="WHERE_CLAUSE")
+    private String whereClause;
+
+    /**
+     * 当类型是table的时候是否可以直接编辑表格
+     */
+    @Column(name="EDIT_FLAG")
+    private String editFlag;
+
+
+    /**
      * 英文标签
      */
     @Column(name="LABEL")
@@ -72,4 +93,11 @@ public class NBTab extends NBBase {
     @JsonBackReference
     private NBTable table;
 
+    public Boolean getEditFlag() {
+        return StringUtils.YES.equalsIgnoreCase(editFlag);
+    }
+
+    public void setEditFlag(Boolean editFlag) {
+        this.editFlag = editFlag ? StringUtils.YES : StringUtils.NO;
+    }
 }

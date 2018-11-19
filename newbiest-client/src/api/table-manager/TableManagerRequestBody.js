@@ -20,6 +20,13 @@ export default class TableManagerRequestBody {
         return new TableManagerRequestBody(ActionType.GetByRrn, table);
     }
 
+    static buildGetDataByName(name, whereClause) {
+        let table = new Table();
+        table.setName(name);
+        table.setWhereClause(whereClause);
+        return new TableManagerRequestBody(ActionType.GetData, table);
+    }
+
     static buildGetData(objectRrn, whereClause) {
         let table = new Table();
         table.setObjectRrn(objectRrn);

@@ -58,7 +58,7 @@ export default class EntityForm extends Component {
         if (Array.isArray(tabs)) {
             tabs.forEach((tab) => {
                 let tabPanel = new Tab(tab);
-                tabPanels.push(tabPanel.buildTab(getFieldDecorator, formItemLayout));
+                tabPanels.push(tabPanel.buildTab(getFieldDecorator, formItemLayout, this.props.object));
             }) 
         }
         return (<Tabs>
@@ -91,7 +91,7 @@ export default class EntityForm extends Component {
     render() {
         return (
             <div>
-                <Modal width={740} centered title="编辑" object={this.props.object} visible={this.props.visible} confirmLoading={this.props.confirmLoading}
+                <Modal width={1040} centered title="编辑" object={this.props.object} visible={this.props.visible} confirmLoading={this.props.confirmLoading}
                     onOk={this.props.onOk} onCancel={this.props.onCancel}>
                     {this.buildForm()}
                 </Modal>

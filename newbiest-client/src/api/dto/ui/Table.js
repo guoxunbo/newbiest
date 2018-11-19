@@ -3,6 +3,7 @@ import * as PropTypes from 'prop-types';
 export default class Table{
 
     objectRrn;
+    name;
     whereClause;
     fields;
 
@@ -11,6 +12,10 @@ export default class Table{
 
     setObjectRrn(objectRrn) {
         this.objectRrn = objectRrn;
+    }
+
+    setName(name) {
+        this.name = name;
     }
 
     setWhereClause(whereClause) {

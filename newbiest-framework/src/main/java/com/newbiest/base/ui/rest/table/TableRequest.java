@@ -11,8 +11,9 @@ public class TableRequest extends Request {
 
     public static final String MESSAGE_NAME = "TableManage";
 
-    public static final String GET_BY_AUTHORITY = "GetByAuthority";
-    public static final String GET_DATA = "GetData";
+    public static final String ACTION_GET_BY_AUTHORITY = "GetByAuthority";
+    public static final String ACTION_GET_DATA = "GetData";
+    public static final String ACTION_GET_BY_NAME = "GetByName";
 
     private TableRequestBody body;
 

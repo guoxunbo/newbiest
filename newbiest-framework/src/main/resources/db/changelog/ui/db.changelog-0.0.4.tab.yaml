@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-nb_tab-table_0.0.3
+      author: Xunbo Guo
+      comment: ADD column WHERE_CLAUSE for NB_TAB
+      changes:
+        - addColumn:
+            tableName: NB_TAB
+            columns:
+              - column:
+                  name: WHERE_CLAUSE
+                  type: varchar(256)
+                  remarks: 当类型是table的时候和主对象的关联关系
