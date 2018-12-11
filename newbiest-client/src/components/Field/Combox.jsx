@@ -47,7 +47,7 @@ export default class Combox extends Component {
     }
 
     filterOption = (inputValue, option) => {
-        if (option.props.value.startsWith(inputValue)) {
+        if (option.props.children.startsWith(inputValue)) {
             return true;
         }
         return false;
@@ -79,7 +79,6 @@ export default class Combox extends Component {
      * @param value 触发值
      */
     valueChanged = (sender, value) => {
-        console.log(sender, value);
     }
 
     /**
@@ -107,7 +106,7 @@ export default class Combox extends Component {
             style={this.props.style ? this.props.style : { width: '100%'}}
             onChange={this.handleChange}
             disabled={this.props.disabled}
-            // filterOption={this.filterOption}
+            filterOption={this.filterOption}
             ref={(c) => this._select = c}
           >
             {options}

@@ -42,10 +42,10 @@ export default class UserLogin extends Component {
     super(props);
     this.state = {
       value: {
-        account: undefined,
-        password: undefined,
-        language: undefined,
-        org: undefined,
+        account: "admin",
+        password: "1",
+        language: "Chinese",
+        org: "1",
         checkbox: false,
       },
     };
