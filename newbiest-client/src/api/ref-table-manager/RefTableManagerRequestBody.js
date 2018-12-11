@@ -8,15 +8,17 @@ export default class RefTableManagerRequestBody {
 
     actionType;
     referenceTable;
-    
-    constructor(actionType, referenceTable){
+    parameters;
+
+    constructor(actionType, referenceTable, parameters){
         this.actionType = actionType;
         this.referenceTable = referenceTable;
+        this.parameters = parameters;
     }
 
-    static buildGetData(refTableName) {
+    static buildGetData(refTableName, parameters) {
         let referenceTable = new ReferenceTable(refTableName);
-        return new RefTableManagerRequestBody(ActionType.GetData, referenceTable);
+        return new RefTableManagerRequestBody(ActionType.GetData, referenceTable, parameters);
     }
 
 }

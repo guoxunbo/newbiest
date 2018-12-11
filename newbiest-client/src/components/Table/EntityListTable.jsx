@@ -4,8 +4,6 @@ import { Table, Popconfirm, Button,Form } from 'antd';
 import './ListTable.scss';
 import {Application} from '../../api/Application'
 import {DefaultRowKey, UrlConstant} from '../../api/const/ConstDefine'
-import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
-import TableManagerRequestHeader from '../../api/table-manager/TableManagerRequestHeader';
 import Request from '../../api/Request';
 import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
@@ -106,7 +104,7 @@ export default class EntityListTable extends Component {
             title: "opration",
             dataIndex: "opration",
             align: "center",
-            fixed:maxWidth > this.state.beforescrollX+Application.table.oprationColumn.width ? false : 'right',
+            fixed:maxWidth > this.state.beforescrollX + Application.table.oprationColumn.width ? false : 'right',
             width: Application.table.oprationColumn.width,
             render: (text, record) => {
                 return (
@@ -225,7 +223,6 @@ export default class EntityListTable extends Component {
     render() {
         const {data, columns, rowClassName, rowSelection, scrollX} = this.state;
         const WrappedAdvancedEntityForm = Form.create()(EntityForm);
-
         return (
           <div >
             {this.createButtonGroup()}

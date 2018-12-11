@@ -1,5 +1,4 @@
 import { Input, InputNumber, DatePicker, Switch,Form } from 'antd';
-
 import {SessionContext} from '../../Application'
 import {Language} from "../../const/ConstDefine";
 import RefListField from '../../../components/Field/RefListField';
@@ -71,8 +70,14 @@ export default class Field {
     title;
     placeHolder;
     disabled;
+    form;
 
-    constructor(field) {
+    /**
+     * 构造方法
+     * @param {*} field 后台NBField类对应的实例化对象
+     * @param {*} form form表单 
+     */
+    constructor(field, form) {
         this.objectRrn = field.objectRrn;
         this.name = field.name;
         this.displayFlag = field.displayFlag;
@@ -91,9 +96,11 @@ export default class Field {
         this.defaultValue = field.defaultValue;
         this.displayLength = field.displayLength;
         this.tabRrn = field.tabRrn;
+
         this.title = this.buildTitle();
         this.basicFlag = field.basicFlag;
         this.queryRequireFlag = field.queryRequireFlag;
+        this.form = form;
     }
 
     //TODO 处理fixed和sorter
@@ -168,7 +175,7 @@ export default class Field {
         } else if (this.displayType == DisplayType.calendarFromTo) {
             return <RangePicker disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.datetime) {
-            return <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" disabled={this.disabled}/>
+            return <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" disabled={this.disabled} />
         } else if (this.displayType == DisplayType.datetimeFromTo) {
             return <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.sysRefList) {
@@ -176,7 +183,7 @@ export default class Field {
         } else if (this.displayType == DisplayType.userRefList) {
             return <RefListField referenceName={this.refListName} owner disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.referenceTable) {
-            return <RefTableField refTableName={this.refTableName} disabled={this.disabled}/>
+            return <RefTableField field={this} form={this.form} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.radio) {
             return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled}/>
         }
@@ -189,18 +196,19 @@ export default class Field {
      * @param edit 是否是编辑form 编辑form会处理editable栏位
      * @param query 是否是queryForm queryForm的是否必输根据queryRequireFlag决定
      */
-    buildFormItem = (fieldDecorator, formItemProperties, edit, query) => {
+    buildFormItem = (formItemProperties, edit, query) => {
         //处理formItemPorperties TODO暂时不支持file上传组件检验
         if (formItemProperties == undefined) {
             formItemProperties = {};
         } 
+        const { getFieldDecorator } = this.form;
         let valuePropName = "value";
         if (this.displayType == DisplayType.radio) {
             valuePropName = "checked";
         } 
         let rules = this.buildRule(query);
         return (<FormItem {...formItemProperties} label={this.title}>
-            {fieldDecorator(this.name, {
+            {getFieldDecorator(this.name, {
                 rules: rules,
                 valuePropName: valuePropName,
             })
@@ -209,6 +217,32 @@ export default class Field {
           )}
         </FormItem>);
     }
+
+    /**
+     * 创建table里面的foritem 不具备显示label功能
+     * @param fieldDecorator form表格
+     * @param record 记录
+     */
+    buildTableFormItem = (record, form) => {
+        let valuePropName = "value";
+        if (this.displayType == DisplayType.radio) {
+            valuePropName = "checked";
+        } 
+        let formValue = form ? form : this.form;
+        const { getFieldDecorator } = formValue;
+        let rules = this.buildRule(false);
+        return (<FormItem>
+            {getFieldDecorator(this.name, {
+                rules: rules,
+                valuePropName: valuePropName,
+                initialValue: record[this.name]
+            })
+          (
+            this.buildControl(true)
+          )}
+        </FormItem>);
+    }
+
 
     buildDisabled = (editor) => {
         if (this.readonlyFlag) {

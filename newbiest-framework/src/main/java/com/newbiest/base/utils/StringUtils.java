@@ -22,6 +22,16 @@ public class StringUtils {
     public static final String SPLIT_CODE = "-";
     public static final String UNDERLINE_CODE = "_";
 
+    /**
+     * 参数分割符比如name = :name
+     */
+    public static final String PARAMETER_CODE = ":";
+
+    /**
+     * 空格
+     */
+    public static final String BLANK_SPACE = " ";
+
     public static final String CHARSET_GBK = "GBK";
     public static final String CHARSET_UTF_8 = "UTF-8";
     public static final String CHARSET_ASCII = "ASCII";
@@ -107,6 +117,60 @@ public class StringUtils {
         return "";
     }
 
+    /**
+     * 将有占位符的whereClause转换成正常语句
+     * @param whereClause 查询语句比如 name = :name and age = :age
+     * @param parameters {name: zhangsan, age: 10}
+     * @return name = 'zhangsan' and age = '10'
+     */
+    public static String parseWhereClause(String whereClause, Map<String, Object> parameters) {
+        if (parameters != null && parameters.size() != 0) {
+            for (String parameter : parameters.keySet()) {
+                whereClause = whereClause.replaceAll( PARAMETER_CODE + parameter, "'" + parameters.get(parameter) + "'");
+            }
+        }
+        return whereClause;
+    }
+
+    /**
+     * 获取whereClause里面所有的占位符
+     * @param whereClause where语句比如name = :name AND age = :age
+     * @return {name, age}
+     */
+    public static List<String> getWhereClauseParameter(String whereClause) {
+        List<String> parameters = Lists.newArrayList();
+        if (!isNullOrEmpty(whereClause)) {
+            List<Integer> indexes = getAllIndex(whereClause, PARAMETER_CODE);
+            if (CollectionUtils.isNotEmpty(indexes)) {
+                for (int index : indexes) {
+                    int blankSpaceIndex = whereClause.indexOf(BLANK_SPACE, index);
+                    if (blankSpaceIndex == -1) {
+                        blankSpaceIndex = whereClause.length();
+                    }
+                    String parameter = whereClause.substring(index + 1, blankSpaceIndex);
+                    parameters.add(parameter);
+                }
+            }
+        }
+        return parameters;
+    }
+
+    /**
+     * 获取str里面key字符串所有的下标
+     * @param str 源字符串
+     * @param key 关键字
+     * @return
+     */
+    public static List<Integer> getAllIndex(String str, String key) {
+        List<Integer> indexes = Lists.newArrayList();
+
+        int index = str.indexOf(key);//*第一个出现的索引位置
+        while (index != -1) {
+            indexes.add(index);
+            index = str.indexOf(key, index + 1);//*从这个索引往后开始第一个出现的位置
+        }
+        return indexes;
+    }
     /**
      * 对String使用%s占位符format
      * @param template 字符串如%s a %s b

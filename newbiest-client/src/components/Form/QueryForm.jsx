@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Row, Col, Button, Icon } from 'antd';
+import { Form, Row, Col, Button } from 'antd';
 import './QueryForm.scss';
 
 import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
@@ -40,7 +40,7 @@ class QueryForm extends Component {
                 let fields = responseBody.table.fields;
                 let queryFields = [];
                 for (let field of fields) {
-                    let f = new Field(field);
+                    let f = new Field(field, self.props.form);
                     if (f.isQueryField()) {
                         queryFields.push(f);
                     }
@@ -102,7 +102,7 @@ class QueryForm extends Component {
     getFields = (queryFields) => {
         const count = 10;
         const children = [];
-        const { getFieldDecorator } = this.props.form;
+        // const { getFieldDecorator } = this.props.form;
         let colSpan = queryFields.length >= 3 ? 8 : 24 / queryFields.length - 2 ;
         if(queryFields.length === 1){
             colSpan = 16
@@ -111,7 +111,7 @@ class QueryForm extends Component {
           let field = queryFields[i];
           children.push(
             <Col span={colSpan} key={i} style={{ display: i < count ? 'block' : 'none' }}>
-              {field.buildFormItem(getFieldDecorator, undefined, false, true)}
+              {field.buildFormItem(undefined, false, true)}
             </Col>
           );
         }

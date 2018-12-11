@@ -3,7 +3,6 @@ import { Modal, Form, Input, Row, Col, Tabs } from 'antd';
 import * as PropTypes from 'prop-types';
 import Field from '../../api/dto/ui/Field';
 import Tab from '../../api/dto/ui/Tab';
-
 export default class EntityForm extends Component {
     static displayName = 'EntityForm';
 
@@ -22,23 +21,22 @@ export default class EntityForm extends Component {
             for (let name of formItemNames) {
                 fieldValue[name] = object[name];
             }
-            this.props.form.setFieldsValue(fieldValue)
+            this.props.form.setFieldsValue(fieldValue);
         }
     }
 
     buildBasicSectionField = () => {
         const fields = this.props.fields;
-        const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {span: 6},
             wrapperCol: {span: 18},
         };
         let children = [];
         for (let f of fields) {
-            let field = new Field(f);
+            let field = new Field(f, this.props.form);
             if (field.basicFlag && field.displayFlag && field.name != "objectRrn") {
                 children.push(<Col span={12} key={field.objectRrn}>
-                    {field.buildFormItem(getFieldDecorator, formItemLayout, this.state.editFlag)}
+                    {field.buildFormItem(formItemLayout, this.state.editFlag)}
                 </Col>);
             }
         }
@@ -48,17 +46,14 @@ export default class EntityForm extends Component {
     buildTabs = () => {
         const tabs = this.props.tabs;
         const tabPanels = [];
-
-        const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {span: 6},
             wrapperCol: {span: 18},
         };
-
         if (Array.isArray(tabs)) {
             tabs.forEach((tab) => {
                 let tabPanel = new Tab(tab);
-                tabPanels.push(tabPanel.buildTab(getFieldDecorator, formItemLayout, this.props.object));
+                tabPanels.push(tabPanel.buildTab(this.props.form, formItemLayout, this.props.object));
             }) 
         }
         return (<Tabs>
@@ -84,7 +79,6 @@ export default class EntityForm extends Component {
                 {getFieldDecorator('objectRrn')(<Input type='hidden'/>)}
                 {this.buildBasicSection()}
                 {this.buildTabs()}
-                
             </Form>)
     }
 

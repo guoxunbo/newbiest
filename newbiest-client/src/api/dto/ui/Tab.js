@@ -66,10 +66,10 @@ export default class Tab {
         if (TabType.Field == this.tabType) {
             const fields = this.fields;
             for (let f of fields) {
-                let field = new Field(f);
+                let field = new Field(f, form);
                 if (!field.basicFlag && field.displayFlag && field.name != "objectRrn") {
                     children.push(<Col span={12} key={field.objectRrn}>
-                        {field.buildFormItem(form, formLayout, true)}
+                        {field.buildFormItem(formLayout, true)}
                     </Col>);
                 }
             }

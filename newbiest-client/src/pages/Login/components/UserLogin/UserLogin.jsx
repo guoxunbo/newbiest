@@ -81,6 +81,9 @@ export default class UserLogin extends Component {
   };
 
   render() {
+    const orgField = {
+      refTableName : RefTableName.NBOrg
+    }
     return (
       <div style={styles.userLogin} className="user-login">
         <div
@@ -141,7 +144,7 @@ export default class UserLogin extends Component {
                       style={styles.selectIcon}
                     />
                     <IceFormBinder name="org" required message="必填">
-                      <RefTableField refTableName={RefTableName.NBOrg} style={styles.formSelect} placeholder="区域"/>
+                      <RefTableField field = {orgField} style={styles.formSelect} placeholder="区域"/>
                     </IceFormBinder>
                   </Col>
                   <Col>

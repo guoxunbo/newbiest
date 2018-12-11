@@ -1,10 +1,12 @@
 package com.newbiest.base.utils;
 
+import com.google.common.collect.Maps;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * StringUtils类单元测试
@@ -50,6 +52,24 @@ public class StringUtilsTest {
         Iterable<String> iterable = StringUtils.split(splitterStr, ",");
         List splitList = Lists.newArrayList(iterable);
 
+    }
+
+    @Test
+    public void getWhereClauseParameter() {
+        String whereClause = "name = :name and age=:age";
+        List<String> parameters = StringUtils.getWhereClauseParameter(whereClause);
+        Assert.assertEquals(2, parameters.size());
+        Assert.assertEquals("[name, age]", parameters.toString());
+    }
+
+    @Test
+    public void parseWhereClause() {
+        String whereClause = "name = :name and age=:age";
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("name","zhangsan");
+        map.put("age", 10);
+        String clause = StringUtils.parseWhereClause(whereClause, map);
+        Assert.assertEquals("name = 'zhangsan' and age='10'", clause);
     }
 
     @Test

@@ -6,6 +6,8 @@ import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * Created by guoxunbo on 2018/7/26.
  */
@@ -16,5 +18,12 @@ public class RefTableRequestBody extends RequestBody {
     private String actionType;
 
     private NBReferenceTable referenceTable;
+
+    /**
+     * 有whereClause的时候需要传递的数据比如
+     * name, "张三"
+     * age, 15
+     */
+    private Map<String, Object> parameters;
 
 }

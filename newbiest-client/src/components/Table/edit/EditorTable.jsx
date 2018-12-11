@@ -1,4 +1,4 @@
-import { Table, Input, InputNumber, Popconfirm, Form } from 'antd';
+import { Table, Popconfirm, Form } from 'antd';
 import * as PropTypes from 'prop-types';
 import TableManagerRequestBody from '../../../api/table-manager/TableManagerRequestBody';
 import TableManagerRequestHeader from '../../../api/table-manager/TableManagerRequestHeader';
@@ -7,8 +7,7 @@ import {UrlConstant} from '../../../api/const/ConstDefine'
 import MessageUtils from '../../../api/utils/MessageUtils';
 import Field from '../../../api/dto/ui/Field';
 import '../ListTable.scss';
-
-const FormItem = Form.Item;
+import {Application} from '../../../api/Application';
 const EditableContext = React.createContext();
 
 const EditableRow = ({ form, index, ...props }) => (
@@ -20,12 +19,6 @@ const EditableRow = ({ form, index, ...props }) => (
 const EditableFormRow = Form.create()(EditableRow);
 
 class EditableCell extends React.Component {
-  getInput = () => {
-    if (this.props.inputType === 'number') {
-      return <InputNumber />;
-    }
-    return <Input />;
-  };
   render() {
     const {
       editing,
@@ -34,25 +27,19 @@ class EditableCell extends React.Component {
       inputType,
       record,
       index,
+      field,
       ...restProps
     } = this.props;
     return (
       <EditableContext.Consumer>
         {(form) => {
-          const { getFieldDecorator } = form;
+          let formItem =null;
+          if (editing) {
+            formItem = field.buildTableFormItem(record, form);
+          }
           return (
             <td {...restProps}>
-              {editing ? (
-                <FormItem style={{ margin: 0 }}>
-                  {getFieldDecorator(dataIndex, {
-                    rules: [{
-                      required: true,
-                      message: `Please Input ${title}!`,
-                    }],
-                    initialValue: record[dataIndex],
-                  })(this.getInput())}
-                </FormItem>
-              ) : restProps.children}
+              {editing ? formItem : restProps.children}
             </td>
           );
         }}
@@ -93,7 +80,6 @@ export default class EditableTable extends React.Component {
           scrollX: columnData.scrollX,
           rowClassName: (record, index) => self.getRowClassName(record, index),
         });
-        console.log("_" +  columnData.scrollX);
       }
     }
     MessageUtils.sendRequest(requestObject);
@@ -102,17 +88,20 @@ export default class EditableTable extends React.Component {
   buildColumn = (fields) => {
     let columns = [];
     let scrollX = 0;
+    console.log(this.props.form);
     for (let field of fields) {
-        let f  = new Field(field);
+        let f  = new Field(field, this.props.form);
         let column = f.buildColumn();
         if (column != null) {
           // 如果可以编辑
           if (f.editable) {
             column.editable = true;     
           }
+          column.field = f;
           columns.push(column);
           scrollX += column.width;
         }
+        
     }
     if (this.props.editFlag) {
       let oprationColumn = this.buildOperationColumn();
@@ -130,6 +119,7 @@ export default class EditableTable extends React.Component {
         editable: false,
         title: 'operation',
         dataIndex: 'operation',
+        field: {},
         render: (text, record) => {
             const editable = this.isEditing(record);
             return (
@@ -140,7 +130,7 @@ export default class EditableTable extends React.Component {
                       {form => (
                         <a
                           href="javascript:;"
-                          onClick={() => this.save(form, record.key)}
+                          onClick={() => this.save(form, record.objectRrn)}
                           style={{ marginRight: 8 }}
                         >
                           Save
@@ -149,13 +139,13 @@ export default class EditableTable extends React.Component {
                     </EditableContext.Consumer>
                     <Popconfirm
                       title="Sure to cancel?"
-                      onConfirm={() => this.cancel(record.key)}
+                      onConfirm={() => this.cancel(record.objectRrn)}
                     >
                       <a>Cancel</a>
                     </Popconfirm>
                   </span>
                 ) : (
-                  <a onClick={() => this.edit(record.key)}>Edit</a>
+                  <a onClick={() => this.edit(record.objectRrn)}>Edit</a>
                 )}
               </div>
             );
@@ -165,11 +155,11 @@ export default class EditableTable extends React.Component {
   }
 
   isEditing = (record) => {
-    return record.key === this.state.editingKey;
+    return record.objectRrn === this.state.editingKey;
   };
 
-  edit(key) {
-    this.setState({ editingKey: key });
+  edit(objectRrn) {
+    this.setState({ editingKey: objectRrn });
   }
 
   save(form, key) {
@@ -177,6 +167,8 @@ export default class EditableTable extends React.Component {
       if (error) {
         return;
       }
+      //TODO 保存 暂时不实现
+      console.log(row);
     });
   }
 
@@ -214,6 +206,7 @@ export default class EditableTable extends React.Component {
           dataIndex: col.dataIndex,
           title: col.title,
           editing: this.isEditing(record),
+          field: col.field
         }),
       };
     });
@@ -222,6 +215,7 @@ export default class EditableTable extends React.Component {
         rowKey={"objectRrn"}
         components={components}
         bordered
+        pagination={Application.table.pagination}
         dataSource={tableData}
         columns={columns}
         scroll = {{ x: scrollX, y: 350 }}
