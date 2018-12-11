@@ -20,6 +20,7 @@
     "bizcharts": "latest",
     "classnames": "^2.2.5",
     "enquire-js": "^0.1.2",
+    "events": "^3.0.0",
     "foundation-symbol": "^0.1.0",
     "install": "^0.12.2",
     "jquery": "^3.3.1",
