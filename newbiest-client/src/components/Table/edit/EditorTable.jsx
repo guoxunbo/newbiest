@@ -1,13 +1,20 @@
-import { Table, Popconfirm, Form } from 'antd';
+import { Table, Popconfirm, Button, Form } from 'antd';
 import * as PropTypes from 'prop-types';
 import TableManagerRequestBody from '../../../api/table-manager/TableManagerRequestBody';
 import TableManagerRequestHeader from '../../../api/table-manager/TableManagerRequestHeader';
 import Request from '../../../api/Request';
-import {UrlConstant} from '../../../api/const/ConstDefine'
+import {UrlConstant, DefaultRowKey} from '../../../api/const/ConstDefine'
 import MessageUtils from '../../../api/utils/MessageUtils';
 import Field from '../../../api/dto/ui/Field';
 import '../ListTable.scss';
 import {Application} from '../../../api/Application';
+import TableObject from '../../../api/dto/ui/Table';
+import PropertyUtils from '../../../api/utils/PropertyUtils';
+import uuid from 'react-native-uuid';
+import EntityManagerRequest from '../../../api/entity-manager/EntityManagerRequest'; 
+import I18NUtils from '../../../api/utils/I18NUtils';
+import { i18NCode } from '../../../api/const/i18n';
+
 const EditableContext = React.createContext();
 
 const EditableRow = ({ form, index, ...props }) => (
@@ -52,6 +59,8 @@ export default class EditableTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      table:{},
+      tableData:[],
       editingKey: '', 
       columns:[], 
       scrollX: undefined,
@@ -88,7 +97,6 @@ export default class EditableTable extends React.Component {
   buildColumn = (fields) => {
     let columns = [];
     let scrollX = 0;
-    console.log(this.props.form);
     for (let field of fields) {
         let f  = new Field(field, this.props.form);
         let column = f.buildColumn();
@@ -128,24 +136,21 @@ export default class EditableTable extends React.Component {
                   <span>
                     <EditableContext.Consumer>
                       {form => (
-                        <a
-                          href="javascript:;"
-                          onClick={() => this.save(form, record.objectRrn)}
-                          style={{ marginRight: 8 }}
-                        >
-                          Save
-                        </a>
+                        <Button style={{marginRight:8}} icon="save" 
+                          onClick={() => this.save(form, record)} size="small" href="javascript:;"></Button>
                       )}
                     </EditableContext.Consumer>
-                    <Popconfirm
-                      title="Sure to cancel?"
-                      onConfirm={() => this.cancel(record.objectRrn)}
-                    >
-                      <a>Cancel</a>
+                    <Popconfirm title={I18NUtils.getClientMessage(i18NCode.ConfirmCancel)} onConfirm={() => this.cancel(record.objectRrn)}>
+                      <Button style={{marginRight:8}} icon="close-circle" size="small" href="javascript:;"></Button>
                     </Popconfirm>
                   </span>
                 ) : (
-                  <a onClick={() => this.edit(record.objectRrn)}>Edit</a>
+                  <div>
+                    <Button style={{marginRight:'1px'}} icon="edit" onClick={() => this.edit(record)} size="small" href="javascript:;"></Button>
+                    <Popconfirm title={I18NUtils.getClientMessage(i18NCode.ConfirmDelete)} onConfirm={() => this.handleDelete(record)}>
+                      <Button icon="delete" size="small" type="danger"></Button>
+                    </Popconfirm>
+                  </div>    
                 )}
               </div>
             );
@@ -158,17 +163,39 @@ export default class EditableTable extends React.Component {
     return record.objectRrn === this.state.editingKey;
   };
 
-  edit(objectRrn) {
-    this.setState({ editingKey: objectRrn });
+  edit(record) {
+    this.setState({ editingKey: record.objectRrn });
   }
 
-  save(form, key) {
-    form.validateFields((error, row) => {
+  /**
+   * 保存一行数据
+   * @param form 表单
+   * @param rowData 当前行数据
+   */
+  save(form, rowData) {
+    form.validateFields((error, record) => {
       if (error) {
         return;
       }
-      //TODO 保存 暂时不实现
-      console.log(row);
+      PropertyUtils.copyNoIncludePropertyValue(record, rowData);
+      let self = this;
+      let { tableData, table } = this.state;
+
+      let object = {
+        modelClass : table.modelClass,
+        values: record,
+        success: function(responseBody) {
+          let responseData = responseBody.data;
+          let dataIndex = tableData.indexOf(rowData);
+          tableData.splice(dataIndex, 1, responseData);
+          self.setState({
+            tableData: tableData,
+            editingKey: ""
+          }) 
+          MessageUtils.showOperationSuccess();
+        }
+      }
+      EntityManagerRequest.sendMergeRequest(object);
     });
   }
 
@@ -183,6 +210,56 @@ export default class EditableTable extends React.Component {
         return ''; 
     }
   };
+
+  handleAdd = () => {
+    const { tableData, table } = this.state;
+    // 新建的时候如果有栏位是来源于父值的话，对其进行赋值
+    const newData = TableObject.buildDefaultModel(table.fields, this.props.parentObject);
+    newData[DefaultRowKey] = uuid.v1();
+    newData["newFlag"] = true;
+
+    this.setState({
+      tableData: [...tableData, newData],
+      editingKey: newData.objectRrn,
+    });
+  }
+
+  handleDelete = (record) => {
+    let {tableData, table } = this.state;
+    let self = this;
+    let dataIndex = tableData.indexOf(record);
+    // 如果是新增的数据，没做过保存直接删除
+    if (record.newFlag) {
+      tableData.splice(dataIndex, 1);
+      this.setState({
+        tableData: tableData,
+        editingKey: ""
+      });
+    } else {
+      // 调用后台删除
+      let object = {
+        modelClass : table.modelClass,
+        values: record,
+        success: function(responseBody) {
+          tableData.splice(dataIndex, 1);
+          self.setState({
+            tableData: tableData,
+            editingKey: ""
+          }) 
+          MessageUtils.showOperationSuccess();
+        }
+      }
+      EntityManagerRequest.sendDeleteRequest(object);
+    }
+  }
+
+  createButtonGroup = () => {
+    return (
+      <div>
+          <Button style={{marginRight:'1px', marginLeft:'10px'}} icon="plus" onClick={() => this.handleAdd()} size="small" href="javascript:;">添加</Button>
+      </div>
+     );
+  }
 
   render() {
     const {tableData, scrollX, rowClassName} = this.state;
@@ -211,16 +288,19 @@ export default class EditableTable extends React.Component {
       };
     });
     return (
-      <Table
-        rowKey={"objectRrn"}
-        components={components}
-        bordered
-        pagination={Application.table.pagination}
-        dataSource={tableData}
-        columns={columns}
-        scroll = {{ x: scrollX, y: 350 }}
-        rowClassName={rowClassName.bind(this)}
-      />
+      <div>
+        {(this.props.editFlag && !this.props.newFlag) ? this.createButtonGroup() : ''};
+        <Table
+          rowKey={DefaultRowKey}
+          components={components}
+          bordered
+          pagination={Application.table.pagination}
+          dataSource={tableData}
+          columns={columns}
+          scroll = {{ x: scrollX, y: 350 }}
+          rowClassName={rowClassName.bind(this)}
+        />
+      </div>
     );
   }
 }
@@ -228,5 +308,7 @@ export default class EditableTable extends React.Component {
 EditableTable.prototypes = {
     refTableName: PropTypes.string,
     editFlag: PropTypes.bool,
-    whereClause: PropTypes.string
+    whereClause: PropTypes.string,
+    newFlag: PropTypes.bool,
+    parentObject: PropTypes.object,
 }

@@ -12,14 +12,38 @@ import { headerMenuConfig } from './../menuConfig';
 import Logo from './Logo';
 import {Notification} from './notice/Notice';
 import {SessionContext} from '../api/Application';
+import { Form } from 'antd';
+// import ChangePwdForm from './Form/ChangePwdForm';
+import MessageUtils from '../api/utils/MessageUtils';
+import ChangePwdForm from './Form/ChangePwdForm';
 
 @withRouter
 export default class Header extends PureComponent {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+        changePwdVisiable: false,
+    };
+  }
 
   logout= (e) => {
     SessionContext.clearSessionContext();
   }
   
+  changePassword = (e) => {
+    e.preventDefault();
+    this.setState({changePwdVisiable: true})
+  } 
+  
+  canelChangePwd = () => {
+    this.setState({changePwdVisiable: false})
+  }
+  
+  changePwdOk = () => {
+    MessageUtils.showOperationSuccess();
+    this.setState({changePwdVisiable: false})
+  }
   render() {
     let sessionContext = SessionContext.getSessionContext();
     if (sessionContext == undefined) {
@@ -27,8 +51,10 @@ export default class Header extends PureComponent {
       this.props.history.push('/');
     }
     const { width, theme, isMobile, className, style } = this.props;
+    const WrappedChangePwdForm = Form.create()(ChangePwdForm);
 
     return (
+      <div>
       <Layout.Header
         theme={theme}
         className={cx('ice-design-layout-header', className)}
@@ -123,6 +149,11 @@ export default class Header extends PureComponent {
                 </Link>
               </li>
               <li className="user-profile-menu-item">
+                <Link to="/" onClick={this.changePassword}>
+                  <FoundationSymbol type="lock" size="small" />修改密码
+                </Link>
+              </li>
+              <li className="user-profile-menu-item">
                 <Link to="/">
                   <FoundationSymbol type="repair" size="small" />设置
                 </Link>
@@ -136,6 +167,9 @@ export default class Header extends PureComponent {
           </Balloon>
         </div>
       </Layout.Header>
+      <WrappedChangePwdForm ref={this.formRef} onOk={this.changePwdOk} onCancel={this.canelChangePwd} visible={this.state.changePwdVisiable} />
+      </div>
+      
     );
   }
 }

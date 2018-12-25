@@ -32,7 +32,6 @@ export default class Combox extends Component {
         EventUtils.getEventEmitter().on(EventUtils.getEventNames.ComboxValueChanged, (sender, value) => {
             this.valueChanged(sender, value);
         });
-        console.log(this._select);
     }
 
     componentWillReceiveProps(nextProps) {

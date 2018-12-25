@@ -48,7 +48,7 @@ public class UserController extends AbstractRestController {
         NBUser user = null;
 
         if (UserRequest.ACTION_CREATE.equals(actionType)) {
-            securityService.saveUser(requestUser, sc);
+            user = securityService.saveUser(requestUser, sc);
         } else if (UserRequest.ACTION_LOGIN.equals(actionType)) {
             user = securityService.login(requestUser.getUsername(), requestUser.getPassword(), sc);
             servletResponse.setHeader(AUTHORITY_HEAD_NAME, user.getToken());
@@ -70,6 +70,7 @@ public class UserController extends AbstractRestController {
                 user = securityService.saveUser(user, sc);
             } else if (UserRequest.ACTION_CHANGE_PASSWORD.equals(actionType)) {
                 requestUser.setNewPassword(EncryptionUtils.md5Hex(requestUser.getNewPassword()));
+                requestUser.setPassword(EncryptionUtils.md5Hex(requestUser.getPassword()));
                 user = securityService.changePassword(user, requestUser.getPassword(), requestUser.getNewPassword(), sc);
             } else if (UserRequest.ACTION_GET_AUTHORITY.equals(actionType)) {
                 List<NBAuthority> authorityList = securityService.getAuthorities(user.getObjectRrn());
@@ -78,9 +79,6 @@ public class UserController extends AbstractRestController {
                 user = securityService.resetPassword(user, sc);
             } else if (UserRequest.ACTION_GET_BY_RRN.equals(actionType)) {
                 user = securityService.getDeepUser(user.getObjectRrn(), true);
-            } else if (UserRequest.ACTION_DELETE.equals(actionType)) {
-                securityService.deleteUser(user);
-                user = null;
             } else {
                 throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
             }

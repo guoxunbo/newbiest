@@ -7,6 +7,8 @@ import ListTableManager from './pages/ListTableManager';
 import HeaderAsideFooterResponsiveLayout from './layouts/HeaderAsideFooterResponsiveLayout';
 
 import NotFound from './pages/NotFound';
+import EntityProperties from './pages/Properties';
+import UserProperties from './pages/Properties/components/userProperties/UserProperties';
 
 const routerConfig = [
   {
@@ -25,17 +27,17 @@ const routerConfig = [
     component: ListTableManager,
   },
   {
+    path: 'Security/DynamicTable/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: UserProperties,
+  },
+  {
     path: 'System/DynamicTab/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
     component: ListTableManager,
   },
   {
     path: 'System/DynamicField/:tableRrn',
-    layout: HeaderAsideFooterResponsiveLayout,
-    component: ListTableManager,
-  },
-  {
-    path: '/ListTableManager',
     layout: HeaderAsideFooterResponsiveLayout,
     component: ListTableManager,
   },

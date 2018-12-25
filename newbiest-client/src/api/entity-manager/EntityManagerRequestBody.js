@@ -36,9 +36,7 @@ export default class EntityManagerRequestBody {
     }
 
     static buildDeleteEntity(entityModel, entity, deleteRelationEntityFlag) {
-        if (deleteRelationEntityFlag) {
-            deleteRelationEntityFlag = true;
-        } else {
+        if (deleteRelationEntityFlag == undefined) {
             deleteRelationEntityFlag = false;
         }
         return new EntityManagerRequestBody(ActionType.Delete, entityModel, entity, deleteRelationEntityFlag);

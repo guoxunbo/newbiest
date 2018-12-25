@@ -24,11 +24,12 @@ export default class Table{
     
     /**
      * 在新建的时候创建默认值
+     * 
      */
-    static buildDefaultModel(fields) {
+    static buildDefaultModel(fields, parentObject) {
         let object = {};
         if (Array.isArray(fields)) {
-            fields.map((field) => {
+            fields.forEach(field => {
                 let value = field.defaultValue;
                 if ("radio" == field.displayType) {
                     value = false;
@@ -36,8 +37,16 @@ export default class Table{
                         value = true;
                     } 
                 }
+                // 从父对象上取值
+                if (field.fromParent && field.referenceRule != undefined && parentObject != undefined) {
+                    if (parentObject.hasOwnProperty(field.referenceRule)) {
+                        value = parentObject[field.referenceRule];
+                    } else {
+                        console.warn("ParentObject doesnt have property [" + field.referenceRule + "]")
+                    }
+                }
                 object[field.name] = value;
-            })
+            });
         }
         return object;
     }

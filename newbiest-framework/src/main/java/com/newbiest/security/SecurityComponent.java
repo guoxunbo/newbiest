@@ -10,17 +10,21 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 /**
- * Created by guoxunbo on 2017/10/14.
+ * Created by guoxunbo on 2018/12/25.
  */
 @Component
-public class HistoryManagerBean {
+public class SecurityComponent {
 
     @PostConstruct
     public void init() {
+        // 注册历史相关
         ModelFactory.registerHistoryModelClassLoader(NBUser.class.getName(), NBUserHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(NBUser.class.getName(), NBUserHis.class.getName());
 
         ModelFactory.registerHistoryModelClassLoader(NBRole.class.getName(), NBUserHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(NBRole.class.getName(), NBRoleHis.class.getName());
+
+        // 注册modelClass
+        ModelFactory.registerModelClassLoader(NBUser.class.getName(), NBUser.class.getClassLoader());
     }
 }

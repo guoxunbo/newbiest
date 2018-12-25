@@ -1,4 +1,5 @@
 import { SessionContext } from "./Application";
+import uuid from 'react-native-uuid';
 
 export default class RequestHeader{  
 
@@ -12,7 +13,7 @@ export default class RequestHeader{
     constructor(messageName){  
         let sessionContext = SessionContext.getSessionContext();
         this.messageName = messageName;
-        this.transactionId = this.generatorUUID();
+        this.transactionId = uuid.v4();
         if (sessionContext != undefined) {
             this.orgRrn = sessionContext.orgRrn;
             this.userName = sessionContext.userName;
@@ -20,12 +21,4 @@ export default class RequestHeader{
         } 
     }
 
-    generatorUUID = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        }).toUpperCase();
-
-    }
 }  

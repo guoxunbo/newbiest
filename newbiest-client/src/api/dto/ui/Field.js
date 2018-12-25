@@ -45,7 +45,8 @@ export default class Field {
     queryFlag;
     mainFlag;
     basicFlag;
-    
+    fromParent;
+
     objectRrn;
     name;
     label;
@@ -57,7 +58,7 @@ export default class Field {
     defaultValue;
     tabRrn;
     displayLength;
-
+    referenceRule;
 
     //验证栏位
     readonlyFlag;
@@ -74,8 +75,8 @@ export default class Field {
 
     /**
      * 构造方法
-     * @param {*} field 后台NBField类对应的实例化对象
-     * @param {*} form form表单 
+     * @param field 后台NBField类对应的实例化对象
+     * @param form form表单 
      */
     constructor(field, form) {
         this.objectRrn = field.objectRrn;
@@ -96,6 +97,8 @@ export default class Field {
         this.defaultValue = field.defaultValue;
         this.displayLength = field.displayLength;
         this.tabRrn = field.tabRrn;
+        this.referenceRule = field.referenceRule;
+        this.fromParent = field.fromParent;
 
         this.title = this.buildTitle();
         this.basicFlag = field.basicFlag;

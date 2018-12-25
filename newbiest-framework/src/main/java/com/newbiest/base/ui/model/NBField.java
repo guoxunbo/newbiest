@@ -89,7 +89,7 @@ public class NBField extends NBBase {
     private String refListName;
 
     /**
-     * 栏位的参考规则
+     * 栏位的参考规则 比如user.name
      */
     @Column(name="REFERENCE_RULE")
     private String referenceRule;
@@ -173,7 +173,8 @@ public class NBField extends NBBase {
     private String upperFlag;
 
     /**
-     * 从父对象上取值 父对象必须为对象的field栏位中体现如user.name
+     * 从父对象上取值
+     * 设置了此值之后必须设置referenceRule为父对象的哪个栏位比如objectRrn
      */
     @Column(name = "FROM_PARENT")
     private String fromParent;

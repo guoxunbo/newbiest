@@ -168,33 +168,33 @@ public class SecurityServiceImpl implements SecurityService  {
                 nbUserHis.setTransType(NBHis.TRANS_TYPE_UPDATE);
                 userHistoryRepository.save(nbUserHis);
             } else {
-                NBUser newUser = new NBUser();
-                newUser.setUsername(nbUser.getUsername());
                 // 如果没设置密码。则生成随机的6位数
                 if (StringUtils.isNullOrEmpty(nbUser.getPassword())) {
-                    newUser.setPassword(EncryptionUtils.md5Hex(getPassword()));
+                    nbUser.setPassword(getPassword());
                 }
-                // 对密码进行加密
-                newUser.setDescription(nbUser.getDescription());
-                newUser.setDepartment(nbUser.getDepartment());
-                newUser.setEmail(nbUser.getEmail());
-                newUser.setPhone(nbUser.getPhone());
-                newUser.setSex(nbUser.getSex());
+                nbUser.setPassword(EncryptionUtils.md5Hex(nbUser.getPassword()));
+
                 // 第一次登录是否需要修改密码
                 if (newbiestConfiguration.getFirstLoginChangePwd()) {
-                    newUser.setInValidFlag(false);
+                    nbUser.setInValidFlag(false);
                 } else {
-                    newUser.setInValidFlag(true);
+                    nbUser.setInValidFlag(true);
                 }
-                if (newbiestConfiguration.getPwdLife() != 0) {
-                    newUser.setPwdLife(newbiestConfiguration.getPwdLife());
+                if (nbUser.getPwdLife() == null) {
+                    if (newbiestConfiguration.getPwdLife() != 0) {
+                        nbUser.setPwdLife(newbiestConfiguration.getPwdLife());
+                    }
+                }
+
+                if (nbUser.getPwdLife() != null) {
                     Date pwdExpiry = DateUtils.plus(new Date(), nbUser.getPwdLife().intValue(), ChronoUnit.DAYS);
-                    newUser.setPwdExpiry(pwdExpiry);
+                    nbUser.setPwdExpiry(pwdExpiry);
                 }
-                newUser.setOrgRrn(sc.getOrgRrn());
-                newUser.setCreatedBy(sc.getUsername());
-                newUser.setUpdatedBy(sc.getUsername());
-                nbUser = userRepository.saveAndFlush(newUser);
+
+                nbUser.setOrgRrn(sc.getOrgRrn());
+                nbUser.setCreatedBy(sc.getUsername());
+                nbUser.setUpdatedBy(sc.getUsername());
+                nbUser = userRepository.saveAndFlush(nbUser);
 
                 NBUserHis nbUserHis = new NBUserHis(nbUser, sc);
                 nbUserHis.setTransType(NBHis.TRANS_TYPE_CRAETE);

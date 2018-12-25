@@ -48,6 +48,9 @@ export default class EntityListCheckTable extends EntityListTable {
             }
         }
         scrollX += Application.table.checkBox.width;
+        let operationColumn = this.buildOperationColumn();
+        scrollX += operationColumn.width;
+        columns.push(operationColumn);
         return {
             columns: columns,
             scrollX: scrollX

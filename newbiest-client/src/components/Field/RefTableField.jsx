@@ -34,9 +34,8 @@ export default class RefTableField extends Combox {
                 self.setState({
                     data: data,
                 });
-                console.log(self._select);
                 if (parameters) {
-                    // 清除初始值
+                    //TODO 清除初始值
                     // self._select.props["defaultValue"] = "";
                     // self.props.form.resetFields("tabRrn");
                     // self.handleChange("");
@@ -56,7 +55,7 @@ export default class RefTableField extends Combox {
 
     valueChanged = (sender, value) => {
         let senderField = sender.props.field;
-        if (senderField instanceof RefTableField) {
+        if (sender instanceof RefTableField) {
             let refTable = this.refTable;
             if (refTable && refTable.whereClause) {
                 let whereClause = refTable.whereClause;
@@ -67,7 +66,7 @@ export default class RefTableField extends Combox {
                 // 替换之后之后如果还有:存在 则不进行queryData 
                 if (whereClause.indexOf(":") == -1) { 
                     let parameters = {};
-                    parameters[refTableField.name] = value;
+                    parameters[senderField.name] = value;
                     this.queryData(parameters);
                 }
             }

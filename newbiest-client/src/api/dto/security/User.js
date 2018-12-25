@@ -1,12 +1,33 @@
 export default class User {
     objectRrn;
     username;
+    description;
+    sex;
+    email;
     password;
+    phone;
     department;
+    pwdChanged;
+    pwdLife;
+    pwdExpiry;
+    
+    newPassword;
     orgRrn;
 
-    constructor() {
-
+    constructor(user) {
+        if (user) {
+            this.objectRrn = user.objectRrn;
+            this.username = user.username;
+            this.description = user.description;
+            this.sex = user.sex;
+            this.email = user.email;
+            this.password = user.password;
+            this.phone = user.phone;
+            this.department = user.department;
+            this.pwdChanged = user.pwdChanged;
+            this.pwdLife = user.pwdLife;
+            this.pwdExpiry = user.pwdExpiry;
+        }
     }
 
     setUsername(username) {
@@ -25,6 +46,10 @@ export default class User {
         this.orgRrn = orgRrn;
     }
 
+    setNewPassword(newPassword) {
+        this.newPassword = newPassword;
+    }
+    
     static buildLoginUser(username, password) {
         let user = new User();
         user.setUsername(username);

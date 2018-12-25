@@ -3,13 +3,21 @@ import { Modal, Form, Input, Row, Col, Tabs } from 'antd';
 import * as PropTypes from 'prop-types';
 import Field from '../../api/dto/ui/Field';
 import Tab from '../../api/dto/ui/Tab';
+import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest';
+import I18NUtils from '../../api/utils/I18NUtils';
+import { i18NCode } from '../../api/const/i18n';
+
 export default class EntityForm extends Component {
     static displayName = 'EntityForm';
 
     constructor(props) {
         super(props);
+        let editFlag = false;
+        if (this.props.object && this.props.object.objectRrn) {
+            editFlag = true;
+        }
         this.state = {
-            editFlag : this.props.object.objectRrn ? true : false
+            editFlag : editFlag
         };
     }  
 
@@ -26,7 +34,7 @@ export default class EntityForm extends Component {
     }
 
     buildBasicSectionField = () => {
-        const fields = this.props.fields;
+        const fields = this.props.table.fields;
         const formItemLayout = {
             labelCol: {span: 6},
             wrapperCol: {span: 18},
@@ -44,7 +52,7 @@ export default class EntityForm extends Component {
     }
 
     buildTabs = () => {
-        const tabs = this.props.tabs;
+        const tabs = this.props.table.tabs;
         const tabPanels = [];
         const formItemLayout = {
             labelCol: {span: 6},
@@ -64,12 +72,37 @@ export default class EntityForm extends Component {
     buildBasicSection =() => {
         return (
             <div>
-                <h2 className="section-title">基础信息</h2>
+                <h2 className="section-title">{I18NUtils.getClientMessage(i18NCode.BasicInfo)}</h2>
                 <Row gutter={16}>
                     {this.buildBasicSectionField()}
                 </Row>
             </div>
         )
+    }
+
+    handleOk = (e) => {
+        const form = this.props.form;
+        form.validateFields((err, values) => {
+            if (err) {
+                return;
+            }
+            this.handleSave(values);
+        });
+    }
+
+    handleSave = (values) => {
+        var self = this;
+        // 默认处理的saveEntity
+        let object = {
+            modelClass: this.props.table.modelClass,
+            values: values,
+            success: function(responseBody) {
+                if (self.props.onOk) {
+                    self.props.onOk(responseBody.data);
+                }
+            }
+        };
+        EntityManagerRequest.sendMergeRequest(object);
     }
 
     buildForm = () =>  {
@@ -85,8 +118,9 @@ export default class EntityForm extends Component {
     render() {
         return (
             <div>
-                <Modal width={1040} centered title="编辑" object={this.props.object} visible={this.props.visible} confirmLoading={this.props.confirmLoading}
-                    onOk={this.props.onOk} onCancel={this.props.onCancel}>
+                <Modal width={1040} centered title="编辑" object={this.props.object} visible={this.props.visible} 
+                    onOk={this.handleOk} onCancel={this.props.onCancel} okText={I18NUtils.getClientMessage(i18NCode.Ok)} 
+                    cancelText={I18NUtils.getClientMessage(i18NCode.Cancel)}>
                     {this.buildForm()}
                 </Modal>
             </div>
@@ -99,8 +133,6 @@ EntityForm.propTypes={
     object: PropTypes.object,
     onCancel: PropTypes.func,
     onOk: PropTypes.func,
-    confirmLoading: PropTypes.bool,
-    fields: PropTypes.array,
-    tabs: PropTypes.array
+    table: PropTypes.object
 }
 

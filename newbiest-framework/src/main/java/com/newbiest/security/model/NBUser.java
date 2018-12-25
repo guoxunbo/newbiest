@@ -91,7 +91,6 @@ public class NBUser extends NBUpdatable {
     @Transient
     private String token;
 
-
     public Boolean getInValidFlag() {
         return "Y".equalsIgnoreCase(inValidFlag);
     }
