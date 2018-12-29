@@ -15,11 +15,14 @@
     <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>newbiest-framework</module>
-        <module>newbiest-rms</module>
+        <module>newbiest-starter</module>
         <module>newbiest-dist</module>
+        <!--
+        <module>newbiest-rms</module>
         <module>newbiest-common-context</module>
         <module>newbiest-common-idgenerator</module>
         <module>newbiest-common-workflow</module>
+        -->
     </modules>
     <packaging>pom</packaging>
 

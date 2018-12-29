@@ -18,7 +18,7 @@ public interface SecurityService {
     NBUser getUserByObjectRrn(Long userRrn) throws ClientException;
     NBUser getUserByUsername(String username) throws ClientException;
 
-    List<NBAuthority> getAuthorities(Long userRrn) throws ClientException;
+    List<NBAuthority> getTreeAuthoritiesByUser(Long userRrn) throws ClientException;
     NBUser saveUser(NBUser nbUser, SessionContext sc) throws ClientException;
     NBUser changePassword(NBUser user, String oldPassword, String newPassword, SessionContext sc) throws ClientException;
     NBUser resetPassword(NBUser nbUser, SessionContext sc) throws ClientException;
@@ -31,4 +31,7 @@ public interface SecurityService {
     NBRole getRoleByRoleId(String roleId) throws ClientException;
     NBRole getDeepRole(Long roleRrn, boolean authorityFlag, SessionContext sc) throws ClientException;
     void deleteRole(NBRole nbRole) throws ClientException;
+
+    //Authority相关
+    List<NBAuthority> getTreeAuthorities() throws ClientException;
 }

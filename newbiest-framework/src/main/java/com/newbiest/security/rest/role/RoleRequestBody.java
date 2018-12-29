@@ -14,6 +14,6 @@ public class RoleRequestBody extends RequestBody {
 	
 	private String actionType;
 
-	private NBRole nbRole;
+	private NBRole role;
 
 }

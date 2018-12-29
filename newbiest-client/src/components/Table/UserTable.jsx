@@ -10,6 +10,8 @@ import {Form} from 'antd';
 
 export default class UserTable extends EntityListCheckTable {
 
+    static displayName = 'UserTable';
+
     constructor(props) {
         super(props);
     }
@@ -21,7 +23,6 @@ export default class UserTable extends EntityListCheckTable {
     }
 
     resetPassword = () => {
-        UserManagerRequest
         const {selectedRows} = this.state;
         if (selectedRows) {
             if (selectedRows.length != 1) {
@@ -41,10 +42,10 @@ export default class UserTable extends EntityListCheckTable {
     createButtonGroup = () => {
         // 当前未知super.createButtonGroup()这么调用会报错。未知原因。故此处copy代码
         let buttons = [];
-        buttons.push(<Button key="add" type="primary" style={styles.tableButton} icon="plus" onClick={() => this.handleAdd()}>新增</Button>);
-        buttons.push(<Button key="import" type="primary" style={styles.tableButton} icon="file-add" onClick={() => this.handleAdd()}>导入</Button>);
-        buttons.push(<Button key="export" type="primary" style={styles.tableButton} icon="export" onClick={() => this.handleAdd()}>导出</Button>);
-        buttons.push(<Button key="resetPwd" type="primary" style={styles.tableButton} icon="export" onClick={() => this.resetPassword()}>重置密码</Button>);
+        buttons.push(<Button key="add" type="primary" style={styles.tableButton} icon="plus" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnAdd)}</Button>);
+        buttons.push(<Button key="import" type="primary" style={styles.tableButton} icon="file-add" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnImp)}</Button>);
+        buttons.push(<Button key="export" type="primary" style={styles.tableButton} icon="export" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnExp)}</Button>);
+        buttons.push(<Button key="resetPwd" type="primary" style={styles.tableButton} icon="lock" onClick={() => this.resetPassword()}>{I18NUtils.getClientMessage(i18NCode.BtnResetPassword)}</Button>);
         return buttons;
     }
 

@@ -13,6 +13,19 @@ const i18NCode = {
     SelectAtLeastOneRow: "SelectAtLeastOneRow",
     ConfirmDelete: "ConfirmDelete",
     ConfirmCancel: "ConfirmCancel",
+    BtnAdd: "Add",
+    BtnImp: "Imp",
+    BtnExp: "Exp",
+    BtnResetPassword: "ResetPwd",
+    BtnDispatchUser: "DispatchUser",
+    BtnDispatchAuthority: "DispatchAuthority",
+    TransferItem: "Item",
+    TransferItems: "Items",
+    TransferNotFoundContent: "NotFoundContents",
+    TransferSearchPlaceholder: "SearchPlaceholder",
+    TransferSource: "Source",
+    TransferTarget: "Target",
+
 }
 
 const i18Messages = {
@@ -93,6 +106,66 @@ const i18Messages = {
     ConfirmCancel: {
         Chinese: "确定取消?",
         English: "Sure to cancel?",
+        Res: ""
+    },
+    Add: {
+        Chinese: "添加",
+        English: "Add",
+        Res: ""
+    },
+    Imp: {
+        Chinese: "导入",
+        English: "Import",
+        Res: ""
+    },
+    Exp: {
+        Chinese: "导出",
+        English: "Export",
+        Res: ""
+    },
+    ResetPwd: {
+        Chinese: "重置密码",
+        English: "ResetPwd",
+        Res: ""
+    },
+    DispatchUser: {
+        Chinese: "分配用户",
+        English: "DispUser",
+        Res: ""
+    },
+    DispatchAuthority: {
+        Chinese: "分配权限",
+        English: "DispAuthority",
+        Res: ""
+    },
+    Item: {
+        Chinese: "项",
+        English: "Item",
+        Res: ""
+    },
+    Items: {
+        Chinese: "项",
+        English: "Items",
+        Res: ""
+    },
+    NotFoundContents: {
+        Chinese: "列表为空",
+        English: "NotFoundContents",
+        Res: ""
+    },
+    SearchPlaceholder: {
+        Chinese: "请输入搜索内容",
+        English: "Search here",
+        Res: ""
+    },
+    Source: {
+        Chinese: "源",
+        English: "Source",
+        Res: ""
+    },
+    Target: {
+        Chinese: "目标",
+        English: "Target",
         Res: ""
     }
 }

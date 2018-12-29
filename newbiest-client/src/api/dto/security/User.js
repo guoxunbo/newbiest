@@ -30,6 +30,10 @@ export default class User {
         }
     }
 
+    setObjectRrn(objectRrn) {
+        this.objectRrn = objectRrn;
+    }
+    
     setUsername(username) {
         this.username = username;
     }

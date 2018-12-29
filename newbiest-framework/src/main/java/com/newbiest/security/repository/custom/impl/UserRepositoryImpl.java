@@ -1,6 +1,5 @@
 package com.newbiest.security.repository.custom.impl;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.annotation.MethodMonitor;
 import com.newbiest.base.exception.ClientException;
@@ -10,9 +9,9 @@ import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.main.MailService;
-import com.newbiest.security.model.*;
-import com.newbiest.security.repository.AuthorityRepository;
-import com.newbiest.security.repository.RoleRepository;
+import com.newbiest.security.model.NBOrg;
+import com.newbiest.security.model.NBUser;
+import com.newbiest.security.model.NBUserHis;
 import com.newbiest.security.repository.custom.UserRepositoryCustom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +21,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 用户操作相关类
@@ -39,12 +36,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     @Autowired
     private MailService mailService;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private AuthorityRepository authorityRepository;
 
     @Override
     public NBUser getDeepUser(Long userRrn, boolean orgFlag) throws ClientException {
@@ -61,50 +52,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                     user.setOrgs(orgs);
                 }
                 return user;
-            }
-            return null;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
-    /**
-     * 根据用户获取权限并按照树形结构返回 结构如下
-     *  基础设置
-     *      安全管理
-     *          用户管理
-     *          用户组管理
-     * @param userRrn 用户主键
-     * @return
-     */
-    public List<NBAuthority> getTreeAuthorities(long userRrn) throws ClientException {
-        try {
-            NBUser nbUser = getDeepUser(userRrn, false);
-            List<NBAuthority> authorities = Lists.newArrayList();
-            // 如果是admin用户的话代表拥有所有权限
-            if (NBUser.ADMIN_USER.equals(nbUser.getUsername())) {
-                authorities.addAll((Collection<? extends NBAuthority>) authorityRepository.findAll(nbUser.getOrgRrn()));
-            } else {
-                List<NBRole> roles = nbUser.getRoles();
-                if (CollectionUtils.isNotEmpty(roles)) {
-                    for (NBRole role : roles) {
-                        List<NBAuthority> roleAuthorities = roleRepository.getRoleAuthorities(role.getObjectRrn());
-                        if (CollectionUtils.isNotEmpty(roleAuthorities)) {
-                            authorities.addAll(roleAuthorities);
-                        }
-                    }
-                }
-            }
-            if (CollectionUtils.isNotEmpty(authorities)) {
-                // 取出父级菜单
-                List<NBAuthority> firstLevelAuthorities = authorities.stream().filter(nbAuthority -> nbAuthority.getParentRrn() == null).collect(Collectors.toList());
-                authorities.removeAll(firstLevelAuthorities);
-                // 组织树形结构
-                List<NBAuthority> nbAuthorities = firstLevelAuthorities.stream().map(authority -> {
-                     return authority.recursionAuthority(authority, authorities);
-                }).collect(Collectors.toList());
-                return nbAuthorities;
             }
             return null;
         } catch (Exception e) {

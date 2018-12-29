@@ -9,6 +9,7 @@ import HeaderAsideFooterResponsiveLayout from './layouts/HeaderAsideFooterRespon
 import NotFound from './pages/NotFound';
 import EntityProperties from './pages/Properties';
 import UserProperties from './pages/Properties/components/userProperties/UserProperties';
+import RoleProperties from './pages/Properties/components/RoleProperties';
 
 const routerConfig = [
   {
@@ -30,6 +31,11 @@ const routerConfig = [
     path: 'Security/DynamicTable/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
     component: UserProperties,
+  },
+  {
+    path: 'Security/RoleManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: RoleProperties,
   },
   {
     path: 'System/DynamicTab/:tableRrn',

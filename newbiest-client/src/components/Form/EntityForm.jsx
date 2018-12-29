@@ -118,8 +118,8 @@ export default class EntityForm extends Component {
     render() {
         return (
             <div>
-                <Modal width={1040} centered title="编辑" object={this.props.object} visible={this.props.visible} 
-                    onOk={this.handleOk} onCancel={this.props.onCancel} okText={I18NUtils.getClientMessage(i18NCode.Ok)} 
+                <Modal width={1040} centered title={I18NUtils.getClientMessage(i18NCode.Edit)} object={this.props.object} visible={this.props.visible} 
+                    maskClosable={false} onOk={this.handleOk} onCancel={this.props.onCancel} okText={I18NUtils.getClientMessage(i18NCode.Ok)} 
                     cancelText={I18NUtils.getClientMessage(i18NCode.Cancel)}>
                     {this.buildForm()}
                 </Modal>

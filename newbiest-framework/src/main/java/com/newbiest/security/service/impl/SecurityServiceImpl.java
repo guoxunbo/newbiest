@@ -1,20 +1,19 @@
 package com.newbiest.security.service.impl;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.model.NBHis;
-import com.newbiest.base.utils.DateUtils;
-import com.newbiest.base.utils.EncryptionUtils;
-import com.newbiest.base.utils.SessionContext;
-import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.*;
 import com.newbiest.main.JwtSigner;
 import com.newbiest.main.MailService;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.exception.SecurityException;
 import com.newbiest.security.model.*;
+import com.newbiest.security.repository.AuthorityRepository;
 import com.newbiest.security.repository.RoleRepository;
 import com.newbiest.security.repository.UserHistoryRepository;
 import com.newbiest.security.repository.UserRepository;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -44,6 +44,9 @@ public class SecurityServiceImpl implements SecurityService  {
 
     @Autowired
     RoleRepository roleRepository;
+
+    @Autowired
+    AuthorityRepository authorityRepository;
 
     @Autowired
     MailService mailService;
@@ -95,7 +98,7 @@ public class SecurityServiceImpl implements SecurityService  {
             userRepository.loginSuccess(nbUser);
 
             // 获取菜单权限
-            List<NBAuthority> authorities = getAuthorities(nbUser.getObjectRrn());
+            List<NBAuthority> authorities = getTreeAuthoritiesByUser(nbUser.getObjectRrn());
             nbUser.setAuthorities(authorities);
             // 生成jwtToken 后续存入redis
             String token = jwtSigner.sign(nbUser.getUsername());
@@ -110,14 +113,73 @@ public class SecurityServiceImpl implements SecurityService  {
     }
 
     /**
-     * 获取权限并转换成相应的DTO返回
-     * @param userRrn
+     * 获取菜单按照树形结构返回
      * @return
-     * @throws ClientException
      */
-    public List<NBAuthority> getAuthorities(Long userRrn) throws ClientException{
+    @Override
+    public List<NBAuthority> getTreeAuthorities() throws ClientException {
+        List<NBAuthority> authorities = (List<NBAuthority>) authorityRepository.findAll(NBOrg.GLOBAL_ORG_RRN);
+        return makeTreeAuthority(authorities);
+    }
+
+    /**
+     * 将菜单按照树形结构返回 结构如下
+     *  基础设置
+     *      安全管理
+     *          用户管理
+     *          用户组管理
+     *              添加
+     *              删除
+     * @return
+     */
+    private List<NBAuthority> makeTreeAuthority(List<NBAuthority> authorities) throws ClientException {
+        try{
+            if (CollectionUtils.isNotEmpty(authorities)) {
+                // 取出父级菜单
+                List<NBAuthority> firstLevelAuthorities = authorities.stream().filter(nbAuthority -> nbAuthority.getParentRrn() == null).collect(Collectors.toList());
+                authorities.removeAll(firstLevelAuthorities);
+
+                // 组织树形结构
+                List<NBAuthority> nbAuthorities = firstLevelAuthorities.stream().map(authority -> authority.recursionAuthority(authority, authorities)).collect(Collectors.toList());
+                return nbAuthorities;
+            }
+            return null;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 根据用户获取权限并按照树形结构返回 结构如下
+     *  基础设置
+     *      安全管理
+     *          用户管理
+     *          用户组管理
+     *              添加
+     *              删除
+     * @param userRrn 用户主键
+     * @return
+     */
+    public List<NBAuthority> getTreeAuthoritiesByUser(Long userRrn) throws ClientException{
         try {
-            return userRepository.getTreeAuthorities(userRrn);
+            NBUser nbUser = getDeepUser(userRrn, false);
+            List<NBAuthority> authorities = Lists.newArrayList();
+            // 如果是admin用户的话代表拥有所有权限
+            if (NBUser.ADMIN_USER.equals(nbUser.getUsername())) {
+                authorities.addAll((Collection<? extends NBAuthority>) authorityRepository.findAll(NBOrg.GLOBAL_ORG_RRN));
+            } else {
+                List<NBRole> roles = nbUser.getRoles();
+                if (CollectionUtils.isNotEmpty(roles)) {
+                    for (NBRole role : roles) {
+                        List<NBAuthority> roleAuthorities = roleRepository.getRoleAuthorities(role.getObjectRrn());
+                        if (CollectionUtils.isNotEmpty(roleAuthorities)) {
+                            authorities.addAll(roleAuthorities);
+                        }
+                    }
+                }
+            }
+            return makeTreeAuthority(authorities);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);

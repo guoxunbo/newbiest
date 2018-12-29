@@ -8,6 +8,7 @@ import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBRole;
+import com.newbiest.security.repository.AuthorityRepository;
 import com.newbiest.security.repository.custom.RoleRepositoryCustom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class RoleRepositoryImpl implements RoleRepositoryCustom {
     @Autowired
     @PersistenceContext
     private EntityManager em;
+
+    @Autowired
+    private AuthorityRepository authorityRepository;
 
     @Override
     public NBRole getDeepRole(Long roleRrn, boolean authorityFlag, SessionContext sc) throws ClientException {
@@ -58,8 +62,15 @@ public class RoleRepositoryImpl implements RoleRepositoryCustom {
             props.put(NBBase.LAZY_FETCH_PROP, graph);
             NBRole role = em.find(NBRole.class, roleRrn, props);
             List<NBAuthority> nbAuthorities = role.getAuthorities();
+
             if (CollectionUtils.isNotEmpty(nbAuthorities)) {
-                return nbAuthorities.stream().filter(authority -> authority.getActiveFlag()).collect(Collectors.toList());
+                return nbAuthorities.stream().filter(authority -> authority.getActiveFlag())
+                        .map(authority -> {
+                            // 各自找到自己的subAuthorities。这里一级即可。
+                            List<NBAuthority> subAuthorites = authorityRepository.findByParentRrn(authority.getObjectRrn());
+                            authority.setSubAuthorities(subAuthorites);
+                            return authority;
+                        }).collect(Collectors.toList());
             }
             return null;
         } catch (Exception e) {

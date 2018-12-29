@@ -13,6 +13,62 @@ import { SessionContext } from '../Application';
 export default class MessageUtils {
     
     /**
+     * 同时发送2个请求，并且都处理完毕一起返回
+     * 常用场景比如用户组获取用户和获取所有用户一起使用
+     * @param requestObject
+     * @example {requests: [request1, request2...], success:}
+     */
+    static sendTwoRequest(requestObject) {
+        let self = this;
+        let requests = requestObject.requests;
+        if (Array.isArray(requests)) {
+            let axioses = [];
+            requests.forEach((requestObject)=>{
+                let request = requestObject.request;
+                axioses.push(axios.post(request.url, request));
+            });
+            axios.all(axioses).then(axios.spread(function(responseValue1, responseValue2) {
+                // 处理2个reponse 都成功才回调Object.success
+                let response1 = new Response(responseValue1.data.header, responseValue1.data.body);
+                let response2 = new Response(responseValue2.data.header, responseValue2.data.body);
+                if (ResultIdentify.Fail == response1.header.result) {
+                    self.handleException(response1.header);
+                    return;
+                } 
+                if (ResultIdentify.Fail == response2.header.result) {
+                    self.handleException(response2.header);
+                    return;
+                } 
+                if (requestObject.success) {
+                    requestObject.success(response1.body, response2.body);
+                } else {
+                    this.showOperationSuccess();
+                }
+            })).catch(function(exception) {
+                self.handleException(exception);
+            });
+        } else {
+
+        }
+    }
+
+    /**
+     * 
+     */
+    judgeResponse(object, requestObject) {
+        let response = new Response(object.data.header, object.data.body);
+        if (ResultIdentify.Fail == response.header.result) {
+            this.handleException(response.header);
+        } else {
+            if (requestObject.success != undefined) {
+                requestObject.success(response.body);
+            } else {
+                this.showOperationSuccess();
+            }
+        }
+    }
+
+    /**
      * 发送异步请求
      */
     static sendRequest(requestObject) {

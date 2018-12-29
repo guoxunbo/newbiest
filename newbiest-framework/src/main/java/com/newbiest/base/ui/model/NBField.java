@@ -17,6 +17,7 @@ import javax.persistence.*;
 public class NBField extends NBBase {
     private static final long serialVersionUID = 2536500351356282982L;
 
+    public static final Long DEFAULT_DISPLAY_LENGTH = 200L;
 
     @Column(name="NAME")
     private String name;
@@ -40,7 +41,7 @@ public class NBField extends NBBase {
      * 就支持100 150 200 250 300这些宽度
      */
     @Column(name="DISPLAY_LENGTH")
-    private Long displayLength;
+    private Long displayLength = DEFAULT_DISPLAY_LENGTH;
 
     /**
      * 栏位的显示类型

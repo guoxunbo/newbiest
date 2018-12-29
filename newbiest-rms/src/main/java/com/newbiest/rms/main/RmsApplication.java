@@ -1,6 +1,5 @@
 package com.newbiest.rms.main;
 
-import com.newbiest.main.FrameworkApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +14,6 @@ import org.springframework.context.annotation.ComponentScan;
 public class RmsApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(FrameworkApplication.class, args);
+        SpringApplication.run(RmsApplication.class, args);
     }
 }

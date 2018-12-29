@@ -12,6 +12,6 @@ public class RoleResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 	
-	private NBRole nbRole;
+	private NBRole role;
 
 }

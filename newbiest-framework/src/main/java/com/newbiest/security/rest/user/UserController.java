@@ -73,7 +73,7 @@ public class UserController extends AbstractRestController {
                 requestUser.setPassword(EncryptionUtils.md5Hex(requestUser.getPassword()));
                 user = securityService.changePassword(user, requestUser.getPassword(), requestUser.getNewPassword(), sc);
             } else if (UserRequest.ACTION_GET_AUTHORITY.equals(actionType)) {
-                List<NBAuthority> authorityList = securityService.getAuthorities(user.getObjectRrn());
+                List<NBAuthority> authorityList = securityService.getTreeAuthoritiesByUser(user.getObjectRrn());
                 user.setAuthorities(authorityList);
             }  else if (UserRequest.ACTION_RESET_PASSWORD.equals(actionType)) {
                 user = securityService.resetPassword(user, sc);

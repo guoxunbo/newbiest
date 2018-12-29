@@ -10,6 +10,7 @@ import EntityListTable from '../../../../components/Table/EntityListTable';
 import WrappedAdvancedQueryForm from '../../../../components/Form/QueryForm';
 
 export default class EntityProperties extends Component {
+  
   static displayName = 'EntityProperties';
 
   constructor(props) {

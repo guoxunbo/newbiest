@@ -33,7 +33,7 @@ public class RoleController extends AbstractRestController {
 
     @ApiOperation(value = "对用户组做操作", notes = "支持DispatchUser, DispatchAuthority, DispatchAll等")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "RoleRequest")
-    @RequestMapping(value = "/handlerRole", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/roleManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public RoleResponse execute(@RequestBody RoleRequest request) throws Exception {
         log(log, request);
         SessionContext sc = getSessionContext(request);
@@ -44,7 +44,7 @@ public class RoleController extends AbstractRestController {
 
         RoleRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
-        NBRole requestRole = requestBody.getNbRole();
+        NBRole requestRole = requestBody.getRole();
         NBRole role = null;
 
         if (RoleRequest.ACTION_CREATE.equals(actionType)) {
@@ -94,7 +94,7 @@ public class RoleController extends AbstractRestController {
             }
         }
 
-        responseBody.setNbRole(role);
+        responseBody.setRole(role);
         response.setBody(responseBody);
         return response;
     }

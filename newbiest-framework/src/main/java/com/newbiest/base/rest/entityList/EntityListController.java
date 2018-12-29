@@ -41,7 +41,7 @@ public class EntityListController extends AbstractRestController {
 
     @ApiOperation(value = "对实体做列表查询")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "EntityListRequest")
-    @RequestMapping(value = "/getEntityList", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/entityListManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public EntityListResponse execute(@RequestBody EntityListRequest request) throws Exception {
         log(log, request);
         SessionContext sc = getSessionContext(request);

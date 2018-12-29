@@ -26,5 +26,7 @@ public class SecurityComponent {
 
         // 注册modelClass
         ModelFactory.registerModelClassLoader(NBUser.class.getName(), NBUser.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(NBRole.class.getName(), NBRole.class.getClassLoader());
+
     }
 }

@@ -91,9 +91,7 @@ public class NBAuthority extends NBBase{
     public NBAuthority recursionAuthority(NBAuthority parentAuthority, List<NBAuthority> authorities) {
         List<NBAuthority> subAuthorities = authorities.stream().filter(authority -> parentAuthority.getObjectRrn().equals(authority.getParentRrn())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(subAuthorities)) {
-            subAuthorities.stream().forEach(subAuthority -> {
-                subAuthority = recursionAuthority(subAuthority, authorities);
-            });
+            subAuthorities.stream().forEach(subAuthority -> recursionAuthority(subAuthority, authorities));
         }
         parentAuthority.setSubAuthorities(subAuthorities);
         return parentAuthority;

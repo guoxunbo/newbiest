@@ -11,7 +11,10 @@ const UrlConstant = {
     TableMangerUrl: ModuleUrlConstant.UI + "tableManage",
     RefListMangerUrl: ModuleUrlConstant.UI + "refListManage",    
     RefTableManagerUrl: ModuleUrlConstant.UI + "refTableManage",
-    EntityManagerUrl: ModuleUrlConstant.Framework + "entityManage"
+    EntityManagerUrl: ModuleUrlConstant.Framework + "entityManage",
+    RoleManagerUrl: ModuleUrlConstant.Security + "roleManage",
+    EntityListManagerUrl: ModuleUrlConstant.Framework + "entityListManage",
+    AuthorityManagerUrl: ModuleUrlConstant.Security + "authorityManage",
 };
 
 const SystemRefListName = {

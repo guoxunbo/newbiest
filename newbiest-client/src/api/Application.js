@@ -5,7 +5,11 @@ const Application = {
         name: "© 2018 By Newbiest",
         url: "https://www.baidu.com"
     },
-
+    dispatchForm: {
+        modalWidth: 800,
+        width: 350,
+        height: 400
+    },
     table: {
         oprationColumn: {
             width: 200
