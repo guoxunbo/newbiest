@@ -68,11 +68,17 @@ export default class EntityListTable extends Component {
     }
     
     getRowClassName = (record, index) => {
-        if(index % 2 ===0) {
-            return 'even-row'; 
+        const {selectedRows} = this.state;
+        if (selectedRows.indexOf(record) >= 0) {
+            return 'selected-row';
         } else {
-            return ''; 
+            if(index % 2 ===0) {
+                return 'even-row'; 
+            } else {
+                return ''; 
+            }
         }
+        
     };
 
     buildColumn = (fields) => {
@@ -204,9 +210,28 @@ export default class EntityListTable extends Component {
         return  <WrappedAdvancedEntityForm ref={this.formRef} object={this.state.editorObject} visible={this.state.formVisible} 
                                             table={this.state.table} onOk={this.refresh} onCancel={this.handleCancel} />
     }
+    
+    /**
+     * 行点击事件
+     */
+    selectRow = (record) => {
+        let selectedRows = [];
+        selectedRows.push(record);
+        this.setState({
+            selectedRows: selectedRows
+        });
+    }
+
+    /**
+     * 默认的table框的选择框属性 此处不实现。
+     */
+    getRowSelection = (selectedRowKeys) => {
+
+    }
 
     render() {
-        const {data, columns, rowClassName, rowSelection, scrollX} = this.state;
+        const {data, columns, rowClassName, selectedRowKeys, scrollX} = this.state;
+        const rowSelection = this.getRowSelection(selectedRowKeys);
         return (
           <div >
             <div style={styles.buttonGroup}>
@@ -225,6 +250,11 @@ export default class EntityListTable extends Component {
                     loading = {this.props.loading}
                     rowClassName = {rowClassName.bind(this)}
                     rowSelection = {rowSelection}
+                    onRow={(record) => ({
+                        onClick: () => {
+                            this.selectRow(record);
+                        },
+                    })}
                 >
                 </Table>
             </div>

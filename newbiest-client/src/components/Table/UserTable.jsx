@@ -1,4 +1,3 @@
-import EntityListCheckTable from "./EntityListCheckTable";
 import {Button} from 'antd';
 import UserManagerRequest from '../../api/user-manager/UserManagerRequest';
 import MessageUtils from "../../api/utils/MessageUtils";
@@ -7,8 +6,9 @@ import I18NUtils from "../../api/utils/I18NUtils";
 import { i18NCode } from "../../api/const/i18n";
 import UserForm from "../Form/UserForm";
 import {Form} from 'antd';
+import EntityListTable from "./EntityListTable";
 
-export default class UserTable extends EntityListCheckTable {
+export default class UserTable extends EntityListTable {
 
     static displayName = 'UserTable';
 
