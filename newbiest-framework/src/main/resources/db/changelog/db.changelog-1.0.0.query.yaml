@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: Init-NB_QUERY-Table_1.0.0
+      author: Xunbo Guo
+      comment: Init Table to NB_QUERY
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/NB_QUERY-1.0.0.sql

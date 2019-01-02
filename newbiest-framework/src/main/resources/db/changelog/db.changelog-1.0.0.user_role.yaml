@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: Init-NB_USER_ROLE-Table_1.0.0
+      author: Xunbo Guo
+      comment: Init Table to NB_USER_ROLE
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/NB_USER_ROLE-1.0.0.sql

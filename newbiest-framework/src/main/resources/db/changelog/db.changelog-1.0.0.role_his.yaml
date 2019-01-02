@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: Init-NB_ROLE_HIS-Table_1.0.0
+      author: Xunbo Guo
+      comment: Init Table to NB_ROLE_HIS
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/NB_ROLE_HIS-1.0.0.sql

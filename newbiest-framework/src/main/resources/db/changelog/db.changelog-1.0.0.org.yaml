@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: Init-NB_ORG-Table_1.0.0
+      author: Xunbo Guo
+      comment: Init Table to NB_ORG
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/NB_ORG-1.0.0.sql

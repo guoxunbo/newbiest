@@ -88,14 +88,6 @@ spring:
         max-wait: -1
     # 连接超时时间 单位毫秒
     timeout: 30000
-  #数据库版本管理VisualVM Launcher
-  liquibase:
-    #changelog所在的位置。
-    change-log: classpath:db/changelog/db.changelog-master.yaml
-    #是否启动liqubase
-    enabled: true
-    #每次都是否把表删除在处理
-    drop-first: false
 #设置server的基本信息
 server:
   servlet:

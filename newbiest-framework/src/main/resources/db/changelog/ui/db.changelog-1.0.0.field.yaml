@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: Init-NB_FIELD-Table_1.0.0
+      author: Xunbo Guo
+      comment: Init Table to NB_FIELD
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/NB_FIELD-1.0.0.sql
