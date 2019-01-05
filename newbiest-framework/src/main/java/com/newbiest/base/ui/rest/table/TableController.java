@@ -4,17 +4,16 @@ import com.newbiest.base.model.NBBase;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
+import com.newbiest.base.utils.ExcelUtils;
 import com.newbiest.base.utils.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -67,5 +66,13 @@ public class TableController extends AbstractRestController {
         return response;
     }
 
+    @ApiOperation(value = "导出模板", notes = "根据table上栏位的exportFlag来导出模板")
+    @ApiImplicitParam(name="tableRrn", value="tableRrn", required = true, dataType = "Long")
+    @RequestMapping(value = "/expTemplate", method = RequestMethod.POST)
+    public void execute(@RequestBody TableRequest request, HttpServletResponse servletResponse) throws Exception {
+        NBTable nbTable = uiService.getDeepNBTable(request.getBody().getTable().getObjectRrn());
+        servletResponse.setHeader("content-Type", "application/vnd.ms-excel;charset=utf-8");
+        ExcelUtils.exportTemplateByTable(nbTable, request.getHeader().getLanguage(), servletResponse.getOutputStream());
+    }
 
 }

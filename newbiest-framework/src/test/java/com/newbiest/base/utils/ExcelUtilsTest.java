@@ -84,68 +84,45 @@ public class ExcelUtilsTest {
 
     @Test
     public void exportExcelByNBTable() {
-        // 模拟数据
-        NBTable nbTable = new NBTable();
-
-        List<NBField> nbFields = Lists.newArrayList();
-        NBField nbField = new NBField();
-        nbField.setName("name");
-        nbField.setLabelZh("名字");
-        nbField.setSeqNo(10L);
-        nbField.setExportFlag(true);
-        nbFields.add(nbField);
-
-        nbField = new NBField();
-        nbField.setName("age");
-        nbField.setLabelZh("年龄");
-        nbField.setExportFlag(true);
-        nbField.setSeqNo(20L);
-        nbFields.add(nbField);
-
-        nbField = new NBField();
-        nbField.setName("job");
-        nbField.setLabelZh("工作");
-        nbField.setExportFlag(true);
-        nbField.setSeqNo(40L);
-        nbFields.add(nbField);
-
-        nbField = new NBField();
-        nbField.setName("birthDay");
-        nbField.setLabelZh("出生日期");
-        nbField.setExportFlag(true);
-        nbField.setSeqNo(30L);
-        nbFields.add(nbField);
-
-        nbField = new NBField();
-        nbField.setName("birthDay");
-        nbField.setLabelZh("出生日期");
-        nbField.setExportFlag(false);
-        nbField.setSeqNo(50L);
-        nbFields.add(nbField);
-
-        nbFields = nbFields.stream().filter(nbField1 -> nbField1.getExportFlag()).sorted(Comparator.comparing(NBField :: getSeqNo)).collect(Collectors.toList());
-
-        Map<String, String> map = Maps.newLinkedHashMap();
-        for (NBField nbField1: nbFields) {
-            map.put(nbField1.getName(), nbField1.getLabelZh());
-        }
-
-        List<People> list = Lists.newArrayList();
-        People people = new People();
-        people.setName("张三");
-        people.setAge(10);
-        people.setBirthDay(new Date());
-        list.add(people);
-
-        people = new People();
-        people.setName("李四");
-        people.setAge(11);
-        people.setBirthDay(new Date());
-        list.add(people);
         try {
-            File file = new File("test3.xlsx");
+            // 模拟数据
+            NBTable nbTable = new NBTable();
+
+            List<NBField> nbFields = Lists.newArrayList();
+            NBField nbField = new NBField();
+            nbField.setName("name");
+            nbField.setLabelZh("名字");
+            nbField.setSeqNo(10L);
+            nbField.setExportFlag(true);
+            nbField.setRequiredFlag(true);
+            nbFields.add(nbField);
+
+            nbField = new NBField();
+            nbField.setName("age");
+            nbField.setLabelZh("年龄");
+            nbField.setExportFlag(true);
+            nbField.setSeqNo(20L);
+            nbFields.add(nbField);
+
+            nbField = new NBField();
+            nbField.setName("birthDay");
+            nbField.setLabelZh("出生日期");
+            nbField.setExportFlag(true);
+            nbField.setSeqNo(30L);
+            nbFields.add(nbField);
+
+            nbField = new NBField();
+            nbField.setName("job");
+            nbField.setLabelZh("工作");
+            nbField.setExportFlag(true);
+            nbField.setSeqNo(40L);
+            nbFields.add(nbField);
+
+            nbTable.setFields(nbFields);
+
+            File file = new File("test3.xls");
             OutputStream out = new FileOutputStream(file);
-            ExcelUtils.exportExcel(map, list, out, "YYYY/MM/dd");
+            ExcelUtils.exportTemplateByTable(nbTable, "", out);
         } catch (Exception e) {
             e.printStackTrace();
         }

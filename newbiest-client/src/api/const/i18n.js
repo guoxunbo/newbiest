@@ -16,6 +16,8 @@ const i18NCode = {
     BtnAdd: "Add",
     BtnImp: "Imp",
     BtnExp: "Exp",
+    BtnExpData: "ExpData",
+    BtnExpTemplate: "ExpTemplate",
     BtnResetPassword: "ResetPwd",
     BtnDispatchUser: "DispatchUser",
     BtnDispatchAuthority: "DispatchAuthority",
@@ -121,6 +123,16 @@ const i18Messages = {
     Exp: {
         Chinese: "导出",
         English: "Export",
+        Res: ""
+    },
+    ExpData: {
+        Chinese: "导出数据",
+        English: "ExpData",
+        Res: ""
+    },
+    ExpTemplate: {
+        Chinese: "导出模板",
+        English: "ExpTemplate",
         Res: ""
     },
     ResetPwd: {

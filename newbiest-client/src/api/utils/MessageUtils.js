@@ -53,19 +53,32 @@ export default class MessageUtils {
     }
 
     /**
-     * 
+     * 发送导出数据请求比如导出excel 具体类型由contnt-type决定
+     * 因为导出的时候不要返回体的。只需返回字节流即可
+     * @param requestObject {url:"", request:{param1, param2},}
+     * @param fileName 文件名字
      */
-    judgeResponse(object, requestObject) {
-        let response = new Response(object.data.header, object.data.body);
-        if (ResultIdentify.Fail == response.header.result) {
-            this.handleException(response.header);
-        } else {
-            if (requestObject.success != undefined) {
-                requestObject.success(response.body);
-            } else {
-                this.showOperationSuccess();
-            }
-        }
+    static sendExpRequest(requestObject, fileName) {
+        let self = this;
+        let request = requestObject.request;
+        axios.post(request.url, request, {
+            responseType: 'blob'
+        }).then(function(object) {
+            let type = object.headers['content-type'];
+
+            let blob = new Blob([object.data], { type: type}); 
+            let elink = document.createElement('a');
+            elink.download = fileName;
+            elink.style.display = 'none';
+            elink.href = URL.createObjectURL(blob);
+            document.body.appendChild(elink);
+            elink.click();
+            document.body.removeChild(elink);
+
+            self.showOperationSuccess();
+        }).catch(function(exception) {
+            self.handleException(exception);
+        }); 
     }
 
     /**

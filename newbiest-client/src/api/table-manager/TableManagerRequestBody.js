@@ -3,7 +3,9 @@ import Table from "../dto/ui/Table"
 const ActionType = {
     GetByRrn: "GetByRrn",
     GetData: "GetData",
+    ExpTemplate: "ExpTemplate"
 }
+
 export default class TableManagerRequestBody {
 
     actionType;
@@ -27,11 +29,17 @@ export default class TableManagerRequestBody {
         return new TableManagerRequestBody(ActionType.GetData, table);
     }
 
-    static buildGetData(objectRrn, whereClause) {
+    static buildGetDataByRrn(objectRrn, whereClause) {
         let table = new Table();
         table.setObjectRrn(objectRrn);
         table.setWhereClause(whereClause);
         return new TableManagerRequestBody(ActionType.GetData, table);
     }
-   
+    
+    static buildExpTemplate(objectRrn) {
+        let table = new Table();
+        table.setObjectRrn(objectRrn);
+        return new TableManagerRequestBody(ActionType.ExpTemplate, table);
+    }
+
 }

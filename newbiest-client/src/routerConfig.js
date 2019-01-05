@@ -3,7 +3,6 @@ import Home from './pages/Home';
 import BlankLayout from './layouts/BlankLayout';
 import Login from './pages/Login';
 
-import ListTableManager from './pages/ListTableManager';
 import HeaderAsideFooterResponsiveLayout from './layouts/HeaderAsideFooterResponsiveLayout';
 
 import NotFound from './pages/NotFound';
@@ -25,7 +24,7 @@ const routerConfig = [
   {
     path: 'System/DynamicTable/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
-    component: ListTableManager,
+    component: EntityProperties,
   },
   {
     path: 'Security/DynamicTable/:tableRrn',
@@ -40,12 +39,12 @@ const routerConfig = [
   {
     path: 'System/DynamicTab/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
-    component: ListTableManager,
+    component: EntityProperties,
   },
   {
     path: 'System/DynamicField/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
-    component: ListTableManager,
+    component: EntityProperties,
   },
   {
     path: '*',

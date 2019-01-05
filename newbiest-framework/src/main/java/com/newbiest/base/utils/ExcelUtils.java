@@ -3,15 +3,22 @@ package com.newbiest.base.utils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.annotation.Export;
+import com.newbiest.base.model.NBBase;
+import com.newbiest.base.ui.model.NBField;
+import com.newbiest.base.ui.model.NBTable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 导入导出excel的正常操作 支持从bean直接导出 支持从map上导出Map<propertyName, value>
@@ -252,7 +259,7 @@ public class ExcelUtils {
      */
     public static void exportExcel(Map<String, String> headers, Collection data, OutputStream outputStream) throws Exception {
         try {
-            exportExcel(headers, data, outputStream, null);
+            exportExcel(headers, data, outputStream, StringUtils.EMPTY);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw e;
@@ -272,16 +279,76 @@ public class ExcelUtils {
         try {
             HSSFWorkbook workbook = new HSSFWorkbook();
             HSSFSheet sheet = workbook.createSheet();
-
-            if (CollectionUtils.isNotEmpty(data)) {
-                write2Sheet(sheet, headers, data, pattern);
-            }
+            write2Sheet(sheet, headers, data, pattern);
             workbook.write(outputStream);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw e;
         }
 
+    }
+
+    /**
+     * 根据nbtable上的栏位的是否导出标志来导出模板
+     * @param nbTable 动态表
+     * @param language 语言
+     * @return
+     * @throws Exception
+     */
+    public static void exportTemplateByTable(NBTable nbTable, String language, OutputStream out) throws Exception {
+        Map<String, String> headerMap = buildHeaderByTable(nbTable, language);
+        exportExcel(headerMap, Lists.newArrayList(), out);
+    }
+
+    /**
+     * 根据nbtable上的栏位的是否导出标志来生成表头
+     * @param nbTable 动态表
+     * @param language 语言
+     * @return
+     * @throws Exception
+     */
+    public static Map<String, String> buildHeaderByTable(NBTable nbTable, String language) throws Exception {
+        try {
+            Map<String, String> headerMap = Maps.newLinkedHashMap();
+            List<NBField> fields = nbTable.getFields();
+            if (StringUtils.isNullOrEmpty(language)) {
+                language = NBBase.LANGUAGE_CHINESE;
+            }
+            if (CollectionUtils.isNotEmpty(fields)) {
+                fields = fields.stream().filter(field -> field.getExportFlag()).sorted(Comparator.comparing(NBField :: getSeqNo)).collect(Collectors.toList());
+                for (NBField field : fields) {
+                    String value = field.getLabelZh();
+                    if (NBBase.LANGUAGE_ENGLISH.equals(language)) {
+                        value = field.getLabel();
+                    }
+                    if (field.getRequiredFlag()) {
+                        value += "*";
+                    }
+                    headerMap.put(field.getName(), value);
+                }
+            }
+            return headerMap;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
+     * 表头加粗 如果包含了*号则进行标红
+     * @param sheet
+     * @param text
+     * @return
+     */
+    public static HSSFCellStyle buildHeaderHssfCellStyle(HSSFSheet sheet, String text) {
+        HSSFCellStyle headerStyle = sheet.getWorkbook().createCellStyle();
+        HSSFFont hssfFont = sheet.getWorkbook().createFont();
+        hssfFont.setBold(true);
+        if (text.indexOf('*') != -1) {
+            hssfFont.setColor(HSSFFont.COLOR_RED);
+        }
+        headerStyle.setFont(hssfFont);
+        return headerStyle;
     }
 
     /**
@@ -305,33 +372,30 @@ public class ExcelUtils {
             // 记录当前栏位在什么位置
             Map<String, Integer> headerIndexMap = Maps.newHashMap();
             int cellNum = 0;
-            // 列头的Style 加粗
-            HSSFCellStyle headerStyle = sheet.getWorkbook().createCellStyle();
-            HSSFFont hssfFont = sheet.getWorkbook().createFont();
-            hssfFont.setBold(true);
-            headerStyle.setFont(hssfFont);
-
             for (String key : headers.keySet()) {
                 HSSFCell cell = hssfRow.createCell(cellNum);
-                HSSFRichTextString text = new HSSFRichTextString(headers.get(key));
+                String header = headers.get(key);
+                HSSFRichTextString text = new HSSFRichTextString(header);
                 cell.setCellValue(text);
-                cell.setCellStyle(headerStyle);
+                cell.setCellStyle(buildHeaderHssfCellStyle(sheet, header));
                 headerIndexMap.put(key, cellNum);
                 cellNum++;
             }
 
             index++;
-            // 填充数据 从标题行下一行开始
-            for(Object object : data) {
-                hssfRow = sheet.createRow(index);
-                // 从map中获取列位置进行填充
-                List<SortingField> sortingFields = getSortingFields(object, headerIndexMap);
-                for (SortingField sortingField : sortingFields) {
-                    cellNum = headerIndexMap.get(sortingField.getName());
-                    HSSFCell cell = hssfRow.createCell(cellNum);
-                    setCellValue(cell, sortingField.getValue(), pattern);
+            if (CollectionUtils.isNotEmpty(data)) {
+                // 填充数据 从标题行下一行开始
+                for(Object object : data) {
+                    hssfRow = sheet.createRow(index);
+                    // 从map中获取列位置进行填充
+                    List<SortingField> sortingFields = getSortingFields(object, headerIndexMap);
+                    for (SortingField sortingField : sortingFields) {
+                        cellNum = headerIndexMap.get(sortingField.getName());
+                        HSSFCell cell = hssfRow.createCell(cellNum);
+                        setCellValue(cell, sortingField.getValue(), pattern);
+                    }
+                    index++;
                 }
-                index++;
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

@@ -33,6 +33,9 @@ public class NBBase implements Serializable, Cloneable {
      */
     public static final String LAZY_FETCH_PROP = "javax.persistence.fetchgraph";
 
+    public static final String LANGUAGE_CHINESE = "Chinese";
+    public static final String LANGUAGE_ENGLISH = "English";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="OBJECT_RRN")

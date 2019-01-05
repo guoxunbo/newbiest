@@ -17,5 +17,6 @@ public class TableRequestBody extends RequestBody {
     @ApiModelProperty(example = "菜单的主键")
     private Long authorityRrn;
 
+    @ApiModelProperty(example = "动态表")
     private NBTable table;
 }

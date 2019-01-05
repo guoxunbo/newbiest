@@ -23,7 +23,6 @@ public class NBReferenceList extends NBBase{
     public static final String CATEGORY_OWNER = "Owner";
     public static final String CATEGORY_SYSTEM = "System";
 
-
     @Column(name = "REFERENCE_NAME")
     private String referenceName;
 

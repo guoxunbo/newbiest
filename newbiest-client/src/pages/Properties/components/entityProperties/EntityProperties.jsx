@@ -29,7 +29,7 @@ export default class EntityProperties extends Component {
 
   getTableData = (whereClause) => {
     const self = this;
-    let requestBody = TableManagerRequestBody.buildGetData(this.state.tableRrn, whereClause);
+    let requestBody = TableManagerRequestBody.buildGetDataByRrn(this.state.tableRrn, whereClause);
     let requestHeader = new TableManagerRequestHeader();
     let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
     let requestObject = {
@@ -56,7 +56,7 @@ export default class EntityProperties extends Component {
 
   render() {
     return (
-      <div className="list-table-manager-page">
+      <div className="properties-page">
         <div className="router-body">
           <WrappedAdvancedQueryForm tableRrn={this.state.tableRrn} onSearch={this.handleSearch.bind(this)} />
           {this.buildTable()}

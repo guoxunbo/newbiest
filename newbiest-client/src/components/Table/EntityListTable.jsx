@@ -1,6 +1,6 @@
 import  React, { Component } from 'react';
 
-import { Table, Popconfirm, Button,Form } from 'antd';
+import { Table, Popconfirm, Button,Form, Dropdown, Menu, Icon } from 'antd';
 import './ListTable.scss';
 import {Application} from '../../api/Application'
 import {DefaultRowKey} from '../../api/const/ConstDefine'
@@ -13,7 +13,12 @@ import $ from 'jquery';
 import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest';
 import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
+import TableManagerRequest from '../../api/table-manager/TableManagerRequest';
 
+const ExpMenuKey = {
+    exportTemplate: "exportTemplate",
+    exportData: "exportData"
+}
 /**
  * 基本表格。每一行都带有编辑和删除的列
  */
@@ -194,14 +199,43 @@ export default class EntityListTable extends Component {
         this.form = form;
     };
 
+    handleExpMenuClick({ key }) {
+        const {table} = this.state;
+        if (ExpMenuKey.exportTemplate === key) {
+            let object = {
+                tableRrn: table.objectRrn,
+                fileName: table.name + ".xls",
+            }
+            TableManagerRequest.sendExpTemplate(object);
+        } else if (ExpMenuKey.exportData === key) {
+            //TODO 处理导出
+        }
+    }
+
     /**
      * 创建btn组。不同的table对button的组合要求不一样时。可以重载其方法做处理
      */
     createButtonGroup = () => {
+        const exportMenu = (
+            <Menu onClick={this.handleExpMenuClick.bind(this)}>
+              <Menu.Item key={ExpMenuKey.exportData}>
+                <Icon type="database" /> {I18NUtils.getClientMessage(i18NCode.BtnExpData)}
+              </Menu.Item>
+              <Menu.Item key={ExpMenuKey.exportTemplate}>
+                <Icon type="file-excel" />{I18NUtils.getClientMessage(i18NCode.BtnExpTemplate)}
+              </Menu.Item>
+            </Menu>
+        );
+
         let buttons = [];
         buttons.push(<Button key="add" type="primary" style={styles.tableButton} icon="plus" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnAdd)}</Button>);
         buttons.push(<Button key="import" type="primary" style={styles.tableButton} icon="file-add" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnImp)}</Button>);
-        buttons.push(<Button key="export" type="primary" style={styles.tableButton} icon="export" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnExp)}</Button>);
+        
+        buttons.push(<Dropdown key="export" overlay={exportMenu}>
+                        <Button type="primary" style={styles.tableButton} icon="export" >
+                            {I18NUtils.getClientMessage(i18NCode.BtnExp)} <Icon type="down" />
+                        </Button>
+                    </Dropdown>);
         return buttons;
     }
 

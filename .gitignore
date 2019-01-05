@@ -11,3 +11,11 @@ newbiest-amazon/*
 *.log
 
 *.zip
+
+newbiest-admin-server/.mvn/wrapper/maven-wrapper.jar
+
+newbiest-admin-server/.mvn/wrapper/maven-wrapper.properties
+
+newbiest-admin-server/mvnw
+
+newbiest-admin-server/mvnw.cmd

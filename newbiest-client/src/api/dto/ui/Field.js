@@ -187,6 +187,7 @@ export default class Field {
             return <RefListField referenceName={this.refListName} owner disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.referenceTable) {
             return <RefTableField field={this} form={this.form} disabled={this.disabled}/>
+            // return <RefTableField field={this} form={this.form} disabled={this.disabled} style={{width: "160px"}}/>
         } else if (this.displayType == DisplayType.radio) {
             return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled}/>
         }

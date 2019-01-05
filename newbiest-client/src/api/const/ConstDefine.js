@@ -9,6 +9,7 @@ const ModuleUrlConstant = {
 const UrlConstant = {
     UserManagerUrl: ModuleUrlConstant.Security + "userManage",
     TableMangerUrl: ModuleUrlConstant.UI + "tableManage",
+    ExpTemplateUrl: ModuleUrlConstant.UI + "expTemplate",
     RefListMangerUrl: ModuleUrlConstant.UI + "refListManage",    
     RefTableManagerUrl: ModuleUrlConstant.UI + "refTableManage",
     EntityManagerUrl: ModuleUrlConstant.Framework + "entityManage",

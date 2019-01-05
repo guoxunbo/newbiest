@@ -27,4 +27,7 @@ public class RequestHeader implements Serializable {
 	@ApiModelProperty(value = "请求操作的用户名", required = true)
 	private String username;
 
+	@ApiModelProperty(value = "语言", required = true)
+	private String language;
+
 }

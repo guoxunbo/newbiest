@@ -100,17 +100,16 @@ class QueryForm extends Component {
     }
 
     getFields = (queryFields) => {
-        const count = 10;
         const children = [];
-        // const { getFieldDecorator } = this.props.form;
         let colSpan = queryFields.length >= 3 ? 8 : 24 / queryFields.length - 2 ;
-        if(queryFields.length === 1){
+        if(queryFields.length === 1) {
             colSpan = 16
         }
+        console.log(colSpan);
         for (let i in queryFields) {
           let field = queryFields[i];
           children.push(
-            <Col span={colSpan} key={i} style={{ display: i < count ? 'block' : 'none' }}>
+            <Col span={colSpan} key={i}>
               {field.buildFormItem(undefined, false, true)}
             </Col>
           );
@@ -123,14 +122,12 @@ class QueryForm extends Component {
         if (Array.isArray(queryFields) && queryFields.length > 0) {
             return (
                 <div style={styles.tableFilter}>
-                   
-                    <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
+                    <Form className="ant-advanced-search-form" >
                         <Row gutter={24} style={{display:'inline-block'}}>{queryFields}
-                        {queryFields.length > 1 ?<Button type="primary" className="search-button ant-col-3" htmlType="submit">查找</Button> :
-                        <Button type="primary" className="search-button ant-col-6" htmlType="submit">查找</Button> }
+                        {queryFields.length > 1 ? <Button type="primary" className="search-button ant-col-3" onClick={this.handleSearch}>查找</Button> :
+                        <Button type="primary" className="search-button ant-col-6" onClick={this.handleSearch}>查找</Button> }
                         </Row>
                     </Form>
-                 
                 </div>);
         } else {
             return <div></div>

@@ -15,7 +15,7 @@ databaseChangeLog:
       file: db.changelog-1.0.0.relation.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.role.yal
+      file: db.changelog-1.0.0.role.yaml
       relativeToChangelogFile: true
   - include:
       file: db.changelog-1.0.0.role_authority.yaml

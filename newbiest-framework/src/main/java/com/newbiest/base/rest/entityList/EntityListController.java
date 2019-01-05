@@ -1,19 +1,9 @@
 package com.newbiest.base.rest.entityList;
 
-import com.google.common.collect.Lists;
-import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.exception.ClientParameterException;
-import com.newbiest.base.exception.NewbiestException;
-import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.rest.entity.EntityRequest;
-import com.newbiest.base.rest.entity.EntityRequestBody;
-import com.newbiest.base.rest.entity.EntityResponse;
-import com.newbiest.base.rest.entity.EntityResponseBody;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.SessionContext;
-import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;

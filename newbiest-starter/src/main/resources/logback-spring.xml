@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="log.path" source="logging.path"/>
+    <!--<property name="log.path" value="${logging.path}" />-->
+    <!--输出到控制台-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>INFO</level>
+        </filter>
+        <encoder>
+            <!--%d{HH: mm:ss.SSS}——日志输出时间 %thread——输出日志的进程名字 %-5level %logger{36}——日志输出者的名字 %msg——日志消息 %n——平台的换行符 -->
+            <pattern>%d{yyyy-MM-dd-HH:mm:ss.SSS} %contextName [%thread] %-5level|%logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--输出到文件-->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/server.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 压缩文件规则-->
+            <fileNamePattern>${log.path}/server.%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--文件达到 最大500MB或者更换文件时会被压缩和切割 -->
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd-HH:mm:ss.SSS} %contextName [%thread] %-5level|%logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--定义需要特殊记录的日志文件-->
+    <appender name="rest" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/rest/server.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>server.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--文件达到 最大500MB时会被压缩和切割 -->
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="async_file_log" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!--AsyncAppender 里面本质是一个有界的ArrayBlockingQueue 此处默认是false，当达到1024的时候会产生堵塞，故此设置成true，
+        当队列满的时候直接返回，自旋处理-->
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="file"/>
+    </appender>
+
+    <!-- name 需要分开记录日志的包名-->
+    <logger name="com.newbiest.base.rest" level="DEBUG" additivity="false">
+        <appender-ref ref="rest"/>
+    </logger>
+
+    <!-- name-->
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+        <appender-ref ref="file"/>
+    </logger>
+    <!-- 不可缺少，最基础的日志节点 默认是DEBUG-->
+    <root level="INFO">
+        <appender-ref ref="console" />
+        <appender-ref ref="file" />
+    </root>
+</configuration>
