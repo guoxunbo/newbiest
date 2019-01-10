@@ -14,6 +14,7 @@
     <artifactId>parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <modules>
+        <module>newbiest-common-actuator</module>
         <module>newbiest-framework</module>
         <module>newbiest-common-context</module>
         <module>newbiest-rms</module>
