@@ -6,7 +6,7 @@ target/
 *.iml
 *git.properties
 newbiest-amazon/*
-
+newbiest-guoshijiazu/*
 *.log
 
 *.zip
@@ -22,3 +22,5 @@ newbiest-admin-server/mvnw.cmd
 *.class
 
 *.class
+
+*.iml

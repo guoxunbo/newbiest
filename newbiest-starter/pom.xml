@@ -27,7 +27,6 @@
             <artifactId>framework</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <!--
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>context</artifactId>
@@ -38,7 +37,6 @@
             <artifactId>rms</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        -->
     </dependencies>
     <build>
         <resources>
