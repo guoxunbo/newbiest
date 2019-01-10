@@ -2,7 +2,6 @@ package com.newbiest.commom.sm.model;
 
 /**
  * 需要状态机管理的具体获得状态模型，状态等的基类
- * Created by guoxunbo on 2017/11/5.
  */
 public interface StatusLifeCycle extends LifeCycle{
 

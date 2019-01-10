@@ -1,6 +1,7 @@
 package com.newbiest.commom.sm.model;
 
 import com.newbiest.base.model.NBUpdatable;
+import lombok.Data;
 
 import javax.persistence.*;
 
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @Table(name = "COM_STATUS_MODEL")
 @Inheritance(strategy= InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="CATEGORY", discriminatorType = DiscriminatorType.STRING, length = 32)
+@Data
 public class StatusModel extends NBUpdatable {
 
     @Column(name="name")
@@ -47,59 +49,4 @@ public class StatusModel extends NBUpdatable {
     @Column(name="INITIAL_SUB_STATE")
     private String initialSubState;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getObjectType() {
-        return objectType;
-    }
-
-    public void setObjectType(String objectType) {
-        this.objectType = objectType;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getInitialStateCategory() {
-        return initialStateCategory;
-    }
-
-    public void setInitialStateCategory(String initialStateCategory) {
-        this.initialStateCategory = initialStateCategory;
-    }
-
-    public String getInitialState() {
-        return initialState;
-    }
-
-    public void setInitialState(String initialState) {
-        this.initialState = initialState;
-    }
-
-    public String getInitialSubState() {
-        return initialSubState;
-    }
-
-    public void setInitialSubState(String initialSubState) {
-        this.initialSubState = initialSubState;
-    }
 }

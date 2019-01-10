@@ -1,6 +1,7 @@
 package com.newbiest.commom.sm.model;
 
 import com.newbiest.base.model.NBBase;
+import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="COM_SM_EVENT_STATUS")
+@Data
 public class EventStatus extends NBBase {
 
     /**
@@ -70,67 +72,4 @@ public class EventStatus extends NBBase {
     @Column(name="TARGET_SUB_STATE")
     private String targetSubState;
 
-    public Long getEventRrn() {
-        return eventRrn;
-    }
-
-    public void setEventRrn(Long eventRrn) {
-        this.eventRrn = eventRrn;
-    }
-
-    public String getCheckFlag() {
-        return checkFlag;
-    }
-
-    public void setCheckFlag(String checkFlag) {
-        this.checkFlag = checkFlag;
-    }
-
-    public String getSourceStatusCategory() {
-        return sourceStatusCategory;
-    }
-
-    public void setSourceStatusCategory(String sourceStatusCategory) {
-        this.sourceStatusCategory = sourceStatusCategory;
-    }
-
-    public String getSourceState() {
-        return sourceState;
-    }
-
-    public void setSourceState(String sourceState) {
-        this.sourceState = sourceState;
-    }
-
-    public String getSourceSubState() {
-        return sourceSubState;
-    }
-
-    public void setSourceSubState(String sourceSubState) {
-        this.sourceSubState = sourceSubState;
-    }
-
-    public String getTargetStatusCategory() {
-        return targetStatusCategory;
-    }
-
-    public void setTargetStatusCategory(String targetStatusCategory) {
-        this.targetStatusCategory = targetStatusCategory;
-    }
-
-    public String getTargetState() {
-        return targetState;
-    }
-
-    public void setTargetState(String targetState) {
-        this.targetState = targetState;
-    }
-
-    public String getTargetSubState() {
-        return targetSubState;
-    }
-
-    public void setTargetSubState(String targetSubState) {
-        this.targetSubState = targetSubState;
-    }
 }

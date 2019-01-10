@@ -1,6 +1,7 @@
 package com.newbiest.commom.sm.model;
 
 import com.newbiest.base.model.NBUpdatable;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @Table(name = "COM_STATUS_EVENT")
 @Inheritance(strategy= InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="CATEGORY", discriminatorType = DiscriminatorType.STRING, length = 32)
+@Data
 public class Event extends NBUpdatable {
 
     @Column(name="EVENT_ID")
@@ -34,51 +36,4 @@ public class Event extends NBUpdatable {
     @JoinColumn(name = "EVENT_RRN", referencedColumnName = "OBJECT_RRN")
     private List<EventStatus> eventStatus;
 
-    public String getObjectType() {
-        return objectType;
-    }
-
-    public void setObjectType(String objectType) {
-        this.objectType = objectType;
-    }
-
-    public String getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public List<EventStatus> getEventStatus() {
-        return eventStatus;
-    }
-
-    public void setEventStatus(List<EventStatus> eventStatus) {
-        this.eventStatus = eventStatus;
-    }
 }

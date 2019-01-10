@@ -42,7 +42,7 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
             sql.append(" WHERE ");
             sql.append(NBBase.BASE_CONDITION);
             sql.append(" AND category = :category ");
-            if (!StringUtils.isEmpty(statusModel.getObjectType())) {
+            if (!StringUtils.isNullOrEmpty(statusModel.getObjectType())) {
                 sql.append(" AND objectType IS NULL ");
             } else {
                 sql.append(" AND objectType = :objectType ");
@@ -57,7 +57,7 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
                 graph.addSubgraph("eventStatus");
                 query.setHint(NBBase.LAZY_LOAD_PROP, graph);
             }
-            if (!StringUtils.isEmpty(statusModel.getObjectType())) {
+            if (!StringUtils.isNullOrEmpty(statusModel.getObjectType())) {
                 query.setParameter("objectType", statusModel.getObjectType());
             }
             query.setParameter("eventId", eventId);
