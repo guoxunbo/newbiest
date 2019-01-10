@@ -17,6 +17,3 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.1.recipe_equipment_parameter_temp.yaml
       relativeToChangelogFile: true
-  - include:
-      file: db.changelog-0.0.1.context-master.yaml
-      relativeToChangelogFile: true
