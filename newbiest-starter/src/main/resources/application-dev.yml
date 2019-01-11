@@ -82,7 +82,7 @@ server:
 # actuator配置
 show:
   swagger: true
-log:
+logging:
   path: /Users/apple/Documents/newbiest/log
 management:
   endpoints:

@@ -36,8 +36,8 @@ public class FrameworkLiquibaseConfiguration {
     @Bean
     @ConditionalOnResource(resources = {"classpath:framework-${spring.profiles.active}.yml"})
     public SpringLiquibase liquibase(DataSource dataSource) throws Exception{
-        if (log.isDebugEnabled()) {
-            log.debug("Load FrameWork Liquibase Configuration.");
+        if (log.isInfoEnabled()) {
+            log.info("Load FrameWork Liquibase Configuration.");
         }
         SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(dataSource);

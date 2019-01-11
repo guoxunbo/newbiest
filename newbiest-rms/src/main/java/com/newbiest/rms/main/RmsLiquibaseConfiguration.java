@@ -28,8 +28,8 @@ public class RmsLiquibaseConfiguration {
     @Bean(name="rmsLiquibase")
     @ConditionalOnResource(resources = {"classpath:rms-${spring.profiles.active}.yml"})
     public SpringLiquibase liquibase(DataSource dataSource) throws Exception{
-        if (log.isDebugEnabled()) {
-            log.debug("Load Rms Liquibase Configuration.");
+        if (log.isInfoEnabled()) {
+            log.info("Load Rms Liquibase Configuration.");
         }
         SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(dataSource);

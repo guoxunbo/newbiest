@@ -28,8 +28,8 @@ public class ContextLiquibaseConfiguration {
     @Bean(name="contextLiquibase")
     @ConditionalOnResource(resources = {"classpath:context-${spring.profiles.active}.yml"})
     public SpringLiquibase liquibase(DataSource dataSource) throws Exception{
-        if (log.isDebugEnabled()) {
-            log.debug("Load Context Liquibase Configuration.");
+        if (log.isInfoEnabled()) {
+            log.info("Load Context Liquibase Configuration.");
         }
         SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(dataSource);
