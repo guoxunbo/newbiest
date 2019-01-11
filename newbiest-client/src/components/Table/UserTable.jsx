@@ -24,6 +24,7 @@ export default class UserTable extends EntityListTable {
 
     resetPassword = () => {
         const {selectedRows} = this.state;
+        const self = this;
         if (selectedRows) {
             if (selectedRows.length != 1) {
                 Notification.showNotice(I18NUtils.getClientMessage(i18NCode.SelectOneRow));
@@ -32,7 +33,7 @@ export default class UserTable extends EntityListTable {
             let object = {
                 username: selectedRows[0].username,
                 success: function(responseBody) {
-                    MessageUtils.showOperationSuccess();
+                    self.refresh(responseBody.user);
                 }
             }
             UserManagerRequest.sendResetPassword(object);
@@ -40,7 +41,8 @@ export default class UserTable extends EntityListTable {
     }
 
     createButtonGroup = () => {
-        // 当前未知super.createButtonGroup()这么调用会报错。未知原因。故此处copy代码
+        console.log(this.props);
+        //TODO 当前未知super.createButtonGroup()这么调用会报错。未知原因。故此处copy代码
         let buttons = [];
         buttons.push(<Button key="add" type="primary" style={styles.tableButton} icon="plus" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnAdd)}</Button>);
         buttons.push(<Button key="import" type="primary" style={styles.tableButton} icon="file-add" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnImp)}</Button>);

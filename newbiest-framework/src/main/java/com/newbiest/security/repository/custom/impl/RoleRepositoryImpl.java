@@ -5,7 +5,6 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.utils.SessionContext;
 import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBRole;
 import com.newbiest.security.repository.AuthorityRepository;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,26 +31,6 @@ public class RoleRepositoryImpl implements RoleRepositoryCustom {
 
     @Autowired
     private AuthorityRepository authorityRepository;
-
-    @Override
-    public NBRole getDeepRole(Long roleRrn, boolean authorityFlag, SessionContext sc) throws ClientException {
-        try {
-            sc.buildTransInfo();
-            EntityGraph graph = em.createEntityGraph(NBRole.class);
-            graph.addSubgraph("users");
-            Map<String, Object> props = Maps.newHashMap();
-            props.put(NBBase.LAZY_LOAD_PROP, graph);
-            NBRole role = em.find(NBRole.class, roleRrn, props);
-            if (authorityFlag) {
-                List<NBAuthority> authorities = getRoleAuthorities(role.getObjectRrn());
-                role.setAuthorities(authorities);
-            }
-            return role;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
 
     public List<NBAuthority> getRoleAuthorities(long roleRrn) throws ClientException {
         try {

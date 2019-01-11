@@ -6,6 +6,7 @@ import Tab from '../../api/dto/ui/Tab';
 import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest';
 import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
+import PropertyUtils from '../../api/utils/PropertyUtils';
 
 export default class EntityForm extends Component {
     static displayName = 'EntityForm';
@@ -86,16 +87,17 @@ export default class EntityForm extends Component {
             if (err) {
                 return;
             }
-            this.handleSave(values);
+            PropertyUtils.copyProperties(values, this.props.object)
+            this.handleSave(this.props.object);
         });
     }
 
-    handleSave = (values) => {
+    handleSave = () => {
         var self = this;
         // 默认处理的saveEntity
         let object = {
             modelClass: this.props.table.modelClass,
-            values: values,
+            values: this.props.object,
             success: function(responseBody) {
                 if (self.props.onOk) {
                     self.props.onOk(responseBody.data);

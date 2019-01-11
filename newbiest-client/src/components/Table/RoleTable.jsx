@@ -42,11 +42,11 @@ export default class RoleTable extends EntityListCheckTable {
         let object = {
             roleRrn: selectedRows[0].objectRrn,
             authorityKeys: targetKeys,
-            success: function() {
+            success: function(responseBody) {
                 self.setState({
                     dispatchAuthorityFormVisible: false
                 });
-                MessageUtils.showOperationSuccess();
+                self.refresh(responseBody.role);
             }
         };
         RoleManagerRequest.sendDispatchAuthorityRequest(object);
@@ -58,11 +58,11 @@ export default class RoleTable extends EntityListCheckTable {
         let object = {
             roleRrn: selectedRows[0].objectRrn,
             userKeys: targetKeys,
-            success: function() {
+            success: function(responseBody) {
                 self.setState({
                     dispatchUserFormVisible: false
                 });
-                MessageUtils.showOperationSuccess();
+                self.refresh(responseBody.role);
             }
         };
         RoleManagerRequest.sendDispatchUserRequest(object);

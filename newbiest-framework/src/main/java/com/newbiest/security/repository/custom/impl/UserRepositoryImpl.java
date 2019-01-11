@@ -37,61 +37,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     @Autowired
     private MailService mailService;
 
-    @Override
-    public NBUser getDeepUser(Long userRrn, boolean orgFlag) throws ClientException {
-        try {
-            EntityGraph graph = em.createEntityGraph(NBUser.class);
-            graph.addSubgraph("roles");
-            Map<String, Object> props = Maps.newHashMap();
-            props.put(NBBase.LAZY_FETCH_PROP, graph);
-
-            NBUser user = em.find(NBUser.class, userRrn, props);
-            if (user != null) {
-                if (orgFlag) {
-                    List<NBOrg> orgs = getUserOrgs(user.getObjectRrn());
-                    user.setOrgs(orgs);
-                }
-                return user;
-            }
-            return null;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
-    @MethodMonitor
-    @Override
-    public NBUser getDeepUser(String username, boolean orgFlag) throws ClientException {
-        try {
-            StringBuffer sqlBuffer = new StringBuffer();
-            sqlBuffer.append("SELECT NBUser FROM NBUser NBUser ");
-            sqlBuffer.append(" WHERE ");
-            sqlBuffer.append(" username = :username");
-
-            EntityGraph graph = em.createEntityGraph(NBUser.class);
-            graph.addSubgraph("roles");
-
-            Query query = em.createQuery(sqlBuffer.toString());
-            query.setHint(NBBase.LAZY_LOAD_PROP, graph);
-            query.setParameter("username", username);
-
-            List<NBUser> users = query.getResultList();
-            if (CollectionUtils.isNotEmpty(users)) {
-                NBUser user = users.get(0);
-                if (orgFlag) {
-                    List<NBOrg> orgs = getUserOrgs(user.getObjectRrn());
-                    user.setOrgs(orgs);
-                }
-                return user;
-            }
-            return null;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
     public void loginSuccess(NBUser nbUser) throws ClientException {
         try {
             nbUser = em.find(NBUser.class, nbUser.getObjectRrn());

@@ -10,6 +10,7 @@ export default class User {
     pwdChanged;
     pwdLife;
     pwdExpiry;
+    lockVersion;
     
     newPassword;
     orgRrn;
@@ -27,6 +28,7 @@ export default class User {
             this.pwdChanged = user.pwdChanged;
             this.pwdLife = user.pwdLife;
             this.pwdExpiry = user.pwdExpiry;
+            this.lockVersion = user.lockVersion;
         }
     }
 

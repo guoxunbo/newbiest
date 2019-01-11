@@ -3,10 +3,10 @@ import UserManagerRequest from "../../api/user-manager/UserManagerRequest";
 
 export default class UserForm extends EntityForm {
 
-    handleSave = (values) => {
+    handleSave = () => {
         let self = this;
         let object = {
-            user: values,
+            user: this.props.object,
             success: function(responseBody) {
                 if (self.props.onOk) {
                     self.props.onOk(responseBody.user);

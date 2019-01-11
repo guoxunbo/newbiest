@@ -7,6 +7,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.model.NBHis;
+import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.*;
 import com.newbiest.main.JwtSigner;
 import com.newbiest.main.MailService;
@@ -35,6 +36,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class SecurityServiceImpl implements SecurityService  {
+
+    @Autowired
+    private BaseService baseService;
 
     @Autowired
     UserRepository userRepository;
@@ -163,7 +167,7 @@ public class SecurityServiceImpl implements SecurityService  {
      */
     public List<NBAuthority> getTreeAuthoritiesByUser(Long userRrn) throws ClientException{
         try {
-            NBUser nbUser = getDeepUser(userRrn, false);
+            NBUser nbUser = getDeepUser(userRrn);
             List<NBAuthority> authorities = Lists.newArrayList();
             // 如果是admin用户的话代表拥有所有权限
             if (NBUser.ADMIN_USER.equals(nbUser.getUsername())) {
@@ -359,19 +363,11 @@ public class SecurityServiceImpl implements SecurityService  {
     }
 
     @Override
-    public NBUser getDeepUser(long userRrn, boolean orgFlag) throws ClientException {
+    public NBUser getDeepUser(long userRrn) throws ClientException {
         try {
-            return userRepository.getDeepUser(userRrn, orgFlag);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
-    @Override
-    public void deleteUser(NBUser user) throws ClientException {
-        try {
-            userRepository.delete(user);
+            NBUser user = new NBUser();
+            user.setObjectRrn(userRrn);
+            return (NBUser) baseService.findEntity(user, true);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -425,9 +421,11 @@ public class SecurityServiceImpl implements SecurityService  {
         }
     }
 
-    public NBRole getDeepRole(Long roleRrn, boolean authorityFlag, SessionContext sc) throws ClientException {
+    public NBRole getDeepRole(Long roleRrn) throws ClientException {
         try {
-            return roleRepository.getDeepRole(roleRrn, authorityFlag, sc);
+            NBRole nbRole = new NBRole();
+            nbRole.setObjectRrn(roleRrn);
+            return (NBRole) baseService.findEntity(nbRole, true);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);

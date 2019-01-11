@@ -12,4 +12,12 @@ export default class PropertyUtils {
         }
     }
 
+    /**
+     * 将source对象中的值copy到target对象中
+     */
+    static copyProperties = function(source, target) {
+        for (let propertyName in source) {
+            target[propertyName] = source[propertyName];
+        }
+    }
 }

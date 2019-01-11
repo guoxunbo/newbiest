@@ -62,6 +62,8 @@ public class UserController extends AbstractRestController {
                 throw new ClientParameterException(SecurityException.SECURITY_USER_IS_NOT_EXIST, requestUser.getObjectRrn() != null ? requestUser.getObjectRrn() : requestUser.getUsername());
             }
             if (UserRequest.ACTION_UPDATE.equals(actionType)) {
+                validateEntity(requestUser);
+
                 user.setDescription(requestUser.getDescription());
                 user.setDepartment(requestUser.getDepartment());
                 user.setEmail(requestUser.getEmail());
@@ -78,7 +80,7 @@ public class UserController extends AbstractRestController {
             }  else if (UserRequest.ACTION_RESET_PASSWORD.equals(actionType)) {
                 user = securityService.resetPassword(user, sc);
             } else if (UserRequest.ACTION_GET_BY_RRN.equals(actionType)) {
-                user = securityService.getDeepUser(user.getObjectRrn(), true);
+                user = securityService.getDeepUser(user.getObjectRrn());
             } else {
                 throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
             }

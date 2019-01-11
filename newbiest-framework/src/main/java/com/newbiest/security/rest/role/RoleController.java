@@ -60,37 +60,27 @@ public class RoleController extends AbstractRestController {
             if (role == null) {
                 throw new ClientParameterException(SecurityException.SECURITY_ROLE_IS_NOT_EXIST, requestRole.getObjectRrn() != null ? requestRole.getObjectRrn() : requestRole.getRoleId());
             }
-            if (!RoleRequest.ACTION_DELETE.equals(actionType)) {
-                role = securityService.getDeepRole(role.getObjectRrn(), true, sc);
-                List<NBUser> users = role.getUsers();
-                List<NBAuthority> authorities = role.getAuthorities();
-                if (RoleRequest.ACTION_UPDATE.equals(actionType) ) {
-                    // 更新的话不能更新用户和权限 只能通过分配来进行分配
-                    role.setDescription(requestRole.getDescription());
-                    role.setUsers(users);
-                    role.setAuthorities(authorities);
-                } else if (RoleRequest.ACTION_GET_BY_ID.equals(actionType) ||
-                        RoleRequest.ACTION_GET_BY_RRN.equals(actionType)) {
-                    // do nothing 因为role已经在上面查询了
-                } else if (RoleRequest.DISPATCH_AUTHORITY.equals(actionType)) {
-                    // 分配相关不支持修改信息
-                    role.setUsers(users);
-                    role.setAuthorities(requestRole.getAuthorities());
-                } else if (RoleRequest.DISPATCH_USER.equals(actionType)) {
-                    role.setUsers(requestRole.getUsers());
-                    role.setAuthorities(authorities);
-                } else if (RoleRequest.DISPATCH_ALL.equals(actionType)) {
-                    role.setUsers(requestRole.getUsers());
-                    role.setAuthorities(requestRole.getAuthorities());
-                } else {
-                    throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
-                }
-                if (!(RoleRequest.ACTION_GET_BY_ID.equals(actionType) || RoleRequest.ACTION_GET_BY_RRN.equals(actionType))) {
-                    role = securityService.saveRole(role);
-                }
+            role = securityService.getDeepRole(role.getObjectRrn());
+            List<NBUser> users = role.getUsers();
+            List<NBAuthority> authorities = role.getAuthorities();
+            if (RoleRequest.ACTION_GET_BY_ID.equals(actionType) ||
+                    RoleRequest.ACTION_GET_BY_RRN.equals(actionType)) {
+                // do nothing 因为role已经在上面查询了
+            } else if (RoleRequest.DISPATCH_AUTHORITY.equals(actionType)) {
+                // 分配相关不支持修改信息
+                role.setUsers(users);
+                role.setAuthorities(requestRole.getAuthorities());
+            } else if (RoleRequest.DISPATCH_USER.equals(actionType)) {
+                role.setUsers(requestRole.getUsers());
+                role.setAuthorities(authorities);
+            } else if (RoleRequest.DISPATCH_ALL.equals(actionType)) {
+                role.setUsers(requestRole.getUsers());
+                role.setAuthorities(requestRole.getAuthorities());
             } else {
-                securityService.deleteRole(role);
-                role = null;
+                throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+            }
+            if (!(RoleRequest.ACTION_GET_BY_ID.equals(actionType) || RoleRequest.ACTION_GET_BY_RRN.equals(actionType))) {
+                role = securityService.saveRole(role);
             }
         }
 

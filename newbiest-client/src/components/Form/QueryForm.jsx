@@ -105,7 +105,6 @@ class QueryForm extends Component {
         if(queryFields.length === 1) {
             colSpan = 16
         }
-        console.log(colSpan);
         for (let i in queryFields) {
           let field = queryFields[i];
           children.push(

@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.base.model.NBBase;
+import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.msg.DefaultParser;

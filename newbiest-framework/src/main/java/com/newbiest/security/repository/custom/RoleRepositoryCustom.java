@@ -14,8 +14,6 @@ import java.util.List;
  */
 public interface RoleRepositoryCustom {
 
-    NBRole getDeepRole(Long roleRrn, boolean authorityFlag, SessionContext sc) throws ClientException;
-
     List<NBAuthority> getRoleAuthorities(long roleRrn) throws ClientException;
 
 }

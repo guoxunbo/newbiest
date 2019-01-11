@@ -22,14 +22,13 @@ public interface SecurityService {
     NBUser saveUser(NBUser nbUser, SessionContext sc) throws ClientException;
     NBUser changePassword(NBUser user, String oldPassword, String newPassword, SessionContext sc) throws ClientException;
     NBUser resetPassword(NBUser nbUser, SessionContext sc) throws ClientException;
-    NBUser getDeepUser(long userRrn, boolean orgFlag) throws ClientException;
-    void deleteUser(NBUser user) throws ClientException;
+    NBUser getDeepUser(long userRrn) throws ClientException;
 
     // ----Role相关----
     NBRole saveRole(NBRole nbRole) throws ClientException;
     NBRole getRoleByObjectRrn(Long objectRrn) throws ClientException;
     NBRole getRoleByRoleId(String roleId) throws ClientException;
-    NBRole getDeepRole(Long roleRrn, boolean authorityFlag, SessionContext sc) throws ClientException;
+    NBRole getDeepRole(Long roleRrn) throws ClientException;
     void deleteRole(NBRole nbRole) throws ClientException;
 
     //Authority相关

@@ -177,7 +177,7 @@ export default class EditableTable extends React.Component {
       if (error) {
         return;
       }
-      PropertyUtils.copyNoIncludePropertyValue(record, rowData);
+      PropertyUtils.copyProperties(rowData, record);
       let self = this;
       let { tableData, table } = this.state;
 

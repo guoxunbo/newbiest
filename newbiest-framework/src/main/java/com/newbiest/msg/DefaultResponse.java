@@ -29,7 +29,6 @@ public class DefaultResponse extends Response {
 	private String transactionId;
 
 	public DefaultResponse buildFailResponse(String errorCode) {
-		DefaultResponse response = new DefaultResponse();
 		ResponseHeader header = new ResponseHeader();
 		header.setResult(ResponseHeader.RESULT_FAIL);
 		header.setResultCode(errorCode);
@@ -52,8 +51,8 @@ public class DefaultResponse extends Response {
 		if (parameters != null && parameters.length > 0) {
 			header.setResultCode(StringUtils.format(errorCode, parameters));
 		}
-		response.setHeader(header);
-		return response;
+		this.setHeader(header);
+		return this;
 	}
 
 	public void setParameters(Object[] parameters) {

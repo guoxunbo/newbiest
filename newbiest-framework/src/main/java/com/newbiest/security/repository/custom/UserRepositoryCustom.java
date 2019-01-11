@@ -15,8 +15,6 @@ import java.util.List;
  */
 public interface UserRepositoryCustom {
 
-    NBUser getDeepUser(Long userRrn, boolean orgFlag) throws ClientException;
-    NBUser getDeepUser(String username, boolean orgFlag) throws ClientException;
     List<NBOrg> getUserOrgs(long userRrn) throws ClientException;
 
     void loginSuccess(NBUser nbUser) throws ClientException;

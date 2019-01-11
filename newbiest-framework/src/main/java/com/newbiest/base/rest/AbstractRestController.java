@@ -105,7 +105,12 @@ public class AbstractRestController implements Serializable{
         return baseService.findEntity(nbBase, true);
     }
 
-    private void validateEntity(NBUpdatable nbUpdatable, SessionContext sc) throws ClientException {
+    /**
+     * 验证当前对象是不是最新的对象
+     * @param nbUpdatable
+     * @throws ClientException
+     */
+    protected void validateEntity(NBUpdatable nbUpdatable) throws ClientException {
         NBUpdatable oldBase = (NBUpdatable) baseService.findEntity(nbUpdatable, false);
         if (!oldBase.getLockVersion().equals(nbUpdatable.getLockVersion())) {
             throw new ClientParameterException(NewbiestException.COMMON_ENTITY_IS_NOT_NEWEST, oldBase.getClass().getName(), oldBase.getLockVersion());
@@ -114,7 +119,7 @@ public class AbstractRestController implements Serializable{
 
     protected NBBase updateEntity(NBBase nbBase, SessionContext sc) throws ClientException {
         if (nbBase instanceof NBUpdatable) {
-            validateEntity((NBUpdatable) nbBase, sc);
+            validateEntity((NBUpdatable) nbBase);
         }
         return baseService.saveEntity(nbBase, sc);
     }
