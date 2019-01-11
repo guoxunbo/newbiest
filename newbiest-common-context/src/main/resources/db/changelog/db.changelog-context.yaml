@@ -1,19 +1,7 @@
 databaseChangeLog:
   - include:
-      file: db.changelog-0.0.1.equipment.yaml
+      file: db.changelog-0.0.1.context.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-0.0.1.recipe.yaml
-      relativeToChangelogFile: true
-  - include:
-      file: db.changelog-0.0.1.recipe_equipment.yaml
-      relativeToChangelogFile: true
-  - include:
-      file: db.changelog-0.0.1.recipe_equipment_his.yaml
-      relativeToChangelogFile: true
-  - include:
-      file: db.changelog-0.0.1.recipe_equipment_parameter.yaml
-      relativeToChangelogFile: true
-  - include:
-      file: db.changelog-0.0.1.recipe_equipment_parameter_temp.yaml
+      file: db.changelog-0.0.1.context_value.yaml
       relativeToChangelogFile: true

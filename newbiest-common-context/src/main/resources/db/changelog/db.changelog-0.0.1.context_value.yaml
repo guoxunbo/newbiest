@@ -79,10 +79,6 @@ databaseChangeLog:
                   type: varchar(32)
                   remarks: 结果栏位1
               - column:
-                  name: result_value1
-                  type: varchar(32)
-                  remarks: 结果栏位1
-              - column:
                   name: result_value2
                   type: varchar(32)
                   remarks: 结果栏位2

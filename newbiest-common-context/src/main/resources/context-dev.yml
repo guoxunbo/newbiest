@@ -4,7 +4,7 @@ spring:
   #数据库版本管理
   liquibase:
     #changelog所在的位置。
-    change-log: classpath:db/changelog/db.changelog-context111.yaml
+    change-log: classpath:db/changelog/db.changelog-context.yaml
     #是否启动liquibase
     enabled: true
     #每次都是否把表删除在处理
