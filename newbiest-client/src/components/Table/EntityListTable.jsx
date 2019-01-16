@@ -38,7 +38,6 @@ export default class EntityListTable extends Component {
             editorObject: {},
             scrollX: undefined,
             scrollY:undefined,
-            beforescrollX:undefined,
             data: [],
         };
     }
