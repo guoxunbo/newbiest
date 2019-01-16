@@ -1,8 +1,8 @@
 package com.newbiest.base.ui.model;
 
-import com.google.common.collect.Lists;
 import com.newbiest.base.model.NBBase;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,6 +14,7 @@ import java.util.List;
 @Entity
 @Table(name="NB_TABLE")
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class NBTable extends NBBase {
 
     private static final long serialVersionUID = -8294980293795481105L;
@@ -104,21 +105,23 @@ public class NBTable extends NBBase {
      * 中文标签
      */
     @Column(name="LABEL_ZH")
-    private String label_zh;
+    private String labelZh;
 
     /**
      * 其它语言标签
      */
     @Column(name="LABEL_RES")
-    private String label_res;
+    private String labelRes;
 
-    @OneToMany(mappedBy = "table", fetch=FetchType.LAZY, targetEntity = NBTab.class)
+    @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.REMOVE})
     @OrderBy(value = "seqNo ASC")
-    private List<NBTab> tabs = Lists.newArrayList();
+    @JoinColumn(name = "TABLE_RRN", referencedColumnName = "OBJECT_RRN")
+    private List<NBTab> tabs;
 
-    @OneToMany(mappedBy = "table", fetch=FetchType.LAZY, targetEntity = NBField.class)
+    @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.REMOVE})
     @OrderBy(value = "seqNo ASC")
-    private List<NBField> fields = Lists.newArrayList();
+    @JoinColumn(name = "TABLE_RRN", referencedColumnName = "OBJECT_RRN")
+    private List<NBField> fields;
 
     public Boolean getView() {
         return (style & STYLE_VIEW) == STYLE_VIEW;

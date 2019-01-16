@@ -8,6 +8,7 @@ import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.main.JwtSigner;
@@ -20,7 +21,9 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by guoxunbo on 2018/7/11.
@@ -117,9 +120,28 @@ public class AbstractRestController implements Serializable{
         }
     }
 
+    /**
+     * 更新实体。但不会更新实体上对应的关联数据。
+     * @param nbBase
+     * @param sc
+     * @return
+     * @throws ClientException
+     */
     protected NBBase updateEntity(NBBase nbBase, SessionContext sc) throws ClientException {
         if (nbBase instanceof NBUpdatable) {
             validateEntity((NBUpdatable) nbBase);
+        }
+        // 有关联关系的时候，不update相应的关联关系
+        NBBase oldBase = baseService.findEntity(nbBase, true);
+        PropertyDescriptor[] descriptors = org.apache.commons.beanutils.PropertyUtils.getPropertyDescriptors(oldBase);
+        if (descriptors != null && descriptors.length > 0) {
+            for (PropertyDescriptor descriptor : descriptors) {
+                Class clazz = descriptor.getPropertyType();
+                if (List.class.isAssignableFrom(clazz)) {
+                    List list = (List) PropertyUtils.getProperty(oldBase, descriptor.getName());
+                    PropertyUtils.setProperty(nbBase, descriptor.getName(), list);
+                }
+            }
         }
         return baseService.saveEntity(nbBase, sc);
     }

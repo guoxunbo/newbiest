@@ -54,6 +54,18 @@ databaseChangeLog:
                   type: varchar(32)
                   remarks: 设备号
               - column:
+                  name: description
+                  type: varchar(64)
+                  remarks: 描述
+              - column:
                   name: equipment_type
                   type: varchar(32)
                   remarks: 设备类型
+              - column:
+                  name: hold_flag
+                  type: varchar(1)
+                  remarks: hold状态
+              - column:
+                  name: communication_flag
+                  type: varchar(1)
+                  remarks: 通讯状态

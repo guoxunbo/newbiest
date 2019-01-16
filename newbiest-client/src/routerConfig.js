@@ -47,6 +47,11 @@ const routerConfig = [
     component: EntityProperties,
   },
   {
+    path: 'Rms/EquipmentManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
     path: '*',
     layout: HeaderAsideFooterResponsiveLayout,
     component: NotFound,

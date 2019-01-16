@@ -16,7 +16,7 @@ export default class EntityListCheckTable extends EntityListTable {
     }
 
     /**
-     * 默认的table框的选择框属性 此处不实现。
+     * 默认的table框的选择框属性
      */
     getRowSelection = (selectedRowKeys) => {
         const rowSelection = {
@@ -36,15 +36,13 @@ export default class EntityListCheckTable extends EntityListTable {
     selectRow = (record) => {
         const selectedRowKeys = [...this.state.selectedRowKeys];
         const selectedRows = [...this.state.selectedRows];
-        if (selectedRowKeys.indexOf(record.objectRrn) >= 0) {
-            selectedRowKeys.splice(selectedRowKeys.indexOf(record.objectRrn), 1);
+
+        let checkIndex = selectedRowKeys.indexOf(record.objectRrn);
+        if (checkIndex >= 0) {
+            selectedRowKeys.splice(checkIndex, 1);
+            selectedRows.splice(checkIndex, 1);
         } else {
             selectedRowKeys.push(record.objectRrn);
-        }
-
-        if (selectedRows.indexOf(record) >= 0) {
-            selectedRows.splice(selectedRows.indexOf(record), 1);
-        } else {
             selectedRows.push(record);
         }
         this.setState({ 
@@ -65,7 +63,7 @@ export default class EntityListCheckTable extends EntityListTable {
             }
         }
         scrollX += Application.table.checkBox.width;
-        let operationColumn = this.buildOperationColumn();
+        let operationColumn = this.buildOperationColumn(scrollX);
         scrollX += operationColumn.width;
         columns.push(operationColumn);
         return {

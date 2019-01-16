@@ -2,14 +2,13 @@ import  React, { Component } from 'react';
 
 import { Table, Popconfirm, Button,Form, Dropdown, Menu, Icon } from 'antd';
 import './ListTable.scss';
-import {Application} from '../../api/Application'
-import {DefaultRowKey} from '../../api/const/ConstDefine'
+import {Application, SessionContext} from '../../api/Application'
+import {DefaultRowKey, Language} from '../../api/const/ConstDefine'
 import MessageUtils from '../../api/utils/MessageUtils';
 import Field from '../../api/dto/ui/Field';
 import EntityForm from '../Form/EntityForm';
 import * as PropTypes from 'prop-types';
 import TableObject from '../../api/dto/ui/Table';
-import $ from 'jquery';
 import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest';
 import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
@@ -59,18 +58,6 @@ export default class EntityListTable extends Component {
             rowClassName: (record, index) => this.getRowClassName(record, index),
         });
     }
-
-    componentDidMount() {
-        $(window).bind('resize',() => {
-            let maxWidth = document.querySelector('.custom-table').clientWidth
-            this.setState({maxWidth})
-        })
-    }
-
-    componentWillUnmount() {
-        $(window).unbind('resize',function() {
-        })
-    }
     
     getRowClassName = (record, index) => {
         const {selectedRows} = this.state;
@@ -97,8 +84,7 @@ export default class EntityListTable extends Component {
                 scrollX += column.width;
             }
         }
-        this.setState({beforescrollX:scrollX})
-        let operationColumn = this.buildOperationColumn();
+        let operationColumn = this.buildOperationColumn(scrollX);
         scrollX += operationColumn.width;
         columns.push(operationColumn);
         return {
@@ -107,16 +93,15 @@ export default class EntityListTable extends Component {
         };
     }
 
-    buildOperationColumn() {
-        let maxWidth = this.state.maxWidth ? this.state.maxWidth : document.querySelector('.custom-table').clientWidth;
+    buildOperationColumn(scrollX) {
+        let maxWidth = document.querySelector('.custom-table').clientWidth;
         let self = this;
-        
         let oprationColumn = {
             key: "opration",
             title: "opration",
             dataIndex: "opration",
             align: "center",
-            fixed:maxWidth > this.state.beforescrollX + Application.table.oprationColumn.width ? false : 'right',
+            fixed: maxWidth > scrollX + Application.table.oprationColumn.width ? false : 'right',
             width: Application.table.oprationColumn.width,
             render: (text, record) => {
                 return (
@@ -166,9 +151,12 @@ export default class EntityListTable extends Component {
         })
     }
 
+    /**
+     * 更新表格数据
+     * @param responseData 数据如用户、
+     */
     refresh = (responseData) => {
         var self = this;
-        //TODO 当有1对多的情况。需要考虑是否更新还是多的保持原状。
         let datas = self.state.data;
         let dataIndex = -1;
         datas.map((data, index) => {
@@ -201,11 +189,23 @@ export default class EntityListTable extends Component {
 
     handleExpMenuClick({ key }) {
         const {table} = this.state;
+        let language = SessionContext.getLanguage();
+
+        let fileName = table.name;
+        if (language == undefined) {
+            language = Language.Chinese;
+        }
+        if (language == Language.Chinese) {
+            fileName = table.labelZh;
+        } else if (language == Language.English) {
+            fileName = table.label;
+        }
         if (ExpMenuKey.exportTemplate === key) {
             let object = {
                 tableRrn: table.objectRrn,
-                fileName: table.name + ".xls",
+                fileName: fileName + ".xls",
             }
+            
             TableManagerRequest.sendExpTemplate(object);
         } else if (ExpMenuKey.exportData === key) {
             //TODO 处理导出

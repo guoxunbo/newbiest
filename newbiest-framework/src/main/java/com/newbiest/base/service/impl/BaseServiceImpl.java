@@ -12,10 +12,7 @@ import com.newbiest.base.repository.QueryRepository;
 import com.newbiest.base.repository.RelationRepository;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.service.BaseService;
-import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.utils.PropertyUtils;
-import com.newbiest.base.utils.SessionContext;
-import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.*;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.model.NBOrg;
 import lombok.extern.slf4j.Slf4j;
@@ -151,6 +148,7 @@ public class BaseServiceImpl implements BaseService  {
 
     /**
      * 保存对象
+     * 更新时候 不会更新关联的对象 只会更新自己本身的属性
      * @param nbBase 对象
      * @param sc
      * @return
@@ -178,6 +176,7 @@ public class BaseServiceImpl implements BaseService  {
                     historyRepository.save(nbHis);
                 }
             } else {
+                //TODO 处理个别对象的orgRrn永远是0比如用户，动态表，动态栏位等等
                 nbBase.setOrgRrn(sc.getOrgRrn());
                 if (nbBase instanceof NBUpdatable) {
                     ((NBUpdatable) nbBase).setCreatedBy(sc.getUsername());

@@ -1,6 +1,5 @@
 package com.newbiest.base.ui.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
@@ -83,15 +82,11 @@ public class NBTab extends NBBase {
     @Column(name="LABEL_RES")
     private String labelRes;
 
-    @OneToMany(mappedBy = "tab", fetch= FetchType.LAZY,
-            targetEntity = NBField.class)
+    @OneToMany(fetch= FetchType.EAGER, cascade={CascadeType.REMOVE})
     @OrderBy(value = "seqNo ASC")
+    @JoinColumn(name = "TAB_RRN", referencedColumnName = "OBJECT_RRN")
     private List<NBField> fields;
 
-    @ManyToOne
-    @JoinColumn(name = "TABLE_RRN", referencedColumnName = "OBJECT_RRN", insertable = false, updatable = false)
-    @JsonBackReference
-    private NBTable table;
 
     public Boolean getEditFlag() {
         return StringUtils.YES.equalsIgnoreCase(editFlag);

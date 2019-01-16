@@ -425,7 +425,20 @@ public class SecurityServiceImpl implements SecurityService  {
         try {
             NBRole nbRole = new NBRole();
             nbRole.setObjectRrn(roleRrn);
-            return (NBRole) baseService.findEntity(nbRole, true);
+
+            nbRole = (NBRole) baseService.findEntity(nbRole, true);
+            List<NBAuthority> authorties = nbRole.getAuthorities();
+            if (CollectionUtils.isNotEmpty(authorties)) {
+                authorties =  authorties.stream().filter(authority -> authority.getActiveFlag())
+                        .map(authority -> {
+                            // 各自找到自己的subAuthorities。这里一级即可。
+                            List<NBAuthority> subAuthorites = authorityRepository.findByParentRrn(authority.getObjectRrn());
+                            authority.setSubAuthorities(subAuthorites);
+                            return authority;
+                        }).collect(Collectors.toList());
+                nbRole.setAuthorities(authorties);
+            }
+            return nbRole;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);

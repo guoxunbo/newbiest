@@ -1,4 +1,3 @@
-import EntityListCheckTable from "./EntityListCheckTable";
 import {Button, Form} from 'antd';
 import { i18NCode } from "../../api/const/i18n";
 import I18NUtils from "../../api/utils/I18NUtils";
@@ -6,10 +5,10 @@ import RoleManagerRequest from "../../api/role-manager/RoleManagerRequest";
 import { Notification } from "../notice/Notice";
 import EntityForm from "../Form/EntityForm";
 import DispatchUserForm from "../Form/DispatchUserForm";
-import MessageUtils from "../../api/utils/MessageUtils";
 import DispatchAuthorityForm from "../Form/DispatchAuthorityForm";
+import EntityListTable from "./EntityListTable";
 
-export default class RoleTable extends EntityListCheckTable {
+export default class RoleTable extends EntityListTable {
 
     static displayName = 'RoleTable';
 

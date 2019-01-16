@@ -1,10 +1,9 @@
 package com.newbiest.base.ui.model;
 
-import com.google.common.collect.Lists;
 import lombok.Data;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 
 /**
  * 用户栏位参考名称 by 区域的

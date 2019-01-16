@@ -18,10 +18,6 @@ public class Recipe extends NBBase {
     public static final String RECIPE_CATEGORY_ABSTRACT = "Abstract";
     public static final String RECIPE_CATEGORY_EQUIPMENT = "Equipment";
 
-    public static final String CONTEXT_NAME_RECIPE = "Recipe";
-    public static final String CONTEXT_FIELD_STEP_NAME = "StepName";
-    public static final String CONTEXT_FIELD_PART_NAME = "PartName";
-
     @Column(name="NAME")
     private String name;
 

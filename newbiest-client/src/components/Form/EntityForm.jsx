@@ -87,7 +87,8 @@ export default class EntityForm extends Component {
             if (err) {
                 return;
             }
-            PropertyUtils.copyProperties(values, this.props.object)
+            PropertyUtils.copyProperties(values, this.props.object);
+            
             this.handleSave(this.props.object);
         });
     }

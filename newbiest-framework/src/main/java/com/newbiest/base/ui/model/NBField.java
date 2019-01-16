@@ -1,11 +1,12 @@
 package com.newbiest.base.ui.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * 页面栏位显示
@@ -197,18 +198,6 @@ public class NBField extends NBBase {
      */
     @Column(name="EXPORT_FLAG")
     private String exportFlag;
-
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "TABLE_RRN", referencedColumnName = "OBJECT_RRN",
-            insertable = false, updatable = false)
-    private NBTable table;
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "TAB_RRN", referencedColumnName = "OBJECT_RRN",
-            insertable = false, updatable = false)
-    private NBTab tab;
 
     public Boolean getDisplayFlag() {
         return StringUtils.YES.equalsIgnoreCase(displayFlag);

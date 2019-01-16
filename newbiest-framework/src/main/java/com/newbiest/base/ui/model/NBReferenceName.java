@@ -1,6 +1,5 @@
 package com.newbiest.base.ui.model;
 
-import com.google.common.collect.Lists;
 import com.newbiest.base.model.NBBase;
 import lombok.Data;
 
@@ -34,10 +33,10 @@ public class NBReferenceName extends NBBase {
     @Column(name="CATEGORY",insertable = false, updatable = false)
     private String category;
 
-    @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.REMOVE})
+    @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.REMOVE}, orphanRemoval = true)
     @OrderBy(value = "seqNo ASC")
     @JoinColumns({ @JoinColumn(name = "REFERENCE_NAME", referencedColumnName = "NAME"),
             @JoinColumn(name = "CATEGORY", referencedColumnName = "CATEGORY")})
-    private List<NBReferenceList> referenceList = Lists.newArrayList();
+    private List<NBReferenceList> referenceList;
 
 }

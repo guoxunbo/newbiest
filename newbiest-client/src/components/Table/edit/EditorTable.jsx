@@ -177,21 +177,35 @@ export default class EditableTable extends React.Component {
       if (error) {
         return;
       }
-      PropertyUtils.copyProperties(rowData, record);
+      PropertyUtils.copyProperties(record, rowData);
       let self = this;
-      let { tableData, table } = this.state;
-
+      const { tableData, table } = this.state;
       let object = {
         modelClass : table.modelClass,
-        values: record,
+        values: rowData,
         success: function(responseBody) {
           let responseData = responseBody.data;
-          let dataIndex = tableData.indexOf(rowData);
+          debugger;
+          let dataIndex = -1;
+          if (rowData.objectRrn) {
+            tableData.map((data, index) => {
+              if (data.objectRrn == responseData.objectRrn) {
+                  dataIndex = index;
+              }
+            });
+          } else {
+            tableData.map((data, index) => {
+              if (!data.objectRrn) {
+                  dataIndex = index;
+              }
+            });
+          }
           tableData.splice(dataIndex, 1, responseData);
+          
           self.setState({
             tableData: tableData,
             editingKey: ""
-          }) 
+          }); 
           MessageUtils.showOperationSuccess();
         }
       }
