@@ -232,9 +232,9 @@ public class UIServiceImpl implements UIService {
             // 组成MAP 形式为LABEL/LABEL_ZH, name
             Map<String, String> headersMapped;
             if (titleCh) {
-                headersMapped =  nbTable.getFields().stream().filter(nbField -> nbField.getExportFlag()).collect(Collectors.toConcurrentMap(NBField :: getLabelZh, NBField :: getName));
+                headersMapped =  nbTable.getFields().stream().filter(nbField -> nbField.getMainFlag()).collect(Collectors.toConcurrentMap(NBField :: getLabelZh, NBField :: getName));
             } else {
-                headersMapped =  nbTable.getFields().stream().filter(nbField -> nbField.getExportFlag()).collect(Collectors.toConcurrentMap(NBField :: getLabel, NBField :: getName));
+                headersMapped =  nbTable.getFields().stream().filter(nbField -> nbField.getMainFlag()).collect(Collectors.toConcurrentMap(NBField :: getLabel, NBField :: getName));
             }
 
             List dataList = (List) ExcelUtils.importExcel(Class.forName(nbTable.getModelClass()), headersMapped, inputStream, datePattern);

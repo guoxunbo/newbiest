@@ -199,15 +199,14 @@ export default class EntityListTable extends Component {
         } else if (language == Language.English) {
             fileName = table.label;
         }
+        let object = {
+            tableRrn: table.objectRrn,
+            fileName: fileName + ".xls",
+        }
         if (ExpMenuKey.exportTemplate === key) {
-            let object = {
-                tableRrn: table.objectRrn,
-                fileName: fileName + ".xls",
-            }
-            
-            TableManagerRequest.sendExpTemplate(object);
+            TableManagerRequest.sendExportRequest(object, true);
         } else if (ExpMenuKey.exportData === key) {
-            //TODO 处理导出
+            TableManagerRequest.sendExportRequest(object);
         }
     }
 

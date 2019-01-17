@@ -1,5 +1,6 @@
 package com.newbiest.base.ui.rest.table;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.ui.model.NBTable;
@@ -66,13 +67,25 @@ public class TableController extends AbstractRestController {
         return response;
     }
 
-    @ApiOperation(value = "导出模板", notes = "根据table上栏位的exportFlag来导出模板")
+    @ApiOperation(value = "导出模板/数据", notes = "根据table上栏位的mainFlag来导出模板/数据")
     @ApiImplicitParam(name="tableRrn", value="tableRrn", required = true, dataType = "Long")
-    @RequestMapping(value = "/expTemplate", method = RequestMethod.POST)
+    @RequestMapping(value = "/export", method = RequestMethod.POST)
     public void execute(@RequestBody TableRequest request, HttpServletResponse servletResponse) throws Exception {
+        SessionContext sc = getSessionContext(request);
+
+        TableRequestBody requestBody = request.getBody();
+        String actionType = requestBody.getActionType();
         NBTable nbTable = uiService.getDeepNBTable(request.getBody().getTable().getObjectRrn());
         servletResponse.setHeader("content-Type", "application/vnd.ms-excel;charset=utf-8");
-        ExcelUtils.exportTemplateByTable(nbTable, request.getHeader().getLanguage(), servletResponse.getOutputStream());
+
+        List<? extends NBBase> dataList = Lists.newArrayList();
+        if (TableRequest.ACTION_EXP_DATA.equals(actionType)) {
+            dataList = uiService.getDataFromTableRrn(nbTable.getObjectRrn(), requestBody.getTable().getWhereClause(), requestBody.getTable().getOrderBy(), sc);
+        } else if (TableRequest.ACTION_EXP_TEMPLATE.equals(actionType)) {
+            // do nothing
+        }
+        ExcelUtils.exportByTable(nbTable, dataList, request.getHeader().getLanguage(), servletResponse.getOutputStream());
+
     }
 
 }

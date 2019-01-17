@@ -2,17 +2,13 @@ package com.newbiest.base.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.newbiest.base.annotation.Export;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.ui.model.NBField;
 import com.newbiest.base.ui.model.NBTable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -295,9 +291,9 @@ public class ExcelUtils {
      * @return
      * @throws Exception
      */
-    public static void exportTemplateByTable(NBTable nbTable, String language, OutputStream out) throws Exception {
+    public static void exportByTable(NBTable nbTable, Collection data, String language, OutputStream out) throws Exception {
         Map<String, String> headerMap = buildHeaderByTable(nbTable, language);
-        exportExcel(headerMap, Lists.newArrayList(), out);
+        exportExcel(headerMap, data, out);
     }
 
     /**
@@ -315,7 +311,7 @@ public class ExcelUtils {
                 language = NBBase.LANGUAGE_CHINESE;
             }
             if (CollectionUtils.isNotEmpty(fields)) {
-                fields = fields.stream().filter(field -> field.getExportFlag()).sorted(Comparator.comparing(NBField :: getSeqNo)).collect(Collectors.toList());
+                fields = fields.stream().filter(field -> field.getMainFlag()).sorted(Comparator.comparing(NBField :: getSeqNo)).collect(Collectors.toList());
                 for (NBField field : fields) {
                     String value = field.getLabelZh();
                     if (NBBase.LANGUAGE_ENGLISH.equals(language)) {
@@ -372,13 +368,13 @@ public class ExcelUtils {
             // 记录当前栏位在什么位置
             Map<String, Integer> headerIndexMap = Maps.newHashMap();
             int cellNum = 0;
-            for (String key : headers.keySet()) {
+            for (String propertyName : headers.keySet()) {
                 HSSFCell cell = hssfRow.createCell(cellNum);
-                String header = headers.get(key);
+                String header = headers.get(propertyName);
                 HSSFRichTextString text = new HSSFRichTextString(header);
                 cell.setCellValue(text);
                 cell.setCellStyle(buildHeaderHssfCellStyle(sheet, header));
-                headerIndexMap.put(key, cellNum);
+                headerIndexMap.put(propertyName, cellNum);
                 cellNum++;
             }
 
@@ -387,12 +383,11 @@ public class ExcelUtils {
                 // 填充数据 从标题行下一行开始
                 for(Object object : data) {
                     hssfRow = sheet.createRow(index);
-                    // 从map中获取列位置进行填充
-                    List<SortingField> sortingFields = getSortingFields(object, headerIndexMap);
-                    for (SortingField sortingField : sortingFields) {
-                        cellNum = headerIndexMap.get(sortingField.getName());
+                    for (String propertyName : headers.keySet()) {
+                        Object value = PropertyUtils.getProperty(object, propertyName);
+                        cellNum = headerIndexMap.get(propertyName);
                         HSSFCell cell = hssfRow.createCell(cellNum);
-                        setCellValue(cell, sortingField.getValue(), pattern);
+                        setCellValue(cell, value, pattern);
                     }
                     index++;
                 }
@@ -405,9 +400,10 @@ public class ExcelUtils {
 
     private static void setCellValue(HSSFCell cell, Object value, String pattern) throws Exception{
         try {
-            PreConditionalUtils.checkNotNull(value, "Cell Value");
+            if (value == null) {
+                value = StringUtils.EMPTY;
+            }
             String textValue = null;
-
             if (value instanceof Integer) {
                 cell.setCellValue((Integer)value);
             } else if (value instanceof Float) {
@@ -432,55 +428,6 @@ public class ExcelUtils {
                 HSSFRichTextString richString = new HSSFRichTextString(textValue);
                 cell.setCellValue(richString);
             }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    /**
-     * 将对象转换成SortingFiled
-     * @param object 当前支持Map<String, value>以及普通的带有Export注解的JAVABean
-     * @param headerIndexMap
-     * @return
-     * @throws Exception
-     */
-    private static List<SortingField> getSortingFields(Object object, Map<String, Integer> headerIndexMap) throws Exception {
-        try {
-            List<SortingField> sortingFields = Lists.newArrayList();
-
-            if (object instanceof Map) {
-                for (Object key : ((Map) object).keySet()) {
-                    if (!headerIndexMap.containsKey(key)) {
-                        if (log.isWarnEnabled()) {
-                            log.warn("key [" + key.toString() + "] is not in headerIndexMap");
-                        }
-                        continue;
-                    }
-                    SortingField sortingField = new SortingField((String) key,headerIndexMap.get(key), ((Map) object).get(key));
-                    sortingFields.add(sortingField);
-                }
-            } else {
-                // 如果是从bean中导出的
-                Field[] fields = object.getClass().getDeclaredFields();
-                for (Field field : fields) {
-                    Export export = field.getAnnotation(Export.class);
-                    // 没有export注解 默认为不导出
-                    if (export == null) {
-                        continue;
-                    }
-                    String fieldName = field.getName();
-                    if (headerIndexMap.containsKey(fieldName)) {
-                        SortingField sortingField = new SortingField(fieldName, headerIndexMap.get(fieldName), PropertyUtils.getProperty(object, fieldName));
-                        sortingFields.add(sortingField);
-                    } else {
-                        if (log.isWarnEnabled()) {
-                            log.warn("The field is not in headerIndexMap : [" + fieldName + "]");
-                        }
-                    }
-                }
-            }
-            return sortingFields;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw e;

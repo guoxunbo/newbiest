@@ -15,6 +15,7 @@ public class TableRequest extends Request {
     public static final String ACTION_GET_DATA = "GetData";
     public static final String ACTION_GET_BY_NAME = "GetByName";
     public static final String ACTION_EXP_TEMPLATE = "ExpTemplate";
+    public static final String ACTION_EXP_DATA = "ExpData";
 
     private TableRequestBody body;
 

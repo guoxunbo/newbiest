@@ -133,7 +133,7 @@ public class NBField extends NBBase {
     private String basicFlag;
 
     /**
-     * 栏位是否在表格中显示
+     * 栏位是否在表格中显示->在表格中显示，即为导出模板栏位
      */
     @Column(name="MAIN_FLAG")
     private String mainFlag;
@@ -192,12 +192,6 @@ public class NBField extends NBBase {
      */
     @Column(name="QUERY_REQUIRE_FLAG")
     private String queryRequireFlag;
-
-    /**
-     * 是否是导出栏位
-     */
-    @Column(name="EXPORT_FLAG")
-    private String exportFlag;
 
     public Boolean getDisplayFlag() {
         return StringUtils.YES.equalsIgnoreCase(displayFlag);
@@ -295,12 +289,4 @@ public class NBField extends NBBase {
         this.queryRequireFlag = queryRequireFlag ? StringUtils.YES : StringUtils.NO;
     }
 
-
-    public Boolean getExportFlag() {
-        return StringUtils.YES.equalsIgnoreCase(exportFlag);
-    }
-
-    public void setExportFlag(Boolean exportFlag) {
-        this.exportFlag = exportFlag ? StringUtils.YES : StringUtils.NO;
-    }
 }

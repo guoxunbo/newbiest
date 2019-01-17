@@ -3,7 +3,8 @@ import Table from "../dto/ui/Table"
 const ActionType = {
     GetByRrn: "GetByRrn",
     GetData: "GetData",
-    ExpTemplate: "ExpTemplate"
+    ExpTemplate: "ExpTemplate",
+    ExpData: "ExpData",
 }
 
 export default class TableManagerRequestBody {
@@ -36,10 +37,14 @@ export default class TableManagerRequestBody {
         return new TableManagerRequestBody(ActionType.GetData, table);
     }
     
-    static buildExpTemplate(objectRrn) {
+    static buildExport(objectRrn, expTemplate) {
+        let actionType = ActionType.ExpData;
+        if (expTemplate) {
+            actionType = ActionType.ExpTemplate;
+        }
         let table = new Table();
         table.setObjectRrn(objectRrn);
-        return new TableManagerRequestBody(ActionType.ExpTemplate, table);
+        return new TableManagerRequestBody(actionType, table);
     }
 
 }
