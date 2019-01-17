@@ -161,11 +161,8 @@ export default class RoleTable extends EntityListTable {
         return selectedRows[0];
     }
 
-    createButtonGroup = () => {
-        let buttons = [];
-        buttons.push(<Button key="add" type="primary" style={styles.tableButton} icon="plus" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnAdd)}</Button>);
-        buttons.push(<Button key="import" type="primary" style={styles.tableButton} icon="file-add" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnImp)}</Button>);
-        buttons.push(<Button key="export" type="primary" style={styles.tableButton} icon="export" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnExp)}</Button>);
+    createButtonGroup() {
+        let buttons = this.__proto__.createButtonGroup();
         buttons.push(<Button key="dispatchUser" type="primary" style={styles.tableButton} icon="user-add" onClick={() => this.openDispatchUserForm()}>{I18NUtils.getClientMessage(i18NCode.BtnDispatchUser)}</Button>);
         buttons.push(<Button key="dispatchAutority" type="primary" style={styles.tableButton} icon="audit" onClick={() => this.openDispatchAuthorityForm()}>{I18NUtils.getClientMessage(i18NCode.BtnDispatchAuthority)}</Button>);
         return buttons;

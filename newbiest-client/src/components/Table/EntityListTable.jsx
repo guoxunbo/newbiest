@@ -214,7 +214,7 @@ export default class EntityListTable extends Component {
     /**
      * 创建btn组。不同的table对button的组合要求不一样时。可以重载其方法做处理
      */
-    createButtonGroup = () => {
+    createButtonGroup() {
         const exportMenu = (
             <Menu onClick={this.handleExpMenuClick.bind(this)}>
               <Menu.Item key={ExpMenuKey.exportData}>
