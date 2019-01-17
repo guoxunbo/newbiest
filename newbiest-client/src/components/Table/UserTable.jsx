@@ -1,6 +1,5 @@
 import {Button} from 'antd';
 import UserManagerRequest from '../../api/user-manager/UserManagerRequest';
-import MessageUtils from "../../api/utils/MessageUtils";
 import { Notification } from "../notice/Notice";
 import I18NUtils from "../../api/utils/I18NUtils";
 import { i18NCode } from "../../api/const/i18n";
@@ -40,20 +39,16 @@ export default class UserTable extends EntityListTable {
         }
     }
 
-    createButtonGroup() {
+    createButtonGroup = () => {
         let buttons = this.__proto__.createButtonGroup();
         buttons.push(<Button key="resetPwd" type="primary" style={styles.tableButton} icon="lock" onClick={() => this.resetPassword()}>{I18NUtils.getClientMessage(i18NCode.BtnResetPassword)}</Button>);
         return buttons;
     }
 
 }
+
 const styles = {
     tableButton: {
         marginLeft:'20px'
-    },
-    buttonGroup:{
-        marginBottom:'10px',
-        marginRight:'30px',
-        textAlign:'right'
     }
 };

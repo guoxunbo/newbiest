@@ -161,7 +161,7 @@ export default class RoleTable extends EntityListTable {
         return selectedRows[0];
     }
 
-    createButtonGroup() {
+    createButtonGroup = () => {
         let buttons = this.__proto__.createButtonGroup();
         buttons.push(<Button key="dispatchUser" type="primary" style={styles.tableButton} icon="user-add" onClick={() => this.openDispatchUserForm()}>{I18NUtils.getClientMessage(i18NCode.BtnDispatchUser)}</Button>);
         buttons.push(<Button key="dispatchAutority" type="primary" style={styles.tableButton} icon="audit" onClick={() => this.openDispatchAuthorityForm()}>{I18NUtils.getClientMessage(i18NCode.BtnDispatchAuthority)}</Button>);

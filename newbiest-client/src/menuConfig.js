@@ -1,6 +1,6 @@
-// 菜单配置
-// headerMenuConfig：头部导航配置
-
+/**
+ * 头部导航配置
+ */
 const headerMenuConfig = [
   {
     name: '首页',
@@ -16,7 +16,7 @@ const headerMenuConfig = [
   },
   {
     name: '帮助',
-    path: 'https://github.com/guoxunbo/newbiest/issues/',
+    path: 'https://github.com/guoxunbo/newbiest/wiki',
     external: true,
     newWindow: true,
     icon: 'bangzhu',
