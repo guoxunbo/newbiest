@@ -2,12 +2,14 @@ package com.newbiest.base.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
@@ -21,8 +23,10 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.Transient;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.List;
 
 /**
@@ -132,15 +136,23 @@ public class AbstractRestController implements Serializable{
             validateEntity((NBUpdatable) nbBase);
         }
         // 有关联关系的时候，不update相应的关联关系
-        NBBase oldBase = baseService.findEntity(nbBase, true);
-        PropertyDescriptor[] descriptors = org.apache.commons.beanutils.PropertyUtils.getPropertyDescriptors(oldBase);
-        if (descriptors != null && descriptors.length > 0) {
-            for (PropertyDescriptor descriptor : descriptors) {
-                Class clazz = descriptor.getPropertyType();
-                if (List.class.isAssignableFrom(clazz)) {
-                    List list = (List) PropertyUtils.getProperty(oldBase, descriptor.getName());
-                    PropertyUtils.setProperty(nbBase, descriptor.getName(), list);
+
+        List<String> relationFiledNameList = Lists.newArrayList();
+        Field[] fields = nbBase.getClass().getDeclaredFields();
+        if (fields != null && fields.length > 0) {
+            for (Field field : fields) {
+                // 只有是集合类型并且没有Transient注解才把已有数据的值放到更新对象中。保证关联关系不会被更新
+                if (List.class.isAssignableFrom(field.getType()) && field.getAnnotation(Transient.class) == null) {
+                    relationFiledNameList.add(field.getName());
                 }
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(relationFiledNameList)) {
+            // 有关联关系的时候，不update相应的关联关系
+            NBBase oldBase = baseService.findEntity(nbBase, true);
+            for (String fieldName : relationFiledNameList) {
+                PropertyUtils.setProperty(nbBase, fieldName, PropertyUtils.getProperty(oldBase, fieldName));
             }
         }
         return baseService.saveEntity(nbBase, sc);

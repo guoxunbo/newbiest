@@ -161,10 +161,17 @@ export default class Field {
 
     /**
      * 根据不同的DisplayType创建不同的组件
+     * @param edit 是否是编辑form 编辑form会处理editable栏位
+     * @param query 是否是queryForm 如果是queryForm需要改变combox的宽度。
      * //TODO 处理默认时间今天，以及默认时间为最后一个月
      */
-    buildControl(edit) {
+    buildControl(edit, query) {
         this.buildDisabled(edit);
+
+        let comboxStyle = undefined;
+        if (query) {
+            comboxStyle = styles.queryComboxStyle;
+        }
         if (this.displayType == DisplayType.text) {
             return <Input placeholder = {this.placeHolder} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.int) {
@@ -182,12 +189,11 @@ export default class Field {
         } else if (this.displayType == DisplayType.datetimeFromTo) {
             return <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.sysRefList) {
-            return <RefListField referenceName={this.refListName} disabled={this.disabled}/>
+            return <RefListField referenceName={this.refListName} style={comboxStyle} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.userRefList) {
-            return <RefListField referenceName={this.refListName} owner disabled={this.disabled}/>
+            return <RefListField referenceName={this.refListName} owner style={comboxStyle} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.referenceTable) {
-            return <RefTableField field={this} form={this.form} disabled={this.disabled}/>
-            // return <RefTableField field={this} form={this.form} disabled={this.disabled} style={{width: "160px"}}/>
+            return <RefTableField field={this} form={this.form} style={comboxStyle} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.radio) {
             return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled}/>
         }
@@ -217,7 +223,7 @@ export default class Field {
                 valuePropName: valuePropName,
             })
           (
-            this.buildControl(edit)
+            this.buildControl(edit, query)
           )}
         </FormItem>);
     }
@@ -312,3 +318,9 @@ export default class Field {
         return rules;
     }
 }
+
+const styles = {
+    queryComboxStyle: {
+        width: '160px'
+    }
+};
