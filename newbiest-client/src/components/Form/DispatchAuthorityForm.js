@@ -1,8 +1,9 @@
 import {Component} from "react";
 import I18NUtils from "../../api/utils/I18NUtils";
 import { i18NCode } from "../../api/const/i18n";
-import { Tree, Modal, Icon } from "antd";
+import { Tree, Modal } from "antd";
 import { Application } from "../../api/Application";
+import IconUtils from "../../api/utils/IconUtils";
 
 const { TreeNode } = Tree;
 
@@ -35,13 +36,9 @@ export default class DispatchAuthorityForm extends Component {
       if (authorities) {
         let treeNodes = [];
         authorities.map((authority) => {
-          if (authority.subAuthorities) {
-            treeNodes.push(<TreeNode icon={<Icon type={authority.image} />} title={authority.labelZh} key={authority.objectRrn} dataRef={authority}>
+          treeNodes.push(<TreeNode icon={IconUtils.buildIcon(authority.image)} title={authority.labelZh} key={authority.objectRrn} dataRef={authority}>
                              {this.renderTreeNodes(authority.subAuthorities)}
                            </TreeNode>);
-          } else {
-            treeNodes.push(<TreeNode icon={<Icon type={authority.image} />} title={authority.labelZh} key={authority.objectRrn} dataRef={authority} />);
-          }
         });
         return treeNodes;
       }

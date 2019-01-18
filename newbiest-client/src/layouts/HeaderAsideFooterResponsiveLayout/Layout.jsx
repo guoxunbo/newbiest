@@ -2,10 +2,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import Layout from '@icedesign/layout';
-// import { Icon } from '@icedesign/base';
 import Menu, { SubMenu, Item as MenuItem } from '@icedesign/menu';
 import { Link } from 'react-router-dom';
-import {Icon} from 'antd';
 
 import { withRouter } from 'react-router';
 import { enquire } from 'enquire-js';
@@ -17,6 +15,7 @@ import './scss/dark.scss';
 
 import { SessionContext } from '../../api/Application';
 import { Notification } from '../../components/notice/Notice';
+import IconUtils from '../../api/utils/IconUtils';
 
 // 设置默认的皮肤配置，支持 dark 和 light 两套皮肤配置
 const theme = typeof THEME === 'undefined' ? 'dark' : THEME;
@@ -175,7 +174,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
         <Layout.Section>
           {this.state.isScreen === 'isMobile' && (
             <a className="menu-btn" onClick={this.toggleMenu}>
-              <Icon type="category" size="small" />
+              {IconUtils.buildIcon("category")}
             </a>
           )}
           {this.state.openDrawer && (
@@ -191,10 +190,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
             {/* 侧边菜单项 begin */}
             {this.state.isScreen !== 'isMobile' && (
               <a className="collapse-btn" onClick={this.toggleCollapse}>
-                <Icon
-                  type={this.state.collapse ? 'arrow-right' : 'arrow-left'}
-                  size="small"
-                />
+                {IconUtils.buildIcon(this.state.collapse ? 'arrow-right' : 'arrow-left')}
               </a>
             )}
             {this.state.isScreen === 'isMobile' && <Logo />}
@@ -217,10 +213,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                         key={index}
                         title={
                           <span >
-                            {nav.icon ? (
-                              <Icon theme="filled" size="small" type={nav.icon} />
-                            ) : null}
-                            
+                            {nav.icon ? IconUtils.buildIcon(nav.icon, 'filled') : null}
                               <span className="ice-menu-collapse-hide" 
                                   style={{marginLeft:"10px", fontSize:"14px"}}>
                                 {nav.name}
@@ -245,8 +238,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                           return (
                             <MenuItem key={item.path}>
                               <Link {...linkProps}>
-                              {item.icon ? (
-                                <Icon size="small" type={item.icon} />) : null}
+                              {item.icon ? IconUtils.buildIcon(item.icon) : null}
                                 <span style={{marginLeft:"3px"}}></span>
                               {item.name}</Link>
                             </MenuItem>
@@ -269,9 +261,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                     <MenuItem key={nav.path}>
                       <Link {...linkProps}>
                         <span>
-                          {nav.icon ? (
-                            <Icon size="small" type={nav.icon} />
-                          ) : null}
+                          {nav.icon ? IconUtils.buildIcon(nav.icon): null}
                           <span className="ice-menu-collapse-hide">
                             {nav.name}
                           </span>
