@@ -277,7 +277,7 @@ export default class EntityListTable extends Component {
                     className="custom-table"
                     pagination={this.props.pagination == null ? Application.table.pagination : this.props.pagination}
                     columns = {columns}
-                    scroll = {{ x: scrollX, y: 350 }}
+                    scroll = {{ x: scrollX }}
                     rowKey = {this.props.rowkey == null ? DefaultRowKey : this.props.rowkey}
                     loading = {this.props.loading}
                     rowClassName = {rowClassName.bind(this)}

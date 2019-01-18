@@ -22,12 +22,43 @@ const routerConfig = [
     component: Home,
   },
   {
-    path: 'System/DynamicTable/:tableRrn',
+    path: 'System/OnlineTableManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
     component: EntityProperties,
   },
   {
-    path: 'Security/DynamicTable/:tableRrn',
+    path: 'System/OnlineTabManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: 'System/OnlineFieldManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: 'System/OnlineRefTableManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: 'System/SysRefNameManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: 'System/OrgRefNameManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: 'System/MessageManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+
+  {
+    path: 'Security/UserManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
     component: UserProperties,
   },
@@ -36,18 +67,15 @@ const routerConfig = [
     layout: HeaderAsideFooterResponsiveLayout,
     component: RoleProperties,
   },
-  {
-    path: 'System/DynamicTab/:tableRrn',
-    layout: HeaderAsideFooterResponsiveLayout,
-    component: EntityProperties,
-  },
-  {
-    path: 'System/DynamicField/:tableRrn',
-    layout: HeaderAsideFooterResponsiveLayout,
-    component: EntityProperties,
-  },
+  
+  
   {
     path: 'Rms/EquipmentManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: 'Rms/RecipeManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
     component: EntityProperties,
   },

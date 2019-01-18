@@ -377,7 +377,6 @@ public class ExcelUtils {
                 headerIndexMap.put(propertyName, cellNum);
                 cellNum++;
             }
-
             index++;
             if (CollectionUtils.isNotEmpty(data)) {
                 // 填充数据 从标题行下一行开始

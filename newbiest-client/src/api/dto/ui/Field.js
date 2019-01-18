@@ -37,7 +37,7 @@ const Aligin = {
 
 const DisplayLength = {
     min: 100,
-    max: 300
+    max: 400
 }
 export default class Field {
 

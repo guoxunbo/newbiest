@@ -2,11 +2,12 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import Layout from '@icedesign/layout';
-import { Icon } from '@icedesign/base';
+// import { Icon } from '@icedesign/base';
 import Menu, { SubMenu, Item as MenuItem } from '@icedesign/menu';
 import { Link } from 'react-router-dom';
+import {Icon} from 'antd';
+
 import { withRouter } from 'react-router';
-import FoundationSymbol from 'foundation-symbol';
 import { enquire } from 'enquire-js';
 import Header from './../../components/Header';
 import Footer from './../../components/Footer';
@@ -215,13 +216,15 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                       <SubMenu
                         key={index}
                         title={
-                          <span>
+                          <span >
                             {nav.icon ? (
-                              <FoundationSymbol size="small" type={nav.icon} />
+                              <Icon theme="filled" size="small" type={nav.icon} />
                             ) : null}
-                            <span className="ice-menu-collapse-hide">
-                              {nav.name}
-                            </span>
+                            
+                              <span className="ice-menu-collapse-hide" 
+                                  style={{marginLeft:"10px", fontSize:"14px"}}>
+                                {nav.name}
+                              </span>
                           </span>
                         }
                       >
@@ -243,7 +246,8 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                             <MenuItem key={item.path}>
                               <Link {...linkProps}>
                               {item.icon ? (
-                              <FoundationSymbol size="small" type={item.icon} />) : null}
+                                <Icon size="small" type={item.icon} />) : null}
+                                <span style={{marginLeft:"3px"}}></span>
                               {item.name}</Link>
                             </MenuItem>
                           );
@@ -266,7 +270,7 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                       <Link {...linkProps}>
                         <span>
                           {nav.icon ? (
-                            <FoundationSymbol size="small" type={nav.icon} />
+                            <Icon size="small" type={nav.icon} />
                           ) : null}
                           <span className="ice-menu-collapse-hide">
                             {nav.name}
