@@ -1,7 +1,12 @@
 package com.newbiest.base.utils;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.newbiest.base.exception.ClientParameterException;
+import com.newbiest.base.exception.NewbiestException;
+import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.ui.model.NBField;
 import com.newbiest.base.ui.model.NBTable;
@@ -9,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 
+import java.beans.PropertyDescriptor;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -48,7 +54,7 @@ public class ExcelUtils {
 
     /**
      * 导入excel返回对象 当前仅支持导入一个单sheet
-     * @param clazz 导入对象 当为空的时候默认导出 List<Map<列头, 值>
+     * @param clazz 导入对象 当为空的时候默认返回 List<Map<列头, 值>
      * @param headersMapped 列头映射如：Map<名称, name> 当列头和属性名不一致的时候的映射关系
      * @param inputStream 导入的来源
      * @param pattern 日期格式 当有date类型的时候 导出到excel中是以如何格式进行显示 默认为："YYYY-MM-dd HH:mm:ss:SSS"
@@ -57,75 +63,60 @@ public class ExcelUtils {
      */
     public static Collection importExcel(Class clazz, Map<String, String> headersMapped, InputStream inputStream, String pattern) throws Exception {
         try {
+
             PreConditionalUtils.checkNotNull(inputStream, "Excel Input");
             if (clazz == null || clazz == Map.class) {
                 return importExcel(inputStream);
             }
+
+            List importDataList = Lists.newArrayList();
+
             Workbook workbook = WorkbookFactory.create(inputStream);
             Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rowIterator = sheet.rowIterator();
+            List<Row> rows = Lists.newArrayList(sheet.rowIterator());
 
-            List dataList = Lists.newArrayList();
-            // 取出headers行 将列头转换成 -> map<属性名, 位置>
-            Map<String, Integer> headerIndexMap = Maps.newHashMap();
-            while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
-                Iterator<Cell> cellIterator = row.cellIterator();
-                // 如果是第一行 则是列头
-                if (row.getRowNum() == 0) {
-                    int cellNumber = 0;
-                    while (cellIterator.hasNext()) {
-                        Cell cell = cellIterator.next();
-                        String value = cell.getStringCellValue();
-                        // 如果不需要转换 则直接放值
-                        if (headersMapped == null || headersMapped.size() == 0) {
-                            headerIndexMap.put(value, cellNumber);
-                        } else {
+            if (CollectionUtils.isNotEmpty(rows) && rows.size() > 1) {
+                // 列头对应的所在单元格的位置比如{(名称=1), (描述=2)}
+                Map<String, Integer> headerIndexMap = Maps.newHashMap();
+                int rowIndex = 0;
+                for (Row row : rows) {
+                    List<Cell> cellList = Lists.newArrayList(row.cellIterator());
+                    if (rowIndex == 0) {
+                        int cellNumber = 0;
+                        for (Cell cell : cellList) {
+                            String value = cell.getStringCellValue();
+                            // 不在定义的列里面，则不进行栏位导入
                             if (headersMapped.containsKey(value)) {
-                                // 如name, 1
                                 headerIndexMap.put(headersMapped.get(value), cellNumber);
                             }
+                            cellNumber++;
                         }
-                        cellNumber++;
+                        rowIndex++;
+                        continue;
                     }
-                    continue;
-                }
-                // 当遇到空行则跳过
-                boolean nullRowFlag = checkCurrentRowIsNull(row);
-                if (nullRowFlag) {
-                    continue;
-                }
-                Object object = clazz.newInstance();
-                Field[] fields = clazz.getDeclaredFields();
-                for (String propertyName : headerIndexMap.keySet()) {
-                    // 如果fileds中没有这个属性栏位 则不导入
-                    boolean fieldsContainsProperty = false;
-                    for (Field field : fields) {
-                        if (field.getName().equalsIgnoreCase(propertyName)) {
-                            fieldsContainsProperty = true;
-                            break;
-                        }
-                    }
-                    if (fieldsContainsProperty) {
-                        Cell cell = row.getCell(headerIndexMap.get(propertyName));
-                        Object value = getCellValue(cell);
-                        // 日期类型单独处理
-                        if (org.apache.commons.beanutils.PropertyUtils.getPropertyType(object, propertyName) == Date.class) {
-                            if (StringUtils.isNullOrEmpty(pattern)) {
-                                pattern = DEFAULT_DATE_PATTERN;
+                    Object object = clazz.newInstance();
+                    List<PropertyDescriptor> descriptors = Lists.newArrayList(PropertyUtils.getPropertyDescriptors(object));
+                    for (String propertyName : headerIndexMap.keySet()) {
+                        Optional<PropertyDescriptor> optional = descriptors.stream().filter(descriptor -> descriptor.getName().equalsIgnoreCase(propertyName)).findFirst();
+                        if (optional.isPresent()) {
+                            Cell cell = row.getCell(headerIndexMap.get(propertyName));
+                            Object value = getCellValue(cell);
+                            // 日期类型单独处理
+                            if (org.apache.commons.beanutils.PropertyUtils.getPropertyType(object, propertyName) == Date.class) {
+                                if (StringUtils.isNullOrEmpty(pattern)) {
+                                    pattern = DEFAULT_DATE_PATTERN;
+                                }
+                                SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+                                value = sdf.parse((String) value);
                             }
-                            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-                            value = sdf.parse((String) value);
+                            PropertyUtils.setProperty(object, propertyName, value);
                         }
-
-                        PropertyUtils.setProperty(object, propertyName, value);
                     }
+                    importDataList.add(object);
+                    rowIndex++;
                 }
-
-                dataList.add(object);
             }
-
-            return dataList;
+            return importDataList;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw e;
@@ -169,26 +160,6 @@ public class ExcelUtils {
     }
 
     /**
-     * 检查当前行是否是空行
-     */
-    private static boolean checkCurrentRowIsNull(Row row) throws Exception {
-        // 当遇到空行则跳过
-        boolean nullRowFlag = true;
-        while (row.cellIterator().hasNext()) {
-            Cell cell = row.cellIterator().next();
-            String value = cell.getStringCellValue();
-            if (!StringUtils.isNullOrEmpty(value)) {
-                nullRowFlag = false;
-                break;
-            }
-            if (nullRowFlag && log.isWarnEnabled()) {
-                log.warn("The rowNumber [ " + row.getRowNum() + "]'s data is null!");
-            }
-        }
-        return nullRowFlag;
-    }
-
-    /**
      * 导入excel返回List<Map> 当前仅支持导入一个单sheet
      * @param inputStream 导入的来源
      * @return List<Map<列头, 值>
@@ -220,11 +191,7 @@ public class ExcelUtils {
                     }
                     continue;
                 }
-                // 当遇到空行则跳过
-                boolean nullRowFlag = checkCurrentRowIsNull(row);
-                if (nullRowFlag) {
-                    continue;
-                }
+
                 Map<String, Object> dataMap = Maps.newHashMap();
                 for (String key : headerMap.keySet()) {
                     int index = headerMap.get(key);
@@ -285,7 +252,7 @@ public class ExcelUtils {
     }
 
     /**
-     * 根据nbtable上的栏位的是否导出标志来导出模板
+     * 根据nbTable上的栏位的是否列表显示来导出数据
      * @param nbTable 动态表
      * @param language 语言
      * @return
@@ -297,7 +264,7 @@ public class ExcelUtils {
     }
 
     /**
-     * 根据nbtable上的栏位的是否导出标志来生成表头
+     * 根据nbtable上的栏位的是否导出标志以及语言来生成表头 比如{(name, 名称), (description, 描述)}
      * @param nbTable 动态表
      * @param language 语言
      * @return

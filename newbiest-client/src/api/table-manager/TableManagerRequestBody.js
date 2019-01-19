@@ -5,6 +5,7 @@ const ActionType = {
     GetData: "GetData",
     ExpTemplate: "ExpTemplate",
     ExpData: "ExpData",
+    Import: "Import"
 }
 
 export default class TableManagerRequestBody {
@@ -45,6 +46,12 @@ export default class TableManagerRequestBody {
         let table = new Table();
         table.setObjectRrn(objectRrn);
         return new TableManagerRequestBody(actionType, table);
+    }
+
+    static buildImport(objectRrn) {
+        let table = new Table();
+        table.setObjectRrn(objectRrn);
+        return new TableManagerRequestBody(ActionType.Import, table);
     }
 
 }

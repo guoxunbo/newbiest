@@ -53,6 +53,38 @@ export default class MessageUtils {
     }
 
     /**
+     * 发送导入请求
+     *  因为json似乎是没有表达内嵌文件的格式.所有需要封装formData进行提交
+     * @param requestObject {url:"", request:{param1, param2},}
+     * @param file 文件
+     */
+    static sendImportData(requestObject, file) {
+        let self = this;
+        let request = requestObject.request;
+        let formData = new FormData();
+        formData.append("file", file);
+        formData.append("request", JSON.stringify(request));
+
+        axios.post(request.url, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        }).then(function(object) {
+            let response = new Response(object.data.header, object.data.body);
+            if (ResultIdentify.Fail == response.header.result) {
+                self.handleException(response.header);
+            } else {
+                if (requestObject.success != undefined) {
+                    requestObject.success(response.body);
+                } else {
+                    self.showOperationSuccess();
+                }
+            }
+        }).catch(function(exception) {
+            self.handleException(exception);
+        }); 
+
+    }
+
+    /**
      * 发送导出数据请求比如导出excel 具体类型由contnt-type决定
      * 因为导出的时候不要返回体的。只需返回字节流即可
      * @param requestObject {url:"", request:{param1, param2},}

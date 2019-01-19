@@ -12,9 +12,11 @@ import com.newbiest.base.repository.QueryRepository;
 import com.newbiest.base.repository.RelationRepository;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.ui.model.*;
 import com.newbiest.base.utils.*;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.model.NBOrg;
+import com.newbiest.security.model.NBUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
@@ -147,6 +149,29 @@ public class BaseServiceImpl implements BaseService  {
     }
 
     /**
+     * 保存对象集合
+     * @param nbBaseList
+     * @param sc
+     * @return
+     * @throws ClientException
+     */
+    public List<? extends NBBase> saveEntity(List<? extends NBBase> nbBaseList, SessionContext sc) throws ClientException {
+        try {
+            List<NBBase> data = Lists.newArrayList();
+
+            if (CollectionUtils.isNotEmpty(nbBaseList)) {
+                for (NBBase nbBase : nbBaseList) {
+                    data.add(saveEntity(nbBase, sc));
+                }
+            }
+            return data;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
      * 保存对象
      * 更新时候 不会更新关联的对象 只会更新自己本身的属性
      * @param nbBase 对象
@@ -176,8 +201,12 @@ public class BaseServiceImpl implements BaseService  {
                     historyRepository.save(nbHis);
                 }
             } else {
-                //TODO 处理个别对象的orgRrn永远是0比如用户，动态表，动态栏位等等
                 nbBase.setOrgRrn(sc.getOrgRrn());
+                if (nbBase instanceof NBTable || nbBase instanceof NBTab || nbBase instanceof NBField
+                        || nbBase instanceof NBReferenceTable || nbBase instanceof NBSystemReferenceName
+                        || nbBase instanceof NBMessage || nbBase instanceof NBUser) {
+                    nbBase.setOrgRrn(NBOrg.GLOBAL_ORG_RRN);
+                }
                 if (nbBase instanceof NBUpdatable) {
                     ((NBUpdatable) nbBase).setCreatedBy(sc.getUsername());
                 }

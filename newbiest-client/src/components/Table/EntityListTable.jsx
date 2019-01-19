@@ -13,6 +13,7 @@ import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest'
 import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
 import TableManagerRequest from '../../api/table-manager/TableManagerRequest';
+import { Upload } from 'antd';
 
 const ExpMenuKey = {
     exportTemplate: "exportTemplate",
@@ -210,25 +211,39 @@ export default class EntityListTable extends Component {
         }
     }
 
+    handleUpload = (option) => {
+        const {table} = this.state;
+        let object = {
+            tableRrn: table.objectRrn,
+        }
+        TableManagerRequest.sendImportRequest(object, option.file);
+    }
+
     /**
      * 创建btn组。不同的table对button的组合要求不一样时。可以重载其方法做处理
      */
-    createButtonGroup() {
-        const exportMenu = (
-            <Menu onClick={this.handleExpMenuClick.bind(this)}>
-              <Menu.Item key={ExpMenuKey.exportData}>
-                <Icon type="database" /> {I18NUtils.getClientMessage(i18NCode.BtnExpData)}
-              </Menu.Item>
-              <Menu.Item key={ExpMenuKey.exportTemplate}>
-                <Icon type="file-excel" />{I18NUtils.getClientMessage(i18NCode.BtnExpTemplate)}
-              </Menu.Item>
-            </Menu>
-        );
-
+    createButtonGroup () {
+        
         let buttons = [];
         buttons.push(<Button key="add" type="primary" style={styles.tableButton} icon="plus" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnAdd)}</Button>);
-        buttons.push(<Button key="import" type="primary" style={styles.tableButton} icon="file-add" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnImp)}</Button>);
+
+        buttons.push(
+                // 只能支持xls,xlsx导入
+                <Upload key="import" accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+                    customRequest={(option) => this.handleUpload(option)} showUploadList={false} >
+                    <Button type="primary" style={styles.tableButton} icon="file-add">{I18NUtils.getClientMessage(i18NCode.BtnImp)}</Button>
+                </Upload>);
         
+        const exportMenu = (
+            <Menu onClick={this.handleExpMenuClick.bind(this)}>
+                <Menu.Item key={ExpMenuKey.exportData}>
+                <Icon type="database" /> {I18NUtils.getClientMessage(i18NCode.BtnExpData)}
+                </Menu.Item>
+                <Menu.Item key={ExpMenuKey.exportTemplate}>
+                <Icon type="file-excel" />{I18NUtils.getClientMessage(i18NCode.BtnExpTemplate)}
+                </Menu.Item>
+            </Menu>
+        );
         buttons.push(<Dropdown key="export" overlay={exportMenu}>
                         <Button type="primary" style={styles.tableButton} icon="export" >
                             {I18NUtils.getClientMessage(i18NCode.BtnExp)} <Icon type="down" />

@@ -1,6 +1,5 @@
 package com.newbiest.base.utils;
 
-import com.newbiest.base.model.NBBase;
 import net.sf.cglib.beans.BeanCopier;
 import net.sf.cglib.core.Converter;
 import org.slf4j.Logger;
@@ -13,7 +12,7 @@ import java.util.Date;
  * 属性栏位工具类
  * Created by guoxunbo on 2017/10/7.
  */
-public class PropertyUtils {
+public class PropertyUtils extends org.apache.commons.beanutils.PropertyUtils {
 
     private static Logger logger = LoggerFactory.getLogger(PropertyUtils.class);
 
@@ -59,7 +58,7 @@ public class PropertyUtils {
                         if (value instanceof String) {
                             org.apache.commons.beanutils.PropertyUtils.setSimpleProperty(sourceBean, propertyName, DateUtils.parseDateTime((String) value));
                         } else if (value instanceof Date) {
-                            org.apache.commons.beanutils.PropertyUtils.setSimpleProperty(sourceBean, propertyName, (Date) value);
+                            org.apache.commons.beanutils.PropertyUtils.setSimpleProperty(sourceBean, propertyName, value);
                         }
                     } else if (Long.class.getName().equalsIgnoreCase(clazz.getName())) {
                         if (value instanceof String) {

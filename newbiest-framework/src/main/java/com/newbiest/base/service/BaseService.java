@@ -22,6 +22,7 @@ public interface BaseService {
     NBOrg findOrgByName(String name) throws ClientException;
     NBOrg findOrgByObjectRrn(Long objectRrn) throws ClientException;
 
+    List<? extends NBBase> saveEntity(List<? extends NBBase> nbBaseList, SessionContext sc) throws ClientException;
     NBBase saveEntity(NBBase nbBase, SessionContext sc) throws ClientException;
     void delete(NBBase nbBase, SessionContext sc) throws ClientException;
     void delete(NBBase nbBase, boolean deleleRelationFlag, SessionContext sc) throws ClientException;

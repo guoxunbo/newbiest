@@ -10,6 +10,7 @@ const UrlConstant = {
     UserManagerUrl: ModuleUrlConstant.Security + "userManage",
     TableMangerUrl: ModuleUrlConstant.UI + "tableManage",
     ExporttUrl: ModuleUrlConstant.UI + "export",
+    ImportUrl:  ModuleUrlConstant.UI + "importData",
     RefListMangerUrl: ModuleUrlConstant.UI + "refListManage",    
     RefTableManagerUrl: ModuleUrlConstant.UI + "refTableManage",
     EntityManagerUrl: ModuleUrlConstant.Framework + "entityManage",

@@ -22,4 +22,15 @@ export default class TableManagerRequest {
         MessageUtils.sendExpRequest(requestObject, object.fileName);
     }
 
+    static sendImportRequest = (object, file) => {
+        let requestBody = TableManagerRequestBody.buildImport(object.tableRrn);
+        let requestHeader = new TableManagerRequestHeader();
+        let request = new Request(requestHeader, requestBody, UrlConstant.ImportUrl);
+        let requestObject = {
+            request: request,
+            success: object.success
+        }
+        MessageUtils.sendImportData(requestObject, file);
+    }
+
 }
