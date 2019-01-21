@@ -20,7 +20,8 @@ const ExpMenuKey = {
     exportData: "exportData"
 }
 /**
- * 基本表格。每一行都带有编辑和删除的列
+ * 基本表格。具备新建和导出数据
+ * 每一行都带有编辑和删除的列
  */
 export default class EntityListTable extends Component {
 
@@ -188,6 +189,17 @@ export default class EntityListTable extends Component {
     };
 
     handleExpMenuClick({ key }) {
+        if (ExpMenuKey.exportTemplate === key) {
+            this.exportTemplate();
+        } else if (ExpMenuKey.exportData === key) {
+            this.exportData();
+        }
+    }
+
+    /**
+     * 导出模板
+     */
+    exportTemplate = () => {
         const {table} = this.state;
         let language = SessionContext.getLanguage();
 
@@ -204,11 +216,30 @@ export default class EntityListTable extends Component {
             tableRrn: table.objectRrn,
             fileName: fileName + ".xls",
         }
-        if (ExpMenuKey.exportTemplate === key) {
-            TableManagerRequest.sendExportRequest(object, true);
-        } else if (ExpMenuKey.exportData === key) {
-            TableManagerRequest.sendExportRequest(object);
+        TableManagerRequest.sendExportRequest(object, true);
+    }
+
+    /**
+     * 导出数据
+     */
+    exportData = () => {
+        const {table} = this.state;
+        let language = SessionContext.getLanguage();
+
+        let fileName = table.name;
+        if (language == undefined) {
+            language = Language.Chinese;
         }
+        if (language == Language.Chinese) {
+            fileName = table.labelZh;
+        } else if (language == Language.English) {
+            fileName = table.label;
+        }
+        let object = {
+            tableRrn: table.objectRrn,
+            fileName: fileName + ".xls",
+        }
+        TableManagerRequest.sendExportRequest(object);
     }
 
     handleUpload = (option) => {
@@ -219,36 +250,59 @@ export default class EntityListTable extends Component {
         TableManagerRequest.sendImportRequest(object, option.file);
     }
 
-    /**
-     * 创建btn组。不同的table对button的组合要求不一样时。可以重载其方法做处理
-     */
-    createButtonGroup () {
-        
-        let buttons = [];
-        buttons.push(<Button key="add" type="primary" style={styles.tableButton} icon="plus" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnAdd)}</Button>);
+    createAddButton = () => {
+        return <Button key="add" type="primary" style={styles.tableButton} icon="plus" onClick={() => this.handleAdd()}>{I18NUtils.getClientMessage(i18NCode.BtnAdd)}</Button>;
+    }
 
-        buttons.push(
-                // 只能支持xls,xlsx导入
-                <Upload key="import" accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
-                    customRequest={(option) => this.handleUpload(option)} showUploadList={false} >
-                    <Button type="primary" style={styles.tableButton} icon="file-add">{I18NUtils.getClientMessage(i18NCode.BtnImp)}</Button>
-                </Upload>);
-        
+    /**
+     * 创建导出数据以及导出模板的按钮
+     * 一般具备导入功能才会具备导出模板
+     */
+    createExportDataAndTemplateButton = () => {
         const exportMenu = (
             <Menu onClick={this.handleExpMenuClick.bind(this)}>
                 <Menu.Item key={ExpMenuKey.exportData}>
-                <Icon type="database" /> {I18NUtils.getClientMessage(i18NCode.BtnExpData)}
+                    <Icon type="database" /> {I18NUtils.getClientMessage(i18NCode.BtnExpData)}
                 </Menu.Item>
                 <Menu.Item key={ExpMenuKey.exportTemplate}>
-                <Icon type="file-excel" />{I18NUtils.getClientMessage(i18NCode.BtnExpTemplate)}
+                    <Icon type="file-excel" />{I18NUtils.getClientMessage(i18NCode.BtnExpTemplate)}
                 </Menu.Item>
             </Menu>
         );
-        buttons.push(<Dropdown key="export" overlay={exportMenu}>
-                        <Button type="primary" style={styles.tableButton} icon="export" >
-                            {I18NUtils.getClientMessage(i18NCode.BtnExp)} <Icon type="down" />
-                        </Button>
-                    </Dropdown>);
+        return <Dropdown key="export" overlay={exportMenu}>
+                    <Button type="primary" style={styles.tableButton} icon="export" >
+                        {I18NUtils.getClientMessage(i18NCode.BtnExp)} <Icon type="down" />
+                    </Button>
+                </Dropdown>;
+    }
+
+    /**
+     * 创建导出数据功能。基本功能具备
+     */
+    createExportDataButton = () => {
+        return <Button type="primary" style={styles.tableButton} icon="file-excel" onClick={this.exportData}>
+                        {I18NUtils.getClientMessage(i18NCode.BtnExp)}
+                    </Button>
+    }
+
+    /**
+     * 创建导入按钮 只能支持xls,xlsx导入
+     */
+    createImportButton = () => {
+        return (<Upload key="import" accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+                    customRequest={(option) => this.handleUpload(option)} showUploadList={false} >
+                    <Button type="primary" style={styles.tableButton} icon="file-add">{I18NUtils.getClientMessage(i18NCode.BtnImp)}</Button>
+                </Upload>);
+    }
+
+    /**
+     * 创建btn组。不同的table对button的组合要求不一样时。可以重载其方法做处理
+     */
+    createButtonGroup = () => {
+        let buttons = [];
+        buttons.push(this.createAddButton());
+        buttons.push(this.createImportButton());
+        buttons.push(this.createExportDataAndTemplateButton());
         return buttons;
     }
 

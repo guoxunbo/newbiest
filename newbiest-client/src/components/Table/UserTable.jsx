@@ -40,7 +40,10 @@ export default class UserTable extends EntityListTable {
     }
 
     createButtonGroup = () => {
-        let buttons = this.__proto__.createButtonGroup();
+        let buttons = [];
+        buttons.push(this.createAddButton());
+        buttons.push(this.createImportButton());
+        buttons.push(this.createExportDataAndTemplateButton());
         buttons.push(<Button key="resetPwd" type="primary" style={styles.tableButton} icon="lock" onClick={() => this.resetPassword()}>{I18NUtils.getClientMessage(i18NCode.BtnResetPassword)}</Button>);
         return buttons;
     }

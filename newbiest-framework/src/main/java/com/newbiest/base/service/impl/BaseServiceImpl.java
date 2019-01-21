@@ -15,6 +15,7 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.*;
 import com.newbiest.base.utils.*;
 import com.newbiest.main.NewbiestConfiguration;
+import com.newbiest.security.model.NBAuthority;
 import com.newbiest.security.model.NBOrg;
 import com.newbiest.security.model.NBUser;
 import lombok.extern.slf4j.Slf4j;
@@ -204,7 +205,7 @@ public class BaseServiceImpl implements BaseService  {
                 nbBase.setOrgRrn(sc.getOrgRrn());
                 if (nbBase instanceof NBTable || nbBase instanceof NBTab || nbBase instanceof NBField
                         || nbBase instanceof NBReferenceTable || nbBase instanceof NBSystemReferenceName
-                        || nbBase instanceof NBMessage || nbBase instanceof NBUser) {
+                        || nbBase instanceof NBMessage || nbBase instanceof NBUser || nbBase instanceof NBAuthority) {
                     nbBase.setOrgRrn(NBOrg.GLOBAL_ORG_RRN);
                 }
                 if (nbBase instanceof NBUpdatable) {
