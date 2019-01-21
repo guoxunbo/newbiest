@@ -1,9 +1,6 @@
 import { Table, Popconfirm, Button, Form } from 'antd';
 import * as PropTypes from 'prop-types';
-import TableManagerRequestBody from '../../../api/table-manager/TableManagerRequestBody';
-import TableManagerRequestHeader from '../../../api/table-manager/TableManagerRequestHeader';
-import Request from '../../../api/Request';
-import {UrlConstant, DefaultRowKey} from '../../../api/const/ConstDefine'
+import {DefaultRowKey} from '../../../api/const/ConstDefine'
 import MessageUtils from '../../../api/utils/MessageUtils';
 import Field from '../../../api/dto/ui/Field';
 import '../ListTable.scss';
@@ -14,6 +11,7 @@ import uuid from 'react-native-uuid';
 import EntityManagerRequest from '../../../api/entity-manager/EntityManagerRequest'; 
 import I18NUtils from '../../../api/utils/I18NUtils';
 import { i18NCode } from '../../../api/const/i18n';
+import TableManagerRequest from '../../../api/table-manager/TableManagerRequest';
 
 const EditableContext = React.createContext();
 
@@ -74,11 +72,9 @@ export default class EditableTable extends React.Component {
 
   buildTable = () => {
     const self = this;
-    let requestBody = TableManagerRequestBody.buildGetDataByName(this.props.refTableName, this.props.whereClause);
-    let requestHeader = new TableManagerRequestHeader();
-    let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
     let requestObject = {
-      request: request,
+      tableName: this.props.refTableName,
+      whereClause: this.props.whereClause,
       success: function(responseBody) {
         let table = responseBody.table;
         let columnData = self.buildColumn(table.fields);
@@ -91,7 +87,7 @@ export default class EditableTable extends React.Component {
         });
       }
     }
-    MessageUtils.sendRequest(requestObject);
+    TableManagerRequest.sendGetDataByNameRequest(requestObject);
   }
 
   buildColumn = (fields) => {

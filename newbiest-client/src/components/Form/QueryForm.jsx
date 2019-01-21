@@ -1,16 +1,12 @@
 import React, { Component } from 'react';
 import { Form, Row, Col, Button } from 'antd';
 import './QueryForm.scss';
-
-import TableManagerRequestBody from '../../api/table-manager/TableManagerRequestBody';
-import TableManagerRequestHeader from '../../api/table-manager/TableManagerRequestHeader';
-import Request from '../../api/Request';
-import {UrlConstant, SqlType} from "../../api/const/ConstDefine";
-import MessageUtils from '../../api/utils/MessageUtils';
+import {SqlType} from "../../api/const/ConstDefine";
 import Field from '../../api/dto/ui/Field';
 import * as PropTypes from 'prop-types';
 
 import StringBuffer from '../../api/StringBuffer';
+import TableManagerRequest from '../../api/table-manager/TableManagerRequest';
 
 class QueryForm extends Component {
     static displayName = 'QueryForm';
@@ -31,11 +27,8 @@ class QueryForm extends Component {
 
     getQueryFields = (tableRrn) => {
         let self = this;
-        let requestBody = TableManagerRequestBody.buildGetByRrn(tableRrn);
-        let requestHeader = new TableManagerRequestHeader();
-        let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
         let requestObject = {
-            request: request,
+            tableRrn: tableRrn,
             success: function(responseBody) {
                 let fields = responseBody.table.fields;
                 let queryFields = [];
@@ -48,8 +41,7 @@ class QueryForm extends Component {
                 self.setState({queryFields: queryFields})
             }
         }
-        
-        MessageUtils.sendRequest(requestObject);
+        TableManagerRequest.sendGetByRrnRequest(requestObject);
     }
 
     buildWhereClause = (formValues) => {
