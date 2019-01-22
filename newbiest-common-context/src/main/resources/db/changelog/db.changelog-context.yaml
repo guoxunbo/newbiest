@@ -3,5 +3,8 @@ databaseChangeLog:
       file: db.changelog-0.0.1.context.yaml
       relativeToChangelogFile: true
   - include:
+      file: db.changelog-0.0.2.context.yaml
+      relativeToChangelogFile: true
+  - include:
       file: db.changelog-0.0.1.context_value.yaml
       relativeToChangelogFile: true

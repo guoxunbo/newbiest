@@ -1,11 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: Init-NB_AUTHORITY-Table_1.0.0
+      id: Init-NB_RELATION-Table
       author: Xunbo Guo
-      comment: Init Table to NB_AUTHORITY
+      comment: Init Table to NB_RELATION
       changes:
         - sqlFile:
             encoding: utf8
             relativeToChangelogFile: true
-            path: sqlfile/NB_AUTHORITY-1.0.0.sql
-
+            path: sqlfile/NB_RELATION.sql

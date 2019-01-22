@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource(ignoreResourceNotFound = true, value = "classpath:context-${spring.profiles.active}.yml", factory = YmlPropertyLoaderFactory.class)
-@ConfigurationProperties(prefix = "spring.liquibase")
+@ConfigurationProperties(prefix = "context.liquibase")
 @Data
 @Slf4j
 public class ContextLiquibaseConfiguration {

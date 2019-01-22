@@ -1,19 +1,19 @@
 databaseChangeLog:
   - include:
-      file: db.changelog-1.0.0.table.yaml
+      file: db.changelog.table.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.tab.yaml
+      file: db.changelog.tab.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.field.yaml
+      file: db.changelog.field.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.ref_table.yaml
+      file: db.changelog.ref_table.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.ref_name.yaml
+      file: db.changelog.ref_name.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.ref_list.yaml
+      file: db.changelog.ref_list.yaml
       relativeToChangelogFile: true

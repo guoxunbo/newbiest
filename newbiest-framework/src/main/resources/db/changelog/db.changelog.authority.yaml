@@ -1,10 +1,11 @@
 databaseChangeLog:
   - changeSet:
-      id: Init-NB_REFERENCE_TABLE-Table_1.0.0
+      id: Init-NB_AUTHORITY-Table
       author: Xunbo Guo
-      comment: Init Table to NB_REFERENCE_TABLE
+      comment: Init Table to NB_AUTHORITY
       changes:
         - sqlFile:
             encoding: utf8
             relativeToChangelogFile: true
-            path: sqlfile/NB_REFERENCE_TABLE-1.0.0.sql
+            path: sqlfile/NB_AUTHORITY.sql
+

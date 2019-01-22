@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-unique-constraint-for-context-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (org_rrn, name) for table COM_CONTEXT
+      changes:
+        - addUniqueConstraint:
+            tableName: COM_CONTEXT
+            columnNames: org_rrn, name
+            constraintName: UK_CONTEXT_ORG_RRN_NAME

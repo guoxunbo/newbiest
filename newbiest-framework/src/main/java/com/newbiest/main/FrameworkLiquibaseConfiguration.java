@@ -15,7 +15,7 @@ import javax.sql.DataSource;
  * Created by guoxunbo on 2019/1/10.
  */
 @Configuration
-@ConfigurationProperties(prefix = "spring.liquibase")
+@ConfigurationProperties(prefix = "framework.liquibase")
 @Data
 @PropertySource(value = "classpath:framework-${spring.profiles.active}.yml", factory = YmlPropertyLoaderFactory.class)
 @Slf4j

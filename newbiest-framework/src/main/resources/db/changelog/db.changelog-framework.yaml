@@ -1,39 +1,39 @@
 databaseChangeLog:
   - include:
-      file: db.changelog-1.0.0.authority.yaml
+      file: db.changelog.authority.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.message.yaml
+      file: db.changelog.message.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.org.yaml
+      file: db.changelog.org.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.query.yaml
+      file: db.changelog.query.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.relation.yaml
+      file: db.changelog.relation.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.role.yaml
+      file: db.changelog.role.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.role_authority.yaml
+      file: db.changelog.role_authority.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.role_his.yaml
+      file: db.changelog.role_his.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.user.yaml
+      file: db.changelog.user.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.user_org.yaml
+      file: db.changelog.user_org.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.user_role.yaml
+      file: db.changelog.user_role.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-1.0.0.user_his.yaml
+      file: db.changelog.user_his.yaml
       relativeToChangelogFile: true
   - include:
       file: ui/db.changelog-ui-master.yaml

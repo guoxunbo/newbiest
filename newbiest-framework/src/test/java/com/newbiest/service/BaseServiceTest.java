@@ -7,12 +7,14 @@ import com.newbiest.main.FrameworkApplicationTest;
 import com.newbiest.security.model.NBOrg;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
 /**
  * Created by guoxunbo on 2018/7/20.
  */
+@ActiveProfiles("dev")
 public class BaseServiceTest extends FrameworkApplicationTest {
 
     @Autowired

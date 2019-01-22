@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: Init-NB_TABLE-Table_1.0.0
+      id: Init-NB_USER_HIS-Table
       author: Xunbo Guo
-      comment: Init Table to NB_TABLE
+      comment: Init Table to NB_USER_HIS
       changes:
         - sqlFile:
             encoding: utf8
             relativeToChangelogFile: true
-            path: sqlfile/NB_TABLE-1.0.0.sql
+            path: sqlfile/NB_USER_HIS.sql

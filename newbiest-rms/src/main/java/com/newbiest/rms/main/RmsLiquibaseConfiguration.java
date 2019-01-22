@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource(value = "classpath:rms-${spring.profiles.active}.yml", factory = YmlPropertyLoaderFactory.class)
-@ConfigurationProperties(prefix = "spring.liquibase")
+@ConfigurationProperties(prefix = "rms.liquibase")
 @Data
 @Slf4j
 public class RmsLiquibaseConfiguration {

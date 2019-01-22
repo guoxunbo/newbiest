@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-unique-constraint-for-recipe-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (org_rrn, name) for table RMS_RECIPE
+      changes:
+        - addUniqueConstraint:
+            tableName: RMS_RECIPE
+            columnNames: org_rrn, name
+            constraintName: UK_RECIPE_ORG_RRN_NAME

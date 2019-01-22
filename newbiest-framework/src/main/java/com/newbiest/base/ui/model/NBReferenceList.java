@@ -26,7 +26,7 @@ public class NBReferenceList extends NBBase{
     @Column(name = "REFERENCE_NAME")
     private String referenceName;
 
-    @Column(name = "\"KEY\"")
+    @Column(name = "KEY_ID")
     private String key;
 
     @Column(name = "DESCRIPTION")

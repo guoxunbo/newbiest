@@ -1,6 +1,4 @@
-spring:
-  application:
-    name: framework
+framework:
   #数据库版本管理
   liquibase:
     #changelog所在的位置。
