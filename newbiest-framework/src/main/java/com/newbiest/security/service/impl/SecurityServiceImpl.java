@@ -144,7 +144,9 @@ public class SecurityServiceImpl implements SecurityService  {
                 authorities.removeAll(firstLevelAuthorities);
 
                 // 组织树形结构
-                List<NBAuthority> nbAuthorities = firstLevelAuthorities.stream().map(authority -> authority.recursionAuthority(authority, authorities)).collect(Collectors.toList());
+                List<NBAuthority> nbAuthorities = firstLevelAuthorities.stream().map(authority -> authority.recursionAuthority(authority, authorities))
+                        .sorted(Comparator.comparing(NBAuthority :: getSeqNo))
+                        .collect(Collectors.toList());
                 return nbAuthorities;
             }
             return null;

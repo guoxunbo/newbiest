@@ -51,8 +51,9 @@ public class SequenceRuleLine extends GeneratorRuleLine{
      */
     public static final String SEQUENCE_DIRECTION_DOWN = "Down";
 
-    public static final String EXCLUDE_TYPE_STRING = "All";
-    public static final String EXCLUDE_TYPE_ALPHA = "Include";
+    public static final String EXCLUDE_TYPE_ALL = "All";
+
+    public static final String EXCLUDE_TYPE_INCLUDE = "Include";
 
     @Column(name="SEQUENCE_TYPE")
     private String sequenceType = SEQUENCE_TYPE_DIGITS;
@@ -64,7 +65,7 @@ public class SequenceRuleLine extends GeneratorRuleLine{
     private String exclude;
 
     @Column(name="EXCLUDE_TYPE")
-    private String excludeType = EXCLUDE_TYPE_STRING;
+    private String excludeType = EXCLUDE_TYPE_ALL;
 
     @Column(name="MIN")
     private String min;
@@ -74,9 +75,6 @@ public class SequenceRuleLine extends GeneratorRuleLine{
 
     @Transient
     private List<String> excludeString;
-
-    @Transient
-    private List<String> excludeAlpha;
 
     @Override
     public String generator(GeneratorContext context) throws Exception {
@@ -92,7 +90,7 @@ public class SequenceRuleLine extends GeneratorRuleLine{
         if (currentInt > maxValue) {
             return currentSeq;
         }
-        if (CollectionUtils.isNotEmpty(excludeString) || CollectionUtils.isNotEmpty(excludeAlpha)) {
+        if (CollectionUtils.isNotEmpty(excludeString)) {
             do {
                 currentSeq = translate(currentInt, context);
                 if (isExclude(currentSeq)) {
@@ -111,15 +109,15 @@ public class SequenceRuleLine extends GeneratorRuleLine{
     }
 
     public boolean isExclude(String seq) {
-        if (EXCLUDE_TYPE_STRING.equals(excludeType)) {
-            if (excludeString != null) {
+        if (EXCLUDE_TYPE_ALL.equals(excludeType)) {
+            if (CollectionUtils.isNotEmpty(excludeString)) {
                 if (excludeString.contains(seq)) {
                     return true;
                 }
             }
         } else {
-            if (excludeAlpha != null) {
-                for (String exclude : excludeAlpha) {
+            if (CollectionUtils.isNotEmpty(excludeString)) {
+                for (String exclude : excludeString) {
                     if (seq.indexOf(exclude) != -1) {
                         return true;
                     }
@@ -272,22 +270,25 @@ public class SequenceRuleLine extends GeneratorRuleLine{
     public void setExclude(String exclude) {
         this.exclude = exclude;
         if(exclude != null){
-            if (EXCLUDE_TYPE_STRING.equals(excludeType)) {
-                parserExcludeString(exclude);
+            if (EXCLUDE_TYPE_ALL.equals(excludeType)) {
+                parserExcludeAll(exclude);
             } else {
-                parserExcludeAlpha(exclude);
+                parserExcludeInclude(exclude);
             }
         }
     }
 
-
-    private void parserExcludeString(String exclude) {
+    /**
+     * 只要包含了这个字符就过滤。比如设置9，那9会过滤，19则不会
+     * @param exclude 过滤字符
+     */
+    private void parserExcludeAll(String exclude) {
         if (exclude != null && exclude.trim().length() > 0) {
-            String[] excludes = exclude.split(";");
+            String[] excludes = exclude.split(EXCLUDE_SPLIT_CODE);
             excludeString = Lists.newArrayList();
             for (String currentString : excludes ) {
                 if (SEQUENCE_TYPE_DIGITS.equals(sequenceType)) {
-                    currentString = String.format("%0" + length + "d", Integer.parseInt(currentString));
+                    currentString = StringUtils.padStart(currentString, length.intValue(), '0');
                 } else if (SEQUENCE_TYPE_RADIX.equals(sequenceType)) {
                     currentString = getCurrentString(currentString);
                 } else {
@@ -315,12 +316,16 @@ public class SequenceRuleLine extends GeneratorRuleLine{
         return currentString;
     }
 
-    private void parserExcludeAlpha(String exclude) {
+    /**
+     * 只要包含了这个字符就过滤。比如设置9，那0019也会被过滤
+     * @param exclude 过滤字符
+     */
+    private void parserExcludeInclude(String exclude) {
         if (exclude != null && exclude.trim().length() > 0) {
-            String[] excludes = exclude.split(";");
-            excludeAlpha = Lists.newArrayList();
+            String[] excludes = exclude.split(EXCLUDE_SPLIT_CODE);
+            excludeString = Lists.newArrayList();
             for (String currentString : excludes ) {
-                excludeAlpha.add(currentString);
+                excludeString.add(currentString);
             }
         }
     }

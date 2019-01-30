@@ -69,3 +69,4 @@ databaseChangeLog:
         - addUniqueConstraint:
             tableName: COM_GENERATOR_SEQUENCE
             columnNames: org_rrn, name
+            constraintName: UK_SEQUENCE_ORG_RRN_NAME

@@ -1,8 +1,5 @@
 package com.newbiest.common.idgenerator.model;
 
-import com.newbiest.base.ui.model.NBOwnerReferenceList;
-import com.newbiest.base.ui.model.NBReferenceList;
-import com.newbiest.base.utils.SessionContext;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import lombok.Data;
 
@@ -34,6 +31,7 @@ public class DateRuleLine extends GeneratorRuleLine {
     public static final String DATE_FORMAT_YYYY = "yyyy";
     public static final String DATE_FORMAT_YY = "yy";
     public static final String DATE_FORMAT_Y = "y";
+
     public static final String DATE_FORMAT_MM = "MM";
     public static final String DATE_FORMAT_M = "M";
     public static final String DATE_FORMAT_DAY = "dd";

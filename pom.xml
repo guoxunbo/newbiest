@@ -17,6 +17,7 @@
         <module>newbiest-common-actuator</module>
         <module>newbiest-framework</module>
         <module>newbiest-common-context</module>
+        <module>newbiest-common-idgenerator</module>
         <module>newbiest-rms</module>
         <module>newbiest-starter</module>
         <module>newbiest-dist</module>

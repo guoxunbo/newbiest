@@ -9,6 +9,7 @@ import NotFound from './pages/NotFound';
 import EntityProperties from './pages/Properties';
 import UserProperties from './pages/Properties/components/userProperties/UserProperties';
 import RoleProperties from './pages/Properties/components/RoleProperties';
+import GeneratorRuleProperties from './pages/Properties/components/GeneratorRuleProperties';
 
 const routerConfig = [
   {
@@ -67,8 +68,14 @@ const routerConfig = [
     layout: HeaderAsideFooterResponsiveLayout,
     component: RoleProperties,
   },
+
+  {
+    path: 'LMS/IDGeneratorRuleManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: GeneratorRuleProperties,
+  },
   
-  
+
   {
     path: 'Rms/EquipmentManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,

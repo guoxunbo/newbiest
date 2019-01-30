@@ -2,7 +2,6 @@ package com.newbiest.common.idgenerator.repository;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.repository.custom.IRepository;
-import com.newbiest.common.idgenerator.model.GeneratorRule;
 import com.newbiest.common.idgenerator.model.GeneratorRuleLine;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

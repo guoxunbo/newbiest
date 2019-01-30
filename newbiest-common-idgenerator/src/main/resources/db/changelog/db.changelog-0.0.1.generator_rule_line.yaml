@@ -31,10 +31,6 @@ databaseChangeLog:
                   type: bigint
                   remarks: Rule的主键
               - column:
-                  name: RULE_ID
-                  type: varchar(64)
-                  remarks: Rule的名称
-              - column:
                   name: SEQ_NO
                   type: bigint
                   remarks: 顺序

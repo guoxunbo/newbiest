@@ -23,6 +23,22 @@ export default class TableManagerRequest {
     }
 
     /**
+     * 根据名称获取table
+     * 携带Table的所有栏位以及tab
+     * @param object 动态表 @example {name: "TableA"}
+     */
+    static sendGetByNameRequest = (object) => {
+        let requestBody = TableManagerRequestBody.buildGetByName(object.name);
+        let requestHeader = new TableManagerRequestHeader();
+        let request = new Request(requestHeader, requestBody, UrlConstant.TableMangerUrl);
+        let requestObject = {
+            request: request,
+            success: object.success
+        }
+        MessageUtils.sendRequest(requestObject);
+    }
+
+    /**
      * 根据主键获取table的对应的实体数据
      * @param object 动态表 @example {tableRrn: 10}
      */

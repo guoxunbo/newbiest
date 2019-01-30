@@ -27,6 +27,7 @@ const i18NCode = {
     TransferSearchPlaceholder: "SearchPlaceholder",
     TransferSource: "Source",
     TransferTarget: "Target",
+    Operation: "Operation"
 
 }
 
@@ -179,7 +180,13 @@ const i18Messages = {
         Chinese: "目标",
         English: "Target",
         Res: ""
+    },
+    Operation: {
+        Chinese: "操作",
+        English: "Operation",
+        Res: ""
     }
+    
 }
 
 export {i18Messages, i18NCode};

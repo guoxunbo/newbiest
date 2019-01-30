@@ -44,8 +44,6 @@ spring:
         reset-enable: true
         allow: 127.0.0.1
         deny: 192.168.1.73
-        login-username: admin
-        login-password: admin
       filter:
         # 慢SQL监控
         stat:

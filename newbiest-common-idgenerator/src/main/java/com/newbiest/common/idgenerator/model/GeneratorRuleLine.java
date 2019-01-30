@@ -19,9 +19,10 @@ import java.util.Optional;
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="DATA_TYPE", discriminatorType = DiscriminatorType.STRING, length = 32)
 @Data
-public abstract class GeneratorRuleLine extends NBBase {
+public class GeneratorRuleLine extends NBBase {
 
     protected static final String GENERATOR_ERROR_CODE = "_";
+    protected static final String EXCLUDE_SPLIT_CODE = ";";
 
     /**
      * Fixed String
@@ -46,9 +47,6 @@ public abstract class GeneratorRuleLine extends NBBase {
     @Column(name="RULE_RRN")
     protected Long ruleRrn;
 
-    @Column(name="RULE_ID")
-    protected String ruleId;
-
     @Column(name="SEQ_NO")
     protected Long seqNo;
 
@@ -64,11 +62,9 @@ public abstract class GeneratorRuleLine extends NBBase {
     @Column(name = "REFERENCE_NAME")
     protected String referenceName;
 
-    @ManyToOne
-    @JoinColumn(name="RULE_RRN", referencedColumnName="OBJECT_RRN", insertable = false, updatable = false)
-    protected GeneratorRule rule;
-
-    public abstract String generator(GeneratorContext context) throws Exception;
+    public String generator(GeneratorContext context) throws Exception {
+        return GENERATOR_ERROR_CODE;
+    }
 
     protected String getReferenceValue(String key, GeneratorContext context) {
         List<NBOwnerReferenceList> formatCodes = (List<NBOwnerReferenceList>) context.getUiService().getReferenceList(referenceName, NBReferenceList.CATEGORY_OWNER, SessionContext.buildSessionContext(orgRrn));

@@ -99,7 +99,7 @@ export default class EntityListTable extends Component {
         let self = this;
         let oprationColumn = {
             key: "opration",
-            title: "opration",
+            title: I18NUtils.getClientMessage(i18NCode.Operation),
             dataIndex: "opration",
             align: "center",
             fixed: maxWidth > scrollX + Application.table.oprationColumn.width ? false : 'right',

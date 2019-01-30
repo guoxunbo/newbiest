@@ -175,9 +175,9 @@ export default class Field {
         if (this.displayType == DisplayType.text) {
             return <Input placeholder = {this.placeHolder} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.int) {
-            return <InputNumber disabled={this.disabled}/>;
+            return <InputNumber min={0} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.double) {
-            return <InputNumber step={0.01} disabled={this.disabled}/>;
+            return <InputNumber min={0} step={0.01} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.password) {
             return <Input placeholder = {this.placeHolder} type="password" disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.calendar) {

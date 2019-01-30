@@ -33,7 +33,7 @@ public class VariableRuleLine extends GeneratorRuleLine {
     /**
      * 从左到右截取
      */
-    public static final String VARIABLE_DIRECTION_LEFT = "left";
+    public static final String VARIABLE_DIRECTION_LEFT = "Left";
 
     /**
      * 从右到左截取

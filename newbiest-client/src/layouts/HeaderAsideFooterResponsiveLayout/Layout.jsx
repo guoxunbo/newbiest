@@ -260,12 +260,13 @@ export default class HeaderAsideFooterResponsiveLayout extends Component {
                   return (
                     <MenuItem key={nav.path}>
                       <Link {...linkProps}>
-                        <span>
-                          {nav.icon ? IconUtils.buildIcon(nav.icon): null}
-                          <span className="ice-menu-collapse-hide">
-                            {nav.name}
+                          <span >
+                            {nav.icon ? IconUtils.buildIcon(nav.icon, 'filled') : null}
+                              <span className="ice-menu-collapse-hide" 
+                                  style={{marginLeft:"10px", fontSize:"14px"}}>
+                                {nav.name}
+                              </span>
                           </span>
-                        </span>
                       </Link>
                     </MenuItem>
                   );

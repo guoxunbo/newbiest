@@ -2,6 +2,7 @@ import Table from "../dto/ui/Table"
 
 const ActionType = {
     GetByRrn: "GetByRrn",
+    GetByName: "GetByName",
     GetData: "GetData",
     ExpTemplate: "ExpTemplate",
     ExpData: "ExpData",
@@ -22,6 +23,12 @@ export default class TableManagerRequestBody {
         let table = new Table();
         table.setObjectRrn(objectRrn);
         return new TableManagerRequestBody(ActionType.GetByRrn, table);
+    }
+
+    static buildGetByName(name) {
+        let table = new Table();
+        table.setName(name);
+        return new TableManagerRequestBody(ActionType.GetByName, table);
     }
 
     static buildGetDataByName(name, whereClause) {

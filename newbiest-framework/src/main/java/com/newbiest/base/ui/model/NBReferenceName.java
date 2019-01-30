@@ -33,7 +33,7 @@ public class NBReferenceName extends NBBase {
     @Column(name="CATEGORY",insertable = false, updatable = false)
     private String category;
 
-    @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.REMOVE}, orphanRemoval = true)
+        @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.REMOVE})
     @OrderBy(value = "seqNo ASC")
     @JoinColumns({ @JoinColumn(name = "REFERENCE_NAME", referencedColumnName = "NAME"),
             @JoinColumn(name = "CATEGORY", referencedColumnName = "CATEGORY")})

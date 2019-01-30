@@ -1,6 +1,7 @@
 package com.newbiest.base.ui;
 
 import com.newbiest.base.factory.ModelFactory;
+import com.newbiest.base.model.NBMessage;
 import com.newbiest.base.ui.model.*;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,6 @@ public class UIComponent {
         ModelFactory.registerModelClassLoader(NBTab.class.getName(), NBTab.class.getClassLoader());
         ModelFactory.registerModelClassLoader(NBTable.class.getName(), NBTable.class.getClassLoader());
         ModelFactory.registerModelClassLoader(NBField.class.getName(), NBField.class.getClassLoader());
-
+        ModelFactory.registerModelClassLoader(NBMessage.class.getName(), NBMessage.class.getClassLoader());
     }
 }

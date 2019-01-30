@@ -57,10 +57,6 @@ databaseChangeLog:
                   name: DESCRIPTION
                   type: varchar(64)
                   remarks: 描述
-              - column:
-                  name: RULE_TYPE
-                  type: varchar(64)
-                  remarks: 规则类型
   - changeSet:
       id: add-unique-constraint-for-generator-rule-table
       author: Xunbo Guo
@@ -69,3 +65,4 @@ databaseChangeLog:
         - addUniqueConstraint:
             tableName: COM_GENERATOR_RULE
             columnNames: org_rrn, name
+            constraintName: UK_GENERATOR_RULE_ORG_RRN_NAME
