@@ -8,6 +8,7 @@ import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.factory.SqlBuilder;
 import com.newbiest.base.factory.SqlBuilderFactory;
 import com.newbiest.base.model.NBBase;
+import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.EntityRefelectUtils;

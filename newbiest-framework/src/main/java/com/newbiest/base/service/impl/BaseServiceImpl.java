@@ -173,6 +173,21 @@ public class BaseServiceImpl implements BaseService  {
     }
 
     /**
+     *
+     * @param nbVersionControl
+     * @param sc
+     * @return
+     * @throws ClientException
+     */
+    public NBVersionControl saveVersionControlEntity(NBVersionControl nbVersionControl, SessionContext sc) throws ClientException {
+        try {
+
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 保存对象
      * 更新时候 不会更新关联的对象 只会更新自己本身的属性
      * @param nbBase 对象

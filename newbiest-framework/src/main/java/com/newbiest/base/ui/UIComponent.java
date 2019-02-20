@@ -25,5 +25,7 @@ public class UIComponent {
         ModelFactory.registerModelClassLoader(NBTable.class.getName(), NBTable.class.getClassLoader());
         ModelFactory.registerModelClassLoader(NBField.class.getName(), NBField.class.getClassLoader());
         ModelFactory.registerModelClassLoader(NBMessage.class.getName(), NBMessage.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(NBReferenceTable.class.getName(), NBReferenceTable.class.getClassLoader());
+
     }
 }

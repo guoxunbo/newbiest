@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-COM_SM_STATUS_MODEL_EVENT_Column_0.0.2
+      author: Xunbo Guo
+      comment: Drop COM_SM_STATUS_MODEL_EVENT_Column Column(object_rrn,active_flag..SEQ_NO,LIMIT_COUNT)
+      changes:
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: object_rrn
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: active_flag
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: org_rrn
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: created
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: created_by
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: updated
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: updated_by
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: lock_version
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: SEQ_NO
+        - dropColumn:
+            tableName: COM_SM_STATUS_MODEL_EVENT
+            columnName: LIMIT_COUNT

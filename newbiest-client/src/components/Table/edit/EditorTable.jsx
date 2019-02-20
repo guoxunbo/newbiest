@@ -181,7 +181,6 @@ export default class EditableTable extends React.Component {
         values: rowData,
         success: function(responseBody) {
           let responseData = responseBody.data;
-          debugger;
           let dataIndex = -1;
           if (rowData.objectRrn) {
             tableData.map((data, index) => {

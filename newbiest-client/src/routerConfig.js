@@ -10,6 +10,7 @@ import EntityProperties from './pages/Properties';
 import UserProperties from './pages/Properties/components/userProperties/UserProperties';
 import RoleProperties from './pages/Properties/components/RoleProperties';
 import GeneratorRuleProperties from './pages/Properties/components/GeneratorRuleProperties';
+import MaterialStatusModelProperties from './pages/Properties/components/MaterialStatusModelProperties';
 
 const routerConfig = [
   {
@@ -75,7 +76,34 @@ const routerConfig = [
     component: GeneratorRuleProperties,
   },
   
+  //MMS
+  {
+    path: '/MMS/StatusModelManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: MaterialStatusModelProperties,
+  },
+  {
+    path: '/MMS/StatusCategoryManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: '/MMS/StatusManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: '/MMS/EventManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: '/MMS/RawMaterialManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
 
+  //RMS
   {
     path: 'Rms/EquipmentManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,

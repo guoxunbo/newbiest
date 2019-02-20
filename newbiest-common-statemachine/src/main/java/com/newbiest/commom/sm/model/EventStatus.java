@@ -19,11 +19,11 @@ public class EventStatus extends NBBase {
     /**
      * 拒绝此状态变更
      */
-    public static String CHECKFLAG_REJECT = "Reject";
+    public static String CHECK_FLAG_REJECT = "Reject";
     /**
      * 允许此状态变更
      */
-    public static String CHECKFLAG_ALLOW = "Allow";
+    public static String CHECK_FLAG_ALLOW = "Allow";
 
     /**
      * 表示所有的状态

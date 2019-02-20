@@ -25,8 +25,8 @@ public class NBVersionControl extends NBUpdatable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String STATUS_FROZNE = "Frozen";
-	public static final String STATUS_UNFROZNE = "UnFrozen";
+	public static final String STATUS_FROZEN = "Frozen";
+	public static final String STATUS_UNFROZEN = "UnFrozen";
 	public static final String STATUS_ACTIVE = "Active";
 	public static final String STATUS_INACTIVE = "InActive";
 	public static final String STATUS_DELETE = "Delete";

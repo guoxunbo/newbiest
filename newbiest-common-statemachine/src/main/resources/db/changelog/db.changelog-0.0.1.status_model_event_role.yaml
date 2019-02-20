@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-status_machine_status_model-table
+      author: Xunbo Guo
+      comment: Create table COM_SM_STATUS_MODEL_EVENT_ROLE
+      changes:
+        - createTable:
+            tableName: COM_SM_STATUS_MODEL_EVENT_ROLE
+            remarks: Status Model Event Role Info
+            columns:
+              - column:
+                  name: ROLE_RRN
+                  type: bigint
+                  remarks: 角色主键
+              - column:
+                  name: MODEL_EVENT_RRN
+                  type: bigint
+                  remarks: 状态模型事件主键

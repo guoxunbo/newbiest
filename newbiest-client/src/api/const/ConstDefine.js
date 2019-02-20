@@ -4,7 +4,8 @@
 const ModuleUrlConstant = {
     Framework: "http://127.0.0.1:8080/framework/",
     Security: "http://127.0.0.1:8080/security/",
-    UI: "http://127.0.0.1:8080/ui/"
+    UI: "http://127.0.0.1:8080/ui/",
+    StatusMachine: "http://127.0.0.1:8080/common/sm/"
 }
 const UrlConstant = {
     UserManagerUrl: ModuleUrlConstant.Security + "userManage",
@@ -17,6 +18,7 @@ const UrlConstant = {
     RoleManagerUrl: ModuleUrlConstant.Security + "roleManage",
     EntityListManagerUrl: ModuleUrlConstant.Framework + "entityListManage",
     AuthorityManagerUrl: ModuleUrlConstant.Security + "authorityManage",
+    StatusModelManagerUrl: ModuleUrlConstant.StatusMachine + "statusModelManage"
 };
 
 const SystemRefListName = {
@@ -51,6 +53,7 @@ const i18N = {
 const EntityModel = {
     NBMessage: "com.newbiest.base.model.NBMessage",
     NBUser: "com.newbiest.security.model.NBUser",
+    MaterialEvent: "com.newbiest.mms.state.model.MaterialEvent"
 };
 
 /**

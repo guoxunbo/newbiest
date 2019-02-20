@@ -13,6 +13,7 @@ const i18NCode = {
     SelectAtLeastOneRow: "SelectAtLeastOneRow",
     ConfirmDelete: "ConfirmDelete",
     ConfirmCancel: "ConfirmCancel",
+    
     BtnAdd: "Add",
     BtnImp: "Imp",
     BtnExp: "Exp",
@@ -21,14 +22,15 @@ const i18NCode = {
     BtnResetPassword: "ResetPwd",
     BtnDispatchUser: "DispatchUser",
     BtnDispatchAuthority: "DispatchAuthority",
+    BtnDispatchEvent: "DispatchEvent",
+    
     TransferItem: "Item",
     TransferItems: "Items",
     TransferNotFoundContent: "NotFoundContents",
     TransferSearchPlaceholder: "SearchPlaceholder",
     TransferSource: "Source",
     TransferTarget: "Target",
-    Operation: "Operation"
-
+    Operation: "Operation",
 }
 
 const i18Messages = {
@@ -149,6 +151,11 @@ const i18Messages = {
     DispatchAuthority: {
         Chinese: "分配权限",
         English: "DispAuthority",
+        Res: ""
+    },
+    DispatchEvent: {
+        Chinese: "分配事件",
+        English: "DispEvent",
         Res: ""
     },
     Item: {

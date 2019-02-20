@@ -4,14 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.newbiest</groupId>
     <artifactId>mm</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
+    <parent>
+        <groupId>com.newbiest</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    
     <dependencies>
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>framework</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>common-statemachine</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
@@ -20,6 +30,7 @@
         <resources>
             <resource>
                 <directory>src/main/java</directory>
+                <excludes>**/*.java</excludes>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
@@ -28,28 +39,4 @@
 
     </build>
 
-    <repositories>
-        <repository>
-            <id>newbiest</id>
-            <name>maven-public</name>
-            <url>http://118.31.35.66:8081/repository/maven-public/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>newbiest</id>
-            <url>http://118.31.35.66:8081/repository/maven-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>newbiest</id>
-            <url>http://118.31.35.66:8081/repository/maven-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>

@@ -9,7 +9,7 @@ import { Application } from "../../api/Application";
  * DispatchForm
  * 具有左右互移功能
  */
-export default class DispatchUserForm extends Component {
+export default class DispatchForm extends Component {
 
     static displayName = 'DispatchForm';
 
@@ -83,7 +83,7 @@ export default class DispatchUserForm extends Component {
         );
     }
 }
-DispatchUserForm.prototypes = {
+DispatchForm.prototypes = {
     dataSource: PropTypes.array, // 所有数据
     targetKeys: PropTypes.array, // 已经选择数据
     onOk: PropTypes.func.isRequired,

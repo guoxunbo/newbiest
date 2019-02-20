@@ -16,8 +16,8 @@ import javax.persistence.*;
 @Data
 public class StatusCategory extends NBUpdatable {
 
-    @Column(name="OBJECT_TYPE")
-    private String objectType;
+    @Column(name="NAME")
+    private String name;
 
     @Column(name="DESCRIPTION")
     private String description;

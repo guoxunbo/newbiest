@@ -52,18 +52,4 @@ public class NBUpdatable extends NBBase {
     private void preUpdate() {
         updated = new Date();
     }
-
-    /**
-     * 对象不是最新的不允许修改
-     * @param lockVersion
-     * @return
-     * @throws ClientException
-     */
-    public void isNewiest(Long lockVersion) throws ClientException {
-        if (lockVersion != null) {
-            if(!this.lockVersion.equals(lockVersion)) {
-                throw new ClientException(NewbiestException.COMMON_OBJECT_IS_UPDATED_BY_ANOTHER);
-            }
-        }
-    }
 }

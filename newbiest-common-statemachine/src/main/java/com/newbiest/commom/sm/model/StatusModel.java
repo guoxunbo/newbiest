@@ -4,13 +4,14 @@ import com.newbiest.base.model.NBUpdatable;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * 状态模型基类 Category栏位用来区分不同的StatusModel
  * Created by guoxunbo on 2017/11/5.
  */
 @Entity
-@Table(name = "COM_STATUS_MODEL")
+@Table(name = "COM_SM_STATUS_MODEL")
 @Inheritance(strategy= InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="CATEGORY", discriminatorType = DiscriminatorType.STRING, length = 32)
 @Data
@@ -21,12 +22,6 @@ public class StatusModel extends NBUpdatable {
 
     @Column(name="DESCRIPTION")
     private String description;
-
-    /**
-     * 对象类型
-     */
-    @Column(name="OBJECT_TYPE")
-    private String objectType;
 
     @Column(name="CATEGORY", insertable=false, updatable=false)
     private String category;
@@ -48,5 +43,11 @@ public class StatusModel extends NBUpdatable {
      */
     @Column(name="INITIAL_SUB_STATE")
     private String initialSubState;
+
+    @ManyToMany(targetEntity = Event.class, fetch=FetchType.LAZY)
+    @JoinTable(name = "COM_SM_STATUS_MODEL_EVENT",
+            inverseJoinColumns = @JoinColumn(name = "EVENT_RRN", referencedColumnName = "OBJECT_RRN"),
+            joinColumns = @JoinColumn(name = "MODEL_RRN", referencedColumnName = "OBJECT_RRN"))
+    private List<Event> events;
 
 }
