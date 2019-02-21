@@ -18,9 +18,14 @@ import javax.persistence.MappedSuperclass;
 @NoArgsConstructor
 public class NBHis extends NBUpdatable {
 
-    public static final String TRANS_TYPE_CRAETE = "Create";
+    public static final String TRANS_TYPE_CREATE = "Create";
     public static final String TRANS_TYPE_UPDATE = "Update";
     public static final String TRANS_TYPE_DELETE = "Delete";
+
+    public static final String TRANS_TYPE_ACTIVE = "Active";
+    public static final String TRANS_TYPE_UNFROZEN = "Unfrozen";
+    public static final String TRANS_TYPE_FROZEN = "Frozen";
+    public static final String TRANS_TYPE_INACTIVE = "Inactive";
 
     @Column(name="HISTORY_SEQ")
     protected String hisSeq;

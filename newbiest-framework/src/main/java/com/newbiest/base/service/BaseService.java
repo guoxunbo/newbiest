@@ -19,6 +19,8 @@ import java.util.Optional;
  */
 public interface BaseService {
 
+    IRepository getRepositoryByClassName(String fullClassName) throws ClientException;
+
     NBOrg findOrgByName(String name) throws ClientException;
     NBOrg findOrgByObjectRrn(Long objectRrn) throws ClientException;
 

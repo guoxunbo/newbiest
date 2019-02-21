@@ -265,7 +265,7 @@ public class SecurityServiceImpl implements SecurityService  {
                 nbUser = userRepository.saveAndFlush(nbUser);
 
                 NBUserHis nbUserHis = new NBUserHis(nbUser, sc);
-                nbUserHis.setTransType(NBHis.TRANS_TYPE_CRAETE);
+                nbUserHis.setTransType(NBHis.TRANS_TYPE_CREATE);
                 userHistoryRepository.save(nbUserHis);
 
                 if (!StringUtils.isNullOrEmpty(nbUser.getEmail())) {

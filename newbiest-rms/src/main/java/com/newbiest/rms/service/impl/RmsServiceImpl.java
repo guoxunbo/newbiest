@@ -73,7 +73,7 @@ public class RmsServiceImpl implements RmsService {
             sc.buildTransInfo();
             String transType;
             if (recipeEquipment.getObjectRrn() == null) {
-                transType = NBHis.TRANS_TYPE_CRAETE;
+                transType = NBHis.TRANS_TYPE_CREATE;
 
                 recipeEquipment.setOrgRrn(sc.getOrgRrn());
                 recipeEquipment.setActiveFlag(true);

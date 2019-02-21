@@ -172,20 +172,7 @@ public class BaseServiceImpl implements BaseService  {
         }
     }
 
-    /**
-     *
-     * @param nbVersionControl
-     * @param sc
-     * @return
-     * @throws ClientException
-     */
-    public NBVersionControl saveVersionControlEntity(NBVersionControl nbVersionControl, SessionContext sc) throws ClientException {
-        try {
 
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
 
     /**
      * 保存对象
@@ -229,7 +216,7 @@ public class BaseServiceImpl implements BaseService  {
                 nbBase = (NBBase) modelRepsitory.saveAndFlush(nbBase);
 
                 if (nbHis != null) {
-                    nbHis.setTransType(NBHis.TRANS_TYPE_CRAETE);
+                    nbHis.setTransType(NBHis.TRANS_TYPE_CREATE);
                     nbHis.setNbBase(nbBase, sc);
                     historyRepository.save(nbHis);
                 }
@@ -401,7 +388,7 @@ public class BaseServiceImpl implements BaseService  {
      * @return
      * @throws ClientException
      */
-    private IRepository getRepositoryByClassName(String fullClassName) throws ClientException{
+    public IRepository getRepositoryByClassName(String fullClassName) throws ClientException{
         try {
             Optional<IRepository> optional = repositories.stream().filter(repository -> repository.support(fullClassName)).findFirst();
             if (optional.isPresent()) {
