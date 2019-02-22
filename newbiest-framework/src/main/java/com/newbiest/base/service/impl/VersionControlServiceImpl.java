@@ -196,7 +196,7 @@ public class VersionControlServiceImpl implements VersionControlService {
         try {
             List<NBVersionControl> versions = (List<NBVersionControl>) baseService.findAll(nbVersionControl.getClass().getName(), 0, 1,
                                                                                             "name = '" + nbVersionControl.getName() + "' And status ='" + NBVersionControl.STATUS_ACTIVE+ "'", "", sc.getOrgRrn());
-            if (CollectionUtils.isNotEmpty()) {
+            if (CollectionUtils.isNotEmpty(versions)) {
                 return versions.get(0);
             }
             return null;
