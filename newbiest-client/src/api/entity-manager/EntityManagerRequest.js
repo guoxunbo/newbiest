@@ -31,9 +31,6 @@ export default class EntityManagerRequest {
         MessageUtils.sendRequest(requestObject);
     }
     
-    /**
-     * 发送merge信息请求
-     */
     static sendDeleteRequest = (object) => {
         let requestBody = EntityManagerRequestBody.buildDeleteEntity(object.modelClass, object.values, object.deleteRelationEntityFlag);
         let requestHeader = new EntityManagerRequestHeader();

@@ -5,8 +5,10 @@ const ModuleUrlConstant = {
     Framework: "http://127.0.0.1:8080/framework/",
     Security: "http://127.0.0.1:8080/security/",
     UI: "http://127.0.0.1:8080/ui/",
-    StatusMachine: "http://127.0.0.1:8080/common/sm/"
+    StatusMachine: "http://127.0.0.1:8080/common/sm/",
+    MMS: "http://127.0.0.1:8080/mms/"
 }
+
 const UrlConstant = {
     UserManagerUrl: ModuleUrlConstant.Security + "userManage",
     TableMangerUrl: ModuleUrlConstant.UI + "tableManage",
@@ -18,7 +20,8 @@ const UrlConstant = {
     RoleManagerUrl: ModuleUrlConstant.Security + "roleManage",
     EntityListManagerUrl: ModuleUrlConstant.Framework + "entityListManage",
     AuthorityManagerUrl: ModuleUrlConstant.Security + "authorityManage",
-    StatusModelManagerUrl: ModuleUrlConstant.StatusMachine + "statusModelManage"
+    StatusModelManagerUrl: ModuleUrlConstant.StatusMachine + "statusModelManage",
+    RawMaterialManagerUrl: ModuleUrlConstant.MMS + "rawMaterialManage"
 };
 
 const SystemRefListName = {

@@ -11,6 +11,7 @@ import UserProperties from './pages/Properties/components/userProperties/UserPro
 import RoleProperties from './pages/Properties/components/RoleProperties';
 import GeneratorRuleProperties from './pages/Properties/components/GeneratorRuleProperties';
 import MaterialStatusModelProperties from './pages/Properties/components/MaterialStatusModelProperties';
+import MaterialProperties from './pages/Properties/components/MaterialProperties';
 
 const routerConfig = [
   {
@@ -100,7 +101,7 @@ const routerConfig = [
   {
     path: '/MMS/RawMaterialManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
-    component: EntityProperties,
+    component: MaterialProperties,
   },
 
   //RMS

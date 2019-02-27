@@ -1,6 +1,8 @@
 package com.newbiest.mms.model;
 
-import com.newbiest.base.model.NBVersionControl;
+import com.newbiest.base.model.NBBase;
+import com.newbiest.base.model.NBVersionControlHis;
+import com.newbiest.base.utils.SessionContext;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,52 +11,15 @@ import java.math.BigDecimal;
 /**
  * Created by guoxunbo on 2019/1/3.
  */
-@Table(name="MMS_MATERIAL")
+@Table(name="MMS_MATERIAL_HIS")
 @Entity
 @Data
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="CLASS", discriminatorType = DiscriminatorType.STRING, length = 32)
-public class Material extends NBVersionControl {
+public class MaterialHistory extends NBVersionControlHis {
 
     private static final long serialVersionUID = -8075936261995774501L;
 
-    /**
-     * 原材料
-     */
-    public static final String CLASS_RAW = "RAW";
-
-    /**
-     * 默认状态模型
-     */
-    public static final String DEFAULT_STATUS_MODEL = "Normal";
-
-    /**
-     * FiFo = F 先进先出
-     */
-    public static final String DELIVERY_POLICY_FIFO = "FIFO";
-
-    /**
-     * LiFo = L 后进先出
-     */
-    public static final String DELIVERY_POLICY_LIFO = "LIFO";
-
-    /**
-     * RESIDUAL = R 余量优先
-     */
-    public static final String DELIVERY_POLICY_RESIDUAL = "RESIDUAL";
-
-    /**
-     * 先余量优先, 再先进先出
-     */
-    public static final String DELIVERY_POLICY_RESIDUAL_FIFO = "RF";
-
-    /**
-     * 先余量优先, 再后进先出
-     */
-    public static final String DELIVERY_POLICY_RESIDUAL_LIFO = "RL";
-
-    @Column(name="CLASS",insertable = false, updatable = false)
-    private String clazz;
+    @Column(name="MATERIAL_RRN")
+    private Long materialRrn;
 
     @Column(name="STATUS_MODEL_RRN")
     private Long statusModelRrn;
@@ -151,4 +116,10 @@ public class Material extends NBVersionControl {
 
     @Column(name="RESERVED10")
     private String reserved10;
+
+    @Override
+    public void setNbBase(NBBase base, SessionContext sc) {
+        super.setNbBase(base, sc);
+        this.setMaterialRrn(base.getObjectRrn());
+    }
 }

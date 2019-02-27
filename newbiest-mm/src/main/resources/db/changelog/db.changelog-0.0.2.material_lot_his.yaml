@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-mms_material_lot_his-table-0.0.2
+      author: Xunbo Guo
+      comment: Add Column TRANS_QTY
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: TRANS_QTY
+                  type: bigint
+                  remarks: 此次的操作数量

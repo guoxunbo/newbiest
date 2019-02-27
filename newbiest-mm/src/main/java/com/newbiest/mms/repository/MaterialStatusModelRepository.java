@@ -1,5 +1,6 @@
 package com.newbiest.mms.repository;
 
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import org.springframework.stereotype.Repository;
