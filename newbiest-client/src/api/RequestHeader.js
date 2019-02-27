@@ -6,7 +6,7 @@ export default class RequestHeader{
     messageName;
     transactionId;
     orgName;
-    userName;
+    username;
     orgRrn;
     token;
 
@@ -16,7 +16,7 @@ export default class RequestHeader{
         this.transactionId = uuid.v4();
         if (sessionContext != undefined) {
             this.orgRrn = sessionContext.orgRrn;
-            this.userName = sessionContext.username;
+            this.username = sessionContext.username;
             this.token = SessionContext.getToken();
         } 
     }
