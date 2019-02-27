@@ -45,14 +45,14 @@ public class EventStatus extends NBBase {
     /**
      * 源状态
      */
-    @Column(name="SOURCE_STATE")
-    private String sourceState;
+    @Column(name="SOURCE_STATUS")
+    private String sourceStatus;
 
     /**
      * 源状态小类
      */
-    @Column(name="SOURCE_SUB_STATE")
-    private String sourceSubState;
+    @Column(name="SOURCE_SUB_STATUS")
+    private String sourceSubStatus;
 
     /**
      * 目标状态大类
@@ -63,13 +63,13 @@ public class EventStatus extends NBBase {
     /**
      * 目标状态
      */
-    @Column(name="TARGET_STATE")
-    private String targetState;
+    @Column(name="TARGET_STATUS")
+    private String targetStatus;
 
     /**
      * 目标状态小类
      */
-    @Column(name="TARGET_SUB_STATE")
-    private String targetSubState;
+    @Column(name="TARGET_SUB_STATUS")
+    private String targetSubStatus;
 
 }

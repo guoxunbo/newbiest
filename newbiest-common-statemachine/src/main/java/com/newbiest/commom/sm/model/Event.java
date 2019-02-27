@@ -28,6 +28,6 @@ public class Event extends NBUpdatable {
 
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
     @JoinColumn(name = "EVENT_RRN", referencedColumnName = "OBJECT_RRN")
-    private List<EventStatus> eventStatus;
+    private List<EventStatus> eventStatuses;
 
 }

@@ -7,31 +7,27 @@ public interface StatusLifeCycle extends LifeCycle{
 
     Long getStatusModelRrn();
 
-    StatusModel getStatusModel();
-
-    void setStatusModel(StatusModel statusModel);
-
     /**
      * 取得状态大类
      * @return
      */
-    String getStateCategory();
+    String getStatusCategory();
 
     /**
      * 取得状态
      * @return
      */
-    String getState();
+    String getStatus();
 
     /**
      * 子状态
      * @return
      */
-    String getSubState();
+    String getSubStatus();
 
-    void setStateCategory(String stateCategory);
+    void setStatusCategory(String stateCategory);
 
-    void setState(String state);
+    void setStatus(String state);
 
-    void setSubState(String subState);
+    void setSubStatus(String subState);
 }
