@@ -8,17 +8,16 @@ import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.factory.SqlBuilder;
 import com.newbiest.base.factory.SqlBuilderFactory;
 import com.newbiest.base.model.NBBase;
-import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.utils.EntityRefelectUtils;
-import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.utils.EntityReflectUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.main.ApplicationContextProvider;
 import com.newbiest.main.NewbiestConfiguration;
 import com.newbiest.security.model.NBOrg;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.transform.Transformers;
+import org.reflections.ReflectionUtils;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import javax.persistence.EntityManager;
@@ -135,9 +134,10 @@ public class AbstractRepositoryImpl<T extends NBBase, ID> extends SimpleJpaRepos
      * @param fieldName
      */
     private void checkFiled(String fieldName) throws ClientException {
-        List<Field> fields = Lists.newArrayList(entityClass.getDeclaredFields());
+
+        List<Field> fields = Lists.newArrayList(ReflectionUtils.getAllFields(entityClass));
         Optional optional = fields.stream()
-                .filter(field -> EntityRefelectUtils.checkFieldPersist(field) && field.getName().equals(fieldName)).findFirst();
+                .filter(field -> EntityReflectUtils.checkFieldPersist(field) && field.getName().equals(fieldName)).findFirst();
         if (!optional.isPresent()) {
             throw new ClientParameterException(NewbiestException.COMMON_ENTITY_FIELD_IS_NOT_PERSIST, entityClass.getName(), fieldName);
         }

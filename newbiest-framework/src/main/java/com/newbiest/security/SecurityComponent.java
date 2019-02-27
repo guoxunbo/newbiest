@@ -21,7 +21,7 @@ public class SecurityComponent {
         ModelFactory.registerHistoryModelClassLoader(NBUser.class.getName(), NBUserHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(NBUser.class.getName(), NBUserHis.class.getName());
 
-        ModelFactory.registerHistoryModelClassLoader(NBRole.class.getName(), NBUserHis.class.getClassLoader());
+        ModelFactory.registerHistoryModelClassLoader(NBRole.class.getName(), NBRoleHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(NBRole.class.getName(), NBRoleHis.class.getName());
 
         // 注册modelClass

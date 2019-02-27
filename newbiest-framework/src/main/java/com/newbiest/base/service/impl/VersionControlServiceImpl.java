@@ -5,6 +5,7 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBVersionControl;
+import com.newbiest.base.model.NBVersionControlHis;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
@@ -41,25 +42,16 @@ public class VersionControlServiceImpl implements VersionControlService {
                 throw new ClientException(NewbiestException.COMMON_STATUS_IS_NOT_ALLOW);
             }
             sc.buildTransInfo();
-            NBHis nbHis = NBHis.getHistoryBean(nbVersionControl);
 
             IRepository modelRepsitory = baseService.getRepositoryByClassName(nbVersionControl.getClass().getName());
-            IRepository historyRepository = null;
-            if (nbHis != null) {
-                historyRepository = baseService.getRepositoryByClassName(nbHis.getClass().getName());
-            }
 
             // 只能改变状态
             NBVersionControl oldData = (NBVersionControl) modelRepsitory.findByObjectRrn(nbVersionControl.getObjectRrn());
             oldData.setStatus(NBVersionControl.STATUS_INACTIVE);
             oldData.setUpdatedBy(sc.getUsername());
-            if (nbHis != null) {
-                nbHis.setTransType(NBHis.TRANS_TYPE_INACTIVE);
-                nbHis.setNbBase(nbVersionControl, sc);
-                historyRepository.save(nbHis);
-            }
-            modelRepsitory.saveAndFlush(oldData);
-            return nbVersionControl;
+            oldData = (NBVersionControl) modelRepsitory.saveAndFlush(oldData);
+            baseService.saveHistoryEntity(oldData, NBVersionControlHis.TRANS_TYPE_INACTIVE, sc);
+            return oldData;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -79,25 +71,14 @@ public class VersionControlServiceImpl implements VersionControlService {
                 throw new ClientException(NewbiestException.COMMON_STATUS_IS_NOT_ALLOW);
             }
             sc.buildTransInfo();
-            NBHis nbHis = NBHis.getHistoryBean(nbVersionControl);
-
             IRepository modelRepsitory = baseService.getRepositoryByClassName(nbVersionControl.getClass().getName());
-            IRepository historyRepository = null;
-            if (nbHis != null) {
-                historyRepository = baseService.getRepositoryByClassName(nbHis.getClass().getName());
-            }
-
             // 只能改变状态
             NBVersionControl oldData = (NBVersionControl) modelRepsitory.findByObjectRrn(nbVersionControl.getObjectRrn());
             oldData.setStatus(NBVersionControl.STATUS_FROZEN);
             oldData.setUpdatedBy(sc.getUsername());
-            if (nbHis != null) {
-                nbHis.setTransType(NBHis.TRANS_TYPE_FROZEN);
-                nbHis.setNbBase(nbVersionControl, sc);
-                historyRepository.save(nbHis);
-            }
-            modelRepsitory.saveAndFlush(oldData);
-            return nbVersionControl;
+            oldData = (NBVersionControl) modelRepsitory.saveAndFlush(oldData);
+            baseService.saveHistoryEntity(oldData, NBVersionControlHis.TRANS_TYPE_FROZEN, sc);
+            return oldData;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -117,25 +98,15 @@ public class VersionControlServiceImpl implements VersionControlService {
                 throw new ClientException(NewbiestException.COMMON_STATUS_IS_NOT_ALLOW);
             }
             sc.buildTransInfo();
-            NBHis nbHis = NBHis.getHistoryBean(nbVersionControl);
-
             IRepository modelRepsitory = baseService.getRepositoryByClassName(nbVersionControl.getClass().getName());
-            IRepository historyRepository = null;
-            if (nbHis != null) {
-                historyRepository = baseService.getRepositoryByClassName(nbHis.getClass().getName());
-            }
-
             // 只能改变状态
             NBVersionControl oldData = (NBVersionControl) modelRepsitory.findByObjectRrn(nbVersionControl.getObjectRrn());
             oldData.setStatus(NBVersionControl.STATUS_UNFROZEN);
             oldData.setUpdatedBy(sc.getUsername());
-            if (nbHis != null) {
-                nbHis.setTransType(NBHis.TRANS_TYPE_UNFROZEN);
-                nbHis.setNbBase(nbVersionControl, sc);
-                historyRepository.save(nbHis);
-            }
-            modelRepsitory.saveAndFlush(oldData);
-            return nbVersionControl;
+
+            oldData = (NBVersionControl) modelRepsitory.saveAndFlush(oldData);
+            baseService.saveHistoryEntity(oldData, NBVersionControlHis.TRANS_TYPE_UNFROZEN, sc);
+            return oldData;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -155,14 +126,7 @@ public class VersionControlServiceImpl implements VersionControlService {
                 throw new ClientException(NewbiestException.COMMON_STATUS_IS_NOT_ALLOW);
             }
             sc.buildTransInfo();
-            NBHis nbHis = NBHis.getHistoryBean(nbVersionControl);
-
             IRepository modelRepsitory = baseService.getRepositoryByClassName(nbVersionControl.getClass().getName());
-            IRepository historyRepository = null;
-            if (nbHis != null) {
-                historyRepository = baseService.getRepositoryByClassName(nbHis.getClass().getName());
-            }
-
             // 获取激活版本的数据将其设成Inactive
             NBVersionControl activeObject = getActiveObject(nbVersionControl, sc);
             if (activeObject != null) {
@@ -174,13 +138,9 @@ public class VersionControlServiceImpl implements VersionControlService {
             NBVersionControl oldData = (NBVersionControl) modelRepsitory.findByObjectRrn(nbVersionControl.getObjectRrn());
             oldData.setStatus(NBVersionControl.STATUS_ACTIVE);
             oldData.setUpdatedBy(sc.getUsername());
-            if (nbHis != null) {
-                nbHis.setTransType(NBHis.TRANS_TYPE_ACTIVE);
-                nbHis.setNbBase(nbVersionControl, sc);
-                historyRepository.save(nbHis);
-            }
-            modelRepsitory.saveAndFlush(oldData);
-            return nbVersionControl;
+            oldData = (NBVersionControl) modelRepsitory.saveAndFlush(oldData);
+            baseService.saveHistoryEntity(oldData, NBVersionControlHis.TRANS_TYPE_ACTIVE, sc);
+            return oldData;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -216,27 +176,17 @@ public class VersionControlServiceImpl implements VersionControlService {
     public NBVersionControl save(NBVersionControl nbVersionControl, SessionContext sc) throws ClientException {
         try {
             sc.buildTransInfo();
-            NBHis nbHis = NBHis.getHistoryBean(nbVersionControl);
-
             IRepository modelRepsitory = baseService.getRepositoryByClassName(nbVersionControl.getClass().getName());
-            IRepository historyRepository = null;
-            if (nbHis != null) {
-                historyRepository = baseService.getRepositoryByClassName(nbHis.getClass().getName());
-            }
-
             if (nbVersionControl.getObjectRrn() == null) {
                 nbVersionControl.setOrgRrn(sc.getOrgRrn());
                 nbVersionControl.setCreatedBy(sc.getUsername());
+                nbVersionControl.setUpdatedBy(sc.getUsername());
                 nbVersionControl.setStatus(NBVersionControl.STATUS_UNFROZEN);
                 Long version = getNextVersion(nbVersionControl, sc);
                 nbVersionControl.setVersion(version);
 
-                modelRepsitory.save(nbVersionControl);
-                if (nbHis != null) {
-                    nbHis.setTransType(NBHis.TRANS_TYPE_CREATE);
-                    nbHis.setNbBase(nbVersionControl, sc);
-                    historyRepository.save(nbHis);
-                }
+                nbVersionControl = (NBVersionControl) modelRepsitory.saveAndFlush(nbVersionControl);
+                baseService.saveHistoryEntity(nbVersionControl, NBVersionControlHis.TRANS_TYPE_CREATE, sc);
             } else {
                 if (!NBVersionControl.STATUS_UNFROZEN.equals(nbVersionControl.getStatus())) {
                     throw new ClientException(NewbiestException.COMMON_STATUS_IS_NOT_ALLOW);
@@ -246,12 +196,7 @@ public class VersionControlServiceImpl implements VersionControlService {
                 nbVersionControl.setStatus(oldData.getStatus());
                 nbVersionControl.setUpdatedBy(sc.getUsername());
                 nbVersionControl = (NBVersionControl) modelRepsitory.saveAndFlush(nbVersionControl);
-
-                if (nbHis != null) {
-                    nbHis.setTransType(NBHis.TRANS_TYPE_UPDATE);
-                    nbHis.setNbBase(nbVersionControl, sc);
-                    historyRepository.save(nbHis);
-                }
+                baseService.saveHistoryEntity(nbVersionControl, NBVersionControlHis.TRANS_TYPE_UPDATE, sc);
             }
             return nbVersionControl;
         } catch (Exception e) {
@@ -269,7 +214,7 @@ public class VersionControlServiceImpl implements VersionControlService {
      */
     public Long getNextVersion(NBVersionControl nbVersionControl, SessionContext sc) throws ClientException {
         try {
-            List<NBVersionControl> versions = (List<NBVersionControl>) baseService.findAll(nbVersionControl.getClass().getName(), 0, 1, "name = '" + nbVersionControl.getName() + "'", "", sc.getOrgRrn());
+            List<NBVersionControl> versions = (List<NBVersionControl>) baseService.findAll(nbVersionControl.getClass().getName(), 0, 1, "name = '" + nbVersionControl.getName() + "'", " version desc", sc.getOrgRrn());
             if (CollectionUtils.isNotEmpty(versions)) {
                 return versions.get(0).getVersion() + 1;
             }

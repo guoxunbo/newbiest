@@ -8,7 +8,9 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.SessionContext;
@@ -46,6 +48,9 @@ public class AbstractRestController implements Serializable{
     protected SecurityService securityService;
 
     @Autowired
+    protected VersionControlService versionControlService;
+
+    @Autowired
     private JwtSigner jwtSigner;
 
     private final String requestToJson(Request request) throws Exception {
@@ -65,7 +70,7 @@ public class AbstractRestController implements Serializable{
     }
 
     /**
-     * 验证是否登录
+     * TODO 验证是否登录
      */
     public void validationLogin(Request request) {
         RequestHeader requestHeader = request.getHeader();
@@ -92,6 +97,9 @@ public class AbstractRestController implements Serializable{
     }
 
     protected NBBase saveEntity(NBBase nbBase, SessionContext sc) throws ClientException {
+        if (nbBase instanceof NBVersionControl) {
+            return versionControlService.save((NBVersionControl) nbBase, sc);
+        }
         return baseService.saveEntity(nbBase, sc);
     }
 
@@ -136,7 +144,6 @@ public class AbstractRestController implements Serializable{
             validateEntity((NBUpdatable) nbBase);
         }
         // 有关联关系的时候，不update相应的关联关系
-
         List<String> relationFiledNameList = Lists.newArrayList();
         Field[] fields = nbBase.getClass().getDeclaredFields();
         if (fields != null && fields.length > 0) {
@@ -155,6 +162,6 @@ public class AbstractRestController implements Serializable{
                 PropertyUtils.setProperty(nbBase, fieldName, PropertyUtils.getProperty(oldBase, fieldName));
             }
         }
-        return baseService.saveEntity(nbBase, sc);
+        return saveEntity(nbBase, sc);
     }
 }

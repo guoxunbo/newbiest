@@ -185,24 +185,14 @@ public class BaseServiceImpl implements BaseService  {
     public NBBase saveEntity(NBBase nbBase, SessionContext sc) throws ClientException {
         try {
             sc.buildTransInfo();
-            NBHis nbHis = NBHis.getHistoryBean(nbBase);
 
             IRepository modelRepsitory = getRepositoryByClassName(nbBase.getClass().getName());
-            IRepository historyRepository = null;
-            if (nbHis != null) {
-                historyRepository = getRepositoryByClassName(nbHis.getClass().getName());
-            }
-
             if (nbBase.getObjectRrn() != null) {
                 if (nbBase instanceof NBUpdatable) {
                     ((NBUpdatable) nbBase).setUpdatedBy(sc.getUsername());
                 }
                 nbBase = (NBBase) modelRepsitory.saveAndFlush(nbBase);
-                if (nbHis != null) {
-                    nbHis.setTransType(NBHis.TRANS_TYPE_UPDATE);
-                    nbHis.setNbBase(nbBase, sc);
-                    historyRepository.save(nbHis);
-                }
+                saveHistoryEntity(nbBase, NBHis.TRANS_TYPE_UPDATE, sc);
             } else {
                 nbBase.setOrgRrn(sc.getOrgRrn());
                 if (nbBase instanceof NBTable || nbBase instanceof NBTab || nbBase instanceof NBField
@@ -214,12 +204,7 @@ public class BaseServiceImpl implements BaseService  {
                     ((NBUpdatable) nbBase).setCreatedBy(sc.getUsername());
                 }
                 nbBase = (NBBase) modelRepsitory.saveAndFlush(nbBase);
-
-                if (nbHis != null) {
-                    nbHis.setTransType(NBHis.TRANS_TYPE_CREATE);
-                    nbHis.setNbBase(nbBase, sc);
-                    historyRepository.save(nbHis);
-                }
+                saveHistoryEntity(nbBase, NBHis.TRANS_TYPE_CREATE, sc);
             }
             return nbBase;
         } catch (Exception e) {
@@ -228,7 +213,47 @@ public class BaseServiceImpl implements BaseService  {
         }
     }
 
+    /**
+     * 保存历史
+     * @param nbBase 实体
+     * @param transType 事务类型
+     * @param sc
+     * @throws ClientException
+     */
+    public void saveHistoryEntity(NBBase nbBase, String transType, SessionContext sc) throws ClientException {
+        try {
+            sc.buildTransInfo();
+            NBHis nbHis = buildHistoryBean(nbBase, transType, sc);
+            IRepository historyRepository = null;
+            if (nbHis != null) {
+                historyRepository = getRepositoryByClassName(nbHis.getClass().getName());
+                historyRepository.save(nbHis);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
 
+    /**
+     * 返回历史对象
+     *  此时的历史对象不具备action code等信息
+     * @param nbBase
+     * @param sc
+     * @return
+     * @throws ClientException
+     */
+    public NBHis buildHistoryBean(NBBase nbBase, String transType, SessionContext sc) throws ClientException {
+        try {
+            NBHis nbHis = NBHis.getHistoryBean(nbBase);
+            nbHis.setTransType(transType);
+            nbHis.setNbBase(nbBase, sc);
+            return nbHis;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
 
     /**
      * 删除实体

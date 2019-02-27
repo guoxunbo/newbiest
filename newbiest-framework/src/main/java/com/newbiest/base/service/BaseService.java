@@ -5,6 +5,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.model.NBBase;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
@@ -26,6 +27,10 @@ public interface BaseService {
 
     List<? extends NBBase> saveEntity(List<? extends NBBase> nbBaseList, SessionContext sc) throws ClientException;
     NBBase saveEntity(NBBase nbBase, SessionContext sc) throws ClientException;
+    NBHis buildHistoryBean(NBBase nbBase, String transType, SessionContext sc) throws ClientException;
+    void saveHistoryEntity(NBBase nbBase, String transType, SessionContext sc) throws ClientException;
+
+
     void delete(NBBase nbBase, SessionContext sc) throws ClientException;
     void delete(NBBase nbBase, boolean deleleRelationFlag, SessionContext sc) throws ClientException;
     NBBase findEntity(NBBase nbBase, boolean deepFlag) throws ClientException;

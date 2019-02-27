@@ -22,11 +22,6 @@ public class NBHis extends NBUpdatable {
     public static final String TRANS_TYPE_UPDATE = "Update";
     public static final String TRANS_TYPE_DELETE = "Delete";
 
-    public static final String TRANS_TYPE_ACTIVE = "Active";
-    public static final String TRANS_TYPE_UNFROZEN = "Unfrozen";
-    public static final String TRANS_TYPE_FROZEN = "Frozen";
-    public static final String TRANS_TYPE_INACTIVE = "Inactive";
-
     @Column(name="HISTORY_SEQ")
     protected String hisSeq;
 
@@ -59,6 +54,7 @@ public class NBHis extends NBUpdatable {
     public void setNbBase(NBBase base, SessionContext sc) {
         PropertyUtils.copyProperties(base, this, new HistoryBeanConverter());
         this.setObjectRrn(null);
+        this.setOrgRrn(base.getOrgRrn());
         this.setHisSeq(sc.getTransRrn());
         this.setUpdatedBy(sc.getUsername());
         this.setCreatedBy(sc.getUsername());

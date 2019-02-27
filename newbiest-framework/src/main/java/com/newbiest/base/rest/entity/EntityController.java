@@ -7,6 +7,7 @@ import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.msg.DefaultParser;
@@ -61,7 +62,18 @@ public class EntityController extends AbstractRestController {
             deleteEntity(nbBase, requestBody.getDeleteRelationEntityFlag(), sc);
         } else if (EntityRequest.ACTION_GET_BY_RRN.equals(actionType)) {
             nbBase = findEntity(nbBase);
-            responseBody.setData(nbBase);
+        } else if (EntityRequest.ACTION_FROZEN.equals(actionType)) {
+            validationVersionControl(nbBase);
+            nbBase = versionControlService.frozen((NBVersionControl) nbBase, sc);
+        } else if (EntityRequest.ACTION_UNFROZEN.equals(actionType)) {
+            validationVersionControl(nbBase);
+            nbBase = versionControlService.unFrozen((NBVersionControl) nbBase, sc);
+        } else if (EntityRequest.ACTION_ACTIVE.equals(actionType)) {
+            validationVersionControl(nbBase);
+            nbBase = versionControlService.active((NBVersionControl) nbBase, sc);
+        } else if (EntityRequest.ACTION_INACTIVE.equals(actionType)) {
+            validationVersionControl(nbBase);
+            nbBase = versionControlService.inactive((NBVersionControl) nbBase, sc);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
@@ -76,4 +88,10 @@ public class EntityController extends AbstractRestController {
         return jsonReader.readValue(entityString);
     }
 
+    private void validationVersionControl(NBBase nbBase) throws ClientException{
+        if (!(nbBase instanceof NBVersionControl)) {
+            throw new ClientException(NewbiestException.COMMON_ENTITY_IS_NOT_VERSIONED);
+        }
+
+    }
 }

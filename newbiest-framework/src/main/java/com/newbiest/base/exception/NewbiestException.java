@@ -18,6 +18,7 @@ public class NewbiestException {
     public static final String COMMON_MODEL_CLASS_LOADER_IS_NOT_EXIST = "common.class_loader_is_not_exist";
     public static final String COMMON_ENTITY_IS_NOT_NEWEST = "common.entity_is_not_newest";
 
+    public static final String COMMON_ENTITY_IS_NOT_VERSIONED = "common.entity_is_not_versioned";
     // query
     public static final String COMMON_QUERY_IS_NOT_EXIST = "common.query_is_not_exist";
 
@@ -31,7 +32,6 @@ public class NewbiestException {
     public static final String COMMON_SYSTEM_REQUEST_PARAMETER_ERROR = "common.system_request_parameter_error#%s->#%s";
     public static final String COMMON_SYSTEM_REQUEST_METHOD_ERROR = "common.system_request_method_error#%s";
     public static final String COMMON_OPTIMISTIC_LOCK= "common.optimistic_lock";
-
 
     public static final String COMMON_NEW_PASSWORD_IS_NULL = "common.new_pwd_is_null";
     public static final String COMMON_OLD_PASSWORD_IS_INCORRECT = "common.old_pwd_is_incorrect";
