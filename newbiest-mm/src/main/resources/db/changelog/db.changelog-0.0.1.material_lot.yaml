@@ -78,6 +78,10 @@ databaseChangeLog:
                   type: varchar(64)
                   remarks: 状态
               - column:
+                  name: PRE_STATUS_CATEGORY
+                  type: varchar(64)
+                  remarks: 前置状态大类
+              - column:
                   name: PRE_STATUS
                   type: varchar(64)
                   remarks: 前置状态

@@ -12,5 +12,14 @@ import javax.persistence.Entity;
 @DiscriminatorValue(MaterialStatusCategory.CATEGORY_MATERIAL)
 public class MaterialEvent extends Event {
 
+    public static final String EVENT_RECEIVE = "Receive";
+
+    public static final String EVENT_REJECT = "Reject";
+
+    public static final String EVENT_STOCK_IN = "StockIn";
+
+    public static final String EVENT_STOCK_OUT = "StockOut";
+
+    public static final String EVENT_PICK = "Pick";
 
 }

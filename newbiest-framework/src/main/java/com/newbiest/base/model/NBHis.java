@@ -21,6 +21,8 @@ public class NBHis extends NBUpdatable {
     public static final String TRANS_TYPE_CREATE = "Create";
     public static final String TRANS_TYPE_UPDATE = "Update";
     public static final String TRANS_TYPE_DELETE = "Delete";
+    public static final String TRANS_TYPE_HOLD = "Hold";
+    public static final String TRANS_TYPE_RELEASE = "Release";
 
     @Column(name="HISTORY_SEQ")
     protected String hisSeq;

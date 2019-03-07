@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-mms_material_lot_inventory-table
+      author: Xunbo Guo
+      comment: Create table MMS_MATERIAL_LOT_INVENTORY
+      changes:
+        - createTable:
+            tableName: MMS_MATERIAL_LOT_INVENTORY
+            remarks: Material Lot inventory Info
+            columns:
+              - column:
+                  name: object_rrn
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: active_flag
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: org_rrn
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: created
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 创建时间
+              - column:
+                  name: created_by
+                  type: varchar(32)
+                  remarks: 创建者
+              - column:
+                  name: updated
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 更新时间
+              - column:
+                  name: updated_by
+                  type: varchar(32)
+                  remarks: 更新者
+              - column:
+                  name: lock_version
+                  type: bigint
+                  defaultValueNumeric: 1
+                  remarks: 乐观锁版本 程序自己更新 不可人为改变
+              - column:
+                  name: MATERIAL_LOT_RRN
+                  type: bigint
+                  remarks: 物料批次主键
+              - column:
+                  name: WAREHOUSE_RRN
+                  type: bigint
+                  remarks: 仓库主键
+              - column:
+                  name: STORAGE_TYPE
+                  type: bigint
+                  remarks: 库位类型
+              - column:
+                  name: STORAGE_ID
+                  type: bigint
+                  remarks: 库位号
+              - column:
+                  name: STOCK_QTY
+                  type: bigint
+                  remarks: 库存数

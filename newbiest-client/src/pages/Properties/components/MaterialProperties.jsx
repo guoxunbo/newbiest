@@ -3,7 +3,7 @@ import MaterialTable from "../../../components/Table/MaterialTable";
 
 export default class MaterialProperties extends EntityProperties{
 
-    static displayName = 'MaterialStaMaterialPropertiestusModelProperties';
+    static displayName = 'MaterialProperties';
     
     buildTable = () => {
         return <MaterialTable table={this.state.table} data={this.state.tableData} loading={this.state.loading} />

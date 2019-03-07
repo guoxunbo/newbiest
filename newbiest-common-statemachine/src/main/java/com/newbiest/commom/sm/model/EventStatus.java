@@ -52,7 +52,7 @@ public class EventStatus extends NBBase {
      * 源状态小类
      */
     @Column(name="SOURCE_SUB_STATUS")
-    private String sourceSubStatus;
+    private String sourceSubStatus = ALL_FLAG;
 
     /**
      * 目标状态大类
@@ -70,6 +70,6 @@ public class EventStatus extends NBBase {
      * 目标状态小类
      */
     @Column(name="TARGET_SUB_STATUS")
-    private String targetSubStatus;
+    private String targetSubStatus = ALL_FLAG;
 
 }

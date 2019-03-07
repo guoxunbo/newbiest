@@ -78,6 +78,10 @@ databaseChangeLog:
                   type: varchar(64)
                   remarks: 状态
               - column:
+                  name: PRE_STATUS_CATEGORY
+                  type: varchar(64)
+                  remarks: 前置状态大类
+              - column:
                   name: PRE_STATUS
                   type: varchar(64)
                   remarks: 前置状态
@@ -146,6 +150,54 @@ databaseChangeLog:
                   type: varchar(32)
                   remarks: 有效时长单位
               - column:
+                  name: HISTORY_SEQ
+                  type: varchar(64)
+                  remarks: 历史序列号
+              - column:
+                  name: TRANS_TYPE
+                  type: varchar(64)
+                  remarks: 事务类型
+              - column:
+                  name: TRANS_QTY
+                  type: bigint
+                  remarks: 操作数量
+              - column:
+                  name: TRANS_WAREHOUSE_ID
+                  type: varchar(64)
+                  remarks: 操作仓库
+              - column:
+                  name: TRANS_STORAGE_TYPE
+                  type: varchar(64)
+                  remarks: 操作库位类型
+              - column:
+                  name: TRANS_STORAGE_ID
+                  type: varchar(64)
+                  remarks: 操作库位号
+              - column:
+                  name: TARGET_WAREHOUSE_ID
+                  type: varchar(64)
+                  remarks: 目标仓库
+              - column:
+                  name: TARGET_STORAGE_TYPE
+                  type: varchar(64)
+                  remarks: 目标库位类型
+              - column:
+                  name: TARGET_STORAGE_ID
+                  type: varchar(64)
+                  remarks: 目标库位号
+              - column:
+                  name: ACTION_CODE
+                  type: varchar(64)
+                  remarks: 动作码
+              - column:
+                  name: ACTION_REASON
+                  type: varchar(64)
+                  remarks: 原因
+              - column:
+                  name: ACTION_COMMENT
+                  type: varchar(64)
+                  remarks: 备注
+              - column:
                   name: RESERVED1
                   type: varchar(64)
                   remarks: 预留栏位1
@@ -185,23 +237,3 @@ databaseChangeLog:
                   name: RESERVED10
                   type: varchar(64)
                   remarks: 预留栏位10
-              - column:
-                  name: HISTORY_SEQ
-                  type: varchar(64)
-                  remarks: 历史序列号
-              - column:
-                  name: TRANS_TYPE
-                  type: varchar(64)
-                  remarks: 操作类型
-              - column:
-                  name: ACTION_CODE
-                  type: varchar(64)
-                  remarks: 动作码
-              - column:
-                  name: ACTION_REASON
-                  type: varchar(64)
-                  remarks: 原因
-              - column:
-                  name: ACTION_COMMENT
-                  type: varchar(64)
-                  remarks: 备注

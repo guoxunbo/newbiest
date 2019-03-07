@@ -246,8 +246,10 @@ public class BaseServiceImpl implements BaseService  {
     public NBHis buildHistoryBean(NBBase nbBase, String transType, SessionContext sc) throws ClientException {
         try {
             NBHis nbHis = NBHis.getHistoryBean(nbBase);
-            nbHis.setTransType(transType);
-            nbHis.setNbBase(nbBase, sc);
+            if (nbHis != null) {
+                nbHis.setTransType(transType);
+                nbHis.setNbBase(nbBase, sc);
+            }
             return nbHis;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -339,8 +341,8 @@ public class BaseServiceImpl implements BaseService  {
      */
     public NBBase findEntity(NBBase nbBase, boolean deepFlag) throws ClientException{
         try {
-            IRepository modelRepsitory = getRepositoryByClassName(nbBase.getClass().getName());
-            nbBase = modelRepsitory.getEntityManager().find(nbBase.getClass(), nbBase.getObjectRrn());
+            IRepository modelRepository = getRepositoryByClassName(nbBase.getClass().getName());
+            nbBase = modelRepository.getEntityManager().find(nbBase.getClass(), nbBase.getObjectRrn());
             if (deepFlag) {
                 PropertyDescriptor[] descriptors = org.apache.commons.beanutils.PropertyUtils.getPropertyDescriptors(nbBase);
                 if (descriptors != null && descriptors.length > 0) {

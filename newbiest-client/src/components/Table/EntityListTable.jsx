@@ -14,6 +14,7 @@ import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
 import TableManagerRequest from '../../api/table-manager/TableManagerRequest';
 import { Upload } from 'antd';
+import { Notification } from '../notice/Notice';
 
 const ExpMenuKey = {
     exportTemplate: "exportTemplate",
@@ -86,8 +87,10 @@ export default class EntityListTable extends Component {
             }
         }
         let operationColumn = this.buildOperationColumn(scrollX);
-        scrollX += operationColumn.width;
-        columns.push(operationColumn);
+        if (operationColumn) {
+            scrollX += operationColumn.width;
+            columns.push(operationColumn);
+        }
         return {
             columns: columns,
             scrollX: scrollX
@@ -194,6 +197,16 @@ export default class EntityListTable extends Component {
         } else if (ExpMenuKey.exportData === key) {
             this.exportData();
         }
+    }
+
+    getSingleSelectedRow = () => {
+        const {selectedRows} = this.state;
+        if (selectedRows) {
+            if (selectedRows.length != 1) {
+                Notification.showNotice(I18NUtils.getClientMessage(i18NCode.SelectOneRow));
+            } 
+        }
+        return selectedRows[0];
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.newbiest.mms.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
@@ -10,10 +11,7 @@ import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -34,6 +32,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 生成
      */
     public static final String GENERATOR_SUB_MATERIAL_LOT_ID_RULE = "CreateSubMLot";
+
+    public static final String HOLD_STATE_ON = "On";
+    public static final String HOLD_STATE_OFF = "Off";
 
     /**
      * 物料批次号
@@ -61,6 +62,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String status;
 
     /**
+     * 前置状态大类
+     */
+    @Column(name="PRE_STATUS_CATEGORY")
+    private String preStatusCategory;
+
+    /**
      * 前置状态
      */
     @Column(name="PRE_STATUS")
@@ -70,7 +77,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * Hold状态
      */
     @Column(name="HOLD_STATE")
-    private String holdState;
+    private String holdState = HOLD_STATE_OFF;
 
     /**
      * 批次接收数量
@@ -80,7 +87,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private BigDecimal receiveQty = BigDecimal.ZERO;
 
     /**
-     * 主数量
+     * 当前数量
      */
     @Column(name="CURRENT_QTY")
     private BigDecimal currentQty = BigDecimal.ZERO;
@@ -162,6 +169,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 接收日期
      */
     @Column(name="RECEIVE_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date receiveDate;
 
     /**
@@ -231,7 +240,17 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     }
 
     @Override
+    public String getPreSubStatus() {
+        return null;
+    }
+
+    @Override
     public void setSubStatus(String subState) {
+
+    }
+
+    @Override
+    public void setPreSubStatus(String subStatus) {
 
     }
 }

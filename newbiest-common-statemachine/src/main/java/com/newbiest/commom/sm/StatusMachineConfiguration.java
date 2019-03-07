@@ -1,5 +1,7 @@
 package com.newbiest.commom.sm;
 
+import com.newbiest.base.factory.ModelFactory;
+import com.newbiest.commom.sm.model.EventStatus;
 import com.newbiest.main.YmlPropertyLoaderFactory;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.Data;
@@ -52,6 +54,6 @@ public class StatusMachineConfiguration {
     @PostConstruct
     public void init() {
         //注册modelClassLoader
-//        ModelFactory.registerModelClassLoader(GeneratorRule.class.getName(), GeneratorRule.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(EventStatus.class.getName(), EventStatus.class.getClassLoader());
     }
 }

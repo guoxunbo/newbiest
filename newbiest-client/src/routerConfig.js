@@ -12,6 +12,7 @@ import RoleProperties from './pages/Properties/components/RoleProperties';
 import GeneratorRuleProperties from './pages/Properties/components/GeneratorRuleProperties';
 import MaterialStatusModelProperties from './pages/Properties/components/MaterialStatusModelProperties';
 import MaterialProperties from './pages/Properties/components/MaterialProperties';
+import MaterialLotProperties from './pages/Properties/components/MaterialLotProperties';
 
 const routerConfig = [
   {
@@ -71,6 +72,7 @@ const routerConfig = [
     component: RoleProperties,
   },
 
+  //LMS
   {
     path: 'LMS/IDGeneratorRuleManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
@@ -103,7 +105,16 @@ const routerConfig = [
     layout: HeaderAsideFooterResponsiveLayout,
     component: MaterialProperties,
   },
-
+  {
+    path: '/MMS/WarehouseManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
+  {
+    path: '/MMS/MaterialLotManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: MaterialLotProperties,
+  },
   //RMS
   {
     path: 'Rms/EquipmentManager/:tableRrn',

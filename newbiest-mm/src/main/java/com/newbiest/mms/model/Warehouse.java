@@ -33,6 +33,12 @@ public class Warehouse extends NBUpdatable{
     @Column(name="VIRTUAL_FLAG")
     private String virtualFlag;
 
+    /**
+     * 是否发送数据给其他系统 比如WMS。ERP等等
+     */
+    @Column(name="TRANSFER_DATA_FLAG")
+    private String transferDataFlag = StringUtils.NO;
+
     @Column(name="RESERVED1")
     private String reserved1;
 
@@ -48,11 +54,34 @@ public class Warehouse extends NBUpdatable{
     @Column(name="RESERVED5")
     private String reserved5;
 
+    @Column(name="RESERVED6")
+    private String reserved6;
+
+    @Column(name="RESERVED7")
+    private String reserved7;
+
+    @Column(name="RESERVED8")
+    private String reserved8;
+
+    @Column(name="RESERVED9")
+    private String reserved9;
+
+    @Column(name="RESERVED10")
+    private String reserved10;
+
     public Boolean getVirtualFlag() {
         return StringUtils.YES.equalsIgnoreCase(virtualFlag);
     }
 
     public void setVirtualFlag(Boolean virtualFlag) {
         this.virtualFlag = virtualFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public Boolean getTransferDataFlag() {
+        return StringUtils.YES.equalsIgnoreCase(transferDataFlag);
+    }
+
+    public void setTransferDataFlag(Boolean transferDataFlag) {
+        this.transferDataFlag = transferDataFlag ? StringUtils.YES : StringUtils.NO;
     }
 }

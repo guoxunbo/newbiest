@@ -1,6 +1,5 @@
 import EntityListTable from "./EntityListTable";
-import { Button, Table, Icon, Form } from "antd";
-import * as PropTypes from 'prop-types';
+import { Button, Form } from "antd";
 import TableManagerRequest from "../../api/table-manager/TableManagerRequest";
 import TableObject from '../../api/dto/ui/Table';
 import IconUtils from "../../api/utils/IconUtils";
@@ -30,7 +29,7 @@ export default class GeneratorRuleLineTable extends EntityListTable {
         let tab = this.props.tab;
         let self = this;
         let whereClause = " 1 != 1";
-        if (tab.whereClause && this.props.object) {
+        if (tab.whereClause && this.props.parentObject) {
             whereClause = tab.whereClause.format(this.props.parentObject);
         }
         let requestObject = {

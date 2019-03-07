@@ -18,9 +18,15 @@ import java.util.Date;
  * Created by guoxunbo on 2019/2/26.
  */
 @Entity
-@Table(name="MMS_MATERIAL_LOT")
+@Table(name="MMS_MATERIAL_LOT_HIS")
 @Data
 public class MaterialLotHistory extends NBHis {
+
+    public static final String TRANS_TYPE_RECEIVE = "Receive";
+    public static final String TRANS_TYPE_STOCK_IN = "StockIn";
+    public static final String TRANS_TYPE_STOCK_OUT = "StockOut";
+    public static final String TRANS_TYPE_PICK = "Pick";
+    public static final String TRANS_TYPE_TRANSFER = "Transfer";
 
     /**
      * 物料批次号
@@ -33,7 +39,7 @@ public class MaterialLotHistory extends NBHis {
      * 从物料上携带
      */
     @Column(name="STATUS_MODEL_RRN")
-    private String statusModelRrn;
+    private Long statusModelRrn;
 
     /**
      * 状态大类
@@ -46,6 +52,12 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="STATUS")
     private String status;
+
+    /**
+     * 前置状态大类
+     */
+    @Column(name="PRE_STATUS_CATEGORY")
+    private String preStatusCategory;
 
     /**
      * 前置状态
@@ -171,10 +183,47 @@ public class MaterialLotHistory extends NBHis {
     private String effectiveUnit;
 
     /**
-     * 此次的操作数量
+     * 操作数量
      */
     @Column(name="TRANS_QTY")
     private BigDecimal transQty;
+
+    /**
+     * 操作仓库
+     */
+    @Column(name="TRANS_WAREHOUSE_ID")
+    private String transWarehouseId;
+
+    /**
+     * 操作库位类型
+     */
+    @Column(name="TRANS_STORAGE_TYPE")
+    private String transStorageType;
+
+    /**
+     * 操作库位号
+     */
+    @Column(name="TRANS_STORAGE_ID")
+    private String transStorageId;
+
+    /**
+     * 目标仓库
+     */
+    @Column(name="TARGET_WAREHOUSE_ID")
+    private String targetWarehouseId;
+
+    /**
+     * 目标库位类型
+     */
+    @Column(name="TARGET_STORAGE_TYPE")
+    private String targetStorageType;
+
+    /**
+     * 目标库位号
+     */
+    @Column(name="TARGET_STORAGE_ID")
+    private String targetStorageId;
+
 
     @Column(name="RESERVED1")
     private String reserved1;
@@ -206,15 +255,4 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED10")
     private String reserved10;
 
-    /**
-     * 验证物料批次是否在有效期内
-     */
-    public void validationEffective() {
-        if (effectiveLife != null && !StringUtils.isNullOrEmpty(effectiveUnit)) {
-            Date effectiveDate = DateUtils.plus(receiveDate, effectiveLife.intValue(), effectiveUnit);
-            if (!effectiveDate.after(new Date())) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_HAS_EXPIRED);
-            }
-        }
-    }
 }

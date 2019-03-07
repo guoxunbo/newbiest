@@ -78,10 +78,18 @@ public class StatusMachineServiceImpl implements StatusMachineService {
                 throw new ClientParameterException(StatusMachineExceptions.STATUS_MODEL_EVENT_IS_NOT_EXIST, eventId);
             }
             Event event = optional.get();
+            EventStatus matchStatus = getMatchStatus(statusLifeCycle, targetStatus, event);
+            if (matchStatus == null) {
+                throw new ClientException(StatusMachineExceptions.EVENT_STATUS_IS_NOT_ALLOW);
+            }
+            statusLifeCycle.setPreStatusCategory(statusLifeCycle.getStatusCategory());
+            statusLifeCycle.setPreStatus(statusLifeCycle.getStatus());
+            statusLifeCycle.setPreSubStatus(statusLifeCycle.getSubStatus());
 
-
-            //TODO
-            return null;
+            statusLifeCycle.setStatusCategory(matchStatus.getTargetStatusCategory());
+            statusLifeCycle.setStatus(matchStatus.getTargetStatus());
+            statusLifeCycle.setSubStatus(matchStatus.getTargetSubStatus());
+            return statusLifeCycle;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -141,9 +149,16 @@ public class StatusMachineServiceImpl implements StatusMachineService {
                     matchStatus = allowStatus;
                 }
                 if (allowStatus.getSourceStatusCategory().equalsIgnoreCase(statusLifeCycle.getStatusCategory())
-                                && allowStatus.getSourceStatus().equalsIgnoreCase(statusLifeCycle.getStatus())
-                                && allowStatus.getSourceSubStatus().equalsIgnoreCase(statusLifeCycle.getSubStatus())) {
-                    matchStatus = allowStatus;
+                                && allowStatus.getSourceStatus().equalsIgnoreCase(statusLifeCycle.getStatus())) {
+                    // 因为很多statusLifeCycle不管控到subStatus 所以此处允许subStatus为空
+                    // 如果都为空，则也是match的
+                    if (StringUtils.isNullOrEmpty(allowStatus.getSourceSubStatus()) && StringUtils.isNullOrEmpty(statusLifeCycle.getSubStatus())) {
+                        matchStatus = allowStatus;
+                    } else {
+                        if (allowStatus.getSourceSubStatus().equalsIgnoreCase(statusLifeCycle.getSubStatus())) {
+                            matchStatus = allowStatus;
+                        }
+                    }
                 }
                 if (!StringUtils.isNullOrEmpty(targetStatus)) {
                     if (matchStatus.getTargetStatus().equalsIgnoreCase(targetStatus)) {

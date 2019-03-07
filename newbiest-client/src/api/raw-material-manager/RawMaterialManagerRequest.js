@@ -10,7 +10,6 @@ export default class RawMaterialManagerRequest {
      * 发送merge信息请求
      */
     static sendMergeRequest = (object) => {
-        debugger
         // 如果数据是新增的，清空objectRrn栏位
         if (object.rawMaterial.newFlag) {
             object.rawMaterial[DefaultRowKey] = undefined;

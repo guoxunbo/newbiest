@@ -23,7 +23,8 @@ const i18NCode = {
     BtnDispatchUser: "DispatchUser",
     BtnDispatchAuthority: "DispatchAuthority",
     BtnDispatchEvent: "DispatchEvent",
-    
+    BtnReceiveMaterialLot: "ReceiveMaterialLot",
+
     TransferItem: "Item",
     TransferItems: "Items",
     TransferNotFoundContent: "NotFoundContents",
@@ -156,6 +157,11 @@ const i18Messages = {
     DispatchEvent: {
         Chinese: "分配事件",
         English: "DispEvent",
+        Res: ""
+    },
+    ReceiveMaterialLot: {
+        Chinese: "接收物料",
+        English: "ReceiveMateialLot",
         Res: ""
     },
     Item: {

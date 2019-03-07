@@ -36,7 +36,7 @@ export default class GeneratorRuleTable extends EntityListTable {
     createForm = () => {
         let childrens = [];
         const WrappedAdvancedGeneratorRuleDrawer = Form.create()(GeneratorRuleDrawer);
-        childrens.push(<WrappedAdvancedGeneratorRuleDrawer table={this.state.table} object={this.state.editorObject} onDrawerClose={this.onDrawerClose} key="entityDrawer" visible={this.state.drawerVisiable}/>);
+        childrens.push(<WrappedAdvancedGeneratorRuleDrawer key={GeneratorRuleDrawer.displayName} table={this.state.table} object={this.state.editorObject} onDrawerClose={this.onDrawerClose} visible={this.state.drawerVisiable}/>);
         return childrens;
     }
 
