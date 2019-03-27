@@ -43,6 +43,14 @@ const Application = {
             swipeDismiss: true,
             styling: true
         }
+    },
+    jsBarCode: {
+        // 是否在条形码下方显示文字
+        displayValue: true, 
+        // 条形码 条之间的宽度
+        width: 3.0,
+        height: 100,
+        margin: 0,
     }
 };
 
