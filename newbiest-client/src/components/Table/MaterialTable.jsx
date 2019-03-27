@@ -3,13 +3,17 @@ import React from 'react';
 import './ListTable.scss';
 import MaterialForm from '../Form/MaterialForm';
 import EntityListTable from './EntityListTable';
-import { Form, Button } from 'antd';
+import { Form, Button, Table } from 'antd';
 import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
 import TableManagerRequest from '../../api/table-manager/TableManagerRequest';
 import TableObject from '../../api/dto/ui/Table';
 import ReceiveMaterialForm from '../Form/ReceiveMaterialForm';
 import MessageUtils from '../../api/utils/MessageUtils';
+
+const TableName = {
+    ReceiveMLot: "MMReceiveMLot"
+}
 
 export default class MaterialTable extends EntityListTable {
 
@@ -60,7 +64,7 @@ export default class MaterialTable extends EntityListTable {
         }
         let self = this;
         let requestObject = {
-            name: "MMReceiveMLot",
+            name: TableName.ReceiveMLot,
             success: function(responseBody) {
                 let table = responseBody.table;
                 let receiveMaterialObject = TableObject.buildDefaultModel(table.fields, selectedMaterial);

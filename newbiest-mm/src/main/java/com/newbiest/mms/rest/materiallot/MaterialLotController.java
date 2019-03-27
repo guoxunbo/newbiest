@@ -33,7 +33,7 @@ public class MaterialLotController extends AbstractRestController {
     @Autowired
     MmsService mmsService;
 
-    @ApiOperation(value = "对物料批做操作", notes = "接收。出入库，转库。消耗。hold/release等")
+    @ApiOperation(value = "对物料批做操作", notes = "接收。消耗。hold/release等")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotRequest")
     @RequestMapping(value = "/materialLotManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public MaterialLotResponse execute(@RequestBody MaterialLotRequest request) throws Exception {
@@ -56,15 +56,6 @@ public class MaterialLotController extends AbstractRestController {
             }
             //TODO 当前不支持输入mLotId
             materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, StringUtils.EMPTY, materialLotAction, sc);
-        } else if (MaterialLotRequest.ACTION_STOCK_IN.equals(actionType)) {
-            materialLot = validationMaterialLot(materialLot, sc);
-            materialLot = mmsService.stockIn(materialLot, materialLotAction, sc);
-        } else if (MaterialLotRequest.ACTION_STOCK_OUT.equals(actionType)) {
-            materialLot = validationMaterialLot(materialLot, sc);
-            materialLot = mmsService.stockOut(materialLot, materialLotAction, sc);
-        } else if (MaterialLotRequest.ACTION_TRANSFER.equals(actionType)) {
-            materialLot = validationMaterialLot(materialLot, sc);
-            materialLot = mmsService.transfer(materialLot, materialLotAction, sc);
         } else if (MaterialLotRequest.ACTION_HOLD.equals(actionType)) {
             materialLot = validationMaterialLot(materialLot, sc);
             materialLot = mmsService.holdMaterialLot(materialLot, materialLotAction, sc);
@@ -84,8 +75,6 @@ public class MaterialLotController extends AbstractRestController {
         if (materialLot == null) {
             throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, oldMaterialLot.getMaterialLotId());
         }
-        oldMaterialLot.setObjectRrn(materialLot.getObjectRrn());
-        validateEntity(oldMaterialLot);
         return materialLot;
     }
 

@@ -1,4 +1,4 @@
-package com.newbiest.mms.rest.materiallot;
+package com.newbiest.mms.rest.materiallot.inv;
 
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
@@ -12,7 +12,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("具体请求操作信息")
-public class MaterialLotRequestBody extends RequestBody {
+public class MaterialLotInvRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 

@@ -22,4 +22,6 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_PICK = "Pick";
 
+    public static final String EVENT_CHECK = "Check";
+
 }

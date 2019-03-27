@@ -4,6 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotInventory;
 import com.newbiest.mms.model.RawMaterial;
 
 /**
@@ -22,8 +23,10 @@ public interface MmsService {
     MaterialLot stockOut(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
     MaterialLot pick(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
     MaterialLot transfer(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
+    MaterialLot checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
 
     MaterialLot holdMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
     MaterialLot releaseMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
 
+    MaterialLotInventory getMaterialLotInv(long mLotRrn, long warehouseRrn) throws ClientException;
 }

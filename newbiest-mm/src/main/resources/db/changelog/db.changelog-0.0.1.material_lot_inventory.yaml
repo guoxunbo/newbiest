@@ -54,9 +54,29 @@ databaseChangeLog:
                   type: bigint
                   remarks: 物料批次主键
               - column:
+                  name: MATERIAL_LOT_ID
+                  type: varchar(64)
+                  remarks: 物料批次号
+              - column:
+                  name: MATERIAL_NAME
+                  type: varchar(64)
+                  remarks: 物料名称
+              - column:
+                  name: MATERIAL_DESC
+                  type: varchar(64)
+                  remarks: 物料描述
+              - column:
                   name: WAREHOUSE_RRN
                   type: bigint
                   remarks: 仓库主键
+              - column:
+                  name: WAREHOUSE_ID
+                  type: varchar(64)
+                  remarks: 仓库号
+              - column:
+                  name: STORAGE_RRN
+                  type: bigint
+                  remarks: 库位主键
               - column:
                   name: STORAGE_TYPE
                   type: bigint

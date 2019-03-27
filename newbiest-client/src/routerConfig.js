@@ -13,6 +13,7 @@ import GeneratorRuleProperties from './pages/Properties/components/GeneratorRule
 import MaterialStatusModelProperties from './pages/Properties/components/MaterialStatusModelProperties';
 import MaterialProperties from './pages/Properties/components/MaterialProperties';
 import MaterialLotProperties from './pages/Properties/components/MaterialLotProperties';
+import MaterialLotInventoryProperties from './pages/Properties/components/MaterialLotInventoryProperties';
 
 const routerConfig = [
   {
@@ -106,14 +107,20 @@ const routerConfig = [
     component: MaterialProperties,
   },
   {
-    path: '/MMS/WarehouseManager/:tableRrn',
+    path: '/MMS/MaterialLotManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: MaterialLotProperties,
+  },
+
+  {
+    path: '/WMS/WarehouseManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
     component: EntityProperties,
   },
   {
-    path: '/MMS/MaterialLotManager/:tableRrn',
+    path: '/WMS/MLotInventoryManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
-    component: MaterialLotProperties,
+    component: MaterialLotInventoryProperties,
   },
   //RMS
   {

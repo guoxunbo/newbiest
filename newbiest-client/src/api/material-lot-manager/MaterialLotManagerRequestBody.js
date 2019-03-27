@@ -17,7 +17,7 @@ export default class MaterialLotManagerRequestBody {
     }
 
     /**
-     * 接收物料批次
+     * 接收物料批次并入库
      * @param materialName 物料
      * @param warehouseRrn 仓库
      * @param qty 数量

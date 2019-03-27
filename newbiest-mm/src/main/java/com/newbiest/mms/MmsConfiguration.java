@@ -2,10 +2,7 @@ package com.newbiest.mms;
 
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.main.YmlPropertyLoaderFactory;
-import com.newbiest.mms.model.MaterialHistory;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotHistory;
-import com.newbiest.mms.model.RawMaterial;
+import com.newbiest.mms.model.*;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.state.model.MaterialStatusCategory;
@@ -68,6 +65,7 @@ public class MmsConfiguration {
         ModelFactory.registerModelClassLoader(RawMaterial.class.getName(), RawMaterial.class.getClassLoader());
         ModelFactory.registerModelClassLoader(MaterialLot.class.getName(), MaterialLot.class.getClassLoader());
         ModelFactory.registerModelClassLoader(MaterialLotHistory.class.getName(), MaterialLotHistory.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(Warehouse.class.getName(), Warehouse.class.getClassLoader());
 
 
         // 注册历史

@@ -27,6 +27,7 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_STOCK_OUT = "StockOut";
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
+    public static final String TRANS_TYPE_CHECK = "Check";
 
     /**
      * 物料批次号

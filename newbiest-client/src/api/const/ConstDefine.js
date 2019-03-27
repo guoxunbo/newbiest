@@ -22,7 +22,8 @@ const UrlConstant = {
     AuthorityManagerUrl: ModuleUrlConstant.Security + "authorityManage",
     StatusModelManagerUrl: ModuleUrlConstant.StatusMachine + "statusModelManage",
     RawMaterialManagerUrl: ModuleUrlConstant.MMS + "rawMaterialManage",
-    MaterialLotManagerUrl: ModuleUrlConstant.MMS + "materialLotManage"
+    MaterialLotManagerUrl: ModuleUrlConstant.MMS + "materialLotManage",
+    MaterialLotInvManagerUrl: ModuleUrlConstant.MMS + "materialLotInvManage",
 };
 
 const SystemRefListName = {

@@ -110,10 +110,7 @@ export default class EntityListTable extends Component {
             render: (text, record) => {
                 return (
                     <div>
-                        <Button style={{marginRight:'1px'}} icon="edit" onClick={() => self.handleEdit(record)} size="small" href="javascript:;"></Button>
-                        <Popconfirm title={I18NUtils.getClientMessage(i18NCode.ConfirmDelete)} onConfirm={() => self.handleDelete(record)}>
-                            <Button icon="delete" size="small" type="danger"></Button>
-                        </Popconfirm>
+                       {self.buildOperation(record)} 
                     </div>
                 );
             }
@@ -121,25 +118,46 @@ export default class EntityListTable extends Component {
         return oprationColumn;
     }
 
+    buildOperation = (record) => {
+        let operations = [];
+        operations.push(this.buildEditButton(record));
+        operations.push(this.buildDeletePopConfirm(record));
+        return operations;
+    }
+
+    buildEditButton = (record) => {
+        return <Button key="edit" style={{marginRight:'1px'}} icon="edit" onClick={() => this.handleEdit(record)} size="small" href="javascript:;"></Button>;
+    }
+
+    buildDeletePopConfirm = (record) => {
+        return <Popconfirm key="delete" title={I18NUtils.getClientMessage(i18NCode.ConfirmDelete)} onConfirm={() => this.handleDelete(record)}>
+                    <Button icon="delete" size="small" type="danger"></Button>
+                </Popconfirm>;
+    }
+    
     handleDelete = (record) => {
         const self = this;
         let object = {
             modelClass : self.state.table.modelClass,
             values: record,
             success: function(responseBody) {
-                let datas = self.state.data;
-                let dataIndex = datas.indexOf(record);
-                if (dataIndex > -1 ) {
-                    datas.splice(dataIndex, 1);
-                    self.setState({
-                        data: datas
-                    })
-                }
-                MessageUtils.showOperationSuccess();
+                self.refreshDelete(record);
             }
         };
         EntityManagerRequest.sendDeleteRequest(object);
     } 
+
+    refreshDelete = (record) => {
+        let datas = this.state.data;
+        let dataIndex = datas.indexOf(record);
+        if (dataIndex > -1 ) {
+            datas.splice(dataIndex, 1);
+            this.setState({
+                data: datas
+            })
+        }
+        MessageUtils.showOperationSuccess();
+    }
 
     handleEdit = (record) => {
         this.setState({
@@ -293,7 +311,7 @@ export default class EntityListTable extends Component {
      * 创建导出数据功能。基本功能具备
      */
     createExportDataButton = () => {
-        return <Button type="primary" style={styles.tableButton} icon="file-excel" onClick={this.exportData}>
+        return <Button key="exportData" type="primary" style={styles.tableButton} icon="file-excel" onClick={this.exportData}>
                         {I18NUtils.getClientMessage(i18NCode.BtnExp)}
                     </Button>
     }

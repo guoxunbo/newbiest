@@ -18,4 +18,26 @@ export default class MaterialLotManagerRequest {
         MessageUtils.sendRequest(requestObject);
     }
 
+    static sendStockOutRequest = (object) => {
+        let requestBody = MaterialLotManagerRequestBody.buildStockOut(object.mLotInventory);
+        let requestHeader = new MaterialLotManagerRequestHeader();
+        let request = new Request(requestHeader, requestBody, UrlConstant.MaterialLotManagerUrl);
+        let requestObject = {
+            request: request,
+            success: object.success
+        }
+        MessageUtils.sendRequest(requestObject);
+    }
+    
+    static sendTransferStockRequest = (object) => {
+        let requestBody = MaterialLotManagerRequestBody.buildTransferInv(object.transferInvObject);
+        let requestHeader = new MaterialLotManagerRequestHeader();
+        let request = new Request(requestHeader, requestBody, UrlConstant.MaterialLotManagerUrl);
+        let requestObject = {
+            request: request,
+            success: object.success
+        }
+        MessageUtils.sendRequest(requestObject);
+    }
+
 }

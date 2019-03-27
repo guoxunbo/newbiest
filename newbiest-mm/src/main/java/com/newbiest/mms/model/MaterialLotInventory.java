@@ -24,8 +24,23 @@ public class MaterialLotInventory extends NBUpdatable {
     @Column(name = "MATERIAL_LOT_RRN")
     private Long materialLotRrn;
 
+    @Column(name = "MATERIAL_LOT_ID")
+    private String materialLotId;
+
+    @Column(name = "MATERIAL_NAME")
+    private String materialName;
+
+    @Column(name = "MATERIAL_DESC")
+    private String materialDesc;
+
     @Column(name = "WAREHOUSE_RRN")
     private Long warehouseRrn;
+
+    @Column(name = "WAREHOUSE_ID")
+    private String warehouseId;
+
+    @Column(name = "STORAGE_RRN")
+    private String storageRrn;
 
     /**
      * 库位类型
@@ -44,6 +59,20 @@ public class MaterialLotInventory extends NBUpdatable {
      */
     @Column(name = "STOCK_QTY")
     private BigDecimal stockQty = BigDecimal.ZERO;
+
+    public MaterialLotInventory setWarehouse(Warehouse warehouse) {
+        this.setWarehouseRrn(warehouse.getObjectRrn());
+        this.setWarehouseId(warehouse.getName());
+        return this;
+    }
+
+    public MaterialLotInventory setMaterialLot(MaterialLot materialLot) {
+        this.setMaterialLotRrn(materialLot.getObjectRrn());
+        this.setMaterialLotId(materialLot.getMaterialLotId());
+        this.setMaterialName(materialLot.getMaterialName());
+        this.setMaterialDesc(materialLot.getMaterialDesc());
+        return this;
+    }
 
 
 }

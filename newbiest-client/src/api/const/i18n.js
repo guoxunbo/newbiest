@@ -13,7 +13,7 @@ const i18NCode = {
     SelectAtLeastOneRow: "SelectAtLeastOneRow",
     ConfirmDelete: "ConfirmDelete",
     ConfirmCancel: "ConfirmCancel",
-    
+
     BtnAdd: "Add",
     BtnImp: "Imp",
     BtnExp: "Exp",
@@ -24,7 +24,9 @@ const i18NCode = {
     BtnDispatchAuthority: "DispatchAuthority",
     BtnDispatchEvent: "DispatchEvent",
     BtnReceiveMaterialLot: "ReceiveMaterialLot",
-
+    BtnStockOut: "StockOut",
+    BtnStockTransfer: "StockTransfer",
+    BtnPick: "Pick",
     TransferItem: "Item",
     TransferItems: "Items",
     TransferNotFoundContent: "NotFoundContents",
@@ -162,6 +164,21 @@ const i18Messages = {
     ReceiveMaterialLot: {
         Chinese: "接收物料",
         English: "ReceiveMateialLot",
+        Res: ""
+    },
+    StockOut: {
+        Chinese: "出库",
+        English: "StockOut",
+        Res: ""
+    },
+    StockTransfer: {
+        Chinese: "转库",
+        English: "StockTransfer",
+        Res: ""
+    },
+    Pick: {
+        Chinese: "领料",
+        English: "Pick",
         Res: ""
     },
     Item: {

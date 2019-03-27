@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MaterialLotInventoryRepository extends IRepository<MaterialLotInventory, Long> {
 
-    MaterialLotInventory findByMaterialLotRrn(long materialLotRrn) throws ClientException;
+    /**
+     * 一个批次可以在多个仓库中，但是一个仓库中只能存在一个相同批次号的物料批次
+     */
+    MaterialLotInventory findByMaterialLotRrnAndWarehouseRrn(long materialLotRrn, long warehouseRrn) throws ClientException;
 
 }

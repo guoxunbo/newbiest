@@ -253,4 +253,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public void setPreSubStatus(String subStatus) {
 
     }
+
+    /**
+     * 验证了批次是否被Hold 如果被Hold则抛出异常
+     * @throws ClientException
+     */
+    public MaterialLot validateMLotHold() throws ClientException{
+        if (HOLD_STATE_ON.equals(holdState)) {
+            throw new ClientException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD);
+        }
+        return this;
+    }
+
 }
