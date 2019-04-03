@@ -34,7 +34,7 @@ export default class MaterialLotInventoryTable extends EntityListTable {
         let childrens = [];
         const WrappedAdvancedTransferMLotInventoryForm = Form.create()(TransferMLotInventoryForm);
         childrens.push(<WrappedAdvancedTransferMLotInventoryForm key={TransferMLotInventoryForm.displayName} ref={this.formRef} object={this.state.mLotInventory} visible={this.state.transferMLotInvFormVisible} 
-                                                            table={this.state.transferMLotInventoryTable} onOk={this.handleTransferOk} onCancel={this.handleCancelTransfer} />);                                   
+                            table={this.state.transferMLotInventoryTable} onOk={this.handleTransferOk} onCancel={this.handleCancelTransfer} />);                                   
         const WrappedAdvancedCheckMLotInventoryForm = Form.create()(CheckMLotInventoryForm);
         childrens.push(<WrappedAdvancedCheckMLotInventoryForm key={CheckMLotInventoryForm.displayName} ref={this.formRef} object={this.state.mLotInventory} visible={this.state.checkMLotInvFormVisible} 
                             table={this.state.checkMLotInventoryTable} onOk={this.handleCheckOk} onCancel={this.handleCancelCheck} />);                                   

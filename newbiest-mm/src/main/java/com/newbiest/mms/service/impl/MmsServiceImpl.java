@@ -1,6 +1,7 @@
 package com.newbiest.mms.service.impl;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBVersionControl;
@@ -161,8 +162,8 @@ public class MmsServiceImpl implements MmsService {
 
             if (materialLotAction.getTargetWarehouseRrn() == null) {
                 materialLotAction.setTargetWarehouseRrn(rawMaterial.getWarehouseRrn());
+                materialLot = stockIn(materialLot, materialLotAction, sc);
             }
-            materialLot = stockIn(materialLot, materialLotAction, sc);
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -189,6 +190,10 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLotInventory getMaterialLotInv(long mLotRrn, long warehouseRrn) throws ClientException {
         return materialLotInventoryRepository.findByMaterialLotRrnAndWarehouseRrn(mLotRrn, warehouseRrn);
+    }
+
+    public List<MaterialLotInventory> getMaterialLotInv(long mLotRrn) throws ClientException {
+        return materialLotInventoryRepository.findByMaterialLotRrn(mLotRrn);
     }
 
     /**
@@ -248,7 +253,7 @@ public class MmsServiceImpl implements MmsService {
             // 一个批次可以在多个仓库中，但是一个仓库中只能存在一个相同批次号的物料批次
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_NOT_INVENTORY);
+                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
             materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
             // 如果盘点为0 则表示物料批次被用完，则触发出库事件
@@ -300,7 +305,7 @@ public class MmsServiceImpl implements MmsService {
             // 一个批次可以在多个仓库中，但是一个仓库中只能存在一个相同批次号的物料批次
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_NOT_INVENTORY);
+                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
             materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
 
@@ -346,7 +351,7 @@ public class MmsServiceImpl implements MmsService {
             // 一个批次可以在多个仓库中，但是一个仓库中只能存在一个相同批次号的物料批次
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_NOT_INVENTORY);
+                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
             materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
 
@@ -398,7 +403,7 @@ public class MmsServiceImpl implements MmsService {
             // 一个批次可以在多个仓库中，但是一个仓库中只能存在一个相同批次号的物料批次
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_NOT_INVENTORY);
+                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
             materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
 
@@ -412,6 +417,50 @@ public class MmsServiceImpl implements MmsService {
             history.setTransQty(materialLotAction.getTransQty());
             history.setTransWarehouseId(fromWarehouse.getName());
             history.setTargetWarehouseId(targetWarehouse.getName());
+            history.setActionCode(materialLotAction.getActionCode());
+            history.setActionReason(materialLotAction.getActionReason());
+            history.setActionComment(materialLotAction.getActionComment());
+            materialLotHistoryRepository.save(history);
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 消耗批次物料
+     * 允许传入数量为负数，负数表示反消耗
+     * @param materialLot 物料批次
+     * @param materialLotAction 动作
+     */
+    public MaterialLot consumeMLot(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException {
+        try {
+            sc.buildTransInfo();
+
+            materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
+
+            BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
+            if (currentQty.compareTo(materialLotAction.getTransQty()) < 0) {
+                throw new ClientException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO);
+            }
+
+            // 当批次在库存中，无法进行消耗/反消耗 只能进行盘点
+            List<MaterialLotInventory> materialLotInventories = getMaterialLotInv(materialLot.getObjectRrn());
+            if (CollectionUtils.isNotEmpty(materialLotInventories)) {
+                throw new ClientException(MmsException.MM_MATERIAL_LOT_IN_INVENTORY);
+            }
+
+            String eventId = MaterialEvent.EVENT_CONSUME;
+            if (currentQty.compareTo(BigDecimal.ZERO) == 0) {
+                eventId = MaterialEvent.EVENT_USE_UP;
+            }
+            materialLot = changeMaterialLotState(materialLot, eventId, StringUtils.EMPTY, sc);
+
+            materialLot.setCurrentQty(currentQty);
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_CONSUME, sc);
+            history.setTransQty(materialLotAction.getTransQty());
             history.setActionCode(materialLotAction.getActionCode());
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
@@ -520,7 +569,7 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot receiveMLot(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction, SessionContext sc) {
         try {
-            MaterialLot materialLot = createMLot(rawMaterial, mLotId, materialLotAction.getTransQty(), sc);
+            MaterialLot materialLot = createMLot(rawMaterial, mLotId, materialLotAction.getGrade(), materialLotAction.getTransQty(), sc);
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY, sc);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE, sc);
@@ -565,7 +614,7 @@ public class MmsServiceImpl implements MmsService {
      * @return
      * @throws ClientException
      */
-    public MaterialLot createMLot(RawMaterial rawMaterial, String mLotId, BigDecimal transQty, SessionContext sc) throws ClientException {
+    public MaterialLot createMLot(RawMaterial rawMaterial, String mLotId, String grade, BigDecimal transQty, SessionContext sc) throws ClientException {
         try {
             sc.buildTransInfo();
             if (StringUtils.isNullOrEmpty(mLotId)) {
@@ -580,7 +629,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setCreatedBy(sc.getUsername());
             materialLot.setUpdatedBy(sc.getUsername());
             materialLot.setMaterialLotId(mLotId);
-
+            materialLot.setGrade(grade);
             if (rawMaterial.getStatusModelRrn() == null) {
                 List<MaterialStatusModel> statusModels = (List<MaterialStatusModel>) materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
                 if (CollectionUtils.isNotEmpty(statusModels)) {

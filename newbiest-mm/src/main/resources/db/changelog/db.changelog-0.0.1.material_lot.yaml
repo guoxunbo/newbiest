@@ -54,6 +54,10 @@ databaseChangeLog:
                   type: varchar(64)
                   remarks: 物料批次号
               - column:
+                  name: GRADE
+                  type: varchar(64)
+                  remarks: 等级
+              - column:
                   name: RECEIVE_QTY
                   type: bigint
                   remarks: 接收数量
@@ -90,17 +94,21 @@ databaseChangeLog:
                   type: varchar(64)
                   remarks: Hold状态
               - column:
-                  name: PARENT_MLOT_ID
+                  name: PARENT_MATERIAL_LOT_ID
                   type: varchar(64)
                   remarks: 母批的批号
               - column:
-                  name: PARENT_MLOT_RRN
+                  name: PARENT_MATERIAL_LOT_RRN
                   type: bigint
                   remarks: 母批的批次主键
               - column:
-                  name: SUB_MLOT_FLAG
+                  name: SUB_MATERIAL_LOT_FLAG
                   type: varchar(1)
                   remarks: 子批标志
+              - column:
+                  name: PACKED_FLAG
+                  type: varchar(1)
+                  remarks: 被包装标志
               - column:
                   name: WORK_ORDER_ID
                   type: varchar(64)

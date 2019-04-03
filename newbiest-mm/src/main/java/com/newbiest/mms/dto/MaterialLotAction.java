@@ -11,11 +11,15 @@ import java.math.BigDecimal;
 @Data
 public class MaterialLotAction extends Action {
 
-
     /**
      * 此次操作的数量
      */
     private BigDecimal transQty;
+
+    /**
+     * 判等
+     */
+    private String grade;
 
     /**
      * 来源仓库主键

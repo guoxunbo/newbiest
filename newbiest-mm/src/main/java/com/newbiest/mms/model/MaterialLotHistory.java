@@ -1,11 +1,7 @@
 package com.newbiest.mms.model;
 
-import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.model.NBHis;
-import com.newbiest.base.model.NBUpdatable;
-import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.mms.exception.MmsException;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -28,12 +24,26 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
     public static final String TRANS_TYPE_CHECK = "Check";
+    public static final String TRANS_TYPE_CONSUME = "Consume";
+
+    public static final String TRANS_TYPE_PACKAGE = "Package";
+
+    /**
+     * 因为包装产生的批次
+     */
+    public static final String TRANS_TYPE_PACKAGE_CREATE = "PackageCreate";
 
     /**
      * 物料批次号
      */
     @Column(name="MATERIAL_LOT_ID")
     private String materialLotId;
+
+    /**
+     * 等级
+     */
+    @Column(name="GRADE")
+    private String grade;
 
     /**
      * 状态模型主键
@@ -94,20 +104,26 @@ public class MaterialLotHistory extends NBHis {
     /**
      * 如果是子批，对应的母批的批号
      */
-    @Column(name="PARENT_MLOT_ID")
-    private String parentMLotId;
+    @Column(name="PARENT_MATERIAL_LOT_ID")
+    private String parentMaterialLotId;
 
     /**
      * 如果是子批，对应的母批的主键
      */
-    @Column(name="PARENT_MLOT_RRN")
-    private String parentMLotRrn;
+    @Column(name="PARENT_MATERIAL_LOT_RRN")
+    private String parentMaterialLotRrn;
 
     /**
      * 是否是子批的标记
      */
-    @Column(name="SUB_MLOT_FLAG")
-    private String subMLotFlag;
+    @Column(name="SUB_MATERIAL_LOT_FLAG")
+    private String subMaterialLotFlag;
+
+    /**
+     * 是否被包装
+     */
+    @Column(name="PACKED_FLAG")
+    private String packedFlag;
 
     /**
      * 工单号。
@@ -256,4 +272,19 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED10")
     private String reserved10;
 
+    public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
+        this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public boolean getSubMaterialLotFlag() {
+        return StringUtils.YES.equalsIgnoreCase(this.subMaterialLotFlag);
+    }
+
+    public void setPackedFlag(Boolean packedFlag) {
+        this.packedFlag = packedFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public boolean getPackedFlag() {
+        return StringUtils.YES.equalsIgnoreCase(this.packedFlag);
+    }
 }

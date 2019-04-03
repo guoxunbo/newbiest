@@ -7,7 +7,7 @@ export default class ReceiveMaterialForm extends EntityForm {
     handleSave = () => {
         var self = this;
         let object = {
-            receiveMaterial: this.props.object,
+            formObject: this.props.object,
             success: function(responseBody) {
                 if (self.props.onOk) {
                     self.props.onOk(responseBody.material);

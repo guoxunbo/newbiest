@@ -29,7 +29,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String GENERATOR_MATERIAL_LOT_ID_RULE = "CreateMLot";
 
     /**
-     * 生成
+     * 生成物料子批号的规则
      */
     public static final String GENERATOR_SUB_MATERIAL_LOT_ID_RULE = "CreateSubMLot";
 
@@ -41,6 +41,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="MATERIAL_LOT_ID")
     private String materialLotId;
+
+    /**
+     * 等级
+     */
+    @Column(name="GRADE")
+    private String grade;
 
     /**
      * 状态模型主键
@@ -101,20 +107,26 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     /**
      * 如果是子批，对应的母批的批号
      */
-    @Column(name="PARENT_MLOT_ID")
-    private String parentMLotId;
+    @Column(name="PARENT_MATERIAL_LOT_ID")
+    private String parentMaterialLotId;
 
     /**
      * 如果是子批，对应的母批的主键
      */
-    @Column(name="PARENT_MLOT_RRN")
-    private String parentMLotRrn;
+    @Column(name="PARENT_MATERIAL_LOT_RRN")
+    private Long parentMaterialLotRrn;
 
     /**
      * 是否是子批的标记
      */
-    @Column(name="SUB_MLOT_FLAG")
-    private String subMLotFlag;
+    @Column(name="SUB_MATERIAL_LOT_FLAG")
+    private String subMaterialLotFlag;
+
+    /**
+     * 是否被包装
+     */
+    @Column(name="PACKED_FLAG")
+    private String packedFlag;
 
     /**
      * 工单号。
@@ -232,6 +244,22 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_HAS_EXPIRED);
             }
         }
+    }
+
+    public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
+        this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public boolean getSubMaterialLotFlag() {
+        return StringUtils.YES.equalsIgnoreCase(this.subMaterialLotFlag);
+    }
+
+    public void setPackedFlag(Boolean packedFlag) {
+        this.packedFlag = packedFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public boolean getPackedFlag() {
+        return StringUtils.YES.equalsIgnoreCase(this.packedFlag);
     }
 
     @Override
