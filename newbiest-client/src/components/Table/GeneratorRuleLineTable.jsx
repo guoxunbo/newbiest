@@ -12,6 +12,12 @@ const DataType = {
     Sequence: "S"
 
 }
+const TableName = {
+    FixedString: "COMFixedStringLine",
+    DateLine: "COMDateLine",
+    VariableLine: "COMVariableLine",
+    SequenceLine: "COMSequenceLine",
+}
 export default class GeneratorRuleLineTable extends EntityListTable {
 
     static displayName = 'GeneratorRuleLineTable';
@@ -23,8 +29,14 @@ export default class GeneratorRuleLineTable extends EntityListTable {
         });
         this.state = state;
     }
-
       
+    /**
+     * 重写此方法。因为当前的Table不是从props传递。
+     */
+    componentWillReceiveProps = () => {
+
+    }
+    
     componentDidMount = () => {
         let tab = this.props.tab;
         let self = this;
@@ -56,7 +68,7 @@ export default class GeneratorRuleLineTable extends EntityListTable {
     createForm = () => {
         const WrappedAdvancedEntityForm = Form.create()(EntityForm);
         return  <WrappedAdvancedEntityForm ref={this.formRef} object={this.state.editorObject} visible={this.state.formVisible} 
-                                            table={this.state.formTable} onOk={this.refresh} onCancel={this.handleCancel} />
+                                            table={this.state.formTable} tableData={this.state.data} onOk={this.refresh} onCancel={this.handleCancel} />
     }
 
     handleEdit = (record) => {
@@ -70,13 +82,13 @@ export default class GeneratorRuleLineTable extends EntityListTable {
         let self = this;
         let tableName = "";
         if (DataType.FixedString === dataType) {
-            tableName = "COMFixedStringLine"
+            tableName = TableName.FixedString
         } else if (DataType.Date === dataType) {
-            tableName = "COMDateLine"
+            tableName = TableName.DateLine
         } else if (DataType.Variable === dataType) {
-            tableName = "COMVariableLine"
+            tableName = TableName.VariableLine
         } else if (DataType.Sequence === dataType) {
-            tableName = "COMSequenceLine"
+            tableName = TableName.SequenceLine
         }
         let requestObject = {
             name: tableName,
@@ -94,6 +106,9 @@ export default class GeneratorRuleLineTable extends EntityListTable {
     }
 
     createButtonGroup = () => {
+        if (!this.props.parentObject.objectRrn) {
+            return;
+        }
         return (<div>
                     <Button style={{marginRight:'1px', marginLeft:'10px'}} size="small" href="javascript:;" 
                         onClick={() => this.handleButtonClick(DataType.FixedString)}>

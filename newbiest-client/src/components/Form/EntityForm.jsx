@@ -7,6 +7,7 @@ import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest'
 import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
 import PropertyUtils from '../../api/utils/PropertyUtils';
+import { DefaultOrderKey } from '../../api/const/ConstDefine';
 
 export default class EntityForm extends Component {
     static displayName = 'EntityForm';
@@ -87,18 +88,39 @@ export default class EntityForm extends Component {
             if (err) {
                 return;
             }
-            PropertyUtils.copyProperties(values, this.props.object);
-            
-            this.handleSave(this.props.object);
+            let formObject = this.props.object;
+            PropertyUtils.copyProperties(values, formObject);
+            debugger;
+            // 如果当前values具备seqNo栏位并且该栏位没手动给值。则说明需要自动给个seqNo的值
+            if (formObject.hasOwnProperty(DefaultOrderKey) && !formObject[DefaultOrderKey]) {
+                // 只有对象有seqNo栏位，则tableData必定有seqNo
+                if (this.props.tableData && Array.isArray(this.props.tableData)) {
+                    if (this.props.tableData.length == 0) {
+                        formObject[DefaultOrderKey] = 1;
+                    } else {
+                        let data = this.props.tableData.sort(function(a,b){
+                            if (a[DefaultOrderKey] - b[DefaultOrderKey] < 0) {
+                                return -1;
+                            } else {
+                                return 1;
+                            }
+                        });
+                        formObject[DefaultOrderKey] = data[data.length - 1][DefaultOrderKey] + 1;
+                    }
+                }
+            }
+
+            this.handleSave(formObject);
         });
     }
 
-    handleSave = () => {
+    handleSave = (formObject) => {
+        debugger;
         var self = this;
         // 默认处理的saveEntity
         let object = {
             modelClass: this.props.table.modelClass,
-            values: this.props.object,
+            values: formObject,
             success: function(responseBody) {
                 if (self.props.onOk) {
                     self.props.onOk(responseBody.data);
@@ -121,9 +143,10 @@ export default class EntityForm extends Component {
     render() {
         return (
             <div>
-                <Modal width={1040} centered title={I18NUtils.getClientMessage(i18NCode.Edit)} object={this.props.object} visible={this.props.visible} 
-                    maskClosable={false} onOk={this.handleOk} onCancel={this.props.onCancel} okText={I18NUtils.getClientMessage(i18NCode.Ok)} 
-                    cancelText={I18NUtils.getClientMessage(i18NCode.Cancel)}>
+                <Modal width={1040} centered title={this.props.title ? this.props.title : I18NUtils.getClientMessage(i18NCode.Edit)} 
+                    object={this.props.object} visible={this.props.visible} 
+                    maskClosable={false} onOk={this.handleOk} onCancel={this.props.onCancel} 
+                    okText={I18NUtils.getClientMessage(i18NCode.Ok)} cancelText={I18NUtils.getClientMessage(i18NCode.Cancel)}>
                     {this.buildForm()}
                 </Modal>
             </div>
@@ -132,10 +155,12 @@ export default class EntityForm extends Component {
 }
 
 EntityForm.propTypes={
+    title: PropTypes.string,
     visible: PropTypes.bool,
     object: PropTypes.object,
     onCancel: PropTypes.func,
     onOk: PropTypes.func,
-    table: PropTypes.object
+    table: PropTypes.object,
+    tableData: PropTypes.array
 }
 

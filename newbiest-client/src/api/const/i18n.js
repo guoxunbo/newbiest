@@ -27,6 +27,13 @@ const i18NCode = {
     BtnStockOut: "StockOut",
     BtnStockTransfer: "StockTransfer",
     BtnPick: "Pick",
+    BtnHold: "Hold",
+    BtnRelease: "Release",
+    BtnConsume: "Consume",
+    BtnUnConsume: "UnConsume",
+    BtnScrap: "Scrap",
+    BtnUnScrap: "UnScrap",
+
     TransferItem: "Item",
     TransferItems: "Items",
     TransferNotFoundContent: "NotFoundContents",
@@ -134,6 +141,36 @@ const i18Messages = {
     ExpData: {
         Chinese: "导出数据",
         English: "ExpData",
+        Res: ""
+    },
+    Hold: {
+        Chinese: "暂停",
+        English: "Hold",
+        Res: ""
+    },
+    Release: {
+        Chinese: "释放",
+        English: "Release",
+        Res: ""
+    },
+    Consume: {
+        Chinese: "消耗",
+        English: "Consume",
+        Res: ""
+    },
+    UnConsume: {
+        Chinese: "反消耗",
+        English: "UnConsume",
+        Res: ""
+    },
+    Scrap: {
+        Chinese: "报废",
+        English: "Scrap",
+        Res: ""
+    },
+    UnScrap: {
+        Chinese: "取消报废",
+        English: "UnScrap",
         Res: ""
     },
     ExpTemplate: {

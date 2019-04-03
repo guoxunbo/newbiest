@@ -76,7 +76,15 @@ const Language = {
     English: "English"
 };
 
+/**
+ * 所有对象都有自动带出的主键
+ */
 const DefaultRowKey = "objectRrn";
+
+/**
+ * 默认的排序栏位。没手动给值的时候要自动生成值。即表格中数据的最大值加1
+ */
+const DefaultOrderKey = "seqNo";
 
 //js里面typeof判断所需要的类型
 const Type = {
@@ -90,4 +98,4 @@ const SqlType = {
     Like: " LIKE "
 }
 
-export {UrlConstant, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, DefaultRowKey, Type, SqlType, i18N};
+export {UrlConstant, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, DefaultRowKey, DefaultOrderKey, Type, SqlType, i18N};

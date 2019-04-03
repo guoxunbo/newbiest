@@ -52,7 +52,7 @@ public class GeneratorServiceImpl implements GeneratorService {
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public String generatorId(long orgRrn, GeneratorContext context) throws ClientException {
         try {
-            List<GeneratorRule> rules = (List<GeneratorRule>) generatorRuleRepository.findAll(orgRrn, "name = '" + context.getRuleName() + "'", StringUtils.EMPTY);
+            List<GeneratorRule> rules = (List<GeneratorRule>) generatorRuleRepository.findByNameAndOrgRrn(context.getRuleName(), orgRrn);
             if (!CollectionUtils.isNotEmpty(rules)) {
                 throw new ClientParameterException(GeneratorExceptions.COM_GENERATOR_RULE_IS_NOT_EXIST, context.getRuleName());
             }
