@@ -14,6 +14,7 @@ import MaterialStatusModelProperties from './pages/Properties/components/Materia
 import MaterialProperties from './pages/Properties/components/MaterialProperties';
 import MaterialLotProperties from './pages/Properties/components/MaterialLotProperties';
 import MaterialLotInventoryProperties from './pages/Properties/components/MaterialLotInventoryProperties';
+import EntityHistoryProperties from './pages/Properties/components/EntityHistoryProperties';
 
 const routerConfig = [
   {
@@ -111,7 +112,12 @@ const routerConfig = [
     layout: HeaderAsideFooterResponsiveLayout,
     component: MaterialLotProperties,
   },
-
+  {
+    path: '/MMS/MaterialLotHistoryManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityHistoryProperties,
+  },
+  //WMS
   {
     path: '/WMS/WarehouseManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,

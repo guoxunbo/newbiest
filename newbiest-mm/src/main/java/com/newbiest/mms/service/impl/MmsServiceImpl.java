@@ -162,8 +162,8 @@ public class MmsServiceImpl implements MmsService {
 
             if (materialLotAction.getTargetWarehouseRrn() == null) {
                 materialLotAction.setTargetWarehouseRrn(rawMaterial.getWarehouseRrn());
-                materialLot = stockIn(materialLot, materialLotAction, sc);
             }
+            materialLot = stockIn(materialLot, materialLotAction, sc);
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

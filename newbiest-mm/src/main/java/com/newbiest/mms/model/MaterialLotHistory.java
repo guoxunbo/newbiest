@@ -1,12 +1,12 @@
 package com.newbiest.mms.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBHis;
+import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -178,6 +178,8 @@ public class MaterialLotHistory extends NBHis {
      * 接收日期
      */
     @Column(name="RECEIVE_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date receiveDate;
 
     /**
