@@ -52,4 +52,11 @@ public class NBUpdatable extends NBBase {
     private void preUpdate() {
         updated = new Date();
     }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        NBUpdatable nbUpdatable = (NBUpdatable) super.clone();
+        nbUpdatable.setLockVersion(1L);
+        return nbUpdatable;
+    }
 }

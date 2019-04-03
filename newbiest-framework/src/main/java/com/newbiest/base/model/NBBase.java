@@ -55,4 +55,10 @@ public class NBBase implements Serializable, Cloneable {
         this.activeFlag = activeFlag ? StringUtils.YES : StringUtils.NO;
     }
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        NBBase nbBase = (NBBase) super.clone();
+        nbBase.setObjectRrn(null);
+        return nbBase;
+    }
 }

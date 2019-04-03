@@ -1,0 +1,132 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-mms_package_type-table
+      author: Xunbo Guo
+      comment: Create table MMS_PACKAGE_TYPE
+      changes:
+        - createTable:
+            tableName: MMS_PACKAGE_TYPE
+            remarks: Package Type Info
+            columns:
+              - column:
+                  name: object_rrn
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: active_flag
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: org_rrn
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: created
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 创建时间
+              - column:
+                  name: created_by
+                  type: varchar(32)
+                  remarks: 创建者
+              - column:
+                  name: updated
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 更新时间
+              - column:
+                  name: updated_by
+                  type: varchar(32)
+                  remarks: 更新者
+              - column:
+                  name: lock_version
+                  type: bigint
+                  defaultValueNumeric: 1
+                  remarks: 乐观锁版本 程序自己更新 不可人为改变
+              - column:
+                  name: name
+                  type: varchar(64)
+                  remarks: 名称
+              - column:
+                  name: DESCRIPTION
+                  type: varchar(64)
+                  remarks: 描述
+              - column:
+                  name: CLASS
+                  type: varchar(64)
+                  remarks: 类别
+              - column:
+                  name: PACK_ID_RULE
+                  type: varchar(64)
+                  remarks: 包装选用的ID生成规则
+              - column:
+                  name: SOURCE_MATERIAL_TYPE
+                  type: varchar(64)
+                  remarks: 源物料类型
+              - column:
+                  name: PACKED_COUNT_TYPE
+                  type: varchar(64)
+                  remarks: 包装后批次的数量计数类型
+              - column:
+                  name: MAX_QTY_COUNT_TYPE
+                  type: varchar(64)
+                  remarks: 包装前的物料批次数量计数类型
+              - column:
+                  name: MAX_QTY
+                  type: varchar(64)
+                  remarks: 包装的最大数量
+              - column:
+                  name: RESERVED1
+                  type: varchar(64)
+                  remarks: 预留栏位1
+              - column:
+                  name: RESERVED2
+                  type: varchar(64)
+                  remarks: 预留栏位2
+              - column:
+                  name: RESERVED3
+                  type: varchar(64)
+                  remarks: 预留栏位3
+              - column:
+                  name: RESERVED4
+                  type: varchar(64)
+                  remarks: 预留栏位4
+              - column:
+                  name: RESERVED5
+                  type: varchar(64)
+                  remarks: 预留栏位5
+              - column:
+                  name: RESERVED6
+                  type: varchar(64)
+                  remarks: 预留栏位6
+              - column:
+                  name: RESERVED7
+                  type: varchar(64)
+                  remarks: 预留栏位7
+              - column:
+                  name: RESERVED8
+                  type: varchar(64)
+                  remarks: 预留栏位8
+              - column:
+                  name: RESERVED9
+                  type: varchar(64)
+                  remarks: 预留栏位9
+              - column:
+                  name: RESERVED10
+                  type: varchar(64)
+                  remarks: 预留栏位10
+  - changeSet:
+      id: add-unique-constraint-for-package_type-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (org_rrn, name,class) for MMS_PACKAGE_TYPE
+      changes:
+        - addUniqueConstraint:
+            tableName: MMS_PACKAGE_TYPE
+            columnNames: org_rrn, name, class
+            constraintName: UK_PACKAGE_TYPE_ORG_RRN_NAME_CLASS

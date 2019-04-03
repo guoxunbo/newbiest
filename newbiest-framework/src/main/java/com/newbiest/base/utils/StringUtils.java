@@ -22,6 +22,8 @@ public class StringUtils {
     public static final String SPLIT_CODE = "-";
     public static final String UNDERLINE_CODE = "_";
 
+    public static final String SEMICOLON_CODE = ";";
+
     /**
      * 参数分割符比如name = :name
      */

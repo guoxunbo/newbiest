@@ -24,6 +24,8 @@ public class NBHis extends NBUpdatable {
     public static final String TRANS_TYPE_HOLD = "Hold";
     public static final String TRANS_TYPE_RELEASE = "Release";
 
+    public static final Integer MAX_APPEND_COMMENT_LENGTH = 1000;
+
     @Column(name="HISTORY_SEQ")
     protected String hisSeq;
 

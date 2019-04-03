@@ -62,6 +62,9 @@ public class MaterialLotController extends AbstractRestController {
         } else if (MaterialLotRequest.ACTION_RELEASE.equals(actionType)) {
             materialLot = validationMaterialLot(materialLot, sc);
             materialLot = mmsService.releaseMaterialLot(materialLot, materialLotAction, sc);
+        } else if (MaterialLotRequest.ACTION_CONSUME.equals(actionType)) {
+            materialLot = validationMaterialLot(materialLot, sc);
+            materialLot = mmsService.consumeMLot(materialLot, materialLotAction, sc);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
@@ -75,6 +78,7 @@ public class MaterialLotController extends AbstractRestController {
         if (materialLot == null) {
             throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, oldMaterialLot.getMaterialLotId());
         }
+        validateEntity(oldMaterialLot);
         return materialLot;
     }
 
