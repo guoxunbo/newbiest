@@ -24,9 +24,12 @@ public interface MmsService {
     MaterialLot pick(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
     MaterialLot transfer(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
     MaterialLot checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
+    MaterialLot changeMaterialLotState(MaterialLot mLot, String eventId, String targetStatus, SessionContext sc) throws ClientException;
 
     MaterialLot holdMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
     MaterialLot releaseMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
+
+    MaterialLot consumeMLot(MaterialLot materialLot, MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
 
     MaterialLotInventory getMaterialLotInv(long mLotRrn, long warehouseRrn) throws ClientException;
 }

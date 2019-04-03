@@ -24,4 +24,10 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_CHECK = "Check";
 
+    public static final String EVENT_CONSUME = "Consume";
+
+    public static final String EVENT_USE_UP = "UseUp";
+
+    public static final String EVENT_PACKAGE = "Package";
+
 }
