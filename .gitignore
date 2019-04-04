@@ -24,3 +24,5 @@ newbiest-admin-server/mvnw.cmd
 *.class
 
 *.iml
+
+*.xls

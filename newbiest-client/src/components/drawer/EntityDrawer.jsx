@@ -90,10 +90,19 @@ export default class EntityDrawer extends Component {
 
     render() {
         return <Drawer width={1040} onClose={this.props.onDrawerClose} object={this.props.object}
-                    visible={this.props.visible}  title={I18NUtils.getClientMessage(i18NCode.Edit)}>
+                    visible={this.props.visible} title={I18NUtils.getClientMessage(i18NCode.Edit)}>
                     {this.buildForm()}
+                    <div style={{position: 'absolute',
+                                    left: 0,
+                                    bottom: 0,
+                                    width: '100%',
+                                    borderTop: '1px solid #e9e9e9',
+                                    padding: '10px 16px',
+                                    background: '#fff',
+                                    textAlign: 'right'}}>
+                    <Button onClick={this.onClose} type="primary" > {I18NUtils.getClientMessage(i18NCode.Ok)} </Button>
+                    </div>
                 </Drawer>
     }
-
-
 }
+
