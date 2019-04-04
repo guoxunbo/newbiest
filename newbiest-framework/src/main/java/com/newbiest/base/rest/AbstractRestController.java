@@ -29,7 +29,11 @@ import javax.persistence.Transient;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by guoxunbo on 2018/7/11.
@@ -145,8 +149,13 @@ public class AbstractRestController implements Serializable{
         }
         // 有关联关系的时候，不update相应的关联关系
         List<String> relationFiledNameList = Lists.newArrayList();
-        Field[] fields = nbBase.getClass().getDeclaredFields();
-        if (fields != null && fields.length > 0) {
+        List<Field> fields = Lists.newArrayList();
+        fields.addAll(Arrays.asList(nbBase.getClass().getDeclaredFields()));
+        // 只获取一层父类上的多属性
+        if (nbBase.getClass().getSuperclass() != null) {
+            fields.addAll(Arrays.asList(nbBase.getClass().getSuperclass().getDeclaredFields()));
+        }
+        if (CollectionUtils.isNotEmpty(fields)) {
             for (Field field : fields) {
                 // 只有是集合类型并且没有Transient注解才把已有数据的值放到更新对象中。保证关联关系不会被更新
                 if (List.class.isAssignableFrom(field.getType()) && field.getAnnotation(Transient.class) == null) {
