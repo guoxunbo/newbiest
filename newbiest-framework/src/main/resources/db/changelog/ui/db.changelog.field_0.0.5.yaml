@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: NB_FIELD-remove-column_export_flag
+      author: Xunbo Guo
+      comment: NB_FIELD remove column export_flag
+      changes:
+        - dropColumn:
+            columnName: export_flag
+            tableName: NB_FIELD

@@ -139,12 +139,6 @@ public class NBField extends NBBase {
     private String mainFlag;
 
     /**
-     * 栏位是否保存数据库
-     */
-    @Column(name="PERSIST_FLAG")
-    private String persistFlag;
-
-    /**
      * 栏位是否是只读
      */
     @Column(name="READONLY_FLAG")
@@ -215,14 +209,6 @@ public class NBField extends NBBase {
 
     public void setMainFlag(Boolean mainFlag) {
         this.mainFlag = mainFlag ? StringUtils.YES : StringUtils.NO;
-    }
-
-    public Boolean getPersistFlag() {
-        return StringUtils.YES.equalsIgnoreCase(persistFlag);
-    }
-
-    public void setPersistFlag(Boolean persistFlag) {
-        this.persistFlag = persistFlag ? StringUtils.YES : StringUtils.NO;
     }
 
     public Boolean getReadonlyFlag() {
