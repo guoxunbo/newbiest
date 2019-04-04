@@ -1,6 +1,6 @@
 import { Input, InputNumber, DatePicker, Switch,Form } from 'antd';
 import {SessionContext} from '../../Application'
-import {Language} from "../../const/ConstDefine";
+import {Language, DateFormatType} from "../../const/ConstDefine";
 import RefListField from '../../../components/Field/RefListField';
 import RefTableField from '../../../components/Field/RefTableField';
 import {Icon} from 'antd';
@@ -26,7 +26,8 @@ const DisplayType = {
     radio: "radio"
 }
 
-const NumberType = ["int", "double"];
+const NumberType = [DisplayType.int, DisplayType.double];
+const DateType = [DisplayType.calendar, DisplayType.calendarFromTo, DisplayType.datetime, DisplayType.datetimeFromTo]
 
 const DisplaySelectType = [DisplayType.sysRefList, DisplayType.userRefList, DisplayType.referenceTable];
 
@@ -185,9 +186,9 @@ export default class Field {
         } else if (this.displayType == DisplayType.calendarFromTo) {
             return <RangePicker disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.datetime) {
-            return <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" disabled={this.disabled} />
+            return <DatePicker showTime format={DateFormatType.DateTime} disabled={this.disabled} />
         } else if (this.displayType == DisplayType.datetimeFromTo) {
-            return <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" disabled={this.disabled}/>
+            return <RangePicker showTime format={DateFormatType.DateTime} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.sysRefList) {
             return <RefListField referenceName={this.refListName} style={comboxStyle} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.userRefList) {
@@ -272,7 +273,6 @@ export default class Field {
      */
     buildRule(query) {
         let rules = [];
-
         let rule = {};
         rule.whitespace = true;
         if (this.requiredFlag) {
@@ -284,12 +284,6 @@ export default class Field {
             }
         }
         
-        let defaultTransform = (value) => {
-            if (value) {
-                return value.toString();
-            }
-        };
-
         if (DisplayType.text == this.displayType) {
             // 只有当text的时候才支持正则
             if (this.namingRule != null && this.namingRule != undefined) {
@@ -298,7 +292,11 @@ export default class Field {
         }
 
         if (DisplaySelectType.includes(this.displayType)) {
-            rule.transform = (value) => defaultTransform(value);
+            rule.transform = (value) => {
+                if (value) {
+                    return value.toString();
+                }
+            }
         }
 
         if (DisplayType.radio == this.displayType) {
@@ -312,6 +310,13 @@ export default class Field {
                 if(value){
                     return Number(value);
                   }
+            }
+        }
+        
+        if (DateType.includes(this.displayType)) {
+            rule.type = "object";
+            if (this.displayType.endsWith("FromTo")) {
+                rule.type = "array";
             }
         }
         rules.push(rule);

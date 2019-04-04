@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { Form, Row, Col, Button } from 'antd';
 import './QueryForm.scss';
-import {SqlType} from "../../api/const/ConstDefine";
+import {SqlType, DateFormatType} from "../../api/const/ConstDefine";
 import Field from '../../api/dto/ui/Field';
 import * as PropTypes from 'prop-types';
 
 import StringBuffer from '../../api/StringBuffer';
 import TableManagerRequest from '../../api/table-manager/TableManagerRequest';
+import { Moment } from '@icedesign/base';
 
 class QueryForm extends Component {
     static displayName = 'QueryForm';
@@ -56,17 +57,33 @@ class QueryForm extends Component {
                     whereClause.append(SqlType.And);
                 }
                 whereClause.append(fieldName);
-                fieldValue = fieldValue.toString();
-                //加/g表示全部替换
-                if (fieldValue.indexOf('*') != -1) {
-                    whereClause.append(SqlType.Like);
-                    fieldValue = fieldValue.replace(/\*/g, '%');
+                // 如果是个数组。则需要用>= 以及<=了
+                if (Array.isArray(fieldValue) && fieldValue.length == 2) {
+                    whereClause.append(SqlType.Gt);
+                    whereClause.append("'")
+                    whereClause.append(fieldValue[0]);
+                    whereClause.append("'")
+                    whereClause.append(SqlType.And);
+                    whereClause.append(fieldName);
+                    whereClause.append(SqlType.Lt);
+                    whereClause.append("'")
+                    whereClause.append(fieldValue[1]);
+                    whereClause.append("'")
                 } else {
-                    whereClause.append(SqlType.Eq);
+                    fieldValue = fieldValue.toString();
+                    if (fieldValue.indexOf('*') != -1) {
+                        whereClause.append(SqlType.Like);
+                        //加/g表示全部替换
+                        fieldValue = fieldValue.replace(/\*/g, '%');
+                    } else {
+                        whereClause.append(SqlType.Eq);
+                    }
+                    whereClause.append("'")
+                    whereClause.append(fieldValue);
+                    whereClause.append("'")
                 }
-                whereClause.append("'")
-                whereClause.append(fieldValue);
-                whereClause.append("'")
+                
+               
                 firstFlag = false;
             }
         }
@@ -79,6 +96,25 @@ class QueryForm extends Component {
         this.props.form.validateFields((err, values) => {
             if (err) {
                 return;
+            }
+            // 处理时间类型的栏位相关 antd的时间栏位类型是Moment，需要自己转换
+            for (let property in values) {
+                if (values[property]) {
+                    // 如果是单独的时间类型，不是个区域时间(dateFromTo)的话
+                    if (Moment.isMoment(values[property])) {
+                        values[property] = values[property].format(DateFormatType.DateTime)
+                    }
+                    if (Array.isArray(values[property])) {
+                        // 如果第一个栏位不是moment的话，则说明不是时间数组，则跳过
+                        if (!Moment.isMoment(values[property][0])) {
+                            continue;
+                        }
+                        // 当前处理为0点0分0秒到23点59分59秒。即如果from 4号 to 4号。就是4号零点到4号23点59分59秒。
+                        let fromDate = values[property][0].hour(0).minute(0).second(0);
+                        let toDate = values[property][1].hour(23).minute(59).second(59);
+                        values[property] = [fromDate.format(DateFormatType.DateTime), toDate.format(DateFormatType.DateTime)]
+                    }
+                }
             }
             let whereClause = self.buildWhereClause(values);
             if (self.props.onSearch) {

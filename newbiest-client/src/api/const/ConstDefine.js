@@ -9,6 +9,12 @@ const ModuleUrlConstant = {
     MMS: "http://127.0.0.1:8080/mms/"
 }
 
+const DateFormatType = {
+    Date: "YYYY-MM-DD",
+    DateTime: "YYYY-MM-DD HH:mm:ss",
+    Time: "HH:mm:ss"
+}
+
 const UrlConstant = {
     UserManagerUrl: ModuleUrlConstant.Security + "userManage",
     TableMangerUrl: ModuleUrlConstant.UI + "tableManage",
@@ -95,7 +101,9 @@ const SqlType = {
     And: " AND ",
     Eq: " = ",
     Where: " WHERE ",
-    Like: " LIKE "
+    Like: " LIKE ",
+    Gt: " >= ",
+    Lt: " <= "
 }
 
-export {UrlConstant, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, DefaultRowKey, DefaultOrderKey, Type, SqlType, i18N};
+export {UrlConstant, DateFormatType, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, DefaultRowKey, DefaultOrderKey, Type, SqlType, i18N};
