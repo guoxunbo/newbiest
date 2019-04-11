@@ -14,6 +14,8 @@ const i18NCode = {
     ConfirmDelete: "ConfirmDelete",
     ConfirmCancel: "ConfirmCancel",
 
+    BtnPrint: "Print",
+    BtnDownload: "Download",
     BtnAdd: "Add",
     BtnImp: "Imp",
     BtnExp: "Exp",
@@ -123,9 +125,19 @@ const i18Messages = {
         English: "Sure to cancel?",
         Res: ""
     },
+    Print: {
+        Chinese: "打印",
+        English: "Print",
+        Res: ""
+    },
     Add: {
         Chinese: "添加",
         English: "Add",
+        Res: ""
+    },
+    Download: {
+        Chinese: "下载",
+        English: "Download",
         Res: ""
     },
     Imp: {

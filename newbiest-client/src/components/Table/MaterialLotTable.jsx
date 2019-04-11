@@ -4,7 +4,7 @@ import './ListTable.scss';
 import EntityListTable from './EntityListTable';
 import { Form, Button } from 'antd';
 import IconUtils from '../../api/utils/IconUtils';
-import BarCodeForm from '../Form/BarCodeForm';
+import BarCodeForm, { CodeType } from '../Form/BarCodeForm';
 import MaterialLotActionForm from '../Form/MaterialLotActionForm';
 import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
@@ -23,23 +23,30 @@ export default class MaterialLotTable extends EntityListTable {
     constructor(props) {
         super(props);
         let state = Object.assign(this.state, {
-            materialLot: {},
-            materialLotActionTable: {fields:[]}
+            materialLotActionTable: {fields:[]},
+            showCodeType: "",
+            okText: "",
+            codeValue: ""
         });
         this.state = state;
     }
     
     createForm = () => {
         let children = [];
-        const WrappedAdvancedTransferMLotInventoryForm = Form.create()(BarCodeForm);
-        children.push(<WrappedAdvancedTransferMLotInventoryForm key={BarCodeForm.displayName} ref={this.formRef} value={this.state.materialLot.materialLotId} visible={this.state.barCodeFormVisible} 
-                                                            onOk={this.handlePrintOk} onCancel={this.handleCancelPrint} />);                                   
+        const WrappedAdvancedBarCodeForm = Form.create()(BarCodeForm);
+        children.push(<WrappedAdvancedBarCodeForm width={400} type={this.state.showCodeType} key={BarCodeForm.displayName} ref={this.formRef} value={this.state.codeValue} visible={this.state.barCodeFormVisible} 
+                                                            okText={this.state.okText} onOk={this.handlePrintOk} onCancel={this.handleCancelPrint} />);                                   
+        
         const WrappedAdvancedMaterialActionForm = Form.create()(MaterialLotActionForm);
         children.push(<WrappedAdvancedMaterialActionForm key={MaterialLotActionForm.displayName} ref={this.formRef} object={this.state.materialLotAction} visible={this.state.materialLotActionVisible} 
                         action={this.state.action} table={this.state.materialLotActionTable} onOk={this.handleActionOk} onCancel={this.handleCancelAction} />);                                   
-                                                         
+        
+                        
+
+                        
         return children;
     }
+
     /**
      * 创建btn组。不同的table对button的组合要求不一样时。可以重载其方法做处理
      */
@@ -97,12 +104,12 @@ export default class MaterialLotTable extends EntityListTable {
      */
     buildOperation = (record) => {
         let operations = [];
-        operations.push(this.buildPrintButton(record));
+        operations.push(this.buildBarCodeButton(record));
+        operations.push(this.buildQrCodeButton(record));
         return operations;
     }
 
     handlePrintOk = () => {
-        //TODO 此处要做打印的 或者调用Print标签
         this.setState({
             barCodeFormVisible: false
         })
@@ -114,16 +121,34 @@ export default class MaterialLotTable extends EntityListTable {
         })
     }
 
-    buildPrintButton = (record) => {
-        return <Button key="print" style={{marginRight:'1px'}} onClick={() => this.handlePrint(record)} size="small" href="javascript:;">
-                     {IconUtils.buildIcon("icon-dayin")}
+    buildBarCodeButton = (record) => {
+        return <Button key="barcode" style={{marginRight:'1px'}} onClick={() => this.handleShowBarCode(record)} size="small" href="javascript:;">
+                     {IconUtils.buildIcon("icon-barcode")}
                 </Button>;
     }
 
-    handlePrint = (record) => {
+    buildQrCodeButton = (record) => {
+        return <Button key="qrcode" style={{marginRight:'1px'}} onClick={() => this.handleShowQrCode(record)} size="small" href="javascript:;">
+                     {IconUtils.buildIcon("icon-qrcodescan")}
+                </Button>;
+    }
+
+    handleShowBarCode = (record) => {
         this.setState({
             barCodeFormVisible: true,
-            materialLot: record
+            codeValue: record.materialLotId,
+            okText: I18NUtils.getClientMessage(i18NCode.BtnPrint),
+            showCodeType: CodeType.BarCode
+        })
+    }
+
+    handleShowQrCode = (record) => {
+        this.setState({
+            barCodeFormVisible: true,
+            codeValue: JSON.stringify(record),
+            okText: I18NUtils.getClientMessage(i18NCode.BtnDownload),
+            materialLot: record,
+            showCodeType: CodeType.QrCode
         })
     }
 }
