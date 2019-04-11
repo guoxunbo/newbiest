@@ -5,6 +5,9 @@ import router from './router';
 import "antd/dist/antd.css";
 import './global.scss';
 import '../src/api/Extend';
+import moment from 'moment';
+import 'moment/locale/zh-cn';
+moment.locale('zh-cn');
 
 const ICE_CONTAINER = document.getElementById('ice-container');
 

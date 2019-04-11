@@ -4,6 +4,7 @@ import {Language, DateFormatType} from "../../const/ConstDefine";
 import RefListField from '../../../components/Field/RefListField';
 import RefTableField from '../../../components/Field/RefTableField';
 import {Icon} from 'antd';
+import locale from 'antd/lib/date-picker/locale/zh_CN';
 
 const { RangePicker} = DatePicker;
 const FormItem = Form.Item;
@@ -47,6 +48,7 @@ export default class Field {
     mainFlag;
     basicFlag;
     fromParent;
+    upperFlag;
 
     objectRrn;
     name;
@@ -169,12 +171,17 @@ export default class Field {
     buildControl(edit, query) {
         this.buildDisabled(edit);
 
-        let comboxStyle = undefined;
+        let style = undefined;
         if (query) {
-            comboxStyle = styles.queryComboxStyle;
+            style = styles.queryComboxStyle;
         }
         if (this.displayType == DisplayType.text) {
-            return <Input placeholder = {this.placeHolder} disabled={this.disabled}/>;
+            if (this.upperFlag) {
+                style = styles.textUppercaseStyle
+            } else {
+                style = undefined;
+            }
+            return <Input placeholder = {this.placeHolder} style={style} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.int) {
             return <InputNumber min={0} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.double) {
@@ -182,19 +189,19 @@ export default class Field {
         } else if (this.displayType == DisplayType.password) {
             return <Input placeholder = {this.placeHolder} type="password" disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.calendar) {
-            return <DatePicker disabled={this.disabled}/>
+            return <DatePicker locale={locale} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.calendarFromTo) {
-            return <RangePicker disabled={this.disabled}/>
+            return <RangePicker locale={locale} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.datetime) {
-            return <DatePicker showTime format={DateFormatType.DateTime} disabled={this.disabled} />
+            return <DatePicker locale={locale} showTime format={DateFormatType.DateTime} disabled={this.disabled} />
         } else if (this.displayType == DisplayType.datetimeFromTo) {
-            return <RangePicker showTime format={DateFormatType.DateTime} disabled={this.disabled}/>
+            return <RangePicker locale={locale} showTime format={DateFormatType.DateTime} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.sysRefList) {
-            return <RefListField referenceName={this.refListName} style={comboxStyle} disabled={this.disabled}/>
+            return <RefListField referenceName={this.refListName} style={style} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.userRefList) {
-            return <RefListField referenceName={this.refListName} owner style={comboxStyle} disabled={this.disabled}/>
+            return <RefListField referenceName={this.refListName} owner style={style} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.referenceTable) {
-            return <RefTableField field={this} form={this.form} style={comboxStyle} disabled={this.disabled}/>
+            return <RefTableField field={this} form={this.form} style={style} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.radio) {
             return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled}/>
         }
@@ -327,5 +334,8 @@ export default class Field {
 const styles = {
     queryComboxStyle: {
         width: '160px'
+    },
+    textUppercaseStyle: {
+        textTransform:"uppercase"
     }
 };

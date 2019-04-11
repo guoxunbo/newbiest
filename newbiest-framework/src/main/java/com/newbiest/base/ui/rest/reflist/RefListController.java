@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 对adTable的相关操作
+ * 对RefList的相关操作
  * Created by guoxunbo on 2018/7/26.
  */
 @RestController

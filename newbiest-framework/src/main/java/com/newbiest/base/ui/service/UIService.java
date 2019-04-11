@@ -21,7 +21,6 @@ public interface UIService {
 
     NBTable getDeepNBTable(Long tableRrn) throws ClientException;
     NBTable getNBTableByAuthority(Long authorityRrn) throws ClientException;
-    List<? extends NBBase> getDataFromTableRrn(Long tableRrn, SessionContext sc) throws ClientException;
     List<? extends NBBase> getDataFromTableRrn(Long tableRrn, String whereClause, String orderBy, SessionContext sc) throws ClientException;
 
     // ReferenceList相关

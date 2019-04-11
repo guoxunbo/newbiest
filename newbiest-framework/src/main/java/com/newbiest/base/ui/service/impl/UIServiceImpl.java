@@ -98,21 +98,6 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
-     * 根据tableRrn获取数据
-     * @return
-     * @throws ClientException
-     */
-    public List<? extends NBBase> getDataFromTableRrn(Long tableRrn, SessionContext sc) throws ClientException {
-        try {
-            NBTable nbTable = (NBTable) tableRepository.findByObjectRrn(tableRrn);
-            return getDataFromTableRrn(tableRrn, nbTable.getInitWhereClause(), nbTable.getOrderBy(), sc);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
-    /**
      * 根据tableRrn获取数据 覆盖Table上的whereClause和orderBy
      * @param tableRrn NBTable的主键
      * @param whereClause 查询条件
@@ -123,6 +108,18 @@ public class UIServiceImpl implements UIService {
     public List<? extends NBBase> getDataFromTableRrn(Long tableRrn, String whereClause, String orderBy, SessionContext sc) throws ClientException {
         try {
             NBTable nbTable = (NBTable) tableRepository.findByObjectRrn(tableRrn);
+            // 没传递查询条件 则默认使用InitWhereClause进行查询
+            if (StringUtils.isNullOrEmpty(whereClause)) {
+                whereClause = nbTable.getInitWhereClause();
+            } else {
+                if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
+                    StringBuffer clauseBuffer = new StringBuffer(whereClause);
+                    clauseBuffer.append(" AND ");
+                    clauseBuffer.append(nbTable.getWhereClause());
+                    whereClause = clauseBuffer.toString();
+                }
+            }
+
             if (!nbTable.getView()) {
                 List<? extends NBBase> datas = baseService.findAll(nbTable.getModelClass(), whereClause, orderBy, sc.getOrgRrn());
                 return datas;
