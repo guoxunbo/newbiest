@@ -5,6 +5,9 @@ import I18NUtils from "../../api/utils/I18NUtils";
 import { i18NCode } from "../../api/const/i18n";
 import Tab from '../../api/dto/ui/Tab';
 import Field from '../../api/dto/ui/Field';
+import PropertyUtils from '../../api/utils/PropertyUtils';
+import { DefaultOrderKey } from '../../api/const/ConstDefine';
+import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest';
 
 export default class EntityDrawer extends Component {
     static displayName = 'EntityDrawer';
@@ -88,6 +91,55 @@ export default class EntityDrawer extends Component {
             </Form>)
     }
 
+    handleOk = (e) => {
+        const form = this.props.form;
+        form.validateFields((err, values) => {
+            if (err) {
+                return;
+            }
+            let formObject = this.props.object;
+            PropertyUtils.copyProperties(values, formObject);
+            debugger;
+            // 如果当前values具备seqNo栏位并且该栏位没手动给值。则说明需要自动给个seqNo的值
+            if (formObject.hasOwnProperty(DefaultOrderKey) && !formObject[DefaultOrderKey]) {
+                // 只有对象有seqNo栏位，则tableData必定有seqNo
+                if (this.props.tableData && Array.isArray(this.props.tableData)) {
+                    if (this.props.tableData.length == 0) {
+                        formObject[DefaultOrderKey] = 1;
+                    } else {
+                        let data = this.props.tableData.sort(function(a,b){
+                            if (a[DefaultOrderKey] - b[DefaultOrderKey] < 0) {
+                                return -1;
+                            } else {
+                                return 1;
+                            }
+                        });
+                        formObject[DefaultOrderKey] = data[data.length - 1][DefaultOrderKey] + 1;
+                    }
+                }
+            }
+            // alert(formObject);
+            this.handleSave(formObject);
+        });
+    }
+
+    handleSave = (formObject) => {
+        debugger;
+        var self = this;
+        // 默认处理的saveEntity
+        let object = {
+            modelClass: this.props.table.modelClass,
+            values: formObject,
+            success: function(responseBody) {
+                debugger;
+                if (self.props.onOk) {
+                    self.props.onOk(responseBody.data);
+                }
+            }
+        };
+        EntityManagerRequest.sendMergeRequest(object);
+    }
+
     render() {
         return <Drawer width={1040} onClose={this.props.onDrawerClose} object={this.props.object}
                     visible={this.props.visible} title={I18NUtils.getClientMessage(i18NCode.Edit)}>
@@ -100,7 +152,7 @@ export default class EntityDrawer extends Component {
                                     padding: '10px 16px',
                                     background: '#fff',
                                     textAlign: 'right'}}>
-                    <Button onClick={this.onClose} type="primary" > {I18NUtils.getClientMessage(i18NCode.Ok)} </Button>
+                    <Button onClick={this.handleOk} type="primary" > {I18NUtils.getClientMessage(i18NCode.Ok)} </Button>
                     </div>
                 </Drawer>
     }
