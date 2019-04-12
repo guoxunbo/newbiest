@@ -90,7 +90,6 @@ export default class EntityForm extends Component {
             }
             let formObject = this.props.object;
             PropertyUtils.copyProperties(values, formObject);
-            debugger;
             // 如果当前values具备seqNo栏位并且该栏位没手动给值。则说明需要自动给个seqNo的值
             if (formObject.hasOwnProperty(DefaultOrderKey) && !formObject[DefaultOrderKey]) {
                 // 只有对象有seqNo栏位，则tableData必定有seqNo
@@ -98,7 +97,7 @@ export default class EntityForm extends Component {
                     if (this.props.tableData.length == 0) {
                         formObject[DefaultOrderKey] = 1;
                     } else {
-                        let data = this.props.tableData.sort(function(a,b){
+                        let data = this.props.tableData.sort(function(a,b) {
                             if (a[DefaultOrderKey] - b[DefaultOrderKey] < 0) {
                                 return -1;
                             } else {
@@ -115,7 +114,6 @@ export default class EntityForm extends Component {
     }
 
     handleSave = (formObject) => {
-        debugger;
         var self = this;
         // 默认处理的saveEntity
         let object = {
@@ -141,12 +139,15 @@ export default class EntityForm extends Component {
     }
 
     render() {
+        const width = this.props.width ? this.props.width : 1040;
+        const title = this.props.title ? this.props.title : I18NUtils.getClientMessage(i18NCode.Edit);
+        const okText = this.props.okText ? this.props.okText : I18NUtils.getClientMessage(i18NCode.Ok);
         return (
             <div>
-                <Modal width={1040} centered title={this.props.title ? this.props.title : I18NUtils.getClientMessage(i18NCode.Edit)} 
+                <Modal width={width} centered title={title} 
                     object={this.props.object} visible={this.props.visible} 
                     maskClosable={false} onOk={this.handleOk} onCancel={this.props.onCancel} 
-                    okText={I18NUtils.getClientMessage(i18NCode.Ok)} cancelText={I18NUtils.getClientMessage(i18NCode.Cancel)}>
+                    okText={okText}>
                     {this.buildForm()}
                 </Modal>
             </div>

@@ -11,7 +11,6 @@ import { i18NCode } from '../../api/const/i18n';
 import TableManagerRequest from '../../api/table-manager/TableManagerRequest';
 import TableObject from '../../api/dto/ui/Table';
 import { ActionType } from '../../api/material-lot-manager/MaterialLotManagerRequestBody';
-import MessageUtils from '../../api/utils/MessageUtils';
 
 const TableName = {
     MLotConsumeAction: "MMLotComsume"
@@ -40,10 +39,6 @@ export default class MaterialLotTable extends EntityListTable {
         const WrappedAdvancedMaterialActionForm = Form.create()(MaterialLotActionForm);
         children.push(<WrappedAdvancedMaterialActionForm key={MaterialLotActionForm.displayName} ref={this.formRef} object={this.state.materialLotAction} visible={this.state.materialLotActionVisible} 
                         action={this.state.action} table={this.state.materialLotActionTable} onOk={this.handleActionOk} onCancel={this.handleCancelAction} />);                                   
-        
-                        
-
-                        
         return children;
     }
 

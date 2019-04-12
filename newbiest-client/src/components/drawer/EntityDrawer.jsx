@@ -99,7 +99,6 @@ export default class EntityDrawer extends Component {
             }
             let formObject = this.props.object;
             PropertyUtils.copyProperties(values, formObject);
-            debugger;
             // 如果当前values具备seqNo栏位并且该栏位没手动给值。则说明需要自动给个seqNo的值
             if (formObject.hasOwnProperty(DefaultOrderKey) && !formObject[DefaultOrderKey]) {
                 // 只有对象有seqNo栏位，则tableData必定有seqNo
@@ -124,14 +123,12 @@ export default class EntityDrawer extends Component {
     }
 
     handleSave = (formObject) => {
-        debugger;
         var self = this;
         // 默认处理的saveEntity
         let object = {
             modelClass: this.props.table.modelClass,
             values: formObject,
             success: function(responseBody) {
-                debugger;
                 if (self.props.onOk) {
                     self.props.onOk(responseBody.data);
                 }

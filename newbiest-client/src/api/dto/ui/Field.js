@@ -5,6 +5,7 @@ import RefListField from '../../../components/Field/RefListField';
 import RefTableField from '../../../components/Field/RefTableField';
 import {Icon} from 'antd';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
+import PropertyUtils from '../../utils/PropertyUtils';
 
 const { RangePicker} = DatePicker;
 const FormItem = Form.Item;
@@ -49,6 +50,7 @@ export default class Field {
     basicFlag;
     fromParent;
     upperFlag;
+    negativeFlag;
 
     objectRrn;
     name;
@@ -75,6 +77,9 @@ export default class Field {
     placeHolder;
     disabled;
     form;
+    width;
+    minValue;
+    style;
 
     /**
      * 构造方法
@@ -82,31 +87,34 @@ export default class Field {
      * @param form form表单 
      */
     constructor(field, form) {
-        this.objectRrn = field.objectRrn;
-        this.name = field.name;
-        this.displayFlag = field.displayFlag;
-        this.mainFlag = field.mainFlag;
-        this.queryFlag = field.queryFlag;
-        this.label = field.label;
-        this.labelZh = field.labelZh;
-        this.labelRes = field.labelRes;
-        this.displayType = field.displayType;
-        this.refListName = field.refListName;
-        this.refTableName = field.refTableName;
-        this.readonlyFlag = field.readonlyFlag;
-        this.requiredFlag = field.requiredFlag;
-        this.namingRule = field.namingRule;
-        this.editable = field.editable;
-        this.defaultValue = field.defaultValue;
-        this.displayLength = field.displayLength;
-        this.tabRrn = field.tabRrn;
-        this.referenceRule = field.referenceRule;
-        this.fromParent = field.fromParent;
-
-        this.title = this.buildTitle();
-        this.basicFlag = field.basicFlag;
-        this.queryRequireFlag = field.queryRequireFlag;
+        PropertyUtils.copyProperties(field, this);
         this.form = form;
+        this.build();
+    }
+
+    build = () => {
+        // 处理国际化
+        let language = SessionContext.getLanguage();
+        if (language == Language.Chinese) {
+            this.title = this.labelZh;
+        } else if (language == Language.English) {
+            this.title = this.label;
+        } else {
+            this.title = this.labelRes;
+        }
+        // 处理长度
+        this.width = this.displayLength;
+        if (this.width < DisplayLength.min) {
+            this.width = DisplayLength.min;
+        } else if (this.width >= DisplayLength.max) {
+            this.width = DisplayLength.max;
+        }
+        // 处理最小值
+        if (this.negativeFlag) {
+            this.minValue = undefined;
+        } else {
+            this.minValue = 0;
+        }
     }
 
     //TODO 处理fixed和sorter
@@ -122,24 +130,13 @@ export default class Field {
                 title: this.title,
                 dataIndex: this.name,
                 align: aligin,
-                width: this.buildWidth()
+                width: this.width
                 // fixed: 'left',
                 // sorter: (a, b) => a.id - b.id
             }
             return column;
         }
         return null;
-    }
-
-    buildWidth = () => {
-        let width = this.displayLength;
-        if (width < DisplayLength.min) {
-            width = DisplayLength.min;
-        }
-        if (width > DisplayLength.max) {
-            width = DisplayLength.max;
-        }
-        return width;
     }
 
     isQueryField = () => {
@@ -149,19 +146,9 @@ export default class Field {
         return false;
     }
 
-    buildTitle() {
-        let title;
-        let language = SessionContext.getLanguage();
-        if (language == Language.Chinese) {
-            title = this.labelZh;
-        } else if (language == Language.English) {
-            title = this.label;
-        } else {
-            title = this.labelRes;
-        }
-        return title;
+    buildStyle = (query) => {
+        
     }
-
     /**
      * 根据不同的DisplayType创建不同的组件
      * @param edit 是否是编辑form 编辑form会处理editable栏位
@@ -171,21 +158,12 @@ export default class Field {
     buildControl(edit, query) {
         this.buildDisabled(edit);
 
-        let style = undefined;
-        if (query) {
-            style = styles.queryComboxStyle;
-        }
         if (this.displayType == DisplayType.text) {
-            if (this.upperFlag) {
-                style = styles.textUppercaseStyle
-            } else {
-                style = undefined;
-            }
-            return <Input placeholder = {this.placeHolder} style={style} disabled={this.disabled}/>;
+            return <Input placeholder = {this.placeHolder} style={this.upperFlag ? styles.textUppercaseStyle : undefined} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.int) {
-            return <InputNumber min={0} disabled={this.disabled}/>;
+            return <InputNumber min={this.minValue} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.double) {
-            return <InputNumber min={0} step={0.01} disabled={this.disabled}/>;
+            return <InputNumber min={this.minValue} step={0.01} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.password) {
             return <Input placeholder = {this.placeHolder} type="password" disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.calendar) {
@@ -197,11 +175,11 @@ export default class Field {
         } else if (this.displayType == DisplayType.datetimeFromTo) {
             return <RangePicker locale={locale} showTime format={DateFormatType.DateTime} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.sysRefList) {
-            return <RefListField referenceName={this.refListName} style={style} disabled={this.disabled}/>
+            return <RefListField referenceName={this.refListName} style={query ? styles.queryComboxStyle: undefined} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.userRefList) {
-            return <RefListField referenceName={this.refListName} owner style={style} disabled={this.disabled}/>
+            return <RefListField referenceName={this.refListName} owner style={query ? styles.queryComboxStyle: undefined} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.referenceTable) {
-            return <RefTableField field={this} form={this.form} style={style} disabled={this.disabled}/>
+            return <RefTableField field={this} form={this.form} style={query ? styles.queryComboxStyle: undefined} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.radio) {
             return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled}/>
         }
@@ -262,13 +240,13 @@ export default class Field {
     }
 
 
-    buildDisabled = (editor) => {
+    buildDisabled = (edit) => {
         if (this.readonlyFlag) {
             this.disabled = true;
             this.placeHolder = "";
         }
         // 当进行编辑(修改)对象的时候，判断其栏位是否是可编辑
-        if (editor && !this.editable) {
+        if (edit && !this.editable) {
             this.disabled = true;
             this.placeHolder = "";
         }
@@ -339,3 +317,4 @@ const styles = {
         textTransform:"uppercase"
     }
 };
+export {DisplayType}

@@ -67,16 +67,10 @@ public class NBField extends NBBase {
     private Long keyNumber;
 
     /**
-     * 栏位的最小值
+     * 是否允许负数
      */
-    @Column(name="MIN_VALUE")
-    private String minValue;
-
-    /**
-     * 栏位的最大值
-     */
-    @Column(name="MAX_VALUE")
-    private String maxValue;
+    @Column(name="NEGATIVE_FLAG")
+    private String negativeFlag;
 
     /**
      * 栏位所对应的参考表
@@ -273,6 +267,14 @@ public class NBField extends NBBase {
 
     public void setQueryRequireFlag(Boolean queryRequireFlag) {
         this.queryRequireFlag = queryRequireFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public Boolean getNegativeFlag() {
+        return StringUtils.YES.equalsIgnoreCase(negativeFlag);
+    }
+
+    public void setNegativeFlag(Boolean negativeFlag) {
+        this.negativeFlag = negativeFlag ? StringUtils.YES : StringUtils.NO;
     }
 
 }
