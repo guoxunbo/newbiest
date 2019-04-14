@@ -1,24 +1,24 @@
 import  React, { Component } from 'react';
 
-import { Form, Input, } from 'antd';
-import EntityForm from './EntityForm';
-import {SessionContext} from '../../api/Application';
-import I18NUtils from '../../api/utils/I18NUtils';
-import {i18NCode} from '../../api/const/i18n';
-import UserManagerRequest from '../../api/user-manager/UserManagerRequest';
+import { Form, Input, Select, Modal, } from 'antd';
 
 const FormItem = Form.Item;
+const { Option } = Select;
 
 /**
- * 修改密码的dialog
+ * 修改密码
  */
 const formItemLayout = {
     labelCol: {span: 4},
     wrapperCol: {span: 18},
 };
-export default class ChangePwdForm extends EntityForm {
+class ChangePwdForm extends Component {
 
     static displayName = 'ChangePwdDialog';
+
+    constructor(props) {
+        super(props);
+    }
 
     compareConfirmPassword = (rule, value, callback) => {
         const form = this.props.form;
@@ -38,34 +38,23 @@ export default class ChangePwdForm extends EntityForm {
     }
 
     handleSave = (values) => {
-        let self = this;
-        let object = {
-            username: values.username,
-            password: values.password,
-            newPassword: values.newPassword,
-            success: function(){
-                if (self.props.onOk) {
-                    self.props.onOk();
-                }
-            }
-        }
-        UserManagerRequest.sendChangePassword(object);
+        
     }
 
     buildForm = () => {
         const {getFieldDecorator} = this.props.form;
         return (
             <Form>
-                <FormItem
+                {/* <FormItem
                     {...formItemLayout}
-                    label={I18NUtils.getClientMessage(i18NCode.Username)}>
-                {getFieldDecorator('username', {initialValue: SessionContext.getUsername() })(
+                    label={"用户名"}>
+                {getFieldDecorator('username', {initialValue: "admin" })(
                     <Input disabled/>
                 )}
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
-                    label={I18NUtils.getClientMessage(i18NCode.Password)}>
+                    label={"密码"}>
                 {getFieldDecorator('password', {
                     rules: [{
                         required: true
@@ -76,7 +65,7 @@ export default class ChangePwdForm extends EntityForm {
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
-                    label={I18NUtils.getClientMessage(i18NCode.NewPassword)}>
+                    label={"新密码"}>
                 {getFieldDecorator('newPassword', {
                     rules: [{
                         required: true
@@ -89,7 +78,7 @@ export default class ChangePwdForm extends EntityForm {
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
-                    label={I18NUtils.getClientMessage(i18NCode.ConfirmPassword)}>
+                    label={"确认密码"}>
                 {getFieldDecorator('confirmPassword', {
                     rules: [{
                         required: true
@@ -99,8 +88,37 @@ export default class ChangePwdForm extends EntityForm {
                 })(
                     <Input type="password"/>
                 )}
-                </FormItem>
+                </FormItem> */}
+                
+                <Form.Item
+          label="Select"
+          hasFeedback
+        >
+          {getFieldDecorator('select', {
+            rules: [
+              { required: true, message: 'Please select your country!' },
+            ],
+          })(
+            <Select placeholder="Please select a country">
+              <Option value="china">China</Option>
+              <Option value="usa">U.S.A</Option>
+            </Select>
+          )}
+        </Form.Item>
             </Form>)
     }
-
+    
+    render() {
+        return (
+            <div>
+                <Modal width={1040} centered title={"编辑"} 
+                    object={this.props.object} visible={this.props.visible} 
+                    maskClosable={false} onOk={this.handleOk} onCancel={this.props.onCancel} 
+                    okText={"确定"}>
+                    {this.buildForm()}
+                </Modal>
+            </div>
+        );
+    }
 }
+export default Form.create({ name: 'validate_other' })(ChangePwdForm);
