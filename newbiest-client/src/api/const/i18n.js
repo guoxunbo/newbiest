@@ -1,4 +1,8 @@
 const i18NCode = {
+    Login: "Login",
+    Register: "Register",
+    ForgetPwd: "ForgetPwd",
+    WelcomeUse: "WelcomeUse",
     Edit: "Edit",
     Ok: "Ok",
     Cancel: "Cancel",
@@ -46,6 +50,24 @@ const i18NCode = {
 }
 
 const i18Messages = {
+    Login : {
+        Chinese: "登录",
+        English: "Login"
+    },
+    Register:{
+        Chinese: "立即注册",
+        English: "Register",
+        Res: ""
+    },
+    ForgetPwd:{
+        Chinese: "忘记密码",
+        English: "ForgetPwd",
+        Res: ""
+    },
+    WelcomeUse : {
+        Chinese: "欢迎使用",
+        English: "WelcomeUse"
+    },
     OperationSucceed: {
         Chinese: "操作成功",
         English: "Operation Succeed",

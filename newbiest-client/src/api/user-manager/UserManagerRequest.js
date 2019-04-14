@@ -10,6 +10,21 @@ import MessageUtils from "../utils/MessageUtils";
  */
 export default class UserManagerRequest {
 
+    static sendLoginRequest = (object) => {
+        let user = object.user;
+        let requestBody = UserManagerRequestBody.buildLoginRequestBody(user.username, user.password);
+        let requestHeader = new UserManagerRequestHeader();
+        requestHeader.orgRrn = user.org;
+        requestHeader.language = user.language;
+
+        let request = new Request(requestHeader, requestBody, UrlConstant.UserManagerUrl);
+        let requestObject = {
+            request: request,
+            success: object.success
+        }
+        MessageUtils.sendRequest(requestObject);
+    }
+
     static sendChangePassword = (object) => {
         let requestBody = UserManagerRequestBody.buildChangePwdBody(object.username, object.password, object.newPassword);
         let requestHeader = new UserManagerRequestHeader();
