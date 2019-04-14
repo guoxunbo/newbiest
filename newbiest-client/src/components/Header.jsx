@@ -43,6 +43,7 @@ export default class Header extends PureComponent {
     MessageUtils.showOperationSuccess();
     this.setState({changePwdVisiable: false})
   }
+  
   render() {
     let sessionContext = SessionContext.getSessionContext();
     if (!sessionContext) {
