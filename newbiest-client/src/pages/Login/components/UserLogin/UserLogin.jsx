@@ -3,14 +3,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 
 import { Input, Button, Grid} from '@icedesign/base';
-
+import {Icon} from 'antd';
 import {
   FormBinderWrapper as IceFormBinderWrapper,
   FormBinder as IceFormBinder,
   FormError as IceFormError,
 } from '@icedesign/form-binder';
 
-import IceIcon from '@icedesign/icon';
 import './UserLogin.scss';
 
 import {Application, SessionContext} from '../../../../api/Application';
@@ -23,7 +22,7 @@ import {UrlConstant, SystemRefListName, RefTableName} from "../../../../api/cons
 import RefListField from '../../../../components/Field/RefListField';
 import RefTableField from '../../../../components/Field/RefTableField';
 import Authority from '../../../../api/dto/ui/Authority';
-
+import IconUtils from '../../../../api/utils/IconUtils';
 const { Row, Col } = Grid;
 
 // 寻找背景图片可以从 https://unsplash.com/ 寻找
@@ -106,11 +105,7 @@ export default class UserLogin extends Component {
               <div style={styles.formItems}>
                 <Row style={styles.formItem}>
                   <Col>
-                    <IceIcon
-                      type="person"
-                      size="small"
-                      style={styles.inputIcon}
-                    />
+                    {IconUtils.buildIcon("icon-renyuan", "", styles.selectIcon)}
                     <IceFormBinder name="account" required message="必填">
                       <Input maxLength={20} placeholder="会员名/邮箱/手机号" />
                     </IceFormBinder>
@@ -122,7 +117,7 @@ export default class UserLogin extends Component {
 
                 <Row style={styles.formItem}>
                   <Col>
-                    <IceIcon
+                    <Icon
                       type="lock"
                       size="small"
                       style={styles.inputIcon}
@@ -138,11 +133,7 @@ export default class UserLogin extends Component {
 
                 <Row style={styles.formItem}>
                   <Col>
-                    <IceIcon
-                      type="location"
-                      size="medium"
-                      style={styles.selectIcon}
-                    />
+                    {IconUtils.buildIcon("icon-location", "", styles.selectIcon)}
                     <IceFormBinder name="org" required message="必填">
                       <RefTableField field = {orgField} style={styles.formSelect} placeholder="区域"/>
                     </IceFormBinder>
@@ -154,11 +145,7 @@ export default class UserLogin extends Component {
 
                 <Row style={styles.formItem}>
                   <Col>
-                    <IceIcon
-                      type="requ"
-                      size="medium"
-                      style={styles.selectIcon}
-                    />
+                  {IconUtils.buildIcon("icon-language", "", styles.selectIcon)}
                     <IceFormBinder name="language" required message="必填">
                       <RefListField referenceName={SystemRefListName.Language} style={styles.formSelect} placeholder="语言"/>
                     </IceFormBinder>

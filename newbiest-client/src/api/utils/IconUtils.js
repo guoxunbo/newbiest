@@ -16,11 +16,11 @@ export default class IconUtils {
      * @param theme 'filled' 实心 | 'outlined' 空心 | 'twoTone' 双色
      * 
      */
-    static buildIcon = (iconName, theme) => {
+    static buildIcon = (iconName, theme, style) => {
         if (iconName.startsWith(CustomIconPrefix)) {
-            return <CutsomIcon theme={theme} type={iconName}></CutsomIcon>
+            return <CutsomIcon style={style} theme={theme} type={iconName}></CutsomIcon>
         }
-        return <Icon theme={theme} type={iconName}/>
+        return <Icon style={style} theme={theme} type={iconName}/>
     }
 
 

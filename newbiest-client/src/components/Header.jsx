@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { withRouter } from 'react-router-dom';
 
 import { Balloon, Icon } from '@icedesign/base';
-import IceImg from '@icedesign/img';
 import Layout from '@icedesign/layout';
 import Menu from '@icedesign/menu';
 import FoundationSymbol from 'foundation-symbol';
@@ -16,6 +15,7 @@ import { Form } from 'antd';
 import MessageUtils from '../api/utils/MessageUtils';
 import ChangePwdForm from './Form/ChangePwdForm';
 import DemoForm from './Form/DemoForm';
+import { Avatar } from 'antd';
 
 @withRouter
 export default class Header extends PureComponent {
@@ -113,13 +113,8 @@ export default class Header extends PureComponent {
                   fontSize: 12,
                 }}
               >
-                <IceImg
-                  height={40}
-                  width={40}
-                  src="https://img.alicdn.com/tfs/TB1L6tBXQyWBuNjy0FpXXassXXa-80-80.png"
-                  className="user-avatar"
-                />
-                <div className="user-profile">
+                  <Avatar size="large" icon="user" className="user-avatar"/>
+                 <div className="user-profile">
                   <span className="user-name" style={{ fontSize: '13px' }}>
                     {sessionContext ? sessionContext.username : ""}
                   </span>
