@@ -19,9 +19,13 @@ class UserLoginForm extends Component {
 
     constructor(props) {
         super(props);
-        this.state={
-            value: ""
-        }
+        this.state = {
+            username: "admin",
+            password: "1",
+            language: "Chinese",
+            org: "1",
+            checkbox: false,
+        };
     }
 
     handleLogin = () => {
@@ -47,6 +51,7 @@ class UserLoginForm extends Component {
                 <Col>
                   <FormItem>
                     {getFieldDecorator('username',{
+                        initialValue:this.state.username,
                         rules: [{
                             required: true
                         }]
@@ -61,6 +66,7 @@ class UserLoginForm extends Component {
                 <Col>
                   <FormItem>
                       {getFieldDecorator('password',{
+                            initialValue:this.state.password,
                             rules: [{
                                 required: true
                             }]
@@ -75,6 +81,7 @@ class UserLoginForm extends Component {
                   {IconUtils.buildIcon("icon-location", "", styles.selectIcon)}
                   <FormItem>
                       {getFieldDecorator('org',{
+                            initialValue:this.state.org,
                             rules: [{
                                 required: true
                             }]
@@ -90,6 +97,7 @@ class UserLoginForm extends Component {
                   {IconUtils.buildIcon("icon-language", "", styles.selectIcon)}
                   <FormItem>
                       {getFieldDecorator('language', {
+                          initialValue:this.state.language,
                           rules: [{
                             required: true
                           }]
