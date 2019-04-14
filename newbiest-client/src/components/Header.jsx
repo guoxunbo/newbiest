@@ -13,9 +13,9 @@ import Logo from './Logo';
 import {Notification} from './notice/Notice';
 import {SessionContext} from '../api/Application';
 import { Form } from 'antd';
-// import ChangePwdForm from './Form/ChangePwdForm';
 import MessageUtils from '../api/utils/MessageUtils';
 import ChangePwdForm from './Form/ChangePwdForm';
+import DemoForm from './Form/DemoForm';
 
 @withRouter
 export default class Header extends PureComponent {
@@ -28,7 +28,6 @@ export default class Header extends PureComponent {
   }
 
   logout= (e) => {
-    SessionContext.clearSessionContext();
   }
   
   changePassword = (e) => {
@@ -46,12 +45,11 @@ export default class Header extends PureComponent {
   }
   render() {
     let sessionContext = SessionContext.getSessionContext();
-    if (sessionContext == undefined) {
+    if (!sessionContext) {
       Notification.showInfo("请先登陆");
       this.props.history.push('/');
     }
     const { width, theme, isMobile, className, style } = this.props;
-    const WrappedChangePwdForm = Form.create()(ChangePwdForm);
 
     return (
       <div>
@@ -122,14 +120,14 @@ export default class Header extends PureComponent {
                 />
                 <div className="user-profile">
                   <span className="user-name" style={{ fontSize: '13px' }}>
-                    {sessionContext != undefined ? sessionContext.username : ""}
+                    {sessionContext ? sessionContext.username : ""}
                   </span>
                   <br />
                   <span
                     className="user-department"
                     style={{ fontSize: '12px', color: '#999' }}
                   >
-                    {sessionContext != undefined ? sessionContext.orgName : ""}
+                    {sessionContext ? sessionContext.orgName : ""}
                   </span>
                 </div>
                 <Icon
@@ -167,7 +165,7 @@ export default class Header extends PureComponent {
           </Balloon>
         </div>
       </Layout.Header>
-      <WrappedChangePwdForm ref={this.formRef} onOk={this.changePwdOk} onCancel={this.canelChangePwd} visible={this.state.changePwdVisiable} />
+        <DemoForm onOk={this.changePwdOk} onCancel={this.canelChangePwd} visible={this.state.changePwdVisiable} />
       </div>
       
     );

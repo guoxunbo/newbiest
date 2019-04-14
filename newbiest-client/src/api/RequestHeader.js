@@ -14,7 +14,7 @@ export default class RequestHeader{
         let sessionContext = SessionContext.getSessionContext();
         this.messageName = messageName;
         this.transactionId = uuid.v4();
-        if (sessionContext != undefined) {
+        if (sessionContext) {
             this.orgRrn = sessionContext.orgRrn;
             this.username = sessionContext.username;
             this.token = SessionContext.getToken();

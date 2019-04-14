@@ -72,7 +72,7 @@ export default class MessageUtils {
             if (ResultIdentify.Fail == response.header.result) {
                 self.handleException(response.header);
             } else {
-                if (requestObject.success != undefined) {
+                if (requestObject.success) {
                     requestObject.success(response.body);
                 } else {
                     self.showOperationSuccess();
@@ -124,7 +124,7 @@ export default class MessageUtils {
             if (ResultIdentify.Fail == response.header.result) {
                 self.handleException(response.header);
             } else {
-                if (requestObject.success != undefined) {
+                if (requestObject.success) {
                     requestObject.success(response.body);
                 } else {
                     self.showOperationSuccess();
@@ -138,7 +138,7 @@ export default class MessageUtils {
     static showOperationSuccess = () => {
         let language = SessionContext.getLanguage();
         let notice = "";
-        if (language == undefined) {
+        if (!language) {
             language == Language.Chinese;
         }
         if (language == Language.Chinese) {
@@ -155,7 +155,7 @@ export default class MessageUtils {
         let error = "";
         let errroCode = 0;
         let language = SessionContext.getLanguage();
-        if (language == undefined) {
+        if (!language) {
             language = Language.Chinese;
         }
         if (exception instanceof ResponseHeader) {

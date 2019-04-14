@@ -194,7 +194,7 @@ export default class Field {
      */
     buildFormItem = (formItemProperties, edit, query) => {
         //处理formItemPorperties TODO暂时不支持file上传组件检验
-        if (formItemProperties == undefined) {
+        if (!formItemProperties) {
             formItemProperties = {};
         } 
         const { getFieldDecorator } = this.form;
@@ -271,7 +271,7 @@ export default class Field {
         
         if (DisplayType.text == this.displayType) {
             // 只有当text的时候才支持正则
-            if (this.namingRule != null && this.namingRule != undefined) {
+            if (this.namingRule) {
                 rule.pattern = this.namingRule;
             }
         }

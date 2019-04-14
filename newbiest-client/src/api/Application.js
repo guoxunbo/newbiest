@@ -104,7 +104,7 @@ class SessionContext {
 
     static getSessionContext() {
         let object = sessionStorage.getItem(SC_STORAGE_NAME);
-        if (object == undefined) {
+        if (!object) {
             return undefined;
         } 
         return JSON.parse(object);
@@ -112,7 +112,7 @@ class SessionContext {
 
     static getLanguage() {
         let sessionContext = this.getSessionContext();
-        if (sessionContext == undefined) {
+        if (!sessionContext) {
             return undefined;
         }
         return sessionContext.language;
@@ -120,7 +120,7 @@ class SessionContext {
 
     static getAuthorities() {
         let sessionContext = this.getSessionContext();
-        if (sessionContext == undefined) {
+        if (!sessionContext) {
             return undefined;
         }
         return sessionContext.authories;
@@ -128,7 +128,7 @@ class SessionContext {
 
     static getToken() {
         let sessionContext = this.getSessionContext();
-        if (sessionContext == undefined) {
+        if (!sessionContext) {
             return "";
         }
         return sessionContext.token;
@@ -136,7 +136,7 @@ class SessionContext {
 
     static getUsername() {
         let sessionContext = this.getSessionContext();
-        if (sessionContext == undefined) {
+        if (!sessionContext) {
             return undefined;
         }
         return sessionContext.username;

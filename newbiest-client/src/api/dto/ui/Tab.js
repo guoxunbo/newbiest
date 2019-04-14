@@ -79,7 +79,7 @@ export default class Tab {
                 whereClause = this.whereClause.format(formObject);
             }
             // 如果是新增的话不显示TAB为Table的新增和保存按钮
-            let newFlag = formObject.objectRrn == undefined ? true : false;
+            let newFlag = !formObject.objectRrn ? true : false;
             children.push(<EditorTable parentObject={formObject} editFlag={this.editFlag} newFlag={newFlag} refTableName={this.refTableName} whereClause={whereClause} key={this.name}></EditorTable>)
         }
         return <TabPane tab={this.title} key={this.name}>

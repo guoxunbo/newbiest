@@ -25,7 +25,7 @@ export default class EntityDrawer extends Component {
 
     componentDidMount = () => {
         const object = this.props.object;
-        if (object != undefined) {
+        if (object) {
             let fieldValue = {};
             const formItemNames = Object.keys(this.props.form.getFieldsValue());
             for (let name of formItemNames) {

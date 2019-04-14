@@ -21,7 +21,7 @@ export default class Authority {
         }
         //处理子菜单
         let subAuthorities = authority.subAuthorities;
-        if (subAuthorities != null && subAuthorities != undefined) {
+        if (subAuthorities) {
             let subMenus = [];
             subAuthorities.map((authority, index) => {
                 let subMenu = new Authority(authority, language);

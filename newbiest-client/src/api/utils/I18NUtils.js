@@ -17,7 +17,7 @@ export default class I18NUtils {
         let message = i18Messages[messageCode];
         if (message) {
             let language = SessionContext.getLanguage();
-            if (language == undefined) {
+            if (!language) {
                 language = Language.Chinese;
             }
             return message[language];

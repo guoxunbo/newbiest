@@ -52,7 +52,7 @@ class QueryForm extends Component {
         for (let queryField of queryFields) {
             let fieldName = queryField.name;
             let fieldValue = formValues[fieldName];
-            if (fieldValue != null && fieldValue != undefined && fieldValue != "") {
+            if (fieldValue && fieldValue != "") {
                 if (!firstFlag) {
                     whereClause.append(SqlType.And);
                 }

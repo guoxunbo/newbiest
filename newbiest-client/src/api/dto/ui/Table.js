@@ -38,7 +38,7 @@ export default class Table{
                     } 
                 }
                 // 从父对象上取值
-                if (field.fromParent && field.referenceRule != undefined && parentObject != undefined) {
+                if (field.fromParent && field.referenceRule && parentObject) {
                     if (parentObject.hasOwnProperty(field.referenceRule)) {
                         value = parentObject[field.referenceRule];
                     } else {

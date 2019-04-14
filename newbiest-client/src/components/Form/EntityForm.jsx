@@ -25,7 +25,7 @@ export default class EntityForm extends Component {
 
     componentDidMount = () => {
         const object = this.props.object;
-        if (object != undefined) {
+        if (object) {
             let fieldValue = {};
             const formItemNames = Object.keys(this.props.form.getFieldsValue());
             for (let name of formItemNames) {
@@ -108,7 +108,6 @@ export default class EntityForm extends Component {
                     }
                 }
             }
-
             this.handleSave(formObject);
         });
     }
@@ -139,14 +138,19 @@ export default class EntityForm extends Component {
     }
 
     render() {
-        const width = this.props.width ? this.props.width : 1040;
-        const title = this.props.title ? this.props.title : I18NUtils.getClientMessage(i18NCode.Edit);
-        const okText = this.props.okText ? this.props.okText : I18NUtils.getClientMessage(i18NCode.Ok);
+        const width = this.props.width || 1040;
+        const title = this.props.title || I18NUtils.getClientMessage(i18NCode.Edit);
+        const okText = this.props.okText || I18NUtils.getClientMessage(i18NCode.Ok);
         return (
             <div>
-                <Modal width={width} centered title={title} 
-                    object={this.props.object} visible={this.props.visible} 
-                    maskClosable={false} onOk={this.handleOk} onCancel={this.props.onCancel} 
+                <Modal centered 
+                    width={width}
+                    title={title} 
+                    object={this.props.object} 
+                    visible={this.props.visible} 
+                    maskClosable={false} 
+                    onOk={this.handleOk}
+                    onCancel={this.props.onCancel} 
                     okText={okText}>
                     {this.buildForm()}
                 </Modal>
