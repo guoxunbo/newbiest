@@ -36,7 +36,7 @@ class UserLoginForm extends Component {
             }
             let object = {
                 user: values,
-                success: (responseBody) => this.props.handleOk(responseBody, values.language)
+                success: (responseBody) => this.props.handleOk(responseBody, values.org, values.language)
             }
             UserManagerRequest.sendLoginRequest(object);
         });
@@ -86,7 +86,7 @@ class UserLoginForm extends Component {
                                 required: true
                             }]
                         })(
-                          <RefTableField field = {{refTableName : RefTableName.NBOrg}} style={styles.formSelect} />
+                          <RefTableField initialValue={this.state.org} field = {{refTableName : RefTableName.NBOrg}} style={styles.formSelect} />
                         )}
                   </FormItem>
                 </Col>
@@ -102,7 +102,7 @@ class UserLoginForm extends Component {
                             required: true
                           }]
                         })(
-                          <RefListField referenceName={SystemRefListName.Language} style={styles.formSelect}/>
+                          <RefListField initialValue={this.state.language} field={{name:"language", form:this.props.form}} referenceName={SystemRefListName.Language} style={styles.formSelect}/>
                         )}
                   </FormItem>
                 </Col>
@@ -121,8 +121,9 @@ class UserLoginForm extends Component {
                 <a href="/" style={styles.link}>
                     {I18NUtils.getClientMessage(i18NCode.ForgetPwd)}
                 </a>
-              </Row>              
+              </Row>     
             </div>
+            
          </Form> 
         )
     }

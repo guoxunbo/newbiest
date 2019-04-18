@@ -151,13 +151,13 @@ export default class Field {
     }
     /**
      * 根据不同的DisplayType创建不同的组件
+     *  因为refList refTable是对select重新封装。故此处需要自己初始化值
      * @param edit 是否是编辑form 编辑form会处理editable栏位
      * @param query 是否是queryForm 如果是queryForm需要改变combox的宽度。
      * //TODO 处理默认时间今天，以及默认时间为最后一个月
      */
-    buildControl(edit, query) {
+    buildControl(edit, query, initialValue) {
         this.buildDisabled(edit);
-
         if (this.displayType == DisplayType.text) {
             return <Input placeholder = {this.placeHolder} style={this.upperFlag ? styles.textUppercaseStyle : undefined} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.int) {
@@ -175,11 +175,11 @@ export default class Field {
         } else if (this.displayType == DisplayType.datetimeFromTo) {
             return <RangePicker locale={locale} showTime format={DateFormatType.DateTime} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.sysRefList) {
-            return <RefListField referenceName={this.refListName} style={query ? styles.queryComboxStyle: undefined} disabled={this.disabled}/>
+            return <RefListField initialValue={initialValue} field={this} referenceName={this.refListName} style={query ? styles.queryComboxStyle: undefined} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.userRefList) {
-            return <RefListField referenceName={this.refListName} owner style={query ? styles.queryComboxStyle: undefined} disabled={this.disabled}/>
+            return <RefListField initialValue={initialValue} field={this} referenceName={this.refListName} owner style={query ? styles.queryComboxStyle: undefined} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.referenceTable) {
-            return <RefTableField field={this} form={this.form} style={query ? styles.queryComboxStyle: undefined} disabled={this.disabled}/>
+            return <RefTableField initialValue={initialValue} field={this} form={this.form} style={query ? styles.queryComboxStyle: undefined} disabled={this.disabled}/>
         } else if (this.displayType == DisplayType.radio) {
             return <Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} disabled={this.disabled}/>
         }
@@ -191,8 +191,9 @@ export default class Field {
      * @param formItemProperties form属性比如样式等
      * @param edit 是否是编辑form 编辑form会处理editable栏位
      * @param query 是否是queryForm queryForm的是否必输根据queryRequireFlag决定
+     * @param initialValue 初始值
      */
-    buildFormItem = (formItemProperties, edit, query) => {
+    buildFormItem = (formItemProperties, edit, query, initialValue) => {
         //处理formItemPorperties TODO暂时不支持file上传组件检验
         if (!formItemProperties) {
             formItemProperties = {};
@@ -206,10 +207,11 @@ export default class Field {
         return (<FormItem {...formItemProperties} label={this.title}>
             {getFieldDecorator(this.name, {
                 rules: rules,
+                initialValue: initialValue,
                 valuePropName: valuePropName,
             })
           (
-            this.buildControl(edit, query)
+            this.buildControl(edit, query, initialValue)
           )}
         </FormItem>);
     }

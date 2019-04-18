@@ -69,7 +69,7 @@ export default class Tab {
                 let field = new Field(f, form);
                 if (!field.basicFlag && field.displayFlag && field.name != "objectRrn") {
                     children.push(<Col span={12} key={field.objectRrn}>
-                        {field.buildFormItem(formLayout, false)}
+                        {field.buildFormItem(formLayout, false, undefined, formObject[field.name])}
                     </Col>);
                 }
             }

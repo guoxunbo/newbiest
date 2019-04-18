@@ -22,20 +22,11 @@ export default class UserLogin extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      value: {
-        username: "admin",
-        password: "1",
-        language: "Chinese",
-        org: "1",
-        checkbox: false,
-      },
-    };
   }
 
-  handleLogined = (responseBody, language) => {
+  handleLogined = (responseBody, org, language) => {
     let user = responseBody.user;
-    SessionContext.saveSessionContext(user.username, user.org, language, user.token, Authority.buildMenu(user.authorities, language));
+    SessionContext.saveSessionContext(user.username, org, language, user.token, Authority.buildMenu(user.authorities, language));
     this.props.history.push('/Home');
   };
 

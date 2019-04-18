@@ -4,6 +4,11 @@ import EventUtils from '../../api/utils/EventUtils';
 
 const { Option} = Select;
 
+/**
+ * 重新封装select。用于适用当前需求。 改变值来源只需重写combox即可
+ * 因为重新封装了select。故通过getFieldDecorator的InitialValue无法赋予初始值。
+ * 故此处用props.initialValue进行赋值
+ */
 export default class Combox extends Component {
 
     static displayName = 'Combox';
@@ -16,7 +21,7 @@ export default class Combox extends Component {
         }
         this.state = {
             data: [],
-            value: value,
+            value: value
         };
     }
 
@@ -35,13 +40,10 @@ export default class Combox extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if ('value' in nextProps) {
-            const value = nextProps.value;
-            if (value != undefined && value != null) {
-                this.setState({
-                    value: value
-                });
-            }
+        if ('value' in nextProps && nextProps.value && this.state.value !== nextProps.value) {
+            this.setState({
+              value: nextProps.value
+            });
         }
     }
 
@@ -61,13 +63,11 @@ export default class Combox extends Component {
             value: currentValue
         });
         this.triggerChange(currentValue);
-        console.log(this._select);
     }
 
     triggerChange = (changedValue) => {
-        const onChange = this.props.onChange;
-        if (onChange) {
-            onChange(changedValue);
+        if (this.props.onChange) {
+            this.props.onChange(changedValue);
         }
         this.notifyValueChanged(changedValue);
     }
@@ -88,25 +88,26 @@ export default class Combox extends Component {
         EventUtils.getEventEmitter().emit(EventUtils.getEventNames.ComboxValueChanged, this, changedValue);
     }
 
-    queryData = () => {
-
+    /**
+     * 具体的加载由子类实现
+     */
+    queryData = (parameters) => {
+        
     }
 
     render() {
-        const {data, value} = this.state;
+        const {data} = this.state;
         const options = data.map(d => <Option key={d.key}>{d.value}</Option>);
         return (
           <Select
             showSearch
             allowClear
-            // value = {value}
-            defaultValue={value}
+            defaultValue={this.state.value}
             placeholder={this.props.placeholder}
             style={this.props.style ? this.props.style : { width: '100%'}}
             onChange={this.handleChange}
             disabled={this.props.disabled}
             filterOption={this.filterOption}
-            ref={(c) => this._select = c}
           >
             {options}
           </Select>

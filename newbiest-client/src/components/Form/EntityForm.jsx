@@ -23,20 +23,9 @@ export default class EntityForm extends Component {
         };
     }  
 
-    componentDidMount = () => {
-        const object = this.props.object;
-        if (object) {
-            let fieldValue = {};
-            const formItemNames = Object.keys(this.props.form.getFieldsValue());
-            for (let name of formItemNames) {
-                fieldValue[name] = object[name];
-            }
-            this.props.form.setFieldsValue(fieldValue);
-        }
-    }
-
     buildBasicSectionField = () => {
         const fields = this.props.table.fields;
+        const formObject = this.props.object;
         const formItemLayout = {
             labelCol: {span: 6},
             wrapperCol: {span: 18},
@@ -46,7 +35,7 @@ export default class EntityForm extends Component {
             let field = new Field(f, this.props.form);
             if (field.basicFlag && field.displayFlag && field.name != "objectRrn") {
                 children.push(<Col span={12} key={field.objectRrn}>
-                    {field.buildFormItem(formItemLayout, this.state.editFlag)}
+                    {field.buildFormItem(formItemLayout, this.state.editFlag, undefined, formObject[field.name])}
                 </Col>);
             }
         }
