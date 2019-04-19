@@ -6,7 +6,7 @@ import { i18NCode } from "../../api/const/i18n";
 import Tab from '../../api/dto/ui/Tab';
 import Field from '../../api/dto/ui/Field';
 import PropertyUtils from '../../api/utils/PropertyUtils';
-import { DefaultOrderKey } from '../../api/const/ConstDefine';
+import { DefaultOrderKey, DefaultRowKey } from '../../api/const/ConstDefine';
 import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest';
 
 export default class EntityDrawer extends Component {
@@ -85,7 +85,9 @@ export default class EntityDrawer extends Component {
         const {getFieldDecorator} = this.props.form;
         return (
             <Form>
-                {getFieldDecorator('objectRrn')(<Input type='hidden'/>)}
+               {getFieldDecorator(DefaultRowKey,{
+                    initialValue: this.props.object[DefaultRowKey]
+                })(<Input type='hidden'/>)}
                 {this.buildBasicSection()}
                 {this.buildTabs()}
             </Form>)

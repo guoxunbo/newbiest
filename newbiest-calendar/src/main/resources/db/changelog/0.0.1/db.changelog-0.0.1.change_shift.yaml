@@ -1,0 +1,120 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user-table
+      author: Xunbo Guo
+      comment: Create table NB_USER
+      changes:
+        - createTable:
+            tableName: NB_USER
+            remarks: User Info
+            columns:
+              - column:
+                  name: object_rrn
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: active_flag
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: org_rrn
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: created
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 创建时间
+              - column:
+                  name: created_by
+                  type: varchar(32)
+                  remarks: 创建者
+              - column:
+                  name: updated
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 更新时间
+              - column:
+                  name: updated_by
+                  type: varchar(32)
+                  remarks: 更新者
+              - column:
+                  name: lock_version
+                  type: bigint
+                  defaultValueNumeric: 1
+                  remarks: 乐观锁版本 程序自己更新 不可人为改变
+              - column:
+                  name: username
+                  type: varchar(64)
+                  remarks: 用户名
+              - column:
+                  name: description
+                  type: varchar(256)
+                  remarks: 描述 比如名字
+              - column:
+                  name: password
+                  type: varchar(32)
+                  remarks: 密码
+              - column:
+                  name: pwd_changed
+                  type: datetime
+                  remarks: 密码修改时间
+              - column:
+                  name: pwd_expiry
+                  type: datetime
+                  remarks: 密码过期时间
+              - column:
+                  name: pwd_life
+                  type: bigint
+                  remarks: 密码有效期
+              - column:
+                  name: pwd_wrong_count
+                  type: bigint
+                  remarks: 密码错误次数
+              - column:
+                  name: phone
+                  type: varchar(32)
+                  remarks: 电话
+              - column:
+                  name: department
+                  type: varchar(32)
+                  remarks: 部门
+              - column:
+                  name: sex
+                  type: varchar(1)
+                  remarks: 性别 M/Man F/Feman
+              - column:
+                  name: email
+                  type: varchar(64)
+                  remarks: 邮箱地址
+              - column:
+                  name: in_valid_flag
+                  type: varchar(1)
+                  remarks: 是否在密码有效期之内
+              - column:
+                  name: last_logon
+                  type: dateTime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+  - changeSet:
+      id: add-unique-constraint-for-user-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (org_rrn, username) for table NB_USER
+      changes:
+        - addUniqueConstraint:
+            tableName: NB_USER
+            columnNames: org_rrn, username
+  - changeSet:
+      id: insert-user-table
+      author: Xunbo Guo
+      comment: Insert admin user to NB_USER
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/user-data-0.0.1.sql

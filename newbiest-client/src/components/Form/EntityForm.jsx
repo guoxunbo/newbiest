@@ -7,7 +7,7 @@ import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest'
 import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
 import PropertyUtils from '../../api/utils/PropertyUtils';
-import { DefaultOrderKey } from '../../api/const/ConstDefine';
+import { DefaultOrderKey, DefaultRowKey } from '../../api/const/ConstDefine';
 
 export default class EntityForm extends Component {
     static displayName = 'EntityForm';
@@ -79,6 +79,7 @@ export default class EntityForm extends Component {
             }
             let formObject = this.props.object;
             PropertyUtils.copyProperties(values, formObject);
+
             // 如果当前values具备seqNo栏位并且该栏位没手动给值。则说明需要自动给个seqNo的值
             if (formObject.hasOwnProperty(DefaultOrderKey) && !formObject[DefaultOrderKey]) {
                 // 只有对象有seqNo栏位，则tableData必定有seqNo
@@ -120,7 +121,9 @@ export default class EntityForm extends Component {
         const {getFieldDecorator} = this.props.form;
         return (
             <Form>
-                {getFieldDecorator('objectRrn')(<Input type='hidden'/>)}
+                {getFieldDecorator(DefaultRowKey,{
+                    initialValue: this.props.object[DefaultRowKey]
+                })(<Input type='hidden'/>)}
                 {this.buildBasicSection()}
                 {this.buildTabs()}
             </Form>)
