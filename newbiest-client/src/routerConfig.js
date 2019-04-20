@@ -73,7 +73,12 @@ const routerConfig = [
     layout: HeaderAsideFooterResponsiveLayout,
     component: RoleProperties,
   },
-
+  //DMS
+  {
+    path: 'DMS/ChangeShiftManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityProperties,
+  },
   //LMS
   {
     path: 'LMS/IDGeneratorRuleManager/:tableRrn',

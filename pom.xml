@@ -21,6 +21,7 @@
         <module>newbiest-rms</module>
         <module>newbiest-starter</module>
         <module>newbiest-dist</module>
+        <module>newbiest-calendar</module>
     </modules>
     <packaging>pom</packaging>
 

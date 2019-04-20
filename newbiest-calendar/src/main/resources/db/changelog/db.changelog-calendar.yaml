@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: init/db.changelog-0.0.1.change_shift.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_shift_eqp_status.yaml
+      relativeToChangelogFile: true
