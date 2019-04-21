@@ -7,7 +7,8 @@ import EntityManagerRequest from '../../api/entity-manager/EntityManagerRequest'
 import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
 import PropertyUtils from '../../api/utils/PropertyUtils';
-import { DefaultOrderKey, DefaultRowKey } from '../../api/const/ConstDefine';
+import { DefaultOrderKey, DefaultRowKey, DateFormatType } from '../../api/const/ConstDefine';
+import { Moment } from '@icedesign/base';
 
 export default class EntityForm extends Component {
     static displayName = 'EntityForm';
@@ -79,7 +80,6 @@ export default class EntityForm extends Component {
             }
             let formObject = this.props.object;
             PropertyUtils.copyProperties(values, formObject);
-
             // 如果当前values具备seqNo栏位并且该栏位没手动给值。则说明需要自动给个seqNo的值
             if (formObject.hasOwnProperty(DefaultOrderKey) && !formObject[DefaultOrderKey]) {
                 // 只有对象有seqNo栏位，则tableData必定有seqNo
@@ -96,6 +96,12 @@ export default class EntityForm extends Component {
                         });
                         formObject[DefaultOrderKey] = data[data.length - 1][DefaultOrderKey] + 1;
                     }
+                }
+            }
+            for (let property in formObject) {
+                if (formObject[property] && Moment.isMoment(formObject[property])) {
+                    // 如果是单独的时间类型，不是个区域时间(dateFromTo)的话
+                    formObject[property] = formObject[property].format(DateFormatType.DateTime)
                 }
             }
             this.handleSave(formObject);

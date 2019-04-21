@@ -28,7 +28,7 @@ public class ChangeShift extends NBUpdatable {
      */
     @Column(name="SHIFT_TIME")
     @Temporal(TemporalType.DATE)
-    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
     private Date shiftTime;
 
     /**

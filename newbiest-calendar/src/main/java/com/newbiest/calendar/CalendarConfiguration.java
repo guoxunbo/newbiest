@@ -2,6 +2,7 @@ package com.newbiest.calendar;
 
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.calendar.model.ChangeShift;
+import com.newbiest.calendar.model.ChangeShiftEqpStatus;
 import com.newbiest.main.YmlPropertyLoaderFactory;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.Data;
@@ -52,5 +53,7 @@ public class CalendarConfiguration {
     public void init() {
         //注册modelClassLoader
         ModelFactory.registerModelClassLoader(ChangeShift.class.getName(), ChangeShift.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(ChangeShiftEqpStatus.class.getName(), ChangeShiftEqpStatus.class.getClassLoader());
+
     }
 }

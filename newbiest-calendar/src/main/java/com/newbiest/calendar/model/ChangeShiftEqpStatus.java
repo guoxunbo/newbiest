@@ -1,6 +1,7 @@
 package com.newbiest.calendar.model;
 
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -69,4 +70,27 @@ public class ChangeShiftEqpStatus extends NBUpdatable {
     @Column(name="RESERVED10")
     private String reserved10;
 
+    public Boolean getExceptionFlag() {
+        return StringUtils.YES.equalsIgnoreCase(exceptionFlag);
+    }
+
+    public void setExceptionFlag(Boolean exceptionFlag) {
+        this.exceptionFlag = exceptionFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public Boolean getToolHomingFlag() {
+        return StringUtils.YES.equalsIgnoreCase(toolHomingFlag);
+    }
+
+    public void setToolHomingFlag(Boolean toolHomingFlag) {
+        this.toolHomingFlag = toolHomingFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public Boolean getWriteCheckTableFlag() {
+        return StringUtils.YES.equalsIgnoreCase(writeCheckTableFlag);
+    }
+
+    public void setWriteCheckTableFlag(Boolean writeCheckTableFlag) {
+        this.writeCheckTableFlag = writeCheckTableFlag ? StringUtils.YES : StringUtils.NO;
+    }
 }
