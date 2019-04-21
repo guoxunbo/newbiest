@@ -1,4 +1,4 @@
-import { Input, InputNumber, DatePicker, Switch,Form } from 'antd';
+import { Input, InputNumber, DatePicker, Switch,Form, Tag } from 'antd';
 import {SessionContext} from '../../Application'
 import {Language, DateFormatType} from "../../const/ConstDefine";
 import RefListField from '../../../components/Field/RefListField';
@@ -7,6 +7,8 @@ import {Icon} from 'antd';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import PropertyUtils from '../../utils/PropertyUtils';
 import { Moment } from '@icedesign/base';
+import I18NUtils from '../../utils/I18NUtils';
+import { i18NCode } from '../../const/i18n';
 
 const { RangePicker} = DatePicker;
 const FormItem = Form.Item;
@@ -36,7 +38,8 @@ const DisplaySelectType = [DisplayType.sysRefList, DisplayType.userRefList, Disp
 
 const Aligin = {
     left : "left",
-    right : "right"
+    right : "right",
+    center: "center"
 }
 
 const DisplayLength = {
@@ -126,12 +129,24 @@ export default class Field {
             if (DisplayType.number == this.displayType) {
                 aligin = Aligin.right;
             }
+            let columnRender;
+            // Table对布尔类型的数据会不显示。'true'会显示
+            if (DisplayType.radio == this.displayType) {
+                aligin = Aligin.center,
+                columnRender = columnValue => (
+                    <span>
+                        <Tag color={columnValue ? 'green' : 'red'} >{columnValue ? I18NUtils.getClientMessage(i18NCode.Yes)
+                                                                                : I18NUtils.getClientMessage(i18NCode.No)}</Tag>
+                    </span>
+                  )
+            }
             let column = {
                 key: this.name,
                 title: this.title,
                 dataIndex: this.name,
                 align: aligin,
-                width: this.width
+                width: this.width,
+                render: columnRender
                 // fixed: 'left',
                 // sorter: (a, b) => a.id - b.id
             }

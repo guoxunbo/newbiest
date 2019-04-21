@@ -1,4 +1,6 @@
 const i18NCode = {
+    Yes: "Yes",
+    No: "No",
     Login: "Login",
     Register: "Register",
     ForgetPwd: "ForgetPwd",
@@ -50,6 +52,14 @@ const i18NCode = {
 }
 
 const i18Messages = {
+    Yes : {
+        Chinese: "是",
+        English: "Y"
+    },
+    No : {
+        Chinese: "否",
+        English: "N"
+    },
     Login : {
         Chinese: "登录",
         English: "Login"
