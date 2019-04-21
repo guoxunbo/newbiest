@@ -11,11 +11,9 @@ import { headerMenuConfig } from './../menuConfig';
 import Logo from './Logo';
 import {Notification} from './notice/Notice';
 import {SessionContext} from '../api/Application';
-import { Form } from 'antd';
 import MessageUtils from '../api/utils/MessageUtils';
 import ChangePwdForm from './Form/ChangePwdForm';
-import DemoForm from './Form/DemoForm';
-import { Avatar } from 'antd';
+import { Avatar, Form } from 'antd';
 
 @withRouter
 export default class Header extends PureComponent {
@@ -51,7 +49,7 @@ export default class Header extends PureComponent {
       this.props.history.push('/');
     }
     const { width, theme, isMobile, className, style } = this.props;
-
+    const WrappedChangePwdForm = Form.create()(ChangePwdForm);
     return (
       <div>
       <Layout.Header
@@ -161,7 +159,7 @@ export default class Header extends PureComponent {
           </Balloon>
         </div>
       </Layout.Header>
-        <DemoForm onOk={this.changePwdOk} onCancel={this.canelChangePwd} visible={this.state.changePwdVisiable} />
+      <WrappedChangePwdForm object={{}} destroyOnClose onOk={this.changePwdOk} onCancel={this.canelChangePwd} visible={this.state.changePwdVisiable} />
       </div>
       
     );
