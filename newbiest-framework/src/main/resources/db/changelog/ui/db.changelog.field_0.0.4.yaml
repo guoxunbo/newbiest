@@ -1,9 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: NB_FIELD-remove-column_persist_flag
-      author: Xunbo Guo
-      comment: NB_FIELD remove column persist_flag
-      changes:
-        - dropColumn:
-            columnName: PERSIST_FLAG
-            tableName: NB_FIELD

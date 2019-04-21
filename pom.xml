@@ -15,7 +15,6 @@
     <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>newbiest-common-actuator</module>
-        <module>newbiest-framework</module>
         <module>newbiest-common-context</module>
         <module>newbiest-common-idgenerator</module>
         <module>newbiest-rms</module>
@@ -44,7 +43,7 @@
         <jwt.verison>3.3.0</jwt.verison>
         <liquibase.version>3.6.1</liquibase.version>
         <primary-school.version>0.0.1-SNAPSHOT</primary-school.version>
-
+        <newbiest.framework.version>1.0.0.RELEASE</newbiest.framework.version>
     </properties>
 
     <dependencies>
@@ -61,10 +60,7 @@
             <artifactId>spring-boot-admin-starter-client</artifactId>
             <version>2.0.1</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-webflux</artifactId>-->
-        <!--</dependency>-->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -201,6 +197,12 @@
             <version>${swaager.version}</version>
         </dependency>
 
+        <!--Newbiest相关-->
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>framework</artifactId>
+            <version>${newbiest.framework.version}</version>
+        </dependency>
     </dependencies>
 
     <developers>
@@ -214,6 +216,36 @@
             <organization>Newbiest</organization>
         </developer>
     </developers>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <repositories>
         <repository>
@@ -239,5 +271,16 @@
             <comments> A business-friendly OSS license </comments>
         </license>
     </licenses>
+
+    <distributionManagement>
+        <repository>
+            <id>newbiest</id>
+            <url>http://118.31.35.66:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>newbiest</id>
+            <url>http://118.31.35.66:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
