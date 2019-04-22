@@ -15,14 +15,6 @@ import TableManagerRequest from '../../../api/table-manager/TableManagerRequest'
 
 const EditableContext = React.createContext();
 
-const EditableRow = ({ form, index, ...props }) => (
-  <EditableContext.Provider value={form}>
-    <tr {...props} />
-  </EditableContext.Provider>
-);
-
-const EditableFormRow = Form.create()(EditableRow);
-
 class EditableCell extends React.Component {
   render() {
     const {
@@ -53,7 +45,7 @@ class EditableCell extends React.Component {
   }
 }
 
-export default class EditableTable extends React.Component {
+class EditableTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -123,12 +115,12 @@ export default class EditableTable extends React.Component {
         editable: false,
         title: 'operation',
         dataIndex: 'operation',
-        field: {},
+        fixed: 'right',
+        width: Application.table.oprationColumn.width,
         render: (text, record) => {
-            const editable = this.isEditing(record);
             return (
               <div>
-                {editable ? (
+                {this.isEditing(record) ? (
                   <span>
                     <EditableContext.Consumer>
                       {form => (
@@ -275,8 +267,7 @@ export default class EditableTable extends React.Component {
 
     const components = {
       body: {
-        row: EditableFormRow,
-        cell: EditableCell,
+        cell: EditableCell
       },
     };
 
@@ -297,22 +288,27 @@ export default class EditableTable extends React.Component {
       };
     });
     return (
+      
+      
       <div>
-        {(this.props.editFlag && !this.props.newFlag) ? this.createButtonGroup() : ''};
-        <Table
-          rowKey={DefaultRowKey}
-          components={components}
-          bordered
-          pagination={Application.table.pagination}
-          dataSource={tableData}
-          columns={columns}
-          scroll = {{ x: scrollX, y: 350 }}
-          rowClassName={rowClassName.bind(this)}
-        />
+          {(this.props.editFlag && !this.props.newFlag) ? this.createButtonGroup() : ''};
+          <EditableContext.Provider value={this.props.form}>
+          <Table
+            rowKey={DefaultRowKey}
+            components={components}
+            bordered
+            pagination={Application.table.pagination}
+            dataSource={tableData}
+            columns={columns}
+            scroll = {{ x: scrollX, y: 350 }}
+            rowClassName={rowClassName.bind(this)}
+          />
+        </EditableContext.Provider>
       </div>
     );
   }
 }
+export default Form.create()(EditableTable);
 
 EditableTable.prototypes = {
     refTableName: PropTypes.string,
