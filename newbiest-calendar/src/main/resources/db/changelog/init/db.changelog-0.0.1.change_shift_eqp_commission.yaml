@@ -1,12 +1,12 @@
 databaseChangeLog:
   - changeSet:
-      id: create-change_shift_eq_status-table
+      id: create-change_shift_eq_commission-table
       author: Xunbo Guo
-      comment: Create table DMS_CHANGE_SHIFT_EQP_STATUS
+      comment: Create table DMS_CHANGE_SHIFT_EQP_COMMISSION
       changes:
         - createTable:
-            tableName: DMS_CHANGE_SHIFT_EQP_STATUS
-            remarks: ChangeShiftEquipmentStatus Info
+            tableName: DMS_CHANGE_SHIFT_EQP_COMMISSION
+            remarks: ChangeShiftEquipmenCommission Info
             columns:
               - column:
                   name: object_rrn
@@ -62,25 +62,37 @@ databaseChangeLog:
                   type: varchar(32)
                   remarks: 设备号
               - column:
-                  name: EXCEPTION_FLAG
+                  name: HOT_FLAG
                   type: varchar(1)
-                  remarks: 是否异常
+                  remarks: 急件Flag
               - column:
-                  name: TOOL_HOMING_FLAG
+                  name: FINISH_FLAG
                   type: varchar(1)
-                  remarks: 治具是否归位
+                  remarks: 是否完成
               - column:
-                  name: WRITE_CHECK_TABLE_FLAG
-                  type: varchar(1)
-                  remarks: 检查表是否填写
+                  name: OWNER
+                  type: varchar(64)
+                  remarks: 责任人
               - column:
-                  name: WRITE_VACUUM_VALUE_FLAG
-                  type: varchar(1)
-                  remarks: 真空值是否填写
+                  name: CLIENT_DEPARTMENT
+                  type: varchar(64)
+                  remarks: 委托部门
               - column:
-                  name: HANDOVER_FLAG
-                  type: varchar(1)
-                  remarks: 是否交接
+                  name: CLIENT_OWNER
+                  type: varchar(64)
+                  remarks: 委托人
+              - column:
+                  name: ANALYSE_PROJECT
+                  type: varchar(64)
+                  remarks: 分析项目
+              - column:
+                  name: ANALYSE_DURATION
+                  type: bigint
+                  remarks: 分析时长
+              - column:
+                  name: QTY
+                  type: bigint
+                  remarks: 数量
               - column:
                   name: COMMENT
                   type: varchar(256)

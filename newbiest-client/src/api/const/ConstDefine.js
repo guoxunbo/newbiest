@@ -2,11 +2,12 @@
  * 定义URL 有可能请求多个URL
  */
 const ModuleUrlConstant = {
-    Framework: "http://118.31.35.66:8080/framework/",
-    Security: "http://118.31.35.66:8080/security/",
-    UI: "http://118.31.35.66:8080/ui/",
-    StatusMachine: "http://118.31.35.66:8080/common/sm/",
-    MMS: "http://118.31.35.66:8080/mms/"
+    Framework: "http://127.0.0.1:8080/framework/",
+    Security: "http://127.0.0.1:8080/security/",
+    UI: "http://127.0.0.1:8080/ui/",
+    StatusMachine: "http://127.0.0.1:8080/common/sm/",
+    MMS: "http://127.0.0.1:8080/mms/",
+    DMS: "http://127.0.0.1:8080/dms/"
 }
 
 const DateFormatType = {
@@ -30,6 +31,9 @@ const UrlConstant = {
     RawMaterialManagerUrl: ModuleUrlConstant.MMS + "rawMaterialManage",
     MaterialLotManagerUrl: ModuleUrlConstant.MMS + "materialLotManage",
     MaterialLotInvManagerUrl: ModuleUrlConstant.MMS + "materialLotInvManage",
+
+    ChangeShiftManagerUrl: ModuleUrlConstant.DMS + "changeShiftManage",
+
 };
 
 const SystemRefListName = {

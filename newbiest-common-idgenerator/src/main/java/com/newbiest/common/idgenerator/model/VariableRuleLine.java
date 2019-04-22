@@ -1,5 +1,6 @@
 package com.newbiest.common.idgenerator.model;
 
+import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * 参数类型的值
@@ -79,6 +82,10 @@ public class VariableRuleLine extends GeneratorRuleLine {
                 try {
                     value = PropertyUtils.getProperty(context.getObject(), parameter);
                     if (value != null) {
+                        if (value instanceof Date) {
+                            SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+                            value = sdf.format(value);
+                        }
                         variable = String.valueOf(value);
                     }
                 } catch (Exception e) {
@@ -99,13 +106,13 @@ public class VariableRuleLine extends GeneratorRuleLine {
                     } else if (VARIABLE_DIRECTION_RIGHT.equals(variableDirection)) {
                         variable = variable.substring(variable.length() - (startPosition.intValue() + length.intValue() - 1), variable.length() - startPosition.intValue() + 1);
                     }
-                }
-            } else if (variable.length() < length) {
-                // 不够则进行补位
-                if (VARIABLE_DIRECTION_LEFT.equals(variableDirection)) {
-                    variable = StringUtils.padStart(variable, length.intValue(), placeholder.charAt(0));
-                } else if (VARIABLE_DIRECTION_LEFT.equals(variableDirection)) {
-                    variable = StringUtils.padEnd(variable, length.intValue(), placeholder.charAt(0));
+                } else if (variable.length() < length) {
+                    // 不够则进行补位
+                    if (VARIABLE_DIRECTION_LEFT.equals(variableDirection)) {
+                        variable = StringUtils.padStart(variable, length.intValue(), placeholder.charAt(0));
+                    } else if (VARIABLE_DIRECTION_RIGHT.equals(variableDirection)) {
+                        variable = StringUtils.padEnd(variable, length.intValue(), placeholder.charAt(0));
+                    }
                 }
             }
         }

@@ -132,7 +132,7 @@ export default class Field {
             let columnRender;
             // Table对布尔类型的数据会不显示。'true'会显示
             if (DisplayType.radio == this.displayType) {
-                aligin = Aligin.center,
+                aligin = Aligin.center;
                 columnRender = columnValue => (
                     <span>
                         <Tag color={columnValue ? 'green' : 'red'} >{columnValue ? I18NUtils.getClientMessage(i18NCode.Yes)
@@ -242,8 +242,8 @@ export default class Field {
 
     /**
      * 创建table里面的foritem 不具备显示label功能
-     * @param fieldDecorator form表格
      * @param record 记录
+     * @param 表格
      */
     buildTableFormItem = (record, form) => {
         let valuePropName = "value";

@@ -15,6 +15,7 @@ import MaterialProperties from './pages/Properties/components/MaterialProperties
 import MaterialLotProperties from './pages/Properties/components/MaterialLotProperties';
 import MaterialLotInventoryProperties from './pages/Properties/components/MaterialLotInventoryProperties';
 import EntityHistoryProperties from './pages/Properties/components/EntityHistoryProperties';
+import ChangeShiftProperties from './pages/Properties/components/ChangeShiftProperties';
 
 const routerConfig = [
   {
@@ -77,7 +78,7 @@ const routerConfig = [
   {
     path: 'DMS/ChangeShiftManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
-    component: EntityProperties,
+    component: ChangeShiftProperties,
   },
   //LMS
   {

@@ -1,12 +1,12 @@
 databaseChangeLog:
   - changeSet:
-      id: create-change_shift_eq_status-table
+      id: create-change_shift_fa_case_analyse-table
       author: Xunbo Guo
-      comment: Create table DMS_CHANGE_SHIFT_EQP_STATUS
+      comment: Create table DMS_CHANGE_SHIFT_FA_CASE_ANALYSE
       changes:
         - createTable:
-            tableName: DMS_CHANGE_SHIFT_EQP_STATUS
-            remarks: ChangeShiftEquipmentStatus Info
+            tableName: DMS_CHANGE_SHIFT_FA_CASE_ANALYSE
+            remarks: ChangeShiftFaCaseAnalyse Info
             columns:
               - column:
                   name: object_rrn
@@ -52,35 +52,31 @@ databaseChangeLog:
               - column:
                   name: name
                   type: varchar(32)
-                  remarks: 名称或者案件号
+                  remarks: 名称
               - column:
                   name: CHANGE_SHIFT_RRN
                   type: bigint
                   remarks: 交接班主键
               - column:
-                  name: EQUIPMENT_ID
+                  name: CASE_ID
                   type: varchar(32)
-                  remarks: 设备号
+                  remarks: 案件编号
               - column:
-                  name: EXCEPTION_FLAG
-                  type: varchar(1)
-                  remarks: 是否异常
+                  name: PRODUCT_ID
+                  type: varchar(32)
+                  remarks: 产品号
               - column:
-                  name: TOOL_HOMING_FLAG
-                  type: varchar(1)
-                  remarks: 治具是否归位
+                  name: ANALYSE_PURPOSE
+                  type: varchar(64)
+                  remarks: 分析目的
               - column:
-                  name: WRITE_CHECK_TABLE_FLAG
-                  type: varchar(1)
-                  remarks: 检查表是否填写
+                  name: ANALYSE_PROGRESS
+                  type: bigint
+                  remarks: 分析进度(%)
               - column:
-                  name: WRITE_VACUUM_VALUE_FLAG
-                  type: varchar(1)
-                  remarks: 真空值是否填写
-              - column:
-                  name: HANDOVER_FLAG
-                  type: varchar(1)
-                  remarks: 是否交接
+                  name: OWNER
+                  type: varchar(32)
+                  remarks: 责任人
               - column:
                   name: COMMENT
                   type: varchar(256)

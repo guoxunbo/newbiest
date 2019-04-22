@@ -5,3 +5,15 @@ databaseChangeLog:
   - include:
       file: init/db.changelog-0.0.1.change_shift_eqp_status.yaml
       relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_shift_eqp_commission.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_shift_fa_case_analyse.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_shift_security_info.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_shift_his.yaml
+      relativeToChangelogFile: true

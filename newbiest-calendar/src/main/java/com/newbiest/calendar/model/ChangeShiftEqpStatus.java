@@ -12,9 +12,12 @@ import java.util.Date;
  * Created by guoxunbo on 2019/4/19.
  */
 @Entity
-@Table(name="DMS_CHANGE_SHIFT_EQ_STATUS")
+@Table(name="DMS_CHANGE_SHIFT_EQP_STATUS")
 @Data
 public class ChangeShiftEqpStatus extends NBUpdatable {
+
+    @Column(name="NAME")
+    private String name;
 
     @Column(name="CHANGE_SHIFT_RRN")
     private Long changeShiftRrn;
@@ -22,23 +25,38 @@ public class ChangeShiftEqpStatus extends NBUpdatable {
     @Column(name="EQUIPMENT_ID")
     private String equipmentId;
 
+    /**
+     * 是否异常
+     */
     @Column(name="EXCEPTION_FLAG")
     private String exceptionFlag;
 
+    /**
+     * 治具是否归位
+     */
     @Column(name="TOOL_HOMING_FLAG")
     private String toolHomingFlag;
 
+    /**
+     * 是否填写检查表
+     */
     @Column(name="WRITE_CHECK_TABLE_FLAG")
     private String writeCheckTableFlag;
 
-    @Column(name="COMMENT")
-    private String comment;
+    /**
+     * 是否填写真空值
+     */
+    @Column(name="WRITE_VACUUM_VALUE_FLAG")
+    private String writeVacuumValueFlag;
 
     /**
-     * 接班人
+     * 是否交接
      */
-    @Column(name="SUCCESSOR")
-    private String successor;
+    @Column(name="HANDOVER_FLAG")
+    private String handoverFlag;
+
+    @Column(name="COMMENT")
+    private String comment;
 
     @Column(name="RESERVED1")
     private String reserved1;
@@ -92,5 +110,21 @@ public class ChangeShiftEqpStatus extends NBUpdatable {
 
     public void setWriteCheckTableFlag(Boolean writeCheckTableFlag) {
         this.writeCheckTableFlag = writeCheckTableFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public Boolean getHandoverFlag() {
+        return StringUtils.YES.equalsIgnoreCase(handoverFlag);
+    }
+
+    public void setHandoverFlag(Boolean handoverFlag) {
+        this.handoverFlag = handoverFlag ? StringUtils.YES : StringUtils.NO;
+    }
+
+    public Boolean getWriteVacuumValueFlag() {
+        return StringUtils.YES.equalsIgnoreCase(writeVacuumValueFlag);
+    }
+
+    public void setWriteVacuumValueFlag(Boolean writeVacuumValueFlag) {
+        this.writeVacuumValueFlag = writeVacuumValueFlag ? StringUtils.YES : StringUtils.NO;
     }
 }

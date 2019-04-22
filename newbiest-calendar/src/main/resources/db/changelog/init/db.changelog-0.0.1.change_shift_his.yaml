@@ -1,12 +1,12 @@
 databaseChangeLog:
   - changeSet:
-      id: create-change_shift_eq_status-table
+      id: create-change_shift_his-table
       author: Xunbo Guo
-      comment: Create table DMS_CHANGE_SHIFT_EQP_STATUS
+      comment: Create table DMS_CHANGE_SHIFT_HIS
       changes:
         - createTable:
-            tableName: DMS_CHANGE_SHIFT_EQP_STATUS
-            remarks: ChangeShiftEquipmentStatus Info
+            tableName: DMS_CHANGE_SHIFT_HIS
+            remarks: ChangeShiftHistory Info
             columns:
               - column:
                   name: object_rrn
@@ -51,39 +51,78 @@ databaseChangeLog:
                   remarks: 乐观锁版本 程序自己更新 不可人为改变
               - column:
                   name: name
-                  type: varchar(32)
-                  remarks: 名称或者案件号
+                  type: varchar(64)
+                  remarks: 名称 系统自动生成
               - column:
-                  name: CHANGE_SHIFT_RRN
+                  name: SHIFT_TIME
+                  type: date
+                  remarks: 班别时间
+              - column:
+                  name: SHIFT
+                  type: varchar(32)
+                  remarks: 班别
+              - column:
+                  name: CATEGORY
+                  type: varchar(32)
+                  remarks: 类型
+              - column:
+                  name: STATUS
+                  type: varchar(32)
+                  remarks: 状态
+              - column:
+                  name: ATTENDANCE
                   type: bigint
-                  remarks: 交接班主键
+                  remarks: 应出勤人数
               - column:
-                  name: EQUIPMENT_ID
+                  name: ACTUAL_ATTENDANCE
+                  type: bigint
+                  remarks: 实际出勤人数
+              - column:
+                  name: ASK_FOR_LEAVE
+                  type: bigint
+                  remarks: 请假人数
+              - column:
+                  name: LATE_ARRIVAL
+                  type: bigint
+                  remarks: 迟到人数
+              - column:
+                  name: EARLY_LEAVE
+                  type: bigint
+                  remarks: 早退人数
+              - column:
+                  name: ABSENTEEISM
+                  type: bigint
+                  remarks: 旷工人数
+              - column:
+                  name: LEAVE_POST
+                  type: bigint
+                  remarks: 脱岗人数
+              - column:
+                  name: SUCCESSOR
                   type: varchar(32)
-                  remarks: 设备号
+                  remarks: 接班人
               - column:
-                  name: EXCEPTION_FLAG
-                  type: varchar(1)
-                  remarks: 是否异常
+                  name: CONFIRM_TIME
+                  type: dateTime
               - column:
-                  name: TOOL_HOMING_FLAG
-                  type: varchar(1)
-                  remarks: 治具是否归位
+                  name: HISTORY_SEQ
+                  type: varchar(64)
+                  remarks: 历史序列号
               - column:
-                  name: WRITE_CHECK_TABLE_FLAG
-                  type: varchar(1)
-                  remarks: 检查表是否填写
+                  name: TRANS_TYPE
+                  type: varchar(64)
+                  remarks: 操作类型
               - column:
-                  name: WRITE_VACUUM_VALUE_FLAG
-                  type: varchar(1)
-                  remarks: 真空值是否填写
+                  name: ACTION_CODE
+                  type: varchar(64)
+                  remarks: 动作码
               - column:
-                  name: HANDOVER_FLAG
-                  type: varchar(1)
-                  remarks: 是否交接
+                  name: ACTION_REASON
+                  type: varchar(64)
+                  remarks: 原因
               - column:
-                  name: COMMENT
-                  type: varchar(256)
+                  name: ACTION_COMMENT
+                  type: varchar(64)
                   remarks: 备注
               - column:
                   name: RESERVED1

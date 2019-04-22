@@ -9,6 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>idgenerator</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
     <groupId>com.newbiest</groupId>
     <artifactId>calendar</artifactId>

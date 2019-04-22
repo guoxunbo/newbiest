@@ -1,12 +1,12 @@
 databaseChangeLog:
   - changeSet:
-      id: create-change_shift_eq_status-table
+      id: create-change_shift_security_info-table
       author: Xunbo Guo
-      comment: Create table DMS_CHANGE_SHIFT_EQP_STATUS
+      comment: Create table DMS_CHANGE_SHIFT_SECURITY_INFO
       changes:
         - createTable:
-            tableName: DMS_CHANGE_SHIFT_EQP_STATUS
-            remarks: ChangeShiftEquipmentStatus Info
+            tableName: DMS_CHANGE_SHIFT_SECURITY_INFO
+            remarks: ChangeShiftSecurity Info
             columns:
               - column:
                   name: object_rrn
@@ -58,25 +58,29 @@ databaseChangeLog:
                   type: bigint
                   remarks: 交接班主键
               - column:
-                  name: EQUIPMENT_ID
-                  type: varchar(32)
-                  remarks: 设备号
-              - column:
-                  name: EXCEPTION_FLAG
+                  name: ON_SITE_6S_FLAG
                   type: varchar(1)
-                  remarks: 是否异常
+                  remarks: 现场6S检查
               - column:
-                  name: TOOL_HOMING_FLAG
+                  name: INJURY_FLAG
                   type: varchar(1)
-                  remarks: 治具是否归位
+                  remarks: 是否发生工伤
               - column:
-                  name: WRITE_CHECK_TABLE_FLAG
+                  name: WARE_FLAG
                   type: varchar(1)
-                  remarks: 检查表是否填写
+                  remarks: 是否穿戴劳保用品
               - column:
-                  name: WRITE_VACUUM_VALUE_FLAG
+                  name: PICK_CONSUMABLE_FLAG
                   type: varchar(1)
-                  remarks: 真空值是否填写
+                  remarks: 是否领用消耗品
+              - column:
+                  name: LEADER_SHIP_FINISH_FLAG
+                  type: varchar(1)
+                  remarks: 是否完成领导指示
+              - column:
+                  name: INTERDEPARTMENTAL_FLAG
+                  type: varchar(1)
+                  remarks: 是否跨部门
               - column:
                   name: HANDOVER_FLAG
                   type: varchar(1)
