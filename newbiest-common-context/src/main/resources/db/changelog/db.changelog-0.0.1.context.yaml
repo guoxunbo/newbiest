@@ -9,37 +9,38 @@ databaseChangeLog:
             remarks: Context Info
             columns:
               - column:
-                  name: object_rrn
+                  name: OBJECT_RRN
                   type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
+                    constraintName: PK_CONTEXT
                   remarks: 主键
               - column:
-                  name: active_flag
+                  name: ACTIVE_FLAG
                   type: varchar(1)
                   defaultValue: Y
                   remarks: 数据是否可用
               - column:
-                  name: org_rrn
+                  name: ORG_RRN
                   type: bigint
                   defaultValueNumeric: 0
                   remarks: 区域号
               - column:
-                  name: name
+                  name: NAME
                   type: varchar(32)
                   remarks: 名称
               - column:
-                  name: description
+                  name: DESCRIPTION
                   type: varchar(32)
                   remarks: 描述
   - changeSet:
-      id: insert-context-table_rms_data
+      id: add-unique-constraint-for-context-table
       author: Xunbo Guo
-      comment: Insert rms on context message to COM_CONTEXT
+      comment: Apply unique constraint (org_rrn, name) for table COM_CONTEXT
       changes:
-        - sqlFile:
-            encoding: utf8
-            relativeToChangelogFile: true
-            path: sqlfile/context-data-0.0.1.sql
+        - addUniqueConstraint:
+            tableName: COM_CONTEXT
+            columnNames: ORG_RRN, NAME
+            constraintName: UK_CONTEXT_ORG_RRN_NAME

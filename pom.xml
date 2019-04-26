@@ -122,12 +122,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>com.oracle</groupId>-->
-            <!--<artifactId>ojdbc6</artifactId>-->
-            <!--<version>11.2.0.3</version>-->
-        <!--</dependency>-->
-
         <!-- liquibase做为数据库管理工具-->
         <dependency>
             <groupId>org.liquibase</groupId>
@@ -170,7 +164,6 @@
             <artifactId>commons-beanutils</artifactId>
             <version>${common.beanutils.version}</version>
         </dependency>
-
 
         <!-- guava工具-->
         <dependency>

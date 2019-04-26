@@ -9,91 +9,92 @@ databaseChangeLog:
             remarks: RecipeEquipment Temp Parameter Info
             columns:
               - column:
-                  name: object_rrn
+                  name: OBJECT_RRN
                   type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
+                    constraintName: PK_RMS_RECIPE_EQP_PARA_TEMP
                   remarks: 主键
               - column:
-                  name: active_flag
+                  name: ACTIVE_FLAG
                   type: varchar(1)
                   defaultValue: Y
                   remarks: 数据是否可用
               - column:
-                  name: org_rrn
+                  name: ORG_RRN
                   type: bigint
                   defaultValueNumeric: 0
                   remarks: 区域号
               - column:
-                  name: created
+                  name: CREATED
                   type: datetime
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: 创建时间
               - column:
-                  name: created_by
+                  name: CREATED_BY
                   type: varchar(32)
                   remarks: 创建者
               - column:
-                  name: updated
+                  name: UPDATED
                   type: datetime
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: 更新时间
               - column:
-                  name: updated_by
+                  name: UPDATED_BY
                   type: varchar(32)
                   remarks: 更新者
               - column:
-                  name: lock_version
+                  name: LOCK_VERSION
                   type: bigint
                   defaultValueNumeric: 1
                   remarks: 乐观锁版本 程序自己更新 不可人为改变
               - column:
-                  name: ecn_id
+                  name: ECN_ID
                   type: varchar(32)
                   remarks: 工艺变更号UUID
               - column:
-                  name: recipe_equipment_rrn
+                  name: RECIPE_EQUIPMENT_RRN
                   type: bigint
                   remarks: 设备Recipe主键
               - column:
-                  name: parameter_name
+                  name: PARAMETER_NAME
                   type: varchar(64)
                   remarks: 参数名称
               - column:
-                  name: parameter_desc
+                  name: PARAMETER_DESC
                   type: varchar(64)
                   remarks: 参数描述
               - column:
-                  name: parameter_group
+                  name: PARAMETER_GROUP
                   type: varchar(64)
                   remarks: 参数组
               - column:
-                  name: min_value
+                  name: MIN_VALUE
                   type: varchar(32)
                   remarks: 最小值
               - column:
-                  name: max_value
+                  name: MAX_VALUE
                   type: varchar(32)
                   remarks: 最大值
               - column:
-                  name: parameter_value
+                  name: PARAMETER_VALUE
                   type: varchar(32)
                   remarks: 具体值
               - column:
-                  name: status
+                  name: STATUS
                   type: varchar(32)
                   remarks: 状态
               - column:
-                  name: expired_policy
+                  name: EXPIRED_POLICY
                   type: varchar(32)
                   remarks: 过期策略
               - column:
-                  name: current_count
+                  name: CURRENT_COUNT
                   type: int
                   remarks: 当前次数
               - column:
-                  name: life
+                  name: LIFE
                   type: int
                   remarks: 周期

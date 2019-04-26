@@ -8,7 +8,7 @@ import I18NUtils from '../../api/utils/I18NUtils';
 import { i18NCode } from '../../api/const/i18n';
 import PropertyUtils from '../../api/utils/PropertyUtils';
 import { DefaultOrderKey, DefaultRowKey, DateFormatType } from '../../api/const/ConstDefine';
-import { Moment } from '@icedesign/base';
+import moment from 'moment';
 
 export default class EntityForm extends Component {
     static displayName = 'EntityForm';
@@ -99,7 +99,7 @@ export default class EntityForm extends Component {
                 }
             }
             for (let property in formObject) {
-                if (formObject[property] && Moment.isMoment(formObject[property])) {
+                if (formObject[property] && moment.isMoment(formObject[property])) {
                     // 如果是单独的时间类型，不是个区域时间(dateFromTo)的话
                     formObject[property] = formObject[property].format(DateFormatType.DateTime)
                 }
@@ -127,9 +127,11 @@ export default class EntityForm extends Component {
         const {getFieldDecorator} = this.props.form;
         return (
             <Form>
-                {getFieldDecorator(DefaultRowKey,{
-                    initialValue: this.props.object[DefaultRowKey]
-                })(<Input type='hidden'/>)}
+                {getFieldDecorator(DefaultRowKey,
+                {
+                    initialValue: this.props.object ? this.props.object[DefaultRowKey] : undefined
+                }
+                )(<Input type='hidden'/>)}
                 {this.buildBasicSection()}
                 {this.buildTabs()}
             </Form>)

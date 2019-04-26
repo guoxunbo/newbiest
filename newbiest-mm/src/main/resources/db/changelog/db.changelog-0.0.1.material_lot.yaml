@@ -9,43 +9,44 @@ databaseChangeLog:
             remarks: Material Lot Info
             columns:
               - column:
-                  name: object_rrn
+                  name: OBJECT_RRN
                   type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
+                    constraintName: PK_MATERIAL_LOT
                   remarks: 主键
               - column:
-                  name: active_flag
+                  name: ACTIVE_FLAG
                   type: varchar(1)
                   defaultValue: Y
                   remarks: 数据是否可用
               - column:
-                  name: org_rrn
+                  name: ORG_RRN
                   type: bigint
                   defaultValueNumeric: 0
                   remarks: 区域号
               - column:
-                  name: created
+                  name: CREATED
                   type: datetime
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: 创建时间
               - column:
-                  name: created_by
+                  name: CREATED_BY
                   type: varchar(32)
                   remarks: 创建者
               - column:
-                  name: updated
+                  name: UPDATED
                   type: datetime
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: 更新时间
               - column:
-                  name: updated_by
+                  name: UPDATED_BY
                   type: varchar(32)
                   remarks: 更新者
               - column:
-                  name: lock_version
+                  name: LOCK_VERSION
                   type: bigint
                   defaultValueNumeric: 1
                   remarks: 乐观锁版本 程序自己更新 不可人为改变
@@ -204,5 +205,5 @@ databaseChangeLog:
       changes:
         - addUniqueConstraint:
             tableName: MMS_MATERIAL_LOT
-            columnNames: org_rrn, MATERIAL_LOT_ID
-            constraintName: UK_MMS_MATERIAL_LOT_ORG_RRN_MATERIAL_LOT_ID
+            columnNames: ORG_RRN, MATERIAL_LOT_ID
+            constraintName: UK_MLOT_ORG_MATERIAL_LOT_ID

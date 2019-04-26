@@ -10,10 +10,11 @@ import javax.persistence.Table;
 
 /**
  * 交接班->设备委案情况/设备分析
+ * change shift equipment commission
  * Created by guoxunbo on 2019/4/19.
  */
 @Entity
-@Table(name="DMS_CHANGE_SHIFT_EQP_COMMISSION")
+@Table(name="DMS_CHANGE_SHIFT_EQP_COM")
 @Data
 public class ChangeShiftEqpCommission extends NBUpdatable {
 

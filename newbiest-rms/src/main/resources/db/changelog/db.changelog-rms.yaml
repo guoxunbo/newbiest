@@ -3,13 +3,7 @@ databaseChangeLog:
       file: db.changelog-0.0.1.equipment.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-0.0.2.equipment.yaml
-      relativeToChangelogFile: true
-  - include:
       file: db.changelog-0.0.1.recipe.yaml
-      relativeToChangelogFile: true
-  - include:
-      file: db.changelog-0.0.2.recipe.yaml
       relativeToChangelogFile: true
   - include:
       file: db.changelog-0.0.1.recipe_equipment.yaml
@@ -19,9 +13,6 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: db.changelog-0.0.1.recipe_equipment_parameter.yaml
-      relativeToChangelogFile: true
-  - include:
-      file: db.changelog-0.0.2.recipe_equipment_parameter.yaml
       relativeToChangelogFile: true
   - include:
       file: db.changelog-0.0.1.recipe_equipment_parameter_temp.yaml

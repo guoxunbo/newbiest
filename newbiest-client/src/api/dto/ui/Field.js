@@ -6,9 +6,10 @@ import RefTableField from '../../../components/Field/RefTableField';
 import {Icon} from 'antd';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import PropertyUtils from '../../utils/PropertyUtils';
-import { Moment } from '@icedesign/base';
 import I18NUtils from '../../utils/I18NUtils';
 import { i18NCode } from '../../const/i18n';
+
+import moment from 'moment';
 
 const { RangePicker} = DatePicker;
 const FormItem = Form.Item;
@@ -225,7 +226,7 @@ export default class Field {
             if (DisplayType.datetime === this.displayType) {
                 formatCode = DateFormatType.DateTime;
             }
-            initialValue = Moment(initialValue, formatCode)
+            initialValue = moment(initialValue, formatCode)
         }
         return (<FormItem {...formItemProperties} label={this.title}>
 

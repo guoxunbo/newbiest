@@ -15,83 +15,93 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                    constraintName: PK_RMS_RECIPE_EQP_PARA
                   remarks: 主键
               - column:
-                  name: active_flag
+                  name: ACTIVE_FLAG
                   type: varchar(1)
                   defaultValue: Y
                   remarks: 数据是否可用
               - column:
-                  name: org_rrn
+                  name: ORG_RRN
                   type: bigint
                   defaultValueNumeric: 0
                   remarks: 区域号
               - column:
-                  name: recipe_equipment_rrn
+                  name: RECIPE_EQUIPMENT_RRN
                   type: bigint
                   defaultValueNumeric: 0
                   remarks: Recipe主键
               - column:
-                  name: parameter_name
+                  name: PARAMETER_NAME
                   type: varchar(64)
                   remarks: 参数名称
               - column:
-                  name: parameter_desc
+                  name: PARAMETER_DESC
                   type: varchar(64)
                   remarks: 参数描述
               - column:
-                  name: parameter_group
+                  name: PARAMETER_GROUP
                   type: varchar(64)
                   remarks: 参数组
               - column:
-                  name: seq_no
+                  name: SEQ_NO
                   type: int
                   remarks: 序号
               - column:
-                  name: data_type
+                  name: DATA_TYPE
                   type: varchar(32)
                   remarks: 数据类型
               - column:
-                  name: compare_flag
+                  name: COMPARE_FLAG
                   type: varchar(1)
                   remarks: 是否比较
               - column:
-                  name: validate_type
+                  name: VALIDATE_TYPE
                   type: varchar(32)
                   remarks: 验证类型
               - column:
-                  name: min_value
+                  name: MIN_VALUE
                   type: varchar(32)
                   remarks: 最小值
               - column:
-                  name: max_value
+                  name: MAX_VALUE
                   type: varchar(32)
                   remarks: 最大值
               - column:
-                  name: default_value
+                  name: DEFAULT_VALUE
                   type: varchar(32)
                   remarks: 参数值
               - column:
-                  name: special_parameter_flag
+                  name: SPECIAL_PARAMETER_FLAG
                   type: varchar(1)
                   remarks: 是否允许onLine修改
               - column:
-                  name: reserved1
+                  name: RESERVED1
                   type: varchar(32)
                   remarks: 预留栏位1
               - column:
-                  name: reserved2
+                  name: RESERVED2
                   type: varchar(32)
                   remarks: 预留栏位2
               - column:
-                  name: reserved3
+                  name: RESERVED3
                   type: varchar(32)
                   remarks: 预留栏位3
               - column:
-                  name: reserved4
+                  name: RESERVED4
                   type: varchar(32)
                   remarks: 预留栏位4
               - column:
-                  name: reserved5
+                  name: RESERVED5
                   type: varchar(32)
                   remarks: 预留栏位5
+  - changeSet:
+      id: add-unique-constraint-for-rms_equipment_parameter-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (recipe_equipment_rrn, parameter_name) for table RMS_RECIPE_EQUIPMENT_PARAMETER
+      changes:
+        - addUniqueConstraint:
+            tableName: RMS_RECIPE_EQUIPMENT_PARAMETER
+            columnNames: RECIPE_EQUIPMENT_RRN, PARAMETER_NAME
+            constraintName: UK_RECIPE_EQP_PARAM_1

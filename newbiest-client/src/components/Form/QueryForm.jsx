@@ -7,7 +7,7 @@ import * as PropTypes from 'prop-types';
 
 import StringBuffer from '../../api/StringBuffer';
 import TableManagerRequest from '../../api/table-manager/TableManagerRequest';
-import { Moment } from '@icedesign/base';
+import moment from 'moment';
 
 class QueryForm extends Component {
     static displayName = 'QueryForm';
@@ -92,6 +92,7 @@ class QueryForm extends Component {
 
     handleSearch = (e) => {
         e.preventDefault();
+        console.log(moment);
         var self = this;
         this.props.form.validateFields((err, values) => {
             if (err) {
@@ -100,13 +101,14 @@ class QueryForm extends Component {
             // 处理时间类型的栏位相关 antd的时间栏位类型是Moment，需要自己转换
             for (let property in values) {
                 if (values[property]) {
+                    debugger;
                     // 如果是单独的时间类型，不是个区域时间(dateFromTo)的话
-                    if (Moment.isMoment(values[property])) {
+                    if (moment.isMoment(values[property])) {
                         values[property] = values[property].format(DateFormatType.DateTime)
                     }
                     if (Array.isArray(values[property])) {
                         // 如果第一个栏位不是moment的话，则说明不是时间数组，则跳过
-                        if (!Moment.isMoment(values[property][0])) {
+                        if (!moment.isMoment(values[property][0])) {
                             continue;
                         }
                         // 当前处理为0点0分0秒到23点59分59秒。即如果from 4号 to 4号。就是4号零点到4号23点59分59秒。

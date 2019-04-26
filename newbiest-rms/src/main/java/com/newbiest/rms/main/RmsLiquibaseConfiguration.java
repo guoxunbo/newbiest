@@ -13,7 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource(value = "classpath:rms-${spring.profiles.active}.yml", factory = YmlPropertyLoaderFactory.class)
+@PropertySource(value = "classpath:rms.yml", factory = YmlPropertyLoaderFactory.class)
 @ConfigurationProperties(prefix = "rms.liquibase")
 @Data
 @Slf4j
@@ -26,7 +26,7 @@ public class RmsLiquibaseConfiguration {
     private boolean dropFirst;
 
     @Bean(name="rmsLiquibase")
-    @ConditionalOnResource(resources = {"classpath:rms-${spring.profiles.active}.yml"})
+    @ConditionalOnResource(resources = {"classpath:rms.yml"})
     public SpringLiquibase liquibase(DataSource dataSource) throws Exception{
         if (log.isInfoEnabled()) {
             log.info("Load Rms Liquibase Configuration.");

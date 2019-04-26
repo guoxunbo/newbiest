@@ -9,32 +9,42 @@ databaseChangeLog:
             remarks: Recipe Info
             columns:
               - column:
-                  name: object_rrn
+                  name: OBJECT_RRN
                   type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
+                    constraintName: PK_RMS_RECIPE
                   remarks: 主键
               - column:
-                  name: active_flag
+                  name: ACTIVE_FLAG
                   type: varchar(1)
                   defaultValue: Y
                   remarks: 数据是否可用
               - column:
-                  name: org_rrn
+                  name: ORG_RRN
                   type: bigint
                   defaultValueNumeric: 0
                   remarks: 区域号
               - column:
-                  name: name
+                  name: NAME
                   type: varchar(32)
                   remarks: 名称
               - column:
-                  name: description
+                  name: DESCRIPTION
                   type: varchar(64)
                   remarks: 描述
               - column:
-                  name: category
+                  name: CATEGORY
                   type: varchar(32)
                   remarks: 种类
+  - changeSet:
+      id: add-unique-constraint-for-recipe-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (org_rrn, name) for table RMS_RECIPE
+      changes:
+        - addUniqueConstraint:
+            tableName: RMS_RECIPE
+            columnNames: ORG_RRN, NAME
+            constraintName: UK_RECIPE_ORG_RRN_NAME

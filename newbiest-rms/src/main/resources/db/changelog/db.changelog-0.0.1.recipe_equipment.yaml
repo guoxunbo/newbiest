@@ -9,161 +9,162 @@ databaseChangeLog:
             remarks: RecipeEquipment Info
             columns:
               - column:
-                  name: object_rrn
+                  name: OBJECT_RRN
                   type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
+                    constraintName: PK_RMS_RECIPE_EQP
                   remarks: 主键
               - column:
-                  name: active_flag
+                  name: ACTIVE_FLAG
                   type: varchar(1)
                   defaultValue: Y
                   remarks: 数据是否可用
               - column:
-                  name: org_rrn
+                  name: ORG_RRN
                   type: bigint
                   defaultValueNumeric: 0
                   remarks: 区域号
               - column:
-                  name: created
+                  name: CREATED
                   type: datetime
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: 创建时间
               - column:
-                  name: created_by
+                  name: CREATED_BY
                   type: varchar(32)
                   remarks: 创建者
               - column:
-                  name: updated
+                  name: UPDATED
                   type: datetime
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: 更新时间
               - column:
-                  name: updated_by
+                  name: UPDATED_BY
                   type: varchar(32)
                   remarks: 更新者
               - column:
-                  name: lock_version
+                  name: LOCK_VERSION
                   type: bigint
                   defaultValueNumeric: 1
                   remarks: 乐观锁版本 程序自己更新 不可人为改变
               - column:
-                  name: recipe_name
+                  name: RECIPE_NAME
                   type: varchar(32)
                   remarks: recipe名称
               - column:
-                  name: version
+                  name: VERSION
                   type: bigint
                   remarks: 版本
               - column:
-                  name: class
+                  name: CLASS
                   type: varchar(32)
                   remarks: 类别 Recipe Program
               - column:
-                  name: status
+                  name: STATUS
                   type: varchar(32)
                   remarks: 状态
               - column:
-                  name: recipe_type
+                  name: RECIPE_TYPE
                   type: varchar(32)
                   remarks: 类型
               - column:
-                  name: equipment_id
+                  name: EQUIPMENT_ID
                   type: varchar(32)
                   remarks: 设备号
               - column:
-                  name: equipment_type
+                  name: EQUIPMENT_TYPE
                   type: varchar(32)
                   remarks: 设备类型
               - column:
-                  name: hold_state
+                  name: HOLD_STATE
                   type: varchar(32)
                   remarks: Hold状态
               - column:
-                  name: body
+                  name: BODY
                   type: varchar(2048)
                   remarks: Recipe Body(二进制内容)
               - column:
-                  name: timestamp
+                  name: TIMESTAMP
                   type: datetime
                   remarks: 时间戳
               - column:
-                  name: check_sum
+                  name: CHECK_SUM
                   type: varchar(32)
                   remarks: checkSum
               - column:
-                  name: level_number
+                  name: LEVEL_NUMBER
                   type: int
                   remarks: 层级
               - column:
-                  name: golden_flag
+                  name: GOLDEN_FLAG
                   type: varchar(1)
                   remarks: 是否是GDRecipe
               - column:
-                  name: program_name
+                  name: PROGRAM_NAME
                   type: varchar(32)
                   remarks: 程序包名称
               - column:
-                  name: program_version
+                  name: PROGRAM_VERSION
                   type: varchar(32)
                   remarks: 程序包版本
               - column:
-                  name: program_subfix
+                  name: PROGRAM_SUBFIX
                   type: varchar(32)
                   remarks: 程序包后缀
               - column:
-                  name: file_trans_type
+                  name: FILE_TRANS_TYPE
                   type: varchar(32)
                   remarks: 文件传输方式(EAP FTP SFTP)
               - column:
-                  name: file_check_type
+                  name: FILE_CHECK_TYPE
                   type: varchar(32)
               - column:
-                  name: from_ftp_id
+                  name: FROM_FTP_ID
                   type: varchar(32)
               - column:
-                  name: ftp_id
+                  name: FTP_ID
                   type: varchar(32)
                   remarks: 当前的FTP
               - column:
-                  name: full_path
+                  name: FULL_PATH
                   type: varchar(256)
                   remarks: 全路径
               - column:
-                  name: active_time
+                  name: ACTIVE_TIME
                   type: datetime
                   remarks: 激活时间
               - column:
-                  name: active_type
+                  name: ACTIVE_TYPE
                   type: varchar(32)
                   remarks: 激活类型 ByWafer ByLot
               - column:
-                  name: active_user
+                  name: ACTIVE_USER
                   type: varchar(32)
                   remarks: 激活者
               - column:
-                  name: pattern
+                  name: PATTERN
                   type: varchar(32)
                   remarks: 模式
               - column:
-                  name: reserved1
+                  name: RESERVED1
                   type: varchar(32)
                   remarks: 预留栏位1
               - column:
-                  name: reserved2
+                  name: RESERVED2
                   type: varchar(32)
                   remarks: 预留栏位2
               - column:
-                  name: reserved3
+                  name: RESERVED3
                   type: varchar(32)
                   remarks: 预留栏位3
               - column:
-                  name: reserved4
+                  name: RESERVED4
                   type: varchar(32)
                   remarks: 预留栏位4
               - column:
-                  name: reserved5
+                  name: RESERVED5
                   type: varchar(32)
                   remarks: 预留栏位5

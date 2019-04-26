@@ -10,10 +10,11 @@ import javax.persistence.Table;
 
 /**
  * 交接班->工厂案件分析
+ * DMS_CHANGE_SHIFT_FA_CASE_ANALYSE
  * Created by guoxunbo on 2019/4/19.
  */
 @Entity
-@Table(name="DMS_CHANGE_SHIFT_FA_CASE_ANALYSE")
+@Table(name="DMS_CHANGE_SHIFT_FA_CA")
 @Data
 public class ChangeShiftFaCaseAnalyse extends NBUpdatable {
 

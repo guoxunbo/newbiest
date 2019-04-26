@@ -22,7 +22,7 @@ export default class MaterialTable extends EntityListTable {
     constructor(props) {
         super(props);
         let state = Object.assign(this.state, {
-            receiveMaterialTable: {fields: []}
+            receiveMaterialTable: {fields: []},
         });
         this.state = state;
     }
@@ -38,8 +38,6 @@ export default class MaterialTable extends EntityListTable {
         return childrens;
 
     }
-    
-    
 
     /**
      * 创建btn组。不同的table对button的组合要求不一样时。可以重载其方法做处理

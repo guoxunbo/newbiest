@@ -13,11 +13,11 @@ import org.springframework.context.annotation.PropertySource;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource(ignoreResourceNotFound = true, value = "classpath:context-${spring.profiles.active}.yml", factory = YmlPropertyLoaderFactory.class)
+@PropertySource(ignoreResourceNotFound = true, value = "classpath:context.yml", factory = YmlPropertyLoaderFactory.class)
 @ConfigurationProperties(prefix = "context.liquibase")
 @Data
 @Slf4j
-public class ContextLiquibaseConfiguration {
+public class ContextConfiguration {
 
     private String changeLog;
 
@@ -26,7 +26,7 @@ public class ContextLiquibaseConfiguration {
     private boolean dropFirst;
 
     @Bean(name="contextLiquibase")
-    @ConditionalOnResource(resources = {"classpath:context-${spring.profiles.active}.yml"})
+    @ConditionalOnResource(resources = {"classpath:context.yml"})
     public SpringLiquibase liquibase(DataSource dataSource) throws Exception{
         if (log.isInfoEnabled()) {
             log.info("Load Context Liquibase Configuration.");
