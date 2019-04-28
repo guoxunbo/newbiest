@@ -18,9 +18,9 @@
         <module>newbiest-common-context</module>
         <module>newbiest-common-idgenerator</module>
         <module>newbiest-rms</module>
+        <module>newbiest-calendar</module>
         <module>newbiest-starter</module>
         <module>newbiest-dist</module>
-        <module>newbiest-calendar</module>
     </modules>
     <packaging>pom</packaging>
 

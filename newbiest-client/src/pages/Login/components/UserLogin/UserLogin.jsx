@@ -9,8 +9,7 @@ import I18NUtils from '../../../../api/utils/I18NUtils';
 import { i18NCode } from '../../../../api/const/i18n';
 
 // 寻找背景图片可以从 https://unsplash.com/ 寻找
-const backgroundImage =
-  'https://img.alicdn.com/tfs/TB1zsNhXTtYBeNjy1XdXXXXyVXa-2252-1500.png';
+const backgroundImage = '../../../../../public/images/background.png';
 
 @withRouter
 export default class UserLogin extends Component {
@@ -39,6 +38,7 @@ export default class UserLogin extends Component {
             backgroundImage: `url(${backgroundImage})`,
           }}
         />
+        <img src></img>
         <div style={styles.contentWrapper} className="content-wrapper">
           <h2 style={styles.slogan} className="slogan">
           {I18NUtils.getClientMessage(i18NCode.WelcomeUse)} <br /> {Application.name} - {Application.version}

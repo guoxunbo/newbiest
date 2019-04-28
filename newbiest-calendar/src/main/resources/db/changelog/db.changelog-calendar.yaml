@@ -17,3 +17,6 @@ databaseChangeLog:
   - include:
       file: init/db.changelog-0.0.1.change_shift_his.yaml
       relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_shift_hold_lot.yaml
+      relativeToChangelogFile: true

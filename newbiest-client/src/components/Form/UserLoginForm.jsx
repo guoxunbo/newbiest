@@ -20,8 +20,8 @@ class UserLoginForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: "admin",
-            password: "1",
+            username: "",
+            password: "",
             language: "Chinese",
             org: "1",
             checkbox: false,
