@@ -52,7 +52,7 @@ public class ChangeShiftController extends AbstractRestController {
         } else if (ChangeShiftRequest.ACTION_CLOSE.equals(actionType)) {
             validateEntity(changeShift);
             changeShift = dmsService.closeChangeShift(changeShift, sc);
-        } else if (ChangeShiftRequest.ACTION_UPDATE.equals(actionType)) {
+        } else if (ChangeShiftRequest.ACTION_OPEN.equals(actionType)) {
             validateEntity(changeShift);
             changeShift = dmsService.openChangeShift(changeShift, sc);
         } else {

@@ -50,7 +50,7 @@ public class DmsServiceImpl implements DmsService{
 
     public ChangeShift closeChangeShift(ChangeShift changeShift, SessionContext sc) throws ClientException{
         try {
-            if (!ChangeShift.STATUS_CREATE.equals(changeShift.getStatus())) {
+            if (!ChangeShift.STATUS_OPEN.equals(changeShift.getStatus())) {
                 throw new ClientException(DmsException.CHANGE_SHIFT_STATUS_NOT_ALLOW);
             }
             changeShift.setStatus(ChangeShift.STATUS_CLOSE);
@@ -67,9 +67,9 @@ public class DmsServiceImpl implements DmsService{
             if (!ChangeShift.STATUS_CLOSE.equals(changeShift.getStatus())) {
                 throw new ClientException(DmsException.CHANGE_SHIFT_STATUS_NOT_ALLOW);
             }
-            changeShift.setStatus(ChangeShift.STATUS_CREATE);
+            changeShift.setStatus(ChangeShift.STATUS_OPEN);
             changeShift = changeShiftRepository.saveAndFlush(changeShift);
-            baseService.saveHistoryEntity(changeShift, ChangeShiftHistory.TRANS_TYPE_CLOSE, sc);
+            baseService.saveHistoryEntity(changeShift, ChangeShiftHistory.TRANS_TYPE_OPEN, sc);
             return changeShift;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

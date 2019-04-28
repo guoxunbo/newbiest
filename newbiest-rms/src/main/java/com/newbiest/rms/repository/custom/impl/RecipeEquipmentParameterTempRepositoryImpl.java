@@ -27,15 +27,12 @@ public class RecipeEquipmentParameterTempRepositoryImpl implements RecipeEquipme
     @PersistenceContext
     private EntityManager em;
 
-    @Autowired
-    SqlBuilderFactory sqlBuilderFactory;
-
     public List<RecipeEquipmentParameterTemp> getByEcnId(String ecnId, String status, SessionContext sc) throws ClientException {
         try {
             if(StringUtils.isNullOrEmpty(status)) {
                 status = NBVersionControl.STATUS_ACTIVE;
             }
-            StringBuffer sqlBuffer = sqlBuilderFactory.createSqlBuilder().selectWithBasedCondition(RecipeEquipmentParameterTemp.class, sc.getOrgRrn())
+            StringBuffer sqlBuffer = SqlBuilderFactory.createSqlBuilder().selectWithBasedCondition(RecipeEquipmentParameterTemp.class, sc.getOrgRrn())
                                                 .mapFieldValue(ImmutableMap.of("ecnId", ecnId, "status", status))
                                                 .build();
 

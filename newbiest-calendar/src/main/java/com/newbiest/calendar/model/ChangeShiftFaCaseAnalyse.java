@@ -45,8 +45,8 @@ public class ChangeShiftFaCaseAnalyse extends NBUpdatable {
     @Column(name="OWNER")
     private String owner;
 
-    @Column(name="COMMENT")
-    private String comment;
+    @Column(name="REMARK")
+    private String remark;
 
     @Column(name="RESERVED1")
     private String reserved1;

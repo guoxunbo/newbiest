@@ -38,9 +38,6 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
     @Autowired
     private EquipmentRepository equipmentRepository;
 
-    @Autowired
-    private SqlBuilderFactory sqlBuilderFactory;
-
     /**
      * 根据recipeName + equipmentId/equipmentType + pattern进行查找RecipeEquipment
      * @param orgRrn
@@ -53,7 +50,7 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
      */
     public List<AbstractRecipeEquipment> getRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String equipmentType, String pattern) throws ClientException {
         try {
-            SqlBuilder sqlBuilder = sqlBuilderFactory.createSqlBuilder();
+            SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
             StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(AbstractRecipeEquipment.class, orgRrn)
                     .mapFieldValue(ImmutableMap.of("recipeName", recipeName, "pattern", pattern))
                     .build();
@@ -82,7 +79,7 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
 
     public AbstractRecipeEquipment getGoldenRecipe(long orgRrn, String eqpType, String recipeName, String status, String pattern, boolean bodyFlag) throws ClientException {
         try {
-            SqlBuilder sqlBuilder = sqlBuilderFactory.createSqlBuilder();
+            SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
             StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(AbstractRecipeEquipment.class, orgRrn)
                     .mapFieldValue(ImmutableMap.of("goldenFlag", "Y"))
                     .build();
@@ -147,7 +144,7 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
                 throw new ClientException(RmsException.EQP_IS_NOT_EXIST);
             }
 
-            SqlBuilder sqlBuilder = sqlBuilderFactory.createSqlBuilder();
+            SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
             StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(AbstractRecipeEquipment.class, orgRrn)
                     .mapFieldValue(ImmutableMap.of("status", AbstractRecipeEquipment.STATUS_ACTIVE))
                     .build();

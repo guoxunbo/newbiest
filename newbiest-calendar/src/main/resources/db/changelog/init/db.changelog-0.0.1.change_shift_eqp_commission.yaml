@@ -95,7 +95,7 @@ databaseChangeLog:
                   type: bigint
                   remarks: 数量
               - column:
-                  name: COMMENT
+                  name: REMARK
                   type: varchar(256)
                   remarks: 备注
               - column:

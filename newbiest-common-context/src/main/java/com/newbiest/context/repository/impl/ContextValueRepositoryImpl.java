@@ -30,9 +30,6 @@ public class ContextValueRepositoryImpl implements ContextValueRepositoryCustom 
     @PersistenceContext
     EntityManager em;
 
-    @Autowired
-    private SqlBuilderFactory sqlBuilderFactory;
-
     /**
      * 获得与ContextValue的ContextField值相同的所有激活的ContextValue
      * @param context 容器
@@ -43,7 +40,7 @@ public class ContextValueRepositoryImpl implements ContextValueRepositoryCustom 
      */
     public List<ContextValue> getContextValue(Context context, ContextValue contextValue, SessionContext sc) throws ClientException {
         try {
-            SqlBuilder sqlBuilder = sqlBuilderFactory.createSqlBuilder();
+            SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
             StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(ContextValue.class, sc.getOrgRrn())
                         .mapFieldValue(ImmutableMap.of("contextRrn", context.getObjectRrn(), "status", NBVersionControl.STATUS_ACTIVE))
                         .build();

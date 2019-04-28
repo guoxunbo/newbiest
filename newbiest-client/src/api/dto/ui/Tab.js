@@ -76,7 +76,9 @@ export default class Tab {
         } else if (TabType.Table == this.tabType) {
             let whereClause = " 1 != 1";
             if (this.whereClause) {
+                debugger;
                 whereClause = this.whereClause.format(formObject);
+                console.log(whereClause);
             }
             // 如果是新增的话不显示TAB为Table的新增和保存按钮
             let newFlag = !formObject.objectRrn ? true : false;

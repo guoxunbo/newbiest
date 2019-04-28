@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { Form, Row, Col, Button } from 'antd';
 import './QueryForm.scss';
-import {SqlType, DateFormatType} from "../../api/const/ConstDefine";
+import {SqlType, DateFormatType, DataBaseType} from "../../api/const/ConstDefine";
 import Field from '../../api/dto/ui/Field';
 import * as PropTypes from 'prop-types';
 
 import StringBuffer from '../../api/StringBuffer';
 import TableManagerRequest from '../../api/table-manager/TableManagerRequest';
 import moment from 'moment';
+import { Application } from '../../api/Application';
 
 class QueryForm extends Component {
     static displayName = 'QueryForm';
@@ -43,6 +44,32 @@ class QueryForm extends Component {
             }
         }
         TableManagerRequest.sendGetByRrnRequest(requestObject);
+    }  
+
+    /**
+     * 将时间类型转成语句
+     * 针对于oracle和其他数据库的不同，转换语法不一样
+     */
+    partseSqlDate = (momentObject, dateFormatType) => {
+        let value = new StringBuffer();
+        if (moment.isMoment(momentObject)) {
+            let date = momentObject.format(dateFormatType);
+            if (Application.database === DataBaseType.oracle) {
+                value.append(SqlType.toDate);
+                value.append("(");
+                value.append("'");
+                value.append(date);
+                value.append("'");
+                value.append(",");
+                value.append("'");
+                value.append(SqlType.Date);
+                value.append("'");
+                value.append(")");
+            } else {
+                value.append("'" + date + "'");
+            }
+        }
+        return value.toString();
     }
 
     buildWhereClause = (formValues) => {
@@ -57,18 +84,27 @@ class QueryForm extends Component {
                     whereClause.append(SqlType.And);
                 }
                 whereClause.append(fieldName);
-                // 如果是个数组。则需要用>= 以及<=了
+                // 如果是个数组。则需要用>= 以及<=了 两位数当前肯定是个时间
                 if (Array.isArray(fieldValue) && fieldValue.length == 2) {
                     whereClause.append(SqlType.Gt);
-                    whereClause.append("'")
-                    whereClause.append(fieldValue[0]);
-                    whereClause.append("'")
+                    let gtValue = fieldValue[0];
+                    let ltValue = fieldValue[1];
+
+                    let value = "'" + gtValue.toString() + "'";
+                    if (moment.isMoment(gtValue)) {
+                        value = this.partseSqlDate(gtValue, DateFormatType.DateTime);
+                    } 
+                    whereClause.append(value);
+
                     whereClause.append(SqlType.And);
                     whereClause.append(fieldName);
                     whereClause.append(SqlType.Lt);
-                    whereClause.append("'")
-                    whereClause.append(fieldValue[1]);
-                    whereClause.append("'")
+
+                    value = "'" + ltValue.toString() + "'";
+                    if (moment.isMoment(ltValue)) {
+                        value = this.partseSqlDate(ltValue, DateFormatType.DateTime);
+                    } 
+                    whereClause.append(value);
                 } else {
                     fieldValue = fieldValue.toString();
                     if (fieldValue.indexOf('*') != -1) {
@@ -78,21 +114,23 @@ class QueryForm extends Component {
                     } else {
                         whereClause.append(SqlType.Eq);
                     }
-                    whereClause.append("'")
+                    if (!fieldValue.startsWith(SqlType.toDate)) {
+                        whereClause.append("'")
+                    } 
                     whereClause.append(fieldValue);
-                    whereClause.append("'")
+                    if (!fieldValue.startsWith(SqlType.toDate)) {
+                        whereClause.append("'")
+                    } 
                 }
-                
-               
                 firstFlag = false;
             }
         }
+        debugger;
         return whereClause.toString();
     }
 
     handleSearch = (e) => {
-        e.preventDefault();
-        console.log(moment);
+        // e.preventDefault();
         var self = this;
         this.props.form.validateFields((err, values) => {
             if (err) {
@@ -101,10 +139,9 @@ class QueryForm extends Component {
             // 处理时间类型的栏位相关 antd的时间栏位类型是Moment，需要自己转换
             for (let property in values) {
                 if (values[property]) {
-                    debugger;
                     // 如果是单独的时间类型，不是个区域时间(dateFromTo)的话
                     if (moment.isMoment(values[property])) {
-                        values[property] = values[property].format(DateFormatType.DateTime)
+                        values[property] = this.partseSqlDate(values[property], DateFormatType.Date);
                     }
                     if (Array.isArray(values[property])) {
                         // 如果第一个栏位不是moment的话，则说明不是时间数组，则跳过
@@ -114,7 +151,7 @@ class QueryForm extends Component {
                         // 当前处理为0点0分0秒到23点59分59秒。即如果from 4号 to 4号。就是4号零点到4号23点59分59秒。
                         let fromDate = values[property][0].hour(0).minute(0).second(0);
                         let toDate = values[property][1].hour(23).minute(59).second(59);
-                        values[property] = [fromDate.format(DateFormatType.DateTime), toDate.format(DateFormatType.DateTime)]
+                        values[property] = [fromDate, toDate]
                     }
                 }
             }

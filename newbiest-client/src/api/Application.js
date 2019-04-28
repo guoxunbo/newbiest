@@ -5,6 +5,7 @@ const Application = {
         name: "© 2018 By Newbiest",
         url: "https://www.baidu.com"
     },
+    database: "oracle",
     dispatchForm: {
         modalWidth: 800,
         width: 350,

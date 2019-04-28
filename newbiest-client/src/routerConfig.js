@@ -80,6 +80,11 @@ const routerConfig = [
     layout: HeaderAsideFooterResponsiveLayout,
     component: ChangeShiftProperties,
   },
+  {
+    path: 'DMS/ChangeShiftHisManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: EntityHistoryProperties,
+  },
   //LMS
   {
     path: 'LMS/IDGeneratorRuleManager/:tableRrn',

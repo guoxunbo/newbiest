@@ -17,9 +17,9 @@ import java.util.Date;
 @Data
 public class ChangeShift extends NBUpdatable {
 
-    public static final String STATUS_CREATE = "Create";
-    public static final String STATUS_CONFIRM = "Confirm";
+    public static final String STATUS_OPEN = "Open";
     public static final String STATUS_CLOSE = "Close";
+    public static final String STATUS_CONFIRM = "Confirm";
 
     public static final String GENERATOR_NAME_RULE = "CreateChangeShift";
 

@@ -65,8 +65,8 @@ public class ChangeShiftSecurityInfo extends NBUpdatable {
     @Column(name="HANDOVER_FLAG")
     private String handoverFlag;
 
-    @Column(name="COMMENT")
-    private String comment;
+    @Column(name="REMARK")
+    private String remark;
 
     @Column(name="RESERVED1")
     private String reserved1;

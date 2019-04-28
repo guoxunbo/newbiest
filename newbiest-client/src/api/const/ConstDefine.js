@@ -10,6 +10,9 @@ const ModuleUrlConstant = {
     DMS: "http://127.0.0.1:8080/dms/"
 }
 
+const DataBaseType = {
+    oracle: "oracle"
+}
 const DateFormatType = {
     Date: "YYYY-MM-DD",
     DateTime: "YYYY-MM-DD HH:mm:ss",
@@ -107,7 +110,11 @@ const SqlType = {
     Where: " WHERE ",
     Like: " LIKE ",
     Gt: " >= ",
-    Lt: " <= "
+    Lt: " <= ",
+    toDate: "to_date",
+    DateTime: "YYYY-MM-DD HH24:mi:ss",
+    Date: "YYYY-MM-DD"
 }
 
-export {UrlConstant, DateFormatType, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, DefaultRowKey, DefaultOrderKey, Type, SqlType, i18N};
+
+export {UrlConstant, DataBaseType, DateFormatType, SystemRefListName, RefTableName, ErrorCode, EntityModel, ResultIdentify, Language, DefaultRowKey, DefaultOrderKey, Type, SqlType, i18N};

@@ -10,7 +10,9 @@ String.prototype.format = function(obj) {
     }
     let s = this;
     for(var key in obj) {
-        s = s.replace(new RegExp("\\:" + key + "", "g"), "'" + obj[key] + "'");
+        let value = obj[key] || "";
+        s = s.replace(new RegExp("\\:" + key + "", "g"), "'" + value + "'");
+       
     }
 	return s;
 };

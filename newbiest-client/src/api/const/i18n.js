@@ -23,6 +23,8 @@ const i18NCode = {
     BtnPrint: "Print",
     BtnDownload: "Download",
     BtnAdd: "Add",
+    BtnOpen: "打开",
+    BtnClose: "关闭",
     BtnImp: "Imp",
     BtnExp: "Exp",
     BtnExpData: "ExpData",
@@ -130,6 +132,16 @@ const i18Messages = {
     Ok: {
         Chinese: "确定",
         English: "OK",
+        Res: ""
+    },
+    Open: {
+        Chinese: "打开",
+        English: "Open",
+        Res: ""
+    },
+    Close: {
+        Chinese: "关闭",
+        English: "Close",
         Res: ""
     },
     Cancel: {

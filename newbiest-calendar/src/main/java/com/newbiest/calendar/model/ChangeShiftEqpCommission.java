@@ -70,8 +70,8 @@ public class ChangeShiftEqpCommission extends NBUpdatable {
     @Column(name="QTY")
     private Integer qty;
 
-    @Column(name="COMMENT")
-    private String comment;
+    @Column(name="REMARK")
+    private String remark;
 
     @Column(name="RESERVED1")
     private String reserved1;

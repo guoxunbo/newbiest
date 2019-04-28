@@ -21,8 +21,15 @@ export default class ChangeShiftRequestBody {
         } else {
             actionType = ActionType.Create;         
         }
-        debugger;
         return new ChangeShiftRequestBody(actionType, changeShift);
     }
 
+    static buildOpen(changeShift) {
+        return new ChangeShiftRequestBody(ActionType.Open, changeShift);
+    }
+
+    static buildClose(changeShift) {
+        return new ChangeShiftRequestBody(ActionType.Close, changeShift);
+    }
+    
 }

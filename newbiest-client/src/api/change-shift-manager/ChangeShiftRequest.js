@@ -19,4 +19,26 @@ export default class ChangeShiftRequest {
         }
         MessageUtils.sendRequest(requestObject);
     }
+
+    static sendOpenRquest = (object) => {
+        let requestBody = ChangeShiftRequestBody.buildOpen(object.changeShift);
+        let requestHeader = new ChangeShiftRequestHeader();
+        let request = new Request(requestHeader, requestBody, UrlConstant.ChangeShiftManagerUrl);
+        let requestObject = {
+            request: request,
+            success: object.success
+        }
+        MessageUtils.sendRequest(requestObject);
+    }
+
+    static sendCloseRquest = (object) => {
+        let requestBody = ChangeShiftRequestBody.buildClose(object.changeShift);
+        let requestHeader = new ChangeShiftRequestHeader();
+        let request = new Request(requestHeader, requestBody, UrlConstant.ChangeShiftManagerUrl);
+        let requestObject = {
+            request: request,
+            success: object.success
+        }
+        MessageUtils.sendRequest(requestObject);
+    }
 }
