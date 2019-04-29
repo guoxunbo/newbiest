@@ -56,6 +56,11 @@ public class CalendarConfiguration {
         ModelFactory.registerModelClassLoader(ChangeShiftEqpCommission.class.getName(), ChangeShiftEqpCommission.class.getClassLoader());
         ModelFactory.registerModelClassLoader(ChangeShiftFaCaseAnalyse.class.getName(), ChangeShiftFaCaseAnalyse.class.getClassLoader());
         ModelFactory.registerModelClassLoader(ChangeShiftSecurityInfo.class.getName(), ChangeShiftSecurityInfo.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(ChangeShiftEsRunInfo.class.getName(), ChangeShiftEsRunInfo.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(ChangeShiftHoldLot.class.getName(), ChangeShiftHoldLot.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(ChangeShiftProcessInfo.class.getName(), ChangeShiftProcessInfo.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(ChangeShiftEvaEquipmentInfo.class.getName(), ChangeShiftEvaEquipmentInfo.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(ChangeShiftPickInfo.class.getName(), ChangeShiftPickInfo.class.getClassLoader());
 
         ModelFactory.registerHistoryModelClassLoader(ChangeShift.class.getName(), ChangeShiftHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(ChangeShift.class.getName(), ChangeShiftHistory.class.getName());

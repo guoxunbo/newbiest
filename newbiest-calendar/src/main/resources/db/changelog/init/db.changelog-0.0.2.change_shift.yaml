@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: addColumn-DMS_CHANGE_SHIFT_department
+      author: Xunbo Guo
+      comment: add column department for DMS_CHANGE_SHIFT
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: DEPARTMENT
+              type: varchar(32)
+          tableName: DMS_CHANGE_SHIFT

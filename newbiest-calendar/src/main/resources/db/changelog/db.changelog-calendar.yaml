@@ -3,7 +3,13 @@ databaseChangeLog:
       file: init/db.changelog-0.0.1.change_shift.yaml
       relativeToChangelogFile: true
   - include:
+      file: init/db.changelog-0.0.2.change_shift.yaml
+      relativeToChangelogFile: true
+  - include:
       file: init/db.changelog-0.0.1.change_shift_eqp_status.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.2.change_shift_eqp_status.yaml
       relativeToChangelogFile: true
   - include:
       file: init/db.changelog-0.0.1.change_shift_eqp_commission.yaml
@@ -18,5 +24,21 @@ databaseChangeLog:
       file: init/db.changelog-0.0.1.change_shift_his.yaml
       relativeToChangelogFile: true
   - include:
+      file: init/db.changelog-0.0.2.change_shift_his.yaml
+      relativeToChangelogFile: true
+  - include:
       file: init/db.changelog-0.0.1.change_shift_hold_lot.yaml
       relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_shift_process_info.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_shift_es_run_info.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_eva_eqp_info.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.change_pick_info.yaml
+      relativeToChangelogFile: true
+

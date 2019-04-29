@@ -81,6 +81,26 @@ const routerConfig = [
     component: ChangeShiftProperties,
   },
   {
+    path: 'DMS/FaManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: ChangeShiftProperties,
+  },
+  {
+    path: 'DMS/NpiManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: ChangeShiftProperties,
+  },
+  {
+    path: 'DMS/PesManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: ChangeShiftProperties,
+  },
+  {
+    path: 'DMS/EvaManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: ChangeShiftProperties,
+  },
+  {
     path: 'DMS/ChangeShiftHisManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
     component: EntityHistoryProperties,

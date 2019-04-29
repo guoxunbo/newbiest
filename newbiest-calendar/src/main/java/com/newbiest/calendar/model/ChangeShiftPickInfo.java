@@ -9,35 +9,29 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
+ * 物料领用情况
  * Created by guoxunbo on 2019/4/28.
  */
 @Entity
-@Table(name="DMS_CHANGE_SHIFT_HOLD_LOT")
+@Table(name="DMS_CHANGE_SHIFT_PICK_INFO")
 @Data
-public class ChangeShiftHoldLot extends NBUpdatable{
+public class ChangeShiftPickInfo extends NBUpdatable{
 
 
     @Column(name="CHANGE_SHIFT_RRN")
     private Long changeShiftRrn;
 
-    @Column(name="LOT_ID")
-    private String lotId;
+    @Column(name="EQUIPMENT_ID")
+    private String equipmentId;
 
-    @Column(name="HOLD_STEP")
-    private String holdStep;
+    @Column(name="MATERIAL_LOT_ID")
+    private String materialLotId;
 
-    @Column(name="HOLD_REASON")
-    private String holdReason;
+    @Column(name="QTY")
+    private Integer qty;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
-    @Column(name="HOLD_TIME")
-    private Date holdTime;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
-    @Column(name="RELEASE_TIME")
-    private Date releaseTime;
+    @Column(name="STOCK_QTY")
+    private Integer stockQty;
 
     @Column(name="OWNER")
     private String owner;

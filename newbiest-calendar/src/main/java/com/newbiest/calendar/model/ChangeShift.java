@@ -23,6 +23,12 @@ public class ChangeShift extends NBUpdatable {
 
     public static final String GENERATOR_NAME_RULE = "CreateChangeShift";
 
+    public static final String CATEGORY_TEC_NPI = "Npi";
+    public static final String CATEGORY_TEC_PES = "Pes";
+    public static final String CATEGORY_TEC_FA = "Fas";
+    public static final String CATEGORY_TEC_EVA = "Eva";
+
+
     @Column(name="NAME")
     private String name;
 
@@ -40,8 +46,14 @@ public class ChangeShift extends NBUpdatable {
     @Column(name="SHIFT")
     private String shift;
 
+    /**
+     * 类别
+     */
     @Column(name="CATEGORY")
     private String category;
+
+    @Column(name="DEPARTMENT")
+    private String department;
 
     @Column(name="STATUS")
     private String status;
