@@ -1,3 +1,9 @@
+license:
+  subject: newbiest_product_license
+  publicAlias: nbPublicLicense
+  storePass: newbiest123
+  licensePath: /Users/apple/Desktop/keytool/newbiest.lic
+  publicKeysStorePath: /Users/apple/Desktop/keytool/nb_public.keystore
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 spring:
   application:
@@ -57,10 +63,10 @@ spring:
       # 配置密码的公钥 默认使用druid的ConfigTool进行加密
       connection-properties: config.decrypt=false;config.decrypt.key=${publickey}
   mail:
-    host: smtp.163.com
-    username: 15260286656@163.com
-    password: woaini1314
-    from: 15260286656@163.com
+    host:
+    username:
+    password:
+    from:
     properties:
       mail:
         smtp:

@@ -43,7 +43,7 @@
         <jwt.verison>3.3.0</jwt.verison>
         <liquibase.version>3.6.1</liquibase.version>
         <primary-school.version>0.0.1-SNAPSHOT</primary-school.version>
-        <newbiest.framework.version>1.0.0.RELEASE</newbiest.framework.version>
+        <newbiest.framework.version>1.0.1-SNAPSHOT</newbiest.framework.version>
     </properties>
 
     <dependencies>
