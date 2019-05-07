@@ -1,9 +1,9 @@
 const Application = {
-    name: '智行管理系统',
-    version: "0.0.1",
+    name: '交接班管理系统',
+    version: "1.0.0",
     copyright: {
-        name: "© 2018 By Newbiest",
-        url: "https://www.baidu.com"
+        name: "© 2018-2019 By Newbiest",
+        url: "https://github.com/guoxunbo/newbiest/"
     },
     database: "oracle",
     dispatchForm: {
@@ -31,7 +31,7 @@ const Application = {
         },
     },
     notice: {
-        delay: 1000,
+        duration: 10,
         // 构建button组件是否支持关闭 支持点击锁定
         button: {
             closer: true,

@@ -36,6 +36,9 @@ public class ChangeShiftHistory extends NBHis {
     @Column(name="CATEGORY")
     private String category;
 
+    @Column(name="DEPARTMENT")
+    private String department;
+
     @Column(name="STATUS")
     private String status;
 

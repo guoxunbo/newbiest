@@ -49,11 +49,17 @@ public class ChangeShiftEqpStatus extends NBUpdatable {
     @Column(name="WRITE_VACUUM_VALUE_FLAG")
     private String writeVacuumValueFlag;
 
-    /**
-     * 是否交接
-     */
-    @Column(name="HANDOVER_FLAG")
-    private String handoverFlag;
+    @Column(name="EXCEPTION_TYPE")
+    private String exceptionType;
+
+    @Column(name="EXCEPTION_DESC")
+    private String exceptionDesc;
+
+    @Column(name="EXCEPTION_START_TIME")
+    private String exceptionStartTime;
+
+    @Column(name="EXCEPTION_END_TIME")
+    private String exceptionEndTime;
 
     @Column(name="REMARK")
     private String remark;
@@ -110,14 +116,6 @@ public class ChangeShiftEqpStatus extends NBUpdatable {
 
     public void setWriteCheckTableFlag(Boolean writeCheckTableFlag) {
         this.writeCheckTableFlag = writeCheckTableFlag ? StringUtils.YES : StringUtils.NO;
-    }
-
-    public Boolean getHandoverFlag() {
-        return StringUtils.YES.equalsIgnoreCase(handoverFlag);
-    }
-
-    public void setHandoverFlag(Boolean handoverFlag) {
-        this.handoverFlag = handoverFlag ? StringUtils.YES : StringUtils.NO;
     }
 
     public Boolean getWriteVacuumValueFlag() {

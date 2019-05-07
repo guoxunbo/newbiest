@@ -1,9 +1,9 @@
 /**
  * 定义应用路由
  */
-import { HashRouter as Router } from 'react-router-dom';
-import { Switch, Route } from 'react-router';
 import React from 'react';
+import { HashRouter } from 'react-router-dom';
+import { Switch, Route } from 'react-router';
 
 import routerConfig from './routerConfig';
 
@@ -117,4 +117,5 @@ function renderRouterConfigV4(container, router, contextPath) {
 
 const routerWithReactRouter4 = recursiveRouterConfigV4(routerConfig);
 const routeChildren = renderRouterConfigV4(null, routerWithReactRouter4, '/');
-export default <Router>{routeChildren}</Router>;
+export default routeChildren;
+// export default <HashRouter>{routeChildren}</HashRouter>;

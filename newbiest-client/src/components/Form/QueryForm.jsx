@@ -125,7 +125,6 @@ class QueryForm extends Component {
                 firstFlag = false;
             }
         }
-        debugger;
         return whereClause.toString();
     }
 

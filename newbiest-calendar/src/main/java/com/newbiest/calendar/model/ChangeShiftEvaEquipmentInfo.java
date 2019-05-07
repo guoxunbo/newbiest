@@ -9,41 +9,50 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
+ * 实验信息
  * Created by guoxunbo on 2019/4/28.
  */
 @Entity
-@Table(name="DMS_CHANGE_SHIFT_HOLD_LOT")
+@Table(name="DMS_CHANGE_SHIFT_EVA_EQP_INFO")
 @Data
-public class ChangeShiftHoldLot extends NBUpdatable{
+public class ChangeShiftEvaEquipmentInfo extends NBUpdatable{
 
 
     @Column(name="CHANGE_SHIFT_RRN")
     private Long changeShiftRrn;
 
-    @Column(name="LOT_ID")
-    private String lotId;
+    @Column(name="EQUIPMENT_ID")
+    private String equipmentId;
 
-    @Column(name="HOLD_STEP")
-    private String holdStep;
+    @Column(name="CHAMBER")
+    private String chamber;
 
-    @Column(name="HOLD_REASON")
-    private String holdReason;
+    @Column(name="VACUUM")
+    private Integer vacuum;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
-    @Column(name="HOLD_TIME")
-    private Date holdTime;
+    @Column(name="MASK")
+    private String mask;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
-    @Column(name="RELEASE_TIME")
-    private Date releaseTime;
+    @Column(name="MASK_OFFSET")
+    private String maskOffset;
 
-    @Column(name="OWNER")
-    private String owner;
+    @Column(name="SOURCE")
+    private String source;
 
-    @Column(name="REMARK")
-    private String remark;
+    @Column(name="MATERIAL")
+    private String material;
+
+    @Column(name="NOZZLE_TEMP")
+    private Integer nozzleTemp;
+
+    @Column(name="TOP_TEMP")
+    private String topTemp;
+
+    @Column(name="RATE")
+    private String rate;
+
+    @Column(name="TOOLING")
+    private String tooling;
 
     @Column(name="RESERVED1")
     private String reserved1;

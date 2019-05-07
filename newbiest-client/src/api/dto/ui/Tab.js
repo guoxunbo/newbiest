@@ -76,7 +76,6 @@ export default class Tab {
         } else if (TabType.Table == this.tabType) {
             let whereClause = " 1 != 1";
             if (this.whereClause) {
-                debugger;
                 whereClause = this.whereClause.format(formObject);
                 console.log(whereClause);
             }

@@ -8,7 +8,7 @@ import FoundationSymbol from 'foundation-symbol';
 import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import { headerMenuConfig } from './../menuConfig';
-import Logo from './Logo';
+import Logo from './logo/components/Logo';
 import {Notification} from './notice/Notice';
 import {SessionContext} from '../api/Application';
 import MessageUtils from '../api/utils/MessageUtils';

@@ -9,7 +9,7 @@ import { withRouter } from 'react-router';
 import { enquire } from 'enquire-js';
 import Header from './../../components/Header';
 import Footer from './../../components/Footer';
-import Logo from './../../components/Logo';
+import Logo from '../../components/logo/components/Logo';
 import './scss/light.scss';
 import './scss/dark.scss';
 

@@ -1,6 +1,6 @@
 import { Table, Popconfirm, Button, Form } from 'antd';
 import * as PropTypes from 'prop-types';
-import {DefaultRowKey} from '../../../api/const/ConstDefine'
+import {DefaultRowKey, DateFormatType} from '../../../api/const/ConstDefine'
 import MessageUtils from '../../../api/utils/MessageUtils';
 import Field from '../../../api/dto/ui/Field';
 import '../ListTable.scss';
@@ -12,6 +12,7 @@ import EntityManagerRequest from '../../../api/entity-manager/EntityManagerReque
 import I18NUtils from '../../../api/utils/I18NUtils';
 import { i18NCode } from '../../../api/const/i18n';
 import TableManagerRequest from '../../../api/table-manager/TableManagerRequest';
+import moment from 'moment';
 
 const EditableContext = React.createContext();
 
@@ -166,6 +167,12 @@ class EditableTable extends React.Component {
         return;
       }
       PropertyUtils.copyProperties(record, rowData);
+      for (let property in rowData) {
+        if (rowData[property] && moment.isMoment(rowData[property])) {
+            // 如果是单独的时间类型，不是个区域时间(dateFromTo)的话
+            rowData[property] = rowData[property].format(DateFormatType.DateTime)
+        }
+      }
       let self = this;
       const { tableData, table } = this.state;
       let object = {
