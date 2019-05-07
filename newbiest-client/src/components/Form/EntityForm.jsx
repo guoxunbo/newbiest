@@ -78,7 +78,6 @@ export default class EntityForm extends Component {
             if (err) {
                 return;
             }
-            debugger;
             let formObject = this.props.object;
             PropertyUtils.copyProperties(values, formObject);
             // 如果当前values具备seqNo栏位并且该栏位没手动给值。则说明需要自动给个seqNo的值

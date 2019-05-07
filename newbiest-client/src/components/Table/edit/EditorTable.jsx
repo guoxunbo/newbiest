@@ -166,7 +166,6 @@ class EditableTable extends React.Component {
       if (error) {
         return;
       }
-      debugger;
       PropertyUtils.copyProperties(record, rowData);
       for (let property in rowData) {
         if (rowData[property] && moment.isMoment(rowData[property])) {

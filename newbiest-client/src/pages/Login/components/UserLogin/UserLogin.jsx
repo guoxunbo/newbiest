@@ -9,7 +9,7 @@ import I18NUtils from '../../../../api/utils/I18NUtils';
 import { i18NCode } from '../../../../api/const/i18n';
 
 // 寻找背景图片可以从 https://unsplash.com/ 寻找
-const backgroundImage = '../../../../../public/images/background.png';
+const backgroundImage = require('./images/background.png');
 
 @withRouter
 export default class UserLogin extends Component {
@@ -74,6 +74,9 @@ const styles = {
     background: '#fff',
     borderRadius: '6px',
     boxShadow: '1px 1px 2px #eee',
+  },
+  slogan: {
+    color: "#3080fe"
   },
   formTitle: {
     margin: '0 0 20px',

@@ -2,7 +2,17 @@
   "name": "@icedesign/lite-scaffold",
   "version": "1.0.0",
   "description": "该模板适用于从 0 到 1 开始搭建项目，内置四套布局，以及基础的页面，路由和菜单展示",
-  "homepage": "https://alibaba.github.io/ice/scaffold-preview/ice-design-lite.html",
+  "homepage": ".",
+  "files": [
+    "src/",
+    "build/",
+    "public/",
+    "tests/",
+    "_gitignore",
+    ".editorconfig",
+    ".eslintignore",
+    ".eslintrc"
+  ],
   "dependencies": {
     "@icedesign/base": "^0.2.5",
     "@icedesign/container": "^0.1.7",
@@ -28,12 +38,12 @@
     "prop-types": "^15.6.2",
     "qrcode.react": "^0.9.3",
     "qs": "^6.5.2",
-    "react": "^16.4.0",
+    "react": "^16.8.6",
     "react-document-title": "^2.0.3",
     "react-dom": "^16.6.3",
     "react-native-uuid": "^1.4.9",
     "react-redux": "^5.1.0",
-    "react-router": "^4.2.0",
+    "react-router": "^4.3.1",
     "react-router-dom": "^4.2.2",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
@@ -47,8 +57,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1",
-    "ice-scripts": "^1.1.1",
-    "pnotify": "^4.0.0-alpha.4"
+    "ice-scripts": "^1.1.1"
   },
   "scripts": {
     "start": "ice dev",
@@ -56,12 +65,15 @@
     "lint": "eslint . --ext '.js,.jsx' --fix"
   },
   "publishConfig": {
-    "registry": "http://registry.npmjs.com",
     "access": "public"
   },
   "buildConfig": {
     "theme": "@icedesign/skin",
-    "entry": "src/index.js"
+    "entry": "src/index.js",
+    "localization": false,
+    "output": {
+      "publicPath": "./"
+    }
   },
   "scaffoldConfig": {
     "name": "ice-design-lite",

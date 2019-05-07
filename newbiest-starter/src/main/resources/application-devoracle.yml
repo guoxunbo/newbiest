@@ -11,14 +11,14 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@10.110.170.11:1528:P1SUBSDB
-      username: srms
-      password: srms
+      url: jdbc:oracle:thin:@192.168.5.3:1521:prod
+      username: nb_butterfly
+      password: nb_butterfly
       driver-class-name: oracle.jdbc.driver.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1
-      min-idle: 20
-      max-active: 50
+      min-idle: 3
+      max-active: 20
       # 获取连接最大等待时间
       max-wait: 60000
       # 间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
@@ -68,6 +68,10 @@ spring:
           starttls:
             enable: true
             required: true
+  boot:
+    admin:
+      client:
+        url: http://127.0.0.1:8081
 #设置server的基本信息
 server:
   servlet:
@@ -78,7 +82,7 @@ server:
 show:
   swagger: true
 logging:
-  path: D:/app_butterfly/log
+  path: /Users/apple/Documents/newbiest/log
 management:
   endpoints:
     web:

@@ -5,7 +5,6 @@ import EntityListManagerRequestBody from "../entity-list-manager/EntityListManag
 import EntityListManagerRequestHeader from "../entity-list-manager/EntityListManagerRequestHeader";
 import Request from "../Request";
 import MessageUtils from "../utils/MessageUtils";
-import { debug } from "util";
 
 export default class StatusModelRequest {
 
