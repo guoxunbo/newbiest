@@ -61,6 +61,7 @@ class SessionContext {
     language;
     username;
     orgName;
+    description;
     orgRrn;
     token;
     authories;
@@ -85,14 +86,19 @@ class SessionContext {
         this.token = token;
     }
 
+    setDescription(description) {
+        this.description = description;
+    }
+
     setAuthorities(authories) {
         this.authories = authories;
     }
 
-    static saveSessionContext(username, orgRrn, language, token, authories) {
+    static saveSessionContext(username, description, orgRrn, language, token, authories) {
         let sc = new SessionContext();
         sc.setLanguage(language);
         sc.setUsername(username);
+        sc.setDescription(description);
         sc.setOrgRrn(orgRrn);
         sc.setToken(token);
         sc.setAuthorities(authories);

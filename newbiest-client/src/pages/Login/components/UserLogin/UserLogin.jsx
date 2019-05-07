@@ -25,7 +25,7 @@ export default class UserLogin extends Component {
 
   handleLogined = (responseBody, org, language) => {
     let user = responseBody.user;
-    SessionContext.saveSessionContext(user.username, org, language, user.token, Authority.buildMenu(user.authorities, language));
+    SessionContext.saveSessionContext(user.username, user.description, org, language, user.token, Authority.buildMenu(user.authorities, language));
     this.props.history.push('/Home');
   };
 

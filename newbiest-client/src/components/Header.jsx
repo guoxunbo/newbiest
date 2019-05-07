@@ -114,7 +114,7 @@ export default class Header extends PureComponent {
                   <Avatar size="large" icon="user" className="user-avatar"/>
                  <div className="user-profile">
                   <span className="user-name" style={{ fontSize: '13px' }}>
-                    {sessionContext ? sessionContext.username : ""}
+                    {sessionContext ? sessionContext.username + ":" + sessionContext.description : ""}
                   </span>
                   <br />
                   <span
