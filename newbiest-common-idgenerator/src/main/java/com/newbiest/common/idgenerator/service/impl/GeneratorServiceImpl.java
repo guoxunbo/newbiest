@@ -8,7 +8,6 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
-import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.exception.GeneratorExceptions;
 import com.newbiest.common.idgenerator.model.GeneratorRule;
 import com.newbiest.common.idgenerator.model.GeneratorRuleLine;

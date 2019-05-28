@@ -16,6 +16,7 @@ import MaterialLotProperties from './pages/Properties/components/MaterialLotProp
 import MaterialLotInventoryProperties from './pages/Properties/components/MaterialLotInventoryProperties';
 import EntityHistoryProperties from './pages/Properties/components/EntityHistoryProperties';
 import ChangeShiftProperties from './pages/Properties/components/ChangeShiftProperties';
+import DynaxAnalyseProperties from './pages/Properties/components/DynaxAnalyseProperties';
 
 const routerConfig = [
   {
@@ -111,7 +112,6 @@ const routerConfig = [
     layout: HeaderAsideFooterResponsiveLayout,
     component: GeneratorRuleProperties,
   },
-  
   //MMS
   {
     path: '/MMS/StatusModelManager/:tableRrn',
@@ -158,6 +158,12 @@ const routerConfig = [
     path: '/WMS/MLotInventoryManager/:tableRrn',
     layout: HeaderAsideFooterResponsiveLayout,
     component: MaterialLotInventoryProperties,
+  },
+  //RTM
+  {
+    path: '/RTM/DynaxAnalyseManager/:tableRrn',
+    layout: HeaderAsideFooterResponsiveLayout,
+    component: DynaxAnalyseProperties,
   },
   //RMS
   {

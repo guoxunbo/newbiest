@@ -1,12 +1,12 @@
 databaseChangeLog:
   - changeSet:
-      id: create-dynax_analyse_result
+      id: create-dynax_analyse_result_detail
       author: Xunbo Guo
-      comment: Create table DYNAX_ANALYSE_RESULT
+      comment: Create table DYNAX_ANALYSE_RESULT_DETAIL
       changes:
         - createTable:
-            tableName: DYNAX_ANALYSE_RESULT
-            remarks: DYNAX_ANALYSE_RESULT Info
+            tableName: DYNAX_ANALYSE_RESULT_DETAIL
+            remarks: DYNAX_ANALYSE_RESULT_DETAIL Info
             columns:
               - column:
                   name: OBJECT_RRN
@@ -15,7 +15,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                    constraintName: PK_MM_MATERIAL
+                    constraintName: PK_RTM_DYNAX_RESULT_DETAIL
                   remarks: 主键
               - column:
                   name: ACTIVE_FLAG
@@ -51,29 +51,41 @@ databaseChangeLog:
                   defaultValueNumeric: 1
                   remarks: 乐观锁版本 程序自己更新 不可人为改变
               - column:
-                  name: FILE_NAME
+                  name: RESULT_RRN
+                  type: bigint
+                  remarks: 区域号
+              - column:
+                  name: STEP_NAME
                   type: varchar(256)
-                  remarks: 文件名
+                  remarks: 工步
               - column:
-                  name: PART_NAME
+                  name: TEST
                   type: varchar(64)
-                  remarks: 产品名称
+                  remarks: TestNumber
               - column:
-                  name: LOT_ID
+                  name: TEST_NAME
                   type: varchar(64)
-                  remarks: 批次号
+                  remarks: 检查项名称
               - column:
-                  name: SITE_NUMBER
+                  name: RESULT
                   type: varchar(64)
-                  remarks: SITE_NUMBER
+                  remarks: 结果
               - column:
-                  name: BATCH_NUMBER
+                  name: LOWER_LIMIT
                   type: varchar(64)
-                  remarks: BATCH_NUMBER
+                  remarks: 下限
               - column:
-                  name: PART_NUMBER
+                  name: CURRENT_VALUE
                   type: varchar(64)
-                  remarks: PART_NUMBER
+                  remarks: 当前值
+              - column:
+                  name: UPPER_LIMIT
+                  type: varchar(64)
+                  remarks: 上限
+              - column:
+                  name: UNITS
+                  type: varchar(64)
+                  remarks: 单位
               - column:
                   name: RESERVED1
                   type: varchar(64)

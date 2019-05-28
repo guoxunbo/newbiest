@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db.changelog-0.0.1.dynax_analyse_result.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.dynax_analyse_result_detail.yaml
+      relativeToChangelogFile: true
