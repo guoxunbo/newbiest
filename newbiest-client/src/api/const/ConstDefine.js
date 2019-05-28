@@ -7,7 +7,8 @@ const ModuleUrlConstant = {
     UI: "http://127.0.0.1:8080/ui/",
     StatusMachine: "http://127.0.0.1:8080/common/sm/",
     MMS: "http://127.0.0.1:8080/mms/",
-    DMS: "http://127.0.0.1:8080/dms/"
+    DMS: "http://127.0.0.1:8080/dms/",
+    RTM: "http://127.0.0.1:8080/rtm/",
 }
 
 const DataBaseType = {
@@ -36,7 +37,7 @@ const UrlConstant = {
     MaterialLotInvManagerUrl: ModuleUrlConstant.MMS + "materialLotInvManage",
 
     ChangeShiftManagerUrl: ModuleUrlConstant.DMS + "changeShiftManage",
-
+    DynaxAnalyseUrl: ModuleUrlConstant.RTM + "analyseFile"
 };
 
 const SystemRefListName = {

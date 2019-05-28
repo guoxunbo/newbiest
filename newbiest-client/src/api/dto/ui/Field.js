@@ -174,7 +174,7 @@ export default class Field {
      * //TODO 处理默认时间今天，以及默认时间为最后一个月
      */
     buildControl(edit, query, initialValue) {
-        this.buildDisabled(edit);
+        this.buildDisabled(edit, query);
         if (this.displayType == DisplayType.text) {
             return <Input placeholder = {this.placeHolder} style={this.upperFlag ? styles.textUppercaseStyle : undefined} disabled={this.disabled}/>;
         } else if (this.displayType == DisplayType.int) {
@@ -267,8 +267,8 @@ export default class Field {
     }
 
 
-    buildDisabled = (edit) => {
-        if (this.readonlyFlag) {
+    buildDisabled = (edit, query) => {
+        if (this.readonlyFlag && !query) {
             this.disabled = true;
             this.placeHolder = "";
         }
