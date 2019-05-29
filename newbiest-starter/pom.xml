@@ -22,32 +22,27 @@
     </properties>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>com.newbiest</groupId>-->
-            <!--<artifactId>context</artifactId>-->
-            <!--<version>0.0.1-SNAPSHOT</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.newbiest</groupId>-->
-            <!--<artifactId>common-statemachine</artifactId>-->
-            <!--<version>0.0.1-SNAPSHOT</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.newbiest</groupId>-->
-            <!--<artifactId>idgenerator</artifactId>-->
-            <!--<version>0.0.1-SNAPSHOT</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.newbiest</groupId>-->
-            <!--<artifactId>rms</artifactId>-->
-            <!--<version>0.0.1-SNAPSHOT</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>context</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>common-statemachine</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>rms</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>com.newbiest</groupId>-->
-            <!--<artifactId>mm</artifactId>-->
-            <!--<version>0.0.1-SNAPSHOT</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>mm</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc6</artifactId>
@@ -55,11 +50,11 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/ojdbc6.jar</systemPath>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.newbiest</groupId>-->
-            <!--<artifactId>calendar</artifactId>-->
-            <!--<version>0.0.1-SNAPSHOT</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>calendar</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>rtm</artifactId>

@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>idgenerator</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${newbiest.idgenerator.version}</version>
         </dependency>
     </dependencies>
 

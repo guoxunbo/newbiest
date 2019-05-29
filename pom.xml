@@ -16,7 +16,6 @@
     <modules>
         <module>newbiest-common-actuator</module>
         <module>newbiest-common-context</module>
-        <module>newbiest-common-idgenerator</module>
         <module>newbiest-rms</module>
         <module>newbiest-calendar</module>
         <module>newbiest-starter</module>
@@ -44,6 +43,7 @@
         <jwt.verison>3.3.0</jwt.verison>
         <liquibase.version>3.6.1</liquibase.version>
         <primary-school.version>0.0.1-SNAPSHOT</primary-school.version>
+        <newbiest.idgenerator.version>1.0.0.RELEASE</newbiest.idgenerator.version>
         <newbiest.framework.version>1.0.1-SNAPSHOT</newbiest.framework.version>
     </properties>
 
