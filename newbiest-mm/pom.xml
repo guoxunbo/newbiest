@@ -16,8 +16,8 @@
     <dependencies>
         <dependency>
             <groupId>com.newbiest</groupId>
-            <artifactId>common-statemachine</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <artifactId>statusmachine</artifactId>
+            <version>${newbiest.statusmachine.version}</version>
         </dependency>
         <dependency>
             <groupId>com.newbiest</groupId>
