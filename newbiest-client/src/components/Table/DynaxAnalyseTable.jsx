@@ -15,7 +15,7 @@ export default class DynaxAnalyseTable extends EntityListTable {
     static displayName = 'DynaxAnalyseTable';
 
     /**
-     * 创建导入按钮 只能支持xls,xlsx导入
+     * 创建导入按钮 只能导入TXT
      */
     createImportButton = () => {
         return (<Upload key="import" accept=".txt" 
@@ -31,10 +31,12 @@ export default class DynaxAnalyseTable extends EntityListTable {
     }
 
     /**
-     * 分析数据的表不具备操作
+     * 分析数据的表不具备删除操作
      */
-    buildOperationColumn = () => {
-        
+    buildOperation = (record) => {
+        let operations = [];
+        operations.push(this.buildEditButton(record));
+        return operations;
     }
 
     handleUpload = (option) => {
