@@ -2,8 +2,8 @@ license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
   storePass: newbiest123
-  licensePath: /Users/apple/Desktop/keytool/newbiest.lic
-  publicKeysStorePath: /Users/apple/Desktop/keytool/nb_public.keystore
+  licensePath: /Users/guoxunbo/Documents/newbiest/keytool/newbiest.lic
+  publicKeysStorePath: /Users/guoxunbo/Documents/newbiest/keytool/nb_public.keystore
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 spring:
   application:
@@ -17,9 +17,9 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@192.168.5.3:1521:prod
-      username: nb_butterfly
-      password: nb_butterfly
+      url: jdbc:oracle:thin:@127.0.0.1:1521:newbiest
+      username: newbiest
+      password: newbiest
       driver-class-name: oracle.jdbc.driver.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1
@@ -56,7 +56,7 @@ spring:
         stat:
           log-slow-sql: true
           slow-sql-millis: 3000
-          merge-sql: true
+          merge-sql: false
         # 数据库密码加密
         config:
           enabled: true
@@ -88,7 +88,7 @@ server:
 show:
   swagger: true
 logging:
-  path: /Users/apple/Documents/newbiest/log
+  path: /Users/guoxunbo/Documents/newbiest/log
 management:
   endpoints:
     web:

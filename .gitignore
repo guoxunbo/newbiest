@@ -26,3 +26,4 @@ newbiest-admin-server/mvnw.cmd
 *.iml
 
 *.xls
+.DS_Store

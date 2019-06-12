@@ -15,7 +15,6 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                    constraintName: PK_MM_MATERIAL
                   remarks: 主键
               - column:
                   name: ACTIVE_FLAG
