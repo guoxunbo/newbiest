@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_package_type_rename_column_-max_qty_count_type
+      author: Xunbo Guo
+      remarks: mms_package_type rename column max_qty_count_type_2_before_pack_count_type
+      changes:
+        - renameColumn:
+            tableName: MMS_PACKAGE_TYPE
+            newColumnName: BEFORE_PACK_COUNT_TYPE
+            oldColumnName: MAX_QTY_COUNT_TYPE

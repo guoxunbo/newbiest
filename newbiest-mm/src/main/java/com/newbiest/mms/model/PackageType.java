@@ -69,11 +69,11 @@ public abstract class PackageType extends NBUpdatable {
     /**
      * 包装前的物料批次数量计数类型
      */
-    @Column(name="MAX_QTY_COUNT_TYPE")
-    protected String maxQtyCountType = COUNT_TYPE_BY_LOT;
+    @Column(name="BEFORE_PACK_COUNT_TYPE")
+    protected String beforePackCountType = COUNT_TYPE_BY_LOT;
 
     /**
-     * 包装的最大数量
+     * 允许包装的最大数量
      */
     @Column(name="MAX_QTY")
     protected BigDecimal maxQty;

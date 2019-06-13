@@ -36,12 +36,12 @@ public class MaterialLotPackageType extends PackageType {
             }
         }
         //3. 验证是否超过包装的最大数量限制
-        if (maxQtyCountType.equals(COUNT_TYPE_BY_LOT)) {
+        if (beforePackCountType.equals(COUNT_TYPE_BY_LOT)) {
             BigDecimal lotSize = new BigDecimal(materialLots.size());
             if (lotSize.compareTo(maxQty) < 0) {
                 throw new ClientException(MmsException.MM_PACKAGE_OVER_MAX_QTY);
             }
-        } else if (maxQtyCountType.equals(COUNT_TYPE_BY_LOT_QTY)) {
+        } else if (beforePackCountType.equals(COUNT_TYPE_BY_LOT_QTY)) {
             int totalQty = materialLots.stream().collect(Collectors.summingInt(materialLot -> materialLot.getCurrentQty().intValue()));
             if (new BigDecimal(totalQty).compareTo(maxQty) < 0) {
                 throw new ClientException(MmsException.MM_PACKAGE_OVER_MAX_QTY);
