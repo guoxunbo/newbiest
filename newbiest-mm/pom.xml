@@ -16,6 +16,11 @@
     <dependencies>
         <dependency>
             <groupId>com.newbiest</groupId>
+            <artifactId>context</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.newbiest</groupId>
             <artifactId>statusmachine</artifactId>
             <version>${newbiest.statusmachine.version}</version>
         </dependency>

@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-com-merge-rule_table
+      author: Xunbo Guo
+      comment: Create table COM_MERGE_RULE
+      changes:
+        - createTable:
+            tableName: COM_MERGE_RULE
+            remarks: MergeRule Info
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: NAME
+                  type: varchar(32)
+                  remarks: 名称
+              - column:
+                  name: DESCRIPTION
+                  type: varchar(32)
+                  remarks: 描述
+              - column:
+                  name: CLASS
+                  type: varchar(32)
+                  remarks: 类别
+  - changeSet:
+      id: add-unique-constraint-for-merge-rule-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (org_rrn, name, class) for table COM_MERGE_RULE
+      changes:
+        - addUniqueConstraint:
+            tableName: COM_MERGE_RULE
+            columnNames: ORG_RRN, NAME, CLASS
+            constraintName: UK_MER_RULE_ORG_NAME_CLASS

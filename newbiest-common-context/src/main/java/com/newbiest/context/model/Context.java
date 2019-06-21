@@ -22,5 +22,5 @@ public class Context extends NBBase{
 
     @Column(name="DESCRIPTION")
     private String description;
-
+      
 }

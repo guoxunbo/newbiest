@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_package_type_addColumn-merge_rule
+      author: Xunbo Guo
+      remarks: mms_package_type add column merge_rule
+      changes:
+        - addColumn:
+            tableName: MMS_PACKAGE_TYPE
+            columns:
+              - column:
+                  name: MERGE_RULE
+                  type: varchar2(64)

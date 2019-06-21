@@ -94,7 +94,6 @@ public class ContextValueRepositoryImpl implements ContextValueRepositoryCustom 
             } else {
                 sqlBuffer.append(" AND contextFieldValue10 IS NULL ");
             }
-
             Query query = em.createQuery(sqlBuffer.toString());
             List<ContextValue> contextValues = query.getResultList();
             if (!CollectionUtils.isNotEmpty(contextValues)) {

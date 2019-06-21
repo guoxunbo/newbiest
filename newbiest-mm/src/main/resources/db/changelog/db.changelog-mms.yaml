@@ -29,3 +29,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.3.package_type.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.4.package_type.yaml
+      relativeToChangelogFile: true

@@ -1,3 +1,9 @@
+license:
+  subject: newbiest_product_license
+  publicAlias: nbPublicLicense
+  storePass: newbiest123
+  licensePath: /Users/guoxunbo/Documents/newbiest/keytool/newbiest.lic
+  publicKeysStorePath: /Users/guoxunbo/Documents/newbiest/keytool/nb_public.keystore
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 spring:
   application:
@@ -11,9 +17,9 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@10.110.170.11:1528:P1SUBSDB
-      username: srms
-      password: srms
+      url: jdbc:oracle:thin:@192.168.2.164:1528:GC1PPTD
+      username: nb_butterfly
+      password: nb_butterfly
       driver-class-name: oracle.jdbc.driver.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1
@@ -57,10 +63,10 @@ spring:
       # 配置密码的公钥 默认使用druid的ConfigTool进行加密
       connection-properties: config.decrypt=false;config.decrypt.key=${publickey}
   mail:
-    host: smtp.163.com
-    username: 15260286656@163.com
-    password: woaini1314
-    from: 15260286656@163.com
+    host:
+    username:
+    password:
+    from:
     properties:
       mail:
         smtp:

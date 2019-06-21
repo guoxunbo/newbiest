@@ -48,6 +48,12 @@ public abstract class PackageType extends NBUpdatable {
     protected String packIdRule;
 
     /**
+     * 合批规则
+     */
+    @Column(name="MERGE_RULE")
+    protected String mergeRule;
+
+    /**
      * 源物料类型 对选择的物料批次的包装类型
      *
      */
