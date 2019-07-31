@@ -46,16 +46,16 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/ojdbc6.jar</systemPath>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.newbiest</groupId>-->
-<!--            <artifactId>calendar</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.newbiest</groupId>-->
-<!--            <artifactId>rtm</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>kms</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>rtm</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>

@@ -11,7 +11,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 @SpringBootApplication
-@EnableAutoConfiguration
 @ComponentScan(basePackages = "com.newbiest")
 public class NewbiestApplication {
 

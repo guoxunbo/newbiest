@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      file: init/db.changelog-0.0.1.question.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.question_line.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.1.question_his.yaml
+      relativeToChangelogFile: true

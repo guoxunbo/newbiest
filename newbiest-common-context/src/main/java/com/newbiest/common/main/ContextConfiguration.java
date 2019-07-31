@@ -1,5 +1,10 @@
 package com.newbiest.common.main;
 
+import com.newbiest.base.factory.ModelFactory;
+import com.newbiest.context.model.Context;
+import com.newbiest.context.model.ContextValue;
+import com.newbiest.context.model.MergeRule;
+import com.newbiest.context.model.MergeRuleLine;
 import com.newbiest.main.YmlPropertyLoaderFactory;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.Data;
@@ -10,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 @Configuration
@@ -39,5 +45,13 @@ public class ContextConfiguration {
         return liquibase;
     }
 
+    @PostConstruct
+    public void init() {
+        // 注册modelClassLoader
+        ModelFactory.registerModelClassLoader(MergeRule.class.getName(), MergeRule.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(MergeRuleLine.class.getName(), MergeRuleLine.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(Context.class.getName(), Context.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(ContextValue.class.getName(), ContextValue.class.getClassLoader());
+    }
 }
 

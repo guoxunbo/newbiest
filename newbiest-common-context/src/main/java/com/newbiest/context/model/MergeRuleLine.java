@@ -23,7 +23,7 @@ public class MergeRuleLine extends NBBase  {
     /**
      * 栏位名称
      */
-    @Column(name="FILE_NAME")
+    @Column(name="FILED_NAME")
     private String filedName;
 
     /**

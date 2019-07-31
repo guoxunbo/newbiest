@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Entity
 @Data
-@Table(name="COM_MERGE_RUL")
+@Table(name="COM_MERGE_RULE")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="CLASS", discriminatorType = DiscriminatorType.STRING, length = 32)
 public class MergeRule extends NBBase {
@@ -23,7 +23,6 @@ public class MergeRule extends NBBase {
     private String description;
 
     @OneToMany(fetch= FetchType.EAGER, cascade={CascadeType.REMOVE})
-    @OrderBy(value = "seqNo ASC")
     @JoinColumn(name = "RULE_RRN", referencedColumnName = "OBJECT_RRN")
     private List<MergeRuleLine> lines;
 
