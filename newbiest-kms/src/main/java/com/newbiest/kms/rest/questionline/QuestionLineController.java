@@ -3,7 +3,6 @@ package com.newbiest.kms.rest.questionline;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.SessionContext;
-import com.newbiest.kms.model.Question;
 import com.newbiest.kms.model.QuestionLine;
 import com.newbiest.kms.service.KmsService;
 import com.newbiest.msg.Request;
@@ -12,10 +11,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

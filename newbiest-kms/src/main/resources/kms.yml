@@ -1,4 +1,5 @@
 kms:
+  questionFileLinePath: /Users/guoxunbo/Desktop/kms/upload/question/
   #数据库版本管理
   liquibase:
     #changelog所在的位置。
