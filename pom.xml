@@ -12,16 +12,17 @@
 
     <groupId>com.newbiest</groupId>
     <artifactId>parent</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.1.RELEASE</version>
+
     <modules>
         <module>newbiest-common-actuator</module>
         <module>newbiest-common-context</module>
         <module>newbiest-rms</module>
         <module>newbiest-rtm</module>
         <module>newbiest-mm</module>
+        <module>newbiest-kms</module>
         <module>newbiest-starter</module>
         <module>newbiest-dist</module>
-        <module>newbiest-kms</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -47,6 +48,8 @@
         <newbiest.idgenerator.version>1.0.0.RELEASE</newbiest.idgenerator.version>
         <newbiest.statusmachine.version>1.0.0.RELEASE</newbiest.statusmachine.version>
         <newbiest.framework.version>1.0.1.RELEASE</newbiest.framework.version>
+        <newbiest.kms.version>1.0.1.RELEASE</newbiest.kms.version>
+        <platform.version>1.0.1.RELEASE</platform.version>
     </properties>
 
     <dependencies>

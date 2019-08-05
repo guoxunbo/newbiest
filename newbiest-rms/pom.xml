@@ -5,7 +5,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.newbiest</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.1.RELEASE</version>
     </parent>
 
     <name>rms</name>
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>context</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.1.RELEASE</version>
         </dependency>
     </dependencies>
 

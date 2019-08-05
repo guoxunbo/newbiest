@@ -5,13 +5,13 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.newbiest</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.1.RELEASE</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.newbiest</groupId>
     <artifactId>kms</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${newbiest.kms.version}</version>
 
     <dependencies>
         <dependency>
