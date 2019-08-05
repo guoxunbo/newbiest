@@ -19,6 +19,7 @@ import java.util.Date;
 public class QuestionHistory extends NBHis {
 
     public static final String TRANS_TYPE_CLOSE = "Close";
+    public static final String TRANS_TYPE_WATCHING = "Watching";
 
     /**
      * 名称

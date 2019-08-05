@@ -12,6 +12,7 @@ public class QuestionRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "QuestionManage";
 	public static final String ACTION_CLOSE = "Close";
+	public static final String ACTION_WATCHING = "Watching";
 
 	private QuestionRequestBody body;
 

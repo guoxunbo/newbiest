@@ -17,6 +17,8 @@ public interface KmsService extends FileStrategyService {
 
     Question saveQuestion(Question question, SessionContext sc) throws ClientException;
     Question closeQuestion(Question question, SessionContext sc) throws ClientException;
+    Question deleteQuestion(Question question, SessionContext sc) throws ClientException;
+    Question watchQuestion(Question question, SessionContext sc) throws ClientException;
 
     List<QuestionLine> getQuestionLineByQuestionRrn(Long questionRrn) throws ClientException;
 

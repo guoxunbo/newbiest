@@ -10,6 +10,7 @@ import com.newbiest.base.utils.SessionContext;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.kms.KmsConfiguration;
+import com.newbiest.kms.KmsException;
 import com.newbiest.kms.model.Question;
 import com.newbiest.kms.model.QuestionHistory;
 import com.newbiest.kms.model.QuestionLine;
@@ -59,11 +60,62 @@ public class KmsServiceImpl extends DefaultFileStrategyServiceImpl implements Km
         }
     }
 
+    /**
+     * 只能是当前创建人才可以删除问题
+     * @param question
+     * @param sc
+     * @return
+     * @throws ClientException
+     */
+    public Question deleteQuestion(Question question, SessionContext sc) throws ClientException {
+        try {
+            if (!sc.getUsername().equals(question.getCreatedBy())) {
+                throw new ClientException(KmsException.AUTH_IS_NOT_ALLOW);
+            }
+            baseService.delete(question, true, sc);
+            return question;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 当问题不能复现的时候，改成watching状态，表示未处理，但是当前没的办法。需要观察
+     * @param question
+     * @param sc
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public Question watchQuestion(Question question, SessionContext sc) throws ClientException {
+        try {
+            if (Question.STATUS_CLOSE.equals(question.getStatus())) {
+                throw new ClientException(NewbiestException.COMMON_STATUS_IS_NOT_ALLOW);
+            }
+            question.setStatus(Question.STATUS_WATCHING);
+            question = questionRepository.saveAndFlush(question);
+            baseService.saveHistoryEntity(question, QuestionHistory.TRANS_TYPE_WATCHING, sc);
+            return question;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 只能是当前创建人才可以关闭问题
+     * @param question
+     * @param sc
+     * @return
+     * @throws ClientException
+     */
     @Override
     public Question closeQuestion(Question question, SessionContext sc) throws ClientException {
         try {
             if (Question.STATUS_CLOSE.equals(question.getStatus())) {
                 throw new ClientException(NewbiestException.COMMON_STATUS_IS_NOT_ALLOW);
+            }
+            if (!sc.getUsername().equals(question.getCreatedBy())) {
+                throw new ClientException(KmsException.AUTH_IS_NOT_ALLOW);
             }
             question.setStatus(Question.STATUS_CLOSE);
             question = questionRepository.saveAndFlush(question);

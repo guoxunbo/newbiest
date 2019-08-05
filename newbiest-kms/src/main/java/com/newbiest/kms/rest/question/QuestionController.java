@@ -51,6 +51,11 @@ public class QuestionController extends AbstractRestController {
         } else if (QuestionRequest.ACTION_CLOSE.equals(actionType)) {
             validateEntity(question);
             question = kmsService.closeQuestion(question, sc);
+        }  else if (QuestionRequest.ACTION_WATCHING.equals(actionType)) {
+            validateEntity(question);
+            question = kmsService.watchQuestion(question, sc);
+        }  else if (QuestionRequest.ACTION_DELETE.equals(actionType)) {
+            kmsService.deleteQuestion(question, sc);
         }  else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
