@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-mms_package_loy-details-table
+      author: Xunbo Guo
+      comment: Create table MMS_PACKAGED_LOT_DETAIL
+      changes:
+        - createTable:
+            tableName: MMS_PACKAGED_LOT_DETAIL
+            remarks: Package Lot Details Info
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: PACKAGED_LOT_RRN
+                  type: bigint
+                  remarks: 包装批次主键
+              - column:
+                  name: PACKAGED_LOT_ID
+                  type: varchar(64)
+                  remarks: 包装批次号
+              - column:
+                  name: MATERIAL_LOT_RRN
+                  type: bigint
+                  remarks: 被包装批次的主键
+              - column:
+                  name: MATERIAL_LOT_ID
+                  type: varchar(64)
+                  remarks: 被包装批次的号
+  - changeSet:
+      id: add-unique-constraint-for-package_loy-details-table
+      author: Xunbo Guo
+      comment: Apply unique constraint (PACKAGED_LOT_RRN, MATERIAL_LOT_RRN) for MMS_PACKAGED_LOT_DETAIL
+      changes:
+        - addUniqueConstraint:
+            tableName: MMS_PACKAGED_LOT_DETAIL
+            columnNames: PACKAGED_LOT_RRN, MATERIAL_LOT_RRN
+            constraintName: UK_PACKAGED_LOT_DETAIL

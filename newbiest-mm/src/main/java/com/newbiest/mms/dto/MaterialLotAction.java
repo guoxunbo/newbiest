@@ -12,6 +12,11 @@ import java.math.BigDecimal;
 public class MaterialLotAction extends Action {
 
     /**
+     * 物料批次号
+     */
+    private String materialLotId;
+
+    /**
      * 此次操作的数量
      */
     private BigDecimal transQty;

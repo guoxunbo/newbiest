@@ -31,7 +31,8 @@ public class MaterialLotHistory extends NBHis {
     /**
      * 因为包装产生的批次
      */
-    public static final String TRANS_TYPE_PACKAGE_CREATE = "PackageCreate";
+    public static final String TRANS_TYPE_CREATE_PACKAGE = "CreatePackage";
+    public static final String TRANS_TYPE_ADDITIONAL_PACKAGE = "AdditionalPackage";
 
     /**
      * 物料批次号
@@ -120,10 +121,17 @@ public class MaterialLotHistory extends NBHis {
     private String subMaterialLotFlag;
 
     /**
-     * 是否被包装
+     * 物料批次类别，用来区分是普通物料批次还是包装物料批次
      */
-    @Column(name="PACKED_FLAG")
-    private String packedFlag;
+    @Column(name="CATEGORY")
+    private String category;
+
+    /**
+     * 包装类型 用于追加包装的时候进行验证
+     */
+    @Column(name="PACKAGE_TYPE")
+    private String packageType;
+
 
     /**
      * 工单号。
@@ -282,11 +290,4 @@ public class MaterialLotHistory extends NBHis {
         return StringUtils.YES.equalsIgnoreCase(this.subMaterialLotFlag);
     }
 
-    public void setPackedFlag(Boolean packedFlag) {
-        this.packedFlag = packedFlag ? StringUtils.YES : StringUtils.NO;
-    }
-
-    public boolean getPackedFlag() {
-        return StringUtils.YES.equalsIgnoreCase(this.packedFlag);
-    }
 }

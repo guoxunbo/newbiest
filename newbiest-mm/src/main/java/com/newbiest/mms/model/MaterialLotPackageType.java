@@ -24,9 +24,9 @@ public class MaterialLotPackageType extends PackageType {
     public void validationPacking(List<? extends NBUpdatable> packageChildren) {
         List<MaterialLot> materialLots = (List<MaterialLot>) packageChildren;
         //1. 验证批次是否已经被包装
-        Optional<MaterialLot> subMaterialLot = materialLots.stream().filter(materialLot -> materialLot.getPackedFlag()).findFirst();
-        if (subMaterialLot.isPresent()) {
-            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_PACKED, subMaterialLot.get().getMaterialLotId());
+        Optional<MaterialLot> packagedMaterial = materialLots.stream().filter(materialLot -> materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0).findFirst();
+        if (packagedMaterial.isPresent()) {
+            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_PACKED, packagedMaterial.get().getMaterialLotId());
         }
         //2. 验证所有的批次类型是否一致
         if (!StringUtils.isNullOrEmpty(sourceMaterialType)) {

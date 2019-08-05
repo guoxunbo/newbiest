@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.0.2
+      author: Xunbo Guo
+      remarks: mms_material_lot_his add column category and package_type. drop column package_flag
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: CATEGORY
+                  type: varchar2(64)
+                  remarks: 物料批次类别，用来区分是普通物料批次还是包装物料批次
+              - column:
+                  name: PACKAGE_TYPE
+                  type: varchar2(64)
+                  remarks: 包装的时候记录包装类型，用于追加包装的时候进行验证
+        - dropColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columnName: PACKED_FLAG

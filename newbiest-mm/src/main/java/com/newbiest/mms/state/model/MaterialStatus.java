@@ -12,4 +12,6 @@ import javax.persistence.Entity;
 @DiscriminatorValue(MaterialStatusCategory.CATEGORY_MATERIAL)
 public class MaterialStatus extends Status{
 
+    public static final String STATUS_PACKED = "Packed";
+
 }

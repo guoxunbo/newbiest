@@ -36,6 +36,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String HOLD_STATE_ON = "On";
     public static final String HOLD_STATE_OFF = "Off";
 
+    public static final String CATEGORY_PACKAGE = "Package";
+
     /**
      * 物料批次号
      */
@@ -123,10 +125,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String subMaterialLotFlag;
 
     /**
-     * 是否被包装
+     * 物料批次类别，用来区分是普通物料批次还是包装物料批次
      */
-    @Column(name="PACKED_FLAG")
-    private String packedFlag;
+    @Column(name="CATEGORY")
+    private String category;
+
+    /**
+     * 包装类型 用于追加包装的时候进行验证
+     */
+    @Column(name="PACKAGE_TYPE")
+    private String packageType;
 
     /**
      * 工单号。
@@ -252,14 +260,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public boolean getSubMaterialLotFlag() {
         return StringUtils.YES.equalsIgnoreCase(this.subMaterialLotFlag);
-    }
-
-    public void setPackedFlag(Boolean packedFlag) {
-        this.packedFlag = packedFlag ? StringUtils.YES : StringUtils.NO;
-    }
-
-    public boolean getPackedFlag() {
-        return StringUtils.YES.equalsIgnoreCase(this.packedFlag);
     }
 
     @Override
