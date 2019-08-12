@@ -10,14 +10,14 @@
     <parent>
         <groupId>com.newbiest</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.2.RELEASE</version>
     </parent>
     
     <dependencies>
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>context</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.2.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.newbiest</groupId>
