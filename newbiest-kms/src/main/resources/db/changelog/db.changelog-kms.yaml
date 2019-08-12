@@ -8,3 +8,9 @@ databaseChangeLog:
   - include:
       file: init/db.changelog-0.0.1.question_his.yaml
       relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.2.question.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: init/db.changelog-0.0.2.question_his.yaml
+      relativeToChangelogFile: true

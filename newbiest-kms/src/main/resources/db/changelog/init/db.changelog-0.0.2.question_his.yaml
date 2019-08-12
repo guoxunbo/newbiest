@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: kms_question_his_0.0.2
+      author: Xunbo Guo
+      remarks: kms_question_his add column created_user_dept
+      changes:
+        - addColumn:
+            tableName: KMS_QUESTION_HIS
+            columns:
+              - column:
+                  name: CREATED_USER_DEPT
+                  type: varchar2(64)
+                  remarks: 创建用户部门
