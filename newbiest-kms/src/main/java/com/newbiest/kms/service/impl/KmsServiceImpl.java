@@ -3,9 +3,7 @@ package com.newbiest.kms.service.impl;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
-import com.newbiest.base.model.NBBase;
 import com.newbiest.base.service.BaseService;
-import com.newbiest.base.service.impl.DefaultFileStrategyServiceImpl;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
@@ -17,6 +15,8 @@ import com.newbiest.kms.model.QuestionLine;
 import com.newbiest.kms.repository.QuestionLineRepository;
 import com.newbiest.kms.repository.QuestionRepository;
 import com.newbiest.kms.service.KmsService;
+import com.newbiest.security.model.NBUser;
+import com.newbiest.security.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.List;
 @Service
 @Transactional
 @Slf4j
-public class KmsServiceImpl extends DefaultFileStrategyServiceImpl implements KmsService {
+public class KmsServiceImpl implements KmsService {
 
     @Autowired
     BaseService baseService;
@@ -47,33 +47,19 @@ public class KmsServiceImpl extends DefaultFileStrategyServiceImpl implements Km
     @Autowired
     KmsConfiguration kmsConfiguration;
 
+    @Autowired
+    SecurityService securityService;
+
     @Override
     public Question saveQuestion(Question question, SessionContext sc) throws ClientException {
         try {
             if (question.getObjectRrn() == null) {
                 String name = generatorQuestionName(question, sc);
                 question.setName(name);
+                NBUser user = securityService.getUserByUsername(sc.getUsername());
+                question.setCreatedUserDept(user.getDepartment());
             }
             return (Question) baseService.saveEntity(question, sc);
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 只能是当前创建人才可以删除问题
-     * @param question
-     * @param sc
-     * @return
-     * @throws ClientException
-     */
-    public Question deleteQuestion(Question question, SessionContext sc) throws ClientException {
-        try {
-            if (!sc.getUsername().equals(question.getCreatedBy())) {
-                throw new ClientException(KmsException.AUTH_IS_NOT_ALLOW);
-            }
-            baseService.delete(question, true, sc);
-            return question;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -141,11 +127,4 @@ public class KmsServiceImpl extends DefaultFileStrategyServiceImpl implements Km
         return questionLineRepository.findByQuestionRrn(questionRrn);
     }
 
-    @Override
-    public String getFilePath(NBBase nbBase) throws ClientException {
-        if (nbBase instanceof QuestionLine) {
-            return kmsConfiguration.getQuestionFileLinePath();
-        }
-        return super.getFilePath(nbBase);
-    }
 }

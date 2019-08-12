@@ -5,7 +5,8 @@ import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.kms.model.Question;
 import com.newbiest.kms.model.QuestionHistory;
 import com.newbiest.kms.model.QuestionLine;
-import com.newbiest.kms.service.KmsService;
+import com.newbiest.kms.service.impl.QuestionFileStrategyServiceImpl;
+import com.newbiest.kms.service.impl.QuestionLineFileStrategyServiceImpl;
 import com.newbiest.main.YmlPropertyLoaderFactory;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +27,13 @@ import javax.annotation.PostConstruct;
 @Slf4j
 public class KmsConfiguration {
 
-    public static final String FILE_STRATEGY_NAME = "KMS";
+    private String questionPath;
 
     @Autowired
-    KmsService kmsService;
+    QuestionFileStrategyServiceImpl questionFileStrategyService;
 
-    private String questionFileLinePath;
+    @Autowired
+    QuestionLineFileStrategyServiceImpl questionLineFileStrategyService;
 
     @PostConstruct
     public void init() {
@@ -42,6 +44,8 @@ public class KmsConfiguration {
         ModelFactory.registerHistoryModelClassLoader(Question.class.getName(), QuestionHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(Question.class.getName(), QuestionHistory.class.getName());
 
-        FileStrategyFactory.registerFileStrategy(FILE_STRATEGY_NAME, kmsService);
+        FileStrategyFactory.registerFileStrategy(Question.class.getName(), questionFileStrategyService);
+        FileStrategyFactory.registerFileStrategy(QuestionLine.class.getName(), questionLineFileStrategyService);
+
     }
 }
