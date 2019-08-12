@@ -3,6 +3,7 @@ package com.newbiest.kms.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
+import com.newbiest.base.validate.IDataAuthorityValidation;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -15,7 +16,7 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name="KMS_QUESTION")
-public class Question extends NBUpdatable {
+public class Question extends NBUpdatable implements IDataAuthorityValidation {
 
     public static final String CREATE_QUESTION_GENERATOR_NAME = "CreateQuestion";
 
@@ -78,6 +79,12 @@ public class Question extends NBUpdatable {
      */
     @Column(name="PHENOMENON_DESC")
     private String phenomenonDesc;
+
+    /**
+     * 创建用户所属部门
+     */
+    @Column(name="CREATED_USER_DEPT")
+    private String createdUserDept;
 
     @Column(name="RESERVED1")
     private String reserved1;

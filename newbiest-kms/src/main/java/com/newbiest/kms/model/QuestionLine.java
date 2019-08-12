@@ -1,6 +1,7 @@
 package com.newbiest.kms.model;
 
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.validate.IDataAuthorityValidation;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -14,7 +15,7 @@ import javax.persistence.Table;
 @Data
 @Entity
 @Table(name="KMS_QUESTION_LINE")
-public class QuestionLine extends NBUpdatable {
+public class QuestionLine extends NBUpdatable implements IDataAuthorityValidation {
 
     @Column(name="QUESTION_RRN")
     private Long questionRrn;
