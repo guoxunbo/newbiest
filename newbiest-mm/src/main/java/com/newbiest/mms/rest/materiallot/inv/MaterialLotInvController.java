@@ -3,7 +3,6 @@ package com.newbiest.mms.rest.materiallot.inv;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.utils.SessionContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.MaterialLot;
@@ -37,7 +36,6 @@ public class MaterialLotInvController extends AbstractRestController {
     @RequestMapping(value = "/materialLotInvManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public MaterialLotInvResponse execute(@RequestBody MaterialLotInvRequest request) throws Exception {
         log(log, request);
-        SessionContext sc = getSessionContext(request);
 
         MaterialLotInvResponse response = new MaterialLotInvResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
@@ -52,23 +50,23 @@ public class MaterialLotInvController extends AbstractRestController {
         MaterialLotInventory materialLotInventory = null;
 
         String materialLotId = materialLot.getMaterialLotId();
-        materialLot = mmsService.getMLotByMLotId(materialLotId, sc);
+        materialLot = mmsService.getMLotByMLotId(materialLotId);
         if (materialLot == null) {
             throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
         }
 
         if (MaterialLotInvRequest.ACTION_STOCK_IN.equals(actionType)) {
-            mmsService.stockIn(materialLot, materialLotAction, sc);
+            mmsService.stockIn(materialLot, materialLotAction);
             materialLotInventory = mmsService.getMaterialLotInv(materialLot.getObjectRrn(), materialLotAction.getTargetWarehouseRrn());
         } else if (MaterialLotInvRequest.ACTION_STOCK_OUT.equals(actionType)) {
-            mmsService.stockOut(materialLot, materialLotAction, sc);
+            mmsService.stockOut(materialLot, materialLotAction);
         } else if (MaterialLotInvRequest.ACTION_TRANSFER.equals(actionType)) {
-            mmsService.transfer(materialLot, materialLotAction, sc);
+            mmsService.transfer(materialLot, materialLotAction);
             materialLotInventory = mmsService.getMaterialLotInv(materialLot.getObjectRrn(), materialLotAction.getTargetWarehouseRrn());
         } else if (MaterialLotInvRequest.ACTION_PICK.equals(actionType)) {
-            mmsService.pick(materialLot, materialLotAction, sc);
+            mmsService.pick(materialLot, materialLotAction);
         } else if (MaterialLotInvRequest.ACTION_CHECK.equals(actionType)) {
-            mmsService.checkMaterialInventory(materialLot, materialLotAction, sc);
+            mmsService.checkMaterialInventory(materialLot, materialLotAction);
             materialLotInventory = mmsService.getMaterialLotInv(materialLot.getObjectRrn(), materialLotAction.getFromWarehouseRrn());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());

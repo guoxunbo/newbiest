@@ -4,6 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.common.exception.ContextException;
 import com.newbiest.context.model.Context;
 import com.newbiest.context.model.ContextValue;
@@ -43,9 +44,9 @@ public class ContextServiceImpl implements ContextService {
         }
     }
 
-    public List<ContextValue> getContextValue(Context context, ContextValue contextValue, SessionContext sc) throws ClientException {
+    public List<ContextValue> getContextValue(Context context, ContextValue contextValue) throws ClientException {
         try {
-            return contextValueRepository.getContextValue(context, contextValue, sc);
+            return contextValueRepository.getContextValue(context, contextValue);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -53,10 +54,9 @@ public class ContextServiceImpl implements ContextService {
     }
 
     @Override
-    public void saveContextValue(Context context, List<ContextValue> contextValues, SessionContext sc) throws ClientException {
+    public void saveContextValue(Context context, List<ContextValue> contextValues) throws ClientException {
         contextValues.stream().forEach(value -> {
             value.setContextRrn(context.getObjectRrn());
-            value.setOrgRrn(sc.getOrgRrn());
             contextValueRepository.save(value);
         });
     }

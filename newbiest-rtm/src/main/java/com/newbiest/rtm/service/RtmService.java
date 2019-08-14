@@ -9,5 +9,5 @@ import com.newbiest.rtm.analyse.AnalyseContext;
  */
 public interface RtmService {
 
-    void analyseFile(AnalyseContext analyseContext, SessionContext sc) throws ClientException;
+    void analyseFile(AnalyseContext analyseContext) throws ClientException;
 }

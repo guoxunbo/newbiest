@@ -118,8 +118,8 @@ public class MaterialHistory extends NBVersionControlHis {
     private String reserved10;
 
     @Override
-    public void setNbBase(NBBase base, SessionContext sc) {
-        super.setNbBase(base, sc);
+    public void setNbBase(NBBase base) {
+        super.setNbBase(base);
         this.setMaterialRrn(base.getObjectRrn());
     }
 }

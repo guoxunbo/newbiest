@@ -2,7 +2,6 @@ package com.newbiest.kms.rest.question;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.utils.SessionContext;
 import com.newbiest.kms.model.Question;
 import com.newbiest.kms.service.KmsService;
 import com.newbiest.msg.Request;
@@ -33,7 +32,6 @@ public class QuestionController extends AbstractRestController {
     @RequestMapping(value = "/questionManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public QuestionResponse execute(@RequestBody QuestionRequest request) throws Exception {
         log(log, request);
-        SessionContext sc = getSessionContext(request);
 
         QuestionResponse response = new QuestionResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
@@ -44,16 +42,16 @@ public class QuestionController extends AbstractRestController {
         Question question = requestBody.getQuestion();
 
         if (QuestionRequest.ACTION_CREATE.equals(actionType)) {
-            question = kmsService.saveQuestion(question, sc);
+            question = kmsService.saveQuestion(question);
         } else if (QuestionRequest.ACTION_UPDATE.equals(actionType)) {
             validateEntity(question);
-            question = (Question) saveEntity(question, sc);
+            question = (Question) saveEntity(question);
         } else if (QuestionRequest.ACTION_CLOSE.equals(actionType)) {
             validateEntity(question);
-            question = kmsService.closeQuestion(question, sc);
+            question = kmsService.closeQuestion(question);
         }  else if (QuestionRequest.ACTION_WATCHING.equals(actionType)) {
             validateEntity(question);
-            question = kmsService.watchQuestion(question, sc);
+            question = kmsService.watchQuestion(question);
         }  else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

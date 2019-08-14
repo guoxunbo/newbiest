@@ -12,9 +12,9 @@ import java.util.List;
  */
 public interface KmsService {
 
-    Question saveQuestion(Question question, SessionContext sc) throws ClientException;
-    Question closeQuestion(Question question, SessionContext sc) throws ClientException;
-    Question watchQuestion(Question question, SessionContext sc) throws ClientException;
+    Question saveQuestion(Question question) throws ClientException;
+    Question closeQuestion(Question question) throws ClientException;
+    Question watchQuestion(Question question) throws ClientException;
 
     List<QuestionLine> getQuestionLineByQuestionRrn(Long questionRrn) throws ClientException;
 }

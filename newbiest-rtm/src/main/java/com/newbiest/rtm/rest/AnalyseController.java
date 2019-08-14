@@ -36,8 +36,6 @@ public class AnalyseController extends AbstractRestController{
         AnalyseRequest tableRequest = DefaultParser.getObjectMapper().readerFor(AnalyseRequest.class).readValue(request);
 
         log(log, tableRequest);
-        SessionContext sc = getSessionContext(tableRequest);
-
         AnalyseResponse response = new AnalyseResponse();
         response.getHeader().setTransactionId(tableRequest.getHeader().getTransactionId());
         AnalyseResponseBody responseBody = new AnalyseResponseBody();
@@ -46,7 +44,7 @@ public class AnalyseController extends AbstractRestController{
         analyseContext.setInputStream(file.getInputStream());
         analyseContext.setFileName(file.getOriginalFilename());
 
-        rtmService.analyseFile(analyseContext, sc);
+        rtmService.analyseFile(analyseContext);
         return response;
     }
 

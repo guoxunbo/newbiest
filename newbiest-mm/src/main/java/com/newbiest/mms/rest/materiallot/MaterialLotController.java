@@ -3,7 +3,6 @@ package com.newbiest.mms.rest.materiallot;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
@@ -38,8 +37,6 @@ public class MaterialLotController extends AbstractRestController {
     @RequestMapping(value = "/materialLotManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public MaterialLotResponse execute(@RequestBody MaterialLotRequest request) throws Exception {
         log(log, request);
-        SessionContext sc = getSessionContext(request);
-
         MaterialLotResponse response = new MaterialLotResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         MaterialLotResponseBody responseBody = new MaterialLotResponseBody();
@@ -50,21 +47,21 @@ public class MaterialLotController extends AbstractRestController {
         MaterialLotAction materialLotAction = requestBody.getMaterialLotAction();
 
         if (MaterialLotRequest.ACTION_RECEIVE_2_WAREHOUSE.equals(actionType)) {
-            RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialLot.getMaterialName(), sc);
+            RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialLot.getMaterialName());
             if (rawMaterial == null) {
                 throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialLot.getMaterialName());
             }
             //TODO 当前不支持输入mLotId
-            materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, StringUtils.EMPTY, materialLotAction, sc);
+            materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, StringUtils.EMPTY, materialLotAction);
         } else if (MaterialLotRequest.ACTION_HOLD.equals(actionType)) {
-            materialLot = validationMaterialLot(materialLot, sc);
-            materialLot = mmsService.holdMaterialLot(materialLot, materialLotAction, sc);
+            materialLot = validationMaterialLot(materialLot);
+            materialLot = mmsService.holdMaterialLot(materialLot, materialLotAction);
         } else if (MaterialLotRequest.ACTION_RELEASE.equals(actionType)) {
-            materialLot = validationMaterialLot(materialLot, sc);
-            materialLot = mmsService.releaseMaterialLot(materialLot, materialLotAction, sc);
+            materialLot = validationMaterialLot(materialLot);
+            materialLot = mmsService.releaseMaterialLot(materialLot, materialLotAction);
         } else if (MaterialLotRequest.ACTION_CONSUME.equals(actionType)) {
-            materialLot = validationMaterialLot(materialLot, sc);
-            materialLot = mmsService.consumeMLot(materialLot, materialLotAction, sc);
+            materialLot = validationMaterialLot(materialLot);
+            materialLot = mmsService.consumeMLot(materialLot, materialLotAction);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
@@ -73,8 +70,8 @@ public class MaterialLotController extends AbstractRestController {
         return response;
     }
 
-    private MaterialLot validationMaterialLot(MaterialLot oldMaterialLot, SessionContext sc) {
-        MaterialLot materialLot = mmsService.getMLotByMLotId(oldMaterialLot.getMaterialLotId(), sc);
+    private MaterialLot validationMaterialLot(MaterialLot oldMaterialLot) {
+        MaterialLot materialLot = mmsService.getMLotByMLotId(oldMaterialLot.getMaterialLotId());
         if (materialLot == null) {
             throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, oldMaterialLot.getMaterialLotId());
         }

@@ -14,9 +14,9 @@ public interface ContextService {
 
     Context getContextByName(String name) throws ClientException;
 
-    List<ContextValue> getContextValue(Context context, ContextValue contextValue, SessionContext sc) throws ClientException;
+    List<ContextValue> getContextValue(Context context, ContextValue contextValue) throws ClientException;
 
-    void saveContextValue(Context context, List<ContextValue> contextValues, SessionContext sc) throws ClientException;
+    void saveContextValue(Context context, List<ContextValue> contextValues) throws ClientException;
 
 
 }

@@ -41,14 +41,14 @@ public class RtmServiceImpl implements RtmService {
     /**
      * 分析文件并产生结果保存
      */
-    public void analyseFile(AnalyseContext analyseContext, SessionContext sc) throws ClientException{
+    public void analyseFile(AnalyseContext analyseContext) throws ClientException{
         try {
             IAnalyse analyser = analyseContext.match();
             List<AnalyseResult> analyseResultList = analyser.analyse(analyseContext);
             if (analyser instanceof DynaxAnalyse) {
                 deleteDynaxAnalyseResultByFileName(analyseContext.getFileName());
             }
-            baseService.saveEntity(analyseResultList, sc);
+            baseService.saveEntity(analyseResultList);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

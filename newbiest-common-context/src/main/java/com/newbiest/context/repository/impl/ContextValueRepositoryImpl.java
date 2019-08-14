@@ -10,6 +10,7 @@ import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.context.model.Context;
 import com.newbiest.context.model.ContextValue;
 import com.newbiest.context.repository.custom.ContextValueRepositoryCustom;
@@ -34,14 +35,13 @@ public class ContextValueRepositoryImpl implements ContextValueRepositoryCustom 
      * 获得与ContextValue的ContextField值相同的所有激活的ContextValue
      * @param context 容器
      * @param contextValue 具有相同组合的ContextValue 比如contextFieldValue1值相同
-     * @param sc
      * @return
      * @throws ClientException
      */
-    public List<ContextValue> getContextValue(Context context, ContextValue contextValue, SessionContext sc) throws ClientException {
+    public List<ContextValue> getContextValue(Context context, ContextValue contextValue) throws ClientException {
         try {
             SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
-            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(ContextValue.class, sc.getOrgRrn())
+            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(ContextValue.class, ThreadLocalContext.getOrgRrn())
                         .mapFieldValue(ImmutableMap.of("contextRrn", context.getObjectRrn(), "status", NBVersionControl.STATUS_ACTIVE))
                         .build();
             if (!StringUtils.isNullOrEmpty(contextValue.getFieldValue1())) {

@@ -142,8 +142,8 @@ public class RecipeEquipmentHis extends NBHis {
 	@Column(name="RESERVED5")
 	private String reserved5;
 
-	public RecipeEquipmentHis(AbstractRecipeEquipment recipeEquipment, SessionContext sc) {
-		super(recipeEquipment, sc);
+	public RecipeEquipmentHis(AbstractRecipeEquipment recipeEquipment) {
+		super(recipeEquipment);
 		this.recipeEquipmentRrn = recipeEquipment.getObjectRrn();
 	}
 

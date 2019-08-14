@@ -14,5 +14,5 @@ import java.util.List;
  */
 public interface ContextValueRepositoryCustom {
 
-    List<ContextValue> getContextValue(Context context, ContextValue contextValue, SessionContext sc) throws ClientException;
+    List<ContextValue> getContextValue(Context context, ContextValue contextValue) throws ClientException;
 }

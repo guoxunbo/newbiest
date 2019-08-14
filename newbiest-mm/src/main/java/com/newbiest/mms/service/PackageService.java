@@ -12,8 +12,8 @@ import java.util.List;
  */
 public interface PackageService {
 
-    MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType, SessionContext sc) throws ClientException;
-    MaterialLot additionalPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions, SessionContext sc) throws ClientException;
-    void unPack(MaterialLotAction materialLotAction, SessionContext sc) throws ClientException;
+    MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException;
+    MaterialLot additionalPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void unPack(MaterialLotAction materialLotAction) throws ClientException;
 
 }

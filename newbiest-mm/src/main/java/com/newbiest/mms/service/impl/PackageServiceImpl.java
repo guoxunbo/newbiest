@@ -9,6 +9,7 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.dto.MaterialLotAction;
@@ -62,8 +63,8 @@ public class PackageServiceImpl implements PackageService{
     @Autowired
     BaseService baseService;
 
-    public MaterialLotPackageType getMaterialPackageTypeByName(String name, SessionContext sc) {
-        List<MaterialLotPackageType> packageTypes = (List<MaterialLotPackageType>) materialLotPackageTypeRepository.findByNameAndOrgRrn(name, sc.getOrgRrn());
+    public MaterialLotPackageType getMaterialPackageTypeByName(String name) {
+        List<MaterialLotPackageType> packageTypes = (List<MaterialLotPackageType>) materialLotPackageTypeRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
         if (CollectionUtils.isNotEmpty(packageTypes)) {
             return packageTypes.get(0);
         } else {
@@ -86,11 +87,10 @@ public class PackageServiceImpl implements PackageService{
     /**
      *
      * @param materialLotId
-     * @param sc
      * @return
      */
-    public MaterialLot getPackageLot(String materialLotId, SessionContext sc) {
-        return materialLotRepository.findByMaterialLotIdAndCategoryAndOrgRrn(materialLotId, MaterialLot.CATEGORY_PACKAGE, sc.getOrgRrn());
+    public MaterialLot getPackageLot(String materialLotId) {
+        return materialLotRepository.findByMaterialLotIdAndCategoryAndOrgRrn(materialLotId, MaterialLot.CATEGORY_PACKAGE, ThreadLocalContext.getOrgRrn());
     }
 
     /**
@@ -98,18 +98,18 @@ public class PackageServiceImpl implements PackageService{
      *   当前不卡控被追加包装批次的状态
      * @param packedMaterialLot 被追加的包装批次
      * @param materialLotActions 包装批次动作
-     * @param sc
      * @return
      */
-    public MaterialLot additionalPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions, SessionContext sc) throws ClientException {
+    public MaterialLot additionalPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
             // 取第一个的materialAction作为所有者的actionCode
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
 
             List<MaterialLot> allMaterialLot = Lists.newArrayList();
 
-            packedMaterialLot = getPackageLot(packedMaterialLot.getMaterialLotId(), sc);
+            packedMaterialLot = getPackageLot(packedMaterialLot.getMaterialLotId());
             if (packedMaterialLot == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST);
             }
@@ -117,16 +117,16 @@ public class PackageServiceImpl implements PackageService{
             List<MaterialLot> packageDetailsLot = getPackageDetailsLot(packedMaterialLot.getObjectRrn());
             allMaterialLot.addAll(packageDetailsLot);
 
-            List<MaterialLot> waitToAddPackingMLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId(), sc)).collect(Collectors.toList());
+            List<MaterialLot> waitToAddPackingMLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
             allMaterialLot.addAll(waitToAddPackingMLots);
 
-            MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packedMaterialLot.getPackageType(), sc);
+            MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packedMaterialLot.getPackageType());
             materialLotPackageType.validationPacking(allMaterialLot);
 
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(allMaterialLot));
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
             // 记录创建历史
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_ADDITIONAL_PACKAGE, sc);
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_ADDITIONAL_PACKAGE);
             history.setActionCode(firstMaterialAction.getActionCode());
             history.setActionReason(firstMaterialAction.getActionReason());
             // 记录被包装的批次信息
@@ -139,7 +139,7 @@ public class PackageServiceImpl implements PackageService{
             history.setActionComment(actionComment);
             materialLotHistoryRepository.save(history);
 
-            packageMaterialLots(packedMaterialLot, waitToAddPackingMLots, materialLotActions, sc);
+            packageMaterialLots(packedMaterialLot, waitToAddPackingMLots, materialLotActions);
 
             return packedMaterialLot;
         } catch (Exception e) {
@@ -151,19 +151,19 @@ public class PackageServiceImpl implements PackageService{
      * 拆包装，
      *  当前只支持全部拆包装， 并不返还被包装的物料数量(需要通过盘点或者反消耗进行)
      * @param materialLotAction
-     * @param sc
      */
-    public void unPack(MaterialLotAction materialLotAction, SessionContext sc) throws ClientException{
+    public void unPack(MaterialLotAction materialLotAction) throws ClientException{
         try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
-            MaterialLot packedMaterialLot = getPackageLot(materialLotAction.getMaterialLotId(), sc);
+            MaterialLot packedMaterialLot = getPackageLot(materialLotAction.getMaterialLotId());
             if (packedMaterialLot == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST);
             }
-            packedMaterialLot = mmsService.changeMaterialLotState(packedMaterialLot, MaterialEvent.EVENT_UN_PACKAGE, StringUtils.EMPTY, sc);
+            packedMaterialLot = mmsService.changeMaterialLotState(packedMaterialLot, MaterialEvent.EVENT_UN_PACKAGE, StringUtils.EMPTY);
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE, sc);
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE);
             history.setActionCode(materialLotAction.getActionCode());
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
@@ -178,19 +178,20 @@ public class PackageServiceImpl implements PackageService{
      * 对物料批次进行包装
      * @return
      */
-    public MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType, SessionContext sc) throws ClientException{
+    public MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException{
         try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
             // 取第一个的materialAction作为所有者的actionCode
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
 
-            List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId(), sc)).collect(Collectors.toList());
-            MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packageType, sc);
+            List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+            MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packageType);
             materialLotPackageType.validationPacking(materialLots);
 
             MaterialLot packedMaterialLot = (MaterialLot) materialLots.get(0).clone();
-            String packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType, sc);
-            if (mmsService.getMLotByMLotId(packedMaterialLotId, sc) != null) {
+            String packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
+            if (mmsService.getMLotByMLotId(packedMaterialLotId) != null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_EXIST);
             }
             packedMaterialLot.setMaterialLotId(packedMaterialLotId);
@@ -198,7 +199,7 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot.setMaterialType(materialLotPackageType.getTargetMaterialType());
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
             // 记录创建历史
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE, sc);
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE);
             history.setActionCode(firstMaterialAction.getActionCode());
             history.setActionReason(firstMaterialAction.getActionReason());
 
@@ -212,7 +213,7 @@ public class PackageServiceImpl implements PackageService{
             history.setActionComment(actionComment);
             materialLotHistoryRepository.save(history);
 
-            packageMaterialLots(packedMaterialLot, materialLots, materialLotActions, sc);
+            packageMaterialLots(packedMaterialLot, materialLots, materialLotActions);
             return packedMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -225,9 +226,8 @@ public class PackageServiceImpl implements PackageService{
      * @param packedMaterialLot
      * @param waitToPackingLot
      * @param materialLotActions
-     * @param sc
      */
-    private void packageMaterialLots(MaterialLot packedMaterialLot, List<MaterialLot> waitToPackingLot, List<MaterialLotAction> materialLotActions, SessionContext sc) throws ClientException {
+    private void packageMaterialLots(MaterialLot packedMaterialLot, List<MaterialLot> waitToPackingLot, List<MaterialLotAction> materialLotActions) throws ClientException {
         // 对物料批次做package事件处理 扣减物料批次数量
         for (MaterialLot materialLot : waitToPackingLot) {
 
@@ -236,9 +236,9 @@ public class PackageServiceImpl implements PackageService{
             BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
             // 完全包完
             if (currentQty.compareTo(BigDecimal.ZERO) == 0) {
-                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, MaterialStatus.STATUS_PACKED, sc);
+                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, MaterialStatus.STATUS_PACKED);
             } else if (currentQty.compareTo(BigDecimal.ZERO) > 0) {
-                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, StringUtils.EMPTY, sc);
+                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, StringUtils.EMPTY);
             } else {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO, materialLot.getMaterialLotId());
             }
@@ -247,7 +247,7 @@ public class PackageServiceImpl implements PackageService{
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             // 记录历史
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_PACKAGE, sc);
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_PACKAGE);
             history.setActionCode(materialLotAction.getActionCode());
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
@@ -257,7 +257,6 @@ public class PackageServiceImpl implements PackageService{
             PackagedLotDetail packagedLotDetail = packagedLotDetailRepository.findByPackagedLotRrnAndMaterialLotRrn(packedMaterialLot.getObjectRrn(), materialLot.getObjectRrn());
             if (packagedLotDetail == null) {
                 packagedLotDetail = new PackagedLotDetail();
-                packagedLotDetail.setOrgRrn(sc.getOrgRrn());
                 packagedLotDetail.setPackagedLotRrn(packedMaterialLot.getObjectRrn());
                 packagedLotDetail.setPackagedLotId(packedMaterialLot.getMaterialLotId());
                 packagedLotDetail.setMaterialLotRrn(materialLot.getObjectRrn());
@@ -273,13 +272,13 @@ public class PackageServiceImpl implements PackageService{
      * @return
      * @throws ClientException
      */
-    public String generatorPackageMLotId(MaterialLot packageMaterialLot, MaterialLotPackageType packageType, SessionContext sc) throws ClientException{
+    public String generatorPackageMLotId(MaterialLot packageMaterialLot, MaterialLotPackageType packageType) throws ClientException{
         try {
             GeneratorContext generatorContext = new GeneratorContext();
             generatorContext.setObject(packageMaterialLot);
             generatorContext.setRuleName(packageType.getPackIdRule());
 
-            String id = generatorService.generatorId(sc.getOrgRrn(), generatorContext);
+            String id = generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
             return id;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
