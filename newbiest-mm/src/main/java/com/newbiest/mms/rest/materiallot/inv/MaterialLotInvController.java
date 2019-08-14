@@ -35,8 +35,6 @@ public class MaterialLotInvController extends AbstractRestController {
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotInvRequest")
     @RequestMapping(value = "/materialLotInvManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public MaterialLotInvResponse execute(@RequestBody MaterialLotInvRequest request) throws Exception {
-        log(log, request);
-
         MaterialLotInvResponse response = new MaterialLotInvResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         MaterialLotInvResponseBody responseBody = new MaterialLotInvResponseBody();

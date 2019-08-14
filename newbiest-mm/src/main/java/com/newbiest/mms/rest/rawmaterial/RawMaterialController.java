@@ -35,8 +35,6 @@ public class RawMaterialController extends AbstractRestController {
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "RawMaterialRequest")
     @RequestMapping(value = "/rawMaterialManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public RawMaterialResponse execute(@RequestBody RawMaterialRequest request) throws Exception {
-        log(log, request);
-
         RawMaterialResponse response = new RawMaterialResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         RawMaterialResponseBody responseBody = new RawMaterialResponseBody();

@@ -33,7 +33,6 @@ public class QuestionLineController extends AbstractRestController {
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "ChangeShiftRequest")
     @RequestMapping(value = "/questionLineManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public QuestionLineResponse execute(@RequestBody QuestionLineRequest request) throws Exception {
-        log(log, request);
         QuestionLineResponse response = new QuestionLineResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         QuestionLineResponseBody responseBody = new QuestionLineResponseBody();

@@ -56,7 +56,7 @@
     </appender>
 
     <!-- name 需要分开记录日志的包名-->
-    <logger name="com.newbiest.base.rest" level="DEBUG" additivity="false">
+    <logger name="com.newbiest.base.filter" level="DEBUG" additivity="false">
         <appender-ref ref="rest"/>
     </logger>
 

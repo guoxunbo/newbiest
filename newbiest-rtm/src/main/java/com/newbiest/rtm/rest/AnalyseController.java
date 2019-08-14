@@ -34,8 +34,6 @@ public class AnalyseController extends AbstractRestController{
     @RequestMapping(value = "/analyseFile", method = RequestMethod.POST)
     public AnalyseResponse execute(@RequestParam MultipartFile file, @RequestParam String request) throws Exception {
         AnalyseRequest tableRequest = DefaultParser.getObjectMapper().readerFor(AnalyseRequest.class).readValue(request);
-
-        log(log, tableRequest);
         AnalyseResponse response = new AnalyseResponse();
         response.getHeader().setTransactionId(tableRequest.getHeader().getTransactionId());
         AnalyseResponseBody responseBody = new AnalyseResponseBody();
