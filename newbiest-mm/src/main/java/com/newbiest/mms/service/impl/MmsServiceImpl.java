@@ -678,13 +678,12 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot changeMaterialLotState(MaterialLot mLot, String eventId, String targetStatus) throws ClientException {
         try {
-            mLot = (MaterialLot) statusMachineService.triggerEvent(mLot, eventId, targetStatus, ThreadLocalContext.getSessionContext());
+            mLot = (MaterialLot) statusMachineService.triggerEvent(mLot, eventId, targetStatus);
             mLot = materialLotRepository.saveAndFlush(mLot);
             return mLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
-
 
 }

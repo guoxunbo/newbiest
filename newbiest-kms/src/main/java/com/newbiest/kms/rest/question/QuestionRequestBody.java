@@ -15,6 +15,9 @@ public class QuestionRequestBody extends RequestBody {
 	@ApiModelProperty(value = "操作类型", example = "Create/Update等")
 	private String actionType;
 
+	@ApiModelProperty("NBTable对应的tableRrn.主要用来校验其对应栏位的keyFlag数据")
+	private Long tableRrn;
+
 	@ApiModelProperty(value = "操作的物料对象")
 	private Question question;
 

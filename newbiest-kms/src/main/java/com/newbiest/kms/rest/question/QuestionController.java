@@ -40,6 +40,7 @@ public class QuestionController extends AbstractRestController {
         Question question = requestBody.getQuestion();
 
         if (QuestionRequest.ACTION_CREATE.equals(actionType)) {
+            validationUniqueObjectByTableRrn(requestBody.getTableRrn(), question);
             question = kmsService.saveQuestion(question);
         } else if (QuestionRequest.ACTION_UPDATE.equals(actionType)) {
             validateEntity(question);
