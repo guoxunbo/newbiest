@@ -58,6 +58,7 @@ public class KmsServiceImpl implements KmsService {
                 question.setName(name);
                 NBUser user = securityService.getUserByUsername(ThreadLocalContext.getUsername());
                 question.setCreatedUserDept(user.getDepartment());
+                question.setReserved10(user.getDescription());
             }
             return (Question) baseService.saveEntity(question);
         } catch (Exception e) {

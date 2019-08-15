@@ -113,6 +113,9 @@ public class Question extends NBUpdatable implements IDataAuthorityValidation {
     @Column(name="RESERVED9")
     private String reserved9;
 
+    /**
+     * 用户的真实姓名
+     */
     @Column(name="RESERVED10")
     private String reserved10;
 }
