@@ -6,7 +6,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.newbiest</groupId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>${platform.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,19 +25,19 @@
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>context</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>${platform.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>rms</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>${platform.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>mm</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>${platform.version}</version>
         </dependency>
         <dependency>
             <groupId>com.oracle</groupId>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>rtm</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>${platform.version}</version>
         </dependency>
     </dependencies>
     <build>
