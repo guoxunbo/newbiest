@@ -17,10 +17,7 @@ public class FinishGoodRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
-	@ApiModelProperty(value = "Mes完成品批次，必须携带boxId")
+	@ApiModelProperty(value = "GC：Mes完成品批次，必须携带boxId")
 	private List<MesPackedLot> mesPackedLots;
-
-	@ApiModelProperty("仓库")
-	private Long warehouseRrn;
 
 }

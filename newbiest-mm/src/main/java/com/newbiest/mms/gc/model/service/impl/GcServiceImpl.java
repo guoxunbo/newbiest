@@ -46,7 +46,7 @@ public class GcServiceImpl implements GcService {
      * 接收MES的完成品
      * @param packedLotList
      */
-    public void receiveFinishGood(List<MesPackedLot> packedLotList, long warehouseRrn) throws ClientException {
+    public void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException {
         try {
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().map(packedLot -> mesPackedLotRepository.findByBoxId(packedLot.getBoxId())).collect(Collectors.groupingBy(MesPackedLot :: getProductId));
             packedLotMap.keySet().forEach(productId -> {
@@ -57,11 +57,9 @@ public class GcServiceImpl implements GcService {
 
                 List<MesPackedLot> mesPackedLots = packedLotMap.get(productId);
                 for (MesPackedLot mesPackedLot : mesPackedLots) {
-
                     MaterialLotAction materialLotAction = new MaterialLotAction();
                     materialLotAction.setGrade(mesPackedLot.getGrade());
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
-                    materialLotAction.setTargetWarehouseRrn(warehouseRrn);
                     MaterialLot materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, mesPackedLot.getBoxId(), materialLotAction);
 
                     materialLot.setWorkOrderId(mesPackedLot.getWorkorderId());

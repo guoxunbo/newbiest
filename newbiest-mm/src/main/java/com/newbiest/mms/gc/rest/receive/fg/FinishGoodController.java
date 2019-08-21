@@ -32,7 +32,7 @@ public class FinishGoodController {
 
         FinishGoodResponseBody responseBody = new FinishGoodResponseBody();
         FinishGoodRequestBody requestBody = request.getBody();
-        gcService.receiveFinishGood(requestBody.getMesPackedLots(), requestBody.getWarehouseRrn());
+        gcService.receiveFinishGood(requestBody.getMesPackedLots());
 
         response.setBody(responseBody);
         return response;

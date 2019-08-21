@@ -10,6 +10,6 @@ import java.util.List;
  */
 public interface GcService {
 
-    void receiveFinishGood(List<MesPackedLot> packedLotList, long warehouseRrn) throws ClientException;
+    void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
 
 }
