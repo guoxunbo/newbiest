@@ -428,7 +428,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
 
             BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
-            if (currentQty.compareTo(materialLotAction.getTransQty()) < 0) {
+            if (currentQty.compareTo(BigDecimal.ZERO) < 0) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO);
             }
 
