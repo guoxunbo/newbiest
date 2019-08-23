@@ -521,6 +521,27 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
+     * 更新物料库存
+     * @throws ClientException
+     */
+    public void saveMaterialLotInventory(MaterialLotInventory materialLotInventory, BigDecimal transQty) throws ClientException {
+        try {
+            materialLotInventory.setStockQty(materialLotInventory.getStockQty().add(transQty));
+            if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) < 0) {
+                throw new ClientException(MmsException.MM_MATERIAL_LOT_STOCK_QTY_CANOT_LESS_THEN_ZERO);
+            } else if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) == 0) {
+                if (materialLotInventory.getObjectRrn() != null) {
+                    materialLotInventoryRepository.delete(materialLotInventory);
+                }
+            } else {
+                materialLotInventoryRepository.save(materialLotInventory);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 更新物料批次的库存数量
      * @param materialLot 物料批次
      * @param warehouse 仓库
@@ -535,16 +556,7 @@ public class MmsServiceImpl implements MmsService {
                 materialLotInventory = new MaterialLotInventory();
                 materialLotInventory.setMaterialLot(materialLot).setWarehouse(warehouse);
             }
-            materialLotInventory.setStockQty(materialLotInventory.getStockQty().add(transQty));
-            if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) < 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_STOCK_QTY_CANOT_LESS_THEN_ZERO);
-            } else if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) == 0) {
-                if (materialLotInventory.getObjectRrn() != null) {
-                    materialLotInventoryRepository.delete(materialLotInventory);
-                }
-            } else {
-                materialLotInventoryRepository.save(materialLotInventory);
-            }
+            saveMaterialLotInventory(materialLotInventory, transQty);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

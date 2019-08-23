@@ -231,17 +231,23 @@ public class PackageServiceImpl implements PackageService{
             String materialLotId = materialLot.getMaterialLotId();
             MaterialLotAction materialLotAction = materialLotActions.stream().filter(action -> materialLotId.equals(action.getMaterialLotId())).findFirst().get();
             BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
-            // 完全包完
+            // 完全包完则触发package事件
             if (currentQty.compareTo(BigDecimal.ZERO) == 0) {
                 materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, MaterialStatus.STATUS_PACKED);
-            } else if (currentQty.compareTo(BigDecimal.ZERO) > 0) {
-                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, StringUtils.EMPTY);
             } else {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO, materialLot.getMaterialLotId());
             }
 
             materialLot.setCurrentQty(currentQty);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            // 如果批次在库存中，则直接消耗库存数量
+            // 支持一个批次在多个仓库中 故这里直接取第一个库存位置消耗
+            List<MaterialLotInventory> materialLotInventories = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
+            if (CollectionUtils.isNotEmpty(materialLotInventories)) {
+                MaterialLotInventory materialLotInventory = materialLotInventories.get(0);
+                mmsService.saveMaterialLotInventory(materialLotInventory, materialLotAction.getTransQty().negate());
+            }
 
             // 记录历史
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_PACKAGE);

@@ -6,6 +6,7 @@ import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotInventory;
 import com.newbiest.mms.model.RawMaterial;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -27,11 +28,13 @@ public interface MmsService {
     MaterialLot checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot changeMaterialLotState(MaterialLot mLot, String eventId, String targetStatus) throws ClientException;
     void validationMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException;
+    void saveMaterialLotInventory(MaterialLotInventory materialLotInventory, BigDecimal transQty) throws ClientException;
 
     MaterialLot holdMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot releaseMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
 
     MaterialLot consumeMLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
 
+    List<MaterialLotInventory> getMaterialLotInv(long mLotRrn) throws ClientException;
     MaterialLotInventory getMaterialLotInv(long mLotRrn, long warehouseRrn) throws ClientException;
 }
