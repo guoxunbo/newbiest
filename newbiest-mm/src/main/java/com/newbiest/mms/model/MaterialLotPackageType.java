@@ -30,14 +30,7 @@ public class MaterialLotPackageType extends PackageType {
         if (packagedMaterial.isPresent()) {
             throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_PACKED, packagedMaterial.get().getMaterialLotId());
         }
-        //2. 验证所有的批次类型是否一致
-        if (!StringUtils.isNullOrEmpty(sourceMaterialType)) {
-            Optional optional = materialLots.stream().filter(materialLot -> !sourceMaterialType.equals(materialLot.getMaterialType())).findFirst();
-            if (optional.isPresent()) {
-                throw new ClientException(MmsException.MM_PACKAGE_MATERIAL_TYPE_IS_NOT_THE_SAME);
-            }
-        }
-        //3. 验证是否超过包装的最大数量限制
+        //2. 验证是否超过包装的最大数量限制
         if (beforePackCountType.equals(COUNT_TYPE_BY_LOT)) {
             BigDecimal lotSize = new BigDecimal(materialLots.size());
             if (maxQty.compareTo(lotSize) < 0) {

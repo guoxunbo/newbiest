@@ -55,29 +55,22 @@ public abstract class PackageType extends NBUpdatable {
     protected String mergeRule;
 
     /**
-     * 源物料类型 对选择的物料批次的包装类型
-     *
-     */
-    @Column(name="SOURCE_MATERIAL_TYPE")
-    protected String sourceMaterialType;
-
-    /**
      * 目标物料类型 包装之后产生的包装批次的物料类型
      */
     @Column(name="TARGET_MATERIAL_TYPE")
     protected String targetMaterialType;
 
     /**
-     * 包装后批次的数量计数类型
-     */
-    @Column(name="PACKED_COUNT_TYPE")
-    protected String packedCountType = COUNT_TYPE_BY_LOT;
-
-    /**
      * 包装前的物料批次数量计数类型
      */
     @Column(name="BEFORE_PACK_COUNT_TYPE")
     protected String beforePackCountType = COUNT_TYPE_BY_LOT;
+
+    /**
+     * 包装后批次的数量计数类型
+     */
+    @Column(name="PACKED_COUNT_TYPE")
+    protected String packedCountType = COUNT_TYPE_BY_LOT;
 
     /**
      * 允许包装的最大数量

@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_package_type_drop_column-merge_rule
+      author: Xunbo Guo
+      remarks: mms_package_type drop column source_material_type
+      changes:
+        - dropColumn:
+            tableName: MMS_PACKAGE_TYPE
+            columnName: SOURCE_MATERIAL_TYPE
