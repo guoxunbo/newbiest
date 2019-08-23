@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_package_lot_detail_addColumn-qty
+      author: Xunbo Guo
+      remarks: mms_package_lot_detail add column qty
+      changes:
+        - addColumn:
+            tableName: MMS_PACKAGED_LOT_DETAIL
+            columns:
+              - column:
+                  name: QTY
+                  type: bigint

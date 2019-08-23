@@ -1,0 +1,28 @@
+package com.newbiest.mms.model;
+
+import com.newbiest.base.model.NBUpdatable;
+import lombok.Data;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+/**
+ *
+ * Created by guoxunbo on 2019-08-20 16:05
+ */
+@Data
+@Entity
+@Table(name="MMS_STORAGE")
+public class Storage extends NBUpdatable {
+
+    @Column(name="NAME")
+    private String name;
+
+    @Column(name="DESCRIPTION")
+    private String description;
+
+    @Column(name="STORAGE_TYPE")
+    private String storageType;
+
+}

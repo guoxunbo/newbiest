@@ -1,5 +1,6 @@
 package com.newbiest.mms.model;
 
+import com.newbiest.base.dto.Action;
 import com.newbiest.base.model.NBUpdatable;
 import lombok.Data;
 
@@ -93,9 +94,10 @@ public abstract class PackageType extends NBUpdatable {
 
     /**
      * 获取包装之后的物料批次的数量
-     * @param packageChildren 待包装的物料批次、批次
+     *  不一定是全部包装，以传入action的TransQty为准
+     * @param actions 待包装的物料批次、批次
      * @return
      */
-    public abstract BigDecimal getPackedQty(List<? extends NBUpdatable> packageChildren);
+    public abstract BigDecimal getPackedQty(List<? extends Action> actions);
 
 }
