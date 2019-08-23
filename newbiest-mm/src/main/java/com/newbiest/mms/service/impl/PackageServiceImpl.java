@@ -23,6 +23,7 @@ import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -200,7 +202,13 @@ public class PackageServiceImpl implements PackageService{
             }
             packedMaterialLot.setMaterialLotId(packedMaterialLotId);
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(materialLotActions));
-            packedMaterialLot.setMaterialType(materialLotPackageType.getTargetMaterialType());
+            packedMaterialLot.setReceiveQty(packedMaterialLot.getCurrentQty());
+            packedMaterialLot.initialMaterialLot();
+            packedMaterialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_USE);
+            packedMaterialLot.setStatus(MaterialStatus.STATUS_WAIT);
+            packedMaterialLot.setPackageType(packageType);
+
+            packedMaterialLot.setMaterialType(StringUtils.isNullOrEmpty(materialLotPackageType.getTargetMaterialType()) ? packedMaterialLot.getMaterialType() : materialLotPackageType.getTargetMaterialType());
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 
             // 记录创建历史
@@ -268,6 +276,7 @@ public class PackageServiceImpl implements PackageService{
             packagedLotDetail.setQty(packagedLotDetail.getQty().add(materialLotAction.getTransQty()));
             packagedLotDetailRepository.save(packagedLotDetail);
         }
+
     }
 
     /**

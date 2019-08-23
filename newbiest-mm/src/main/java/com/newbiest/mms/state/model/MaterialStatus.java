@@ -13,5 +13,6 @@ import javax.persistence.Entity;
 public class MaterialStatus extends Status{
 
     public static final String STATUS_PACKED = "Packed";
+    public static final String STATUS_WAIT = "Wait";
 
 }

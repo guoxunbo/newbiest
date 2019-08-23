@@ -313,4 +313,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         return this;
     }
 
+    public void initialMaterialLot() {
+        setReceiveDate(new Date());
+        setPreStatusCategory(StringUtils.EMPTY);
+        setPreStatus(StringUtils.EMPTY);
+        setPreSubStatus(StringUtils.EMPTY);
+        setReceiveQty(this.getCurrentQty());
+        setReservedQty(BigDecimal.ZERO);
+    }
 }
