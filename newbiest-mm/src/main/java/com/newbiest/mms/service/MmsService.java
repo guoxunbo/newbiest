@@ -6,6 +6,8 @@ import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotInventory;
 import com.newbiest.mms.model.RawMaterial;
 
+import java.util.List;
+
 /**
  * Created by guoxunbo on 2019/2/13.
  */
@@ -24,6 +26,7 @@ public interface MmsService {
     MaterialLot transfer(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot changeMaterialLotState(MaterialLot mLot, String eventId, String targetStatus) throws ClientException;
+    void validationMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException;
 
     MaterialLot holdMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot releaseMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;

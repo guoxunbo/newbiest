@@ -29,7 +29,7 @@ public class MergeRuleContext implements Serializable {
     /**
      * 需要验证的对象
      */
-    private List<Object> compareObjects;
+    private List<? extends Object> compareObjects;
 
     /**
      * 验证规则
@@ -39,7 +39,7 @@ public class MergeRuleContext implements Serializable {
     /**
      * 默认的验证方法。当ruleLines是空的时候，则不进行验证
      */
-    protected void validation() throws ClientException {
+    public void validation() throws ClientException {
         if (CollectionUtils.isNotEmpty(mergeRuleLines)) {
             for (MergeRuleLine ruleLine : mergeRuleLines) {
                 Object compareValue;

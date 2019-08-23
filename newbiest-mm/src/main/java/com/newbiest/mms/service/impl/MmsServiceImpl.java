@@ -1,6 +1,7 @@
 package com.newbiest.mms.service.impl;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBVersionControl;
@@ -12,8 +13,10 @@ import com.newbiest.base.utils.*;
 import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.commom.sm.service.StatusMachineService;
+import com.newbiest.common.exception.ContextException;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
+import com.newbiest.context.model.MergeRuleContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -67,6 +70,9 @@ public class MmsServiceImpl implements MmsService {
 
     @Autowired
     WarehouseRepository warehouseRepository;
+
+    @Autowired
+    MaterialLotMergeRuleRepository materialLotMergeRuleRepository;
 
     /**
      * 根据名称获取源物料。
@@ -663,6 +669,25 @@ public class MmsServiceImpl implements MmsService {
             generatorContext.setRuleName(MaterialLot.GENERATOR_MATERIAL_LOT_ID_RULE);
             String id = generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
             return id;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证合批规则
+     */
+    public void validationMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException{
+        try {
+            List<MaterialLotMergeRule> mergeRule = materialLotMergeRuleRepository.findByNameAndOrgRrn(ruleName, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isEmpty(mergeRule)) {
+                throw new ClientParameterException(ContextException.MERGE_RULE_IS_NOT_EXIST, ruleName);
+            }
+            MergeRuleContext mergeRuleContext = new MergeRuleContext();
+            mergeRuleContext.setBaseObject(materialLots.get(0));
+            mergeRuleContext.setCompareObjects(materialLots);
+            mergeRuleContext.setMergeRuleLines(mergeRule.get(0).getLines());
+            mergeRuleContext.validation();
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
