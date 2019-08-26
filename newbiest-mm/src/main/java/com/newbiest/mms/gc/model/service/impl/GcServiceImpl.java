@@ -3,12 +3,16 @@ package com.newbiest.mms.gc.model.service.impl;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.gc.model.MesPackedLot;
 import com.newbiest.mms.gc.model.service.GcService;
 import com.newbiest.mms.gc.repository.MesPackedLotRepository;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotHistory;
 import com.newbiest.mms.model.RawMaterial;
+import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.service.MmsService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +35,9 @@ import static com.newbiest.mms.exception.MmsException.*;
 @Transactional
 public class GcServiceImpl implements GcService {
 
+    public static final String TRANS_TYPE_BIND_RELAY_BOX = "BindRelayBox";
+    public static final String TRANS_TYPE_UNBIND_RELAY_BOX = "UnbindRelayBox";
+
     @Autowired
     MesPackedLotRepository mesPackedLotRepository;
 
@@ -38,7 +45,13 @@ public class GcServiceImpl implements GcService {
     MaterialLotRepository materialLotRepository;
 
     @Autowired
+    MaterialLotHistoryRepository materialLotHistoryRepository;
+
+    @Autowired
     MmsService mmsService;
+
+    @Autowired
+    BaseService baseService;
 
     /**
      * 接收MES的完成品
@@ -61,7 +74,6 @@ public class GcServiceImpl implements GcService {
                     MaterialLot materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, mesPackedLot.getBoxId(), materialLotAction);
 
                     materialLot.setWorkOrderId(mesPackedLot.getWorkorderId());
-
                     // 预留栏位赋值
                     materialLot.setReserved1(mesPackedLot.getLevelTwoCode());
                     materialLot.setReserved2(mesPackedLot.getWaferId());
@@ -81,6 +93,44 @@ public class GcServiceImpl implements GcService {
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
+    }
+
+    /**
+     * 物料批次绑定中转箱
+     * @throws ClientException
+     */
+    public void bindRelaxBox(List<MaterialLot> materialLots, String relaxBoxId) throws ClientException{
+        try {
+            materialLots.forEach(materialLot -> {
+                materialLot.setReserved8(relaxBoxId);
+                materialLotRepository.save(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_BIND_RELAY_BOX);
+                materialLotHistoryRepository.save(history);
+            });
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+
+    }
+
+    /**
+     * 物料批次取消绑定中转箱
+     * @throws ClientException
+     */
+    public void unbindRelaxBox(List<MaterialLot> materialLots) throws ClientException{
+        try {
+            materialLots.forEach(materialLot -> {
+                materialLot.setReserved8(StringUtils.EMPTY);
+                materialLotRepository.save(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UNBIND_RELAY_BOX);
+                materialLotHistoryRepository.save(history);
+            });
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+
     }
 
 }

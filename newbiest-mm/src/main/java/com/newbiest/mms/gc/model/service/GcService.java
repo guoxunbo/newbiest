@@ -2,6 +2,7 @@ package com.newbiest.mms.gc.model.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.gc.model.MesPackedLot;
+import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
 
@@ -11,5 +12,8 @@ import java.util.List;
 public interface GcService {
 
     void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
+
+    void bindRelaxBox(List<MaterialLot> materialLots, String relaxBoxId) throws ClientException;
+    void unbindRelaxBox(List<MaterialLot> materialLots) throws ClientException;
 
 }
