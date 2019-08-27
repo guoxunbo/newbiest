@@ -55,17 +55,17 @@ public class MaterialLotInvController extends AbstractRestController {
 
         if (MaterialLotInvRequest.ACTION_STOCK_IN.equals(actionType)) {
             mmsService.stockIn(materialLot, materialLotAction);
-            materialLotInventory = mmsService.getMaterialLotInv(materialLot.getObjectRrn(), materialLotAction.getTargetWarehouseRrn());
+//            materialLotInventory = mmsService.getMaterialLotInv(materialLot.getObjectRrn(), materialLotAction.getTargetWarehouseRrn());
         } else if (MaterialLotInvRequest.ACTION_STOCK_OUT.equals(actionType)) {
             mmsService.stockOut(materialLot, materialLotAction);
         } else if (MaterialLotInvRequest.ACTION_TRANSFER.equals(actionType)) {
             mmsService.transfer(materialLot, materialLotAction);
-            materialLotInventory = mmsService.getMaterialLotInv(materialLot.getObjectRrn(), materialLotAction.getTargetWarehouseRrn());
+//            materialLotInventory = mmsService.getMaterialLotInv(materialLot.getObjectRrn(), materialLotAction.getTargetWarehouseRrn());
         } else if (MaterialLotInvRequest.ACTION_PICK.equals(actionType)) {
             mmsService.pick(materialLot, materialLotAction);
         } else if (MaterialLotInvRequest.ACTION_CHECK.equals(actionType)) {
             mmsService.checkMaterialInventory(materialLot, materialLotAction);
-            materialLotInventory = mmsService.getMaterialLotInv(materialLot.getObjectRrn(), materialLotAction.getFromWarehouseRrn());
+//            materialLotInventory = mmsService.getMaterialLotInv(materialLot.getObjectRrn(), materialLotAction.getFromWarehouseRrn());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

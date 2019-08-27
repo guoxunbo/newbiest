@@ -21,6 +21,9 @@ databaseChangeLog:
       file: db.changelog-0.0.1.material_lot_inventory.yaml
       relativeToChangelogFile: true
   - include:
+      file: db.changelog-0.0.2.material_lot_inventory.yaml
+      relativeToChangelogFile: true
+  - include:
       file: db.changelog-0.0.1.package_type.yaml
       relativeToChangelogFile: true
   - include:

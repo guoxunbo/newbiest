@@ -40,7 +40,7 @@ public class MaterialLotInventory extends NBUpdatable {
     private String warehouseId;
 
     @Column(name = "STORAGE_RRN")
-    private String storageRrn;
+    private Long storageRrn;
 
     /**
      * 库位类型
@@ -71,6 +71,13 @@ public class MaterialLotInventory extends NBUpdatable {
         this.setMaterialLotId(materialLot.getMaterialLotId());
         this.setMaterialName(materialLot.getMaterialName());
         this.setMaterialDesc(materialLot.getMaterialDesc());
+        return this;
+    }
+
+    public MaterialLotInventory setStorage(Storage storage) {
+        this.setStorageRrn(storage.getObjectRrn());
+        this.setStorageId(storage.getName());
+        this.setStorageType(storage.getStorageType());
         return this;
     }
 

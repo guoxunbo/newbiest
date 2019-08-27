@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-mms_material_lot_inventory-0.0.2
+      author: Xunbo Guo
+      comment: MODIFY MMS_MATERIAL_LOT_INVENTORY STORAGE_ID, STORAGE_TYPE's TYPE TO VARCHAR(64)
+      changes:
+        - modifyDataType:
+            tableName: MMS_MATERIAL_LOT_INVENTORY
+            columnName: STORAGE_ID
+            newDataType: varchar2(64)
+        - modifyDataType:
+            tableName: MMS_MATERIAL_LOT_INVENTORY
+            columnName: STORAGE_TYPE
+            newDataType: varchar2(64)
