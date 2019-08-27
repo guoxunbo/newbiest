@@ -48,6 +48,8 @@ public class GcMaterialLotController extends AbstractRestController {
             gcService.unbindRelaxBox(materialLots);
         } else if (GcMaterialLotRequest.ACTION_STORING_LOT.equals(actionType)) {
 
+        } else if (GcMaterialLotRequest.ACTION_JUDGE_PACKED_LOT.equals(actionType)) {
+            gcService.judgePackedMaterialLot(materialLots, requestBody.getJudgeGrade(), requestBody.getJudgeCode());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

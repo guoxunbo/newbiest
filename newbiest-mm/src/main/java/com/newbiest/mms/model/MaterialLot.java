@@ -259,9 +259,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED8")
     private String reserved8;
 
+    /**
+     * 判定等级
+     */
     @Column(name="RESERVED9")
     private String reserved9;
 
+    /**
+     * 判定码
+     */
     @Column(name="RESERVED10")
     private String reserved10;
 

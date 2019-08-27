@@ -37,6 +37,7 @@ public class GcServiceImpl implements GcService {
 
     public static final String TRANS_TYPE_BIND_RELAY_BOX = "BindRelayBox";
     public static final String TRANS_TYPE_UNBIND_RELAY_BOX = "UnbindRelayBox";
+    public static final String TRANS_TYPE_JUDGE = "Judge";
 
     @Autowired
     MesPackedLotRepository mesPackedLotRepository;
@@ -126,6 +127,28 @@ public class GcServiceImpl implements GcService {
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UNBIND_RELAY_BOX);
                 materialLotHistoryRepository.save(history);
+            });
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+
+    }
+
+    /**
+     * 对包装后的物料批次进行判等
+     * @throws ClientException
+     */
+    public void judgePackedMaterialLot(List<MaterialLot> materialLots, String judgeGrade, String judgeCode) throws ClientException{
+        try {
+            materialLots.forEach(materialLot -> {
+                materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true);
+                if (!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
+                    materialLot.setReserved9(judgeGrade);
+                    materialLot.setReserved10(judgeCode);
+                    materialLotRepository.save(materialLot);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_JUDGE);
+                    materialLotHistoryRepository.save(history);
+                }
             });
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

@@ -24,4 +24,11 @@ public class GcMaterialLotRequestBody extends RequestBody {
 	@ApiModelProperty("中转箱号")
 	private String relayBoxId;
 
+	@ApiModelProperty("判定等级")
+	private String judgeGrade;
+
+	@ApiModelProperty("判定码")
+	private String judgeCode;
+
+
 }

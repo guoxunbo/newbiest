@@ -600,9 +600,21 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    public MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException{
+        try {
+            MaterialLot materialLot =  materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId, ThreadLocalContext.getOrgRrn());
+            if (materialLot == null && throwExceptionFlag) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST);
+            }
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     public MaterialLot getMLotByMLotId(String mLotId) throws ClientException{
         try {
-            return materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId, ThreadLocalContext.getOrgRrn());
+            return getMLotByMLotId(mLotId, false);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
