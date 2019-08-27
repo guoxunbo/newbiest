@@ -66,6 +66,7 @@ public class MmsConfiguration {
         ModelFactory.registerModelClassLoader(MaterialLot.class.getName(), MaterialLot.class.getClassLoader());
         ModelFactory.registerModelClassLoader(MaterialLotHistory.class.getName(), MaterialLotHistory.class.getClassLoader());
         ModelFactory.registerModelClassLoader(Warehouse.class.getName(), Warehouse.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(Storage.class.getName(), Storage.class.getClassLoader());
         ModelFactory.registerModelClassLoader(MaterialLotPackageType.class.getName(), MaterialLotPackageType.class.getClassLoader());
         ModelFactory.registerModelClassLoader(MaterialLotMergeRule.class.getName(), MaterialLotMergeRule.class.getClassLoader());
 

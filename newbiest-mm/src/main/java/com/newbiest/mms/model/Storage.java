@@ -25,4 +25,14 @@ public class Storage extends NBUpdatable {
     @Column(name="STORAGE_TYPE")
     private String storageType;
 
+    @Column(name="WAREHOUSE_RRN")
+    private Long warehouseRrn;
+
+    /**
+     * 父级节点
+     */
+    @Column(name="PARENT_RRN")
+    private Long parentRrn;
+
+
 }

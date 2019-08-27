@@ -15,6 +15,9 @@ databaseChangeLog:
       file: db.changelog-0.0.1.warehouse.yaml
       relativeToChangelogFile: true
   - include:
+      file: db.changelog-0.0.2.warehouse.yaml
+      relativeToChangelogFile: true
+  - include:
       file: db.changelog-0.0.1.material_lot_inventory.yaml
       relativeToChangelogFile: true
   - include:
@@ -46,4 +49,7 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: db.changelog-0.0.5.package_type.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.storage.yaml
       relativeToChangelogFile: true

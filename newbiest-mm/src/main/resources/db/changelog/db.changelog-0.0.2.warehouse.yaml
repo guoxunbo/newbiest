@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-mms_warehouse-0.0.2
+      author: Xunbo Guo
+      comment: MODIFY MMS_WAREHOUSE WAREHOUSE_TYPE, WAREHOUSE_GROUP's TYPE TO VARCHAR(64)
+      changes:
+        - modifyDataType:
+            tableName: MMS_WAREHOUSE
+            columnName: WAREHOUSE_TYPE
+            newDataType: varchar2(64)
+        - modifyDataType:
+            tableName: MMS_WAREHOUSE
+            columnName: WAREHOUSE_GROUP
+            newDataType: varchar2(64)
