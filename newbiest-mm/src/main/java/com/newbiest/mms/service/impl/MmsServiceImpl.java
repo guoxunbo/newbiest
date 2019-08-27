@@ -206,17 +206,6 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
-     * 根据物料号以及仓库 获取物料批次库存
-     *  业务场景为不管库位，只管仓库
-     * @param mLotRrn 物料号
-     * @param warehouseRrn 仓库
-     */
-    public MaterialLotInventory getMaterialLotInv(long mLotRrn, long warehouseRrn) throws ClientException {
-        return materialLotInventoryRepository.findByMaterialLotRrnAndWarehouseRrnAndStorageIsNull(mLotRrn, warehouseRrn);
-    }
-
-
-    /**
      * 根据物料批次号获取物料库存
      * @param mLotRrn
      * @return
@@ -224,6 +213,65 @@ public class MmsServiceImpl implements MmsService {
      */
     public List<MaterialLotInventory> getMaterialLotInv(long mLotRrn) throws ClientException {
         return materialLotInventoryRepository.findByMaterialLotRrn(mLotRrn);
+    }
+
+    /**
+     * 获取默认的库位。这个库位可以挂在任意仓库下面
+     *  如果系统中没有默认库位则直接创建一个
+     */
+    private Storage getDefaultStorage() throws ClientException{
+        try {
+            Storage storage = (Storage) storageRepository.findByNameAndOrgRrn(Storage.DEFAULT_STORAGE_NAME, ThreadLocalContext.getOrgRrn());
+            if (storage == null) {
+                storage = new Storage();
+                storage.setName(Storage.DEFAULT_STORAGE_NAME);
+                storage.setDescription(Storage.DEFAULT_STORAGE_NAME);
+                storage = storageRepository.saveAndFlush(storage);
+            }
+            return storage;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据Action上目标库位进行返回库位信息，如果没有指定库位则返回默认库位
+     * @param materialLotAction
+     * @return
+     */
+    private Storage getTargetStorageByMaterialLotAction(MaterialLotAction materialLotAction) {
+        try {
+            Storage targetStorage = null;
+            if (materialLotAction.getTargetStorageRrn() != null) {
+                targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getTargetStorageRrn());
+            } else {
+                targetStorage = getDefaultStorage();
+                materialLotAction.setTargetStorageRrn(targetStorage.getObjectRrn());
+            }
+            return targetStorage;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据Action上目标库位进行返回库位信息，如果没有指定库位则返回默认库位
+     * @param materialLotAction
+     * @return
+     */
+    private Storage getFromStorageByMaterialLotAction(MaterialLotAction materialLotAction) {
+        try {
+            Storage targetStorage = null;
+            if (materialLotAction.getFromStorageRrn() != null) {
+                targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getTargetStorageRrn());
+            } else {
+                targetStorage = getDefaultStorage();
+                materialLotAction.setFromStorageRrn(targetStorage.getObjectRrn());
+            }
+            return targetStorage;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     /**
@@ -241,24 +289,12 @@ public class MmsServiceImpl implements MmsService {
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), "TargetWarehouseRrn");
             materialLot.validateMLotHold();
             Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
-            Storage targetStorage = null;
-            if (materialLotAction.getTargetStorageRrn() != null) {
-                targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getTargetStorageRrn());
-            }
+            Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction);
 
-            MaterialLotInventory materialLotInventory = null;
-            if (targetStorage != null) {
-                materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), targetWarehouse.getObjectRrn(), targetStorage.getObjectRrn());
-            } else {
-                materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), targetWarehouse.getObjectRrn());
-            }
-            if (materialLotInventory != null && !materialLotInventory.getWarehouseRrn().equals(materialLotAction.getTargetWarehouseRrn())) {
+            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), targetWarehouse.getObjectRrn(), targetStorage.getObjectRrn());
+            if (materialLotInventory != null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_SUPPORT_MULTI_INVENTORY);
             }
-            if  (materialLotInventory != null && targetStorage != null && !targetStorage.getObjectRrn().equals(materialLotInventory.getStorageRrn())) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_SUPPORT_MULTI_INVENTORY);
-            }
-
             // 变更物料库存并改变物料批次状态
             saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty() == null ? materialLot.getCurrentQty() : materialLotAction.getTransQty());
 
@@ -267,6 +303,7 @@ public class MmsServiceImpl implements MmsService {
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
             history.setTransQty(materialLotAction.getTransQty());
             history.setTargetWarehouseId(targetWarehouse.getName());
+            history.setTargetStorageId(targetStorage.getName());
             history.setActionCode(materialLotAction.getActionCode());
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
@@ -293,8 +330,8 @@ public class MmsServiceImpl implements MmsService {
             materialLot.validateMLotHold();
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
-            // 一个批次可以在多个仓库中，但是一个仓库中只能存在一个相同批次号的物料批次
-            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn());
+            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
+            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
@@ -319,6 +356,7 @@ public class MmsServiceImpl implements MmsService {
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_CHECK);
             history.setTransQty(materialLotAction.getTransQty());
             history.setTransWarehouseId(fromWarehouse.getName());
+            history.setTransStorageId(fromStorage.getName());
             history.setActionCode(materialLotAction.getActionCode());
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
@@ -345,8 +383,8 @@ public class MmsServiceImpl implements MmsService {
             materialLot.validateMLotHold();
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
-            // 一个批次可以在多个仓库中，但是一个仓库中只能存在一个相同批次号的物料批次
-            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn());
+            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
+            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
@@ -356,7 +394,7 @@ public class MmsServiceImpl implements MmsService {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_STOCK_OUT_ALL);
             }
             // 变更物料库存并改变物料批次状态
-            saveMaterialLotInventory(materialLot, fromWarehouse, null, materialLotAction.getTransQty().negate());
+            saveMaterialLotInventory(materialLot, fromWarehouse, fromStorage, materialLotAction.getTransQty().negate());
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_STOCK_OUT, StringUtils.EMPTY);
 
             //修改批次数量
@@ -366,6 +404,7 @@ public class MmsServiceImpl implements MmsService {
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT);
             history.setTransQty(materialLotAction.getTransQty());
             history.setTransWarehouseId(fromWarehouse.getName());
+            history.setTransStorageId(fromStorage.getName());
             history.setActionCode(materialLotAction.getActionCode());
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
@@ -391,8 +430,9 @@ public class MmsServiceImpl implements MmsService {
             materialLot.validateMLotHold();
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
-            // 一个批次可以在多个仓库中，但是一个仓库中只能存在一个相同批次号的物料批次
-            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn());
+            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
+
+            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
@@ -402,12 +442,13 @@ public class MmsServiceImpl implements MmsService {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_PICK_ALL);
             }
             // 变更物料库存并改变物料批次状态
-            saveMaterialLotInventory(materialLot, fromWarehouse, null, materialLotAction.getTransQty().negate());
+            saveMaterialLotInventory(materialLot, fromWarehouse, fromStorage, materialLotAction.getTransQty().negate());
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_PICK, StringUtils.EMPTY);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_PICK);
             history.setTransQty(materialLotAction.getTransQty());
             history.setTransWarehouseId(fromWarehouse.getName());
+            history.setTransStorageId(fromStorage.getName());
             history.setActionCode(materialLotAction.getActionCode());
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
@@ -441,10 +482,12 @@ public class MmsServiceImpl implements MmsService {
             }
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
-            Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
+            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
 
-            // 一个批次可以在多个仓库中，但是一个仓库中只能存在一个相同批次号的物料批次
-            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn());
+            Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
+            Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction);
+
+            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
@@ -453,13 +496,15 @@ public class MmsServiceImpl implements MmsService {
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_TRANSFER_ALL);
             }
-            materialLotInventory.setWarehouse(targetWarehouse);
+            materialLotInventory.setWarehouse(targetWarehouse).setStorage(targetStorage);
             materialLotInventoryRepository.save(materialLotInventory);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_TRANSFER);
             history.setTransQty(materialLotAction.getTransQty());
             history.setTransWarehouseId(fromWarehouse.getName());
+            history.setTransStorageId(fromStorage.getName());
             history.setTargetWarehouseId(targetWarehouse.getName());
+            history.setTargetStorageId(targetStorage.getName());
             history.setActionCode(materialLotAction.getActionCode());
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
@@ -600,7 +645,7 @@ public class MmsServiceImpl implements MmsService {
      */
     private void saveMaterialLotInventory(MaterialLot materialLot, Warehouse warehouse, Storage storage, BigDecimal transQty) throws ClientException {
         try {
-            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), warehouse.getObjectRrn());
+            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), warehouse.getObjectRrn(), storage.getObjectRrn());
             if (materialLotInventory == null) {
                 materialLotInventory = new MaterialLotInventory();
                 materialLotInventory.setMaterialLot(materialLot).setWarehouse(warehouse);

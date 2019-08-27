@@ -19,14 +19,10 @@ public interface MaterialLotInventoryRepository extends IRepository<MaterialLotI
      */
     MaterialLotInventory findByMaterialLotRrnAndWarehouseRrnAndStorageRrn(long materialLotRrn, long warehouseRrn, long storageRrn) throws ClientException;
 
-    @Query("SELECT MaterialLotInventory FROM MaterialLotInventory MaterialLotInventory WHERE MaterialLotInventory.materialLotRrn = :materialLotRrn AND MaterialLotInventory.warehouseRrn = :warehouseRrn " +
-            " AND MaterialLotInventory.storageRrn IS NULL")
-    MaterialLotInventory findByMaterialLotRrnAndWarehouseRrnAndStorageIsNull(long materialLotRrn, long warehouseRrn) throws ClientException;
-
-
     /**
      * 根据物料批次或者物料批次对应的所有仓库
      */
     List<MaterialLotInventory> findByMaterialLotRrn(long materialLotRrn) throws ClientException;
+
 
 }

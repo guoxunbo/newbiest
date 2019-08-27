@@ -16,6 +16,8 @@ import javax.persistence.Table;
 @Table(name="MMS_STORAGE")
 public class Storage extends NBUpdatable {
 
+    public static final String DEFAULT_STORAGE_NAME = "DefaultStorage";
+
     @Column(name="NAME")
     private String name;
 

@@ -37,6 +37,11 @@ public class MaterialLotAction extends Action {
     private Long targetWarehouseRrn;
 
     /**
+     * 来源库位主键
+     */
+    private Long fromStorageRrn;
+
+    /**
      * 目标库位主键
      */
     private Long targetStorageRrn;
