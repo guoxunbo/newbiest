@@ -265,7 +265,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             Storage targetStorage = null;
             if (materialLotAction.getFromStorageRrn() != null) {
-                targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getTargetStorageRrn());
+                targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getFromStorageRrn());
             } else {
                 targetStorage = getDefaultStorage();
                 materialLotAction.setFromStorageRrn(targetStorage.getObjectRrn());
@@ -320,7 +320,7 @@ public class MmsServiceImpl implements MmsService {
      * @param materialLotAction
      * @return
      */
-    public MaterialLot checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction) {
+    public MaterialLotInventory checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction) {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
@@ -345,8 +345,9 @@ public class MmsServiceImpl implements MmsService {
             materialLotInventory.setStockQty(materialLotAction.getTransQty());
             if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) == 0) {
                 materialLotInventoryRepository.delete(materialLotInventory);
+                materialLotInventory = null;
             } else {
-                materialLotInventoryRepository.save(materialLotInventory);
+                materialLotInventory = materialLotInventoryRepository.saveAndFlush(materialLotInventory);
             }
 
             materialLot.setCurrentQty(materialLotAction.getTransQty());
@@ -357,7 +358,7 @@ public class MmsServiceImpl implements MmsService {
             history.setTransWarehouseId(fromWarehouse.getName());
             history.setTransStorageId(fromStorage.getName());
             materialLotHistoryRepository.save(history);
-            return materialLot;
+            return materialLotInventory;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -457,7 +458,7 @@ public class MmsServiceImpl implements MmsService {
      * @return
      * @throws ClientException
      */
-    public MaterialLot transfer(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException {
+    public MaterialLotInventory transfer(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
@@ -466,16 +467,15 @@ public class MmsServiceImpl implements MmsService {
 
             materialLot.validateMLotHold();
 
-            //当前没考虑库位，则同一个物料批次在转库的时候无法转移到自己本身
-            if (materialLotAction.getFromWarehouseRrn() == materialLotAction.getTargetWarehouseRrn()) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_TRANSFER_MUST_DIFFERENT_WAREHOUSE);
-            }
-
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
 
             Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
             Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction);
+
+            if (materialLotAction.getFromWarehouseRrn().equals(materialLotAction.getTargetWarehouseRrn()) && fromStorage.getObjectRrn().equals(targetStorage.getObjectRrn())) {
+                throw new ClientException(MmsException.MM_MATERIAL_LOT_TRANSFER_MUST_DIFFERENT_STORAGE);
+            }
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
@@ -487,7 +487,7 @@ public class MmsServiceImpl implements MmsService {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_TRANSFER_ALL);
             }
             materialLotInventory.setWarehouse(targetWarehouse).setStorage(targetStorage);
-            materialLotInventoryRepository.save(materialLotInventory);
+            materialLotInventoryRepository.saveAndFlush(materialLotInventory);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_TRANSFER);
             history.buildByMaterialLotAction(materialLotAction);
@@ -496,7 +496,7 @@ public class MmsServiceImpl implements MmsService {
             history.setTargetWarehouseId(targetWarehouse.getName());
             history.setTargetStorageId(targetStorage.getName());
             materialLotHistoryRepository.save(history);
-            return materialLot;
+            return materialLotInventory;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

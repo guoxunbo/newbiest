@@ -12,7 +12,6 @@ public class MaterialLotInvRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "MaterialLotInvManage";
 
-	public static final String ACTION_STOCK_IN = "StockIn";
 	public static final String ACTION_STOCK_OUT = "StockOut";
 	public static final String ACTION_TRANSFER = "Transfer";
 	public static final String ACTION_PICK = "Pick";

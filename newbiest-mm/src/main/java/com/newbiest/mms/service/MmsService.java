@@ -26,8 +26,8 @@ public interface MmsService {
     List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
     MaterialLot stockOut(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot pick(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
-    MaterialLot transfer(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
-    MaterialLot checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
+    MaterialLotInventory transfer(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
+    MaterialLotInventory checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot changeMaterialLotState(MaterialLot mLot, String eventId, String targetStatus) throws ClientException;
     void validationMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException;
     void saveMaterialLotInventory(MaterialLotInventory materialLotInventory, BigDecimal transQty) throws ClientException;
