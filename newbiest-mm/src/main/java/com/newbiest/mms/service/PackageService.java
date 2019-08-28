@@ -14,6 +14,7 @@ public interface PackageService {
 
     MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException;
     MaterialLot additionalPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException;
-    void unPack(MaterialLotAction materialLotAction) throws ClientException;
+
+    void unPack(List<MaterialLotAction> materialLotActions) throws ClientException;
 
 }

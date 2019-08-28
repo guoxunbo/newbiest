@@ -28,6 +28,7 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_CONSUME = "Consume";
 
     public static final String TRANS_TYPE_PACKAGE = "Package";
+    public static final String TRANS_TYPE_UN_PACKAGE = "UnPackage";
 
     /**
      * 因为包装产生的批次

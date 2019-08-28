@@ -312,6 +312,23 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     }
 
     /**
+     * 恢复前置状态
+     *  将前置状态当成当前状态，当前状态变成前置状态
+     */
+    public void restoreStatus() {
+        String currentStatusCategory = this.getStatusCategory();
+        String currentStatus = this.getStatus();
+        String currentSubStatus = this.getSubStatus();
+
+        this.setStatusCategory(this.getStatusCategory());
+        this.setStatus(this.getPreStatus());
+        this.setSubStatus(this.getPreSubStatus());
+
+        this.setPreStatusCategory(currentStatusCategory);
+        this.setPreStatus(currentStatus);
+        this.setPreSubStatus(currentSubStatus);
+    }
+    /**
      * 验证了批次是否被Hold 如果被Hold则抛出异常
      * @throws ClientException
      */
