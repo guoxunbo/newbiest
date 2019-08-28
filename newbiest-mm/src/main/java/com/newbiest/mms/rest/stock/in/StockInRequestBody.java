@@ -20,7 +20,7 @@ public class StockInRequestBody extends RequestBody {
 	private List<MaterialLot> materialLots;
 
 	@ApiModelProperty(value = "物料批次动作")
-	private MaterialLotAction materialLotAction;
+	private List<MaterialLotAction> materialLotActionList;
 
 
 

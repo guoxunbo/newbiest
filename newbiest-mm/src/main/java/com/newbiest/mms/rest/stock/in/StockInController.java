@@ -39,7 +39,7 @@ public class StockInController extends AbstractRestController {
         StockInRequestBody requestBody = request.getBody();
         List<MaterialLot> materialLots = requestBody.getMaterialLots();
 
-        materialLots = mmsService.stockIn(materialLots, requestBody.getMaterialLotAction());
+        materialLots = mmsService.stockIn(materialLots, requestBody.getMaterialLotActionList());
         responseBody.setMaterialLots(materialLots);
         response.setBody(responseBody);
         return response;

@@ -171,12 +171,13 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
-    public List<MaterialLot> stockIn(List<MaterialLot> materialLots, MaterialLotAction materialLotAction) throws ClientException {
+    public List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException {
         try {
             List<MaterialLot> materialLotList = Lists.newArrayList();
             materialLots.forEach(materialLot -> {
-                materialLot = stockIn(materialLot, materialLotAction);
-                materialLotList.add(materialLot);
+                MaterialLotAction materialLotAction = materialLotActionList.stream().filter(action -> action.getMaterialLotId().equals(materialLot.getMaterialLotId())).findFirst().get();
+                MaterialLot stockInMaterialLot = stockIn(materialLot, materialLotAction);
+                materialLotList.add(stockInMaterialLot);
             });
 
             return materialLotList;
@@ -221,13 +222,14 @@ public class MmsServiceImpl implements MmsService {
      */
     private Storage getDefaultStorage() throws ClientException{
         try {
-            Storage storage = (Storage) storageRepository.findByNameAndOrgRrn(Storage.DEFAULT_STORAGE_NAME, ThreadLocalContext.getOrgRrn());
-            if (storage == null) {
-                storage = new Storage();
-                storage.setName(Storage.DEFAULT_STORAGE_NAME);
-                storage.setDescription(Storage.DEFAULT_STORAGE_NAME);
-                storage = storageRepository.saveAndFlush(storage);
+            List<Storage> storageList = (List<Storage>) storageRepository.findByNameAndOrgRrn(Storage.DEFAULT_STORAGE_NAME, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isNotEmpty(storageList)) {
+                return storageList.get(0);
             }
+            Storage storage = new Storage();
+            storage.setName(Storage.DEFAULT_STORAGE_NAME);
+            storage.setDescription(Storage.DEFAULT_STORAGE_NAME);
+            storage = storageRepository.saveAndFlush(storage);
             return storage;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -285,9 +287,6 @@ public class MmsServiceImpl implements MmsService {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
-
-            BigDecimal transQty = materialLotAction.getTransQty() == null ? materialLot.getCurrentQty() : materialLotAction.getTransQty();
-            materialLotAction.setTransQty(transQty);
 
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), "TargetWarehouseRrn");
             materialLot.validateMLotHold();
