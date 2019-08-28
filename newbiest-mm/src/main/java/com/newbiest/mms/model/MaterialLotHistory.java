@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.mms.dto.MaterialLotAction;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -290,4 +291,10 @@ public class MaterialLotHistory extends NBHis {
         return StringUtils.YES.equalsIgnoreCase(this.subMaterialLotFlag);
     }
 
+    public void buildByMaterialLotAction(MaterialLotAction materialLotAction) {
+        this.setTransQty(materialLotAction.getTransQty());
+        this.setActionCode(materialLotAction.getActionCode());
+        this.setActionReason(materialLotAction.getActionReason());
+        this.setActionComment(materialLotAction.getActionComment());
+    }
 }

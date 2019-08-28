@@ -286,6 +286,9 @@ public class MmsServiceImpl implements MmsService {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
 
+            BigDecimal transQty = materialLotAction.getTransQty() == null ? materialLot.getCurrentQty() : materialLotAction.getTransQty();
+            materialLotAction.setTransQty(transQty);
+
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), "TargetWarehouseRrn");
             materialLot.validateMLotHold();
             Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
@@ -296,17 +299,14 @@ public class MmsServiceImpl implements MmsService {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_SUPPORT_MULTI_INVENTORY);
             }
             // 变更物料库存并改变物料批次状态
-            saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty() == null ? materialLot.getCurrentQty() : materialLotAction.getTransQty());
+            saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty());
 
             changeMaterialLotState(materialLot, eventId, StringUtils.EMPTY);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
-            history.setTransQty(materialLotAction.getTransQty());
+            history.buildByMaterialLotAction(materialLotAction);
             history.setTargetWarehouseId(targetWarehouse.getName());
             history.setTargetStorageId(targetStorage.getName());
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -354,12 +354,9 @@ public class MmsServiceImpl implements MmsService {
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_CHECK);
-            history.setTransQty(materialLotAction.getTransQty());
+            history.buildByMaterialLotAction(materialLotAction);
             history.setTransWarehouseId(fromWarehouse.getName());
             history.setTransStorageId(fromStorage.getName());
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -402,12 +399,9 @@ public class MmsServiceImpl implements MmsService {
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT);
-            history.setTransQty(materialLotAction.getTransQty());
+            history.buildByMaterialLotAction(materialLotAction);
             history.setTransWarehouseId(fromWarehouse.getName());
             history.setTransStorageId(fromStorage.getName());
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -446,12 +440,9 @@ public class MmsServiceImpl implements MmsService {
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_PICK, StringUtils.EMPTY);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_PICK);
-            history.setTransQty(materialLotAction.getTransQty());
+            history.buildByMaterialLotAction(materialLotAction);
             history.setTransWarehouseId(fromWarehouse.getName());
             history.setTransStorageId(fromStorage.getName());
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -500,14 +491,11 @@ public class MmsServiceImpl implements MmsService {
             materialLotInventoryRepository.save(materialLotInventory);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_TRANSFER);
-            history.setTransQty(materialLotAction.getTransQty());
+            history.buildByMaterialLotAction(materialLotAction);
             history.setTransWarehouseId(fromWarehouse.getName());
             history.setTransStorageId(fromStorage.getName());
             history.setTargetWarehouseId(targetWarehouse.getName());
             history.setTargetStorageId(targetStorage.getName());
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -549,10 +537,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_CONSUME);
-            history.setTransQty(materialLotAction.getTransQty());
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
+            history.buildByMaterialLotAction(materialLotAction);
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -578,10 +563,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
-            history.setTransQty(materialLot.getCurrentQty());
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
+            history.buildByMaterialLotAction(materialLotAction);
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -604,10 +586,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RELEASE);
-            history.setTransQty(materialLot.getCurrentQty());
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
+            history.buildByMaterialLotAction(materialLotAction);
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -673,10 +652,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
-            history.setTransQty(materialLot.getCurrentQty());
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
+            history.buildByMaterialLotAction(materialLotAction);
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {

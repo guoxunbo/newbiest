@@ -32,14 +32,27 @@ public class MaterialLotAction extends Action {
     private Long fromWarehouseRrn;
 
     /**
-     * 目标仓库主键
+     * 来源仓库名称
+     *  client无需传递，server自己根据fromWarehouseRrn查询之后赋值
      */
-    private Long targetWarehouseRrn;
+    private String fromWarehouseId;
+
 
     /**
      * 来源库位主键
      */
     private Long fromStorageRrn;
+
+    /**
+     * 来源库位名称
+     *  client无需传递，server自己根据fromStorageRrn查询之后赋值
+     */
+    private String fromStorageId;
+
+    /**
+     * 目标仓库主键
+     */
+    private Long targetWarehouseRrn;
 
     /**
      * 目标库位主键
