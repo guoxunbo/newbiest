@@ -1,12 +1,18 @@
 package com.newbiest.mms.gc.model.service.impl;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.ui.model.NBOwnerReferenceList;
+import com.newbiest.base.ui.model.NBReferenceList;
+import com.newbiest.base.ui.service.UIService;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.gc.model.MesPackedLot;
+import com.newbiest.mms.gc.model.StockOutCheck;
 import com.newbiest.mms.gc.model.service.GcService;
 import com.newbiest.mms.gc.repository.MesPackedLotRepository;
 import com.newbiest.mms.model.MaterialLot;
@@ -38,6 +44,11 @@ public class GcServiceImpl implements GcService {
     public static final String TRANS_TYPE_BIND_RELAY_BOX = "BindRelayBox";
     public static final String TRANS_TYPE_UNBIND_RELAY_BOX = "UnbindRelayBox";
     public static final String TRANS_TYPE_JUDGE = "Judge";
+    public static final String TRANS_TYPE_STOCK_OUT_CHECK = "StockOutCheck";
+
+    public static final String REFERENCE_NAME_STOCK_OUT_CHECK = "StockOutCheck";
+
+    public static final String EVENT_STOCK_OUT_CHECK = "StockOutCheck";
 
     @Autowired
     MesPackedLotRepository mesPackedLotRepository;
@@ -53,6 +64,41 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     BaseService baseService;
+
+    @Autowired
+    UIService uiService;
+
+    /**
+     * 出货前检查。
+     *  直接以检查结果做状态
+     * @param materialLot
+     * @param checkResult
+     * @return
+     */
+    public MaterialLot stockOutCheck(MaterialLot materialLot, String checkResult) throws ClientException {
+        try {
+            materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_STOCK_OUT_CHECK, checkResult);
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_STOCK_OUT_CHECK);
+            materialLotHistoryRepository.save(history);
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public List<StockOutCheck> getStockOutCheckList() throws ClientException {
+        List<StockOutCheck> stockOutChecks = Lists.newArrayList();
+        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_STOCK_OUT_CHECK, NBReferenceList.CATEGORY_OWNER);
+        if (CollectionUtils.isNotEmpty(nbReferenceList)) {
+            for (NBOwnerReferenceList nbOwnerReference : nbReferenceList) {
+                StockOutCheck stockOutCheck = new StockOutCheck();
+                stockOutCheck.setName(nbOwnerReference.getValue());
+                stockOutChecks.add(stockOutCheck);
+            }
+
+        }
+        return stockOutChecks;
+    }
 
     /**
      * 接收MES的完成品

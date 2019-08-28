@@ -17,8 +17,6 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
 
     MaterialLot findByMaterialLotIdAndOrgRrn(String materialLotId, Long orgRrn);
 
-    MaterialLot findByMaterialLotIdAndCategoryAndOrgRrn(String materialLotId, String category, Long orgRrn);
-
     @Query("SELECT m FROM MaterialLot m, PackagedLotDetail p where p.materialLotRrn = m.objectRrn and p.packagedLotRrn = :packagedLotRrn")
     List<MaterialLot> getPackageDetailsLot(Long packagedLotRrn);
 }

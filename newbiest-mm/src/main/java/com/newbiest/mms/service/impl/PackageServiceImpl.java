@@ -89,15 +89,6 @@ public class PackageServiceImpl implements PackageService{
     }
 
     /**
-     *
-     * @param materialLotId
-     * @return
-     */
-    public MaterialLot getPackageLot(String materialLotId) {
-        return materialLotRepository.findByMaterialLotIdAndCategoryAndOrgRrn(materialLotId, MaterialLot.CATEGORY_PACKAGE, ThreadLocalContext.getOrgRrn());
-    }
-
-    /**
      * 追加包装
      *   当前不卡控被追加包装批次的状态
      * @param packedMaterialLot 被追加的包装批次
@@ -106,9 +97,12 @@ public class PackageServiceImpl implements PackageService{
      */
     public MaterialLot additionalPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
-//            SessionContext sc = ThreadLocalContext.getSessionContext();
-//            sc.buildTransInfo();
-//            // 取第一个的materialAction作为所有者的actionCode
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+
+            packedMaterialLot = mmsService.getMLotByMLotId(packedMaterialLot.getMaterialLotId(), true);
+
+            // 取第一个的materialAction作为所有者的actionCode
 //            MaterialLotAction firstMaterialAction = materialLotActions.get(0);
 //
 //            List<MaterialLot> allMaterialLot = Lists.newArrayList();
@@ -214,6 +208,7 @@ public class PackageServiceImpl implements PackageService{
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
             MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packageType);
             materialLotPackageType.validationPacking(materialLots);
+
             if (!StringUtils.isNullOrEmpty(materialLotPackageType.getMergeRule())) {
                 mmsService.validationMergeRule(materialLotPackageType.getMergeRule(), materialLots);
             }

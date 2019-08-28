@@ -2,6 +2,7 @@ package com.newbiest.mms.gc.model.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.gc.model.MesPackedLot;
+import com.newbiest.mms.gc.model.StockOutCheck;
 import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
@@ -17,5 +18,8 @@ public interface GcService {
     void unbindRelaxBox(List<MaterialLot> materialLots) throws ClientException;
 
     void judgePackedMaterialLot(List<MaterialLot> materialLots, String judgeGrade, String judgeCode) throws ClientException;
+
+    List<StockOutCheck> getStockOutCheckList() throws ClientException;
+    MaterialLot stockOutCheck(MaterialLot materialLot, String checkResult) throws ClientException;
 
 }
