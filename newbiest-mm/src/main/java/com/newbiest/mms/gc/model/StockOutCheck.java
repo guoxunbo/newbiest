@@ -10,6 +10,9 @@ import java.io.Serializable;
 @Data
 public class StockOutCheck implements Serializable {
 
+    public static final String RESULT_OK = "OK";
+    public static final String RESULT_NG = "NG";
+
     private String name;
 
     private String result;

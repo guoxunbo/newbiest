@@ -10,7 +10,7 @@ public class StockOutCheckRequest extends Request {
 
 	private static final long serialVersionUID = 1L;
 	
-	public static final String MESSAGE_NAME = "GCMaterialLotManage";
+	public static final String MESSAGE_NAME = "StockOutCheck";
 
 	/**
 	 * 获取出货前检验内容

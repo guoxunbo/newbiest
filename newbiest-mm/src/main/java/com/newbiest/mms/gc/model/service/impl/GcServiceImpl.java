@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.newbiest.mms.exception.MmsException.*;
@@ -46,9 +47,9 @@ public class GcServiceImpl implements GcService {
     public static final String TRANS_TYPE_JUDGE = "Judge";
     public static final String TRANS_TYPE_STOCK_OUT_CHECK = "StockOutCheck";
 
-    public static final String REFERENCE_NAME_STOCK_OUT_CHECK = "StockOutCheck";
+    public static final String REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST = "StockOutCheckItemList";
 
-    public static final String EVENT_STOCK_OUT_CHECK = "StockOutCheck";
+    public static final String EVENT_OQC = "OQC";
 
     @Autowired
     MesPackedLotRepository mesPackedLotRepository;
@@ -72,12 +73,17 @@ public class GcServiceImpl implements GcService {
      * 出货前检查。
      *  直接以检查结果做状态
      * @param materialLot
-     * @param checkResult
+     * @param stockOutCheckList
      * @return
      */
-    public MaterialLot stockOutCheck(MaterialLot materialLot, String checkResult) throws ClientException {
+    public MaterialLot stockOutCheck(MaterialLot materialLot, List<StockOutCheck> stockOutCheckList) throws ClientException {
         try {
-            materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_STOCK_OUT_CHECK, checkResult);
+            String checkResult = StockOutCheck.RESULT_OK;
+            Optional optional = stockOutCheckList.stream().filter(stockOutCheck -> StockOutCheck.RESULT_NG.equals(stockOutCheck.getResult())).findFirst();
+            if (optional.isPresent()) {
+                checkResult = StockOutCheck.RESULT_NG;
+            }
+            materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_STOCK_OUT_CHECK);
             materialLotHistoryRepository.save(history);
             return materialLot;
@@ -88,11 +94,12 @@ public class GcServiceImpl implements GcService {
 
     public List<StockOutCheck> getStockOutCheckList() throws ClientException {
         List<StockOutCheck> stockOutChecks = Lists.newArrayList();
-        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_STOCK_OUT_CHECK, NBReferenceList.CATEGORY_OWNER);
+        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST, NBReferenceList.CATEGORY_OWNER);
         if (CollectionUtils.isNotEmpty(nbReferenceList)) {
             for (NBOwnerReferenceList nbOwnerReference : nbReferenceList) {
                 StockOutCheck stockOutCheck = new StockOutCheck();
                 stockOutCheck.setName(nbOwnerReference.getValue());
+                stockOutCheck.setResult(StockOutCheck.RESULT_OK);
                 stockOutChecks.add(stockOutCheck);
             }
 

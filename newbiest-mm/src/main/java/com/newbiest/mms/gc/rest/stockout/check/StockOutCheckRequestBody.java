@@ -1,5 +1,6 @@
 package com.newbiest.mms.gc.rest.stockout.check;
 
+import com.newbiest.mms.gc.model.StockOutCheck;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -22,5 +23,5 @@ public class StockOutCheckRequestBody extends RequestBody {
 	private MaterialLot materialLot;
 
 	@ApiModelProperty(value = "检查结果")
-	private String checkResult;
+	private List<StockOutCheck> checkList;
 }

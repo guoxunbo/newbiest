@@ -20,8 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * GlaxyCore 对物料批次的批量操作客制化
- * 中转箱，备货等等
+ * 出货前检验
  */
 @RestController
 @RequestMapping("/gc")
@@ -52,7 +51,7 @@ public class StockOutCheckController extends AbstractRestController {
             responseBody.setStockOutCheckList(stockOutChecks);
         } else if (StockOutCheckRequest.ACTION_JUDGE.equals(actionType)) {
             materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true);
-            gcService.stockOutCheck(materialLot, requestBody.getCheckResult());
+            gcService.stockOutCheck(materialLot, requestBody.getCheckList());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

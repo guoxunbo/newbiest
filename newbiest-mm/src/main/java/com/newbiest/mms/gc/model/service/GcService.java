@@ -20,6 +20,6 @@ public interface GcService {
     void judgePackedMaterialLot(List<MaterialLot> materialLots, String judgeGrade, String judgeCode) throws ClientException;
 
     List<StockOutCheck> getStockOutCheckList() throws ClientException;
-    MaterialLot stockOutCheck(MaterialLot materialLot, String checkResult) throws ClientException;
+    MaterialLot stockOutCheck(MaterialLot materialLot, List<StockOutCheck> stockOutCheckList) throws ClientException;
 
 }
