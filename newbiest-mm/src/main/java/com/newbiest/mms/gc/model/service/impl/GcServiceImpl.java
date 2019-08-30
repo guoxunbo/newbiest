@@ -18,8 +18,10 @@ import com.newbiest.mms.gc.repository.MesPackedLotRepository;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotHistory;
 import com.newbiest.mms.model.RawMaterial;
+import com.newbiest.mms.model.Warehouse;
 import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
+import com.newbiest.mms.repository.WarehouseRepository;
 import com.newbiest.mms.service.MmsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,11 +47,14 @@ public class GcServiceImpl implements GcService {
     public static final String TRANS_TYPE_BIND_RELAY_BOX = "BindRelayBox";
     public static final String TRANS_TYPE_UNBIND_RELAY_BOX = "UnbindRelayBox";
     public static final String TRANS_TYPE_JUDGE = "Judge";
-    public static final String TRANS_TYPE_STOCK_OUT_CHECK = "StockOutCheck";
+    public static final String TRANS_TYPE_OQC = "OQC";
 
     public static final String REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST = "StockOutCheckItemList";
 
     public static final String EVENT_OQC = "OQC";
+
+    public static final String WAREHOUSE_SH = "SH_STOCK";
+    public static final String WAREHOUSE_ZJ = "ZJ_STOCK";
 
     @Autowired
     MesPackedLotRepository mesPackedLotRepository;
@@ -69,6 +74,13 @@ public class GcServiceImpl implements GcService {
     @Autowired
     UIService uiService;
 
+    @Autowired
+    WarehouseRepository warehouseRepository;
+
+    public void asyncErpSo() throws ClientException{
+
+    }
+
     /**
      * 出货前检查。
      *  直接以检查结果做状态
@@ -84,7 +96,7 @@ public class GcServiceImpl implements GcService {
                 checkResult = StockOutCheck.RESULT_NG;
             }
             materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_STOCK_OUT_CHECK);
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_OQC);
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -125,6 +137,20 @@ public class GcServiceImpl implements GcService {
                     MaterialLotAction materialLotAction = new MaterialLotAction();
                     materialLotAction.setGrade(mesPackedLot.getGrade());
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
+
+                    // 工单前2位是SH的入SH仓库，是ZJ的入浙江仓库
+                    String warehouseName = WAREHOUSE_SH;
+                    String location = mesPackedLot.getWorkorderId().substring(0, 2);
+                    if (location.equalsIgnoreCase("ZJ")) {
+                        warehouseName = WAREHOUSE_ZJ;
+                    }
+                    Warehouse warehouse = mmsService.getWarehouseByName(warehouseName);
+                    if (warehouse == null) {
+                        warehouse = new Warehouse();
+                        warehouse.setName(warehouseName);
+                        warehouse = warehouseRepository.saveAndFlush(warehouse);
+                    }
+                    materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
                     MaterialLot materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, mesPackedLot.getBoxId(), materialLotAction);
 
                     materialLot.setWorkOrderId(mesPackedLot.getWorkorderId());

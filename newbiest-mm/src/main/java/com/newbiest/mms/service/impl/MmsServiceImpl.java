@@ -808,4 +808,11 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    public Warehouse getWarehouseByName(String name) throws ClientException {
+        List<Warehouse> warehouses = warehouseRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
+        if (CollectionUtils.isNotEmpty(warehouses)) {
+            return warehouses.get(0);
+        }
+        return null;
+    }
 }
