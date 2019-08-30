@@ -23,5 +23,6 @@ public interface GcService {
     MaterialLot stockOutCheck(MaterialLot materialLot, List<StockOutCheck> stockOutCheckList) throws ClientException;
 
     void asyncErpSo() throws ClientException;
+    void asyncErpMaterialOutOrder() throws ClientException;
 
 }

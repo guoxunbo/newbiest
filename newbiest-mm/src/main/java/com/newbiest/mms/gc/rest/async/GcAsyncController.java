@@ -44,7 +44,7 @@ public class GcAsyncController extends AbstractRestController {
         if (GcAsyncRequest.ACTION_ASYNC_SO.equals(actionType)) {
             gcService.asyncErpSo();
         } else if (GcAsyncRequest.ACTION_ASYNC_MATERIAL_OUT_ORDER.equals(actionType)) {
-
+            gcService.asyncErpMaterialOutOrder();
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

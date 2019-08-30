@@ -23,7 +23,7 @@ public class Document extends NBUpdatable {
 
     public static final String CATEGORY_DELIVERY = "Deliver";
 
-    public static final String STATUS_OPEN = "STATUS_OPEN";
+    public static final String STATUS_OPEN = "OPEN";
 
 
     @Column(name="NAME")

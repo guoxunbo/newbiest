@@ -14,12 +14,12 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.gc.model.ErpSo;
-import com.newbiest.mms.gc.model.MesPackedLot;
-import com.newbiest.mms.gc.model.StockOutCheck;
+import com.newbiest.mms.gc.model.*;
 import com.newbiest.mms.gc.model.service.GcService;
+import com.newbiest.mms.gc.repository.ErpMaterialOutOrderRepository;
 import com.newbiest.mms.gc.repository.ErpSoRepository;
 import com.newbiest.mms.gc.repository.MesPackedLotRepository;
+import com.newbiest.mms.gc.repository.ReTestOrderRepository;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
@@ -86,7 +86,83 @@ public class GcServiceImpl implements GcService {
     DeliveryOrderRepository deliveryOrderRepository;
 
     @Autowired
+    ReTestOrderRepository reTestOrderRepository;
+
+    @Autowired
     DocumentLineRepository documentLineRepository;
+
+    @Autowired
+    ErpMaterialOutOrderRepository erpMaterialOutOrderRepository;
+
+    public void asyncErpMaterialOutOrder() throws ClientException {
+        try {
+            List<ErpMaterialOutOrder> erpMaterialOutOrders = erpMaterialOutOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            if (CollectionUtils.isNotEmpty(erpMaterialOutOrders)) {
+                Map<String, List<ErpMaterialOutOrder>> documentIdMap = erpMaterialOutOrders.stream().collect(Collectors.groupingBy(ErpMaterialOutOrder :: getCcode));
+                for (String documentId : documentIdMap.keySet()) {
+                    List<ReTestOrder> reTestOrderList = reTestOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    ReTestOrder reTestOrder;
+                    if (CollectionUtils.isEmpty(reTestOrderList)) {
+                        reTestOrder = new ReTestOrder();
+                        reTestOrder.setStatus(Document.STATUS_OPEN);
+                    } else {
+                        reTestOrder = reTestOrderList.get(0);
+                    }
+                    reTestOrder.setName(documentId);
+                    BigDecimal totalQty = BigDecimal.ZERO;
+
+                    List<DocumentLine> documentLines = Lists.newArrayList();
+                    for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdMap.get(documentId)) {
+                        try {
+                            DocumentLine documentLine = null;
+                            if (reTestOrder.getObjectRrn() != null) {
+                                documentLine = documentLineRepository.findByDocRrnAndReserved1(reTestOrder.getObjectRrn(), String.valueOf(erpMaterialOutOrder.getSeq()));
+                                if (documentLine != null) {
+                                    if (ErpSo.SYNC_STATUS_CHANGED.equals(erpMaterialOutOrder.getSynStatus())) {
+                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutOrder.getIquantity()) < 0) {
+                                            throw new ClientException("gc.order_handled_qty_gt_qty");
+                                        }
+                                    }
+                                }
+                            }
+                            // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
+                            if (documentLine == null) {
+                                documentLine = new DocumentLine();
+                                Material material = mmsService.getRawMaterialByName(erpMaterialOutOrder.getCinvcode());
+                                if (material == null) {
+                                    throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpMaterialOutOrder.getCinvcode());
+                                }
+                                documentLine.setMaterialRrn(material.getObjectRrn());
+                                documentLine.setMaterialName(material.getName());
+                                documentLine.setReserved1(String.valueOf(erpMaterialOutOrder.getSeq()));
+                                documentLine.setReserved2(erpMaterialOutOrder.getSecondcode());
+                                documentLine.setReserved3(erpMaterialOutOrder.getGrade());
+                                documentLine.setReserved5(erpMaterialOutOrder.getCmaker());
+                                documentLine.setReserved6(erpMaterialOutOrder.getChandler());
+                                documentLine.setReserved7(erpMaterialOutOrder.getOther1());
+                            }
+                            documentLine.setQty(erpMaterialOutOrder.getIquantity());
+                            totalQty = totalQty.add(erpMaterialOutOrder.getIquantity());
+                            documentLines.add(documentLine);
+
+                            reTestOrder.setOwner(erpMaterialOutOrder.getChandler());
+                            erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_SUCCESS);
+                        } catch (Exception e) {
+                            // 修改状态为2
+                            erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                            erpMaterialOutOrder.setErrorMemo(e.getMessage());
+                        }
+                        erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
+                    }
+                    reTestOrder.setQty(totalQty);
+                    reTestOrder.setDocumentLines(documentLines);
+                    reTestOrderRepository.save(reTestOrder);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     public void asyncErpSo() throws ClientException {
         try {
