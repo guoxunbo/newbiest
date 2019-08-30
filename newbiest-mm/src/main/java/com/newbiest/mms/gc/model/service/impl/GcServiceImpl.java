@@ -1,6 +1,7 @@
 package com.newbiest.mms.gc.model.service.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
@@ -10,20 +11,20 @@ import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.exception.MmsException;
+import com.newbiest.mms.gc.model.ErpSo;
 import com.newbiest.mms.gc.model.MesPackedLot;
 import com.newbiest.mms.gc.model.StockOutCheck;
 import com.newbiest.mms.gc.model.service.GcService;
+import com.newbiest.mms.gc.repository.ErpSoRepository;
 import com.newbiest.mms.gc.repository.MesPackedLotRepository;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotHistory;
-import com.newbiest.mms.model.RawMaterial;
-import com.newbiest.mms.model.Warehouse;
-import com.newbiest.mms.repository.MaterialLotHistoryRepository;
-import com.newbiest.mms.repository.MaterialLotRepository;
-import com.newbiest.mms.repository.WarehouseRepository;
+import com.newbiest.mms.model.*;
+import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tools.ant.taskdefs.Sync;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static com.newbiest.mms.exception.MmsException.*;
@@ -77,8 +79,86 @@ public class GcServiceImpl implements GcService {
     @Autowired
     WarehouseRepository warehouseRepository;
 
-    public void asyncErpSo() throws ClientException{
+    @Autowired
+    ErpSoRepository erpSoRepository;
 
+    @Autowired
+    DeliveryOrderRepository deliveryOrderRepository;
+
+    @Autowired
+    DocumentLineRepository documentLineRepository;
+
+    public void asyncErpSo() throws ClientException {
+        try {
+            List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_SO, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            if (CollectionUtils.isNotEmpty(erpSos)) {
+                Map<String, List<ErpSo>> documentIdMap = erpSos.stream().collect(Collectors.groupingBy(ErpSo :: getCcode));
+                for (String documentId : documentIdMap.keySet()) {
+                    List<DeliveryOrder> deliveryOrderList = deliveryOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    DeliveryOrder deliveryOrder;
+                    if (CollectionUtils.isEmpty(deliveryOrderList)) {
+                        deliveryOrder = new DeliveryOrder();
+                        deliveryOrder.setStatus(Document.STATUS_OPEN);
+                    } else {
+                        deliveryOrder = deliveryOrderList.get(0);
+                    }
+                    deliveryOrder.setName(documentId);
+                    BigDecimal totalQty = BigDecimal.ZERO;
+
+                    List<DocumentLine> documentLines = Lists.newArrayList();
+                    for  (ErpSo erpSo : documentIdMap.get(documentId)) {
+                        try {
+                            DocumentLine documentLine = null;
+                            if (deliveryOrder.getObjectRrn() != null) {
+                                documentLine = documentLineRepository.findByDocRrnAndReserved1(deliveryOrder.getObjectRrn(), String.valueOf(erpSo.getSeq()));
+                                if (documentLine != null) {
+                                   if (ErpSo.SYNC_STATUS_CHANGED.equals(erpSo.getSynStatus())) {
+                                       if (documentLine != null && documentLine.getHandledQty().compareTo(erpSo.getIquantity()) < 0) {
+                                           throw new ClientException("gc.order_handled_qty_gt_qty");
+                                       }
+                                   }
+                                }
+                            }
+                            // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
+                            if (documentLine == null) {
+                                documentLine = new DocumentLine();
+                                Material material = mmsService.getRawMaterialByName(erpSo.getCinvcode());
+                                if (material == null) {
+                                    throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
+                                }
+                                documentLine.setMaterialRrn(material.getObjectRrn());
+                                documentLine.setMaterialName(material.getName());
+                                documentLine.setReserved1(String.valueOf(erpSo.getSeq()));
+                                documentLine.setReserved2(erpSo.getSecondcode());
+                                documentLine.setReserved3(erpSo.getGrade());
+                                documentLine.setReserved4(erpSo.getCfree3());
+                                documentLine.setReserved5(erpSo.getCmaker());
+                                documentLine.setReserved6(erpSo.getChandler());
+                                documentLine.setReserved7(erpSo.getOther1());
+                            }
+                            documentLine.setQty(erpSo.getIquantity());
+                            totalQty = totalQty.add(erpSo.getIquantity());
+                            documentLines.add(documentLine);
+
+                            // 同一个单据下，所有的客户都是一样的。
+                            deliveryOrder.setSupplierName(erpSo.getCusname());
+                            deliveryOrder.setOwner(erpSo.getChandler());
+                            erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_SUCCESS);
+                        } catch (Exception e) {
+                            // 修改状态为2
+                            erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                            erpSo.setErrorMemo(e.getMessage());
+                        }
+                        erpSoRepository.save(erpSo);
+                    }
+                    deliveryOrder.setQty(totalQty);
+                    deliveryOrder.setDocumentLines(documentLines);
+                    deliveryOrderRepository.save(deliveryOrder);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     /**

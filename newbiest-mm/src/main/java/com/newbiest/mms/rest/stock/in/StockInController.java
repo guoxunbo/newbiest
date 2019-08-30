@@ -15,10 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * GlaxyCore 对物料批次的批量操作客制化
- * 中转箱，备货等等
- */
 @RestController
 @RequestMapping("/mms")
 @Slf4j

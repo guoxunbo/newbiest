@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MesPackedLotRepository extends IRepository<MesPackedLot, Long> {
 
-    MesPackedLot findByPackedLotRrn(long packedLotRrn) throws ClientException;
     MesPackedLot findByBoxId(String boxId) throws ClientException;
 
 }

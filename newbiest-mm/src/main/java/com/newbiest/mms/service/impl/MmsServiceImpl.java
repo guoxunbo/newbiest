@@ -715,7 +715,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setMaterialLotId(mLotId);
             materialLot.setGrade(grade);
             if (rawMaterial.getStatusModelRrn() == null) {
-                List<MaterialStatusModel> statusModels = (List<MaterialStatusModel>) materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
+                List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
                 if (CollectionUtils.isNotEmpty(statusModels)) {
                     rawMaterial.setStatusModelRrn(statusModels.get(0).getObjectRrn());
                 } else {
