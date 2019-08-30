@@ -177,7 +177,7 @@ public class PackageServiceImpl implements PackageService{
                     for (PackagedLotDetail detail : packagedLotDetails) {
                         MaterialLot materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(detail.getMaterialLotRrn());
                         materialLot.restoreStatus();
-                        materialLot.setCurrentQty(materialLot.getCurrentQty().add(detail.getQty()));
+//                        materialLot.setCurrentQty(materialLot.getCurrentQty().add(detail.getQty()));
                         materialLotRepository.save(materialLot);
                         packagedLotDetailRepository.deleteById(detail.getObjectRrn());
                     }
@@ -254,15 +254,16 @@ public class PackageServiceImpl implements PackageService{
 
             String materialLotId = materialLot.getMaterialLotId();
             MaterialLotAction materialLotAction = materialLotActions.stream().filter(action -> materialLotId.equals(action.getMaterialLotId())).findFirst().get();
-            BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
+            //GC没有部分包装。要求写死。
+//            BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
             // 完全包完则触发package事件
-            if (currentQty.compareTo(BigDecimal.ZERO) == 0) {
+//            if (currentQty.compareTo(BigDecimal.ZERO) == 0) {
                 materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, MaterialStatus.STATUS_PACKED);
-            } else {
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO, materialLot.getMaterialLotId());
-            }
+//            } else {
+//                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO, materialLot.getMaterialLotId());
+//            }
 
-            materialLot.setCurrentQty(currentQty);
+//            materialLot.setCurrentQty(currentQty);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             // 如果批次在库存中，则直接消耗库存数量
