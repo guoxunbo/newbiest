@@ -90,6 +90,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     ErpMaterialOutOrderRepository erpMaterialOutOrderRepository;
 
+    @Autowired
+    MaterialLotJudgeHisRepository materialLotJudgeHisRepository;
+
     public void asyncErpMaterialOutOrder() throws ClientException {
         try {
             List<ErpMaterialOutOrder> erpMaterialOutOrders = erpMaterialOutOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
@@ -248,6 +251,19 @@ public class GcServiceImpl implements GcService {
                 checkResult = StockOutCheck.RESULT_NG;
             }
             materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
+
+            // 保存每个项目的判定结果
+            MaterialLot finalMaterialLot = materialLot;
+            stockOutCheckList.forEach(stockOutCheck -> {
+                MaterialLotJudgeHis materialLotJudgeHis = new MaterialLotJudgeHis();
+                materialLotJudgeHis.setMaterialLotRrn(finalMaterialLot.getObjectRrn());
+                materialLotJudgeHis.setMaterialLotId(finalMaterialLot.getMaterialLotId());
+                materialLotJudgeHis.setItemName(stockOutCheck.getName());
+                materialLotJudgeHis.setResult(stockOutCheck.getResult());
+                materialLotJudgeHis.setTransType(MaterialLotJudgeHis.TRANS_TYPE_OQC);
+                materialLotJudgeHis.setHisSeq(ThreadLocalContext.getTransRrn());
+                materialLotJudgeHisRepository.save(materialLotJudgeHis);
+            });
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_OQC);
             materialLotHistoryRepository.save(history);
             return materialLot;

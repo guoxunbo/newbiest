@@ -253,8 +253,9 @@ public class MmsServiceImpl implements MmsService {
                 targetStorage = storageRepository.findByWarehouseRrnAndName(warehouse.getObjectRrn(), materialLotAction.getTargetStorageId());
                 if (targetStorage == null && SystemPropertyUtils.getAutoCreateStorageFlag()) {
                     targetStorage = new Storage();
-                    targetStorage.setWarehouseRrn(warehouse.getObjectRrn());
                     targetStorage.setName(materialLotAction.getTargetStorageId());
+                    targetStorage.setDescription(StringUtils.SYSTEM_CREATE);
+                    targetStorage.setWarehouseRrn(warehouse.getObjectRrn());
                     targetStorage = storageRepository.saveAndFlush(targetStorage);
                 } else {
                     throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST);
