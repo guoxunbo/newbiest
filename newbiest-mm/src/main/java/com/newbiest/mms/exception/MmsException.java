@@ -11,6 +11,7 @@ public class MmsException {
     public static final String MM_MATERIAL_LOT_HAS_EXPIRED = "mm.material_lot_has_expired";
 
     public static final String MM_MATERIAL_LOT_IS_NOT_EXIST = "mm.material_lot_is_not_exist";
+    public static final String MM_STORAGE_IS_NOT_EXIST = "mm.storage_is_not_exist";
     public static final String MM_MATERIAL_LOT_IS_EXIST = "mm.material_lot_is_exist";
     public static final String MM_MATERIAL_LOT_ALREADY_HOLD = "mm.material_lot_already_hold";
     public static final String MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO = "mm.material_lot_qty_cant_less_then_zero";

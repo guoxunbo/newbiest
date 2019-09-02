@@ -18,6 +18,7 @@ import com.newbiest.common.exception.ContextException;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.context.model.MergeRuleContext;
+import com.newbiest.mms.SystemPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -239,13 +241,24 @@ public class MmsServiceImpl implements MmsService {
     /**
      * 根据Action上目标库位进行返回库位信息，如果没有指定库位则返回默认库位
      * @param materialLotAction
+     * @param warehouse
      * @return
      */
-    private Storage getTargetStorageByMaterialLotAction(MaterialLotAction materialLotAction) {
+    private Storage getTargetStorageByMaterialLotAction(MaterialLotAction materialLotAction, @NotNull  Warehouse warehouse) {
         try {
-            Storage targetStorage = null;
+            Storage targetStorage;
             if (materialLotAction.getTargetStorageRrn() != null) {
                 targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getTargetStorageRrn());
+            } else if (!StringUtils.isNullOrEmpty(materialLotAction.getTargetStorageId())) {
+                targetStorage = storageRepository.findByWarehouseRrnAndName(warehouse.getObjectRrn(), materialLotAction.getTargetStorageId());
+                if (targetStorage == null && SystemPropertyUtils.getAutoCreateStorageFlag()) {
+                    targetStorage = new Storage();
+                    targetStorage.setWarehouseRrn(warehouse.getObjectRrn());
+                    targetStorage.setName(materialLotAction.getTargetStorageId());
+                    targetStorage = storageRepository.saveAndFlush(targetStorage);
+                } else {
+                    throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST);
+                }
             } else {
                 targetStorage = getDefaultStorage();
                 materialLotAction.setTargetStorageRrn(targetStorage.getObjectRrn());
@@ -291,7 +304,7 @@ public class MmsServiceImpl implements MmsService {
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), "TargetWarehouseRrn");
             materialLot.validateMLotHold();
             Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
-            Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction);
+            Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), targetWarehouse.getObjectRrn(), targetStorage.getObjectRrn());
             if (materialLotInventory != null) {
@@ -471,7 +484,7 @@ public class MmsServiceImpl implements MmsService {
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
 
             Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
-            Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction);
+            Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
 
             if (materialLotAction.getFromWarehouseRrn().equals(materialLotAction.getTargetWarehouseRrn()) && fromStorage.getObjectRrn().equals(targetStorage.getObjectRrn())) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_TRANSFER_MUST_DIFFERENT_STORAGE);

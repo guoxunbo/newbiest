@@ -59,4 +59,9 @@ public class MaterialLotAction extends Action {
      */
     private Long targetStorageRrn;
 
+    /**
+     * 目标库位名称
+     */
+    private String targetStorageId;
+
 }

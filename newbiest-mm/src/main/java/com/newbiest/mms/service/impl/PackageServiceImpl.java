@@ -12,6 +12,7 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
+import com.newbiest.mms.SystemPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -43,8 +44,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class PackageServiceImpl implements PackageService{
-
-    public static final String SYSTEM_PROPERTY_UNPACK_RECOVERY_LOT_QTY_FLAG = "unpack.recovery_lot_qty_flag";
 
     @Autowired
     MaterialLotPackageTypeRepository materialLotPackageTypeRepository;
@@ -170,14 +169,12 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 
             // 根据JVM参数来判断是否要直接还原被包装的批次数量
-            Object unpackRecoveryLotQtyFlag = System.getProperty(SYSTEM_PROPERTY_UNPACK_RECOVERY_LOT_QTY_FLAG);
-            if (unpackRecoveryLotQtyFlag != null && Boolean.valueOf(unpackRecoveryLotQtyFlag.toString())) {
+            if (SystemPropertyUtils.getUnpackRecoveryLotQtyFlag()) {
                 List<PackagedLotDetail> packagedLotDetails = packagedLotDetailRepository.findByPackagedLotRrn(packedMaterialLot.getObjectRrn());
                 if (CollectionUtils.isNotEmpty(packagedLotDetails)) {
                     for (PackagedLotDetail detail : packagedLotDetails) {
                         MaterialLot materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(detail.getMaterialLotRrn());
                         materialLot.restoreStatus();
-//                        materialLot.setCurrentQty(materialLot.getCurrentQty().add(detail.getQty()));
                         materialLotRepository.save(materialLot);
                         packagedLotDetailRepository.deleteById(detail.getObjectRrn());
                     }
