@@ -234,7 +234,7 @@ public class PackageServiceImpl implements PackageService{
             history.buildByMaterialLotAction(firstMaterialAction);
             materialLotHistoryRepository.save(history);
 
-            packageMaterialLots(packedMaterialLot, materialLots, materialLotActions);
+            packageMaterialLots(packedMaterialLot, materialLots, materialLotActions, false, true);
             return packedMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -243,31 +243,37 @@ public class PackageServiceImpl implements PackageService{
 
     /**
      * 批次包装
-     *  扣减源物料批次数量，记录包装详细信息
      * @param packedMaterialLot
      * @param waitToPackingLot
      * @param materialLotActions
+     * @param subtractQtyFlag 是否扣减被包装批次的数量 后续版本去除此参数 根据物料属性自己判断
+     * @param updateParentMLotFlag 是否更新包装批次的信息为被包装信息的parent相关栏位 后续版本去除此参数 根据物料属性自己判断
      */
-    private void packageMaterialLots(MaterialLot packedMaterialLot, List<MaterialLot> waitToPackingLot, List<MaterialLotAction> materialLotActions) throws ClientException {
+    private void packageMaterialLots(MaterialLot packedMaterialLot, List<MaterialLot> waitToPackingLot, List<MaterialLotAction> materialLotActions,
+                                        boolean subtractQtyFlag, boolean updateParentMLotFlag) throws ClientException {
         // 对物料批次做package事件处理 扣减物料批次数量
         for (MaterialLot materialLot : waitToPackingLot) {
 
+            //TODO 此处为GC客制化 清除中转箱号
+            materialLot.setReserved8(StringUtils.EMPTY);
             String materialLotId = materialLot.getMaterialLotId();
             MaterialLotAction materialLotAction = materialLotActions.stream().filter(action -> materialLotId.equals(action.getMaterialLotId())).findFirst().get();
-            //GC没有部分包装。要求写死。
-//            BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
-            // 完全包完则触发package事件
-//            if (currentQty.compareTo(BigDecimal.ZERO) == 0) {
+
+            BigDecimal currentQty = materialLot.getCurrentQty();
+
+            if (subtractQtyFlag) {
+                materialLot.setCurrentQty(materialLot.getCurrentQty().subtract(materialLotAction.getTransQty()));
+            }
+            if (currentQty.compareTo(materialLotAction.getTransQty()) == 0) {
+                if (updateParentMLotFlag) {
+                    materialLot.setParentMaterialLotId(packedMaterialLot.getMaterialLotId());
+                    materialLot.setParentMaterialLotRrn(packedMaterialLot.getObjectRrn());
+                }
                 materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, MaterialStatus.STATUS_PACKED);
-//            } else {
-//                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO, materialLot.getMaterialLotId());
-//            }
+            }
 
-//            materialLot.setCurrentQty(currentQty);
-            materialLot = materialLotRepository.saveAndFlush(materialLot);
-
-            // 如果批次在库存中，则直接消耗库存数量
-            // 支持一个批次在多个仓库中 故这里直接取第一个库存位置消耗
+            // 如果批次在库存中，则直接消耗库存数量 支持一个批次在多个仓库中 故这里直接取第一个库存位置消耗
+            // 不考虑subtractQtyFlag因素，都消耗库存
             List<MaterialLotInventory> materialLotInventories = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
             if (CollectionUtils.isNotEmpty(materialLotInventories)) {
                 MaterialLotInventory materialLotInventory = materialLotInventories.get(0);

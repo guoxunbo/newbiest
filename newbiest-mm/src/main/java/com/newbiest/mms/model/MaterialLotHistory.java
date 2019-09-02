@@ -114,7 +114,7 @@ public class MaterialLotHistory extends NBHis {
      * 如果是子批，对应的母批的主键
      */
     @Column(name="PARENT_MATERIAL_LOT_RRN")
-    private String parentMaterialLotRrn;
+    private Long parentMaterialLotRrn;
 
     /**
      * 是否是子批的标记
