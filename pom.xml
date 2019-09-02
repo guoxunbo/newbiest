@@ -23,6 +23,7 @@
         <module>newbiest-kms</module>
         <module>newbiest-starter</module>
         <module>newbiest-dist</module>
+        <module>newbiest-gc</module>
     </modules>
     <packaging>pom</packaging>
 
