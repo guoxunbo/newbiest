@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-mms_material_lot_inventory-0.0.3
+      author: Xunbo Guo
+      comment: Add Column MMS_MATERIAL_LOT_INVENTORY MATERIAL_CATEGORY, MATERIAL_TYPE
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_INVENTORY
+            columns:
+              - column:
+                  name: MATERIAL_CATEGORY
+                  type: varchar2(64)
+              - column:
+                  name: MATERIAL_TYPE
+                  type: varchar2(64)

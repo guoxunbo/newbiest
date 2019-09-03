@@ -7,6 +7,7 @@ import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -26,9 +27,9 @@ public class MaterialLotPackageType extends PackageType {
     public void validationPacking(List<? extends NBUpdatable> packageChildren) {
         List<MaterialLot> materialLots = (List<MaterialLot>) packageChildren;
         //1. 验证批次是否已经被包装
-        Optional<MaterialLot> packagedMaterial = materialLots.stream().filter(materialLot -> materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0).findFirst();
+        Optional<MaterialLot> packagedMaterial = materialLots.stream().filter(materialLot -> MaterialStatusCategory.STATUS_CATEGORY_FIN.equals(materialLot.getStatusCategory())).findFirst();
         if (packagedMaterial.isPresent()) {
-            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_PACKED, packagedMaterial.get().getMaterialLotId());
+            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_FIN, packagedMaterial.get().getMaterialLotId());
         }
         //2. 验证是否超过包装的最大数量限制
         if (beforePackCountType.equals(COUNT_TYPE_BY_LOT)) {

@@ -320,7 +320,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         String currentStatus = this.getStatus();
         String currentSubStatus = this.getSubStatus();
 
-        this.setStatusCategory(this.getStatusCategory());
+        this.setStatusCategory(this.getPreStatusCategory());
         this.setStatus(this.getPreStatus());
         this.setSubStatus(this.getPreSubStatus());
 

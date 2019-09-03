@@ -218,25 +218,30 @@ public class MmsServiceImpl implements MmsService {
         return materialLotInventoryRepository.findByMaterialLotRrn(mLotRrn);
     }
 
+    public Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException {
+        return storageRepository.findByWarehouseRrnAndName(warehouse.getObjectRrn(), storageId);
+    }
+
     /**
      * 获取默认的库位。这个库位可以挂在任意仓库下面
      *  如果系统中没有默认库位则直接创建一个
      */
-    private Storage getDefaultStorage() throws ClientException{
+    private Storage getDefaultStorage(Warehouse warehouse) throws ClientException{
         try {
-            List<Storage> storageList = (List<Storage>) storageRepository.findByNameAndOrgRrn(Storage.DEFAULT_STORAGE_NAME, ThreadLocalContext.getOrgRrn());
-            if (CollectionUtils.isNotEmpty(storageList)) {
-                return storageList.get(0);
+            Storage storage = getStorageByWarehouseRrnAndName(warehouse, Storage.DEFAULT_STORAGE_NAME);
+            if (storage == null) {
+                storage = new Storage();
+                storage.setWarehouseRrn(warehouse.getObjectRrn());
+                storage.setName(Storage.DEFAULT_STORAGE_NAME);
+                storage.setDescription(StringUtils.SYSTEM_CREATE);
+                storage = storageRepository.saveAndFlush(storage);
             }
-            Storage storage = new Storage();
-            storage.setName(Storage.DEFAULT_STORAGE_NAME);
-            storage.setDescription(Storage.DEFAULT_STORAGE_NAME);
-            storage = storageRepository.saveAndFlush(storage);
             return storage;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
 
     /**
      * 根据Action上目标库位进行返回库位信息，如果没有指定库位则返回默认库位
@@ -250,7 +255,7 @@ public class MmsServiceImpl implements MmsService {
             if (materialLotAction.getTargetStorageRrn() != null) {
                 targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getTargetStorageRrn());
             } else if (!StringUtils.isNullOrEmpty(materialLotAction.getTargetStorageId())) {
-                targetStorage = storageRepository.findByWarehouseRrnAndName(warehouse.getObjectRrn(), materialLotAction.getTargetStorageId());
+                targetStorage = getStorageByWarehouseRrnAndName(warehouse, materialLotAction.getTargetStorageId());
                 if (targetStorage == null && SystemPropertyUtils.getAutoCreateStorageFlag()) {
                     targetStorage = new Storage();
                     targetStorage.setName(materialLotAction.getTargetStorageId());
@@ -261,7 +266,7 @@ public class MmsServiceImpl implements MmsService {
                     throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST);
                 }
             } else {
-                targetStorage = getDefaultStorage();
+                targetStorage = getDefaultStorage(warehouse);
                 materialLotAction.setTargetStorageRrn(targetStorage.getObjectRrn());
             }
             return targetStorage;
@@ -275,13 +280,13 @@ public class MmsServiceImpl implements MmsService {
      * @param materialLotAction
      * @return
      */
-    private Storage getFromStorageByMaterialLotAction(MaterialLotAction materialLotAction) {
+    private Storage getFromStorageByMaterialLotAction(MaterialLotAction materialLotAction, Warehouse warehouse) {
         try {
             Storage targetStorage = null;
             if (materialLotAction.getFromStorageRrn() != null) {
                 targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getFromStorageRrn());
             } else {
-                targetStorage = getDefaultStorage();
+                targetStorage = getDefaultStorage(warehouse);
                 materialLotAction.setFromStorageRrn(targetStorage.getObjectRrn());
             }
             return targetStorage;
@@ -343,7 +348,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.validateMLotHold();
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
-            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
+            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
@@ -394,7 +399,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.validateMLotHold();
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
-            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
+            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
@@ -438,7 +443,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.validateMLotHold();
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
-            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
+            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
@@ -482,7 +487,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.validateMLotHold();
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
-            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction);
+            Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
 
             Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
             Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);

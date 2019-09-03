@@ -25,6 +25,7 @@ public class MmsException {
     public static final String MM_MATERIAL_LOT_MUST_TRANSFER_ALL = "mm.material_lot_must_transfer_all";
     public static final String MM_MATERIAL_LOT_TRANSFER_MUST_DIFFERENT_STORAGE = "mm.material_lot_transfer_must_different_storage";
     public static final String MM_MATERIAL_LOT_ALREADY_PACKED = "mm.material_lot_already_packed";
+    public static final String MM_MATERIAL_LOT_ALREADY_FIN = "mm.material_lot_already_finish";
 
     public static final String MM_PACKAGE_TYPE_IS_NOT_EXIST = "mm.package_type_is_not_exist";
     public static final String MM_PACKAGE_MATERIAL_TYPE_IS_NOT_THE_SAME = "mm.package_material_type_is_not_the_same";

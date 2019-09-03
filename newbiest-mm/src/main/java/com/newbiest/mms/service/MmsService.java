@@ -2,10 +2,7 @@ package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotInventory;
-import com.newbiest.mms.model.RawMaterial;
-import com.newbiest.mms.model.Warehouse;
+import com.newbiest.mms.model.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,4 +39,5 @@ public interface MmsService {
     MaterialLotInventory getMaterialLotInv(long mLotRrn, long warehouseRrn, long storageRrn) throws ClientException;
 
     Warehouse getWarehouseByName(String name) throws ClientException;
+    public Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
 }

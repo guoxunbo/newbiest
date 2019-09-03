@@ -33,6 +33,18 @@ public class MaterialLotInventory extends NBUpdatable {
     @Column(name = "MATERIAL_DESC")
     private String materialDesc;
 
+    /**
+     * 物料类别
+     */
+    @Column(name="MATERIAL_CATEGORY")
+    private String materialCategory;
+
+    /**
+     * 物料类型
+     */
+    @Column(name="MATERIAL_TYPE")
+    private String materialType;
+
     @Column(name = "WAREHOUSE_RRN")
     private Long warehouseRrn;
 
@@ -71,6 +83,8 @@ public class MaterialLotInventory extends NBUpdatable {
         this.setMaterialLotId(materialLot.getMaterialLotId());
         this.setMaterialName(materialLot.getMaterialName());
         this.setMaterialDesc(materialLot.getMaterialDesc());
+        this.setMaterialType(materialLot.getMaterialType());
+        this.setMaterialCategory(materialLot.getMaterialCategory());
         return this;
     }
 

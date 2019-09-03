@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MaterialLotHistoryRepository extends IRepository<MaterialLotHistory, Long> {
 
+    MaterialLotHistory findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(String materialLotId, String transType);
+
 }
