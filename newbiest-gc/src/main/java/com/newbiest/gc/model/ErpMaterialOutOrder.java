@@ -2,10 +2,7 @@ package com.newbiest.gc.model;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -58,7 +55,7 @@ public class ErpMaterialOutOrder implements Serializable {
      * 创建日期
      */
     @Column(name="DDATE")
-    private Date ddate;
+    private String ddate;
 
     /**
      * 产品型号

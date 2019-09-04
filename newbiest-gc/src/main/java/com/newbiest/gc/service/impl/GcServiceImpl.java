@@ -146,6 +146,7 @@ public class GcServiceImpl implements GcService {
 
                             reTestOrder.setOwner(erpMaterialOutOrder.getChandler());
                             erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_SUCCESS);
+                            erpMaterialOutOrder.setErrorMemo(StringUtils.EMPTY);
                         } catch (Exception e) {
                             // 修改状态为2
                             erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
@@ -219,6 +220,7 @@ public class GcServiceImpl implements GcService {
                             deliveryOrder.setSupplierName(erpSo.getCusname());
                             deliveryOrder.setOwner(erpSo.getChandler());
                             erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_SUCCESS);
+                            erpSo.setErrorMemo(StringUtils.EMPTY);
                         } catch (Exception e) {
                             // 修改状态为2
                             erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
