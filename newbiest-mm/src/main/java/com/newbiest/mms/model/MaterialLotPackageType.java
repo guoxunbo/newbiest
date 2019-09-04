@@ -47,6 +47,31 @@ public class MaterialLotPackageType extends PackageType {
     }
 
     @Override
+    public void validationAppendPacking(List<? extends NBUpdatable> waitToAppendChildren, List<? extends Action> actions) {
+        List<MaterialLot> waitToAppendMaterialLots = (List<MaterialLot>) waitToAppendChildren;
+        List<MaterialLotAction> materialLotActions = (List<MaterialLotAction>) actions;
+
+        //1. 验证批次是否已经被包装
+        Optional<MaterialLot> packagedMaterial = waitToAppendMaterialLots.stream().filter(materialLot -> MaterialStatusCategory.STATUS_CATEGORY_FIN.equals(materialLot.getStatusCategory())).findFirst();
+        if (packagedMaterial.isPresent()) {
+            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_FIN, packagedMaterial.get().getMaterialLotId());
+        }
+
+        //2. 验证是否超过包装的最大数量限制
+        if (beforePackCountType.equals(COUNT_TYPE_BY_LOT)) {
+            BigDecimal lotSize = new BigDecimal(materialLotActions.size());
+            if (maxQty.compareTo(lotSize) < 0) {
+                throw new ClientException(MmsException.MM_PACKAGE_OVER_MAX_QTY);
+            }
+        } else if (beforePackCountType.equals(COUNT_TYPE_BY_LOT_QTY)) {
+            int totalQty = materialLotActions.stream().collect(Collectors.summingInt(action -> action.getTransQty().intValue()));
+            if (maxQty.compareTo(new BigDecimal(totalQty)) < 0) {
+                throw new ClientException(MmsException.MM_PACKAGE_OVER_MAX_QTY);
+            }
+        }
+    }
+
+    @Override
     public BigDecimal getPackedQty(List<? extends Action> actions) {
         List<MaterialLotAction> materialLotActions = (List<MaterialLotAction>) actions;
         if (packedCountType.equals(COUNT_TYPE_ONE)) {

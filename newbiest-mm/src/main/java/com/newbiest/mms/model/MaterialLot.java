@@ -2,18 +2,21 @@ package com.newbiest.mms.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.commom.sm.model.StatusLifeCycle;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.mms.exception.MmsException;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * Created by guoxunbo on 2019/2/26.
@@ -337,6 +340,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
             throw new ClientException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD);
         }
         return this;
+    }
+
+    public void isFinish() {
+        if (MaterialStatusCategory.STATUS_CATEGORY_FIN.equals(this.getStatusCategory())) {
+            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_FIN, this.getMaterialLotId());
+        }
     }
 
     public void initialMaterialLot() {

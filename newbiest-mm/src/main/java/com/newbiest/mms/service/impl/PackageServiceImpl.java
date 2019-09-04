@@ -79,9 +79,9 @@ public class PackageServiceImpl implements PackageService{
      * 获取包装详细信息
      * @return
      */
-    public List<MaterialLot> getPackageDetailsLot(Long packagedLotRrn) {
+    public List<MaterialLot> getPackageDetailLots(Long packagedLotRrn) {
         try {
-            return materialLotRepository.getPackageDetailsLot(packagedLotRrn);
+            return materialLotRepository.getPackageDetailLots(packagedLotRrn);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -94,52 +94,49 @@ public class PackageServiceImpl implements PackageService{
      * @param materialLotActions 包装批次动作
      * @return
      */
-    public MaterialLot additionalPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException {
+    public MaterialLot appendPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
 
             packedMaterialLot = mmsService.getMLotByMLotId(packedMaterialLot.getMaterialLotId(), true);
-
+            packedMaterialLot.isFinish();
             // 取第一个的materialAction作为所有者的actionCode
-//            MaterialLotAction firstMaterialAction = materialLotActions.get(0);
-//
-//            List<MaterialLot> allMaterialLot = Lists.newArrayList();
-//
-//            packedMaterialLot = getPackageLot(packedMaterialLot.getMaterialLotId());
-//            if (packedMaterialLot == null) {
-//                throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST);
-//            }
-//            // 将包装的和以前包装的放在一起进行包装规则验证
-//            List<MaterialLot> packageDetailsLot = getPackageDetailsLot(packedMaterialLot.getObjectRrn());
-//            allMaterialLot.addAll(packageDetailsLot);
-//
-//            List<MaterialLot> waitToAddPackingMLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
-//            allMaterialLot.addAll(waitToAddPackingMLots);
-//
-//            MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packedMaterialLot.getPackageType());
-//            materialLotPackageType.validationPacking(allMaterialLot);
-//
-//            packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(allMaterialLot));
-//            packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
+            MaterialLotAction firstMaterialAction = materialLotActions.get(0);
+            List<MaterialLot> allMaterialLot = Lists.newArrayList();
+
+            List<MaterialLot> waitToAddPackingMLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+            allMaterialLot.addAll(waitToAddPackingMLots);
+            // 取到包装规则
+            MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packedMaterialLot.getPackageType());
+
+            // 将包装的和以前包装的放在一起进行包装规则验证
+            List<MaterialLot> packageDetailLots = getPackageDetailLots(packedMaterialLot.getObjectRrn());
+
+            List<MaterialLotAction> allMaterialAction = Lists.newArrayList(materialLotActions);
+            if (CollectionUtils.isNotEmpty(packageDetailLots)) {
+                allMaterialLot.addAll(packageDetailLots);
+                //TODO 此处因为此版本中项目要求不扣减批次数量。所有直接使用批次上的CurrentQty。后续版本需要使用detail上的数据
+                for (MaterialLot packageDetailLot : packageDetailLots) {
+                    MaterialLotAction packedMLotAction = new MaterialLotAction();
+                    packedMLotAction.setMaterialLotId(packageDetailLot.getMaterialLotId());
+                    packedMLotAction.setTransQty(packageDetailLot.getCurrentQty());
+                    allMaterialAction.add(packedMLotAction);
+                }
+            }
+            materialLotPackageType.validationAppendPacking(waitToAddPackingMLots, allMaterialAction);
+
+            packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(allMaterialAction));
+            packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 //            // 记录创建历史
-//            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_ADDITIONAL_PACKAGE);
-//            history.setActionCode(firstMaterialAction.getActionCode());
-//            history.setActionReason(firstMaterialAction.getActionReason());
-//            // 记录被包装的批次信息
-//            String materialLotIds = StringUtils.join(waitToAddPackingMLots.stream().map(MaterialLot :: getMaterialLotId).collect(Collectors.toList()), StringUtils.SEMICOLON_CODE);
-//            String actionComment = firstMaterialAction.getActionComment();
-//            // 超过最大长度追加的备注限制，则不追加记录信息
-//            if (materialLotIds.length() <= NBHis.MAX_APPEND_COMMENT_LENGTH) {
-//                actionComment += " PackedMLots [" + materialLotIds + "]";
-//            }
-//            history.setActionComment(actionComment);
-//            materialLotHistoryRepository.save(history);
-//
-//            packageMaterialLots(packedMaterialLot, waitToAddPackingMLots, materialLotActions);
-//
-//            return packedMaterialLot;
-            return null;
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_ADDITIONAL_PACKAGE);
+            history.buildByMaterialLotAction(firstMaterialAction);
+            history.setActionCode(firstMaterialAction.getActionCode());
+            history.setActionReason(firstMaterialAction.getActionReason());
+            materialLotHistoryRepository.save(history);
+
+            packageMaterialLots(packedMaterialLot, waitToAddPackingMLots, materialLotActions, false, true);
+            return packedMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

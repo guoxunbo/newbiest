@@ -86,6 +86,14 @@ public abstract class PackageType extends NBUpdatable {
     public abstract void validationPacking(List<? extends NBUpdatable> packageChildren);
 
     /**
+     * 验证是否包装
+     * @param waitToAppendChildren 待验证是否可以追加包装的物料批次 批次
+     * @param actions 此刻需要包装的所有批次的动作
+     */
+    public abstract void validationAppendPacking(List<? extends NBUpdatable> waitToAppendChildren, List<? extends Action> actions);
+
+
+    /**
      * 获取包装之后的物料批次的数量
      *  不一定是全部包装，以传入action的TransQty为准
      * @param actions 待包装的物料批次、批次
