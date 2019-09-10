@@ -20,7 +20,7 @@ public interface GcService {
     void judgePackedMaterialLot(List<MaterialLot> materialLots, String judgeGrade, String judgeCode) throws ClientException;
 
     List<StockOutCheck> getStockOutCheckList() throws ClientException;
-    MaterialLot stockOutCheck(MaterialLot materialLot, List<StockOutCheck> stockOutCheckList) throws ClientException;
+    void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> ngStockOutCheckList) throws ClientException;
 
     void asyncErpSo() throws ClientException;
     void asyncErpMaterialOutOrder() throws ClientException;

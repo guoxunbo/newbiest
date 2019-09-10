@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 出货前检验
@@ -44,14 +45,14 @@ public class StockOutCheckController extends AbstractRestController {
 
         StockOutCheckRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
-        MaterialLot materialLot = requestBody.getMaterialLot();
 
         if (StockOutCheckRequest.ACTION_GET_CHECK_LIST.equals(actionType)) {
             List<StockOutCheck> stockOutChecks = gcService.getStockOutCheckList();
             responseBody.setStockOutCheckList(stockOutChecks);
         } else if (StockOutCheckRequest.ACTION_JUDGE.equals(actionType)) {
-            materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true);
-            gcService.stockOutCheck(materialLot, requestBody.getCheckList());
+            List<MaterialLot> materialLots = requestBody.getMaterialLots();
+            materialLots = materialLots.stream().map(materialLot -> mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true)).collect(Collectors.toList());
+            gcService.stockOutCheck(materialLots, requestBody.getCheckList());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

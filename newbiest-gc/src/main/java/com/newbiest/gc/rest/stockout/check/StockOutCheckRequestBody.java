@@ -20,7 +20,7 @@ public class StockOutCheckRequestBody extends RequestBody {
 	private String actionType;
 
 	@ApiModelProperty(value = "物料批次")
-	private MaterialLot materialLot;
+	private List<MaterialLot> materialLots;
 
 	@ApiModelProperty(value = "检查结果")
 	private List<StockOutCheck> checkList;

@@ -240,35 +240,41 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 出货前检查。
-     *  直接以检查结果做状态
-     * @param materialLot
-     * @param stockOutCheckList
+     *  直接以检查结果做状态 当stockOutCheckList为空的时候就是OK。因为GC要求，OK时候不记录检查项
+     * @param materialLots
+     * @param stockOutCheckList 检查项
      * @return
      */
-    public MaterialLot stockOutCheck(MaterialLot materialLot, List<StockOutCheck> stockOutCheckList) throws ClientException {
+    public void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> stockOutCheckList) throws ClientException {
         try {
             String checkResult = StockOutCheck.RESULT_OK;
-            Optional optional = stockOutCheckList.stream().filter(stockOutCheck -> StockOutCheck.RESULT_NG.equals(stockOutCheck.getResult())).findFirst();
-            if (optional.isPresent()) {
+            List<StockOutCheck> ngStockOutCheckList = Lists.newArrayList();
+            if (CollectionUtils.isNotEmpty(stockOutCheckList)) {
+                ngStockOutCheckList = stockOutCheckList.stream().filter(checkItem -> StockOutCheck.RESULT_NG.equals(checkItem.getResult())).collect(Collectors.toList());
+            }
+            if (CollectionUtils.isNotEmpty(ngStockOutCheckList)) {
                 checkResult = StockOutCheck.RESULT_NG;
             }
-            materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
-
-            // 保存每个项目的判定结果
-            MaterialLot finalMaterialLot = materialLot;
-            stockOutCheckList.forEach(stockOutCheck -> {
-                MaterialLotJudgeHis materialLotJudgeHis = new MaterialLotJudgeHis();
-                materialLotJudgeHis.setMaterialLotRrn(finalMaterialLot.getObjectRrn());
-                materialLotJudgeHis.setMaterialLotId(finalMaterialLot.getMaterialLotId());
-                materialLotJudgeHis.setItemName(stockOutCheck.getName());
-                materialLotJudgeHis.setResult(stockOutCheck.getResult());
-                materialLotJudgeHis.setTransType(MaterialLotJudgeHis.TRANS_TYPE_OQC);
-                materialLotJudgeHis.setHisSeq(ThreadLocalContext.getTransRrn());
-                materialLotJudgeHisRepository.save(materialLotJudgeHis);
-            });
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_OQC);
-            materialLotHistoryRepository.save(history);
-            return materialLot;
+            for (MaterialLot materialLot : materialLots) {
+                materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
+//                GC要求只记录NG的判定历史即可
+                if (CollectionUtils.isNotEmpty(ngStockOutCheckList)) {
+                    // 保存每个项目的判定结果
+                    MaterialLot finalMaterialLot = materialLot;
+                    ngStockOutCheckList.forEach(stockOutCheck -> {
+                        MaterialLotJudgeHis materialLotJudgeHis = new MaterialLotJudgeHis();
+                        materialLotJudgeHis.setMaterialLotRrn(finalMaterialLot.getObjectRrn());
+                        materialLotJudgeHis.setMaterialLotId(finalMaterialLot.getMaterialLotId());
+                        materialLotJudgeHis.setItemName(stockOutCheck.getName());
+                        materialLotJudgeHis.setResult(stockOutCheck.getResult());
+                        materialLotJudgeHis.setTransType(MaterialLotJudgeHis.TRANS_TYPE_OQC);
+                        materialLotJudgeHis.setHisSeq(ThreadLocalContext.getTransRrn());
+                        materialLotJudgeHisRepository.save(materialLotJudgeHis);
+                    });
+                }
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_OQC);
+                materialLotHistoryRepository.save(history);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
