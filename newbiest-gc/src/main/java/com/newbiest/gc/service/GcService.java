@@ -25,4 +25,5 @@ public interface GcService {
     void asyncErpSo() throws ClientException;
     void asyncErpMaterialOutOrder() throws ClientException;
 
+    void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 }

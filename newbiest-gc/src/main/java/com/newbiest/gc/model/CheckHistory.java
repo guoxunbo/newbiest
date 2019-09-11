@@ -1,14 +1,10 @@
-package com.newbiest.mms.model;
+package com.newbiest.gc.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.exception.ClientParameterException;
-import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.commom.sm.model.StatusLifeCycle;
-import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.state.model.MaterialStatusCategory;
+import com.newbiest.mms.dto.MaterialLotAction;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -16,27 +12,13 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
+ * 格科盘点历史表
  * Created by guoxunbo on 2019/2/26.
  */
 @Entity
-@Table(name="MMS_MATERIAL_LOT")
+@Table(name="GC_CHECK_HISTORY")
 @Data
-public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
-
-    /**
-     * 生成物料批次号的规则
-     */
-    public static final String GENERATOR_MATERIAL_LOT_ID_RULE = "CreateMLot";
-
-    /**
-     * 生成物料子批号的规则
-     */
-    public static final String GENERATOR_SUB_MATERIAL_LOT_ID_RULE = "CreateSubMLot";
-
-    public static final String HOLD_STATE_ON = "On";
-    public static final String HOLD_STATE_OFF = "Off";
-
-    public static final String CATEGORY_PACKAGE = "Package";
+public class CheckHistory extends NBHis {
 
     /**
      * 物料批次号
@@ -85,7 +67,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * Hold状态
      */
     @Column(name="HOLD_STATE")
-    private String holdState = HOLD_STATE_OFF;
+    private String holdState;
 
     /**
      * 批次接收数量
@@ -95,7 +77,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private BigDecimal receiveQty = BigDecimal.ZERO;
 
     /**
-     * 当前数量
+     * 主数量
      */
     @Column(name="CURRENT_QTY")
     private BigDecimal currentQty = BigDecimal.ZERO;
@@ -136,8 +118,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="PACKAGE_TYPE")
     private String packageType;
 
+
     /**
-     * 工单号
+     * 工单号。
+     * 有些情况下工单会直接指定消耗的物料批次
      */
     @Column(name="WORK_ORDER_ID")
     private String workOrderId;
@@ -193,23 +177,13 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private Date receiveDate;
 
     /**
-     * 有效时长
+     * 操作数量
      */
-    @Column(name="EFFECTIVE_LIFE")
-    private Long effectiveLife;
+    @Column(name="TRANS_QTY")
+    private BigDecimal transQty;
 
-    /**
-     * 警告时长
-     * 当达到此时长的时候触发警告
-     */
-    @Column(name="WARNING_LIFE")
-    private Long warningLife;
-
-    /**
-     * 有效时长单位
-     */
-    @Column(name="EFFECTIVE_UNIT")
-    private String effectiveUnit;
+    @Column(name="ERROR_FLAG")
+    private String errorFlag;
 
     /**
      * GlaxyCore MES完成品的levelTwoCode
@@ -271,16 +245,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED10")
     private String reserved10;
 
-    /**
-     * 验证物料批次是否在有效期内
-     */
-    public void validationEffective() {
-        if (effectiveLife != null && !StringUtils.isNullOrEmpty(effectiveUnit)) {
-            Date effectiveDate = DateUtils.plus(receiveDate, effectiveLife.intValue(), effectiveUnit);
-            if (!effectiveDate.after(new Date())) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_HAS_EXPIRED);
-            }
-        }
+    public Boolean getErrorFlag() {
+        return StringUtils.YES.equalsIgnoreCase(errorFlag);
+    }
+
+    public void setErrorFlag(Boolean errorFlag) {
+        this.errorFlag = errorFlag ? StringUtils.YES : StringUtils.NO;
     }
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
@@ -289,68 +259,5 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public boolean getSubMaterialLotFlag() {
         return StringUtils.YES.equalsIgnoreCase(this.subMaterialLotFlag);
-    }
-
-    @Override
-    public String getSubStatus() {
-        return null;
-    }
-
-    @Override
-    public String getPreSubStatus() {
-        return null;
-    }
-
-    @Override
-    public void setSubStatus(String subState) {
-
-    }
-
-    @Override
-    public void setPreSubStatus(String subStatus) {
-
-    }
-
-    /**
-     * 恢复前置状态
-     *  将前置状态当成当前状态，当前状态变成前置状态
-     */
-    public void restoreStatus() {
-        String currentStatusCategory = this.getStatusCategory();
-        String currentStatus = this.getStatus();
-        String currentSubStatus = this.getSubStatus();
-
-        this.setStatusCategory(this.getPreStatusCategory());
-        this.setStatus(this.getPreStatus());
-        this.setSubStatus(this.getPreSubStatus());
-
-        this.setPreStatusCategory(currentStatusCategory);
-        this.setPreStatus(currentStatus);
-        this.setPreSubStatus(currentSubStatus);
-    }
-    /**
-     * 验证了批次是否被Hold 如果被Hold则抛出异常
-     * @throws ClientException
-     */
-    public MaterialLot validateMLotHold() throws ClientException{
-        if (HOLD_STATE_ON.equals(holdState)) {
-            throw new ClientException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD);
-        }
-        return this;
-    }
-
-    public void isFinish() {
-        if (MaterialStatusCategory.STATUS_CATEGORY_FIN.equals(this.getStatusCategory())) {
-            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_FIN, this.getMaterialLotId());
-        }
-    }
-
-    public void initialMaterialLot() {
-        setReceiveDate(new Date());
-        setPreStatusCategory(StringUtils.EMPTY);
-        setPreStatus(StringUtils.EMPTY);
-        setPreSubStatus(StringUtils.EMPTY);
-        setReceiveQty(this.getCurrentQty());
-        setReservedQty(BigDecimal.ZERO);
     }
 }

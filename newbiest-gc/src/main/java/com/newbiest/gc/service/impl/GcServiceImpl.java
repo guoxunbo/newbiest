@@ -8,14 +8,9 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
-import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.utils.StringUtils;
-import com.newbiest.base.utils.ThreadLocalContext;
+import com.newbiest.base.utils.*;
 import com.newbiest.gc.model.*;
-import com.newbiest.gc.repository.ErpMaterialOutOrderRepository;
-import com.newbiest.gc.repository.ErpSoRepository;
-import com.newbiest.gc.repository.MesPackedLotRepository;
-import com.newbiest.gc.repository.ReTestOrderRepository;
+import com.newbiest.gc.repository.*;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
@@ -92,6 +87,52 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     MaterialLotJudgeHisRepository materialLotJudgeHisRepository;
+
+    @Autowired
+    CheckHistoryRepository checkHistoryRepository;
+
+    /**
+     * GC盘点。
+     * 这个盘点不是传统上的盘点库存数量，而是只记录盘点历史。会传递不存在的
+     * 应格科要求要记录到一个单独表中。记录这个盘点历史。
+     *
+     */
+    public void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> notExistMaterialLots) throws ClientException {
+        try {
+            if (CollectionUtils.isNotEmpty(existMaterialLots)) {
+                for (MaterialLot materialLot : existMaterialLots) {
+                    materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_CHECK);
+                    history.setTransQty(materialLot.getCurrentQty());
+                    materialLotHistoryRepository.save(history);
+
+                    CheckHistory checkHistory = new CheckHistory();
+                    PropertyUtils.copyProperties(materialLot, checkHistory, new HistoryBeanConverter());
+                    checkHistory.setTransQty(materialLot.getCurrentQty());
+                    checkHistory.setTransType(MaterialLotHistory.TRANS_TYPE_CHECK);
+                    checkHistory.setObjectRrn(null);
+                    checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
+                    checkHistoryRepository.save(checkHistory);
+                }
+            }
+
+            if (CollectionUtils.isNotEmpty(notExistMaterialLots)) {
+                for (MaterialLot materialLot : notExistMaterialLots) {
+                    CheckHistory checkHistory = new CheckHistory();
+                    PropertyUtils.copyProperties(materialLot, checkHistory, new HistoryBeanConverter());
+                    checkHistory.setTransQty(BigDecimal.ZERO);
+                    checkHistory.setErrorFlag(true);
+                    checkHistory.setActionCode("Error");
+                    checkHistory.setTransType(MaterialLotHistory.TRANS_TYPE_CHECK);
+                    checkHistory.setObjectRrn(null);
+                    checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
+                    checkHistoryRepository.save(checkHistory);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     public void asyncErpMaterialOutOrder() throws ClientException {
         try {
