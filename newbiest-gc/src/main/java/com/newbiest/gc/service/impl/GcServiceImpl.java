@@ -131,6 +131,7 @@ public class GcServiceImpl implements GcService {
                                 if (material == null) {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpMaterialOutOrder.getCinvcode());
                                 }
+                                documentLine.setDocId(documentId);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
                                 documentLine.setMaterialName(material.getName());
                                 documentLine.setReserved1(String.valueOf(erpMaterialOutOrder.getSeq()));
@@ -139,6 +140,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved5(erpMaterialOutOrder.getCmaker());
                                 documentLine.setReserved6(erpMaterialOutOrder.getChandler());
                                 documentLine.setReserved7(erpMaterialOutOrder.getOther1());
+                                documentLine.setReserved9(ReTestOrder.CATEGORY_RETEST);
                             }
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
                             totalQty = totalQty.add(erpMaterialOutOrder.getIquantity());
@@ -202,8 +204,10 @@ public class GcServiceImpl implements GcService {
                                 if (material == null) {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
                                 }
+                                documentLine.setDocId(documentId);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
                                 documentLine.setMaterialName(material.getName());
+
                                 documentLine.setReserved1(String.valueOf(erpSo.getSeq()));
                                 documentLine.setReserved2(erpSo.getSecondcode());
                                 documentLine.setReserved3(erpSo.getGrade());
@@ -211,6 +215,9 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved5(erpSo.getCmaker());
                                 documentLine.setReserved6(erpSo.getChandler());
                                 documentLine.setReserved7(erpSo.getOther1());
+
+                                documentLine.setReserved8(erpSo.getCusname());
+                                documentLine.setReserved9(DeliveryOrder.CATEGORY_DELIVERY);
                             }
                             documentLine.setQty(erpSo.getIquantity());
                             totalQty = totalQty.add(erpSo.getIquantity());

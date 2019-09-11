@@ -20,6 +20,9 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="DOC_RRN")
     private Long docRrn;
 
+    @Column(name="DOC_ID")
+    private String docId;
+
     @Column(name="MATERIAL_RRN")
     private Long materialRrn;
 
@@ -63,17 +66,26 @@ public class DocumentLine extends NBUpdatable {
     private String reserved5;
 
     /**
-     * 关联ERP OTHER1
+     * 关联ERP CHANDLER
      */
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     * 关联 ERP OTHER1
+     */
     @Column(name="RESERVED7")
     private String reserved7;
 
+    /**
+     * 光联erp CUSNAME
+     */
     @Column(name="RESERVED8")
     private String reserved8;
 
+    /**
+     * 单据类型 GC特殊要求。不显示document主表，只显示line信息。所以所有信息都得带过来
+     */
     @Column(name="RESERVED9")
     private String reserved9;
 

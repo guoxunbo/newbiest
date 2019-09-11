@@ -9,9 +9,10 @@ import javax.persistence.Entity;
  * Created by guoxunbo on 2019-08-30 16:08
  */
 @Entity
-@DiscriminatorValue("ReTest")
+@DiscriminatorValue(ReTestOrder.CATEGORY_RETEST)
 public class ReTestOrder extends Document {
 
+    public static final String CATEGORY_RETEST = "ReTest";
 
 
 }

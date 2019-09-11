@@ -263,13 +263,13 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved8;
 
     /**
-     * 判定等级
+     * GlaxyCore 装箱检验判定等级
      */
     @Column(name="RESERVED9")
     private String reserved9;
 
     /**
-     * 判定码
+     * GlaxyCore 装箱检验判定码
      */
     @Column(name="RESERVED10")
     private String reserved10;

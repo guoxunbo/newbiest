@@ -253,34 +253,63 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="TARGET_STORAGE_ID")
     private String targetStorageId;
 
-
+    /**
+     * GlaxyCore MES完成品的levelTwoCode
+     */
     @Column(name="RESERVED1")
     private String reserved1;
 
+    /**
+     * GlaxyCore MES完成品的waferId
+     */
     @Column(name="RESERVED2")
     private String reserved2;
 
+    /**
+     * GlaxyCore MES完成品的salesNote
+     */
     @Column(name="RESERVED3")
     private String reserved3;
 
+    /**
+     * GlaxyCore MES完成品的treasuryNote
+     */
     @Column(name="RESERVED4")
     private String reserved4;
 
+    /**
+     * GlaxyCore MES完成品的productionNote
+     */
     @Column(name="RESERVED5")
     private String reserved5;
 
+    /**
+     * GlaxyCore MES完成品的bondedProperty
+     */
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     * GlaxyCore MES完成品的productCategory
+     */
     @Column(name="RESERVED7")
     private String reserved7;
 
+    /**
+     * GlaxyCore 中转箱号
+     */
     @Column(name="RESERVED8")
     private String reserved8;
 
+    /**
+     * GlaxyCore 装箱检验判定等级
+     */
     @Column(name="RESERVED9")
     private String reserved9;
 
+    /**
+     * GlaxyCore 装箱检验判定码
+     */
     @Column(name="RESERVED10")
     private String reserved10;
 
