@@ -75,6 +75,13 @@ public class ErpSo implements Serializable {
     private BigDecimal iquantity;
 
     /**
+     * 未发货数量
+     */
+    @Column(name="LEFT_NUM")
+    private BigDecimal leftNum;
+
+
+    /**
      * 二级代码
      */
     @Column(name="SECONDCODE")

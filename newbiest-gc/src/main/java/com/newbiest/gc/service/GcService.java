@@ -31,5 +31,6 @@ public interface GcService {
 
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 
+    void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void reTest(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
 }

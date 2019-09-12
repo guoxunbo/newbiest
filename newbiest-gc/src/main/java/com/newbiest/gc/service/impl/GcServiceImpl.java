@@ -18,6 +18,7 @@ import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.state.model.MaterialEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,6 +192,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved9(ReTestOrder.CATEGORY_RETEST);
                             }
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
+                            documentLine.setUnHandledQty(erpMaterialOutOrder.getLeftNum());
                             totalQty = totalQty.add(erpMaterialOutOrder.getIquantity());
                             documentLines.add(documentLine);
 
@@ -205,6 +207,7 @@ public class GcServiceImpl implements GcService {
                         erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
                     }
                     reTestOrder.setQty(totalQty);
+                    reTestOrder.setUnHandledQty(reTestOrder.getQty().subtract(reTestOrder.getHandledQty()));
                     reTestOrder.setDocumentLines(documentLines);
                     reTestOrderRepository.save(reTestOrder);
                 }
@@ -234,10 +237,15 @@ public class GcServiceImpl implements GcService {
             BigDecimal handledQty = BigDecimal.ZERO;
 
             for (MaterialLot materialLot : materialLots) {
-                // 变更事件，并清理掉库存
-                mmsService.changeMaterialLotState(materialLot, "ReTest", StringUtils.EMPTY);
-                materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
                 handledQty = handledQty.add(materialLot.getCurrentQty());
+
+                // 变更事件，并清理掉库存
+                materialLot.setCurrentQty(BigDecimal.ZERO);
+                mmsService.changeMaterialLotState(materialLot, "ReTest", StringUtils.EMPTY);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "ReTest");
+                materialLotHistoryRepository.save(history);
+
+                materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
             }
 
             // 验证当前操作数量是否超过待检查数量
@@ -272,11 +280,70 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 根据单据的详情项进行出货
+     * 物料批次根据发货单进行发货，更新单据数据以及，更改ERP的中间表数据
+     *  documentLine 产品型号 materialName，二级代码 reserved2，等级 reserved3,  物流 reserved7 一致
+     *  materialLot 产品型号 materialName，二级代码 reserved1，等级 grade,  物料 reserved6 一致
      */
-    public void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) {
+    public void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
             documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for (MaterialLot materialLot : materialLots) {
+                try {
+                    Assert.assertEquals(documentLine.getMaterialName(), materialLot.getMaterialName());
+                    Assert.assertEquals(documentLine.getReserved2(), materialLot.getReserved1());
+                    Assert.assertEquals(documentLine.getReserved3(), materialLot.getGrade());
+                    Assert.assertEquals(documentLine.getReserved7(), materialLot.getReserved6());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, materialLot.getMaterialLotId());
+                }
+            }
+
+            BigDecimal handledQty = BigDecimal.ZERO;
+            for (MaterialLot materialLot : materialLots) {
+                handledQty = handledQty.add(materialLot.getCurrentQty());
+
+                // 变更事件，并清理掉库存
+                materialLot.setCurrentQty(BigDecimal.ZERO);
+                mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_STOCK_OUT, StringUtils.EMPTY);
+                materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT);
+                materialLotHistoryRepository.save(history);
+            }
+
+            // 验证当前操作数量是否超过待检查数量
+            BigDecimal unHandleQty =  documentLine.getUnHandledQty().subtract(handledQty);
+            if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
+                throw new ClientParameterException(GcExceptions.OVER_DOC_QTY);
+            }
+
+            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
+            documentLine.setUnHandledQty(unHandleQty);
+            documentLineRepository.save(documentLine);
+
+            // 获取到主单据
+            DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            deliveryOrder.setHandledQty(deliveryOrder.getHandledQty().add(handledQty));
+            deliveryOrder.setUnHandledQty(deliveryOrder.getUnHandledQty().subtract(handledQty));
+            deliveryOrderRepository.save(deliveryOrder);
+
+            Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
+            if (!erpSoOptional.isPresent()) {
+                throw new ClientParameterException(GcExceptions.ERP_SO_IS_NOT_EXIST, documentLine.getReserved1());
+            }
+
+            ErpSo erpSo = erpSoOptional.get();
+            erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+            erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
+            if (StringUtils.isNullOrEmpty(erpSo.getOther3())) {
+                erpSo.setOther3(handledQty.toPlainString());
+            } else {
+                BigDecimal docHandledQty = new BigDecimal(erpSo.getOther3());
+                docHandledQty = docHandledQty.add(handledQty);
+                erpSo.setOther3(docHandledQty.toPlainString());
+            }
+            erpSoRepository.save(erpSo);
 
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -337,6 +404,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved9(DeliveryOrder.CATEGORY_DELIVERY);
                             }
                             documentLine.setQty(erpSo.getIquantity());
+                            documentLine.setUnHandledQty(erpSo.getLeftNum());
                             totalQty = totalQty.add(erpSo.getIquantity());
                             documentLines.add(documentLine);
 
@@ -353,6 +421,7 @@ public class GcServiceImpl implements GcService {
                         erpSoRepository.save(erpSo);
                     }
                     deliveryOrder.setQty(totalQty);
+                    deliveryOrder.setUnHandledQty(deliveryOrder.getQty().subtract(deliveryOrder.getHandledQty()));
                     deliveryOrder.setDocumentLines(documentLines);
                     deliveryOrderRepository.save(deliveryOrder);
                 }
