@@ -31,7 +31,9 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -142,79 +144,100 @@ public class PackageServiceImpl implements PackageService{
         }
     }
 
+    /**
+     * 拆包装
+     *
+     * @param materialLotActions 需要被拆出来的物料批次
+     * @throws ClientException
+     */
     public void unPack(List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
-            materialLotActions.forEach(materialLotAction -> {
-                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotAction.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
-                unPack(materialLot, materialLotAction);
-            });
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            //因为当前仅支持全部包装。故此处，直接用ParentMaterialLotId做包装号。
+            Map<String, List<MaterialLot>> packedLotMap = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true))
+                    .collect(Collectors.groupingBy(MaterialLot::getParentMaterialLotId));
+            for (String packageMLotId : packedLotMap.keySet()) {
+                MaterialLot packagedLot = mmsService.getMLotByMLotId(packageMLotId, true);
+                unPack(packagedLot, packedLotMap.get(packageMLotId), materialLotActions);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
     /**
-     * 拆包装，
-     *  当前只支持全部拆包装， 通过JVM参数判断是否直接返还数量到被包装的批次上
-     * @param materialLotAction
+     * 拆包装
+     * @param packedMaterialLot 待拆包装的包装批次
+     * @param waitToUnPackageMLots 待拆出来的包装批次
+     * @param materialLotActions 待拆出来的包装批次的动作。拆包数量以action中的数量为准
+     * @throws ClientException
      */
-    public void unPack(MaterialLot packedMaterialLot, MaterialLotAction materialLotAction) throws ClientException{
+    public void unPack(MaterialLot packedMaterialLot, List<MaterialLot> waitToUnPackageMLots, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
-            packedMaterialLot.setCurrentQty(BigDecimal.ZERO);
-            packedMaterialLot = mmsService.changeMaterialLotState(packedMaterialLot, MaterialEvent.EVENT_UN_PACKAGE, StringUtils.EMPTY);
-            packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
-            // 如果有库存的话，则直接清空库存。
+            // 取到包装规则
+            MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packedMaterialLot.getPackageType());
+            BigDecimal packedQty = materialLotPackageType.getPackedQty(materialLotActions);
+
+            packedMaterialLot.setCurrentQty(packedMaterialLot.getCurrentQty().subtract(packedQty));
+            if (packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                packedMaterialLot = mmsService.changeMaterialLotState(packedMaterialLot, MaterialEvent.EVENT_UN_PACKAGE, StringUtils.EMPTY);
+                packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
+            }
+            // 扣减库存 箱批次只会存在一个位置上
             List<MaterialLotInventory> materialLotInventories = mmsService.getMaterialLotInv(packedMaterialLot.getObjectRrn());
             if (CollectionUtils.isNotEmpty(materialLotInventories)) {
-                materialLotInventories.forEach(materialLotInventory -> {
-                    materialLotInventoryRepository.deleteById(materialLotInventory.getObjectRrn());
-                });
+                MaterialLotInventory materialLotInventory = materialLotInventories.get(0);
+                mmsService.saveMaterialLotInventory(materialLotInventory, packedQty.negate());
             }
 
-            // 根据JVM参数来判断是否要直接还原被包装的批次数量
-            if (SystemPropertyUtils.getUnpackRecoveryLotFlag()) {
-                List<PackagedLotDetail> packagedLotDetails = packagedLotDetailRepository.findByPackagedLotRrn(packedMaterialLot.getObjectRrn());
-                if (CollectionUtils.isNotEmpty(packagedLotDetails)) {
-                    for (PackagedLotDetail detail : packagedLotDetails) {
-                        MaterialLot materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(detail.getMaterialLotRrn());
-                        materialLot.setParentMaterialLotRrn(null);
-                        materialLot.setParentMaterialLotId(StringUtils.EMPTY);
-                        materialLot.restoreStatus();
-                        materialLotRepository.save(materialLot);
+            Map<String, MaterialLotAction> materialLotActionMap = materialLotActions.stream().collect(Collectors.toMap(MaterialLotAction :: getMaterialLotId, Function.identity()));
 
-                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
-                        history.buildByMaterialLotAction(materialLotAction);
-                        // 如果以前是在库包装，则还原最后一笔的库存数据
-                        if (MaterialStatusCategory.STATUS_CATEGORY_STOCK.equals(materialLot.getStatusCategory()) && MaterialStatus.STATUS_IN.equals(materialLot.getStatus())) {
-                            // 找到最后一笔包装数据
-                            MaterialLotHistory materialLotHistory = materialLotHistoryRepository.findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(materialLot.getMaterialLotId(), MaterialLotHistory.TRANS_TYPE_PACKAGE);
-                            if (materialLotHistory != null) {
-                                Warehouse warehouse = mmsService.getWarehouseByName(materialLotHistory.getTransWarehouseId());
-                                Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, materialLotHistory.getTransStorageId());
-                                // 恢复库存数据
-                                MaterialLotInventory materialLotInventory = new MaterialLotInventory();
-                                materialLotInventory.setMaterialLot(materialLot).setWarehouse(warehouse).setStorage(storage);
-                                mmsService.saveMaterialLotInventory(materialLotInventory, materialLot.getCurrentQty());
+            Map<String, PackagedLotDetail> packagedLotDetails = packagedLotDetailRepository.findByPackagedLotRrn(packedMaterialLot.getObjectRrn()).stream().collect(Collectors.toMap(PackagedLotDetail :: getMaterialLotId, Function.identity()));
+            for (MaterialLot waitToUnPackageMLot : waitToUnPackageMLots) {
+                MaterialLotAction materialLotAction = materialLotActionMap.get(waitToUnPackageMLot.getMaterialLotId());
 
-                                history.setTargetWarehouseId(warehouse.getName());
-                                history.setTransStorageId(storage.getName());
-                            }
-                        }
-                        materialLotHistoryRepository.save(history);
-                        packagedLotDetailRepository.deleteById(detail.getObjectRrn());
-                    }
+                // 更新packageDetail数量
+                PackagedLotDetail packagedLotDetail = packagedLotDetails.get(waitToUnPackageMLot.getMaterialLotId());
+                packagedLotDetail.setQty(packagedLotDetail.getQty().subtract(materialLotAction.getTransQty()));
+                if (packagedLotDetail.getQty().compareTo(BigDecimal.ZERO) == 0) {
+                    packagedLotDetailRepository.deleteById(packagedLotDetail.getObjectRrn());
+                } else {
+                    packagedLotDetailRepository.save(packagedLotDetail);
                 }
-            } else {
-                packagedLotDetailRepository.deleteByPackagedLotRrn(packedMaterialLot.getObjectRrn());
+                // 根据JVM参数来判断是否要直接还原被包装的批次数量
+                if (SystemPropertyUtils.getUnpackRecoveryLotFlag()) {
+                    waitToUnPackageMLot.setParentMaterialLotRrn(null);
+                    waitToUnPackageMLot.setParentMaterialLotId(StringUtils.EMPTY);
+                    waitToUnPackageMLot.restoreStatus();
+                    materialLotRepository.save(waitToUnPackageMLot);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(waitToUnPackageMLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
+                    history.buildByMaterialLotAction(materialLotAction);
+
+                    if (MaterialStatusCategory.STATUS_CATEGORY_STOCK.equals(waitToUnPackageMLot.getStatusCategory()) && MaterialStatus.STATUS_IN.equals(waitToUnPackageMLot.getStatus())) {
+                        // 找到最后一笔包装数据
+                        MaterialLotHistory materialLotHistory = materialLotHistoryRepository.findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(waitToUnPackageMLot.getMaterialLotId(), MaterialLotHistory.TRANS_TYPE_PACKAGE);
+                        if (materialLotHistory != null) {
+                            Warehouse warehouse = mmsService.getWarehouseByName(materialLotHistory.getTransWarehouseId());
+                            Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, materialLotHistory.getTransStorageId());
+                            // 恢复库存数据
+                            MaterialLotInventory materialLotInventory = new MaterialLotInventory();
+                            materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
+                            mmsService.saveMaterialLotInventory(materialLotInventory, waitToUnPackageMLot.getCurrentQty());
+
+                            history.setTargetWarehouseId(warehouse.getName());
+                            history.setTransStorageId(storage.getName());
+                        }
+                    }
+                    materialLotHistoryRepository.save(history);
+
+                }
             }
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
-            history.buildByMaterialLotAction(materialLotAction);
-            materialLotHistoryRepository.save(history);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
-
     }
 
     /**

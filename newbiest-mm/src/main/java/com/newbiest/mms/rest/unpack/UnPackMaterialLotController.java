@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 物料批次包装
+ * 物料批次拆包装
  */
 @RestController
 @RequestMapping("/mms")
