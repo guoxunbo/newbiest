@@ -24,9 +24,14 @@ public class GcMaterialLotRequest extends Request {
 	public static final String ACTION_STORING_LOT = "StoringLot";
 
 	/**
-	 * 检验
+	 * 装箱检验
 	 */
 	public static final String ACTION_JUDGE_PACKED_LOT = "JudgePackedLot";
+
+	/**
+	 * 装箱检验
+	 */
+	public static final String ACTION_GET_PACK_CASE_CHECK_LIST = "GetPackCaseCheckList";
 
 	private GcMaterialLotRequestBody body;
 

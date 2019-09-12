@@ -1,6 +1,7 @@
 package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.gc.model.StockOutCheck;
 import com.newbiest.mms.model.MaterialLot;
@@ -19,6 +20,7 @@ public interface GcService {
 
     void judgePackedMaterialLot(List<MaterialLot> materialLots, String judgeGrade, String judgeCode) throws ClientException;
 
+    List<NBOwnerReferenceList> getJudgePackCaseCheckList() throws ClientException;
     List<StockOutCheck> getStockOutCheckList() throws ClientException;
     void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> ngStockOutCheckList) throws ClientException;
 

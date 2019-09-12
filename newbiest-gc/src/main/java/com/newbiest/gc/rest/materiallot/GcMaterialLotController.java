@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.materiallot;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
@@ -46,8 +47,9 @@ public class GcMaterialLotController extends AbstractRestController {
             gcService.bindRelaxBox(materialLots, requestBody.getRelayBoxId());
         } else if (GcMaterialLotRequest.ACTION_UNBIND_RELAY_BOX.equals(actionType)) {
             gcService.unbindRelaxBox(materialLots);
-        } else if (GcMaterialLotRequest.ACTION_STORING_LOT.equals(actionType)) {
-
+        } else if (GcMaterialLotRequest.ACTION_GET_PACK_CASE_CHECK_LIST.equals(actionType)) {
+            List<NBOwnerReferenceList> judgePackCaseItemList = gcService.getJudgePackCaseCheckList();
+            responseBody.setJudgePackCaseItemList(judgePackCaseItemList);
         } else if (GcMaterialLotRequest.ACTION_JUDGE_PACKED_LOT.equals(actionType)) {
             gcService.judgePackedMaterialLot(materialLots, requestBody.getJudgeGrade(), requestBody.getJudgeCode());
         } else {

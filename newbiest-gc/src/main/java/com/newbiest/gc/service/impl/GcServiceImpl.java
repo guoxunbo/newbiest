@@ -43,6 +43,7 @@ public class GcServiceImpl implements GcService {
     public static final String TRANS_TYPE_OQC = "OQC";
 
     public static final String REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST = "StockOutCheckItemList";
+    public static final String REFERENCE_NAME_PACK_CASE_CHECK_ITEM_LIST = "PackCaseCheckItemList";
 
     public static final String EVENT_OQC = "OQC";
 
@@ -328,6 +329,19 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 获取装箱检验的检查项
+     * @return
+     * @throws ClientException
+     */
+    public List<NBOwnerReferenceList> getJudgePackCaseCheckList() throws ClientException {
+        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_PACK_CASE_CHECK_ITEM_LIST, NBReferenceList.CATEGORY_OWNER);
+        if (CollectionUtils.isNotEmpty(nbReferenceList)) {
+            return nbReferenceList;
+        }
+        return Lists.newArrayList();
+    }
+
     public List<StockOutCheck> getStockOutCheckList() throws ClientException {
         List<StockOutCheck> stockOutChecks = Lists.newArrayList();
         List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST, NBReferenceList.CATEGORY_OWNER);
@@ -335,10 +349,8 @@ public class GcServiceImpl implements GcService {
             for (NBOwnerReferenceList nbOwnerReference : nbReferenceList) {
                 StockOutCheck stockOutCheck = new StockOutCheck();
                 stockOutCheck.setName(nbOwnerReference.getValue());
-                stockOutCheck.setResult(StockOutCheck.RESULT_OK);
                 stockOutChecks.add(stockOutCheck);
             }
-
         }
         return stockOutChecks;
     }
