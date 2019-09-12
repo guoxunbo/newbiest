@@ -384,7 +384,7 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
-     * 物料批次出库。扣减物料库存数量以及物料的当前数量
+     * 物料批次出货。扣减物料批次数量
      * @param materialLot 物料批次
      * @param materialLotAction 动作需要包含来源仓库以及数量
      * @return

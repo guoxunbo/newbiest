@@ -3,6 +3,7 @@ package com.newbiest.mms.repository;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.mms.model.MaterialLotInventory;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -24,5 +25,13 @@ public interface MaterialLotInventoryRepository extends IRepository<MaterialLotI
      */
     List<MaterialLotInventory> findByMaterialLotRrn(long materialLotRrn) throws ClientException;
 
+    /**
+     * 删除库存
+     * @param materialLotRrn
+     * @throws ClientException
+     */
+    @Modifying
+    @Query("DELETE FROM MaterialLotInventory MaterialLotInventory WHERE MaterialLotInventory.materialLotRrn = :materialLotRrn")
+    void deleteByMaterialLotRrn(Long materialLotRrn) throws ClientException;
 
 }

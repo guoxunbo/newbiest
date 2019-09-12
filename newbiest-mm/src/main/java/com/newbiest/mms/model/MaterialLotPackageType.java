@@ -8,6 +8,7 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.state.model.MaterialStatusCategory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @DiscriminatorValue(PackageType.CLASS_MATERIAL_LOT)
+@Slf4j
 public class MaterialLotPackageType extends PackageType {
 
     @Override
@@ -74,6 +76,9 @@ public class MaterialLotPackageType extends PackageType {
     @Override
     public BigDecimal getPackedQty(List<? extends Action> actions) {
         List<MaterialLotAction> materialLotActions = (List<MaterialLotAction>) actions;
+        if  (log.isInfoEnabled()) {
+            log.info("Get PackedQty. PackageTypeInfo is [" + this.toString() + "]" );
+        }
         if (packedCountType.equals(COUNT_TYPE_ONE)) {
             return BigDecimal.ONE;
         } else if (packedCountType.equals(COUNT_TYPE_BY_LOT)) {

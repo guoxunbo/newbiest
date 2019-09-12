@@ -33,7 +33,10 @@ public class DocumentLine extends NBUpdatable {
     private BigDecimal qty;
 
     @Column(name="HANDLED_QTY")
-    private BigDecimal handledQty;
+    private BigDecimal handledQty = BigDecimal.ZERO;
+
+    @Column(name="UN_HANDLE_QTY")
+    private BigDecimal unHandledQty = BigDecimal.ZERO;
 
     /**
      * 关联ERP LINE的SEQ主键

@@ -4,6 +4,8 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.gc.model.StockOutCheck;
+import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
@@ -28,4 +30,6 @@ public interface GcService {
     void asyncErpMaterialOutOrder() throws ClientException;
 
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
+
+    void reTest(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
 }

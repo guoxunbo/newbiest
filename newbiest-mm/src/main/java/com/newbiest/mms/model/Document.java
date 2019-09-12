@@ -53,7 +53,14 @@ public class Document extends NBUpdatable {
      *  由lines上统计。无法私自改数量
      */
     @Column(name="HANDLED_QTY")
-    private BigDecimal handledQty;
+    private BigDecimal handledQty = BigDecimal.ZERO;
+
+    /**
+     * 未处理的数量
+     *  由lines上统计。无法私自改数量
+     */
+    @Column(name="UN_HANDLE_QTY")
+    private BigDecimal unHandledQty = BigDecimal.ZERO;
 
     /**
      * 客户或者供应商名称

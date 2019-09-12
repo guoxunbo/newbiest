@@ -9,6 +9,8 @@ import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
+import com.newbiest.common.exception.ContextException;
+import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
 import com.newbiest.gc.service.GcService;
@@ -17,6 +19,7 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,6 +78,9 @@ public class GcServiceImpl implements GcService {
     ErpSoRepository erpSoRepository;
 
     @Autowired
+    ErpMaterialOutOrderRepository erpMaterialOutOrderRepository;
+
+    @Autowired
     DeliveryOrderRepository deliveryOrderRepository;
 
     @Autowired
@@ -84,13 +90,13 @@ public class GcServiceImpl implements GcService {
     DocumentLineRepository documentLineRepository;
 
     @Autowired
-    ErpMaterialOutOrderRepository erpMaterialOutOrderRepository;
-
-    @Autowired
     MaterialLotJudgeHisRepository materialLotJudgeHisRepository;
 
     @Autowired
     CheckHistoryRepository checkHistoryRepository;
+
+    @Autowired
+    MaterialLotInventoryRepository materialLotInventoryRepository;
 
     /**
      * GC盘点。
@@ -203,6 +209,75 @@ public class GcServiceImpl implements GcService {
                     reTestOrderRepository.save(reTestOrder);
                 }
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 物料批次根据重测单进行重测，更新单据数据以及，更改ERP的中间表数据
+     *  documentLine 产品型号 materialName，二级代码 reserved2，等级 reserved3 一致
+     *  materialLot 产品型号 materialName，二级代码 reserved1，等级grade 一致
+     */
+    public void reTest(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for (MaterialLot materialLot : materialLots) {
+                try {
+                    Assert.assertEquals(documentLine.getMaterialName(), materialLot.getMaterialName());
+                    Assert.assertEquals(documentLine.getReserved2(), materialLot.getReserved1());
+                    Assert.assertEquals(documentLine.getReserved3(), materialLot.getGrade());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, materialLot.getMaterialLotId());
+                }
+            }
+            BigDecimal handledQty = BigDecimal.ZERO;
+
+            for (MaterialLot materialLot : materialLots) {
+                // 变更事件，并清理掉库存
+                mmsService.changeMaterialLotState(materialLot, "ReTest", StringUtils.EMPTY);
+                materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                handledQty = handledQty.add(materialLot.getCurrentQty());
+            }
+
+            // 验证当前操作数量是否超过待检查数量
+            BigDecimal unHandleQty =  documentLine.getUnHandledQty().subtract(handledQty);
+            if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
+                throw new ClientParameterException(GcExceptions.OVER_DOC_QTY);
+            }
+            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
+            documentLine.setUnHandledQty(unHandleQty);
+            documentLineRepository.save(documentLine);
+
+            // 获取到主单据
+            ReTestOrder reTestOrder = (ReTestOrder) reTestOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            reTestOrder.setHandledQty(reTestOrder.getHandledQty().add(handledQty));
+            reTestOrder.setUnHandledQty(reTestOrder.getUnHandledQty().subtract(handledQty));
+            reTestOrderRepository.save(reTestOrder);
+
+            Optional<ErpMaterialOutOrder> erpMaterialOutOrderOptional = erpMaterialOutOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
+            if (!erpMaterialOutOrderOptional.isPresent()) {
+                throw new ClientParameterException(GcExceptions.ERP_RETEST_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+            }
+
+            //TODO 待更新完成数量 确定栏位
+            ErpMaterialOutOrder erpMaterialOutOrder = erpMaterialOutOrderOptional.get();
+            erpMaterialOutOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+            erpMaterialOutOrder.setLeftNum(erpMaterialOutOrder.getLeftNum().subtract(handledQty));
+            erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据单据的详情项进行出货
+     */
+    public void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) {
+        try {
+            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
