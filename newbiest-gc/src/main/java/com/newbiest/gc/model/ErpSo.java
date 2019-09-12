@@ -138,8 +138,8 @@ public class ErpSo implements Serializable {
     /**
      * 已发货数量
      */
-    @Column(name="OTHER3")
-    private String other3;
+    @Column(name="DELIVERED_NUM")
+    private String deliveredNum;
 
     @Column(name="TYPE")
     private String type;

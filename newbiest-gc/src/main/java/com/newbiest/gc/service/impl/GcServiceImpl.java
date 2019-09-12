@@ -269,10 +269,16 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(GcExceptions.ERP_RETEST_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
             }
 
-            //TODO 待更新完成数量 确定栏位
             ErpMaterialOutOrder erpMaterialOutOrder = erpMaterialOutOrderOptional.get();
             erpMaterialOutOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
             erpMaterialOutOrder.setLeftNum(erpMaterialOutOrder.getLeftNum().subtract(handledQty));
+            if (StringUtils.isNullOrEmpty(erpMaterialOutOrder.getDeliveredNum())) {
+                erpMaterialOutOrder.setDeliveredNum(handledQty.toPlainString());
+            } else {
+                BigDecimal docHandledQty = new BigDecimal(erpMaterialOutOrder.getDeliveredNum());
+                docHandledQty = docHandledQty.add(handledQty);
+                erpMaterialOutOrder.setDeliveredNum(docHandledQty.toPlainString());
+            }
             erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -336,12 +342,12 @@ public class GcServiceImpl implements GcService {
             ErpSo erpSo = erpSoOptional.get();
             erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
             erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
-            if (StringUtils.isNullOrEmpty(erpSo.getOther3())) {
-                erpSo.setOther3(handledQty.toPlainString());
+            if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
+                erpSo.setDeliveredNum(handledQty.toPlainString());
             } else {
-                BigDecimal docHandledQty = new BigDecimal(erpSo.getOther3());
+                BigDecimal docHandledQty = new BigDecimal(erpSo.getDeliveredNum());
                 docHandledQty = docHandledQty.add(handledQty);
-                erpSo.setOther3(docHandledQty.toPlainString());
+                erpSo.setDeliveredNum(docHandledQty.toPlainString());
             }
             erpSoRepository.save(erpSo);
 

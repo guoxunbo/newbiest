@@ -106,6 +106,12 @@ public class ErpMaterialOutOrder implements Serializable {
     private String other1;
 
     /**
+     * 已发货数量
+     */
+    @Column(name="DELIVERED_NUM")
+    private String deliveredNum;
+
+    /**
      * 同步状态
      */
     @Column(name="SYN_STATUS")
