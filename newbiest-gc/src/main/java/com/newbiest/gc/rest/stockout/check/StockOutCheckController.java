@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.stockout.check;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.StockOutCheck;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
@@ -47,7 +48,7 @@ public class StockOutCheckController extends AbstractRestController {
         String actionType = requestBody.getActionType();
 
         if (StockOutCheckRequest.ACTION_GET_CHECK_LIST.equals(actionType)) {
-            List<StockOutCheck> stockOutChecks = gcService.getStockOutCheckList();
+            List<NBOwnerReferenceList> stockOutChecks = gcService.getStockOutCheckList();
             responseBody.setStockOutCheckList(stockOutChecks);
         } else if (StockOutCheckRequest.ACTION_JUDGE.equals(actionType)) {
             List<MaterialLot> materialLots = requestBody.getMaterialLots();

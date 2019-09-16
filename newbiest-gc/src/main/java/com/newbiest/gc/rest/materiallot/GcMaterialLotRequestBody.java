@@ -1,5 +1,6 @@
 package com.newbiest.gc.rest.materiallot;
 
+import com.newbiest.gc.model.StockOutCheck;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -30,5 +31,7 @@ public class GcMaterialLotRequestBody extends RequestBody {
 	@ApiModelProperty("判定码")
 	private String judgeCode;
 
+	@ApiModelProperty("检查项")
+	private List<StockOutCheck> checkList;
 
 }

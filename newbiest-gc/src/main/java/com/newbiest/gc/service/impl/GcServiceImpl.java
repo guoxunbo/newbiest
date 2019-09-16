@@ -492,17 +492,12 @@ public class GcServiceImpl implements GcService {
         return Lists.newArrayList();
     }
 
-    public List<StockOutCheck> getStockOutCheckList() throws ClientException {
-        List<StockOutCheck> stockOutChecks = Lists.newArrayList();
+    public List<NBOwnerReferenceList> getStockOutCheckList() throws ClientException {
         List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST, NBReferenceList.CATEGORY_OWNER);
         if (CollectionUtils.isNotEmpty(nbReferenceList)) {
-            for (NBOwnerReferenceList nbOwnerReference : nbReferenceList) {
-                StockOutCheck stockOutCheck = new StockOutCheck();
-                stockOutCheck.setName(nbOwnerReference.getValue());
-                stockOutChecks.add(stockOutCheck);
-            }
+            return nbReferenceList;
         }
-        return stockOutChecks;
+        return Lists.newArrayList();
     }
 
     /**
@@ -599,28 +594,55 @@ public class GcServiceImpl implements GcService {
 
     }
 
-    public void judgeMaterialLot(MaterialLot materialLot, String judgeGrade, String judgeCode) {
+    public void judgeMaterialLot(MaterialLot materialLot, String judgeGrade, String judgeCode, List<StockOutCheck> ngCheckList) {
         materialLot.setReserved9(judgeGrade);
         materialLot.setReserved10(judgeCode);
         materialLotRepository.save(materialLot);
         MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_JUDGE);
         materialLotHistoryRepository.save(history);
+
+        if (CollectionUtils.isNotEmpty(ngCheckList)) {
+            // 保存每个项目的判定结果 GC要求只记录NG的判定历史即可
+            MaterialLot finalMaterialLot = materialLot;
+            ngCheckList.forEach(stockOutCheck -> {
+                MaterialLotJudgeHis materialLotJudgeHis = new MaterialLotJudgeHis();
+                materialLotJudgeHis.setMaterialLotRrn(finalMaterialLot.getObjectRrn());
+                materialLotJudgeHis.setMaterialLotId(finalMaterialLot.getMaterialLotId());
+                materialLotJudgeHis.setItemName(stockOutCheck.getName());
+                materialLotJudgeHis.setResult(stockOutCheck.getResult());
+                materialLotJudgeHis.setTransType(TRANS_TYPE_JUDGE);
+                materialLotJudgeHis.setHisSeq(ThreadLocalContext.getTransRrn());
+                materialLotJudgeHisRepository.save(materialLotJudgeHis);
+            });
+        }
     }
 
     /**
-     * 对包装后的物料批次进行判等
+     * 装箱判定
      * @throws ClientException
      */
-    public void judgePackedMaterialLot(List<MaterialLot> materialLots, String judgeGrade, String judgeCode) throws ClientException{
+    public void judgePackedMaterialLot(List<MaterialLot> materialLots,List<StockOutCheck> checkList) throws ClientException{
         try {
+            String judgeGrade = StockOutCheck.RESULT_PASS;
+            String judgeCode = StockOutCheck.RESULT_PASS;
+            List<StockOutCheck> ngCheckList = Lists.newArrayList();
+            if (CollectionUtils.isNotEmpty(checkList)) {
+                ngCheckList = checkList.stream().filter(checkItem -> StockOutCheck.RESULT_NG.equals(checkItem.getResult())).collect(Collectors.toList());
+            }
+            if (CollectionUtils.isNotEmpty(ngCheckList)) {
+                judgeGrade = StockOutCheck.RESULT_NG;
+                judgeCode = StockOutCheck.RESULT_NG;
+            }
+
             //GC只会全部包装。故此处，直接用ParentMaterialLotId做包装号。
             Map<String, List<MaterialLot>> packedLotMap = materialLots.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true))
                     .collect(Collectors.groupingBy(MaterialLot::getParentMaterialLotId));
             for (String packageMLotId : packedLotMap.keySet())  {
                 MaterialLot parentMLot = mmsService.getMLotByMLotId(packageMLotId, true);
-                judgeMaterialLot(parentMLot, judgeGrade, judgeCode);
+                judgeMaterialLot(parentMLot, judgeGrade, judgeCode, ngCheckList);
+
                 for (MaterialLot packagedMLot : packedLotMap.get(packageMLotId)) {
-                    judgeMaterialLot(packagedMLot, judgeGrade, judgeCode);
+                    judgeMaterialLot(packagedMLot, judgeGrade, judgeCode, ngCheckList);
                 }
             }
         } catch (Exception e) {

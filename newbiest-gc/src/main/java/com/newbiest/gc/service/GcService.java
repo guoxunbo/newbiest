@@ -20,10 +20,10 @@ public interface GcService {
     void bindRelaxBox(List<MaterialLot> materialLots, String relaxBoxId) throws ClientException;
     void unbindRelaxBox(List<MaterialLot> materialLots) throws ClientException;
 
-    void judgePackedMaterialLot(List<MaterialLot> materialLots, String judgeGrade, String judgeCode) throws ClientException;
+    void judgePackedMaterialLot(List<MaterialLot> materialLots, List<StockOutCheck> checkList) throws ClientException;
 
     List<NBOwnerReferenceList> getJudgePackCaseCheckList() throws ClientException;
-    List<StockOutCheck> getStockOutCheckList() throws ClientException;
+    List<NBOwnerReferenceList> getStockOutCheckList() throws ClientException;
     void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> ngStockOutCheckList) throws ClientException;
 
     void asyncErpSo() throws ClientException;
