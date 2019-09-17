@@ -228,10 +228,18 @@ public class GcServiceImpl implements GcService {
             for (MaterialLot materialLot : materialLots) {
                 try {
                     Assert.assertEquals(documentLine.getMaterialName(), materialLot.getMaterialName());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "materialName", documentLine.getMaterialName(), materialLot.getMaterialName());
+                }
+                try {
                     Assert.assertEquals(documentLine.getReserved2(), materialLot.getReserved1());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "secondcode",documentLine.getReserved2(),  materialLot.getReserved1());
+                }
+                try {
                     Assert.assertEquals(documentLine.getReserved3(), materialLot.getGrade());
                 } catch (AssertionError e) {
-                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, materialLot.getMaterialLotId());
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "grade", documentLine.getReserved3(), materialLot.getGrade());
                 }
             }
             BigDecimal handledQty = BigDecimal.ZERO;
@@ -297,12 +305,25 @@ public class GcServiceImpl implements GcService {
             for (MaterialLot materialLot : materialLots) {
                 try {
                     Assert.assertEquals(documentLine.getMaterialName(), materialLot.getMaterialName());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "materialName", documentLine.getMaterialName(), materialLot.getMaterialName());
+                }
+                try {
                     Assert.assertEquals(documentLine.getReserved2(), materialLot.getReserved1());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "secondcode",documentLine.getReserved2(),  materialLot.getReserved1());
+                }
+                try {
                     Assert.assertEquals(documentLine.getReserved3(), materialLot.getGrade());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "grade", documentLine.getReserved3(), materialLot.getGrade());
+                }
+                try {
                     Assert.assertEquals(documentLine.getReserved7(), materialLot.getReserved6());
                 } catch (AssertionError e) {
-                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, materialLot.getMaterialLotId());
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "other1", documentLine.getReserved7(), materialLot.getReserved6());
                 }
+
             }
 
             BigDecimal handledQty = BigDecimal.ZERO;
