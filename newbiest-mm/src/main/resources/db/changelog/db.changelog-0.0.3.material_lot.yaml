@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.0.3
+      author: Xunbo Guo
+      remarks: mms_material_lot add column reserved11-20
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: RESERVED11
+                  type: varchar(64)
+                  remarks: 预留栏位11
+              - column:
+                  name: RESERVED12
+                  type: varchar(64)
+                  remarks: 预留栏位12
+              - column:
+                  name: RESERVED13
+                  type: varchar(64)
+                  remarks: 预留栏位13
+              - column:
+                  name: RESERVED14
+                  type: varchar(64)
+                  remarks: 预留栏位14
+              - column:
+                  name: RESERVED15
+                  type: varchar(64)
+                  remarks: 预留栏位15
+              - column:
+                  name: RESERVED16
+                  type: varchar(64)
+                  remarks: 预留栏位16
+              - column:
+                  name: RESERVED17
+                  type: varchar(64)
+                  remarks: 预留栏位17
+              - column:
+                  name: RESERVED18
+                  type: varchar(64)
+                  remarks: 预留栏位18
+              - column:
+                  name: RESERVED19
+                  type: varchar(64)
+                  remarks: 预留栏位19
+              - column:
+                  name: RESERVED20
+                  type: varchar(64)
+                  remarks: 预留栏位20
+

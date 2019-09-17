@@ -249,6 +249,8 @@ public class GcServiceImpl implements GcService {
 
                 // 变更事件，并清理掉库存
                 materialLot.setCurrentQty(BigDecimal.ZERO);
+
+                materialLot.setReserved12(documentLine.getObjectRrn().toString());
                 mmsService.changeMaterialLotState(materialLot, "ReTest", StringUtils.EMPTY);
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "ReTest");
                 materialLotHistoryRepository.save(history);
@@ -329,12 +331,12 @@ public class GcServiceImpl implements GcService {
             BigDecimal handledQty = BigDecimal.ZERO;
             for (MaterialLot materialLot : materialLots) {
                 handledQty = handledQty.add(materialLot.getCurrentQty());
-
                 // 变更事件，并清理掉库存
                 materialLot.setCurrentQty(BigDecimal.ZERO);
-                mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_STOCK_OUT, StringUtils.EMPTY);
+                materialLot.setReserved12(documentLine.getObjectRrn().toString());
+                mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_SHIP, StringUtils.EMPTY);
                 materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SHIP);
                 materialLotHistoryRepository.save(history);
             }
 
@@ -474,8 +476,13 @@ public class GcServiceImpl implements GcService {
             }
             if (CollectionUtils.isNotEmpty(ngStockOutCheckList)) {
                 checkResult = StockOutCheck.RESULT_NG;
+
             }
             for (MaterialLot materialLot : materialLots) {
+                //20190917 GC要求 如果判了NG。并且装箱检查是PASS的，将PASS改成PASS0
+                if (StockOutCheck.RESULT_NG.equals(checkResult) && StockOutCheck.RESULT_PASS.equals(materialLot.getReserved9())) {
+                    materialLot.setReserved9(materialLot.getReserved9() + "0");
+                }
                 materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
 //                GC要求只记录NG的判定历史即可
                 if (CollectionUtils.isNotEmpty(ngStockOutCheckList)) {

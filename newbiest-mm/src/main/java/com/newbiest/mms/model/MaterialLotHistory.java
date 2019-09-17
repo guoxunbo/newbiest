@@ -22,6 +22,8 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_RECEIVE = "Receive";
     public static final String TRANS_TYPE_STOCK_IN = "StockIn";
     public static final String TRANS_TYPE_STOCK_OUT = "StockOut";
+    public static final String TRANS_TYPE_SHIP = "Ship";
+
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
     public static final String TRANS_TYPE_CHECK = "Check";
@@ -312,6 +314,42 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="RESERVED10")
     private String reserved10;
+
+    /**
+     * GlaxyCore 重测之后的工单号
+     */
+    @Column(name="RESERVED11")
+    private String reserved11;
+
+    /**
+     * GlaxyCore 单据号
+     */
+    @Column(name="RESERVED12")
+    private String reserved12;
+
+    @Column(name="RESERVED13")
+    private String reserved13;
+
+    @Column(name="RESERVED14")
+    private String reserved14;
+
+    @Column(name="RESERVED15")
+    private String reserved15;
+
+    @Column(name="RESERVED16")
+    private String reserved16;
+
+    @Column(name="RESERVED17")
+    private String reserved17;
+
+    @Column(name="RESERVED18")
+    private String reserved18;
+
+    @Column(name="RESERVED19")
+    private String reserved19;
+
+    @Column(name="RESERVED20")
+    private String reserved20;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

@@ -272,6 +272,42 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved10;
 
     /**
+     * GlaxyCore 重测之后的工单号
+     */
+    @Column(name="RESERVED11")
+    private String reserved11;
+
+    /**
+     * GlaxyCore 单据号
+     */
+    @Column(name="RESERVED12")
+    private String reserved12;
+
+    @Column(name="RESERVED13")
+    private String reserved13;
+
+    @Column(name="RESERVED14")
+    private String reserved14;
+
+    @Column(name="RESERVED15")
+    private String reserved15;
+
+    @Column(name="RESERVED16")
+    private String reserved16;
+
+    @Column(name="RESERVED17")
+    private String reserved17;
+
+    @Column(name="RESERVED18")
+    private String reserved18;
+
+    @Column(name="RESERVED19")
+    private String reserved19;
+
+    @Column(name="RESERVED20")
+    private String reserved20;
+
+    /**
      * 验证物料批次是否在有效期内
      */
     public void validationEffective() {

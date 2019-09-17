@@ -20,6 +20,8 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_STOCK_OUT = "StockOut";
 
+    public static final String EVENT_SHIP = "Ship";
+
     public static final String EVENT_PICK = "Pick";
 
     public static final String EVENT_CHECK = "Check";
