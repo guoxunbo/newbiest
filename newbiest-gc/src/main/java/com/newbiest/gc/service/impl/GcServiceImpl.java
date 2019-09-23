@@ -325,7 +325,6 @@ public class GcServiceImpl implements GcService {
                 } catch (AssertionError e) {
                     throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "other1", documentLine.getReserved7(), materialLot.getReserved6());
                 }
-
             }
 
             BigDecimal handledQty = BigDecimal.ZERO;
@@ -482,6 +481,15 @@ public class GcServiceImpl implements GcService {
                 //20190917 GC要求 如果判了NG。并且装箱检查是PASS的，将PASS改成PASS0
                 if (StockOutCheck.RESULT_NG.equals(checkResult) && StockOutCheck.RESULT_PASS.equals(materialLot.getReserved9())) {
                     materialLot.setReserved9(materialLot.getReserved9() + "0");
+
+                    // 20190921 GC要求，被包装的批次都需要也需要改成materialLot相关信息
+                    List<MaterialLot> packedMaterialLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    if (CollectionUtils.isNotEmpty(packedMaterialLots)) {
+                        for (MaterialLot packedMaterialLot : packedMaterialLots) {
+                            packedMaterialLot.setReserved9(materialLot.getReserved9());
+                            materialLotRepository.save(packedMaterialLot);
+                        }
+                    }
                 }
                 materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
 //                GC要求只记录NG的判定历史即可
