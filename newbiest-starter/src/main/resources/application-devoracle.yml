@@ -78,6 +78,11 @@ spring:
     admin:
       client:
         url: http://127.0.0.1:8081
+  servlet:
+    multipart:
+      max-request-size: 40MB
+      max-file-size: 40MB
+      enabled: true
 #设置server的基本信息
 server:
   servlet:
