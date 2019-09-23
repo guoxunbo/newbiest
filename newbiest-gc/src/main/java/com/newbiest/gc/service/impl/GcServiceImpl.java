@@ -226,21 +226,7 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             for (MaterialLot materialLot : materialLots) {
-                try {
-                    Assert.assertEquals(documentLine.getMaterialName(), materialLot.getMaterialName());
-                } catch (AssertionError e) {
-                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "materialName", documentLine.getMaterialName(), materialLot.getMaterialName());
-                }
-                try {
-                    Assert.assertEquals(documentLine.getReserved2(), materialLot.getReserved1());
-                } catch (AssertionError e) {
-                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "secondcode",documentLine.getReserved2(),  materialLot.getReserved1());
-                }
-                try {
-                    Assert.assertEquals(documentLine.getReserved3(), materialLot.getGrade());
-                } catch (AssertionError e) {
-                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "grade", documentLine.getReserved3(), materialLot.getGrade());
-                }
+                validationDocLine(documentLine, materialLot);
             }
             BigDecimal handledQty = BigDecimal.ZERO;
 
@@ -295,6 +281,32 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    public void validationDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException{
+        try {
+            Assert.assertEquals(documentLine.getMaterialName(), materialLot.getMaterialName());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "materialName", documentLine.getMaterialName(), materialLot.getMaterialName());
+        }
+
+        String materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
+        try {
+            Assert.assertEquals(documentLine.getReserved2(), materialSecondCode);
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "secondcode", documentLine.getReserved2(),  materialSecondCode);
+        }
+
+        try {
+            Assert.assertEquals(documentLine.getReserved3(), materialLot.getGrade());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "grade", documentLine.getReserved3(), materialLot.getGrade());
+        }
+        try {
+            Assert.assertEquals(documentLine.getReserved7(), materialLot.getReserved6());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "other1", documentLine.getReserved7(), materialLot.getReserved6());
+        }
+    }
+
     /**
      * 物料批次根据发货单进行发货，更新单据数据以及，更改ERP的中间表数据
      *  documentLine 产品型号 materialName，二级代码 reserved2，等级 reserved3,  物流 reserved7 一致
@@ -305,26 +317,7 @@ public class GcServiceImpl implements GcService {
             documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             for (MaterialLot materialLot : materialLots) {
-                try {
-                    Assert.assertEquals(documentLine.getMaterialName(), materialLot.getMaterialName());
-                } catch (AssertionError e) {
-                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "materialName", documentLine.getMaterialName(), materialLot.getMaterialName());
-                }
-                try {
-                    Assert.assertEquals(documentLine.getReserved2(), materialLot.getReserved1());
-                } catch (AssertionError e) {
-                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "secondcode",documentLine.getReserved2(),  materialLot.getReserved1());
-                }
-                try {
-                    Assert.assertEquals(documentLine.getReserved3(), materialLot.getGrade());
-                } catch (AssertionError e) {
-                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "grade", documentLine.getReserved3(), materialLot.getGrade());
-                }
-                try {
-                    Assert.assertEquals(documentLine.getReserved7(), materialLot.getReserved6());
-                } catch (AssertionError e) {
-                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "other1", documentLine.getReserved7(), materialLot.getReserved6());
-                }
+                validationDocLine(documentLine, materialLot);
             }
 
             BigDecimal handledQty = BigDecimal.ZERO;
