@@ -128,6 +128,10 @@ public class PackageServiceImpl implements PackageService{
             }
             materialLotPackageType.validationAppendPacking(waitToAddPackingMLots, allMaterialAction);
 
+            if (!StringUtils.isNullOrEmpty(materialLotPackageType.getMergeRule())) {
+                mmsService.validationMergeRule(materialLotPackageType.getMergeRule(), allMaterialLot);
+            }
+
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(allMaterialAction));
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 //            // 记录创建历史
@@ -218,6 +222,7 @@ public class PackageServiceImpl implements PackageService{
                     waitToUnPackageMLot.setReserved10(StringUtils.EMPTY);
                     waitToUnPackageMLot.restoreStatus();
                     materialLotRepository.save(waitToUnPackageMLot);
+
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(waitToUnPackageMLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
                     history.buildByMaterialLotAction(materialLotAction);
 
