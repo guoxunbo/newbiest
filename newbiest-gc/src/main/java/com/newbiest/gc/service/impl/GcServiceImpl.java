@@ -24,11 +24,13 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.nio.cs.ext.MacArabic;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.newbiest.mms.exception.MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST;
@@ -98,6 +100,81 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     MaterialLotInventoryRepository materialLotInventoryRepository;
+
+    /**
+     * 获取到可以入库的批次
+     *  当前只验证了物料批次是否是完结
+     * @param materialLotId
+     * @return
+     */
+    public MaterialLot getWaitStockInStorageMaterialLot(String materialLotId) throws ClientException {
+        try {
+            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
+            materialLot.isFinish();
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 入库位
+     * @return
+     */
+    public void stockIn(List<StockInModel> stockInModels) throws ClientException {
+        try {
+            ThreadLocalContext.getSessionContext().buildTransInfo();
+            Map<String, StockInModel> stockInModelMap = stockInModels.stream().collect(Collectors.toMap(StockInModel :: getMaterialLotId, Function.identity()));
+
+            //1. 把箱批次和普通的物料批次区分出来
+            List<MaterialLot> materialLots = stockInModels.stream().map(model -> mmsService.getMLotByMLotId(model.getMaterialLotId(), true)).collect(Collectors.toList());
+            List<MaterialLot> packageMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getPackageType())).collect(Collectors.toList());
+            List<MaterialLot> normalMaterialLots = materialLots.stream().filter(materialLot -> materialLot.getParentMaterialLotRrn() == null).collect(Collectors.toList());
+
+            //2. 普通批次才做绑定中转箱功能，直接release原来的中转箱号
+            for (MaterialLot materialLot : normalMaterialLots) {
+                StockInModel stockInModel = stockInModelMap.get(materialLot.getMaterialLotId());
+                // 为空则不处理
+                if (StringUtils.isNullOrEmpty(stockInModel.getRelaxBoxId())) {
+                    continue;
+                }
+                bindRelaxBox(Lists.newArrayList(materialLot), stockInModel.getRelaxBoxId());
+            }
+            //3. 入库
+            for (MaterialLot materialLot : materialLots) {
+                StockInModel stockInModel = stockInModelMap.get(materialLot.getMaterialLotId());
+                String storageId = stockInModel.getStorageId();
+                // 为空则不处理
+                if (StringUtils.isNullOrEmpty(storageId)) {
+                    continue;
+                }
+                if (StringUtils.isNullOrEmpty(materialLot.getReserved13())) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_WAREHOUSE_IS_NULL, materialLot.getMaterialLotId());
+                }
+
+                MaterialLotAction action = new MaterialLotAction();
+                action.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
+                action.setTargetStorageId(storageId);
+                action.setTransQty(materialLot.getCurrentQty());
+
+                List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
+                // 如果为空就是做入库事件 如果不是空则做转库事件
+                if (CollectionUtils.isNotEmpty(materialLotInvList)) {
+                    //GC一个批次只会入库一次
+                    MaterialLotInventory materialLotInventory = materialLotInvList.get(0);
+                    action.setFromWarehouseRrn(materialLotInventory.getWarehouseRrn());
+                    action.setFromStorageRrn(materialLotInventory.getStorageRrn());
+                    mmsService.transfer(materialLot, action);
+                } else {
+                    materialLot = mmsService.stockIn(materialLot, action);
+                }
+                materialLot.setReserved14(storageId);
+                materialLotRepository.save(materialLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     /**
      * GC盘点。
@@ -181,6 +258,7 @@ public class GcServiceImpl implements GcService {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpMaterialOutOrder.getCinvcode());
                                 }
                                 documentLine.setDocId(documentId);
+                                documentLine.setErpCreated(DateUtils.parseDate(erpMaterialOutOrder.getDdate()));
                                 documentLine.setMaterialRrn(material.getObjectRrn());
                                 documentLine.setMaterialName(material.getName());
                                 documentLine.setReserved1(String.valueOf(erpMaterialOutOrder.getSeq()));
@@ -410,6 +488,7 @@ public class GcServiceImpl implements GcService {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
                                 }
                                 documentLine.setDocId(documentId);
+                                documentLine.setErpCreated(DateUtils.parseDate(erpSo.getDdate()));
                                 documentLine.setMaterialRrn(material.getObjectRrn());
                                 documentLine.setMaterialName(material.getName());
 
@@ -485,7 +564,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
-//                GC要求只记录NG的判定历史即可
+//              GC要求只记录NG的判定历史即可
                 if (CollectionUtils.isNotEmpty(ngStockOutCheckList)) {
                     // 保存每个项目的判定结果
                     MaterialLot finalMaterialLot = materialLot;
@@ -572,6 +651,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReserved5(mesPackedLot.getProductionNote());
                     materialLot.setReserved6(mesPackedLot.getBondedProperty());
                     materialLot.setReserved7(mesPackedLot.getProductCategory());
+                    materialLot.setReserved13(warehouse.getObjectRrn().toString());
                     materialLotRepository.save(materialLot);
 
                     // 修改MES成品批次为接收状态

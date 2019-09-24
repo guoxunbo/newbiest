@@ -3,6 +3,7 @@ package com.newbiest.gc.service;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.MesPackedLot;
+import com.newbiest.gc.model.StockInModel;
 import com.newbiest.gc.model.StockOutCheck;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
@@ -14,6 +15,9 @@ import java.util.List;
  * Created by guoxunbo on 2019-08-21 12:41
  */
 public interface GcService {
+
+    MaterialLot getWaitStockInStorageMaterialLot(String materialLotId) throws ClientException;
+    void stockIn(List<StockInModel> stockInModels) throws ClientException;
 
     void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
 

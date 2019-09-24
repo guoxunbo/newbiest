@@ -16,7 +16,7 @@ public class StockOutRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
-	@ApiModelProperty(value = "待重测发料的物料批次")
+	@ApiModelProperty(value = "待出货的批次")
 	private List<MaterialLotAction> materialLotActions;
 
 	@ApiModelProperty(value = "单据详情")

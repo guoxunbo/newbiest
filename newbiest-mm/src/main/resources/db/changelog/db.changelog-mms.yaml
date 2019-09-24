@@ -83,3 +83,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.3.material_lot_his.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.4.document_line.yaml
+      relativeToChangelogFile: true

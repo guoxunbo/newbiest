@@ -1,12 +1,14 @@
 package com.newbiest.mms.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
+import lombok.Getter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 单据对应的详细信息
@@ -37,6 +39,12 @@ public class DocumentLine extends NBUpdatable {
 
     @Column(name="UN_HANDLE_QTY")
     private BigDecimal unHandledQty = BigDecimal.ZERO;
+
+    @Column(name="ERP_CREATED", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    @Getter
+    protected Date erpCreated;
 
     /**
      * 关联ERP LINE的SEQ主键

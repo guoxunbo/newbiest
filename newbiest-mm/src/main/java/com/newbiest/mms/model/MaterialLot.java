@@ -278,14 +278,20 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved11;
 
     /**
-     * GlaxyCore 单据号
+     * GlaxyCore documentLineRrn
      */
     @Column(name="RESERVED12")
     private String reserved12;
 
+    /**
+     * GlaxyCore 接收的时候会记录默认仓库
+     */
     @Column(name="RESERVED13")
     private String reserved13;
 
+    /**
+     * GlaxyCore 记录StorageId
+     */
     @Column(name="RESERVED14")
     private String reserved14;
 

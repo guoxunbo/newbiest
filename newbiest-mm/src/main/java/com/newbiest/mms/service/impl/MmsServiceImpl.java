@@ -256,14 +256,17 @@ public class MmsServiceImpl implements MmsService {
                 targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getTargetStorageRrn());
             } else if (!StringUtils.isNullOrEmpty(materialLotAction.getTargetStorageId())) {
                 targetStorage = getStorageByWarehouseRrnAndName(warehouse, materialLotAction.getTargetStorageId());
-                if (targetStorage == null && SystemPropertyUtils.getAutoCreateStorageFlag()) {
-                    targetStorage = new Storage();
-                    targetStorage.setName(materialLotAction.getTargetStorageId());
-                    targetStorage.setDescription(StringUtils.SYSTEM_CREATE);
-                    targetStorage.setWarehouseRrn(warehouse.getObjectRrn());
-                    targetStorage = storageRepository.saveAndFlush(targetStorage);
-                } else {
-                    throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST);
+                if (targetStorage == null ) {
+                    if (SystemPropertyUtils.getAutoCreateStorageFlag()) {
+                        targetStorage = new Storage();
+                        targetStorage.setName(materialLotAction.getTargetStorageId());
+                        targetStorage.setDescription(StringUtils.SYSTEM_CREATE);
+                        targetStorage.setWarehouseRrn(warehouse.getObjectRrn());
+                        targetStorage = storageRepository.saveAndFlush(targetStorage);
+                    } else {
+                        throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST);
+
+                    }
                 }
             } else {
                 targetStorage = getDefaultStorage(warehouse);
@@ -696,7 +699,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             MaterialLot materialLot =  materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId, ThreadLocalContext.getOrgRrn());
             if (materialLot == null && throwExceptionFlag) {
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mLotId);
             }
             return materialLot;
         } catch (Exception e) {
