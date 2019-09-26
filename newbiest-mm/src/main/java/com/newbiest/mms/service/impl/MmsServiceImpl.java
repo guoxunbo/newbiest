@@ -335,6 +335,10 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    public MaterialLot getMLotByObjectRrn(long materialLotRrn) throws ClientException{
+        return (MaterialLot) materialLotRepository.findByObjectRrn(materialLotRrn);
+    }
+    
     /**
      * 盘点 物料批次数量，物料批次库存 以盘点数量为准
      *  支持从有盘无 不支持从无盘有，从无盘有当前必须用入库功能
@@ -356,7 +360,7 @@ public class MmsServiceImpl implements MmsService {
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
-            materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
+            materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             // 如果盘点为0 则表示物料批次被用完，则触发出库事件
             String eventId = MaterialEvent.EVENT_CHECK;
             if (materialLotAction.getTransQty().compareTo(BigDecimal.ZERO) == 0) {
@@ -407,7 +411,7 @@ public class MmsServiceImpl implements MmsService {
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
-            materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
+            materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_STOCK_OUT_ALL);
@@ -452,7 +456,7 @@ public class MmsServiceImpl implements MmsService {
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
-            materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
+            materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_PICK_ALL);
@@ -503,7 +507,7 @@ public class MmsServiceImpl implements MmsService {
             if (materialLotInventory == null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
             }
-            materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
+            materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_TRANSFER_ALL);
@@ -535,7 +539,7 @@ public class MmsServiceImpl implements MmsService {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
 
-            materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
+            materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
             if (currentQty.compareTo(BigDecimal.ZERO) < 0) {
@@ -576,7 +580,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
-            materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
+            materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             materialLot.validateMLotHold();
 
             // 物料批次只会hold一次。多重Hold只会记录历史，并不会产生多重Hold记录
@@ -602,7 +606,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
-            materialLot = (MaterialLot) materialLotRepository.findByObjectRrn(materialLot.getObjectRrn());
+            materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             materialLot.setHoldState(MaterialLot.HOLD_STATE_OFF);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 

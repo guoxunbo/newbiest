@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface PackageService {
 
+    List<MaterialLot> getPackageDetailLots(Long packagedLotRrn) throws ClientException;
+
     MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException;
     MaterialLot appendPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException;
 

@@ -19,6 +19,8 @@ public interface MmsService {
     // MaterialLot
     MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException;
     MaterialLot getMLotByMLotId(String mLotId) throws ClientException;
+    MaterialLot getMLotByObjectRrn(long materialLotRrn) throws ClientException;
+
     MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot stockIn(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;

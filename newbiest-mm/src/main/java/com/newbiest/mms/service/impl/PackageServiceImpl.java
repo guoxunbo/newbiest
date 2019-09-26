@@ -81,7 +81,7 @@ public class PackageServiceImpl implements PackageService{
      * 获取包装详细信息
      * @return
      */
-    public List<MaterialLot> getPackageDetailLots(Long packagedLotRrn) {
+    public List<MaterialLot> getPackageDetailLots(Long packagedLotRrn) throws ClientException{
         try {
             return materialLotRepository.getPackageDetailLots(packagedLotRrn);
         } catch (Exception e) {
