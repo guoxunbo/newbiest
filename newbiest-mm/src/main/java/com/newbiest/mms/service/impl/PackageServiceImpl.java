@@ -153,9 +153,11 @@ public class PackageServiceImpl implements PackageService{
      *
      * @param materialLotActions 需要被拆出来的物料批次
      * @throws ClientException
+     * @return 被拆包的主批次
      */
-    public void unPack(List<MaterialLotAction> materialLotActions) throws ClientException {
+    public List<MaterialLot> unPack(List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
+            List<MaterialLot> unPackedMainMaterialLots = Lists.newArrayList();
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
             //因为当前仅支持全部包装。故此处，直接用ParentMaterialLotId做包装号。
@@ -163,8 +165,10 @@ public class PackageServiceImpl implements PackageService{
                     .collect(Collectors.groupingBy(MaterialLot::getParentMaterialLotId));
             for (String packageMLotId : packedLotMap.keySet()) {
                 MaterialLot packagedLot = mmsService.getMLotByMLotId(packageMLotId, true);
-                unPack(packagedLot, packedLotMap.get(packageMLotId), materialLotActions);
+                packagedLot = unPack(packagedLot, packedLotMap.get(packageMLotId), materialLotActions);
+                unPackedMainMaterialLots.add(packagedLot);
             }
+            return unPackedMainMaterialLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -177,7 +181,7 @@ public class PackageServiceImpl implements PackageService{
      * @param materialLotActions 待拆出来的包装批次的动作。拆包数量以action中的数量为准
      * @throws ClientException
      */
-    public void unPack(MaterialLot packedMaterialLot, List<MaterialLot> waitToUnPackageMLots, List<MaterialLotAction> materialLotActions) throws ClientException{
+    public MaterialLot unPack(MaterialLot packedMaterialLot, List<MaterialLot> waitToUnPackageMLots, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
@@ -245,6 +249,7 @@ public class PackageServiceImpl implements PackageService{
 
                 }
             }
+            return packedMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

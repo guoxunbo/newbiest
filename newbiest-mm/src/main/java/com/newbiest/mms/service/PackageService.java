@@ -3,6 +3,7 @@ package com.newbiest.mms.service;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
@@ -17,6 +18,6 @@ public interface PackageService {
     MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException;
     MaterialLot appendPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException;
 
-    void unPack(List<MaterialLotAction> materialLotActions) throws ClientException;
+    List<MaterialLot> unPack(List<MaterialLotAction> materialLotActions) throws ClientException;
 
 }

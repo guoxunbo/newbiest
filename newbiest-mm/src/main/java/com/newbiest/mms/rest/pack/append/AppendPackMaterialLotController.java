@@ -1,6 +1,7 @@
 package com.newbiest.mms.rest.pack.append;
 
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.PackageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -34,7 +35,8 @@ public class AppendPackMaterialLotController extends AbstractRestController {
 
         AppendPackMaterialLotRequestBody requestBody = request.getBody();
 
-        packageService.appendPacking(requestBody.getPackedMaterialLot(), requestBody.getWaitToAppendActions());
+        MaterialLot appendMaterialLot = packageService.appendPacking(requestBody.getPackedMaterialLot(), requestBody.getWaitToAppendActions());
+        responseBody.setMaterialLot(appendMaterialLot);
         response.setBody(responseBody);
         return response;
     }

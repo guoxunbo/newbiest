@@ -1,6 +1,7 @@
 package com.newbiest.mms.rest.unpack;
 
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.PackageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * 物料批次拆包装
@@ -33,7 +36,8 @@ public class UnPackMaterialLotController extends AbstractRestController {
         UnPackMaterialLotResponseBody responseBody = new UnPackMaterialLotResponseBody();
         UnPackMaterialLotRequestBody requestBody = request.getBody();
 
-        packageService.unPack(requestBody.getMaterialLotActions());
+        List<MaterialLot> unpackedMainMaterialLots = packageService.unPack(requestBody.getMaterialLotActions());
+        responseBody.setMaterialLots(unpackedMainMaterialLots);
         response.setBody(responseBody);
         return response;
     }
