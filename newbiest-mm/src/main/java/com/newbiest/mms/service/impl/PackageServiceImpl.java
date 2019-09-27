@@ -120,6 +120,11 @@ public class PackageServiceImpl implements PackageService{
                 allMaterialLot.addAll(packageDetailLots);
                 //TODO 此处因为此版本中项目要求不扣减批次数量。所有直接使用批次上的CurrentQty。后续版本需要使用detail上的数据
                 for (MaterialLot packageDetailLot : packageDetailLots) {
+                    //TODO 此处为GC客制化 追加包装之后 清空装箱检验相关栏位 后续公共版本需要清除此代码
+                    packageDetailLot.setReserved9(StringUtils.EMPTY);
+                    packageDetailLot.setReserved10(StringUtils.EMPTY);
+                    materialLotRepository.save(packageDetailLot);
+
                     MaterialLotAction packedMLotAction = new MaterialLotAction();
                     packedMLotAction.setMaterialLotId(packageDetailLot.getMaterialLotId());
                     packedMLotAction.setTransQty(packageDetailLot.getCurrentQty());
@@ -131,6 +136,12 @@ public class PackageServiceImpl implements PackageService{
             if (!StringUtils.isNullOrEmpty(materialLotPackageType.getMergeRule())) {
                 mmsService.validationMergeRule(materialLotPackageType.getMergeRule(), allMaterialLot);
             }
+
+            //TODO 此处为GC客制化 追加包装之后 清空装箱检验相关栏位并将状态到USE-WAIT 后续公共版本需要清除此代码
+            packedMaterialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_USE);
+            packedMaterialLot.setStatus(MaterialStatus.STATUS_WAIT);
+            packedMaterialLot.setReserved9(StringUtils.EMPTY);
+            packedMaterialLot.setReserved10(StringUtils.EMPTY);
 
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(allMaterialAction));
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
@@ -192,7 +203,14 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot.setCurrentQty(packedMaterialLot.getCurrentQty().subtract(packedQty));
             if (packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                 packedMaterialLot = mmsService.changeMaterialLotState(packedMaterialLot, MaterialEvent.EVENT_UN_PACKAGE, StringUtils.EMPTY);
+            } else {
+                //TODO 此处为GC客制化 拆包 清空装箱检验相关栏位并将状态到USE-WAIT 后续公共版本需要清除此代码
+                packedMaterialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_USE);
+                packedMaterialLot.setStatus(MaterialStatus.STATUS_WAIT);
+                packedMaterialLot.setReserved9(StringUtils.EMPTY);
+                packedMaterialLot.setReserved10(StringUtils.EMPTY);
             }
+
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
             MaterialLotHistory unPackagedHistory = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
             materialLotHistoryRepository.save(unPackagedHistory);
@@ -204,9 +222,23 @@ public class PackageServiceImpl implements PackageService{
                 mmsService.saveMaterialLotInventory(materialLotInventory, packedQty.negate());
             }
 
+            //TODO 此处为GC客制化 拆包 清空装箱检验相关栏位 后续公共版本需要清除此代码
+            List<MaterialLot> packageDetailLots = getPackageDetailLots(packedMaterialLot.getObjectRrn());
+            if (CollectionUtils.isNotEmpty(packageDetailLots)) {
+                for (MaterialLot packageDetailLot : packageDetailLots) {
+                    Optional<MaterialLot> waitToUnpackMLot = waitToUnPackageMLots.stream().filter(waitToUnPackageMLot -> !waitToUnPackageMLot.getMaterialLotId().equals(packageDetailLot.getMaterialLotId())).findFirst();
+                    if (!waitToUnpackMLot.isPresent()) {
+                        packageDetailLot.setReserved9(StringUtils.EMPTY);
+                        packageDetailLot.setReserved10(StringUtils.EMPTY);
+                        materialLotRepository.save(packageDetailLot);
+                    }
+                }
+            }
+
             Map<String, MaterialLotAction> materialLotActionMap = materialLotActions.stream().collect(Collectors.toMap(MaterialLotAction :: getMaterialLotId, Function.identity()));
 
             Map<String, PackagedLotDetail> packagedLotDetails = packagedLotDetailRepository.findByPackagedLotRrn(packedMaterialLot.getObjectRrn()).stream().collect(Collectors.toMap(PackagedLotDetail :: getMaterialLotId, Function.identity()));
+
             for (MaterialLot waitToUnPackageMLot : waitToUnPackageMLots) {
                 MaterialLotAction materialLotAction = materialLotActionMap.get(waitToUnPackageMLot.getMaterialLotId());
 
@@ -222,6 +254,7 @@ public class PackageServiceImpl implements PackageService{
                 if (SystemPropertyUtils.getUnpackRecoveryLotFlag()) {
                     waitToUnPackageMLot.setParentMaterialLotRrn(null);
                     waitToUnPackageMLot.setParentMaterialLotId(StringUtils.EMPTY);
+                    //TODO 此处为GC客制化 拆包 清空装箱检验相关栏位 后续公共版本需要清除此代码
                     waitToUnPackageMLot.setReserved9(StringUtils.EMPTY);
                     waitToUnPackageMLot.setReserved10(StringUtils.EMPTY);
                     waitToUnPackageMLot.restoreStatus();
@@ -282,6 +315,10 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot.setMaterialLotId(packedMaterialLotId);
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(materialLotActions));
             packedMaterialLot.setReceiveQty(packedMaterialLot.getCurrentQty());
+
+            //TODO 此处为GC客制化 清除中转箱号以及库位号 后续公共版本需要清除此代码
+            packedMaterialLot.setReserved8(StringUtils.EMPTY);
+            packedMaterialLot.setReserved14(StringUtils.EMPTY);
             packedMaterialLot.initialMaterialLot();
 
             packedMaterialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_USE);
@@ -316,8 +353,10 @@ public class PackageServiceImpl implements PackageService{
         // 对物料批次做package事件处理 扣减物料批次数量
         for (MaterialLot materialLot : waitToPackingLot) {
 
-            //TODO 此处为GC客制化 清除中转箱号 后续公共版本需要清除此代码
+            //TODO 此处为GC客制化 清除中转箱号以及库位号 后续公共版本需要清除此代码
             materialLot.setReserved8(StringUtils.EMPTY);
+            materialLot.setReserved14(StringUtils.EMPTY);
+
             String materialLotId = materialLot.getMaterialLotId();
             MaterialLotAction materialLotAction = materialLotActions.stream().filter(action -> materialLotId.equals(action.getMaterialLotId())).findFirst().get();
 
