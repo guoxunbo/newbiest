@@ -58,18 +58,16 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
         parameterMap.put("wafernum", materialLot.getCurrentQty().toPlainString());
 
         List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(requestBody.getMaterialLotRrn());
+        int i = 1;
         if (CollectionUtils.isNotEmpty(packageDetailLots)) {
-            int i = 1;
             for (MaterialLot packedMLot : packageDetailLots) {
                 parameterMap.put("VBox" + i, packedMLot.getMaterialLotId());
                 i++;
             }
-            for (int j = i; j <= 18; j++) {
-                parameterMap.put("VBox" + j, StringUtils.EMPTY);
-            }
         }
-
-
+        for (int j = i; j <= 18; j++) {
+            parameterMap.put("VBox" + j, StringUtils.EMPTY);
+        }
         responseBody.setParameters(parameterMap);
         response.setBody(responseBody);
         return response;

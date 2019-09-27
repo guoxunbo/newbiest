@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-material_lot_judge_his-0.0.2
+      author: Xunbo Guo
+      comment: MODIFY MMS_MATERIAL_LOT_JUDGE_HIS ITEM_NAME's TYPE TO VARCHAR(256)
+      changes:
+        - modifyDataType:
+            tableName: MMS_MATERIAL_LOT_JUDGE_HIS
+            columnName: ITEM_NAME
+            newDataType: varchar2(256)
