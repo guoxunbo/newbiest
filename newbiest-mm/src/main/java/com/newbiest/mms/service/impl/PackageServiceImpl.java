@@ -226,7 +226,7 @@ public class PackageServiceImpl implements PackageService{
             List<MaterialLot> packageDetailLots = getPackageDetailLots(packedMaterialLot.getObjectRrn());
             if (CollectionUtils.isNotEmpty(packageDetailLots)) {
                 for (MaterialLot packageDetailLot : packageDetailLots) {
-                    Optional<MaterialLot> waitToUnpackMLot = waitToUnPackageMLots.stream().filter(waitToUnPackageMLot -> !waitToUnPackageMLot.getMaterialLotId().equals(packageDetailLot.getMaterialLotId())).findFirst();
+                    Optional<MaterialLot> waitToUnpackMLot = waitToUnPackageMLots.stream().filter(waitToUnPackageMLot -> waitToUnPackageMLot.getMaterialLotId().equals(packageDetailLot.getMaterialLotId())).findFirst();
                     if (!waitToUnpackMLot.isPresent()) {
                         packageDetailLot.setReserved9(StringUtils.EMPTY);
                         packageDetailLot.setReserved10(StringUtils.EMPTY);
