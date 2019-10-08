@@ -1,5 +1,5 @@
-# newbiest
-The Product of Newbiest。
+# Newbiest(VCIM)
+The Product of Newbiest(VCIM)。
 ## 使命
 Newbiest(VCIM)是致力于打造一个速提高开发效率，帮助节省人力成本，同时又不失灵活性。可以用于所有的Web应用程序。**CIM服务**项目
 Newbiest(VCIM)宗旨是提高UI能力的同时,降低前后分离的开发成本，创造出在线开发模式，No代码概念，一系列online开发：在线配置表单等。
@@ -38,7 +38,7 @@ WIKI：https://github.com/guoxunbo/newbiest/wiki
 - 语言：Java 8
 - IDE： IDEA / Eclipse安装lombok插件
 - 依赖管理：Maven
-- 数据库：MYSQL/ORACLE 11gR2 理论上是都支持，但是其他数据库需要验证
+- 数据库：MYSQL/ORACLE 11gR2 其他数据库理论上是都支持，但需要实地验证
 - 缓存：Caffine/Redis
 - 基础框架：SpringBoot 2.0.1.RELEASE
 - 持久层：Hibernate 5.2.16.FINAL
@@ -46,6 +46,7 @@ WIKI：https://github.com/guoxunbo/newbiest/wiki
 - 日志：Logback
 - 其他：jackson, poi, swagger, lombok等
 ### 客户端
+- IDE: VS Code
 - React 16.1
 - antd for react
 - axios
@@ -56,10 +57,12 @@ WIKI：https://github.com/guoxunbo/newbiest/wiki
 # Api of Newbiest
 Swagger地址：http://118.31.35.66:8080/swagger-ui.html
 # Repository of Newbiest
-Client：https://github.com/guoxunbo/client
-StatusMachine：https://github.com/guoxunbo/statusmachine
-IDGenerator：https://github.com/guoxunbo/idgenerator
-Context: 已经成型，待打出独立仓库
-MMS(WMS)：已经成型，待打出独立仓库
-KMS：已经成型，待打出独立仓库
-
+- Client：https://github.com/guoxunbo/client
+- StatusMachine：https://github.com/guoxunbo/statusmachine
+- IDGenerator：https://github.com/guoxunbo/idgenerator
+- Context: 已经成型，待打出独立仓库
+- MMS(WMS)：已经成型，待打出独立仓库
+- KMS：已经成型，待打出独立仓库
+- MMS(WMS)：已经成型，待打出独立仓库
+# 系统效果
+待更新
