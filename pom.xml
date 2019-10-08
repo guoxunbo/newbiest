@@ -20,7 +20,6 @@
         <module>newbiest-rms</module>
         <module>newbiest-rtm</module>
         <module>newbiest-mm</module>
-        <module>newbiest-kms</module>
         <module>newbiest-starter</module>
         <module>newbiest-dist</module>
         <module>newbiest-gc</module>
@@ -48,8 +47,8 @@
         <newbiest.idgenerator.version>1.0.1.RELEASE</newbiest.idgenerator.version>
         <newbiest.statusmachine.version>1.0.1.RELEASE</newbiest.statusmachine.version>
         <newbiest.framework.version>1.0.4.RELEASE</newbiest.framework.version>
-        <newbiest.kms.version>1.0.1.RELEASE</newbiest.kms.version>
-        <platform.version>1.0.4.RELEASE</platform.version>
+        <newbiest.kms.version>1.0.0.RELEASE</newbiest.kms.version>
+        <platform.version>1.0.5-SNAPSHOT</platform.version>
     </properties>
 
     <dependencies>
