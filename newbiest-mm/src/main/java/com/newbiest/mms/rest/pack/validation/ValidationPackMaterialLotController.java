@@ -3,7 +3,6 @@ package com.newbiest.mms.rest.pack.validation;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotPackageType;
 import com.newbiest.mms.service.MmsService;
