@@ -68,8 +68,8 @@ public class PackageServiceImpl implements PackageService{
     @Autowired
     MaterialLotInventoryRepository materialLotInventoryRepository;
 
-    public MaterialLotPackageType getMaterialPackageTypeByName(String name) {
-        List<MaterialLotPackageType> packageTypes = (List<MaterialLotPackageType>) materialLotPackageTypeRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
+    public MaterialLotPackageType getMaterialPackageTypeByName(String name) throws ClientException{
+        List<MaterialLotPackageType> packageTypes = materialLotPackageTypeRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
         if (CollectionUtils.isNotEmpty(packageTypes)) {
             return packageTypes.get(0);
         } else {
@@ -131,8 +131,8 @@ public class PackageServiceImpl implements PackageService{
                     allMaterialAction.add(packedMLotAction);
                 }
             }
-            materialLotPackageType.validationAppendPacking(waitToAddPackingMLots, allMaterialAction);
 
+            materialLotPackageType.validationAppendPacking(waitToAddPackingMLots, allMaterialAction);
             if (!StringUtils.isNullOrEmpty(materialLotPackageType.getMergeRule())) {
                 mmsService.validationMergeRule(materialLotPackageType.getMergeRule(), allMaterialLot);
             }
@@ -289,6 +289,24 @@ public class PackageServiceImpl implements PackageService{
     }
 
     /**
+     * 根据packageType验证包装规则
+     * @param materialLots
+     * @param packageType
+     */
+    public void validationPackageRule(List<MaterialLot> materialLots, String packageType) throws ClientException{
+        try {
+            MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packageType);
+            materialLotPackageType.validationPacking(materialLots);
+
+            if (!StringUtils.isNullOrEmpty(materialLotPackageType.getMergeRule())) {
+                mmsService.validationMergeRule(materialLotPackageType.getMergeRule(), materialLots);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 对物料批次进行包装
      * @return
      */
@@ -300,12 +318,8 @@ public class PackageServiceImpl implements PackageService{
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
 
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+            validationPackageRule(materialLots, packageType);
             MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packageType);
-            materialLotPackageType.validationPacking(materialLots);
-
-            if (!StringUtils.isNullOrEmpty(materialLotPackageType.getMergeRule())) {
-                mmsService.validationMergeRule(materialLotPackageType.getMergeRule(), materialLots);
-            }
 
             MaterialLot packedMaterialLot = (MaterialLot) materialLots.get(0).clone();
             String packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
