@@ -16,7 +16,6 @@
 
     <modules>
         <module>newbiest-common-actuator</module>
-        <module>newbiest-common-context</module>
         <module>newbiest-rms</module>
         <module>newbiest-rtm</module>
         <module>newbiest-mm</module>
@@ -44,6 +43,7 @@
         <log4j.version>1.2.17</log4j.version>
         <jwt.verison>3.3.0</jwt.verison>
         <liquibase.version>3.6.1</liquibase.version>
+        <newbiest.context.version>1.0.0.RELEASE</newbiest.context.version>
         <newbiest.idgenerator.version>1.0.1.RELEASE</newbiest.idgenerator.version>
         <newbiest.statusmachine.version>1.0.1.RELEASE</newbiest.statusmachine.version>
         <newbiest.framework.version>1.0.4.RELEASE</newbiest.framework.version>
