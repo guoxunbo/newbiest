@@ -760,4 +760,29 @@ public class GcServiceImpl implements GcService {
 
     }
 
+    public void validationMaterial(MaterialLot materialLotFirst, MaterialLot materialLot) throws ClientException{
+        try {
+            Assert.assertEquals(materialLotFirst.getMaterialName(), materialLot.getMaterialName());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "materialName", materialLotFirst.getMaterialName(), materialLot.getMaterialName());
+        }
+
+        try {
+            Assert.assertEquals(materialLotFirst.getReserved1(), materialLot.getReserved1());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "secondcode", materialLotFirst.getReserved1(),  materialLot.getReserved1());
+        }
+
+        try {
+            Assert.assertEquals(materialLotFirst.getGrade(), materialLot.getGrade());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "grade", materialLotFirst.getGrade(), materialLot.getGrade());
+        }
+        try {
+            Assert.assertEquals(materialLotFirst.getReserved6(), materialLot.getReserved6());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "other1", materialLotFirst.getReserved6(), materialLot.getReserved6());
+        }
+    }
+
 }
