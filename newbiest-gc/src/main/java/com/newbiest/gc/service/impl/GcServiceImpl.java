@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sun.nio.cs.ext.MacArabic;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -783,6 +784,23 @@ public class GcServiceImpl implements GcService {
         } catch (AssertionError e) {
             throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "other1", materialLotFirst.getReserved6(), materialLot.getReserved6());
         }
+    }
+
+    /**
+     * 获取能和箱信息匹配的订单信息
+     * @return
+     * @throws ClientException
+     */
+    public List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException {
+        List<DocumentLine> documentLineList = new ArrayList<>();
+        for (DocumentLine documentLine : documentLines) {
+            String materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
+            if(documentLine.getMaterialName().equals(materialLot.getMaterialName()) && documentLine.getReserved2().equals(materialSecondCode) &&
+                    documentLine.getReserved3().equals(materialLot.getGrade()) && documentLine.getReserved7().equals(materialLot.getReserved6()) ){
+                documentLineList.add(documentLine);
+            }
+        }
+        return  documentLineList;
     }
 
 }
