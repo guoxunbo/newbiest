@@ -1,7 +1,7 @@
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 spring:
   application:
-    name: framework
+    name: starter
   jpa:
     show-sql: true
     properties:
@@ -10,7 +10,7 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:mysql://rm-bp16xnnw7885h9571.mysql.rds.aliyuncs.com:3306/newbiest?useUnicode=true&characterEncoding=utf-8&useSSL=false
+      url: jdbc:mysql://localhost:3306/butterfly?useUnicode=true&characterEncoding=utf-8&useSSL=false
       username: butterfly
       password: iinxWjaiXVRhnamyl1oonS1nYAv8ot62b6yMBrtftOkKbwL4T6xmTBJuyBFIK74C42NOZ/Oy9NcwwgK3HXhcmA==
       driver-class-name: com.mysql.jdbc.Driver
@@ -44,8 +44,6 @@ spring:
         reset-enable: true
         allow: 127.0.0.1
         deny: 192.168.1.73
-        login-username: admin
-        login-password: admin
       filter:
         # 慢SQL监控
         stat:
@@ -69,15 +67,26 @@ spring:
           starttls:
             enable: true
             required: true
+  boot:
+    admin:
+      client:
+        url: http://127.0.0.1:8081
+  servlet:
+    multipart:
+      max-request-size: 40Mb
+      enabled: true
+      max-file-size: 3Mb
 #设置server的基本信息
 server:
   servlet:
     session:
       cookie:
         http-only: true
+# actuator配置
 show:
   swagger: true
-# actuator配置
+logging:
+  path: /Users/apple/Documents/newbiest/log
 management:
   endpoints:
     web:
