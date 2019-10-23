@@ -20,7 +20,7 @@ spring:
       url: jdbc:oracle:thin:@127.0.0.1:1521:newbiest
       username: newbiest
       password: newbiest
-      driver-class-name: oracle.jdbc.driver.OracleDriver
+      driver-class-name: oracle.jdbc.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1
       min-idle: 3

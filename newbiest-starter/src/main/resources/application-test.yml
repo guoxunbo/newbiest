@@ -17,10 +17,10 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@192.168.2.164:1521:GCIPPTD
-      username: newbiest
-      password: newbiest
-      driver-class-name: oracle.jdbc.driver.OracleDriver
+      url: jdbc:oracle:thin:@10.181.160.18:1521:testdb
+      username: mestest
+      password: mestest
+      driver-class-name: oracle.jdbc.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1
       min-idle: 20
@@ -49,8 +49,6 @@ spring:
       stat-view-servlet:
         enabled: true
         reset-enable: true
-        allow: 127.0.0.1
-        deny: 192.168.1.73
       filter:
         # 慢SQL监控
         stat:
