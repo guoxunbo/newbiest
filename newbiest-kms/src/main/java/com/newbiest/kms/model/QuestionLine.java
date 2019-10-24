@@ -73,7 +73,7 @@ public class QuestionLine extends NBUpdatable implements IDataAuthorityValidatio
      */
     @Column(name="RESERVED8")
     private String reserved8;
-    
+
     @Column(name="RESERVED9")
     private String reserved9;
 
