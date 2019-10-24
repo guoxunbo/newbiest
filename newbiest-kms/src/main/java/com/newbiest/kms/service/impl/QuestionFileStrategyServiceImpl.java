@@ -51,7 +51,7 @@ public class QuestionFileStrategyServiceImpl extends DefaultFileStrategyServiceI
             Files.createParentDirs(file);
             Files.write(ByteStreams.toByteArray(inputStream), file);
 
-            PropertyUtils.setProperty(nbBase, propertyName, fileName);
+            PropertyUtils.setProperty(question, propertyName, fileName);
             nbBase = baseService.saveEntity(question);
             return nbBase;
         } catch (Exception e) {

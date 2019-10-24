@@ -49,7 +49,7 @@ public class QuestionLineFileStrategyServiceImpl extends DefaultFileStrategyServ
             Files.createParentDirs(file);
             Files.write(ByteStreams.toByteArray(inputStream), file);
 
-            PropertyUtils.setProperty(nbBase, propertyName, fileName);
+            PropertyUtils.setProperty(questionLine, propertyName, fileName);
             nbBase = baseService.saveEntity(questionLine);
             return nbBase;
         } catch (Exception e) {
