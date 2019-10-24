@@ -44,7 +44,7 @@ public class QuestionController extends AbstractRestController {
             question = kmsService.saveQuestion(question);
         } else if (QuestionRequest.ACTION_UPDATE.equals(actionType)) {
             validateEntity(question);
-            question = (Question) saveEntity(question);
+            question = kmsService.saveQuestion(question);
         } else if (QuestionRequest.ACTION_CLOSE.equals(actionType)) {
             validateEntity(question);
             question = kmsService.closeQuestion(question);

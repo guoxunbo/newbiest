@@ -53,12 +53,15 @@ public class KmsServiceImpl implements KmsService {
     @Override
     public Question saveQuestion(Question question) throws ClientException {
         try {
+            NBUser user = securityService.getUserByUsername(ThreadLocalContext.getUsername());
             if (question.getObjectRrn() == null) {
                 String name = generatorQuestionName(question);
                 question.setName(name);
-                NBUser user = securityService.getUserByUsername(ThreadLocalContext.getUsername());
                 question.setCreatedUserDept(user.getDepartment());
                 question.setReserved10(user.getDescription());
+            } else {
+                // 20191023 应要求，修改的时候要记录修改人的具体名字
+                question.setReserved9(user.getDescription());
             }
             return (Question) baseService.saveEntity(question);
         } catch (Exception e) {

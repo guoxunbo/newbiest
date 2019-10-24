@@ -22,23 +22,6 @@
     </properties>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>com.newbiest</groupId>-->
-<!--            <artifactId>context</artifactId>-->
-<!--            <version>${platform.version}</version>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>com.newbiest</groupId>-->
-<!--            <artifactId>rms</artifactId>-->
-<!--            <version>${platform.version}</version>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>com.newbiest</groupId>-->
-<!--            <artifactId>mm</artifactId>-->
-<!--            <version>${platform.version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc6</artifactId>
@@ -51,11 +34,6 @@
             <artifactId>kms</artifactId>
             <version>${newbiest.kms.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.newbiest</groupId>-->
-<!--            <artifactId>rtm</artifactId>-->
-<!--            <version>${platform.version}</version>-->
-<!--        </dependency>-->
     </dependencies>
     <build>
         <resources>
