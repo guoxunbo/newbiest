@@ -62,12 +62,18 @@ public class QuestionLine extends NBUpdatable implements IDataAuthorityValidatio
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     * 上传者的userRrn
+     */
     @Column(name="RESERVED7")
     private String reserved7;
 
+    /**
+     * 上传者的username
+     */
     @Column(name="RESERVED8")
     private String reserved8;
-
+    
     @Column(name="RESERVED9")
     private String reserved9;
 
