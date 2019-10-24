@@ -69,6 +69,19 @@ public class KmsServiceImpl implements KmsService {
         }
     }
 
+    @Override
+    public QuestionLine saveQuestionLine(QuestionLine questionLine) throws ClientException {
+        try {
+            NBUser user = securityService.getUserByUsername(ThreadLocalContext.getUsername());
+            if (questionLine.getObjectRrn() == null) {
+                questionLine.setReserved10(user.getDescription());
+            }
+            return (QuestionLine) baseService.saveEntity(questionLine);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 当问题不能复现的时候，改成watching状态，表示未处理，但是当前没的办法。需要观察
      * @param question

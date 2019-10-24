@@ -3,6 +3,7 @@ package com.newbiest.kms.rest.questionline;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.kms.model.QuestionLine;
+import com.newbiest.kms.rest.question.QuestionRequest;
 import com.newbiest.kms.service.KmsService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
@@ -41,13 +42,21 @@ public class QuestionLineController extends AbstractRestController {
         String actionType = requestBody.getActionType();
         QuestionLine questionLine = requestBody.getQuestionLine();
 
-        if (QuestionLineRequest.ACTION_GET_BY_QUESTION_RRN.equals(actionType)) {
+        if (QuestionRequest.ACTION_CREATE.equals(actionType)) {
+            questionLine = kmsService.saveQuestionLine(questionLine);
+            responseBody.setQuestionLine(questionLine);
+        } else if (QuestionRequest.ACTION_UPDATE.equals(actionType)) {
+            validateEntity(questionLine);
+            questionLine = kmsService.saveQuestionLine(questionLine);
+            responseBody.setQuestionLine(questionLine);
+        } else if (QuestionLineRequest.ACTION_GET_BY_QUESTION_RRN.equals(actionType)) {
             Long questionRrn = requestBody.getQuestionRrn();
             List<QuestionLine> questionLineList = kmsService.getQuestionLineByQuestionRrn(questionRrn);
             responseBody.setQuestionLines(questionLineList);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
+
 
         response.setBody(responseBody);
         return response;
