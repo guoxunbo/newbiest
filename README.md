@@ -1,7 +1,15 @@
 # Newbiest(VCIM)
 The Product of Newbiest(VCIM)。
+===============
+
+<p align="center">
+<a href="#"><img alt="JDK" src="https://img.shields.io/badge/JDK-1.8-yellow.svg?style=flat-square"/></a>
+<a href="https://https://github.com/guoxunbo/newbiest/releases"><img alt="GitHub release" src="https://img.shields.io/github/release/halo-dev/halo.svg?style=flat-square"/></a>
+</p>
+
+
 ## 使命
-Newbiest(VCIM)是致力于打造一个速提高开发效率，帮助节省人力成本，同时又不失灵活性。可以用于所有的Web应用程序，**CIM服务**项目。
+Newbiest(VCIM)是致力于打造一个速提高开发效率，帮助节省人力成本，摆脱CRUD的痛苦，让更专业的人做更专业的事。同时又不失灵活性。可以用于所有的Web应用程序，**CIM服务**项目。
 Newbiest(VCIM)宗旨是提高UI能力的同时,降低前后分离的开发成本，创造出在线开发模式，No代码概念，一系列online开发：在线配置表单等。
 当前已经成功实施KMS, WMS,个别机台的RTM。
 当前已做到：
