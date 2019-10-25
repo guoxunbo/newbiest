@@ -34,11 +34,11 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/ojdbc6.jar</systemPath>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.newbiest</groupId>-->
-<!--            <artifactId>rms</artifactId>-->
-<!--            <version>1.0.4-SNAPSHOT</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>rms</artifactId>
+            <version>1.0.5-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>kms</artifactId>
