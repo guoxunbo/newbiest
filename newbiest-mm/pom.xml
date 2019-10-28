@@ -12,22 +12,4 @@
         <version>${platform.version}</version>
     </parent>
     
-    <dependencies>
-        <dependency>
-            <groupId>com.newbiest</groupId>
-            <artifactId>context</artifactId>
-            <version>${newbiest.context.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.newbiest</groupId>
-            <artifactId>statusmachine</artifactId>
-            <version>${newbiest.statusmachine.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.newbiest</groupId>
-            <artifactId>idgenerator</artifactId>
-            <version>${newbiest.idgenerator.version}</version>
-        </dependency>
-    </dependencies>
-
 </project>

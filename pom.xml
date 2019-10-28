@@ -33,20 +33,10 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <java.interceptor.version>3.1</java.interceptor.version>
-        <jackson.version>2.9.1</jackson.version>
-        <guava.version>23.0</guava.version>
-        <lombok.version>1.16.18</lombok.version>
-        <common.beanutils.version>1.9.3</common.beanutils.version>
-        <druid.version>1.1.9</druid.version>
-        <cglib.version>3.2.5</cglib.version>
-        <swaager.version>2.8.0</swaager.version>
-        <log4j.version>1.2.17</log4j.version>
-        <jwt.verison>3.3.0</jwt.verison>
-        <liquibase.version>3.6.1</liquibase.version>
         <newbiest.context.version>1.0.0.RELEASE</newbiest.context.version>
         <newbiest.idgenerator.version>1.0.1.RELEASE</newbiest.idgenerator.version>
         <newbiest.statusmachine.version>1.0.1.RELEASE</newbiest.statusmachine.version>
-        <newbiest.framework.version>1.0.4.RELEASE</newbiest.framework.version>
+        <newbiest.framework.version>1.0.5-SNAPSHOT</newbiest.framework.version>
         <newbiest.kms.version>1.0.0.RELEASE</newbiest.kms.version>
         <platform.version>1.0.5-SNAPSHOT</platform.version>
     </properties>
@@ -114,12 +104,6 @@
             <version>${java.interceptor.version}</version>
         </dependency>
 
-        <!-- druid用作数据源-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
-            <version>${druid.version}</version>
-        </dependency>
         <!-- mySql做数据库-->
         <dependency>
             <groupId>mysql</groupId>
@@ -127,86 +111,53 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- liquibase做为数据库管理工具-->
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-maven-plugin</artifactId>
-            <version>${liquibase.version}</version>
-        </dependency>
-
-        <!-- jackson-->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-jaxb-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-hibernate5</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <!-- cglib-->
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>${cglib.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-
-        <!-- Apache相关工具包-->
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>${common.beanutils.version}</version>
-        </dependency>
-
-        <!-- guava工具-->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-        </dependency>
-        <!-- lombok-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-        </dependency>
-
-        <!-- jwt-->
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>${jwt.verison}</version>
-        </dependency>
-        <!-- swagger-->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${swaager.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${swaager.version}</version>
-        </dependency>
-
         <!--Newbiest相关-->
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>framework</artifactId>
             <version>${newbiest.framework.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>context</artifactId>
+            <version>${newbiest.context.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.newbiest</groupId>
+                    <artifactId>framework</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>statusmachine</artifactId>
+            <version>${newbiest.statusmachine.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.newbiest</groupId>
+                    <artifactId>framework</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>idgenerator</artifactId>
+            <version>${newbiest.idgenerator.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.newbiest</groupId>
+                    <artifactId>framework</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 
     <developers>

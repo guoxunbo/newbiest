@@ -15,12 +15,5 @@
     <artifactId>rms</artifactId>
     <packaging>jar</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.newbiest</groupId>
-            <artifactId>context</artifactId>
-            <version>${newbiest.context.version}</version>
-        </dependency>
-    </dependencies>
 
 </project>
