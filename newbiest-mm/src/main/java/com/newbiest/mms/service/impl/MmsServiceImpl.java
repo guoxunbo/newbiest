@@ -27,6 +27,7 @@ import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -151,27 +152,7 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
-    /**
-     * 接收物料批次并入库指定物料批次号
-     * 如果没有指定入的仓库，则直接入到物料上绑定的仓库
-     * @param rawMaterial 原物料
-     * @param mLotId 物料批次号
-     * @param materialLotAction 操作物料批次的动作包括了操作数量以及原因
-     * @return
-     */
-    public MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException {
-        try {
-            MaterialLot materialLot = receiveMLot(rawMaterial, mLotId, materialLotAction);
 
-            if (materialLotAction.getTargetWarehouseRrn() == null) {
-                materialLotAction.setTargetWarehouseRrn(rawMaterial.getWarehouseRrn());
-            }
-            materialLot = stockIn(materialLot, materialLotAction);
-            return materialLot;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
 
     public List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException {
         try {
@@ -315,13 +296,14 @@ public class MmsServiceImpl implements MmsService {
             Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
             Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
 
-            MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), targetWarehouse.getObjectRrn(), targetStorage.getObjectRrn());
-            if (materialLotInventory != null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_SUPPORT_MULTI_INVENTORY);
-            }
             // 变更物料库存并改变物料批次状态
             saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty());
 
+            // 记录下批次最后一次入库的仓库
+            materialLot.setLastWarehouseRrn(targetWarehouse.getObjectRrn());
+            materialLot.setLastWarehouseId(targetWarehouse.getName());
+            materialLot.setLastStorageRrn(targetStorage.getObjectRrn());
+            materialLot.setLastStorageId(targetStorage.getName());
             changeMaterialLotState(materialLot, eventId, StringUtils.EMPTY);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
@@ -627,7 +609,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             materialLotInventory.setStockQty(materialLotInventory.getStockQty().add(transQty));
             if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) < 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_STOCK_QTY_CANOT_LESS_THEN_ZERO);
+                throw new ClientException(MmsException.MM_MATERIAL_LOT_STOCK_QTY_CANT_LESS_THEN_ZERO);
             } else if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) == 0) {
                 if (materialLotInventory.getObjectRrn() != null) {
                     materialLotInventoryRepository.delete(materialLotInventory);
@@ -665,20 +647,22 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
-     * 接收物料批次
+     * 接收物料批次并入库指定物料批次号
+     * 如果没有指定入的仓库，则直接入到物料上绑定的仓库
      * @param rawMaterial 原物料
      * @param mLotId 物料批次号
      * @param materialLotAction 操作物料批次的动作包括了操作数量以及原因
      * @return
      */
-    public MaterialLot receiveMLot(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) {
+    public MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException {
         try {
-            MaterialLot materialLot = createMLot(rawMaterial, mLotId, materialLotAction.getGrade(), materialLotAction.getTransQty());
-            materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
-
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
-            history.buildByMaterialLotAction(materialLotAction);
-            materialLotHistoryRepository.save(history);
+            MaterialLot materialLot = receiveMLot(rawMaterial, mLotId, materialLotAction);
+            if (materialLotAction.getTargetWarehouseRrn() == null) {
+                materialLotAction.setTargetWarehouseRrn(rawMaterial.getWarehouseRrn());
+            }
+            if (materialLotAction.getTargetWarehouseRrn() != null) {
+                materialLot = stockIn(materialLot, materialLotAction);
+            }
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -686,14 +670,37 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
-     * 接收物料批次并入库
-     * 如果没有指定入的仓库，则直接入到物料上绑定的仓库
-     * @param rawMaterial
+     * 接收物料批次 根据状态模型决定是否允许重复接收
+     * @param rawMaterial 原物料
+     * @param mLotId 物料批次号
+     * @param materialLotAction 操作物料批次的动作包括了操作数量以及原因
      * @return
      */
-    public MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, MaterialLotAction lotAction) {
+    public MaterialLot receiveMLot(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) {
         try {
-            return receiveMLot2Warehouse(rawMaterial, StringUtils.EMPTY, lotAction);
+            MaterialLot materialLot = null;
+            if (!StringUtils.isNullOrEmpty(mLotId)) {
+                materialLot = getMLotByMLotId(mLotId);
+                if (materialLot != null) {
+                    try {
+                        Assert.assertEquals(rawMaterial.getName(), materialLot.getMaterialName());
+                    } catch (AssertionError e) {
+                        throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_SAME, rawMaterial.getName(), materialLot.getMaterialName());
+                    }
+                    materialLot.setGrade(materialLotAction.getGrade());
+                    materialLot.setReceiveQty(materialLot.getReceiveQty().add(materialLotAction.getTransQty()));
+                    materialLot.setCurrentQty(materialLot.getCurrentQty().add(materialLotAction.getTransQty()));
+                }
+            }
+            if (materialLot == null) {
+                materialLot = createMLot(rawMaterial, mLotId, materialLotAction.getGrade(), materialLotAction.getTransQty());
+            }
+            materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
+            history.buildByMaterialLotAction(materialLotAction);
+            materialLotHistoryRepository.save(history);
+            return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

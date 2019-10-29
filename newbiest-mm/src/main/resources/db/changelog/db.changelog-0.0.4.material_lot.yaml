@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.0.4
+      author: Xunbo Guo
+      remarks: mms_material_lot add last inventory info
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: LAST_WAREHOUSE_RRN
+                  type: bigint
+                  remarks: 最近入库的仓库主键 只具备显示意义，不具备统计意义
+              - column:
+                  name: LAST_WAREHOUSE_ID
+                  type: varchar(64)
+                  remarks: 最近入库的仓库 只具备显示意义，不具备统计意义
+              - column:
+                  name: LAST_STORAGE_RRN
+                  type: bigint
+                  remarks: 最近入库的库位主键 只具备显示意义，不具备统计意义
+              - column:
+                  name: LAST_STORAGE_ID
+                  type: varchar(64)
+                  remarks: 最近入库的库位号 只具备显示意义，不具备统计意义

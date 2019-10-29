@@ -50,8 +50,7 @@ public class MaterialLotController extends AbstractRestController {
             if (rawMaterial == null) {
                 throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialLot.getMaterialName());
             }
-            //TODO 当前不支持输入mLotId
-            materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, StringUtils.EMPTY, materialLotAction);
+            materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, materialLot.getMaterialLotId(), materialLotAction);
         } else if (MaterialLotRequest.ACTION_HOLD.equals(actionType)) {
             materialLot = validationMaterialLot(materialLot);
             materialLot = mmsService.holdMaterialLot(materialLot, materialLotAction);

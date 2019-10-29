@@ -212,86 +212,69 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String effectiveUnit;
 
     /**
-     * GlaxyCore MES完成品的levelTwoCode
+     * 最近入库的仓库主键 只具备显示意义，不具备统计意义
      */
+    @Column(name="LAST_WAREHOUSE_RRN")
+    private Long lastWarehouseRrn;
+
+    /**
+     * 最近入库的仓库号 只具备显示意义，不具备统计意义
+     */
+    @Column(name="LAST_WAREHOUSE_ID")
+    private String lastWarehouseId;
+
+    /**
+     * 最近入库的库位主键 只具备显示意义，不具备统计意义
+     */
+    @Column(name="LAST_STORAGE_RRN")
+    private Long lastStorageRrn;
+
+    /**
+     * 最近入库的库位号 只具备显示意义，不具备统计意义
+     */
+    @Column(name="LAST_STORAGE_ID")
+    private String lastStorageId;
+
     @Column(name="RESERVED1")
     private String reserved1;
 
-    /**
-     * GlaxyCore MES完成品的waferId
-     */
+
     @Column(name="RESERVED2")
     private String reserved2;
 
-    /**
-     * GlaxyCore MES完成品的salesNote
-     */
     @Column(name="RESERVED3")
     private String reserved3;
 
-    /**
-     * GlaxyCore MES完成品的treasuryNote
-     */
     @Column(name="RESERVED4")
     private String reserved4;
 
-    /**
-     * GlaxyCore MES完成品的productionNote
-     */
     @Column(name="RESERVED5")
     private String reserved5;
 
-    /**
-     * GlaxyCore MES完成品的bondedProperty
-     */
     @Column(name="RESERVED6")
     private String reserved6;
 
-    /**
-     * GlaxyCore MES完成品的productCategory
-     */
     @Column(name="RESERVED7")
     private String reserved7;
 
-    /**
-     * GlaxyCore 中转箱号
-     */
     @Column(name="RESERVED8")
     private String reserved8;
 
-    /**
-     * GlaxyCore 装箱检验判定等级
-     */
     @Column(name="RESERVED9")
     private String reserved9;
 
-    /**
-     * GlaxyCore 装箱检验判定码
-     */
     @Column(name="RESERVED10")
     private String reserved10;
 
-    /**
-     * GlaxyCore 重测之后的工单号
-     */
     @Column(name="RESERVED11")
     private String reserved11;
 
-    /**
-     * GlaxyCore documentLineRrn
-     */
     @Column(name="RESERVED12")
     private String reserved12;
 
-    /**
-     * GlaxyCore 接收的时候会记录默认仓库
-     */
     @Column(name="RESERVED13")
     private String reserved13;
 
-    /**
-     * GlaxyCore 记录StorageId
-     */
     @Column(name="RESERVED14")
     private String reserved14;
 
@@ -395,4 +378,5 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         setReceiveQty(this.getCurrentQty());
         setReservedQty(BigDecimal.ZERO);
     }
+
 }

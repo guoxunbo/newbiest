@@ -29,29 +29,19 @@ public class Material extends NBVersionControl {
     public static final String DEFAULT_STATUS_MODEL = "Normal";
 
     /**
-     * FiFo = F 先进先出
+     * FiFo = 先进先出
      */
     public static final String DELIVERY_POLICY_FIFO = "FIFO";
 
     /**
-     * LiFo = L 后进先出
+     * LiFo = 后进先出
      */
     public static final String DELIVERY_POLICY_LIFO = "LIFO";
 
     /**
-     * RESIDUAL = R 余量优先
+     * RESIDUAL = 余量优先
      */
     public static final String DELIVERY_POLICY_RESIDUAL = "RESIDUAL";
-
-    /**
-     * 先余量优先, 再先进先出
-     */
-    public static final String DELIVERY_POLICY_RESIDUAL_FIFO = "RF";
-
-    /**
-     * 先余量优先, 再后进先出
-     */
-    public static final String DELIVERY_POLICY_RESIDUAL_LIFO = "RL";
 
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;

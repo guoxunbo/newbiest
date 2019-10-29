@@ -22,7 +22,7 @@ public class MaterialLotAction extends Action {
     private BigDecimal transQty;
 
     /**
-     * 判等
+     * 等级
      */
     private String grade;
 
@@ -36,7 +36,6 @@ public class MaterialLotAction extends Action {
      *  client无需传递，server自己根据fromWarehouseRrn查询之后赋值
      */
     private String fromWarehouseId;
-
 
     /**
      * 来源库位主键
@@ -55,13 +54,25 @@ public class MaterialLotAction extends Action {
     private Long targetWarehouseRrn;
 
     /**
+     * 目标仓库名称
+     *  client无需传递，server自己根据targetWarehouseRrn查询之后赋值
+     */
+    private String targetWarehouseId;
+
+    /**
      * 目标库位主键
      */
     private Long targetStorageRrn;
 
     /**
      * 目标库位名称
+     *  client无需传递，server自己根据targetStorageRrn查询之后赋值
      */
     private String targetStorageId;
+
+    /**
+     * 携带的单据号
+     */
+    private String transDocId;
 
 }
