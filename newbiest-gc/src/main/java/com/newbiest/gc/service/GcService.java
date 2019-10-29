@@ -10,6 +10,7 @@ import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by guoxunbo on 2019-08-21 12:41
@@ -40,4 +41,7 @@ public interface GcService {
     void reTest(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void validationMaterial(MaterialLot materialLotFirst,MaterialLot materialLot);
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
+    void asyncMesProduct() throws ClientException;
+
+    List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
 }

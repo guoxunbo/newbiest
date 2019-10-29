@@ -53,6 +53,11 @@ public class Material extends NBVersionControl {
      */
     public static final String DELIVERY_POLICY_RESIDUAL_LIFO = "RL";
 
+    /**
+     * 物料类别
+     */
+    public static final String TYPE_PRODUCT = "Product";
+
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;
 

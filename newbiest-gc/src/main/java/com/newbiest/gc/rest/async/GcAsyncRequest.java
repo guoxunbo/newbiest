@@ -16,6 +16,7 @@ public class GcAsyncRequest extends Request {
 	public static final String ACTION_ASYNC_SO = "AsyncSo";
 	public static final String ACTION_ASYNC_MATERIAL_OUT_ORDER = "AsyncMaterialOutOrder";
 	public static final String ACTION_ASYNC_MATERIAL = "AsyncMaterial";
+	public static final String ACTION_ASYNC_PRODUCT = "AsyncProduct";
 
 	private GcAsyncRequestBody body;
 

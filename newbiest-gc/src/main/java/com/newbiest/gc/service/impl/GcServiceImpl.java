@@ -4,11 +4,17 @@ import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.exception.NewbiestException;
+import com.newbiest.base.model.NBQuery;
+import com.newbiest.base.model.NBVersionControl;
+import com.newbiest.base.repository.QueryRepository;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
+import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.common.exception.ContextException;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
@@ -19,18 +25,19 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.transform.Transformers;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sun.nio.cs.ext.MacArabic;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,6 +50,7 @@ import static com.newbiest.mms.exception.MmsException.MM_RAW_MATERIAL_IS_NOT_EXI
 @Slf4j
 @Transactional
 public class GcServiceImpl implements GcService {
+
 
     public static final String TRANS_TYPE_BIND_RELAY_BOX = "BindRelayBox";
     public static final String TRANS_TYPE_UNBIND_RELAY_BOX = "UnbindRelayBox";
@@ -101,6 +109,21 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     MaterialLotInventoryRepository materialLotInventoryRepository;
+
+    @Autowired
+    QueryRepository queryRepository;
+
+    @Autowired
+    EntityManager em;
+
+    @Autowired
+    RawMaterialRepository rawMaterialRepository;
+
+    @Autowired
+    VersionControlService versionControlService;
+
+    @Autowired
+    MaterialStatusModelRepository materialStatusModelRepository;
 
     /**
      * 获取到可以入库的批次
@@ -801,6 +824,97 @@ public class GcServiceImpl implements GcService {
             }
         }
         return  documentLineList;
+    }
+
+    /**
+     * 格科同步MES的产品号、描述、单位
+     */
+    public void asyncMesProduct() throws ClientException{
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            String queryName = "GETPRODUCTINFO";
+            RawMaterial rawMaterial = new RawMaterial();
+            List<Map> materialList = findEntityMapListByQueryName(queryName,null,0,999,"","");
+            if(CollectionUtils.isNotEmpty(materialList)){
+                for (Map<String, String> m :materialList)  {
+                    String productId = m.get("INSTANCE_ID");
+                    String productDesc = m.get("INSTANCE_DESC");
+                    String storeUom = m.get("STORE_UOM");
+                    rawMaterial = mmsService.getRawMaterialByName(productId);
+                    if(rawMaterial == null){
+                        rawMaterial = new RawMaterial();
+                        rawMaterial.setName(productId);
+                        rawMaterial.setDescription(productDesc);
+                        rawMaterial.setStoreUom(storeUom);
+                        rawMaterial.setMaterialCategory(Material.TYPE_PRODUCT);
+                        rawMaterial.setMaterialType(Material.TYPE_PRODUCT);
+                        rawMaterial.setActiveTime(new Date());
+                        rawMaterial.setActiveUser(sc.getUsername());
+                        rawMaterial.setStatus(NBVersionControl.STATUS_ACTIVE);
+                        Long version = versionControlService.getNextVersion(rawMaterial);
+                        rawMaterial.setVersion(version);
+
+                        List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
+                        if (CollectionUtils.isNotEmpty(statusModels)) {
+                            rawMaterial.setStatusModelRrn(statusModels.get(0).getObjectRrn());
+                        } else {
+                            throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+                        }
+                        rawMaterialRepository.save(rawMaterial);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    @Override
+    public List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException {
+        try {
+            NBQuery nbQuery = queryRepository.findByName(queryName);
+            if (nbQuery == null) {
+                throw new ClientParameterException(NewbiestException.COMMON_QUERY_IS_NOT_EXIST, queryName);
+            }
+            return findEntityMapListByQueryText(nbQuery.getQueryText(), paramMap, firstResult, maxResult, whereClause, orderByClause);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    public List<Map> findEntityMapListByQueryText(String queryText, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException {
+        try {
+            StringBuffer sqlBuffer = new StringBuffer();
+            sqlBuffer.append("SELECT * FROM (");
+            sqlBuffer.append(queryText);
+            sqlBuffer.append(")");
+            if (!StringUtils.isNullOrEmpty(whereClause)) {
+                sqlBuffer.append(" WHERE ");
+                sqlBuffer.append(whereClause);
+            }
+            if (!StringUtils.isNullOrEmpty(orderByClause)) {
+                sqlBuffer.append(" ORDER BY ");
+                sqlBuffer.append(orderByClause);
+            }
+
+            Query query = em.createNativeQuery(sqlBuffer.toString());
+            if (firstResult > 0) {
+                query.setFirstResult(firstResult);
+            }
+
+            if (paramMap != null) {
+                for (String key : paramMap.keySet()) {
+                    query.setParameter(key, paramMap.get(key));
+                }
+            }
+            query.unwrap(org.hibernate.query.Query.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+            return query.getResultList();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
     }
 
 }

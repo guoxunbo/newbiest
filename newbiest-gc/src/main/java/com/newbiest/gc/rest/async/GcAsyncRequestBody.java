@@ -12,7 +12,7 @@ public class GcAsyncRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
-	@ApiModelProperty(value = "操作类型", example = "BindRelayBox/UnbindRelayBox")
+	@ApiModelProperty(value = "操作类型", example = "AsyncSo/AsyncMaterialOutOrder/AsyncMaterial/AsyncProduct")
 	private String actionType;
 
 }
