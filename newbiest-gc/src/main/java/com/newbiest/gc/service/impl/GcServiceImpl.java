@@ -849,11 +849,8 @@ public class GcServiceImpl implements GcService {
                         rawMaterial.setStoreUom(storeUom);
                         rawMaterial.setMaterialCategory(Material.TYPE_PRODUCT);
                         rawMaterial.setMaterialType(Material.TYPE_PRODUCT);
-                        rawMaterial.setActiveTime(new Date());
-                        rawMaterial.setActiveUser(sc.getUsername());
-                        rawMaterial.setStatus(NBVersionControl.STATUS_ACTIVE);
-                        Long version = versionControlService.getNextVersion(rawMaterial);
-                        rawMaterial.setVersion(version);
+
+                        rawMaterial = mmsService.saveRawMaterial(rawMaterial);
 
                         List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
                         if (CollectionUtils.isNotEmpty(statusModels)) {
