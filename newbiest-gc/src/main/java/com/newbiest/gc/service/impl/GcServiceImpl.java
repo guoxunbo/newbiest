@@ -24,6 +24,7 @@ import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.extern.slf4j.Slf4j;
@@ -125,6 +126,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     MaterialStatusModelRepository materialStatusModelRepository;
 
+    @Autowired
+    PackageService packageService;
+
     /**
      * 获取到可以入库的批次
      *  当前只验证了物料批次是否是完结
@@ -222,6 +226,23 @@ public class GcServiceImpl implements GcService {
                     checkHistory.setObjectRrn(null);
                     checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
                     checkHistoryRepository.save(checkHistory);
+
+                    List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                    if (CollectionUtils.isNotEmpty(packageDetailLots)) {
+                        for (MaterialLot packageDetailLot : packageDetailLots) {
+                            history = (MaterialLotHistory) baseService.buildHistoryBean(packageDetailLot, MaterialLotHistory.TRANS_TYPE_CHECK);
+                            history.setTransQty(packageDetailLot.getCurrentQty());
+                            materialLotHistoryRepository.save(history);
+
+                            checkHistory = new CheckHistory();
+                            PropertyUtils.copyProperties(packageDetailLot, checkHistory, new HistoryBeanConverter());
+                            checkHistory.setTransQty(packageDetailLot.getCurrentQty());
+                            checkHistory.setTransType(MaterialLotHistory.TRANS_TYPE_CHECK);
+                            checkHistory.setObjectRrn(null);
+                            checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
+                            checkHistoryRepository.save(checkHistory);
+                        }
+                    }
                 }
             }
 
