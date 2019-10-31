@@ -5,10 +5,13 @@ LOG_PATH=""
 DEBUG_FLAG="true"
 OPEN_GC_LOG="true"
 . ./setEnv.sh
+. ./sba_security.properties
 
 JAVA_HOME=$JAVA_DIR
 
-SPRING_OPTIONS="--spring.profiles.active=${RUN_MODE} --logging.path=${LOG_PATH} --server.port=${APPLICATION_PORT}"
+SPRING_ADMIN_CLIENT_OPTIONS="--spring.boot.admin.client.username=${username} --spring.boot.admin.client.username=${password}";
+
+SPRING_OPTIONS="--spring.profiles.active=${RUN_MODE} --logging.path=${LOG_PATH} --server.port=${APPLICATION_PORT} ${SPRING_ADMIN_CLIENT_OPTIONS}"
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 APP_PATH=$(find $ROOT -name starter*.jar)

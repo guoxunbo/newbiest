@@ -16,10 +16,12 @@
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
+                <include>*.properties</include>
             </includes>
             <fileMode>777</fileMode>
             <lineEnding>unix</lineEnding>
         </fileSet>
+
         <fileSet>
             <directory>../bin/tools</directory>
             <outputDirectory>bin/tools</outputDirectory>

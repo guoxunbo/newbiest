@@ -1,3 +1,10 @@
+#设置server的基本信息
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+  port: 8080
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
@@ -7,7 +14,7 @@ license:
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 spring:
   application:
-    name: starter
+    name: vcim
   jpa:
     show-sql: true
     properties:
@@ -38,7 +45,7 @@ spring:
       test-on-borrow: false
       test-while-idle: true
       # 打开PSCache，并且指定每个连接上PSCache的大小 Oracle建议打开。Mysql建议关闭
-      pool-prepared-statements: false
+      pool-prepared-statements: true
       max-pool-prepared-statement-per-connection-size: 20
       # 监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙(检测SQL注入)
       filters: stat,slf4j,config
@@ -49,8 +56,6 @@ spring:
       stat-view-servlet:
         enabled: true
         reset-enable: true
-        allow: 127.0.0.1
-        deny: 192.168.1.73
       filter:
         # 慢SQL监控
         stat:
@@ -63,10 +68,10 @@ spring:
       # 配置密码的公钥 默认使用druid的ConfigTool进行加密
       connection-properties: config.decrypt=false;config.decrypt.key=${publickey}
   mail:
-    host:
-    username:
-    password:
-    from:
+    host: smtp.163.com
+    username: 15260286656@163.com
+    password: woaini1314
+    from: 15260286656@163.com
     properties:
       mail:
         smtp:
@@ -77,30 +82,41 @@ spring:
   boot:
     admin:
       client:
-        url: http://127.0.0.1:8081
+        url: http://localhost:8081
+        username: admin
+        password: admin123
+        instance:
+          management-base-url: http://localhost:${server.port}
+          prefer-ip: true
+          service-base-url: http://localhost:${server.port}
   servlet:
     multipart:
       max-request-size: 40MB
       max-file-size: 40MB
       enabled: true
-#设置server的基本信息
-server:
-  servlet:
-    session:
-      cookie:
-        http-only: true
+
 # actuator配置
 show:
   swagger: true
 logging:
   path: /Users/guoxunbo/Documents/newbiest/log
 management:
+  server:
+    servlet:
+      context-path: /
+    ssl:
+      enabled: false
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
         include: "*"
-  endpoint:
-    health:
-      show-details: always
-    shutdown:
-      enabled: true
+  health:
+    redis:
+      enabled: false
+    mail:
+      enabled: false
