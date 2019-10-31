@@ -129,6 +129,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     PackageService packageService;
 
+    @Autowired
+    CustomerRepository customerRepository;
+
     /**
      * 获取到可以入库的批次
      *  当前只验证了物料批次是否是完结
@@ -569,6 +572,17 @@ public class GcServiceImpl implements GcService {
                     deliveryOrder.setUnHandledQty(deliveryOrder.getQty().subtract(deliveryOrder.getHandledQty()));
                     deliveryOrder.setDocumentLines(documentLines);
                     deliveryOrderRepository.save(deliveryOrder);
+
+                    // 保存单据的时候同步下客户
+                    if (!StringUtils.isNullOrEmpty(deliveryOrder.getSupplierName())) {
+                        Customer customer = customerRepository.getByName(deliveryOrder.getSupplierName());
+                        if (customer == null) {
+                            customer = new Customer();
+                            customer.setName(deliveryOrder.getSupplierName());
+                            customer.setDescription(deliveryOrder.getSupplierName());
+                            customerRepository.save(customer);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
