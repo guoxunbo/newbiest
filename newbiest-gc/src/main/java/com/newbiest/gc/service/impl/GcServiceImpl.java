@@ -667,6 +667,13 @@ public class GcServiceImpl implements GcService {
         return Lists.newArrayList();
     }
 
+    public MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException {
+        return mesPackedLotRepository.findByPackedLotRrn(packedLotRrn);
+    }
+
+    public List<MesPackedLot> findByParentRrn(Long parentRrn) throws ClientException {
+        return mesPackedLotRepository.findByParentRrn(parentRrn);
+    }
     /**
      * 接收MES的完成品
      * @param packedLotList

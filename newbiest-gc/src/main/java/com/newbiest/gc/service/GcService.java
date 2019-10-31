@@ -20,6 +20,8 @@ public interface GcService {
     MaterialLot getWaitStockInStorageMaterialLot(String materialLotId) throws ClientException;
     void stockIn(List<StockInModel> stockInModels) throws ClientException;
 
+    MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException;
+    List<MesPackedLot> findByParentRrn(Long parentRrn) throws ClientException;
     void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
 
     void bindRelaxBox(List<MaterialLot> materialLots, String relaxBoxId) throws ClientException;
