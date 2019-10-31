@@ -528,6 +528,9 @@ public class GcServiceImpl implements GcService {
                                    }
                                 }
                             }
+
+                            Date erpCreatedDate = DateUtils.parseDate(erpSo.getDdate());
+
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
                             if (documentLine == null) {
                                 documentLine = new DocumentLine();
@@ -536,7 +539,7 @@ public class GcServiceImpl implements GcService {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
                                 }
                                 documentLine.setDocId(documentId);
-                                documentLine.setErpCreated(DateUtils.parseDate(erpSo.getDdate()));
+                                documentLine.setErpCreated(erpCreatedDate);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
                                 documentLine.setMaterialName(material.getName());
 
@@ -559,6 +562,13 @@ public class GcServiceImpl implements GcService {
                             // 同一个单据下，所有的客户都是一样的。
                             deliveryOrder.setSupplierName(erpSo.getCusname());
                             deliveryOrder.setOwner(erpSo.getChandler());
+                            if (deliveryOrder.getErpCreated() == null) {
+                                deliveryOrder.setErpCreated(erpCreatedDate);
+                            } else {
+                                if (deliveryOrder.getErpCreated().after(erpCreatedDate)) {
+                                    deliveryOrder.setErpCreated(erpCreatedDate);
+                                }
+                            }
                             erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_SUCCESS);
                             erpSo.setErrorMemo(StringUtils.EMPTY);
                         } catch (Exception e) {

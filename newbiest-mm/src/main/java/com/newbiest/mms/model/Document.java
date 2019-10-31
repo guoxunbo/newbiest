@@ -1,9 +1,12 @@
 package com.newbiest.mms.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.ui.model.NBReferenceList;
+import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
+import lombok.Getter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -73,6 +76,12 @@ public class Document extends NBUpdatable {
      */
     @Column(name="DUE_DATE")
     private Date dueDate;
+
+    @Column(name="ERP_CREATED", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    @Getter
+    protected Date erpCreated;
 
     @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.ALL})
     @JoinColumn(name = "DOC_RRN", referencedColumnName = "OBJECT_RRN")
