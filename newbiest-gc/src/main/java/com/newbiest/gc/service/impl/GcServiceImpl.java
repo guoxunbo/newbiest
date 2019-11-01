@@ -132,6 +132,15 @@ public class GcServiceImpl implements GcService {
     @Autowired
     CustomerRepository customerRepository;
 
+    public List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException {
+        List<DeliveryOrder> deliveryOrderList = Lists.newArrayList();
+        for (DeliveryOrder deliveryOrder : deliveryOrders) {
+            deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
+            deliveryOrderList.add(deliveryOrder);
+        }
+        return deliveryOrderList;
+    }
+
     /**
      * 获取到可以入库的批次
      *  当前只验证了物料批次是否是完结

@@ -6,6 +6,7 @@ import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.gc.model.StockInModel;
 import com.newbiest.gc.model.StockOutCheck;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 
@@ -16,6 +17,8 @@ import java.util.Map;
  * Created by guoxunbo on 2019-08-21 12:41
  */
 public interface GcService {
+
+    List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException;
 
     MaterialLot getWaitStockInStorageMaterialLot(String materialLotId) throws ClientException;
     void stockIn(List<StockInModel> stockInModels) throws ClientException;
