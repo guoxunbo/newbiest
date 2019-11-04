@@ -4,12 +4,11 @@ RUN_MODE=""
 LOG_PATH=""
 DEBUG_FLAG="true"
 OPEN_GC_LOG="true"
+SBA_MONITOR_FLAG="true"
+
 . ./setEnv.sh
-. ./sba_security.properties
 
 JAVA_HOME=$JAVA_DIR
-
-SPRING_ADMIN_CLIENT_OPTIONS="--spring.boot.admin.client.username=${username} --spring.boot.admin.client.username=${password}";
 
 SPRING_OPTIONS="--spring.profiles.active=${RUN_MODE} --logging.path=${LOG_PATH} --server.port=${APPLICATION_PORT} ${SPRING_ADMIN_CLIENT_OPTIONS}"
 

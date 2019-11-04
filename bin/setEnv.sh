@@ -35,4 +35,9 @@ if [ "${DEBUG_FLAG}" = "true" ] ; then
 	JAVA_DEBUG="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=${DEBUG_PORT},server=y,suspend=n -Djava.compiler=NONE"
 fi
 
+if [ "${SBA_MONITOR_FLAG}" = "true" ] ; then
+    . ./sba_security.properties
+	SPRING_ADMIN_CLIENT_OPTIONS="--spring.boot.admin.client.url=${url} --spring.boot.admin.client.username=${username} --spring.boot.admin.client.username=${password}";
+fi
+
 JAVA_OPTIONS="${MEM_ARGS} ${GC_ARGS} ${MEM_ARGS} ${JAVA_DEBUG} -Dfile.encoding=UTF-8 "
