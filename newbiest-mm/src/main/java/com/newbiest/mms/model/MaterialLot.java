@@ -295,6 +295,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED14")
     private String reserved14;
 
+    /**
+     * GlaxyCore 记录重测工单日期
+     */
     @Column(name="RESERVED15")
     private String reserved15;
 
