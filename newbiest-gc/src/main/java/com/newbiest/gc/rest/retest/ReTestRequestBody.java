@@ -20,7 +20,7 @@ public class ReTestRequestBody extends RequestBody {
 	@ApiModelProperty(value = "待重测发料的物料批次")
 	private List<MaterialLotAction> materialLotActions;
 
-	@ApiModelProperty(value = "单据详情")
-	private DocumentLine documentLine;
+	@ApiModelProperty(value = "单据")
+	private List<DocumentLine> documentLines;
 
 }

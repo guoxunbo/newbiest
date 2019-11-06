@@ -353,64 +353,140 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 物料批次根据重测单进行重测，更新单据数据以及，更改ERP的中间表数据
-     *  documentLine 产品型号 materialName，二级代码 reserved2，等级 reserved3 一致
-     *  materialLot 产品型号 materialName，二级代码 reserved1，等级grade 一致
+     *
+     * @param documentLineList
+     * @param materialLotActions
+     * @throws ClientException
      */
-    public void reTest(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException{
+    public void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-            for (MaterialLot materialLot : materialLots) {
-                validationDocLine(documentLine, materialLot);
+            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+            Map<String, List<DocumentLine>> documentLineMap = documentLineList.stream().collect(Collectors.groupingBy(documentLine -> {
+                StringBuffer key = new StringBuffer();
+                key.append(documentLine.getMaterialName());
+                key.append(StringUtils.SPLIT_CODE);
+
+                key.append(documentLine.getReserved2());
+                key.append(StringUtils.SPLIT_CODE);
+
+                key.append(documentLine.getReserved3());
+                key.append(StringUtils.SPLIT_CODE);
+
+                key.append(documentLine.getReserved7());
+                key.append(StringUtils.SPLIT_CODE);
+                return key.toString();
+            }));
+
+            Map<String, List<MaterialLot>> materialLotMap = materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
+                StringBuffer key = new StringBuffer();
+                key.append(materialLot.getMaterialName());
+                key.append(StringUtils.SPLIT_CODE);
+
+                String materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
+                key.append(materialSecondCode);
+                key.append(StringUtils.SPLIT_CODE);
+
+                key.append(materialLot.getGrade());
+                key.append(StringUtils.SPLIT_CODE);
+
+                key.append(materialLot.getReserved6());
+                key.append(StringUtils.SPLIT_CODE);
+                return key.toString();
+            }));
+
+            // 确保所有的物料批次都能匹配上单据, 并且数量足够
+            for (String key : materialLotMap.keySet()) {
+                if (!documentLineMap.keySet().contains(key)) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+                }
+                Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                Long totalMaterialLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
+                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
+                }
+                reTestMaterialLots(documentLineMap.get(key), materialLotMap.get(key));
             }
-            BigDecimal handledQty = BigDecimal.ZERO;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
 
-            for (MaterialLot materialLot : materialLots) {
-                handledQty = handledQty.add(materialLot.getCurrentQty());
+    }
 
-                // 变更事件，并清理掉库存
-                materialLot.setCurrentQty(BigDecimal.ZERO);
+    /**
+     * 重测发料。更新单据信息。
+     * @param documentLines
+     * @param materialLots
+     * @throws ClientException
+     */
+    private void reTestMaterialLots(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
+        try {
+            for (DocumentLine documentLine: documentLines) {
 
-                materialLot.setReserved12(documentLine.getObjectRrn().toString());
-                mmsService.changeMaterialLotState(materialLot, "ReTest", StringUtils.EMPTY);
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "ReTest");
-                materialLotHistoryRepository.save(history);
+                BigDecimal unhandedQty = documentLine.getUnHandledQty();
+                Iterator<MaterialLot> iterator = materialLots.iterator();
+                while (iterator.hasNext()) {
+                    MaterialLot materialLot = iterator.next();
+                    BigDecimal currentQty = materialLot.getCurrentQty();
+                    if (unhandedQty.compareTo(currentQty) >= 0) {
+                        unhandedQty = unhandedQty.subtract(currentQty);
+                        currentQty = BigDecimal.ZERO;
+                    } else {
+                        currentQty = currentQty.subtract(unhandedQty);
+                        unhandedQty = BigDecimal.ZERO;
+                    }
+                    materialLot.setCurrentQty(currentQty);
+                    if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
+                        materialLot.setReserved12(documentLine.getObjectRrn().toString());
+                    } else {
+                        materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
+                    }
+                    if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                        mmsService.changeMaterialLotState(materialLot, "ReTest", StringUtils.EMPTY);
+                        materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                        iterator.remove();
+                    } else {
+                        List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
+                        if (CollectionUtils.isNotEmpty(materialLotInvList)) {
+                            //GC一个批次只会在一个库存
+                            MaterialLotInventory materialLotInv = materialLotInvList.get(0);
+                            materialLotInv.setStockQty(currentQty);
+                            materialLotInventoryRepository.save(materialLotInv);
+                        }
+                    }
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "ReTest");
+                    materialLotHistoryRepository.save(history);
+                    if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
+                        break;
+                    }
+                }
+                BigDecimal handledQty = documentLine.getHandledQty().add((documentLine.getUnHandledQty().subtract(unhandedQty)));
+                documentLine.setHandledQty(handledQty);
+                documentLine.setUnHandledQty(unhandedQty);
+                documentLineRepository.save(documentLine);
 
-                materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                ReTestOrder reTestOrder = (ReTestOrder) reTestOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                reTestOrder.setHandledQty(reTestOrder.getHandledQty().add(handledQty));
+                reTestOrder.setUnHandledQty(reTestOrder.getUnHandledQty().subtract(handledQty));
+                reTestOrderRepository.save(reTestOrder);
+
+                Optional<ErpMaterialOutOrder> erpMaterialOutOrderOptional = erpMaterialOutOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                if (!erpMaterialOutOrderOptional.isPresent()) {
+                    throw new ClientParameterException(GcExceptions.ERP_RETEST_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                }
+
+                ErpMaterialOutOrder erpMaterialOutOrder = erpMaterialOutOrderOptional.get();
+                erpMaterialOutOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                erpMaterialOutOrder.setLeftNum(erpMaterialOutOrder.getLeftNum().subtract(handledQty));
+                if (StringUtils.isNullOrEmpty(erpMaterialOutOrder.getDeliveredNum())) {
+                    erpMaterialOutOrder.setDeliveredNum(handledQty.toPlainString());
+                } else {
+                    BigDecimal docHandledQty = new BigDecimal(erpMaterialOutOrder.getDeliveredNum());
+                    docHandledQty = docHandledQty.add(handledQty);
+                    erpMaterialOutOrder.setDeliveredNum(docHandledQty.toPlainString());
+                }
+                erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
             }
-
-            // 验证当前操作数量是否超过待检查数量
-            BigDecimal unHandleQty =  documentLine.getUnHandledQty().subtract(handledQty);
-            if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
-                throw new ClientParameterException(GcExceptions.OVER_DOC_QTY);
-            }
-            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
-            documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
-            documentLine.setUnHandledQty(unHandleQty);
-            documentLineRepository.save(documentLine);
-
-            // 获取到主单据
-            ReTestOrder reTestOrder = (ReTestOrder) reTestOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-            reTestOrder.setHandledQty(reTestOrder.getHandledQty().add(handledQty));
-            reTestOrder.setUnHandledQty(reTestOrder.getUnHandledQty().subtract(handledQty));
-            reTestOrderRepository.save(reTestOrder);
-
-            Optional<ErpMaterialOutOrder> erpMaterialOutOrderOptional = erpMaterialOutOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
-            if (!erpMaterialOutOrderOptional.isPresent()) {
-                throw new ClientParameterException(GcExceptions.ERP_RETEST_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
-            }
-
-            ErpMaterialOutOrder erpMaterialOutOrder = erpMaterialOutOrderOptional.get();
-            erpMaterialOutOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-            erpMaterialOutOrder.setLeftNum(erpMaterialOutOrder.getLeftNum().subtract(handledQty));
-            if (StringUtils.isNullOrEmpty(erpMaterialOutOrder.getDeliveredNum())) {
-                erpMaterialOutOrder.setDeliveredNum(handledQty.toPlainString());
-            } else {
-                BigDecimal docHandledQty = new BigDecimal(erpMaterialOutOrder.getDeliveredNum());
-                docHandledQty = docHandledQty.add(handledQty);
-                erpMaterialOutOrder.setDeliveredNum(docHandledQty.toPlainString());
-            }
-            erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

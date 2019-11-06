@@ -33,7 +33,7 @@ public class ReTestController {
         RetestResponseBody responseBody = new RetestResponseBody();
         ReTestRequestBody requestBody = request.getBody();
 
-        gcService.reTest(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
+        gcService.reTest(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
 
         response.setBody(responseBody);
         return response;
