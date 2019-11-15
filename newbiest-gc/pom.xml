@@ -17,6 +17,12 @@
             <artifactId>mm</artifactId>
             <version>${platform.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>common-trigger</artifactId>
+            <version>${newbiest.trigger.version}</version>
+        </dependency>
+
     </dependencies>
 
 </project>
