@@ -25,27 +25,20 @@ import javax.sql.DataSource;
 @Configuration
 @Data
 @Slf4j
-@ConfigurationProperties(prefix = "gc.liquibase")
+@ConfigurationProperties(prefix = "gc")
 @PropertySource(value = "classpath:gc.yml", factory = YmlPropertyLoaderFactory.class)
 public class GcConfiguration {
 
-    private String changeLog;
-
-    private boolean enabled;
-
-    private boolean dropFirst;
-
     @Bean("gcLiquibase")
-    @ConditionalOnResource(resources = {"classpath:gc.yml"})
     public SpringLiquibase liquibase(DataSource dataSource) throws Exception{
         if (log.isInfoEnabled()) {
             log.info("Load GC Liquibase Configuration.");
         }
         SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(dataSource);
-        liquibase.setChangeLog(changeLog);
-        liquibase.setShouldRun(enabled);
-        liquibase.setDropFirst(dropFirst);
+        liquibase.setChangeLog("classpath:db/changelog/db.changelog-gc.yaml");
+        liquibase.setShouldRun(true);
+        liquibase.setDropFirst(false);
         return liquibase;
     }
 

@@ -25,15 +25,9 @@ import javax.sql.DataSource;
 @Configuration
 @Data
 @Slf4j
-@ConfigurationProperties(prefix = "mms.liquibase")
+@ConfigurationProperties(prefix = "mms")
 @PropertySource(value = "classpath:mms.yml", factory = YmlPropertyLoaderFactory.class)
 public class MmsConfiguration {
-
-    private String changeLog;
-
-    private boolean enabled;
-
-    private boolean dropFirst;
 
     /**
      * 默认的LiquibaseBean
@@ -49,9 +43,9 @@ public class MmsConfiguration {
         }
         SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(dataSource);
-        liquibase.setChangeLog(changeLog);
-        liquibase.setShouldRun(enabled);
-        liquibase.setDropFirst(dropFirst);
+        liquibase.setChangeLog("classpath:db/changelog/db.changelog-mms.yaml");
+        liquibase.setShouldRun(true);
+        liquibase.setDropFirst(false);
         return liquibase;
     }
 
