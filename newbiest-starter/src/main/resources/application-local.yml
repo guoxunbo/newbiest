@@ -1,3 +1,5 @@
+gc:
+  openSchedule: true
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
@@ -18,8 +20,8 @@ spring:
   datasource:
     druid:
       url: jdbc:oracle:thin:@127.0.0.1:1521:newbiest
-      username: newbiest
-      password: newbiest
+      username: gc_wms
+      password: gc_wms
       driver-class-name: oracle.jdbc.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1
