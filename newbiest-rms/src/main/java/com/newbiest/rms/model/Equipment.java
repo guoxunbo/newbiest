@@ -8,10 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-/**
- *
- * Created by guoxunbo on 2018/7/5.
- */
 @Entity
 @Table(name="RMS_EQUIPMENT")
 @Data

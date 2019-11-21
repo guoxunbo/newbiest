@@ -9,14 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gc</artifactId>
+    <artifactId>ams</artifactId>
+    <packaging>jar</packaging>
+    <description>Alarm manager of newbiest</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.newbiest</groupId>
-            <artifactId>mm</artifactId>
-            <version>${platform.version}</version>
-        </dependency>
-    </dependencies>
 
 </project>

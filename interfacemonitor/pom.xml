@@ -9,14 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gc</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.newbiest</groupId>
-            <artifactId>mm</artifactId>
-            <version>${platform.version}</version>
-        </dependency>
-    </dependencies>
+    <artifactId>common-interface-monitor</artifactId>
+    <description>接口监控</description>
 
 </project>

@@ -22,7 +22,8 @@
         <module>newbiest-starter</module>
         <module>newbiest-dist</module>
         <module>newbiest-gc</module>
-<!--        <module>interfacemonitor</module>-->
+        <module>ams</module>
+        <!--        <module>interfacemonitor</module>-->
     </modules>
     <packaging>pom</packaging>
 
@@ -39,7 +40,7 @@
         <newbiest.statusmachine.version>1.0.1.RELEASE</newbiest.statusmachine.version>
         <newbiest.framework.version>1.0.5-SNAPSHOT</newbiest.framework.version>
         <newbiest.kms.version>1.0.0.RELEASE</newbiest.kms.version>
-        <newbiest.trigger.version>1.0.1-SNAPSHOT</newbiest.trigger.version>
+        <newbiest.trigger.version>1.0.1.RELEASE</newbiest.trigger.version>
         <platform.version>1.0.5-SNAPSHOT</platform.version>
     </properties>
 
@@ -160,6 +161,17 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>common-trigger</artifactId>
+            <version>${newbiest.trigger.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.newbiest</groupId>
+                    <artifactId>framework</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <developers>
