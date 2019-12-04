@@ -15,7 +15,11 @@ import javax.persistence.Table;
 @Data
 public class Recipe extends NBBase {
 
-    public static final String RECIPE_CATEGORY_ABSTRACT = "Abstract";
+    /**
+     * LogicRecipe下一般有很多EquipmentRecipe
+     */
+    public static final String RECIPE_CATEGORY_Logic = "Logic";
+
     public static final String RECIPE_CATEGORY_EQUIPMENT = "Equipment";
 
     @Column(name="NAME")
@@ -25,6 +29,6 @@ public class Recipe extends NBBase {
     private String description;
 
     @Column(name="CATEGORY")
-    private String category;
+    private String category = RECIPE_CATEGORY_EQUIPMENT;
 
 }
