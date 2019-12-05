@@ -40,6 +40,12 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="UN_HANDLE_QTY")
     private BigDecimal unHandledQty = BigDecimal.ZERO;
 
+    @Column(name="RESERVED_QTY")
+    private BigDecimal reservedQty = BigDecimal.ZERO;
+
+    @Column(name="UN_RESERVED_QTY")
+    private BigDecimal unReservedQty = BigDecimal.ZERO;
+
     @Column(name="ERP_CREATED", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)

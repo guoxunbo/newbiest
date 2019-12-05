@@ -83,6 +83,12 @@ public class Document extends NBUpdatable {
     @Getter
     protected Date erpCreated;
 
+    @Column(name="RESERVED_QTY")
+    private BigDecimal reservedQty = BigDecimal.ZERO;
+
+    @Column(name="UN_RESERVED_QTY")
+    private BigDecimal unReservedQty = BigDecimal.ZERO;
+
     @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.ALL})
     @JoinColumn(name = "DOC_RRN", referencedColumnName = "OBJECT_RRN")
     private List<DocumentLine> documentLines;

@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_0.0.5
+      author: Xunbo Guo
+      remarks: mms_document add column RESERVED_QTY and UN_RESERVED_QTY
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT
+            columns:
+              - column:
+                  name: RESERVED_QTY
+                  type: bigint
+                  remarks: 备货数量
+              - column:
+                  name: UN_RESERVED_QTY
+                  type: bigint
+                  remarks: 未备货数量
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/init_document_unreserved_qty.sql

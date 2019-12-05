@@ -18,6 +18,9 @@ import java.util.Map;
  */
 public interface GcService {
 
+    List<MaterialLot> getWaitForReservedMaterialLot(Long documentLineRrn, Long tableRrn)  throws ClientException;
+    DocumentLine reservedMaterialLot(Long documentLineRrn, List<MaterialLotAction> materialLotActions) throws ClientException;
+
     List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException;
 
     MaterialLot getWaitStockInStorageMaterialLot(String materialLotId) throws ClientException;

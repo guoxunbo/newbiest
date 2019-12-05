@@ -12,6 +12,7 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
+import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.commom.sm.exception.StatusMachineExceptions;
@@ -131,6 +132,98 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     CustomerRepository customerRepository;
+
+    /**
+     * 根据单据和动态表RRN获取可以被备货的批次
+     * @param
+     * @param
+     * @return
+     */
+    public List<MaterialLot> getWaitForReservedMaterialLot(Long documentLineRrn, Long tableRrn)  throws ClientException {
+        try {
+            List<MaterialLot> waitForReservedMaterialLots = Lists.newArrayList();
+            DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+            if (documentLine.getUnReservedQty().compareTo(BigDecimal.ZERO) > 0) {
+                NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+                StringBuffer whereClause = new StringBuffer();
+                if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
+                    whereClause.append(nbTable.getWhereClause());
+                    whereClause.append(" AND ");
+                }
+                whereClause.append(" reserved16 is null");
+                whereClause.append(" AND ");
+                whereClause.append(" materialName = '" + documentLine.getMaterialName() + "'");
+                whereClause.append(" AND ");
+                whereClause.append(" grade ='" + documentLine.getReserved3() + "'");
+
+                List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause.toString(), "");
+                if (CollectionUtils.isNotEmpty(materialLots)) {
+                    for (MaterialLot materialLot : materialLots) {
+                        try {
+//                            validationDocLine(documentLine, materialLot);
+                            waitForReservedMaterialLots.add(materialLot);
+                        } catch (Exception e) {
+                            // 验证不过 Do nothing。
+                        }
+                    }
+                }
+            } else {
+                throw new ClientException("");
+            }
+            return waitForReservedMaterialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 备货物料批次 不管是真空包还是箱
+     * @param documentLineRrn
+     * @param materialLotActions
+     * @return
+     * @throws ClientException
+     */
+    public DocumentLine reservedMaterialLot(Long documentLineRrn, List<MaterialLotAction> materialLotActions) throws ClientException {
+        try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+
+            BigDecimal unReservedQty = documentLine.getUnReservedQty();
+            BigDecimal reservedQty = BigDecimal.ZERO;
+            for (MaterialLot materialLot : materialLots) {
+                if (!StringUtils.isNullOrEmpty(materialLot.getReserved16())) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_RESERVED_BY_ANOTHER);
+                }
+//                validationDocLine(documentLine, materialLot);
+                BigDecimal currentQty = materialLot.getCurrentQty();
+                reservedQty = reservedQty.add(currentQty);
+                if (unReservedQty.compareTo(reservedQty) < 0) {
+                    throw new ClientParameterException(GcExceptions.RESERVED_OVER_QTY);
+                }
+                materialLot.setReservedQty(materialLot.getCurrentQty());
+                materialLot.setReserved16(documentLine.getObjectRrn().toString());
+                materialLot.setReserved17(documentLine.getDocId());
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SHIP);
+                materialLotHistoryRepository.save(history);
+            }
+
+            documentLine.setUnReservedQty(unReservedQty.subtract(reservedQty));
+            BigDecimal lineReservedQty = documentLine.getReservedQty() == null ? BigDecimal.ZERO : documentLine.getReservedQty();
+            documentLine.setReservedQty(lineReservedQty.add(reservedQty));
+            documentLine = documentLineRepository.saveAndFlush(documentLine);
+
+            DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            BigDecimal docReservedQty = deliveryOrder.getReservedQty() == null ? BigDecimal.ZERO : deliveryOrder.getReservedQty();
+            deliveryOrder.setUnReservedQty(deliveryOrder.getUnReservedQty().subtract(reservedQty));
+            deliveryOrder.setReservedQty(docReservedQty.add(reservedQty));
+            deliveryOrderRepository.save(deliveryOrder);
+
+            return documentLine;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     public List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException {
         List<DeliveryOrder> deliveryOrderList = Lists.newArrayList();

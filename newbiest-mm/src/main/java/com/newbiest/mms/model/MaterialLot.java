@@ -301,9 +301,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED15")
     private String reserved15;
 
+    /**
+     * GlaxyCore 记录备货的出货单LineRrn
+     */
     @Column(name="RESERVED16")
     private String reserved16;
 
+    /**
+     * GlaxyCore 记录备货的出货单号
+     */
     @Column(name="RESERVED17")
     private String reserved17;
 
