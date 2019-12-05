@@ -160,7 +160,7 @@ public class GcServiceImpl implements GcService {
                 if (CollectionUtils.isNotEmpty(materialLots)) {
                     for (MaterialLot materialLot : materialLots) {
                         try {
-//                            validationDocLine(documentLine, materialLot);
+                            validationDocLine(documentLine, materialLot);
                             waitForReservedMaterialLots.add(materialLot);
                         } catch (Exception e) {
                             // 验证不过 Do nothing。
@@ -194,7 +194,7 @@ public class GcServiceImpl implements GcService {
                 if (!StringUtils.isNullOrEmpty(materialLot.getReserved16())) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_RESERVED_BY_ANOTHER);
                 }
-//                validationDocLine(documentLine, materialLot);
+                validationDocLine(documentLine, materialLot);
                 BigDecimal currentQty = materialLot.getCurrentQty();
                 reservedQty = reservedQty.add(currentQty);
                 if (unReservedQty.compareTo(reservedQty) < 0) {
