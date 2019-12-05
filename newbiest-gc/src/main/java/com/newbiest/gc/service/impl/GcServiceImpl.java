@@ -1,6 +1,7 @@
 package com.newbiest.gc.service.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
@@ -160,7 +161,7 @@ public class GcServiceImpl implements GcService {
                 if (CollectionUtils.isNotEmpty(materialLots)) {
                     for (MaterialLot materialLot : materialLots) {
                         try {
-                            validationDocLine(documentLine, materialLot);
+//                            validationDocLine(documentLine, materialLot);
                             waitForReservedMaterialLots.add(materialLot);
                         } catch (Exception e) {
                             // 验证不过 Do nothing。
@@ -194,7 +195,7 @@ public class GcServiceImpl implements GcService {
                 if (!StringUtils.isNullOrEmpty(materialLot.getReserved16())) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_RESERVED_BY_ANOTHER);
                 }
-                validationDocLine(documentLine, materialLot);
+//                validationDocLine(documentLine, materialLot);
                 BigDecimal currentQty = materialLot.getCurrentQty();
                 reservedQty = reservedQty.add(currentQty);
                 if (unReservedQty.compareTo(reservedQty) < 0) {
@@ -204,7 +205,7 @@ public class GcServiceImpl implements GcService {
                 materialLot.setReserved16(documentLine.getObjectRrn().toString());
                 materialLot.setReserved17(documentLine.getDocId());
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SHIP);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RESERVED);
                 materialLotHistoryRepository.save(history);
             }
 
@@ -220,6 +221,50 @@ public class GcServiceImpl implements GcService {
             deliveryOrderRepository.save(deliveryOrder);
 
             return documentLine;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void unReservedMaterialLot(List<MaterialLotAction> materialLotActions) throws ClientException {
+        try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            // 根据documentLine分组 依次还原数量
+            Map<String, List<MaterialLot>> docLineReservedMaterialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
+            Map<Long, BigDecimal> docUnReservedQtyMap = Maps.newHashMap();
+            for (String docLine : docLineReservedMaterialLotMap.keySet()) {
+                List<MaterialLot> docLineReservedMaterialLots = docLineReservedMaterialLotMap.get(docLine);
+                DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLine));
+                BigDecimal unReservedQty = BigDecimal.ZERO;
+                for (MaterialLot materialLot : docLineReservedMaterialLots) {
+                    unReservedQty = unReservedQty.add(materialLot.getReservedQty());
+                    materialLot.setReservedQty(BigDecimal.ZERO);
+                    materialLot.setReserved16(StringUtils.EMPTY);
+                    materialLot.setReserved17(StringUtils.EMPTY);
+
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_RESERVED);
+                    materialLotHistoryRepository.save(history);
+                }
+                documentLine.setReservedQty(documentLine.getReservedQty().subtract(unReservedQty));
+                documentLine.setUnReservedQty(documentLine.getUnHandledQty().add(unReservedQty));
+                documentLine = documentLineRepository.saveAndFlush(documentLine);
+
+                // 还原主单据数量
+                BigDecimal docUnReservedQty = BigDecimal.ZERO;
+                if (docUnReservedQtyMap.containsKey(documentLine.getDocRrn())) {
+                    docUnReservedQty = docUnReservedQtyMap.get(documentLine.getDocRrn());
+                }
+                docUnReservedQty.add(unReservedQty);
+                docUnReservedQtyMap.put(documentLine.getDocRrn(), unReservedQty);
+
+            }
+            for (Long docRrn : docUnReservedQtyMap.keySet()) {
+                DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(docRrn);
+                deliveryOrder.setUnReservedQty(deliveryOrder.getUnReservedQty().add(docUnReservedQtyMap.get(docRrn)));
+                deliveryOrder.setReservedQty(deliveryOrder.getReservedQty().subtract(docUnReservedQtyMap.get(docRrn)));
+                deliveryOrderRepository.save(deliveryOrder);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

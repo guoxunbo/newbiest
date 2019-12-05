@@ -43,6 +43,8 @@ public class ReservedController {
             responseBody.setMaterialLotList(waitForReservedMaterialLots);
         } else if (ReServedRequestBody.ACTION_TYPE_RESERVED.equals(actionType)) {
             gcService.reservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getMaterialLotActions());
+        } else if (ReServedRequestBody.ACTION_TYPE_UN_RESERVED.equals(actionType)) {
+            gcService.unReservedMaterialLot(requestBody.getMaterialLotActions());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

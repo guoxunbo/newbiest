@@ -18,6 +18,7 @@ public class ReServedRequestBody extends RequestBody {
 
 	public static final String ACTION_TYPE_GET_MATERIAL_LOT = "GetMLot";
 	public static final String ACTION_TYPE_RESERVED = "Reserved";
+	public static final String ACTION_TYPE_UN_RESERVED = "UnReserved";
 
 	@ApiModelProperty(value="动作. GetMLot, Reserved")
 	private String actionType;
