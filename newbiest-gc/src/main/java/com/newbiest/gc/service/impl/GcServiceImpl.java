@@ -178,6 +178,14 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * @param packedLotIdList
+     * @return
+     */
+    public List<MaterialLot> getPackedDetailsAndNotReserved(List<String> packedLotIdList) throws ClientException{
+        return materialLotRepository.getPackedDetailsAndNotReserved(packedLotIdList);
+    }
+
+    /**
      * 备货物料批次 不管是真空包还是箱
      * @param documentLineRrn
      * @param materialLotActions

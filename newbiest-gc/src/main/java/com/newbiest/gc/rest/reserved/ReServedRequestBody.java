@@ -20,6 +20,11 @@ public class ReServedRequestBody extends RequestBody {
 	public static final String ACTION_TYPE_RESERVED = "Reserved";
 	public static final String ACTION_TYPE_UN_RESERVED = "UnReserved";
 
+	/**
+	 * 获取包装箱里的批次
+	 */
+	public static final String ACTION_GET_PACKED_MLOTS = "GetPackedMLots";
+
 	@ApiModelProperty(value="动作. GetMLot, Reserved")
 	private String actionType;
 

@@ -2,6 +2,8 @@ package com.newbiest.gc.rest.reserved;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by guoxunbo on 2019-08-21 13:15
@@ -45,6 +48,11 @@ public class ReservedController {
             gcService.reservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getMaterialLotActions());
         } else if (ReServedRequestBody.ACTION_TYPE_UN_RESERVED.equals(actionType)) {
             gcService.unReservedMaterialLot(requestBody.getMaterialLotActions());
+        } else if (ReServedRequestBody.ACTION_GET_PACKED_MLOTS.equals(actionType)) {
+            List<MaterialLotAction> packedLotList = requestBody.getMaterialLotActions();
+            List<String> packedLotIdList  = packedLotList.stream().map(MaterialLotAction :: getMaterialLotId).collect(Collectors.toList());
+            List<MaterialLot> materialLots = gcService.getPackedDetailsAndNotReserved(packedLotIdList);
+            responseBody.setMaterialLotList(materialLots);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
