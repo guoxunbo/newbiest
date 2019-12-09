@@ -45,7 +45,7 @@ public class ReservedController {
             List<MaterialLot> waitForReservedMaterialLots = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn());
             responseBody.setMaterialLotList(waitForReservedMaterialLots);
         } else if (ReServedRequestBody.ACTION_TYPE_RESERVED.equals(actionType)) {
-            gcService.reservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getMaterialLotActions());
+            gcService.reservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getMaterialLotActions(), requestBody.getStockNote());
         } else if (ReServedRequestBody.ACTION_TYPE_UN_RESERVED.equals(actionType)) {
             gcService.unReservedMaterialLot(requestBody.getMaterialLotActions());
         } else if (ReServedRequestBody.ACTION_GET_PACKED_MLOTS.equals(actionType)) {

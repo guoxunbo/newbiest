@@ -192,7 +192,7 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    public DocumentLine reservedMaterialLot(Long documentLineRrn, List<MaterialLotAction> materialLotActions) throws ClientException {
+    public DocumentLine reservedMaterialLot(Long documentLineRrn, List<MaterialLotAction> materialLotActions ,String stockNote) throws ClientException {
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
@@ -212,6 +212,7 @@ public class GcServiceImpl implements GcService {
                 materialLot.setReservedQty(materialLot.getCurrentQty());
                 materialLot.setReserved16(documentLine.getObjectRrn().toString());
                 materialLot.setReserved17(documentLine.getDocId());
+                materialLot.setReserved18(stockNote);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RESERVED);
                 materialLotHistoryRepository.save(history);

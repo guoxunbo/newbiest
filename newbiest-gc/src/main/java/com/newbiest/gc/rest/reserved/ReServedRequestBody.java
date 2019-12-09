@@ -37,4 +37,7 @@ public class ReServedRequestBody extends RequestBody {
 	@ApiModelProperty(value = "待备货的物料批次信息")
 	private List<MaterialLotAction> materialLotActions;
 
+	@ApiModelProperty(value = "备货备注")
+	private String stockNote;
+
 }
