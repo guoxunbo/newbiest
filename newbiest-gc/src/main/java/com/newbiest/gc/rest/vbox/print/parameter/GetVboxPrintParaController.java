@@ -60,7 +60,11 @@ public class GetVboxPrintParaController extends AbstractRestController {
             parameterMap.put("GRADE", vBox.getGrade());
             parameterMap.put("SUBCODE", vBox.getLevelTwoCode());
             parameterMap.put("NUMBER", vBox.getQuantity().toString());
-            parameterMap.put("PRODUCTNOTE", vBox.getProductionNote());
+            if(StringUtils.isNullOrEmpty(vBox.getProductionNote())){
+                parameterMap.put("PRODUCTNOTE",StringUtils.EMPTY);
+            } else {
+                parameterMap.put("PRODUCTNOTE",vBox.getProductionNote());
+            }
 
             List<MesPackedLot> mesPackedLotDetails = gcService.findByParentRrn(vBox.getPackedLotRrn());
             int i = 1;
