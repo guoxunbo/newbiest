@@ -9,7 +9,7 @@ import lombok.Data;
  */
 public class AsyncProductThread extends GcTriggerThread {
 
-    public static final String CRON_EXPRESS = "0 0/5 * * * ?";
+    public static final String CRON_EXPRESS = "0 0/30 * * * ?";
 
     public AsyncProductThread(GcService gcService) {
         super(gcService);

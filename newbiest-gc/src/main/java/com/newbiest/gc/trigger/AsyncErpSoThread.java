@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class AsyncErpSoThread extends GcTriggerThread {
 
-    public static final String CRON_EXPRESS = "0 0/5 * * * ?";
+    public static final String CRON_EXPRESS = "0 0/7 * * * ?";
 
     public AsyncErpSoThread(GcService gcService) {
         super(gcService);

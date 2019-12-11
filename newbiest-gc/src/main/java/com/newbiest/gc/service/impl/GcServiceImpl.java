@@ -161,7 +161,7 @@ public class GcServiceImpl implements GcService {
                 if (CollectionUtils.isNotEmpty(materialLots)) {
                     for (MaterialLot materialLot : materialLots) {
                         try {
-//                            validationDocLine(documentLine, materialLot);
+                            validationDocLine(documentLine, materialLot);
                             waitForReservedMaterialLots.add(materialLot);
                         } catch (Exception e) {
                             // 验证不过 Do nothing。
@@ -203,7 +203,7 @@ public class GcServiceImpl implements GcService {
                 if (!StringUtils.isNullOrEmpty(materialLot.getReserved16())) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_RESERVED_BY_ANOTHER);
                 }
-//                validationDocLine(documentLine, materialLot);
+                validationDocLine(documentLine, materialLot);
                 BigDecimal currentQty = materialLot.getCurrentQty();
                 reservedQty = reservedQty.add(currentQty);
                 if (unReservedQty.compareTo(reservedQty) < 0) {
@@ -476,6 +476,7 @@ public class GcServiceImpl implements GcService {
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
                             documentLine.setUnHandledQty(erpMaterialOutOrder.getLeftNum());
                             totalQty = totalQty.add(erpMaterialOutOrder.getIquantity());
+                            documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
 
                             reTestOrder.setOwner(erpMaterialOutOrder.getChandler());
@@ -490,6 +491,18 @@ public class GcServiceImpl implements GcService {
                     }
                     reTestOrder.setQty(totalQty);
                     reTestOrder.setUnHandledQty(reTestOrder.getQty().subtract(reTestOrder.getHandledQty()));
+                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
+                    if (reTestOrder.getObjectRrn() != null) {
+                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(reTestOrder.getObjectRrn());
+                        if (CollectionUtils.isNotEmpty(existDocumentLines)) {
+                            Map<Long, DocumentLine> documentLinesMap = documentLines.stream().collect(Collectors.toConcurrentMap(DocumentLine :: getObjectRrn, Function.identity()));
+                            for (DocumentLine documentLine : existDocumentLines) {
+                                if (!documentLinesMap.containsKey(documentLine.getObjectRrn())) {
+                                    documentLines.add(documentLine);
+                                }
+                            }
+                        }
+                    }
                     reTestOrder.setDocumentLines(documentLines);
                     reTestOrderRepository.save(reTestOrder);
                 }
@@ -734,16 +747,17 @@ public class GcServiceImpl implements GcService {
             List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_SO, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             if (CollectionUtils.isNotEmpty(erpSos)) {
                 Map<String, List<ErpSo>> documentIdMap = erpSos.stream().collect(Collectors.groupingBy(ErpSo :: getCcode));
+
                 for (String documentId : documentIdMap.keySet()) {
                     List<DeliveryOrder> deliveryOrderList = deliveryOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
                     DeliveryOrder deliveryOrder;
                     if (CollectionUtils.isEmpty(deliveryOrderList)) {
                         deliveryOrder = new DeliveryOrder();
+                        deliveryOrder.setName(documentId);
                         deliveryOrder.setStatus(Document.STATUS_OPEN);
                     } else {
                         deliveryOrder = deliveryOrderList.get(0);
                     }
-                    deliveryOrder.setName(documentId);
                     BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
@@ -762,7 +776,6 @@ public class GcServiceImpl implements GcService {
                             }
 
                             Date erpCreatedDate = DateUtils.parseDate(erpSo.getDdate());
-
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
                             if (documentLine == null) {
                                 documentLine = new DocumentLine();
@@ -770,6 +783,7 @@ public class GcServiceImpl implements GcService {
                                 if (material == null) {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
                                 }
+                                documentLine.setDocRrn(deliveryOrder.getObjectRrn());
                                 documentLine.setDocId(documentId);
                                 documentLine.setErpCreated(erpCreatedDate);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
@@ -789,6 +803,7 @@ public class GcServiceImpl implements GcService {
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(erpSo.getLeftNum());
                             totalQty = totalQty.add(erpSo.getIquantity());
+                            documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
@@ -812,6 +827,19 @@ public class GcServiceImpl implements GcService {
                     }
                     deliveryOrder.setQty(totalQty);
                     deliveryOrder.setUnHandledQty(deliveryOrder.getQty().subtract(deliveryOrder.getHandledQty()));
+
+                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
+                    if (deliveryOrder.getObjectRrn() != null) {
+                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(deliveryOrder.getObjectRrn());
+                        if (CollectionUtils.isNotEmpty(existDocumentLines)) {
+                            Map<Long, DocumentLine> documentLinesMap = documentLines.stream().collect(Collectors.toConcurrentMap(DocumentLine :: getObjectRrn, Function.identity()));
+                            for (DocumentLine documentLine : existDocumentLines) {
+                                if (!documentLinesMap.containsKey(documentLine.getObjectRrn())) {
+                                    documentLines.add(documentLine);
+                                }
+                            }
+                        }
+                    }
                     deliveryOrder.setDocumentLines(documentLines);
                     deliveryOrderRepository.save(deliveryOrder);
 
