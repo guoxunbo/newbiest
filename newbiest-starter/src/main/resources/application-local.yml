@@ -12,7 +12,6 @@ license:
   licensePath: /Users/guoxunbo/Documents/newbiest/keytool/newbiest.lic
   publicKeysStorePath: /Users/guoxunbo/Documents/newbiest/keytool/nb_public.keystore
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
-
 spring:
   application:
     name: vcim
@@ -23,9 +22,6 @@ spring:
         dialect: org.hibernate.dialect.Oracle10gDialect
         hbm2ddl:
           auto: none
-        multiTenancy: DISCRIMINATOR
-        tenant_identifier_resolver: com.newbiest.multi.tencent.NewbiestTenantIdentifierResolver
-        queryParametersValidationEnabled: true
   datasource:
     druid:
       url: jdbc:oracle:thin:@127.0.0.1:1521:newbiest
