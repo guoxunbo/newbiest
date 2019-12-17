@@ -134,6 +134,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     CustomerRepository customerRepository;
 
+    @Autowired
+    ErpMoRepository erpMoRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -964,11 +967,12 @@ public class GcServiceImpl implements GcService {
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
 
                     // 工单前2位是SH的入SH仓库，是ZJ的入浙江仓库
-                    String warehouseName = WAREHOUSE_SH;
-                    String location = mesPackedLot.getWorkorderId().substring(0, 2);
-                    if (location.equalsIgnoreCase("ZJ")) {
-                        warehouseName = WAREHOUSE_ZJ;
+                    // 20191217 工单是空的话则是ZJ仓库
+                    String warehouseName = WAREHOUSE_ZJ;
+                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getWorkorderId()) && mesPackedLot.getWorkorderId().substring(0, 2).equalsIgnoreCase("SH")) {
+                        warehouseName = WAREHOUSE_SH;
                     }
+
                     Warehouse warehouse = mmsService.getWarehouseByName(warehouseName);
                     if (warehouse == null) {
                         warehouse = new Warehouse();
@@ -993,6 +997,23 @@ public class GcServiceImpl implements GcService {
                     // 修改MES成品批次为接收状态
                     mesPackedLot.setPackedStatus(MesPackedLot.PACKED_STATUS_RECEIVED);
                     mesPackedLotRepository.save(mesPackedLot);
+
+                    // ERP MO插入数据
+                    ErpMo erpMo = new ErpMo();
+                    erpMo.setCCode(mesPackedLot.getShipSerialNumber());
+                    erpMo.setDDate(mesPackedLot.getFinalOperationTime());
+                    erpMo.setCWHCode(warehouseName);
+                    if (StringUtils.isNullOrEmpty(mesPackedLot.getWorkorderId())) {
+                        erpMo.setCmoCode(ErpMo.DEFAULT_WO_ID);
+                    } else {
+                        erpMo.setCmoCode(mesPackedLot.getWorkorderId());
+                    }
+                    erpMo.setCinVCode(mesPackedLot.getProductId());
+                    erpMo.setFQty(mesPackedLot.getQuantity());
+
+                    erpMo.setCGrade(mesPackedLot.getGrade());
+                    erpMo.setBonded(mesPackedLot.getBondedProperty());
+                    erpMoRepository.save(erpMo);
                 }
             });
 

@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_ERP_MO
+      author: Xunbo Guo
+      comment: crete erp_mo synonym
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/create_erp_mo_synoym.sql

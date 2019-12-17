@@ -26,3 +26,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.6.comments.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.erp_mo.yaml
+      relativeToChangelogFile: true
