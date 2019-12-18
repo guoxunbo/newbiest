@@ -7,7 +7,6 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.model.NBQuery;
-import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.repository.QueryRepository;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
@@ -35,7 +34,8 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sun.nio.cs.ext.MacArabic;
+import com.newbiest.common.idgenerator.utils.GeneratorContext;
+import com.newbiest.common.idgenerator.service.GeneratorService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -85,6 +85,9 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     UIService uiService;
+
+    @Autowired
+    GeneratorService generatorService;
 
     @Autowired
     WarehouseRepository warehouseRepository;
@@ -1244,6 +1247,63 @@ public class GcServiceImpl implements GcService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 获取需要称重的箱信息
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot getWaitWeightMaterialLot(String materialLotId) throws ClientException {
+        try {
+            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void materialLotWeight(List<WeightModel> weightModels) throws ClientException {
+        try {
+            ThreadLocalContext.getSessionContext().buildTransInfo();
+            Map<String, WeightModel> weightModelMap = weightModels.stream().collect(Collectors.toMap(WeightModel :: getMaterialLotId, Function.identity()));
+            List<MaterialLot> materialLots = weightModels.stream().map(model -> mmsService.getMLotByMLotId(model.getMaterialLotId(), true)).collect(Collectors.toList());
+
+            //验证物料批次是否是多箱称重
+            String transId = "";
+            WeightModel boxsWeightModel = weightModelMap.get(materialLots.get(0).getMaterialLotId());
+            if(!StringUtils.isNullOrEmpty(boxsWeightModel.getBoxsWeightFlag())){
+                transId = generatorMLotsWeightTransId(materialLots.get(0));
+            }
+            //称重记录
+            for (MaterialLot materialLot : materialLots) {
+                WeightModel weightModel = weightModelMap.get(materialLot.getMaterialLotId());
+                String weight = weightModel.getWeight();
+                materialLot.setReserved19(weight);
+                if (!StringUtils.isNullOrEmpty(transId)) {
+                    materialLot.setReserved20(transId);
+                }
+                materialLotRepository.save(materialLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据ID生成规则设置的生成多箱称重事务号
+     * @return
+     * @throws ClientException
+     */
+    public String generatorMLotsWeightTransId(MaterialLot MaterialLot) throws ClientException{
+        try {
+            GeneratorContext generatorContext = new GeneratorContext();
+            generatorContext.setRuleName(MaterialLot.GENERATOR_MATERIAL_LOT_WEIGHT_RULE);
+            String id = generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
+            return id;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
         }
     }
 

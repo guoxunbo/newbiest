@@ -5,6 +5,7 @@ import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.gc.model.StockInModel;
 import com.newbiest.gc.model.StockOutCheck;
+import com.newbiest.gc.model.WeightModel;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.DocumentLine;
@@ -17,6 +18,9 @@ import java.util.Map;
  * Created by guoxunbo on 2019-08-21 12:41
  */
 public interface GcService {
+
+    void materialLotWeight(List<WeightModel> weightModels) throws ClientException;
+    MaterialLot getWaitWeightMaterialLot(String materialLotId) throws ClientException;
 
     List<MaterialLot> getPackedDetailsAndNotReserved(List<String> packedLotRrn) throws ClientException;
     List<MaterialLot> getWaitForReservedMaterialLot(Long documentLineRrn, Long tableRrn)  throws ClientException;
