@@ -256,6 +256,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReservedQty(BigDecimal.ZERO);
                     materialLot.setReserved16(StringUtils.EMPTY);
                     materialLot.setReserved17(StringUtils.EMPTY);
+                    materialLot.setReserved18(StringUtils.EMPTY);
 
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_RESERVED);
@@ -658,6 +659,15 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    public void validationStockDocLine(DocumentLine documentLine, MaterialLot materialLot, String treasuryNote) throws ClientException{
+        validationDocLine(documentLine,materialLot);
+        try {
+            Assert.assertEquals(materialLot.getReserved4(), treasuryNote);
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "treasuryNote", treasuryNote, materialLot.getReserved4());
+        }
+    }
+
     public void validationDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException{
         try {
             Assert.assertEquals(documentLine.getMaterialName(), materialLot.getMaterialName());
@@ -693,8 +703,9 @@ public class GcServiceImpl implements GcService {
         try {
             documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            String treasuryNote = materialLots.get(0).getReserved4();
             for (MaterialLot materialLot : materialLots) {
-                validationDocLine(documentLine, materialLot);
+                validationStockDocLine(documentLine, materialLot, treasuryNote);
             }
 
             BigDecimal handledQty = BigDecimal.ZERO;
