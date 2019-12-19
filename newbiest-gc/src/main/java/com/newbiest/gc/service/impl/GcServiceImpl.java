@@ -1292,9 +1292,7 @@ public class GcServiceImpl implements GcService {
                 WeightModel weightModel = weightModelMap.get(materialLot.getMaterialLotId());
                 String weight = weightModel.getWeight();
                 materialLot.setReserved19(weight);
-                if (!StringUtils.isNullOrEmpty(transId)) {
-                    materialLot.setReserved20(transId);
-                }
+                materialLot.setReserved20(transId);
                 materialLotRepository.save(materialLot);
             }
         } catch (Exception e) {
