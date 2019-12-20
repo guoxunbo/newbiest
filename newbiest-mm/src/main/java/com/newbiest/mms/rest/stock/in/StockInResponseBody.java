@@ -1,7 +1,7 @@
 package com.newbiest.mms.rest.stock.in;
 
 import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.msg.ResponseBody;
+import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;
 
 import java.util.List;

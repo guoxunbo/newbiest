@@ -3,7 +3,7 @@ package com.newbiest.gc.rest.async;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.gc.service.GcService;
-import com.newbiest.msg.Request;
+import com.newbiest.base.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;

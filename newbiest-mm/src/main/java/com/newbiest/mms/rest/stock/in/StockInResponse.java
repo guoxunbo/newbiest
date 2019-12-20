@@ -1,6 +1,6 @@
 package com.newbiest.mms.rest.stock.in;
 
-import com.newbiest.msg.Response;
+import com.newbiest.base.msg.Response;
 import lombok.Data;
 
 

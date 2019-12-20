@@ -2,7 +2,7 @@ package com.newbiest.gc.rest.validation;
 
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.msg.RequestBody;
+import com.newbiest.base.msg.RequestBody;
 import lombok.Data;
 
 

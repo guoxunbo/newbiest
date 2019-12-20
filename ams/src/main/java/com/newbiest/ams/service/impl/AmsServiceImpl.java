@@ -12,7 +12,7 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.base.utils.ThreadLocalContext;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

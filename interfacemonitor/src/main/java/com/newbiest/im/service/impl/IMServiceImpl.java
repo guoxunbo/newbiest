@@ -3,7 +3,7 @@ package com.newbiest.im.service.impl;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.utils.ThreadLocalContext;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.im.Exceptions;
 import com.newbiest.im.model.InterfaceMonitor;
 import com.newbiest.im.model.WSDefinition;

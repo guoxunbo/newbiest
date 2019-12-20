@@ -1,6 +1,6 @@
 package com.newbiest.mms.rest.unpack;
 
-import com.newbiest.msg.Request;
+import com.newbiest.base.msg.Request;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 

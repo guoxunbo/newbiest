@@ -5,7 +5,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.factory.SqlBuilderFactory;
 import com.newbiest.base.model.NBVersionControl;
-import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.rms.model.RecipeEquipmentParameterTemp;
 import com.newbiest.rms.repository.custom.RecipeEquipmentParameterTempRepositoryCustom;

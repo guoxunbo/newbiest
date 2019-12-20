@@ -5,6 +5,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;

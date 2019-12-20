@@ -2,7 +2,7 @@ package com.newbiest.mms.rest.rawmaterial;
 
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.RawMaterial;
-import com.newbiest.msg.RequestBody;
+import com.newbiest.base.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

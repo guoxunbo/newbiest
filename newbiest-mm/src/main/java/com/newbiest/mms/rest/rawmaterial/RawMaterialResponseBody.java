@@ -1,7 +1,7 @@
 package com.newbiest.mms.rest.rawmaterial;
 
 import com.newbiest.mms.model.RawMaterial;
-import com.newbiest.msg.ResponseBody;
+import com.newbiest.base.msg.ResponseBody;
 import com.newbiest.security.model.NBUser;
 import lombok.Data;
 

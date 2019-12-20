@@ -2,7 +2,7 @@ package com.newbiest.gc.rest.stockout;
 
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
-import com.newbiest.msg.RequestBody;
+import com.newbiest.base.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

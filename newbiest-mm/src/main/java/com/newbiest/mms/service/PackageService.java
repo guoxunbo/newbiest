@@ -1,7 +1,7 @@
 package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;

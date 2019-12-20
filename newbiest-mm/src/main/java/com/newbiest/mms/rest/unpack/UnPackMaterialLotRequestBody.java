@@ -1,7 +1,7 @@
 package com.newbiest.mms.rest.unpack;
 
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.msg.RequestBody;
+import com.newbiest.base.msg.RequestBody;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

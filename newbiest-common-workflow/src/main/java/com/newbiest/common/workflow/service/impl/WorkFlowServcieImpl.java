@@ -3,7 +3,7 @@ package com.newbiest.common.workflow.service.impl;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.workflow.model.WorkflowDefinition;
 import com.newbiest.common.workflow.model.WorkflowStep;

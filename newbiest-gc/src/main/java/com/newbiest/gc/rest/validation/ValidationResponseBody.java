@@ -1,6 +1,6 @@
 package com.newbiest.gc.rest.validation;
 
-import com.newbiest.msg.ResponseBody;
+import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;
 
 @Data

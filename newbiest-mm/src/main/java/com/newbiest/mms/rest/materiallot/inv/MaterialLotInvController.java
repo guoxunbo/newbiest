@@ -8,7 +8,7 @@ import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotInventory;
 import com.newbiest.mms.service.MmsService;
-import com.newbiest.msg.Request;
+import com.newbiest.base.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;

@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import com.newbiest.base.model.NBHis;
-import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -2,7 +2,7 @@ package com.newbiest.mms.repository;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.repository.custom.IRepository;
-import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.PackagedLotDetail;
 import com.newbiest.mms.state.model.MaterialEvent;

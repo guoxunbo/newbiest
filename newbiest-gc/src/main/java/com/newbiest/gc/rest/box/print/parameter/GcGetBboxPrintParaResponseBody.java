@@ -1,7 +1,7 @@
 package com.newbiest.gc.rest.box.print.parameter;
 
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
-import com.newbiest.msg.ResponseBody;
+import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;
 
 import java.util.HashMap;

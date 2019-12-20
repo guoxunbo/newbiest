@@ -1,7 +1,7 @@
 package com.newbiest.gc.rest.stockIn;
 
 import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.msg.ResponseBody;
+import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;
 
 @Data

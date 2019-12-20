@@ -2,7 +2,7 @@ package com.newbiest.gc.rest.materiallot;
 
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.msg.ResponseBody;
+import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;
 
 import java.util.List;

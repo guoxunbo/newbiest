@@ -2,7 +2,7 @@ package com.newbiest.rtm.rest;
 
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.ui.rest.table.TableRequest;
-import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.msg.DefaultParser;
 import com.newbiest.rtm.analyse.AnalyseContext;
 import com.newbiest.rtm.model.AnalyseResult;

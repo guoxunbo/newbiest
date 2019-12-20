@@ -1,7 +1,6 @@
 package com.newbiest.rtm.rest;
 
-import com.newbiest.msg.Request;
-import com.newbiest.msg.RequestBody;
+import com.newbiest.base.msg.Request;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 

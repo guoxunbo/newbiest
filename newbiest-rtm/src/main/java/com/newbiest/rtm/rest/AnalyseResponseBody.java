@@ -1,6 +1,6 @@
 package com.newbiest.rtm.rest;
 
-import com.newbiest.msg.ResponseBody;
+import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;
 
 /**

@@ -1,7 +1,7 @@
 package com.newbiest.rms.repository.custom;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.utils.SessionContext;
+import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.rms.model.RecipeEquipmentParameterTemp;
 
 import java.util.List;

@@ -2,7 +2,7 @@ package com.newbiest.gc.rest.stockout.check;
 
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.StockOutCheck;
-import com.newbiest.msg.ResponseBody;
+import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;
 
 import java.util.List;
