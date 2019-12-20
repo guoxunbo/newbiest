@@ -1,11 +1,8 @@
 package com.newbiest.rtm.rest;
 
+import com.newbiest.base.msg.DefaultParser;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.ui.rest.table.TableRequest;
-import com.newbiest.base.threadlocal.SessionContext;
-import com.newbiest.msg.DefaultParser;
 import com.newbiest.rtm.analyse.AnalyseContext;
-import com.newbiest.rtm.model.AnalyseResult;
 import com.newbiest.rtm.service.RtmService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -14,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 /**
  * Created by guoxunbo on 2019/5/27.
