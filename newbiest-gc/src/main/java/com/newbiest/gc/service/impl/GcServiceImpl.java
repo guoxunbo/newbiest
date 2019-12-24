@@ -45,6 +45,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.newbiest.mms.exception.MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST;
+import static com.newbiest.mms.exception.MmsException.MM_MATERIAL_LOT_RESERVED_INFO_UNLIKE;
 
 /**
  * Created by guoxunbo on 2019-08-21 12:41
@@ -263,7 +264,7 @@ public class GcServiceImpl implements GcService {
                     materialLotHistoryRepository.save(history);
                 }
                 documentLine.setReservedQty(documentLine.getReservedQty().subtract(unReservedQty));
-                documentLine.setUnReservedQty(documentLine.getUnHandledQty().add(unReservedQty));
+                documentLine.setUnReservedQty(documentLine.getUnReservedQty().add(unReservedQty));
                 documentLine = documentLineRepository.saveAndFlush(documentLine);
 
                 // 还原主单据数量
@@ -661,11 +662,21 @@ public class GcServiceImpl implements GcService {
 
     public void validationStockDocLine(DocumentLine documentLine, MaterialLot materialLot, String treasuryNote) throws ClientException{
         validationDocLine(documentLine,materialLot);
+        //出货验证箱中真空包的备货信息和出货单rrn是否一致
+        List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
         try {
             Assert.assertEquals(materialLot.getReserved4(), treasuryNote);
         } catch (AssertionError e) {
             throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "treasuryNote", treasuryNote, materialLot.getReserved4());
         }
+        if(!StringUtils.isNullOrEmpty(packageDetailLots.get(0).getReserved16())){
+            try {
+                Assert.assertEquals(packageDetailLots.get(0).getReserved16() , documentLine.getObjectRrn().toString());
+            } catch (AssertionError e) {
+                throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "reservedRrn", documentLine.getObjectRrn(), packageDetailLots.get(0).getReserved16());
+            }
+        }
+
     }
 
     public void validationDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException{
@@ -1311,6 +1322,26 @@ public class GcServiceImpl implements GcService {
             generatorContext.setRuleName(MaterialLot.GENERATOR_MATERIAL_LOT_WEIGHT_RULE);
             String id = generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
             return id;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void validationMLotReserved(MaterialLot materialLot) throws ClientException{
+        try {
+            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+            if(packageDetailLots.size() > 0){
+                MaterialLot packageDetailLotFirst = packageDetailLots.get(0);
+                String reservedInfo = packageDetailLotFirst.getReserved16() + packageDetailLotFirst.getReserved17() + packageDetailLotFirst.getReserved18();
+                for (MaterialLot packageDetailLot : packageDetailLots){
+                    String vboxReservedInfo = packageDetailLot.getReserved16() + packageDetailLot.getReserved17() + packageDetailLot.getReserved18();
+                    try {
+                        Assert.assertEquals(reservedInfo, vboxReservedInfo);
+                    } catch (AssertionError e) {
+                        throw new ClientParameterException(MM_MATERIAL_LOT_RESERVED_INFO_UNLIKE);
+                    }
+                }
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

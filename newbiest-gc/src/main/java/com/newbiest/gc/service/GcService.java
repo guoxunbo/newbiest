@@ -19,6 +19,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void validationMLotReserved(MaterialLot materialLot) throws ClientException;
     void materialLotWeight(List<WeightModel> weightModels) throws ClientException;
     MaterialLot getWaitWeightMaterialLot(String materialLotId) throws ClientException;
 
