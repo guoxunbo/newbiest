@@ -431,7 +431,7 @@ public class PackageServiceImpl implements PackageService{
             GeneratorContext generatorContext = new GeneratorContext();
             generatorContext.setObject(packageMaterialLot);
             generatorContext.setRuleName(packageType.getPackIdRule());
-            return generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
+            return generatorService.generatorId(generatorContext);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

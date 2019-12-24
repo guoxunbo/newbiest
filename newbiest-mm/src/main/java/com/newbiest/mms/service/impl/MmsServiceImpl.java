@@ -799,7 +799,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             GeneratorContext generatorContext = new GeneratorContext();
             generatorContext.setRuleName(MaterialLot.GENERATOR_MATERIAL_LOT_ID_RULE);
-            String id = generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
+            String id = generatorService.generatorId(generatorContext);
             return id;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
