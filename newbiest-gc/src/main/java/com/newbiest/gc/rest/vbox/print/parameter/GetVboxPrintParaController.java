@@ -60,42 +60,51 @@ public class GetVboxPrintParaController extends AbstractRestController {
             parameterMap.put("GRADE", vBox.getGrade());
             parameterMap.put("SUBCODE", vBox.getLevelTwoCode());
             parameterMap.put("NUMBER", vBox.getQuantity().toString());
-            if(StringUtils.isNullOrEmpty(vBox.getProductionNote())){
+            if(StringUtils.isNullOrEmpty(vBox.getProductionNote()) || StringUtils.isNullOrEmpty(vBox.getWorkorderId())){
                 parameterMap.put("PRODUCTNOTE",StringUtils.EMPTY);
             } else {
                 parameterMap.put("PRODUCTNOTE",vBox.getProductionNote());
             }
 
-            List<MesPackedLot> mesPackedLotDetails = gcService.findByParentRrn(vBox.getPackedLotRrn());
-            int i = 1;
-            if (CollectionUtils.isNotEmpty(mesPackedLotDetails)) {
-                if(mesPackedLotDetails.size() <= 4 ){
-                    for (MesPackedLot mesPackedLotDetail : mesPackedLotDetails) {
-                        parameterMap.put("PACKED" + i, mesPackedLotDetail.getBoxId());
-                        parameterMap.put("PACKEDQTY" + i, mesPackedLotDetail.getQuantity().toString());
-                        i++;
-                    }
-                    for (int j = i; j <= 4; j++) {
-                        parameterMap.put("PACKED" + j, StringUtils.EMPTY);
-                        parameterMap.put("PACKEDQTY" + j, StringUtils.EMPTY);
-                    }
-                    parameterMapList.add(parameterMap);
-                } else {
-                    for(i=1; i<4; i++){
-                        MesPackedLot mesPackedLotDetail = mesPackedLotDetails.get(i);
-                        parameterMap.put("PACKED" + i, mesPackedLotDetail.getBoxId());
-                        parameterMap.put("PACKEDQTY" + i, mesPackedLotDetail.getQuantity().toString());
-                    }
+            if(StringUtils.isNullOrEmpty(vBox.getWorkorderId())){
+                for(int i=1; i<=4; i++){
+                    parameterMap.put("PACKED" + i, StringUtils.EMPTY);
+                    parameterMap.put("PACKEDQTY" + i, StringUtils.EMPTY);
+                }
+                parameterMapList.add(parameterMap);
+            } else {
+                List<MesPackedLot> mesPackedLotDetails = gcService.findByParentRrn(vBox.getPackedLotRrn());
+                int i = 1;
+                if (CollectionUtils.isNotEmpty(mesPackedLotDetails)) {
+                    if(mesPackedLotDetails.size() <= 4 ){
+                        for (MesPackedLot mesPackedLotDetail : mesPackedLotDetails) {
+                            parameterMap.put("PACKED" + i, mesPackedLotDetail.getBoxId());
+                            parameterMap.put("PACKEDQTY" + i, mesPackedLotDetail.getQuantity().toString());
+                            i++;
+                        }
+                        for (int j = i; j <= 4; j++) {
+                            parameterMap.put("PACKED" + j, StringUtils.EMPTY);
+                            parameterMap.put("PACKEDQTY" + j, StringUtils.EMPTY);
+                        }
+                        parameterMapList.add(parameterMap);
+                    } else {
+                        for(i=1; i<4; i++){
+                            MesPackedLot mesPackedLotDetail = mesPackedLotDetails.get(i);
+                            parameterMap.put("PACKED" + i, mesPackedLotDetail.getBoxId());
+                            parameterMap.put("PACKEDQTY" + i, mesPackedLotDetail.getQuantity().toString());
+                        }
 
-                    int count = 0;
-                    for(int j = 3; j< mesPackedLotDetails.size();j++){
-                        count += mesPackedLotDetails.get(j).getQuantity();
+                        int count = 0;
+                        for(int j = 3; j< mesPackedLotDetails.size();j++){
+                            count += mesPackedLotDetails.get(j).getQuantity();
+                        }
+                        parameterMap.put("PACKED4", "OTHERS");
+                        parameterMap.put("PACKEDQTY4", String.valueOf(count));
+                        parameterMapList.add(parameterMap);
                     }
-                    parameterMap.put("PACKED4", "OTHERS");
-                    parameterMap.put("PACKEDQTY4", String.valueOf(count));
-                    parameterMapList.add(parameterMap);
                 }
             }
+
 
         }
 
