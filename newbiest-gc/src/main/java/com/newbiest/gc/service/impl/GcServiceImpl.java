@@ -1347,4 +1347,63 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 获取到可以入库的批次
+     * @param relayBoxId
+     * @return
+     */
+    public List<MaterialLot> getWaitChangeStorageMaterialLotByRelayBoxId(String relayBoxId) throws ClientException {
+        try {
+            StringBuffer whereClause = new StringBuffer();
+            whereClause.append(" reserved8 = '" + relayBoxId + "'");
+            whereClause.append(" and reserved14 is not null ");
+            whereClause.append(" and statusCategory <> 'Fin' ");
+
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause.toString(), "");
+           return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void transferStorage(List<RelayBoxStockInModel> relayBoxStockInModels) throws ClientException {
+        try {
+            ThreadLocalContext.getSessionContext().buildTransInfo();
+            Map<String, RelayBoxStockInModel> relayBoxStockInModelMap = relayBoxStockInModels.stream().collect(Collectors.toMap(RelayBoxStockInModel :: getMaterialLotId, Function.identity()));
+
+            //1. 把箱批次和普通的物料批次区分出来
+            List<MaterialLot> materialLots = relayBoxStockInModels.stream().map(model -> mmsService.getMLotByMLotId(model.getMaterialLotId(), true)).collect(Collectors.toList());
+
+            //3. 入库
+            for (MaterialLot materialLot : materialLots) {
+                RelayBoxStockInModel relayBoxStockInModel = relayBoxStockInModelMap.get(materialLot.getMaterialLotId());
+                String storageId = relayBoxStockInModel.getStorageId();
+
+                if (StringUtils.isNullOrEmpty(materialLot.getReserved13())) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_WAREHOUSE_IS_NULL, materialLot.getMaterialLotId());
+                }
+                MaterialLotAction action = new MaterialLotAction();
+                action.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
+                action.setTargetStorageId(storageId);
+                action.setTransQty(materialLot.getCurrentQty());
+
+                List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
+                // 如果为空就是做入库事件 如果不是空则做转库事件
+                if (CollectionUtils.isNotEmpty(materialLotInvList)) {
+                    MaterialLotInventory materialLotInventory = materialLotInvList.get(0);
+                    action.setFromWarehouseRrn(materialLotInventory.getWarehouseRrn());
+                    action.setFromStorageRrn(materialLotInventory.getStorageRrn());
+                    mmsService.transfer(materialLot, action);
+                } else {
+                    materialLot = mmsService.stockIn(materialLot, action);
+                }
+                materialLot.setReserved14(storageId);
+                materialLotRepository.save(materialLot);
+            }
+
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 }

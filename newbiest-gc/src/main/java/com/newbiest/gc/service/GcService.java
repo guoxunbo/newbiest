@@ -2,10 +2,7 @@ package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
-import com.newbiest.gc.model.MesPackedLot;
-import com.newbiest.gc.model.StockInModel;
-import com.newbiest.gc.model.StockOutCheck;
-import com.newbiest.gc.model.WeightModel;
+import com.newbiest.gc.model.*;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.DocumentLine;
@@ -59,4 +56,6 @@ public interface GcService {
     void asyncMesProduct() throws ClientException;
 
     List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
+    List<MaterialLot>  getWaitChangeStorageMaterialLotByRelayBoxId(String relayBoxId) throws ClientException;
+    void transferStorage(List<RelayBoxStockInModel> relayBoxStockInModel) throws  ClientException;
 }
