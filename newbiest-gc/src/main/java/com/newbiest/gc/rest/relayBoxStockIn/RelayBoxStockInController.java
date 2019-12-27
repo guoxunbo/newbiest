@@ -38,7 +38,7 @@ public class RelayBoxStockInController {
 
         if (RelayBoxStockInRequest.ACTION_QUERY_BOX.equals(actionType)) {
             String materialLotId = requestBody.getMaterialLotId();
-            MaterialLot materialLot = gcService.getWaitChangeStorageMaterialLot(materialLotId);
+            MaterialLot materialLot = gcService.getWaitStockInStorageMaterialLot(materialLotId);
             responseBody.setMaterialLot(materialLot);
         } else if(RelayBoxStockInRequest.ACTION_QUERY_RELAYBOX.equals(actionType)){
             String relayBoxId = requestBody.getRelayBoxId();
