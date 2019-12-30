@@ -10,7 +10,6 @@ import com.newbiest.base.model.NBVersionControlHis;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
-import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.*;
 import com.newbiest.commom.sm.exception.StatusMachineExceptions;
@@ -113,8 +112,6 @@ public class MmsServiceImpl implements MmsService {
      */
     public RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             NBHis nbHis = NBHis.getHistoryBean(rawMaterial);
 
             IRepository modelRepository = baseService.getRepositoryByClassName(rawMaterial.getClass().getName());
@@ -125,7 +122,7 @@ public class MmsServiceImpl implements MmsService {
 
             if (rawMaterial.getObjectRrn() == null) {
                 rawMaterial.setActiveTime(new Date());
-                rawMaterial.setActiveUser(sc.getUsername());
+                rawMaterial.setActiveUser(ThreadLocalContext.getUsername());
                 rawMaterial.setStatus(NBVersionControl.STATUS_ACTIVE);
                 Long version = versionControlService.getNextVersion(rawMaterial);
                 rawMaterial.setVersion(version);
@@ -290,9 +287,6 @@ public class MmsServiceImpl implements MmsService {
      */
     private MaterialLot stockIn(MaterialLot materialLot, String eventId, MaterialLotAction materialLotAction) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
-
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), "TargetWarehouseRrn");
             materialLot.validateMLotHold();
             Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
@@ -332,9 +326,6 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLotInventory checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction) {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
-
             PreConditionalUtils.checkNotNull(materialLotAction.getFromWarehouseRrn(), StringUtils.EMPTY);
             materialLot.validateMLotHold();
 
@@ -383,9 +374,6 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot stockOut(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
-
             PreConditionalUtils.checkNotNull(materialLotAction.getFromWarehouseRrn(), StringUtils.EMPTY);
             materialLot.validateMLotHold();
 
@@ -428,8 +416,6 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot pick(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             PreConditionalUtils.checkNotNull(materialLotAction.getFromWarehouseRrn(), StringUtils.EMPTY);
             materialLot.validateMLotHold();
 
@@ -470,8 +456,6 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLotInventory transfer(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             PreConditionalUtils.checkNotNull(materialLotAction.getFromWarehouseRrn(), StringUtils.EMPTY);
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), StringUtils.EMPTY);
 
@@ -520,9 +504,6 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot consumeMLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
-
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
@@ -562,8 +543,6 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot holdMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException{
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             materialLot.validateMLotHold();
 
@@ -588,8 +567,6 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot releaseMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException{
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             materialLot.setHoldState(MaterialLot.HOLD_STATE_OFF);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
@@ -737,8 +714,6 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot createMLot(RawMaterial rawMaterial, String mLotId, String grade, BigDecimal transQty) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             if (StringUtils.isNullOrEmpty(mLotId)) {
                 mLotId = generatorMLotId(rawMaterial);
             }
@@ -750,7 +725,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setMaterialLotId(mLotId);
             materialLot.setGrade(grade);
             if (rawMaterial.getStatusModelRrn() == null) {
-                List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
+                List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, ThreadLocalContext.getOrgRrn());
                 if (CollectionUtils.isNotEmpty(statusModels)) {
                     rawMaterial.setStatusModelRrn(statusModels.get(0).getObjectRrn());
                 } else {

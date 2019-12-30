@@ -2,7 +2,6 @@ package com.newbiest.mms.model;
 
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBVersionControlHis;
-import com.newbiest.base.threadlocal.SessionContext;
 import lombok.Data;
 
 import javax.persistence.*;

@@ -97,6 +97,8 @@ spring:
 # actuator配置
 show:
   swagger: true
+gateway:
+  enable: true
 logging:
   path: /Users/guoxunbo/Documents/newbiest/log
 management:

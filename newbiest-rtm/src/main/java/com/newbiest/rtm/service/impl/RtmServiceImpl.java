@@ -4,7 +4,6 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.rtm.analyse.AnalyseContext;
 import com.newbiest.rtm.analyse.DynaxAnalyse;
 import com.newbiest.rtm.analyse.IAnalyse;

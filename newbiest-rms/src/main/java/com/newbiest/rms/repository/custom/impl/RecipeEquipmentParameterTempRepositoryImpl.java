@@ -5,7 +5,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.factory.SqlBuilderFactory;
 import com.newbiest.base.model.NBVersionControl;
-import com.newbiest.base.threadlocal.SessionContext;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.rms.model.RecipeEquipmentParameterTemp;
 import com.newbiest.rms.repository.custom.RecipeEquipmentParameterTempRepositoryCustom;
@@ -27,17 +27,17 @@ public class RecipeEquipmentParameterTempRepositoryImpl implements RecipeEquipme
     @PersistenceContext
     private EntityManager em;
 
-    public List<RecipeEquipmentParameterTemp> getByEcnId(String ecnId, String status, SessionContext sc) throws ClientException {
+    public List<RecipeEquipmentParameterTemp> getByEcnId(String ecnId, String status) throws ClientException {
         try {
             if(StringUtils.isNullOrEmpty(status)) {
                 status = NBVersionControl.STATUS_ACTIVE;
             }
-            StringBuffer sqlBuffer = SqlBuilderFactory.createSqlBuilder().selectWithBasedCondition(RecipeEquipmentParameterTemp.class, sc.getOrgRrn())
+            StringBuffer sqlBuffer = SqlBuilderFactory.createSqlBuilder().selectWithBasedCondition(RecipeEquipmentParameterTemp.class, ThreadLocalContext.getOrgRrn())
                                                 .mapFieldValue(ImmutableMap.of("ecnId", ecnId, "status", status))
                                                 .build();
 
             Query query = em.createQuery(sqlBuffer.toString());
-            query.setParameter("orgRrn", sc.getOrgRrn());
+            query.setParameter("orgRrn", ThreadLocalContext.getOrgRrn());
             List<RecipeEquipmentParameterTemp> temps = query.getResultList();
             if (temps != null && temps.size() > 0) {
                 return temps;

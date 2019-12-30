@@ -4,7 +4,6 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
-import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.rms.exception.RmsException;
 import lombok.Data;
 import lombok.NoArgsConstructor;

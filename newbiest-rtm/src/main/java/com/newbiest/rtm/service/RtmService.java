@@ -1,7 +1,6 @@
 package com.newbiest.rtm.service;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.rtm.analyse.AnalyseContext;
 
 /**

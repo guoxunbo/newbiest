@@ -1,7 +1,6 @@
 package com.newbiest.rms.repository.custom;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.rms.model.RecipeEquipmentParameterTemp;
 
 import java.util.List;
@@ -11,6 +10,6 @@ import java.util.List;
  */
 public interface RecipeEquipmentParameterTempRepositoryCustom {
 
-    List<RecipeEquipmentParameterTemp> getByEcnId(String ecnId, String status, SessionContext sc) throws ClientException;
+    List<RecipeEquipmentParameterTemp> getByEcnId(String ecnId, String status) throws ClientException;
 
 }

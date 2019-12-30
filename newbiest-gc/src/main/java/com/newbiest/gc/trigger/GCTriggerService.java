@@ -1,25 +1,19 @@
 package com.newbiest.gc.trigger;
 
 import com.newbiest.base.service.BaseService;
-import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.common.trigger.NewbiestScheduleConfig;
 import com.newbiest.common.trigger.service.TriggerService;
-import com.newbiest.common.trigger.thread.DaemonThread;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.security.model.NBOrg;
 import com.newbiest.security.service.SecurityService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Date;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by guoxunbo on 2019-11-12 15:39
@@ -67,12 +61,9 @@ public class GCTriggerService implements InitializingBean {
     }
 
     public void generatorSessionContext() {
-        SessionContext sc = new SessionContext();
-        sc.setOrgRrn(NBOrg.GLOBAL_ORG_RRN);
-        sc.setUsername(StringUtils.SYSTEM_USER);
-        sc.setTransRrn(UUID.randomUUID().toString());
-        sc.setTransTime(new Date());
-        ThreadLocalContext.putSessionContext(sc);
+        ThreadLocalContext.putOrgRrn(NBOrg.GLOBAL_ORG_RRN);
+        ThreadLocalContext.putUsername(StringUtils.SYSTEM_USER);
+        ThreadLocalContext.putTransactionId(UUID.randomUUID().toString());
     }
 
     @Override

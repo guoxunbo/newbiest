@@ -40,7 +40,7 @@
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
-            <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %X{TransactionId} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 

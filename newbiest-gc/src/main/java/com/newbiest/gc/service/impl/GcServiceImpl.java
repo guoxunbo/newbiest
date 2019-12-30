@@ -124,7 +124,6 @@ public class GcServiceImpl implements GcService {
      */
     public void stockIn(List<StockInModel> stockInModels) throws ClientException {
         try {
-            ThreadLocalContext.getSessionContext().buildTransInfo();
             Map<String, StockInModel> stockInModelMap = stockInModels.stream().collect(Collectors.toMap(StockInModel :: getMaterialLotId, Function.identity()));
 
             //1. 把箱批次和普通的物料批次区分出来
@@ -197,7 +196,7 @@ public class GcServiceImpl implements GcService {
                     checkHistory.setTransQty(materialLot.getCurrentQty());
                     checkHistory.setTransType(MaterialLotHistory.TRANS_TYPE_CHECK);
                     checkHistory.setObjectRrn(null);
-                    checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
+                    checkHistory.setHisSeq(ThreadLocalContext.getTransactionId());
                     checkHistoryRepository.save(checkHistory);
                 }
             }
@@ -211,7 +210,7 @@ public class GcServiceImpl implements GcService {
                     checkHistory.setActionCode("Error");
                     checkHistory.setTransType(MaterialLotHistory.TRANS_TYPE_CHECK);
                     checkHistory.setObjectRrn(null);
-                    checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
+                    checkHistory.setHisSeq(ThreadLocalContext.getTransactionId());
                     checkHistoryRepository.save(checkHistory);
                 }
             }
@@ -576,7 +575,7 @@ public class GcServiceImpl implements GcService {
                         materialLotJudgeHis.setItemName(stockOutCheck.getName());
                         materialLotJudgeHis.setResult(stockOutCheck.getResult());
                         materialLotJudgeHis.setTransType(MaterialLotJudgeHis.TRANS_TYPE_OQC);
-                        materialLotJudgeHis.setHisSeq(ThreadLocalContext.getTransRrn());
+                        materialLotJudgeHis.setHisSeq(ThreadLocalContext.getTransactionId());
                         materialLotJudgeHisRepository.save(materialLotJudgeHis);
                     });
                 }
@@ -721,7 +720,7 @@ public class GcServiceImpl implements GcService {
                 materialLotJudgeHis.setItemName(stockOutCheck.getName());
                 materialLotJudgeHis.setResult(stockOutCheck.getResult());
                 materialLotJudgeHis.setTransType(TRANS_TYPE_JUDGE);
-                materialLotJudgeHis.setHisSeq(ThreadLocalContext.getTransRrn());
+                materialLotJudgeHis.setHisSeq(ThreadLocalContext.getTransactionId());
                 materialLotJudgeHisRepository.save(materialLotJudgeHis);
             });
         }

@@ -7,7 +7,6 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.threadlocal.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.common.idgenerator.service.GeneratorService;
@@ -98,9 +97,6 @@ public class PackageServiceImpl implements PackageService{
      */
     public MaterialLot appendPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
-
             packedMaterialLot = mmsService.getMLotByMLotId(packedMaterialLot.getMaterialLotId(), true);
             packedMaterialLot.isFinish();
             // 取第一个的materialAction作为所有者的actionCode
@@ -169,8 +165,6 @@ public class PackageServiceImpl implements PackageService{
     public List<MaterialLot> unPack(List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
             List<MaterialLot> unPackedMainMaterialLots = Lists.newArrayList();
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             //因为当前仅支持全部包装。故此处，直接用ParentMaterialLotId做包装号。
             Map<String, List<MaterialLot>> packedLotMap = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true))
                     .collect(Collectors.groupingBy(MaterialLot::getParentMaterialLotId));
@@ -194,8 +188,6 @@ public class PackageServiceImpl implements PackageService{
      */
     public MaterialLot unPack(MaterialLot packedMaterialLot, List<MaterialLot> waitToUnPackageMLots, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             // 取到包装规则
             MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packedMaterialLot.getPackageType());
             BigDecimal packedQty = materialLotPackageType.getPackedQty(materialLotActions);
@@ -312,8 +304,6 @@ public class PackageServiceImpl implements PackageService{
      */
     public MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException{
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             // 取第一个的materialAction作为所有者的actionCode
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
 
