@@ -1,5 +1,6 @@
 package com.newbiest.gc.trigger;
 
+import com.newbiest.base.constant.EnvConstant;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
@@ -61,7 +62,7 @@ public class GCTriggerService implements InitializingBean {
     }
 
     public void generatorSessionContext() {
-        ThreadLocalContext.putOrgRrn(NBOrg.GLOBAL_ORG_RRN);
+        ThreadLocalContext.putOrgRrn(EnvConstant.GLOBAL_ORG_RRN);
         ThreadLocalContext.putUsername(StringUtils.SYSTEM_USER);
         ThreadLocalContext.putTransactionId(UUID.randomUUID().toString());
     }

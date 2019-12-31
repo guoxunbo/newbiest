@@ -1,7 +1,7 @@
 package com.newbiest.mms;
 
+import com.newbiest.base.core.YmlPropertyLoaderFactory;
 import com.newbiest.base.factory.ModelFactory;
-import com.newbiest.main.YmlPropertyLoaderFactory;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
