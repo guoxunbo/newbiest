@@ -3,11 +3,14 @@ package com.newbiest.context.model;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.utils.CollectionUtils;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.exception.ContextException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Matcher;
 import org.junit.Assert;
 
 import java.io.Serializable;
@@ -57,6 +60,12 @@ public class MergeRuleContext implements Serializable {
                     }
                     if (MergeRuleLine.COMPARISON_OPERATORS_EQUALS.equals(ruleLine.getComparisonOperators())) {
                         try {
+                            if (compareValue == null) {
+                                compareValue = "";
+                            }
+                            if(targetValue == null){
+                                targetValue = "";
+                            }
                             Assert.assertEquals(compareValue, targetValue);
                         } catch (AssertionError e) {
                             throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, ruleLine.getFiledName(), compareValue, targetValue);

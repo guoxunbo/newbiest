@@ -30,10 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -189,6 +186,7 @@ public class PackageServiceImpl implements PackageService{
                 packagedLot = unPack(packagedLot, packedLotMap.get(packageMLotId), materialLotActions);
                 unPackedMainMaterialLots.add(packagedLot);
             }
+
             return unPackedMainMaterialLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -362,6 +360,10 @@ public class PackageServiceImpl implements PackageService{
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
 
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+
+            //格科要求装过箱的真空包也可以再次装箱，将等待装箱的真空包按照箱号分组，先进行拆箱操作
+            materialLots = getWaitPackMaterialLots(materialLots);
+
             validationPackageRule(materialLots, packageType);
             MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packageType);
 
@@ -397,6 +399,45 @@ public class PackageServiceImpl implements PackageService{
             packageMaterialLots(packedMaterialLot, materialLots, materialLotActions, false, true);
             return packedMaterialLot;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 格科要求装过箱的真空包也可以再次装箱
+     * @return
+     */
+    private List<MaterialLot> getWaitPackMaterialLots(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            List<MaterialLot> waitPackMaterialLots = Lists.newArrayList();
+            List<MaterialLot> waitUnPackMaterialLots = Lists.newArrayList();
+            for(MaterialLot materialLot : materialLots){
+                if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                    waitUnPackMaterialLots.add(materialLot);
+                } else {
+                    waitPackMaterialLots.add(materialLot);
+                }
+            }
+            //将已经包装的真空包按照箱号分组拆包
+            Map<String, List<MaterialLot>> WaitUnPackMaterialLotMap = waitUnPackMaterialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            for(String boxId : WaitUnPackMaterialLotMap.keySet()){
+                List<MaterialLotAction> materialLotActions = Lists.newArrayList();
+                //箱中待拆箱的真空包
+                List<MaterialLot> materialLotList = WaitUnPackMaterialLotMap.get(boxId);
+                MaterialLot packagedLot = mmsService.getMLotByMLotId(materialLotList.get(0).getParentMaterialLotId(), true);
+                for (MaterialLot materialLot : materialLotList){
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotAction.setTransQty(materialLot.getCurrentQty());
+                    materialLotActions.add(materialLotAction);
+                }
+                unPack(packagedLot, materialLotList, materialLotActions);
+                //拆包之后的真空包添加到待装箱真空包列表中
+                List<MaterialLot> materialLotInfo = materialLotList.stream().map(MaterialLot -> mmsService.getMLotByMLotId(MaterialLot.getMaterialLotId(), true)).collect(Collectors.toList());
+                waitPackMaterialLots.addAll(materialLotInfo);
+            }
+            return waitPackMaterialLots;
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
