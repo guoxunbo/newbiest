@@ -101,3 +101,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.4.material_lot.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.4.material_lot_his.yaml
+      relativeToChangelogFile: true
