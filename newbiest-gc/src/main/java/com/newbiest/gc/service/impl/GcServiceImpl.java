@@ -259,6 +259,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReserved17(StringUtils.EMPTY);
                     materialLot.setReserved18(StringUtils.EMPTY);
 
+
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_RESERVED);
                     materialLotHistoryRepository.save(history);
@@ -281,6 +282,16 @@ public class GcServiceImpl implements GcService {
                 deliveryOrder.setUnReservedQty(deliveryOrder.getUnReservedQty().add(docUnReservedQtyMap.get(docRrn)));
                 deliveryOrder.setReservedQty(deliveryOrder.getReservedQty().subtract(docUnReservedQtyMap.get(docRrn)));
                 deliveryOrderRepository.save(deliveryOrder);
+            }
+
+            //取消备货清除真空包对应箱号的称重标识信息
+            for(MaterialLot materialLot : materialLots){
+                if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                    materialLot = mmsService.getMLotByMLotId(materialLot.getParentMaterialLotId());
+                    materialLot.setReserved19(StringUtils.EMPTY);
+                    materialLot.setReserved20(StringUtils.EMPTY);
+                    materialLotRepository.save(materialLot);
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
