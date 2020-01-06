@@ -54,13 +54,17 @@ public class SeeyaServiceImpl implements SeeyaService {
                 String username = (String) mesUser.get("USERNAME");
                 String password = (String) mesUser.get("PASSWORD");
                 String shiftId = (String) mesUser.get("SHIFTID");
+                String email = (String) mesUser.get("EMAIL");
+                String phone = (String) mesUser.get("PHONE");
                 NBUser nbUser = securityService.getUserByUsername(userId);
                 if (nbUser == null) {
                     nbUser = new NBUser();
                     nbUser.setUsername(userId);
                     nbUser.setPassword(password);
-                    nbUser.setDepartment(username);
+                    nbUser.setDescription(username);
                     nbUser.setDepartment(shiftId);
+                    nbUser.setPhone(phone);
+                    nbUser.setEmail(email);
                     securityService.saveUser(nbUser);
                 }
             }
