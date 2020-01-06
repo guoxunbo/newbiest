@@ -19,7 +19,7 @@ import com.newbiest.common.exception.ContextException;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.context.model.MergeRuleContext;
-import com.newbiest.mms.SystemPropertyUtils;
+import com.newbiest.mms.MmsPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -237,7 +237,7 @@ public class MmsServiceImpl implements MmsService {
             } else if (!StringUtils.isNullOrEmpty(materialLotAction.getTargetStorageId())) {
                 targetStorage = getStorageByWarehouseRrnAndName(warehouse, materialLotAction.getTargetStorageId());
                 if (targetStorage == null ) {
-                    if (SystemPropertyUtils.getAutoCreateStorageFlag()) {
+                    if (MmsPropertyUtils.getAutoCreateStorageFlag()) {
                         targetStorage = new Storage();
                         targetStorage.setName(materialLotAction.getTargetStorageId());
                         targetStorage.setDescription(StringUtils.SYSTEM_CREATE);

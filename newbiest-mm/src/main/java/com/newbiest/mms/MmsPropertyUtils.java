@@ -3,7 +3,7 @@ package com.newbiest.mms;
 /**
  * Created by guoxunbo on 2019-09-02 14:48
  */
-public class SystemPropertyUtils {
+public class MmsPropertyUtils {
 
     public static final String SYSTEM_PROPERTY_AUTO_CREATE_STORAGE_FLAG = "mms.auto_create_storage_flag";
 
@@ -24,6 +24,5 @@ public class SystemPropertyUtils {
         }
         return false;
     }
-
 
 }

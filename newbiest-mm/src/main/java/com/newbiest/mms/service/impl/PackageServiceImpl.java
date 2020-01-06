@@ -11,7 +11,7 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
-import com.newbiest.mms.SystemPropertyUtils;
+import com.newbiest.mms.MmsPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -243,7 +243,7 @@ public class PackageServiceImpl implements PackageService{
                     packagedLotDetailRepository.save(packagedLotDetail);
                 }
                 // 根据JVM参数来判断是否要直接还原被包装的批次数量
-                if (SystemPropertyUtils.getUnpackRecoveryLotFlag()) {
+                if (MmsPropertyUtils.getUnpackRecoveryLotFlag()) {
                     waitToUnPackageMLot.setParentMaterialLotRrn(null);
                     waitToUnPackageMLot.setParentMaterialLotId(StringUtils.EMPTY);
                     //TODO 此处为GC客制化 拆包 清空装箱检验相关栏位 后续公共版本需要清除此代码
