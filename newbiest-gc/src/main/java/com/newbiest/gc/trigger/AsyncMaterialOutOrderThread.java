@@ -17,7 +17,7 @@ public class AsyncMaterialOutOrderThread extends GcTriggerThread {
 
     @Override
     public void execute() {
-        this.gcService.asyncErpSo();
+        this.gcService.asyncErpMaterialOutOrder();
     }
 }
 

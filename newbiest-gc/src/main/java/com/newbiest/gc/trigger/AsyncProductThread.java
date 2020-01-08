@@ -17,6 +17,6 @@ public class AsyncProductThread extends GcTriggerThread {
 
     @Override
     public void execute() {
-        this.gcService.asyncErpSo();
+        this.gcService.asyncMesProduct();
     }
 }
