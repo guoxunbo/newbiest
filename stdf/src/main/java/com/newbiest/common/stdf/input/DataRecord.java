@@ -10,7 +10,7 @@ public interface DataRecord extends Serializable, DefinedRecordType {
     
     int getRecordNumber();
 
-    void setRecordNumber(int paramInt);
+    void setRecordNumber(int recordNumber);
 
     String getRecordType();
 
@@ -18,9 +18,9 @@ public interface DataRecord extends Serializable, DefinedRecordType {
 
     DataFile getSourceFile();
 
-    void setSourceFile(DataFile paramDataFile);
+    void setSourceFile(DataFile sourceFile);
 
 //    void writeRecord(SaveInfo paramSaveInfo, ByteBuffer paramByteBuffer);
 
-    void readRecord(ByteBuffer paramByteBuffer);
+    void readRecord(ByteBuffer byteBuffer);
 }

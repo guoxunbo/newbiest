@@ -9,9 +9,9 @@ import java.io.InputStream;
  */
 public interface DataFileReader {
 
-    void addRecordUser(RecordUser paramRecordUser);
+    void addRecordUser(RecordUser recordUser);
 
-    void readFile(InputStream paramInputStream, DataFile paramDataFile) throws ClientException;
+    void readFile(InputStream inputStream, DataFile dataFile) throws Exception;
 
     void abortReading();
 }

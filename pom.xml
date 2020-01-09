@@ -17,7 +17,6 @@
     <modules>
         <module>newbiest-common-actuator</module>
         <module>newbiest-rms</module>
-        <module>newbiest-rtm</module>
         <module>newbiest-mm</module>
         <module>newbiest-starter</module>
         <module>newbiest-dist</module>
