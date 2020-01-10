@@ -44,6 +44,20 @@
         </encoder>
     </appender>
 
+    <appender name="hibernate" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/hibernate/server.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/hibernate/server.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="async_file_log" class="ch.qos.logback.classic.AsyncAppender">
         <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
         <discardingThreshold>0</discardingThreshold>
@@ -62,11 +76,21 @@
 
     <!-- name-->
     <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
-        <appender-ref ref="file"/>
+        <appender-ref ref="hibernate"/>
     </logger>
     <!-- 不可缺少，最基础的日志节点 默认是DEBUG-->
-    <root level="INFO">
-        <appender-ref ref="console" />
-        <appender-ref ref="file" />
-    </root>
+
+    <springProfile name="production">
+        <root level="INFO">
+            <appender-ref ref="file" />
+        </root>
+    </springProfile>
+
+    <springProfile name="local, dev, test, mysql">
+        <root level="INFO">
+            <appender-ref ref="console" />
+            <appender-ref ref="file" />
+        </root>
+    </springProfile>
+
 </configuration>
