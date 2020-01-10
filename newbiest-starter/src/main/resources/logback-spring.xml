@@ -57,9 +57,17 @@
         <appender-ref ref="file"/>
     </appender>
 
-    <!-- 不可缺少，最基础的日志节点 默认是DEBUG-->
-    <root level="INFO">
-        <appender-ref ref="console" />
-        <appender-ref ref="file" />
-    </root>
+    <springProfile name="production">
+        <root level="INFO">
+            <appender-ref ref="file" />
+        </root>
+    </springProfile>
+
+    <springProfile name="local, demo, dev">
+        <root level="INFO">
+            <appender-ref ref="console" />
+            <appender-ref ref="file" />
+        </root>
+    </springProfile>
+
 </configuration>
