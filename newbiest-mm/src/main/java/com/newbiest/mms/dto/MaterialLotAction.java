@@ -4,6 +4,7 @@ import com.newbiest.base.dto.Action;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * Created by guoxunbo on 2019/2/28.
@@ -63,5 +64,11 @@ public class MaterialLotAction extends Action {
      * 目标库位名称
      */
     private String targetStorageId;
+
+    /**
+     * 接收时候额外的栏位值
+     * 接收的时候往往会有其他系统需要引入的栏位。此处进行传递
+     */
+    private Map<String, Object> receivePropsMap;
 
 }

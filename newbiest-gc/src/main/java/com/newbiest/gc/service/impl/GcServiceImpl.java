@@ -990,6 +990,7 @@ public class GcServiceImpl implements GcService {
     public void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException {
         try {
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().map(packedLot -> mesPackedLotRepository.findByBoxId(packedLot.getBoxId())).collect(Collectors.groupingBy(MesPackedLot :: getProductId));
+            Map<String, Warehouse> warehouseMap = Maps.newHashMap();
             packedLotMap.keySet().forEach(productId -> {
                 RawMaterial rawMaterial = mmsService.getRawMaterialByName(productId);
                 if (rawMaterial == null) {
@@ -997,8 +998,10 @@ public class GcServiceImpl implements GcService {
                 }
 
                 List<MesPackedLot> mesPackedLots = packedLotMap.get(productId);
+                List<MaterialLotAction> materialLotActions = Lists.newArrayList();
                 for (MesPackedLot mesPackedLot : mesPackedLots) {
                     MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setMaterialLotId(mesPackedLot.getBoxId());
                     materialLotAction.setGrade(mesPackedLot.getGrade());
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
 
@@ -1009,26 +1012,35 @@ public class GcServiceImpl implements GcService {
                         warehouseName = WAREHOUSE_SH;
                     }
 
-                    Warehouse warehouse = mmsService.getWarehouseByName(warehouseName);
-                    if (warehouse == null) {
-                        warehouse = new Warehouse();
-                        warehouse.setName(warehouseName);
-                        warehouse = warehouseRepository.saveAndFlush(warehouse);
+                    Warehouse warehouse;
+                    if (!warehouseMap.containsKey(warehouseName)) {
+                        warehouse = mmsService.getWarehouseByName(warehouseName);
+                        if (warehouse == null) {
+                            warehouse = new Warehouse();
+                            warehouse.setName(warehouseName);
+                            warehouse = warehouseRepository.saveAndFlush(warehouse);
+                        }
+                        warehouseMap.put(warehouseName, warehouse);
                     }
-                    materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
-                    MaterialLot materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, mesPackedLot.getBoxId(), materialLotAction);
+                    warehouse = warehouseMap.get(warehouseName);
 
-                    materialLot.setWorkOrderId(mesPackedLot.getWorkorderId());
-                    // 预留栏位赋值
-                    materialLot.setReserved1(mesPackedLot.getLevelTwoCode());
-                    materialLot.setReserved2(mesPackedLot.getWaferId());
-                    materialLot.setReserved3(mesPackedLot.getSalesNote());
-                    materialLot.setReserved4(mesPackedLot.getTreasuryNote());
-                    materialLot.setReserved5(mesPackedLot.getProductionNote());
-                    materialLot.setReserved6(mesPackedLot.getBondedProperty());
-                    materialLot.setReserved7(mesPackedLot.getProductCategory());
-                    materialLot.setReserved13(warehouse.getObjectRrn().toString());
-                    materialLotRepository.save(materialLot);
+                    materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+
+                    // 需要赋值的Map
+                    Map<String, Object> otherReceiveProps = Maps.newHashMap();
+                    otherReceiveProps.put("reserved1", mesPackedLot.getLevelTwoCode());
+                    otherReceiveProps.put("reserved2", mesPackedLot.getWaferId());
+                    otherReceiveProps.put("reserved3", mesPackedLot.getSalesNote());
+                    otherReceiveProps.put("reserved4", mesPackedLot.getTreasuryNote());
+                    otherReceiveProps.put("reserved5", mesPackedLot.getProductionNote());
+                    otherReceiveProps.put("reserved6", mesPackedLot.getBondedProperty());
+                    otherReceiveProps.put("reserved7", mesPackedLot.getProductCategory());
+                    otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
+                    otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
+                    materialLotAction.setReceivePropsMap(otherReceiveProps);
+
+                    materialLotActions.add(materialLotAction);
+//                    MaterialLot materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, mesPackedLot.getBoxId(), materialLotAction);
 
                     // 修改MES成品批次为接收状态
                     mesPackedLot.setPackedStatus(MesPackedLot.PACKED_STATUS_RECEIVED);
@@ -1051,6 +1063,7 @@ public class GcServiceImpl implements GcService {
                     erpMo.setBonded(mesPackedLot.getBondedProperty());
                     erpMoRepository.save(erpMo);
                 }
+                mmsService.receiveMLotList2Warehouse(rawMaterial, materialLotActions);
             });
 
         } catch (Exception e) {
