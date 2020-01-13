@@ -991,7 +991,8 @@ public class GcServiceImpl implements GcService {
         try {
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().map(packedLot -> mesPackedLotRepository.findByBoxId(packedLot.getBoxId())).collect(Collectors.groupingBy(MesPackedLot :: getProductId));
             Map<String, Warehouse> warehouseMap = Maps.newHashMap();
-            packedLotMap.keySet().forEach(productId -> {
+
+            for (String productId : packedLotMap.keySet()) {
                 RawMaterial rawMaterial = mmsService.getRawMaterialByName(productId);
                 if (rawMaterial == null) {
                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, productId);
@@ -1064,7 +1065,7 @@ public class GcServiceImpl implements GcService {
                     erpMoRepository.save(erpMo);
                 }
                 mmsService.receiveMLotList2Warehouse(rawMaterial, materialLotActions);
-            });
+            };
 
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
