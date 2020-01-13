@@ -353,6 +353,126 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED20")
     private String reserved20;
 
+    @Column(name="RESERVED21")
+    private String reserved21;
+
+    @Column(name="RESERVED22")
+    private String reserved22;
+
+    @Column(name="RESERVED23")
+    private String reserved23;
+
+    @Column(name="RESERVED24")
+    private String reserved24;
+
+    @Column(name="RESERVED25")
+    private String reserved25;
+
+    @Column(name="RESERVED26")
+    private String reserved26;
+
+    @Column(name="RESERVED27")
+    private String reserved27;
+
+    @Column(name="RESERVED28")
+    private String reserved28;
+
+    @Column(name="RESERVED29")
+    private String reserved29;
+
+    @Column(name="RESERVED30")
+    private String reserved30;
+
+    @Column(name="RESERVED31")
+    private String reserved31;
+
+    @Column(name="RESERVED32")
+    private String reserved32;
+
+    @Column(name="RESERVED33")
+    private String reserved33;
+
+    @Column(name="RESERVED34")
+    private String reserved34;
+
+    @Column(name="RESERVED35")
+    private String reserved35;
+
+    @Column(name="RESERVED36")
+    private String reserved36;
+
+    @Column(name="RESERVED37")
+    private String reserved37;
+
+    @Column(name="RESERVED38")
+    private String reserved38;
+
+    @Column(name="RESERVED39")
+    private String reserved39;
+
+    @Column(name="RESERVED40")
+    private String reserved40;
+
+    @Column(name="RESERVED41")
+    private String reserved41;
+
+    @Column(name="RESERVED42")
+    private String reserved42;
+
+    @Column(name="RESERVED43")
+    private String reserved43;
+
+    @Column(name="RESERVED44")
+    private String reserved44;
+
+    @Column(name="RESERVED45")
+    private String reserved45;
+
+    @Column(name="RESERVED46")
+    private String reserved46;
+
+    @Column(name="RESERVED47")
+    private String reserved47;
+
+    @Column(name="RESERVED48")
+    private String reserved48;
+
+    @Column(name="RESERVED49")
+    private String reserved49;
+
+    @Column(name="RESERVED50")
+    private String reserved50;
+
+    @Column(name="RESERVED51")
+    private String reserved51;
+
+    @Column(name="RESERVED52")
+    private String reserved52;
+
+    @Column(name="RESERVED53")
+    private String reserved53;
+
+    @Column(name="RESERVED54")
+    private String reserved54;
+
+    @Column(name="RESERVED55")
+    private String reserved55;
+
+    @Column(name="RESERVED56")
+    private String reserved56;
+
+    @Column(name="RESERVED57")
+    private String reserved57;
+
+    @Column(name="RESERVED58")
+    private String reserved58;
+
+    @Column(name="RESERVED59")
+    private String reserved59;
+
+    @Column(name="RESERVED60")
+    private String reserved60;
+
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
     }
