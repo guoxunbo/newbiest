@@ -20,7 +20,7 @@ spring:
       url: jdbc:oracle:thin:@10.181.160.25:1521:MESDB1
       username: wmsprod
       password: wmsprod
-      driver-class-name: oracle.jdbc.xa.client.OracleXADataSource
+      driver-class-name: oracle.jdbc.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1
       min-idle: 50
