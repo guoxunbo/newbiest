@@ -445,6 +445,8 @@ public class GcServiceImpl implements GcService {
     public void asyncErpMaterialOutOrder() throws ClientException {
         try {
             List<ErpMaterialOutOrder> erpMaterialOutOrders = erpMaterialOutOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<Long> asyncSuccessSeqList = Lists.newArrayList();
+
             if (CollectionUtils.isNotEmpty(erpMaterialOutOrders)) {
                 Map<String, List<ErpMaterialOutOrder>> documentIdMap = erpMaterialOutOrders.stream().collect(Collectors.groupingBy(ErpMaterialOutOrder :: getCcode));
                 for (String documentId : documentIdMap.keySet()) {
@@ -499,14 +501,14 @@ public class GcServiceImpl implements GcService {
                             documentLines.add(documentLine);
 
                             reTestOrder.setOwner(erpMaterialOutOrder.getChandler());
-                            erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_SUCCESS);
-                            erpMaterialOutOrder.setErrorMemo(StringUtils.EMPTY);
+
+                            asyncSuccessSeqList.add(erpMaterialOutOrder.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
                             erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
                             erpMaterialOutOrder.setErrorMemo(e.getMessage());
+                            erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
                         }
-                        erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
                     }
                     reTestOrder.setQty(totalQty);
                     reTestOrder.setUnHandledQty(reTestOrder.getQty().subtract(reTestOrder.getHandledQty()));
@@ -524,6 +526,9 @@ public class GcServiceImpl implements GcService {
                     }
                     reTestOrder.setDocumentLines(documentLines);
                     reTestOrderRepository.save(reTestOrder);
+                }
+                if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
+                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {
@@ -784,6 +789,8 @@ public class GcServiceImpl implements GcService {
     public void asyncErpSo() throws ClientException {
         try {
             List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_SO, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<Long> asyncSuccessSeqList = Lists.newArrayList();
+
             if (CollectionUtils.isNotEmpty(erpSos)) {
                 Map<String, List<ErpSo>> documentIdMap = erpSos.stream().collect(Collectors.groupingBy(ErpSo :: getCcode));
 
@@ -855,14 +862,13 @@ public class GcServiceImpl implements GcService {
                                     deliveryOrder.setErpCreated(erpCreatedDate);
                                 }
                             }
-                            erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_SUCCESS);
-                            erpSo.setErrorMemo(StringUtils.EMPTY);
+                            asyncSuccessSeqList.add(erpSo.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
                             erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
                             erpSo.setErrorMemo(e.getMessage());
+                            erpSoRepository.save(erpSo);
                         }
-                        erpSoRepository.save(erpSo);
                     }
                     deliveryOrder.setQty(totalQty);
                     deliveryOrder.setUnHandledQty(deliveryOrder.getQty().subtract(deliveryOrder.getHandledQty()));
@@ -892,6 +898,10 @@ public class GcServiceImpl implements GcService {
                             customerRepository.save(customer);
                         }
                     }
+                }
+
+                if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
+                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {
@@ -992,6 +1002,7 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().map(packedLot -> mesPackedLotRepository.findByBoxId(packedLot.getBoxId())).collect(Collectors.groupingBy(MesPackedLot :: getProductId));
             Map<String, Warehouse> warehouseMap = Maps.newHashMap();
 
+            List<ErpMo> erpMos = Lists.newArrayList();
             for (String productId : packedLotMap.keySet()) {
                 RawMaterial rawMaterial = mmsService.getRawMaterialByName(productId);
                 if (rawMaterial == null) {
@@ -1041,11 +1052,6 @@ public class GcServiceImpl implements GcService {
                     materialLotAction.setReceivePropsMap(otherReceiveProps);
 
                     materialLotActions.add(materialLotAction);
-//                    MaterialLot materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, mesPackedLot.getBoxId(), materialLotAction);
-
-                    // 修改MES成品批次为接收状态
-                    mesPackedLot.setPackedStatus(MesPackedLot.PACKED_STATUS_RECEIVED);
-                    mesPackedLotRepository.save(mesPackedLot);
 
                     // ERP MO插入数据
                     ErpMo erpMo = new ErpMo();
@@ -1062,11 +1068,14 @@ public class GcServiceImpl implements GcService {
 
                     erpMo.setCGrade(mesPackedLot.getGrade());
                     erpMo.setBonded(mesPackedLot.getBondedProperty());
-                    erpMoRepository.save(erpMo);
+                    erpMos.add(erpMo);
                 }
                 mmsService.receiveMLotList2Warehouse(rawMaterial, materialLotActions);
             };
 
+            mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
+            //TODO 如果后续有ERP dblink问题。此处需要考虑批量插入。JPA提供的saveAll本质也是for循环调用save。
+            erpMoRepository.saveAll(erpMos);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
