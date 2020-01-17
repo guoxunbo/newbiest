@@ -1,11 +1,13 @@
 package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by guoxunbo on 2019/2/13.
@@ -21,6 +23,9 @@ public interface MmsService {
     MaterialLot getMLotByMLotId(String mLotId) throws ClientException;
     MaterialLot getMLotByObjectRrn(long materialLotRrn) throws ClientException;
 
+    StatusModel getMaterialStatusModel(RawMaterial rawMaterial) throws ClientException;
+    List<MaterialLot> createMaterialLotList(RawMaterial rawMaterial, List<MaterialLotAction> materialLotImportActions) throws ClientException;
+    MaterialLot createMLot(RawMaterial rawMaterial, StatusModel statusModel, String mLotId, String grade, BigDecimal transQty, Map<String, Object> propsMap) throws ClientException;
     MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
     List<MaterialLot> receiveMLotList2Warehouse(RawMaterial rawMaterial, List<MaterialLotAction> materialLotActions) throws ClientException;
 

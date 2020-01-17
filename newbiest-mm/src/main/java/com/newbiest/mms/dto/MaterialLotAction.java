@@ -66,9 +66,9 @@ public class MaterialLotAction extends Action {
     private String targetStorageId;
 
     /**
-     * 接收时候额外的栏位值
-     * 接收的时候往往会有其他系统需要引入的栏位。此处进行传递
+     * 创建或者接收时候因为客户的不同，额外的栏位值需要赋值到预留栏位上
+     * 创建或者接收的时候往往会有其他系统比如ERP或MES接收数据，赋值到预留栏位上。此处进行传递
      */
-    private Map<String, Object> receivePropsMap;
+    private Map<String, Object> propsMap;
 
 }

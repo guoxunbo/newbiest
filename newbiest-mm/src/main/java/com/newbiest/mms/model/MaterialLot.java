@@ -38,6 +38,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String GENERATOR_SUB_MATERIAL_LOT_ID_RULE = "CreateSubMLot";
 
+    public static final String CATEGORY_UNIT = "Unit";
+    public static final String CATEGORY_LOT = "Lot";
+
     public static final String HOLD_STATE_ON = "On";
     public static final String HOLD_STATE_OFF = "Off";
 
@@ -130,7 +133,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String subMaterialLotFlag;
 
     /**
-     * 物料批次类别，用来区分是普通物料批次还是包装物料批次
+     * 物料批次类别，用来区分是普通物料批次/物料单元批次
      */
     @Column(name="CATEGORY")
     private String category;
@@ -215,6 +218,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="EFFECTIVE_UNIT")
     private String effectiveUnit;
+
+    @Column(name="DURABLE")
+    private String durable;
 
     /**
      * GlaxyCore MES完成品的levelTwoCode

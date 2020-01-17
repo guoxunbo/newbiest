@@ -71,12 +71,17 @@ public class MmsConfiguration {
         ModelFactory.registerModelClassLoader(MaterialLotMergeRule.class.getName(), MaterialLotMergeRule.class.getClassLoader());
         ModelFactory.registerModelClassLoader(DeliveryOrder.class.getName(), DeliveryOrder.class.getClassLoader());
 
+        ModelFactory.registerModelClassLoader(MaterialLotUnit.class.getName(), MaterialLotUnit.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(MaterialLotUnitHistory.class.getName(), MaterialLotUnitHistory.class.getClassLoader());
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(RawMaterial.class.getName(), MaterialHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(RawMaterial.class.getName(), MaterialHistory.class.getName());
 
         ModelFactory.registerHistoryModelClassLoader(MaterialLot.class.getName(), MaterialLotHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(MaterialLot.class.getName(), MaterialLotHistory.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(MaterialLotUnit.class.getName(), MaterialLotUnitHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(MaterialLotUnit.class.getName(), MaterialLotUnitHistory.class.getName());
     }
 
 }
