@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.0.5
+      author: GuoZhang Luo
+      remarks: mms_material_lot_his add column DURABLE
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: DURABLE
+                  type: varchar(64)
+                  remarks: 载具
