@@ -1,10 +1,9 @@
 package com.newbiest.mms.repository;
 
 import com.newbiest.base.repository.custom.IRepository;
-import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.RawMaterial;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,8 +16,8 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
 
     MaterialLot findByMaterialLotIdAndOrgRrn(String materialLotId, Long orgRrn);
 
-    @Query("SELECT m FROM MaterialLot m, PackagedLotDetail p where p.materialLotRrn = m.objectRrn and p.packagedLotRrn = :packagedLotRrn")
-    List<MaterialLot> getPackageDetailLots(Long packagedLotRrn);
+    @Query("SELECT m FROM MaterialLot m, PackagedLotDetail p where p.materialLotRrn = m.objectRrn and p.packagedLotRrn = :packagedLotRrn order by m.materialLotId")
+    List<MaterialLot> getPackageDetailLots(@Param("packagedLotRrn")Long packagedLotRrn);
 
     @Query("SELECT m FROM MaterialLot m, PackagedLotDetail p where p.materialLotRrn = m.objectRrn and p.packagedLotId in (:packagedLotId) and m.reserved16 is null")
     List<MaterialLot> getPackedDetailsAndNotReserved(List<String> packagedLotId);
