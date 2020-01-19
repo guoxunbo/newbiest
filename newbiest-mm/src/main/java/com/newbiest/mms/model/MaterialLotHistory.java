@@ -216,6 +216,12 @@ public class MaterialLotHistory extends NBHis {
     private String effectiveUnit;
 
     /**
+     * 载具
+     */
+    @Column(name="DURABLE")
+    private String durable;
+
+    /**
      * 操作数量
      */
     @Column(name="TRANS_QTY")
