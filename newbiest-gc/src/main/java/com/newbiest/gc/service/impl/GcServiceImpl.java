@@ -741,10 +741,13 @@ public class GcServiceImpl implements GcService {
                 // 变更事件，并清理掉库存
                 materialLot.setCurrentQty(BigDecimal.ZERO);
                 materialLot.setReserved12(documentLine.getObjectRrn().toString());
-                mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_SHIP, StringUtils.EMPTY);
-                materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SHIP);
-                materialLotHistoryRepository.save(history);
+                changeMaterialLotStatusAndSaveHistory(materialLot);
+
+                //箱中的真空包也触发出货事件，修改状态、记录历史
+                List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                for (MaterialLot packageLot : packageDetailLots){
+                    changeMaterialLotStatusAndSaveHistory(packageLot);
+                }
             }
 
             // 验证当前操作数量是否超过待检查数量
@@ -782,6 +785,17 @@ public class GcServiceImpl implements GcService {
             erpSoRepository.save(erpSo);
 
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private void changeMaterialLotStatusAndSaveHistory(MaterialLot materialLot) throws ClientException {
+        try {
+            mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_SHIP, StringUtils.EMPTY);
+            materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SHIP);
+            materialLotHistoryRepository.save(history);
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
