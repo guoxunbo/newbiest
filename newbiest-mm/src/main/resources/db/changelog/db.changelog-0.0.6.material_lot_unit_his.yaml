@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.0.6
+      author: Xunbo Guo
+      remarks: mms_material_lot_unit_his add column RESERVED19-20
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT_HIS
+            columns:
+              - column:
+                  name: RESERVED19
+                  type: varchar(64)
+                  remarks: 预留栏位19
+              - column:
+                  name: RESERVED20
+                  type: varchar(64)
+                  remarks: 预留栏位20
+
+
