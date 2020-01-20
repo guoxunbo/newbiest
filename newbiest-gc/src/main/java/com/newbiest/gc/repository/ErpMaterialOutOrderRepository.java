@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface ErpMaterialOutOrderRepository extends IRepository<ErpMaterialOutOrder, Long> {
 
-    List<ErpMaterialOutOrder> findBySynStatusNotIn(List<String> asyncStatus);
+    List<ErpMaterialOutOrder> findByTypeAndSynStatusNotIn(String type, List<String> asyncStatus);
 
     @Query("update ErpMaterialOutOrder p set p.synStatus=:synStatus, p.errorMemo = :errorMemo where p.seq in (:seqList)")
     @Modifying

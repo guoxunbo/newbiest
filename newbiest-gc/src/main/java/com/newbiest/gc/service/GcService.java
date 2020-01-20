@@ -43,8 +43,11 @@ public interface GcService {
     List<NBOwnerReferenceList> getStockOutCheckList() throws ClientException;
     void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> ngStockOutCheckList) throws ClientException;
 
-    void asyncErpSo() throws ClientException;
-    void asyncErpMaterialOutOrder() throws ClientException;
+    void asyncReceiveOrder() throws ClientException;
+    void asyncShipOrder() throws ClientException;
+
+    void asyncReTestIssueOrder() throws ClientException;
+    void asyncWaferIssueOrder() throws ClientException;
 
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 

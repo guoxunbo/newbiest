@@ -38,10 +38,14 @@ public class GcAsyncController extends AbstractRestController {
         GcAsyncRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
 
-        if (GcAsyncRequest.ACTION_ASYNC_SO.equals(actionType)) {
-            gcService.asyncErpSo();
-        } else if (GcAsyncRequest.ACTION_ASYNC_MATERIAL_OUT_ORDER.equals(actionType)) {
-            gcService.asyncErpMaterialOutOrder();
+        if (GcAsyncRequest.ACTION_ASYNC_RETEST_ISSUE_ORDER.equals(actionType)) {
+            gcService.asyncReTestIssueOrder();
+        } else if (GcAsyncRequest.ACTION_ASYNC_WAFER_ISSUE_ORDER.equals(actionType)) {
+            gcService.asyncWaferIssueOrder();
+        } else if (GcAsyncRequest.ACTION_ASYNC_RECEIVE_ORDER.equals(actionType)) {
+            gcService.asyncReceiveOrder();
+        } else if (GcAsyncRequest.ACTION_ASYNC_SHIP_ORDER.equals(actionType)) {
+            gcService.asyncShipOrder();
         } else if(GcAsyncRequest.ACTION_ASYNC_PRODUCT.equals(actionType)){
             gcService.asyncMesProduct();
         } else {

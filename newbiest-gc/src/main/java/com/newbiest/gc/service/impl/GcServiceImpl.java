@@ -442,9 +442,25 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    public void asyncErpMaterialOutOrder() throws ClientException {
+    /**
+     * 同步重测单据
+     * @throws ClientException
+     */
+    public void asyncReTestIssueOrder() throws ClientException {
+        this.asyncErpMaterialOutOrder(ErpMaterialOutOrder.TYPE_RO);
+    }
+
+    /**
+     * 同步wafer发料单据
+     * @throws ClientException
+     */
+    public void asyncWaferIssueOrder() throws ClientException {
+        this.asyncErpMaterialOutOrder(ErpMaterialOutOrder.TYPE_TV);
+    }
+
+    private void asyncErpMaterialOutOrder(String type) throws ClientException {
         try {
-            List<ErpMaterialOutOrder> erpMaterialOutOrders = erpMaterialOutOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<ErpMaterialOutOrder> erpMaterialOutOrders = erpMaterialOutOrderRepository.findByTypeAndSynStatusNotIn(type, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
 
             if (CollectionUtils.isNotEmpty(erpMaterialOutOrders)) {
@@ -800,9 +816,25 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    public void asyncErpSo() throws ClientException {
+    /**
+     * 同步接收单据
+     * @throws ClientException
+     */
+    public void asyncReceiveOrder() throws ClientException {
+        this.asyncErpSo(ErpSo.TYPE_TV);
+    }
+
+    /**
+     * 同步出货单
+     * @throws ClientException
+     */
+    public void asyncShipOrder() throws ClientException {
+        this.asyncErpSo(ErpSo.TYPE_SO);
+    }
+
+    public void asyncErpSo(String type) throws ClientException {
         try {
-            List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_SO, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(type, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
 
             if (CollectionUtils.isNotEmpty(erpSos)) {
