@@ -1,5 +1,6 @@
 package com.newbiest.mms.rest.materiallot.unit;
 
+import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -17,6 +18,9 @@ public class MaterialLotUnitRequestBody extends RequestBody {
 
 	private String actionType;
 
-	private List<MaterialLotUnit> MaterialLotUnits;
+	@ApiModelProperty(example = "动态表")
+	private NBTable table;
+
+	private List<MaterialLotUnit> materialLotUnits;
 
 }

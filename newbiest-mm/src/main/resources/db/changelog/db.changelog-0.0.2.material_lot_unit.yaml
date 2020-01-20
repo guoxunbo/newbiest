@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-mms_material_lot_unit-table_0.0.2
+      author: Luyang Zhang
+      remarks: MMS_MATERIAL_LOT_UNIT add column
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: RESERVED11
+                  type: varchar(64)
+                  remarks: 预留栏位11
+              - column:
+                  name: RESERVED12
+                  type: varchar(64)
+                  remarks: 预留栏位12
+              - column:
+                  name: RESERVED13
+                  type: varchar(64)
+                  remarks: 预留栏位13
+              - column:
+                  name: RESERVED14
+                  type: varchar(64)
+                  remarks: 预留栏位14
+              - column:
+                  name: RESERVED15
+                  type: varchar(64)
+                  remarks: 预留栏位15
+              - column:
+                  name: RESERVED16
+                  type: varchar(64)
+                  remarks: 预留栏位16
+              - column:
+                  name: RESERVED17
+                  type: varchar(64)
+                  remarks: 预留栏位17
+              - column:
+                  name: RESERVED18
+                  type: varchar(64)
+                  remarks: 预留栏位18

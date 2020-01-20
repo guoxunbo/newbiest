@@ -12,6 +12,7 @@ public class MaterialLotUnitRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "MaterialLotUnitManage";
 
+	public static final String ACTION_SHOW = "Show";
 
 	private MaterialLotUnitRequestBody body;
 

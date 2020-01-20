@@ -74,8 +74,13 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     Map<String, Object> propsMap = Maps.newHashMap();
                     propsMap.put("category", MaterialLot.CATEGORY_UNIT);
                     // TODO 对应的载具号
-                    propsMap.put("durable", "");
-
+                    propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
+                    propsMap.put("reserved6",materialLotUnits.get(0).getReserved12());
+                    propsMap.put("reserved21",materialLotUnits.get(0).getReserved4());
+                    propsMap.put("reserved22",materialLotUnits.get(0).getReserved5());
+                    propsMap.put("reserved23",materialLotUnits.get(0).getReserved14());
+                    propsMap.put("reserved24",materialLotUnits.get(0).getReserved6());
+                    propsMap.put("reserved25",materialLotUnits.get(0).getReserved7());
                     MaterialLot materialLot = mmsService.createMLot(rawMaterial, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap);
                     for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
@@ -92,7 +97,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
                         materialLotUnits.add(materialLotUnit);
 
-                        MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
+                        MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
                         history.setTransQty(materialLot.getCurrentQty());
                         materialLotUnitHisRepository.save(history);
                     }

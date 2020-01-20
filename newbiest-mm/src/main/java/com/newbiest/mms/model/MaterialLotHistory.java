@@ -359,21 +359,39 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED20")
     private String reserved20;
 
+    /**
+     * GlaxyCore 供应商
+     */
     @Column(name="RESERVED21")
     private String reserved21;
 
+    /**
+     * GlaxyCore 出货厂商
+     */
     @Column(name="RESERVED22")
     private String reserved22;
 
+    /**
+     * GlaxyCore 委外订单
+     */
     @Column(name="RESERVED23")
     private String reserved23;
 
+    /**
+     * GlaxyCore 生产订单
+     */
     @Column(name="RESERVED24")
     private String reserved24;
 
+    /**
+     * GlaxyCore 发票号
+     */
     @Column(name="RESERVED25")
     private String reserved25;
 
+    /**
+     * GlaxyCore 备注
+     */
     @Column(name="RESERVED26")
     private String reserved26;
 

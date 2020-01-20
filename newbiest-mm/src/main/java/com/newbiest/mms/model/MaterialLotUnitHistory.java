@@ -88,33 +88,103 @@ public class MaterialLotUnitHistory extends NBHis {
     @Column(name="STORE_UOM")
     private String storeUom;
 
+    /**
+     * 二级代码
+     */
     @Column(name="RESERVED1")
     private String reserved1;
 
+    /**
+     * 载具号
+     */
     @Column(name="RESERVED2")
     private String reserved2;
 
+    /**
+     * 载具晶圆数量
+     */
     @Column(name="RESERVED3")
-    private String reserved3;
+    private BigDecimal reserved3;
 
+    /**
+     * 供应商
+     */
     @Column(name="RESERVED4")
     private String reserved4;
 
+    /**
+     * 出货厂商
+     */
     @Column(name="RESERVED5")
     private String reserved5;
 
+    /**
+     *生产订单
+     */
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     * 发票号
+     */
     @Column(name="RESERVED7")
     private String reserved7;
 
+    /**
+     * 包装箱号
+     */
     @Column(name="RESERVED8")
     private String reserved8;
 
+    /**
+     *备注
+     */
     @Column(name="RESERVED9")
     private String reserved9;
 
+    /**
+     * 硅厚
+     */
     @Column(name="RESERVED10")
-    private String reserved10;
+    private BigDecimal reserved10;
+
+    /**
+     * 晶圆等级
+     */
+    @Column(name="RESERVED11")
+    private String reserved11;
+
+    /**
+     * 保税属性
+     */
+    @Column(name="RESERVED12")
+    private String reserved12;
+
+    /**
+     * 供货商出货时间
+     */
+    @Column(name="RESERVED13")
+    private String reserved13;
+
+    /**
+     * 委外订单
+     */
+    @Column(name="RESERVED14")
+    private String reserved14;
+
+
+    @Column(name="RESERVED15")
+    private String reserved15;
+
+
+    @Column(name="RESERVED16")
+    private String reserved16;
+
+
+    @Column(name="RESERVED17")
+    private String reserved17;
+
+
+    @Column(name="RESERVED18")
+    private String reserved18;
 }
