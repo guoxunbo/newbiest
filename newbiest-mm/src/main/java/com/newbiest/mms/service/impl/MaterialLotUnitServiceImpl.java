@@ -70,30 +70,22 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(materialLotId);
 
                     BigDecimal totalQty = materialLotUnits.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
-                    //TODO 如有有对预留栏位赋值的，此处进行赋值
                     Map<String, Object> propsMap = Maps.newHashMap();
                     propsMap.put("category", MaterialLot.CATEGORY_UNIT);
-                    // TODO 对应的载具号
+                    propsMap.put("durable", materialLotUnits.get(0).getDurable());
+                    propsMap.put("supplier", materialLotUnits.get(0).getSupplier());
+                    propsMap.put("shipper", materialLotUnits.get(0).getShipper());
+
                     propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
-                    propsMap.put("reserved6",materialLotUnits.get(0).getReserved12());
-                    propsMap.put("reserved21",materialLotUnits.get(0).getReserved4());
-                    propsMap.put("reserved22",materialLotUnits.get(0).getReserved5());
-                    propsMap.put("reserved23",materialLotUnits.get(0).getReserved14());
-                    propsMap.put("reserved24",materialLotUnits.get(0).getReserved6());
-                    propsMap.put("reserved25",materialLotUnits.get(0).getReserved7());
+                    propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());
+
                     MaterialLot materialLot = mmsService.createMLot(rawMaterial, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap);
                     for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
-                        materialLotUnit.setReceiveQty(materialLot.getCurrentQty());
+                        materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
 
-                        materialLotUnit.setMaterialRrn(rawMaterial.getObjectRrn());
-                        materialLotUnit.setMaterialName(rawMaterial.getName());
-                        materialLotUnit.setMaterialDesc(rawMaterial.getDescription());
-                        materialLotUnit.setMaterialVersion(rawMaterial.getVersion());
-                        materialLotUnit.setMaterialCategory(rawMaterial.getMaterialCategory());
-                        materialLotUnit.setMaterialType(rawMaterial.getMaterialType());
-                        materialLotUnit.setStoreUom(rawMaterial.getStoreUom());
+                        materialLotUnit.setMaterial(rawMaterial);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
                         materialLotUnits.add(materialLotUnit);
 

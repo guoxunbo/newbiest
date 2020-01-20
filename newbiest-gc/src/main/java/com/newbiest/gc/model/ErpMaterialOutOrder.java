@@ -8,13 +8,25 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 重测发料单
+ * 发料单
+ *      重测发料单 Type为RO
+ *      晶圆发料单 Type为TV
  * Created by guoxunbo on 2019-08-29 17:01
  */
 @Data
 @Entity
 @Table(name="ERP_MATERIAL_OUT_ORDER")
 public class ErpMaterialOutOrder implements Serializable {
+
+    /**
+     * 重测发料单
+     */
+    public static final String TYPE_RO = "RO";
+
+    /**
+     * 晶圆发料单
+     */
+    public static final String TYPE_TV = "TV";
 
     /**
      * 未同步
@@ -123,4 +135,6 @@ public class ErpMaterialOutOrder implements Serializable {
     @Column(name="ERROR_MEMO")
     private String errorMemo;
 
+    @Column(name="TYPE")
+    private String type;
 }

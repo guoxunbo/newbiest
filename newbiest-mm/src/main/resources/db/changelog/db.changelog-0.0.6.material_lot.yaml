@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.0.6
+      author: Xunbo Guo
+      remarks: mms_material_lot add column SUPPLIER, SHIPPER
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: SUPPLIER
+                  type: varchar(64)
+                  remarks: 供应商
+              - column:
+                  name: SHIPPER
+                  type: varchar(64)
+                  remarks: 出货商
+

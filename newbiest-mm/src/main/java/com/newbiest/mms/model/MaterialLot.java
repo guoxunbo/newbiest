@@ -219,8 +219,20 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="EFFECTIVE_UNIT")
     private String effectiveUnit;
 
-//    @Column(name="DURABLE")
-//    private String durable;
+    @Column(name="DURABLE")
+    private String durable;
+
+    /**
+     * 供应商
+     */
+    @Column(name="SUPPLIER")
+    private String supplier;
+
+    /**
+     * 出货商
+     */
+    @Column(name="SHIPPER")
+    private String shipper;
 
     /**
      * GlaxyCore MES完成品的levelTwoCode
@@ -342,39 +354,21 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED20")
     private String reserved20;
 
-    /**
-     * GlaxyCore 供应商
-     */
     @Column(name="RESERVED21")
     private String reserved21;
 
-    /**
-     * GlaxyCore 出货厂商
-     */
     @Column(name="RESERVED22")
     private String reserved22;
 
-    /**
-     * GlaxyCore 委外订单
-     */
     @Column(name="RESERVED23")
     private String reserved23;
 
-    /**
-     * GlaxyCore 生产订单
-     */
     @Column(name="RESERVED24")
     private String reserved24;
 
-    /**
-     * GlaxyCore 发票号
-     */
     @Column(name="RESERVED25")
     private String reserved25;
 
-    /**
-     * GlaxyCore 备注
-     */
     @Column(name="RESERVED26")
     private String reserved26;
 

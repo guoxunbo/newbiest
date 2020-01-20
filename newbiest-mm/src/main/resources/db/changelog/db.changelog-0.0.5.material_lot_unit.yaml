@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.0.5
+      author: Xunbo Guo
+      remarks: mms_material_lot_unit add column DURABLE, SLOT_NUMBER, SUPPLIER, SHIPPER
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: DURABLE
+                  type: varchar(64)
+                  remarks: 载具
+              - column:
+                  name: SLOT_NUMBER
+                  type: varchar(64)
+                  remarks: 载具位置
+              - column:
+                  name: SUPPLIER
+                  type: varchar(64)
+                  remarks: 供应商
+              - column:
+                  name: SHIPPER
+                  type: varchar(64)
+                  remarks: 出货商
+

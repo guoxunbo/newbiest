@@ -11,15 +11,24 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * GlaxyCore的ERP的发货单
- *
+ * GlaxyCore的ERP的单据。
+ *              发货单 Type为SO
+ *              晶圆接收单 TYPE为TV
  */
 @Data
 @Entity
 @Table(name="ERP_SO")
 public class ErpSo implements Serializable {
 
+    /**
+     * 发货单
+     */
     public static final String TYPE_SO = "SO";
+
+    /**
+     * 晶圆接收单
+     */
+    public static final String TYPE_TV = "TV";
 
     /**
      * 未同步

@@ -222,6 +222,18 @@ public class MaterialLotHistory extends NBHis {
     private String durable;
 
     /**
+     * 供应商
+     */
+    @Column(name="SUPPLIER")
+    private String supplier;
+
+    /**
+     * 出货商
+     */
+    @Column(name="SHIPPER")
+    private String shipper;
+
+    /**
      * 操作数量
      */
     @Column(name="TRANS_QTY")
@@ -335,63 +347,69 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED12")
     private String reserved12;
 
+    /**
+     * GlaxyCore 接收的时候会记录默认仓库
+     */
     @Column(name="RESERVED13")
     private String reserved13;
 
+    /**
+     * GlaxyCore 记录StorageId
+     */
     @Column(name="RESERVED14")
     private String reserved14;
 
+    /**
+     * GlaxyCore 记录重测工单日期
+     */
     @Column(name="RESERVED15")
     private String reserved15;
 
+    /**
+     * GlaxyCore 记录备货的出货单LineRrn
+     */
     @Column(name="RESERVED16")
     private String reserved16;
 
+    /**
+     * GlaxyCore 记录备货的出货单号
+     */
     @Column(name="RESERVED17")
     private String reserved17;
 
+    /**
+     * GlaxyCore 备货备注
+     */
     @Column(name="RESERVED18")
     private String reserved18;
 
+    /**
+     * GlaxyCore 记录箱重量
+     */
     @Column(name="RESERVED19")
     private String reserved19;
 
+    /**
+     * GlaxyCore 多箱称重事务号
+     */
     @Column(name="RESERVED20")
     private String reserved20;
 
-    /**
-     * GlaxyCore 供应商
-     */
     @Column(name="RESERVED21")
     private String reserved21;
 
-    /**
-     * GlaxyCore 出货厂商
-     */
     @Column(name="RESERVED22")
     private String reserved22;
 
-    /**
-     * GlaxyCore 委外订单
-     */
     @Column(name="RESERVED23")
     private String reserved23;
 
-    /**
-     * GlaxyCore 生产订单
-     */
     @Column(name="RESERVED24")
     private String reserved24;
 
-    /**
-     * GlaxyCore 发票号
-     */
     @Column(name="RESERVED25")
     private String reserved25;
 
-    /**
-     * GlaxyCore 备注
-     */
     @Column(name="RESERVED26")
     private String reserved26;
 
