@@ -1063,10 +1063,10 @@ public class GcServiceImpl implements GcService {
                     materialLotAction.setGrade(mesPackedLot.getGrade());
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
 
-                    // 工单前2位是SH的入SH仓库，是ZJ的入浙江仓库
-                    // 20191217 工单是空的话则是ZJ仓库
+                    // 真空包产地是SH的入SH仓库，是ZJ的入浙江仓库
+                    // 20191217 产地是空的话则是ZJ仓库
                     String warehouseName = WAREHOUSE_ZJ;
-                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getWorkorderId()) && mesPackedLot.getWorkorderId().substring(0, 2).equalsIgnoreCase("SH")) {
+                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getLocation()) && mesPackedLot.getLocation().equalsIgnoreCase("SH")) {
                         warehouseName = WAREHOUSE_SH;
                     }
 
