@@ -1095,6 +1095,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved7", mesPackedLot.getProductCategory());
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
+                    otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     materialLotAction.setPropsMap(otherReceiveProps);
 
                     materialLotActions.add(materialLotAction);
