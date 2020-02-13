@@ -35,3 +35,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.8.comments.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.9.comments.yaml
+      relativeToChangelogFile: true
