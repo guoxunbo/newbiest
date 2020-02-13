@@ -113,4 +113,7 @@ public class MesPackedLot implements Serializable {
     @Column(name="VACUUM_CHECK_COMMENT")
     private String vacuumCheckComment;
 
+    @Column(name="LOCATION")
+    private String location;
+
 }
