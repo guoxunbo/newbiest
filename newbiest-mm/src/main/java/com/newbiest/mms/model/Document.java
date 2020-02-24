@@ -25,6 +25,7 @@ import java.util.List;
 public class Document extends NBUpdatable {
 
     public static final String CATEGORY_DELIVERY = "Delivery";
+    public static final String CATEGORY_RECEIVE = "Receive";
 
     public static final String STATUS_OPEN = "OPEN";
 

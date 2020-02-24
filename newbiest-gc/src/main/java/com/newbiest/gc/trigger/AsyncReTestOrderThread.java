@@ -7,17 +7,17 @@ import lombok.Data;
 /**
  * Created by guoxunbo on 2019-11-15 14:19
  */
-public class AsyncReTestIssueOrderThread extends GcTriggerThread {
+public class AsyncReTestOrderThread extends GcTriggerThread {
 
     public static final String CRON_EXPRESS = "0 0/5 * * * ?";
 
-    public AsyncReTestIssueOrderThread(GcService gcService) {
+    public AsyncReTestOrderThread(GcService gcService) {
         super(gcService);
     }
 
     @Override
     public void execute() {
-        this.gcService.asyncReTestIssueOrder();
+        this.gcService.asyncReTestOrder();
     }
 }
 

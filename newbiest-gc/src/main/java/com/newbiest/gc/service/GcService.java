@@ -46,7 +46,7 @@ public interface GcService {
     void asyncReceiveOrder() throws ClientException;
     void asyncShipOrder() throws ClientException;
 
-    void asyncReTestIssueOrder() throws ClientException;
+    void asyncReTestOrder() throws ClientException;
     void asyncWaferIssueOrder() throws ClientException;
 
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
