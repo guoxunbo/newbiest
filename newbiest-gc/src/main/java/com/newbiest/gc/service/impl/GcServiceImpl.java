@@ -24,6 +24,7 @@ import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
+import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
@@ -80,6 +81,9 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     MmsService mmsService;
+
+    @Autowired
+    MaterialLotUnitService materialLotUnitService;
 
     @Autowired
     BaseService baseService;
@@ -502,7 +506,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved5(erpMaterialOutOrder.getCmaker());
                                 documentLine.setReserved6(erpMaterialOutOrder.getChandler());
                                 documentLine.setReserved7(erpMaterialOutOrder.getOther1());
-                                documentLine.setReserved9(ReTestOrder.CATEGORY_RETEST);
+                                documentLine.setReserved9(waferIssueOrder.CATEGORY_WAFER_ISSUE);
                             }
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
                             documentLine.setUnHandledQty(erpMaterialOutOrder.getLeftNum());
@@ -645,6 +649,158 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 晶圆根据匹配规则自动匹配单据
+     * @param documentLineList
+     * @param materialLotActions
+     * @throws ClientException
+     */
+    public void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
+
+            // 确保所有的物料批次都能匹配上单据, 并且数量足够
+            for (String key : materialLotMap.keySet()) {
+                if (!documentLineMap.keySet().contains(key)) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+                }
+                Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                Long totalMaterialLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
+                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
+                }
+                receiveWafer(documentLineMap.get(key), materialLotMap.get(key));
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 晶圆接收
+     * @param documentLines
+     * @param materialLots
+     * @throws ClientException
+     */
+    private void receiveWafer(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
+        try {
+            for (DocumentLine documentLine: documentLines) {
+
+                BigDecimal unhandedQty = documentLine.getUnHandledQty();
+                Map<String, BigDecimal> mLotQty = materialLots.stream().collect(Collectors.toMap(MaterialLot :: getMaterialLotId, MaterialLot :: getCurrentQty));
+
+                Iterator<MaterialLot> iterator = materialLots.iterator();
+
+                while (iterator.hasNext()) {
+                    MaterialLot materialLot = iterator.next();
+                    if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
+                        materialLot.setReserved12(documentLine.getObjectRrn().toString());
+                    } else {
+                        materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
+                    }
+                    BigDecimal currentQty = materialLot.getCurrentQty();
+                    if (unhandedQty.compareTo(currentQty) >= 0) {
+                        unhandedQty = unhandedQty.subtract(currentQty);
+                        currentQty =  BigDecimal.ZERO;
+                    } else {
+                        currentQty = currentQty.subtract(unhandedQty);
+                        unhandedQty = BigDecimal.ZERO;
+                    }
+                    materialLot.setCurrentQty(currentQty);
+                    if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                        //此处仓库为写死ZJ。
+                        //数量进行还原。不能扣减。
+                        materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
+                        materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                        iterator.remove();
+                    }
+                    if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
+                        break;
+                    }
+                }
+                BigDecimal handledQty = documentLine.getHandledQty().add((documentLine.getUnHandledQty().subtract(unhandedQty)));
+                documentLine.setHandledQty(handledQty);
+                documentLine.setUnHandledQty(unhandedQty);
+                documentLineRepository.save(documentLine);
+
+                ReceiveOrder receiveOrder = (ReceiveOrder) receiveOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                receiveOrder.setHandledQty(receiveOrder.getHandledQty().add(handledQty));
+                receiveOrder.setUnHandledQty(receiveOrder.getUnHandledQty().subtract(handledQty));
+                receiveOrderRepository.save(receiveOrder);
+
+                Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                if (!erpSoOptional.isPresent()) {
+                    throw new ClientParameterException(GcExceptions.ERP_RETEST_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                }
+
+                ErpSo erpSo = erpSoOptional.get();
+                erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
+                if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
+                    erpSo.setDeliveredNum(handledQty.toPlainString());
+                } else {
+                    BigDecimal docHandledQty = new BigDecimal(erpSo.getDeliveredNum());
+                    docHandledQty = docHandledQty.add(handledQty);
+                    erpSo.setDeliveredNum(docHandledQty.toPlainString());
+                }
+                erpSoRepository.save(erpSo);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 单据按照 物料名称+二级代码+等级+保税属性分类
+     * @param documentLineList
+     * @return
+     */
+    public Map<String, List<DocumentLine>> groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(List<DocumentLine> documentLineList) {
+        return documentLineList.stream().collect(Collectors.groupingBy(documentLine -> {
+            StringBuffer key = new StringBuffer();
+            key.append(documentLine.getMaterialName());
+            key.append(StringUtils.SPLIT_CODE);
+            // 二级代码
+            key.append(documentLine.getReserved2());
+            key.append(StringUtils.SPLIT_CODE);
+
+            //等级
+            key.append(documentLine.getReserved3());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(documentLine.getReserved7());
+            key.append(StringUtils.SPLIT_CODE);
+            return key.toString();
+        }));
+    }
+
+    /**
+     * 物料批次按照 物料名称+二级代码+等级+保税属性分类
+     * @param materialLots
+     * @return
+     */
+    public Map<String, List<MaterialLot>> groupMaterialLotByMaterialAndSecondCodeAndGradeAndBondProp(List<MaterialLot> materialLots) {
+        return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
+            StringBuffer key = new StringBuffer();
+            key.append(materialLot.getMaterialName());
+            key.append(StringUtils.SPLIT_CODE);
+
+            String materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
+            key.append(materialSecondCode);
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(materialLot.getGrade());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(materialLot.getReserved6());
+            key.append(StringUtils.SPLIT_CODE);
+            return key.toString();
+        }));
+    }
+
+    /**
      *
      * @param documentLineList
      * @param materialLotActions
@@ -654,38 +810,8 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = documentLineList.stream().collect(Collectors.groupingBy(documentLine -> {
-                StringBuffer key = new StringBuffer();
-                key.append(documentLine.getMaterialName());
-                key.append(StringUtils.SPLIT_CODE);
-
-                key.append(documentLine.getReserved2());
-                key.append(StringUtils.SPLIT_CODE);
-
-                key.append(documentLine.getReserved3());
-                key.append(StringUtils.SPLIT_CODE);
-
-                key.append(documentLine.getReserved7());
-                key.append(StringUtils.SPLIT_CODE);
-                return key.toString();
-            }));
-
-            Map<String, List<MaterialLot>> materialLotMap = materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
-                StringBuffer key = new StringBuffer();
-                key.append(materialLot.getMaterialName());
-                key.append(StringUtils.SPLIT_CODE);
-
-                String materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
-                key.append(materialSecondCode);
-                key.append(StringUtils.SPLIT_CODE);
-
-                key.append(materialLot.getGrade());
-                key.append(StringUtils.SPLIT_CODE);
-
-                key.append(materialLot.getReserved6());
-                key.append(StringUtils.SPLIT_CODE);
-                return key.toString();
-            }));
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
@@ -970,7 +1096,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved7(erpSo.getOther1());
 
                                 documentLine.setReserved8(erpSo.getCusname());
-                                documentLine.setReserved9(DeliveryOrder.CATEGORY_DELIVERY);
+                                documentLine.setReserved9(Document.CATEGORY_RECEIVE);
                             }
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(erpSo.getLeftNum());

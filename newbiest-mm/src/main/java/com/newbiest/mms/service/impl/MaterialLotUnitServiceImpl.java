@@ -9,11 +9,10 @@ import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.commom.sm.model.StatusModel;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotUnit;
-import com.newbiest.mms.model.MaterialLotUnitHistory;
-import com.newbiest.mms.model.RawMaterial;
+import com.newbiest.mms.model.*;
+import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitHisRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
 import com.newbiest.mms.service.MaterialLotUnitService;
@@ -50,6 +49,39 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
     BaseService baseService;
 
     /**
+     * 创建之后只做接收动作
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> receiveMLotWithUnit(MaterialLot materialLot, String warehouseName) throws ClientException {
+        try {
+            List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+            Warehouse warehouse = mmsService.getWarehouseByName(warehouseName);
+            if (warehouse == null) {
+                throw new ClientParameterException(MmsException.MM_WAREHOUSE_IS_NOT_EXIST, warehouseName);
+            }
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                history.setTransQty(materialLotUnit.getCurrentQty());
+                materialLotUnitHisRepository.save(history);
+                materialLotUnitList.add(materialLotUnit);
+            }
+
+            MaterialLotAction materialLotAction = new MaterialLotAction();
+            materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+            materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+            materialLotAction.setTransQty(materialLot.getCurrentQty());
+            mmsService.stockIn(materialLot, materialLotAction);
+            return materialLotUnitList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+    /**
      * 生成物料批次以及物料批次对应的单元
      * @param materialLotUnitList
      * @return
@@ -84,13 +116,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                         materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
-
                         materialLotUnit.setMaterial(rawMaterial);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
                         materialLotUnits.add(materialLotUnit);
 
                         MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
-                        history.setTransQty(materialLot.getCurrentQty());
+                        history.setTransQty(materialLotUnit.getReceiveQty());
                         materialLotUnitHisRepository.save(history);
                     }
                 }

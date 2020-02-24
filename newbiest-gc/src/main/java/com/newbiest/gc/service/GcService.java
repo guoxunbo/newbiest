@@ -16,6 +16,8 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
+
     void validationMLotReserved(MaterialLot materialLot) throws ClientException;
     void materialLotWeight(List<WeightModel> weightModels) throws ClientException;
     MaterialLot getWaitWeightMaterialLot(String materialLotId) throws ClientException;

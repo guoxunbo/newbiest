@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 public class MaterialLotUnit extends NBUpdatable {
 
     public static final String STATE_CREATE = "Create";
+    public static final String STATE_IN = "In";
 
     @Column(name="UNIT_ID")
     private String unitId;

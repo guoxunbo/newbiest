@@ -19,6 +19,8 @@ import java.math.BigDecimal;
 @Data
 public class MaterialLotUnitHistory extends NBHis {
 
+    public static final String TRANS_TYPE_IN = "In";
+
     @Column(name="UNIT_ID")
     private String unitId;
 
