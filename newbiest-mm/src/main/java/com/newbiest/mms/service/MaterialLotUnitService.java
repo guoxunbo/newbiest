@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface MaterialLotUnitService {
 
+    List<MaterialLotUnit> getUnitsByMaterialLotId(String materialLotId) throws ClientException;
+
     List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 
     List<MaterialLotUnit> receiveMLotWithUnit(MaterialLot materialLots, String warehouseName) throws ClientException;

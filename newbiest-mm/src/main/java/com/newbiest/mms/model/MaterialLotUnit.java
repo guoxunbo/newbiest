@@ -21,6 +21,7 @@ public class MaterialLotUnit extends NBUpdatable {
 
     public static final String STATE_CREATE = "Create";
     public static final String STATE_IN = "In";
+    public static final String STATE_ISSUE = "Issue";
 
     @Column(name="UNIT_ID")
     private String unitId;

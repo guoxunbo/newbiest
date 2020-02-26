@@ -48,6 +48,10 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
     @Autowired
     BaseService baseService;
 
+    public List<MaterialLotUnit> getUnitsByMaterialLotId(String materialLotId) throws ClientException{
+        return materialLotUnitRepository.findByMaterialLotId(materialLotId);
+    }
+
     /**
      * 创建之后只做接收动作
      * @return
@@ -81,6 +85,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
     /**
      * 生成物料批次以及物料批次对应的单元
      * @param materialLotUnitList

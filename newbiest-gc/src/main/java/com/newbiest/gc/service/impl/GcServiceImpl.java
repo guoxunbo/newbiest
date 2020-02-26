@@ -151,6 +151,11 @@ public class GcServiceImpl implements GcService {
     @Autowired
     ErpMoRepository erpMoRepository;
 
+    @Autowired
+    MaterialLotUnitRepository materialLotUnitRepository;
+
+    @Autowired
+    MaterialLotUnitHisRepository materialLotUnitHisRepository;
 
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
@@ -733,6 +738,17 @@ public class GcServiceImpl implements GcService {
                         mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
                         materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
                         iterator.remove();
+
+                        List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                        for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                            materialLotUnit.setState(MaterialLotUnit.STATE_ISSUE);
+                            materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                            MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, GCMaterialEvent.EVENT_WAFER_ISSUE);
+                            history.setTransQty(materialLotUnit.getCurrentQty());
+                            materialLotUnitHisRepository.save(history);
+                        }
+
                     } else {
                         List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
                         if (CollectionUtils.isNotEmpty(materialLotInvList)) {
