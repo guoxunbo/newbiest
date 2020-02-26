@@ -18,6 +18,8 @@ public interface GcService {
 
     void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
 
+    void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
+
     void validationMLotReserved(MaterialLot materialLot) throws ClientException;
     void materialLotWeight(List<WeightModel> weightModels) throws ClientException;
     MaterialLot getWaitWeightMaterialLot(String materialLotId) throws ClientException;
@@ -53,7 +55,9 @@ public interface GcService {
 
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 
+    void validationDocLine(List<DocumentLine> documentLineList, MaterialLot materialLot) throws ClientException;
     void validationDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException;
+    
     void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
     void validationMaterial(MaterialLot materialLotFirst,MaterialLot materialLot);

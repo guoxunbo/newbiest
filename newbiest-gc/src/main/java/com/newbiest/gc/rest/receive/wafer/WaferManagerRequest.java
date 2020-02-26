@@ -13,6 +13,7 @@ public class WaferManagerRequest extends Request {
 	public static final String MESSAGE_NAME = "GCWaferManager";
 
 	public static final String ACTION_TYPE_RECEIVE = "Receive";
+	public static final String ACTION_TYPE_VALIDATION_ISSUE = "ValidationIssue";
 	public static final String ACTION_TYPE_ISSUE = "Issue";
 
 	private WaferManagerRequestBody body;
