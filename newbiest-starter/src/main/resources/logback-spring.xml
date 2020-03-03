@@ -44,6 +44,20 @@
         </encoder>
     </appender>
 
+    <appender name="liquibase" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/liquibase/server.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/liquibase/server.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="hibernate" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.path}/hibernate/server.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -72,6 +86,14 @@
     <!-- name 需要分开记录日志的包名-->
     <logger name="com.newbiest.base.filter" level="DEBUG" additivity="false">
         <appender-ref ref="rest"/>
+    </logger>
+
+    <logger name="liquibase" level="INFO" additivity="true">
+        <appender-ref ref="liquibase"/>
+    </logger>
+
+    <logger name="com.newbiest.liquibase" level="INFO" additivity="true">
+        <appender-ref ref="liquibase"/>
     </logger>
 
     <!-- name-->

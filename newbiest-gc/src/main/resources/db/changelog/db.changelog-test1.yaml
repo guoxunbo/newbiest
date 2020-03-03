@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: test1 only for demo
+      author: Xunbo Guo
+      comment: test Custom liquibase
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: SystemManager11
+              description: ttt
+              tableName: GCPringCaseLabel
