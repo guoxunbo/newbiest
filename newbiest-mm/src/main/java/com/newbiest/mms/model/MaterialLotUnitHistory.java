@@ -21,30 +21,54 @@ public class MaterialLotUnitHistory extends NBHis {
 
     public static final String TRANS_TYPE_IN = "In";
 
+    /**
+     * 物料批次单元号
+     */
     @Column(name="UNIT_ID")
     private String unitId;
 
+    /**
+     * 主物料批次主键
+     */
     @Column(name="MATERIAL_LOT_RRN")
     private Long materialLotRrn;
 
+    /**
+     * 主物料批次号
+     */
     @Column(name="MATERIAL_LOT_ID")
     private String materialLotId;
 
+    /**
+     * 状态
+     */
     @Column(name="STATE")
     private String state;
 
+    /**
+     * 导入时候的数量
+     */
     @Column(name="RECEIVE_QTY")
     private BigDecimal receiveQty;
 
+    /**
+     * 当前数量
+     */
     @Column(name="CURRENT_QTY")
     private BigDecimal currentQty;
 
     @Column(name="TRANS_QTY")
     private BigDecimal transQty;
 
+    /**
+     * 等级
+     */
     @Column(name="GRADE")
     private String grade;
 
+    /**
+     * 指定工单号
+     */
     @Column(name="WORK_ORDER_ID")
     private String workOrderId;
 
@@ -91,102 +115,285 @@ public class MaterialLotUnitHistory extends NBHis {
     private String storeUom;
 
     /**
+     * 载具
+     */
+    @Column(name="DURABLE")
+    private String durable;
+
+    /**
+     * 载具上的位置
+     */
+    @Column(name="SLOT_NUMBER")
+    private Long slotNumber;
+
+    /**
+     * 供应商
+     */
+    @Column(name="SUPPLIER")
+    private String supplier;
+
+    /**
+     * 出货商
+     */
+    @Column(name="SHIPPER")
+    private String shipper;
+
+    /**
      * 二级代码
      */
     @Column(name="RESERVED1")
     private String reserved1;
 
     /**
-     * 载具号
+     * 载具晶圆数量
      */
     @Column(name="RESERVED2")
     private String reserved2;
 
     /**
-     * 载具晶圆数量
+     * 硅厚
      */
     @Column(name="RESERVED3")
-    private BigDecimal reserved3;
+    private String reserved3;
 
     /**
-     * 供应商
+     * 保税属性
      */
     @Column(name="RESERVED4")
     private String reserved4;
 
     /**
-     * 出货厂商
+     * 供应商出货时间
      */
     @Column(name="RESERVED5")
     private String reserved5;
 
     /**
-     *生产订单
+     * 委外订单
      */
     @Column(name="RESERVED6")
     private String reserved6;
 
     /**
-     * 发票号
+     * 包装箱号
      */
     @Column(name="RESERVED7")
     private String reserved7;
 
     /**
-     * 包装箱号
+     * 生产订单
      */
     @Column(name="RESERVED8")
     private String reserved8;
 
     /**
-     *备注
+     * 发票
      */
     @Column(name="RESERVED9")
     private String reserved9;
 
     /**
-     * 硅厚
+     * 备注
      */
     @Column(name="RESERVED10")
-    private BigDecimal reserved10;
+    private String reserved10;
 
-    /**
-     * 晶圆等级
-     */
     @Column(name="RESERVED11")
     private String reserved11;
 
-    /**
-     * 保税属性
-     */
     @Column(name="RESERVED12")
     private String reserved12;
 
     /**
-     * 供货商出货时间
+     * GlaxyCore 导入的时候会记录默认仓库
      */
     @Column(name="RESERVED13")
     private String reserved13;
 
-    /**
-     * 委外订单
-     */
     @Column(name="RESERVED14")
     private String reserved14;
-
 
     @Column(name="RESERVED15")
     private String reserved15;
 
-
     @Column(name="RESERVED16")
     private String reserved16;
-
 
     @Column(name="RESERVED17")
     private String reserved17;
 
-
     @Column(name="RESERVED18")
     private String reserved18;
+
+    @Column(name="RESERVED19")
+    private String reserved19;
+
+    @Column(name="RESERVED20")
+    private String reserved20;
+
+    @Column(name="RESERVED21")
+    private String reserved21;
+
+    /**
+     * GlaxyCore 来料导入packing list中Sub Name
+     */
+    @Column(name="RESERVED22")
+    private String reserved22;
+
+    /**
+     * GlaxyCore 来料导入packing list中Ship To
+     */
+    @Column(name="RESERVED23")
+    private String reserved23;
+
+    /**
+     * GlaxyCore 来料导入packing list中Fab Device
+     */
+    @Column(name="RESERVED24")
+    private String reserved24;
+
+    /**
+     * GlaxyCore 来料导入packing list中Lot Type
+     */
+    @Column(name="RESERVED25")
+    private String reserved25;
+
+    /**
+     * GlaxyCore 来料导入packing list中Wafer Property
+     */
+    @Column(name="RESERVED26")
+    private String reserved26;
+
+    /**
+     * GlaxyCore 来料导入packing list中PO NO
+     */
+    @Column(name="RESERVED27")
+    private String reserved27;
+
+    /**
+     * GlaxyCore 来料导入packing list中Ship Out Date
+     */
+    @Column(name="RESERVED28")
+    private String reserved28;
+
+    /**
+     * GlaxyCore 来料导入packing list中Invoice NO
+     */
+    @Column(name="RESERVED29")
+    private String reserved29;
+
+    /**
+     * GlaxyCore 来料导入packing list中FAB Lot ID
+     */
+    @Column(name="RESERVED30")
+    private String reserved30;
+
+    /**
+     * GlaxyCore 来料导入packing list中Wafer ID
+     */
+    @Column(name="RESERVED31")
+    private String reserved31;
+
+    /**
+     * GlaxyCore 来料导入packing list中Gross Dies
+     */
+    @Column(name="RESERVED32")
+    private String reserved32;
+
+    /**
+     * GlaxyCore 来料导入packing list中Sampling Qty
+     */
+    @Column(name="RESERVED33")
+    private String reserved33;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pass Dies
+     */
+    @Column(name="RESERVED34")
+    private String reserved34;
+
+    /**
+     * GlaxyCore 来料导入packing list中NG Die
+     */
+    @Column(name="RESERVED35")
+    private String reserved35;
+
+    /**
+     * GlaxyCore 来料导入packing list中Yield
+     */
+    @Column(name="RESERVED36")
+    private String reserved36;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pack Lot ID
+     */
+    @Column(name="RESERVED37")
+    private String reserved37;
+
+    /**
+     * GlaxyCore 来料导入packing list中Wafer Mark
+     */
+    @Column(name="RESERVED38")
+    private String reserved38;
+
+    /**
+     * GlaxyCore 来料导入packing list中Carton NO
+     */
+    @Column(name="RESERVED39")
+    private String reserved39;
+
+    /**
+     * GlaxyCore 来料导入packing list中Type
+     */
+    @Column(name="RESERVED40")
+    private String reserved40;
+
+    /**
+     * GlaxyCore 来料导入packing list中Remark
+     */
+    @Column(name="RESERVED41")
+    private String reserved41;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pass Dies2
+     */
+    @Column(name="RESERVED42")
+    private String reserved42;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pass Dies3
+     */
+    @Column(name="RESERVED43")
+    private String reserved43;
+
+    /**
+     * GlaxyCore 来料导入packing list中Frame Qty、Total Qty、Wafer Qty
+     */
+    @Column(name="RESERVED44")
+    private String reserved44;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pcode
+     */
+    @Column(name="RESERVED45")
+    private String reserved45;
+
+    /**
+     * GlaxyCore 来料导入packing list中WO
+     */
+    @Column(name="RESERVED46")
+    private String reserved46;
+
+    @Column(name="RESERVED47")
+    private String reserved47;
+
+    @Column(name="RESERVED48")
+    private String reserved48;
+
+    @Column(name="RESERVED49")
+    private String reserved49;
+
+    @Column(name="RESERVED50")
+    private String reserved50;
+
 }

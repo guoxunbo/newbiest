@@ -208,6 +208,13 @@
             <artifactId>framework</artifactId>
             <version>${newbiest.framework.version}</version>
         </dependency>
+
+        <!--Csv导入相关-->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.4</version>
+        </dependency>
     </dependencies>
 
     <developers>

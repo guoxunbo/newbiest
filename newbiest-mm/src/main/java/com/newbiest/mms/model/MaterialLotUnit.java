@@ -23,6 +23,10 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String STATE_IN = "In";
     public static final String STATE_ISSUE = "Issue";
 
+    public static final String COB_FINISH_PRODUCT = "COB（-4成品）";
+    public static final String WLA_UNMEASURED = "WLA未测（-2.5）";
+    public static final String SAMSUING_PACKING_LIST = "三星packing list(-2CP未测)";
+
     @Column(name="UNIT_ID")
     private String unitId;
 
@@ -164,18 +168,33 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name="RESERVED5")
     private String reserved5;
 
+    /**
+     * 委外订单
+     */
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     * 包装箱号
+     */
     @Column(name="RESERVED7")
     private String reserved7;
 
+    /**
+     * 生产订单
+     */
     @Column(name="RESERVED8")
     private String reserved8;
 
+    /**
+     * 发票
+     */
     @Column(name="RESERVED9")
     private String reserved9;
 
+    /**
+     * 备注
+     */
     @Column(name="RESERVED10")
     private String reserved10;
 
@@ -185,6 +204,9 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name="RESERVED12")
     private String reserved12;
 
+    /**
+     * GlaxyCore 导入的时候会记录默认仓库
+     */
     @Column(name="RESERVED13")
     private String reserved13;
 
@@ -209,6 +231,171 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name="RESERVED20")
     private String reserved20;
 
+    @Column(name="RESERVED21")
+    private String reserved21;
+
+    /**
+     * GlaxyCore 来料导入packing list中Sub Name
+     */
+    @Column(name="RESERVED22")
+    private String reserved22;
+
+    /**
+     * GlaxyCore 来料导入packing list中Ship To
+     */
+    @Column(name="RESERVED23")
+    private String reserved23;
+
+    /**
+     * GlaxyCore 来料导入packing list中Fab Device
+     */
+    @Column(name="RESERVED24")
+    private String reserved24;
+
+    /**
+     * GlaxyCore 来料导入packing list中Lot Type
+     */
+    @Column(name="RESERVED25")
+    private String reserved25;
+
+    /**
+     * GlaxyCore 来料导入packing list中Wafer Property
+     */
+    @Column(name="RESERVED26")
+    private String reserved26;
+
+    /**
+     * GlaxyCore 来料导入packing list中PO NO
+     */
+    @Column(name="RESERVED27")
+    private String reserved27;
+
+    /**
+     * GlaxyCore 来料导入packing list中Ship Out Date
+     */
+    @Column(name="RESERVED28")
+    private String reserved28;
+
+    /**
+     * GlaxyCore 来料导入packing list中Invoice NO
+     */
+    @Column(name="RESERVED29")
+    private String reserved29;
+
+    /**
+     * GlaxyCore 来料导入packing list中FAB Lot ID
+     */
+    @Column(name="RESERVED30")
+    private String reserved30;
+
+    /**
+     * GlaxyCore 来料导入packing list中Wafer ID
+     */
+    @Column(name="RESERVED31")
+    private String reserved31;
+
+    /**
+     * GlaxyCore 来料导入packing list中Gross Dies
+     */
+    @Column(name="RESERVED32")
+    private String reserved32;
+
+    /**
+     * GlaxyCore 来料导入packing list中Sampling Qty
+     */
+    @Column(name="RESERVED33")
+    private String reserved33;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pass Dies
+     */
+    @Column(name="RESERVED34")
+    private String reserved34;
+
+    /**
+     * GlaxyCore 来料导入packing list中NG Die
+     */
+    @Column(name="RESERVED35")
+    private String reserved35;
+
+    /**
+     * GlaxyCore 来料导入packing list中Yield
+     */
+    @Column(name="RESERVED36")
+    private String reserved36;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pack Lot ID
+     */
+    @Column(name="RESERVED37")
+    private String reserved37;
+
+    /**
+     * GlaxyCore 来料导入packing list中Wafer Mark
+     */
+    @Column(name="RESERVED38")
+    private String reserved38;
+
+    /**
+     * GlaxyCore 来料导入packing list中Carton NO
+     */
+    @Column(name="RESERVED39")
+    private String reserved39;
+
+    /**
+     * GlaxyCore 来料导入packing list中Type
+     */
+    @Column(name="RESERVED40")
+    private String reserved40;
+
+    /**
+     * GlaxyCore 来料导入packing list中Remark
+     */
+    @Column(name="RESERVED41")
+    private String reserved41;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pass Dies2
+     */
+    @Column(name="RESERVED42")
+    private String reserved42;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pass Dies3
+     */
+    @Column(name="RESERVED43")
+    private String reserved43;
+
+    /**
+     * GlaxyCore 来料导入packing list中Frame Qty、Total Qty、Wafer Qty
+     */
+    @Column(name="RESERVED44")
+    private String reserved44;
+
+    /**
+     * GlaxyCore 来料导入packing list中Pcode
+     */
+    @Column(name="RESERVED45")
+    private String reserved45;
+
+    /**
+     * GlaxyCore 来料导入packing list中WO
+     */
+    @Column(name="RESERVED46")
+    private String reserved46;
+
+    @Column(name="RESERVED47")
+    private String reserved47;
+
+    @Column(name="RESERVED48")
+    private String reserved48;
+
+    @Column(name="RESERVED49")
+    private String reserved49;
+
+    @Column(name="RESERVED50")
+    private String reserved50;
+
     public void setMaterial(Material material) {
         this.setMaterialRrn(material.getObjectRrn());
         this.setMaterialName(material.getName());
@@ -217,5 +404,24 @@ public class MaterialLotUnit extends NBUpdatable {
         this.setMaterialCategory(material.getMaterialCategory());
         this.setMaterialType(material.getMaterialType());
         this.setStoreUom(material.getStoreUom());
+    }
+
+    public void setMaterialLot(MaterialLot materialLot) {
+        this.setMaterialName(materialLot.getMaterialName());
+        this.setMaterialLotId(materialLot.getMaterialLotId());
+        this.setReserved1(materialLot.getReserved1());
+        this.setReserved22(materialLot.getReserved22());
+        this.setReserved23(materialLot.getReserved23());
+        this.setReserved24(materialLot.getReserved24());
+        this.setReserved27(materialLot.getReserved27());
+        this.setReserved28(materialLot.getReserved28());
+        this.setReserved29(materialLot.getReserved29());
+        this.setReserved31(materialLot.getReserved31());
+        this.setReserved32(materialLot.getReserved32());
+        this.setReserved33(materialLot.getReserved33());
+        this.setReserved34(materialLot.getReserved34());
+        this.setReserved36(materialLot.getReserved36());
+        this.setReserved41(materialLot.getReserved41());
+        this.setReserved46(materialLot.getReserved46());
     }
 }

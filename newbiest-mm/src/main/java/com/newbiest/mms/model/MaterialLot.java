@@ -38,6 +38,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String GENERATOR_SUB_MATERIAL_LOT_ID_RULE = "CreateSubMLot";
 
+    /**
+     * 生成来料导入的导入编码
+     */
+    public static final String GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE = "ImcomingMLotImport";
+
     public static final String CATEGORY_UNIT = "Unit";
     public static final String CATEGORY_LOT = "Lot";
 
@@ -45,6 +50,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String HOLD_STATE_OFF = "Off";
 
     public static final String CATEGORY_PACKAGE = "Package";
+
+    public static final String INCOMING_MLOT_IMPORTTYPE = "ImcomingMLotImportType";
+
+    public static final String INCOMING_MLOT_SPECIAL_TYPE = "GCIncomingMLotSpecialType";
 
     /**
      * 物料批次号
@@ -354,87 +363,171 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED20")
     private String reserved20;
 
+    /**
+     * GlaxyCore 产品编码(工单号在ETM_WO中的other7)
+     */
     @Column(name="RESERVED21")
     private String reserved21;
 
+    /**
+     * GlaxyCore 来料导入packing list中Sub Name
+     */
     @Column(name="RESERVED22")
     private String reserved22;
 
+    /**
+     * GlaxyCore 来料导入packing list中Ship To
+     */
     @Column(name="RESERVED23")
     private String reserved23;
 
+    /**
+     * GlaxyCore 来料导入packing list中Fab Device
+     */
     @Column(name="RESERVED24")
     private String reserved24;
 
+    /**
+     * GlaxyCore 来料导入packing list中Lot Type
+     */
     @Column(name="RESERVED25")
     private String reserved25;
 
+    /**
+     * GlaxyCore 来料导入packing list中Wafer Property
+     */
     @Column(name="RESERVED26")
     private String reserved26;
 
+    /**
+     * GlaxyCore 来料导入packing list中PO NO
+     */
     @Column(name="RESERVED27")
     private String reserved27;
 
+    /**
+     * GlaxyCore 来料导入packing list中Ship Out Date
+     */
     @Column(name="RESERVED28")
     private String reserved28;
 
+    /**
+     * GlaxyCore 来料导入packing list中Invoice NO
+     */
     @Column(name="RESERVED29")
     private String reserved29;
 
+    /**
+     * GlaxyCore 来料导入packing list中FAB Lot ID
+     */
     @Column(name="RESERVED30")
     private String reserved30;
 
+    /**
+     * GlaxyCore 来料导入packing list中Wafer ID
+     */
     @Column(name="RESERVED31")
     private String reserved31;
 
+    /**
+     * GlaxyCore 来料导入packing list中Gross Dies
+     */
     @Column(name="RESERVED32")
     private String reserved32;
 
+    /**
+     * GlaxyCore 来料导入packing list中Sampling Qty
+     */
     @Column(name="RESERVED33")
     private String reserved33;
 
+    /**
+     * GlaxyCore 来料导入packing list中Pass Dies
+     */
     @Column(name="RESERVED34")
     private String reserved34;
 
+    /**
+     * GlaxyCore 来料导入packing list中NG Die
+     */
     @Column(name="RESERVED35")
     private String reserved35;
 
+    /**
+     * GlaxyCore 来料导入packing list中Yield
+     */
     @Column(name="RESERVED36")
     private String reserved36;
 
+    /**
+     * GlaxyCore 来料导入packing list中Pack Lot ID
+     */
     @Column(name="RESERVED37")
     private String reserved37;
 
+    /**
+     * GlaxyCore 来料导入packing list中Wafer Mark
+     */
     @Column(name="RESERVED38")
     private String reserved38;
 
+    /**
+     * GlaxyCore 来料导入packing list中Carton NO
+     */
     @Column(name="RESERVED39")
     private String reserved39;
 
+    /**
+     * GlaxyCore 来料导入packing list中Type
+     */
     @Column(name="RESERVED40")
     private String reserved40;
 
+    /**
+     * GlaxyCore 来料导入packing list中Remark
+     */
     @Column(name="RESERVED41")
     private String reserved41;
 
+    /**
+     * GlaxyCore 来料导入packing list中Pass Dies2
+     */
     @Column(name="RESERVED42")
     private String reserved42;
 
+    /**
+     * GlaxyCore 来料导入packing list中Pass Dies3
+     */
     @Column(name="RESERVED43")
     private String reserved43;
 
+    /**
+     * GlaxyCore 来料导入packing list中Frame Qty
+     */
     @Column(name="RESERVED44")
     private String reserved44;
 
+    /**
+     * GlaxyCore 来料导入packing list中Pcode
+     */
     @Column(name="RESERVED45")
     private String reserved45;
 
+    /**
+     * GlaxyCore 来料导入packing list中WO、WO NO
+     */
     @Column(name="RESERVED46")
     private String reserved46;
 
+    /**
+     * GlaxyCore 来料导入的导入类型
+     */
     @Column(name="RESERVED47")
     private String reserved47;
 
+    /**
+     * GlaxyCore 来料导入的导入编码
+     */
     @Column(name="RESERVED48")
     private String reserved48;
 

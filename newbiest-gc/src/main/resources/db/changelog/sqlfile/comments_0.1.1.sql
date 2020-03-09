@@ -1,0 +1,58 @@
+/**
+ * 来料导入使用到的reserved栏位做备注
+ */
+comment on column MMS_MATERIAL_LOT.RESERVED22 is 'packing list中Sub Name';
+comment on column MMS_MATERIAL_LOT.RESERVED23 is 'packing list中Ship To';
+comment on column MMS_MATERIAL_LOT.RESERVED24 is 'packing list中Fab Device';
+comment on column MMS_MATERIAL_LOT.RESERVED25 is 'packing list中Lot Type';
+comment on column MMS_MATERIAL_LOT.RESERVED26 is 'packing list中Wafer Property';
+comment on column MMS_MATERIAL_LOT.RESERVED27 is 'packing list中PO NO';
+comment on column MMS_MATERIAL_LOT.RESERVED28 is 'packing list中Ship Out Date';
+comment on column MMS_MATERIAL_LOT.RESERVED29 is 'packing list中Invoice NO';
+comment on column MMS_MATERIAL_LOT.RESERVED30 is 'packing list中FAB Lot ID';
+comment on column MMS_MATERIAL_LOT.RESERVED31 is 'packing list中Wafer ID';
+comment on column MMS_MATERIAL_LOT.RESERVED32 is 'packing list中Gross Dies';
+comment on column MMS_MATERIAL_LOT.RESERVED33 is 'packing list中Sampling Qty';
+comment on column MMS_MATERIAL_LOT.RESERVED34 is 'packing list中Pass Dies';
+comment on column MMS_MATERIAL_LOT.RESERVED35 is 'packing list中NG Die';
+comment on column MMS_MATERIAL_LOT.RESERVED36 is 'packing list中Yield';
+comment on column MMS_MATERIAL_LOT.RESERVED37 is 'packing list中Pack Lot ID';
+comment on column MMS_MATERIAL_LOT.RESERVED38 is 'packing list中Wafer Mark';
+comment on column MMS_MATERIAL_LOT.RESERVED39 is 'packing list中Carton NO';
+comment on column MMS_MATERIAL_LOT.RESERVED40 is 'packing list中Type';
+comment on column MMS_MATERIAL_LOT.RESERVED41 is 'packing list中Remark';
+comment on column MMS_MATERIAL_LOT.RESERVED42 is 'packing list中Pass Dies2';
+comment on column MMS_MATERIAL_LOT.RESERVED43 is 'packing list中Pass Dies3';
+comment on column MMS_MATERIAL_LOT.RESERVED44 is 'packing list中Frame Qty、Total Qty、Wafer Qty';
+comment on column MMS_MATERIAL_LOT.RESERVED45 is 'packing list中Pcode';
+comment on column MMS_MATERIAL_LOT.RESERVED46 is 'packing list中WO、WO NO';
+comment on column MMS_MATERIAL_LOT.RESERVED47 is '导入类型';
+comment on column MMS_MATERIAL_LOT.RESERVED48 is '导入编码';
+
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED22 is 'packing list中Sub Name';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED23 is 'packing list中Ship To';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED24 is 'packing list中Fab Device';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED25 is 'packing list中Lot Type';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED26 is 'packing list中Wafer Property';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED27 is 'packing list中PO NO';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED28 is 'packing list中Ship Out Date';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED29 is 'packing list中Invoice NO';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED30 is 'packing list中FAB Lot ID';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED31 is 'packing list中Wafer ID';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED32 is 'packing list中Gross Dies';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED33 is 'packing list中Sampling Qty';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED34 is 'packing list中Pass Dies';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED35 is 'packing list中NG Die';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED36 is 'packing list中Yield';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED37 is 'packing list中Pack Lot ID';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED38 is 'packing list中Wafer Mark';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED39 is 'packing list中Carton NO';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED40 is 'packing list中Type';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED41 is 'packing list中Remark';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED42 is 'packing list中Pass Dies2';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED43 is 'packing list中Pass Dies3';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED44 is 'packing list中Frame Qty、Total Qty、Wafer Qty';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED45 is 'packing list中Pcode';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED46 is 'packing list中WO、WO NO';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED47 is '导入类型';
+comment on column MMS_MATERIAL_LOT_HIS.RESERVED48 is '导入编码';

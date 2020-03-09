@@ -1972,5 +1972,109 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 保存来料信息
+     * @param materialLotList
+     * @param warehouseId
+     * @param specialType
+     * @param importType
+     * @return
+     */
+    public String saveIncomingMaterialList(List<MaterialLot> materialLotList, String warehouseId, String specialType, String importType) throws ClientException {
+        try {
+            ThreadLocalContext.getSessionContext().buildTransInfo();
+            String importCode = "";
+            if(importType.equals(MaterialLotUnit.SAMSUING_PACKING_LIST)){
+                for(MaterialLot materialLot: materialLotList){
+                    List<MaterialLotUnit> materialLotUnitList = getMaterialLotUnitList(materialLot, warehouseId);
+                    materialLotUnitService.createMLot(materialLotUnitList);
+                }
+            } else {
+                //验证来料信息
+                List<MaterialLot> materialLots = validateIncomingMaterialLot(materialLotList, specialType);
+                //生成来料导入编码
+                importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+                for (MaterialLot materialLot : materialLots) {
+                    materialLot.setReserved13(warehouseId);
+                    materialLot.setReserved48(importCode);
+                    materialLot.setReserved46(materialLot.getWorkOrderId());
+                    materialLot.setWorkOrderId(StringUtils.EMPTY);
+                    materialLotRepository.saveAndFlush(materialLot);
+
+                    // 记录历史
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
+                    history.setTransQty(materialLot.getCurrentQty());
+                    materialLotHistoryRepository.save(history);
+                }
+            }
+            return importCode;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private List<MaterialLotUnit> getMaterialLotUnitList(MaterialLot materialLot, String warehouseId) {
+        try {
+            List<MaterialLotUnit> materialLotUnitList = new ArrayList<>();
+            String waferId = materialLot.getReserved31();
+            String [] unitIdArray = waferId.split(",");
+            for(int i=0; i< unitIdArray.length; i++){
+                MaterialLotUnit materialLotUnit = new MaterialLotUnit();
+                materialLotUnit.setMaterialLot(materialLot);
+                materialLotUnit.setCurrentQty(BigDecimal.ONE);
+                materialLotUnit.setUnitId(unitIdArray[i]);
+                materialLotUnit.setReserved13(warehouseId);
+                materialLotUnitList.add(materialLotUnit);
+            }
+            return materialLotUnitList;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证来料信息
+     * @param materialLotList
+     * @param type
+     * @return
+     */
+    private List<MaterialLot> validateIncomingMaterialLot(List<MaterialLot> materialLotList, String type) throws ClientException {
+        try {
+            //验证产品号是否存在
+            Map<String, List<MaterialLot>> materialMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getMaterialName));
+            for(String materialName : materialMap.keySet()){
+                RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
+                if (rawMaterial == null) {
+                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
+                }
+            }
+            List<MaterialLot> materialLots = new ArrayList<>();
+            for (MaterialLot materialLot : materialLotList){
+                //根据导入模板类型判断是否需要PackingList中FabLotId与WaferId拼接
+                String materialLotId = "";
+                if(type.equals(MaterialLot.INCOMING_MLOT_SPECIAL_TYPE)){
+                    materialLotId = materialLot.getReserved31();
+                } else {
+                    String fabLotId = materialLot.getReserved30();
+                    String waferId = materialLot.getReserved31();
+                    if(waferId.length() < 2){
+                        waferId = "0" + waferId;
+                    }
+                    materialLotId = fabLotId.split("\\.")[0] + StringUtils.SPLIT_CODE + waferId;
+                }
+
+                MaterialLot materialLotInfo = mmsService.getMLotByMLotId(materialLotId);
+                if(materialLotInfo != null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);
+                } else {
+                    materialLot.setMaterialLotId(materialLotId);
+                    materialLots.add(materialLot);
+                }
+            }
+            return materialLots;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
 }
