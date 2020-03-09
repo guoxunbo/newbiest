@@ -663,9 +663,14 @@ public class GcServiceImpl implements GcService {
      */
     public void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
             Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
+            Map<String, List<MaterialLotAction>> materialLotActionMap = materialLotActions.stream().collect(Collectors.groupingBy(MaterialLotAction:: getMaterialLotId));
+            List<MaterialLot> materialLots = new ArrayList<>();
+            for(String materialLotId : materialLotActionMap.keySet()){
+                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
+                materialLots.add(materialLot);
+            }
             Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
@@ -687,9 +692,14 @@ public class GcServiceImpl implements GcService {
 
     public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
             Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
+            Map<String, List<MaterialLotAction>> materialLotActionMap = materialLotActions.stream().collect(Collectors.groupingBy(MaterialLotAction:: getMaterialLotId));
+            List<MaterialLot> materialLots = new ArrayList<>();
+            for(String materialLotId : materialLotActionMap.keySet()){
+                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
+                materialLots.add(materialLot);
+            }
             Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
