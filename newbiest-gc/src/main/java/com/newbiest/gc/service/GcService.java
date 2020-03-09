@@ -16,11 +16,11 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void validationStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions)throws ClientException;
     void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
 
     void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
 
-    void validationMLotReserved(MaterialLot materialLot) throws ClientException;
     void materialLotWeight(List<WeightModel> weightModels) throws ClientException;
     MaterialLot getWaitWeightMaterialLot(String materialLotId) throws ClientException;
 
@@ -60,7 +60,6 @@ public interface GcService {
     
     void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
-    void validationMaterial(MaterialLot materialLotFirst,MaterialLot materialLot);
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
     void asyncMesProduct() throws ClientException;
 

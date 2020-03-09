@@ -12,6 +12,10 @@ public class StockOutRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "GCStockOut";
 
+	public static final String ACTION_STOCKOUT= "StockOut";
+
+	public static final String ACTION_VALIDATION = "validation";
+
 	private StockOutRequestBody body;
 
 }

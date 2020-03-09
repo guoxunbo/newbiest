@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBQuery;
 import com.newbiest.base.repository.QueryRepository;
 import com.newbiest.base.service.BaseService;
@@ -22,6 +23,7 @@ import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MaterialLotUnitService;
@@ -828,7 +830,6 @@ public class GcServiceImpl implements GcService {
                     }
                     materialLot.setCurrentQty(currentQty);
                     if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
-                        //TODO 此处仓库为写死ZJ。
                         //数量进行还原。不能扣减。
                         materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
                         materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
@@ -1688,7 +1689,7 @@ public class GcServiceImpl implements GcService {
 
     }
 
-    public void validationMaterial(MaterialLot materialLotFirst, MaterialLot materialLot) throws ClientException{
+    private void validationMaterial(MaterialLot materialLotFirst, MaterialLot materialLot) throws ClientException{
         try {
             Assert.assertEquals(materialLotFirst.getMaterialName(), materialLot.getMaterialName());
         } catch (AssertionError e) {
@@ -1842,7 +1843,7 @@ public class GcServiceImpl implements GcService {
             String transId = "";
             WeightModel boxsWeightModel = weightModelMap.get(materialLots.get(0).getMaterialLotId());
             if(!StringUtils.isNullOrEmpty(boxsWeightModel.getBoxsWeightFlag())){
-                transId = generatorMLotsWeightTransId(materialLots.get(0));
+                transId = generatorMLotsTransId(MaterialLot.GENERATOR_MATERIAL_LOT_WEIGHT_RULE);
             }
             //称重记录
             for (MaterialLot materialLot : materialLots) {
@@ -1858,36 +1859,16 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 根据ID生成规则设置的生成多箱称重事务号
+     * 根据ID生成规则设置的生成多箱称重事务号/来料导入编号
      * @return
      * @throws ClientException
      */
-    public String generatorMLotsWeightTransId(MaterialLot MaterialLot) throws ClientException{
+    public String generatorMLotsTransId(String ruleId) throws ClientException{
         try {
             GeneratorContext generatorContext = new GeneratorContext();
-            generatorContext.setRuleName(MaterialLot.GENERATOR_MATERIAL_LOT_WEIGHT_RULE);
+            generatorContext.setRuleName(ruleId);
             String id = generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
             return id;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    public void validationMLotReserved(MaterialLot materialLot) throws ClientException{
-        try {
-            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-            if(packageDetailLots.size() > 0){
-                MaterialLot packageDetailLotFirst = packageDetailLots.get(0);
-                String reservedInfo = packageDetailLotFirst.getReserved16() + packageDetailLotFirst.getReserved17() + packageDetailLotFirst.getReserved18();
-                for (MaterialLot packageDetailLot : packageDetailLots){
-                    String vboxReservedInfo = packageDetailLot.getReserved16() + packageDetailLot.getReserved17() + packageDetailLot.getReserved18();
-                    try {
-                        Assert.assertEquals(reservedInfo, vboxReservedInfo);
-                    } catch (AssertionError e) {
-                        throw new ClientParameterException(MM_MATERIAL_LOT_RESERVED_INFO_UNLIKE);
-                    }
-                }
-            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -1951,5 +1932,35 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 验证出货的物料信息是否全部备货、验证扫描的物料批次基础信息是否一致
+     * @param materialLot
+     * @param materialLotActions
+     */
+    public void validationStockOutMaterialLot(MaterialLot materialLot, List<MaterialLotAction> materialLotActions)throws ClientException{
+        try {
+            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+            if(packageDetailLots.size() > 0){
+                MaterialLot packageDetailLotFirst = packageDetailLots.get(0);
+                String reservedInfo = packageDetailLotFirst.getReserved16() + packageDetailLotFirst.getReserved17() + packageDetailLotFirst.getReserved18();
+                for (MaterialLot packageDetailLot : packageDetailLots){
+                    String vboxReservedInfo = packageDetailLot.getReserved16() + packageDetailLot.getReserved17() + packageDetailLot.getReserved18();
+                    try {
+                        Assert.assertEquals(reservedInfo, vboxReservedInfo);
+                    } catch (AssertionError e) {
+                        throw new ClientParameterException(MM_MATERIAL_LOT_RESERVED_INFO_UNLIKE);
+                    }
+                }
+            }
+            if(materialLotActions.size() > 0){
+                List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+                validationMaterial(materialLots.get(0), materialLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 
 }
