@@ -209,7 +209,9 @@ public class PackageServiceImpl implements PackageService{
             BigDecimal packedQty = materialLotPackageType.getPackedQty(materialLotActions);
 
             packedMaterialLot.setCurrentQty(packedMaterialLot.getCurrentQty().subtract(packedQty));
-            if (packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+            if(packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == -1){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO);
+            } else if (packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                 packedMaterialLot = mmsService.changeMaterialLotState(packedMaterialLot, MaterialEvent.EVENT_UN_PACKAGE, StringUtils.EMPTY);
             } else {
                 //TODO 此处为GC客制化 拆包 清空装箱检验相关栏位并将状态到USE-WAIT 后续公共版本需要清除此代码

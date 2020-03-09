@@ -29,6 +29,7 @@ public class MmsException {
     public static final String MM_PACKAGE_TYPE_IS_NOT_EXIST = "mm.package_type_is_not_exist";
     public static final String MM_PACKAGE_OVER_MAX_QTY = "mm.package_over_max_qty";
     public static final String MM_MATERIAL_LOT_RESERVED_INFO_UNLIKE = "mm.material_lot_reserved_info_unlike";
+    public static final String MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO= "mm.material_lot_currentQty_less_than_zero";
 
 
 }
