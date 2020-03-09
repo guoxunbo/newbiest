@@ -221,12 +221,24 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
-
+            Map<Long, List<MaterialLot>> materialMap = Maps.newHashMap();
+            List<MaterialLot> materialLotList = new ArrayList<>();
             BigDecimal unReservedQty = documentLine.getUnReservedQty();
             BigDecimal reservedQty = BigDecimal.ZERO;
             for (MaterialLot materialLot : materialLots) {
                 if (!StringUtils.isNullOrEmpty(materialLot.getReserved16())) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_RESERVED_BY_ANOTHER);
+                }
+                //将真空包按照箱号进行分组
+                if(materialLot.getParentMaterialLotRrn() != null){
+                    if(materialMap.containsKey(materialLot.getParentMaterialLotRrn())){
+                        materialLotList = materialMap.get(materialLot.getParentMaterialLotRrn());
+                        materialLotList.add(materialLot);
+                    } else {
+                        materialLotList = new ArrayList<>();
+                        materialLotList.add(materialLot);
+                        materialMap.put(materialLot.getParentMaterialLotRrn(), materialLotList);
+                    }
                 }
                 validationDocLine(documentLine, materialLot);
                 BigDecimal currentQty = materialLot.getCurrentQty();
@@ -241,6 +253,16 @@ public class GcServiceImpl implements GcService {
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RESERVED);
                 materialLotHistoryRepository.save(history);
+            }
+
+            //验证箱中是否所有的真空包都已做备货,如果全部备货修改箱备货标识
+            for(Long parentMaterialLotRrn : materialMap.keySet()){
+                List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(parentMaterialLotRrn);
+                if(materialMap.get(parentMaterialLotRrn).size() == packageDetailLots.size()){
+                    MaterialLot materialLot = mmsService.getMLotByObjectRrn(parentMaterialLotRrn);
+                    materialLot.setReserved16(MaterialLot.RESERVED);
+                    materialLotRepository.saveAndFlush(materialLot);
+                }
             }
 
             documentLine.setUnReservedQty(unReservedQty.subtract(reservedQty));
@@ -302,10 +324,11 @@ public class GcServiceImpl implements GcService {
                 deliveryOrderRepository.save(deliveryOrder);
             }
 
-            //取消备货清除真空包对应箱号的称重标识信息
+            //取消备货清除真空包对应箱号的称重标识信息、备货标识
             for(MaterialLot materialLot : materialLots){
                 if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
                     materialLot = mmsService.getMLotByMLotId(materialLot.getParentMaterialLotId());
+                    materialLot.setReserved16(StringUtils.EMPTY);
                     materialLot.setReserved19(StringUtils.EMPTY);
                     materialLot.setReserved20(StringUtils.EMPTY);
                     materialLotRepository.save(materialLot);
