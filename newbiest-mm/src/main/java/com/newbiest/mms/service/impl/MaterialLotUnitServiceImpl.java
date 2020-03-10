@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -98,6 +99,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      */
     public List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
         try {
+            List<MaterialLotUnit> materialLotUnitArrayList = new ArrayList<>();
             Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
             for (String materialName : materialUnitMap.keySet()) {
                 RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
@@ -140,13 +142,13 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved46",materialLotUnits.get(0).getReserved46());
 
                     MaterialLot materialLot = mmsService.createMLot(rawMaterial, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap);
-                    for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
+                    for (MaterialLotUnit materialLotUnit : materialLotUnits) {
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                         materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                         materialLotUnit.setMaterial(rawMaterial);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-                        materialLotUnits.add(materialLotUnit);
+                        materialLotUnitArrayList.add(materialLotUnit);
 
                         MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
                         history.setTransQty(materialLotUnit.getReceiveQty());
@@ -154,7 +156,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     }
                 }
             }
-            return materialLotUnitList;
+            return materialLotUnitArrayList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
