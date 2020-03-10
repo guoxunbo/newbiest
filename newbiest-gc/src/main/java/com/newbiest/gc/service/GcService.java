@@ -1,7 +1,7 @@
 package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.ui.model.NBOwnerReferenceList;
+import com.newbiest.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.gc.model.StockInModel;
 import com.newbiest.gc.model.StockOutCheck;

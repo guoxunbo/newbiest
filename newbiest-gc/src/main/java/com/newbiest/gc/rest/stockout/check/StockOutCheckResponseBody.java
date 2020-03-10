@@ -1,6 +1,6 @@
 package com.newbiest.gc.rest.stockout.check;
 
-import com.newbiest.base.ui.model.NBOwnerReferenceList;
+import com.newbiest.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.StockOutCheck;
 import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;

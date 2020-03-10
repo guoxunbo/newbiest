@@ -1,8 +1,6 @@
 package com.newbiest.mms.model;
 
 import com.newbiest.base.model.NBUpdatable;
-import com.newbiest.base.model.NBVersionControl;
-import com.newbiest.base.ui.model.NBReferenceList;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -24,7 +22,6 @@ public class Document extends NBUpdatable {
     public static final String CATEGORY_DELIVERY = "Delivery";
 
     public static final String STATUS_OPEN = "OPEN";
-
 
     @Column(name="NAME")
     private String name;
