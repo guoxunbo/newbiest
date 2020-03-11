@@ -8,7 +8,10 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
+import com.newbiest.common.idgenerator.service.GeneratorService;
+import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -48,6 +51,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
 
     @Autowired
     BaseService baseService;
+
+    @Autowired
+    GeneratorService generatorService;
 
     public List<MaterialLotUnit> getUnitsByMaterialLotId(String materialLotId) throws ClientException{
         return materialLotUnitRepository.findByMaterialLotId(materialLotId);
@@ -100,6 +106,11 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
     public List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
         try {
             List<MaterialLotUnit> materialLotUnitArrayList = new ArrayList<>();
+            //生成导入编码
+            String importCode = "";
+            if(!StringUtils.isNullOrEmpty(materialLotUnitList.get(0).getReserved47())){
+                importCode = generatorMLotUnitImportCode(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+            }
             Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
             for (String materialName : materialUnitMap.keySet()) {
                 RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
@@ -118,6 +129,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("durable", materialLotUnits.get(0).getDurable());
                     propsMap.put("supplier", materialLotUnits.get(0).getSupplier());
                     propsMap.put("shipper", materialLotUnits.get(0).getShipper());
+                    propsMap.put("grade", materialLotUnits.get(0).getGrade());
 
                     propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
                     propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());
@@ -140,12 +152,15 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved44",materialLotUnits.get(0).getReserved44());
                     propsMap.put("reserved45",materialLotUnits.get(0).getReserved45());
                     propsMap.put("reserved46",materialLotUnits.get(0).getReserved46());
+                    propsMap.put("reserved47",materialLotUnits.get(0).getReserved47());
+                    propsMap.put("reserved48",importCode);
 
                     MaterialLot materialLot = mmsService.createMLot(rawMaterial, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap);
                     for (MaterialLotUnit materialLotUnit : materialLotUnits) {
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                         materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
+                        materialLotUnit.setReserved48(importCode);
                         materialLotUnit.setMaterial(rawMaterial);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
                         materialLotUnitArrayList.add(materialLotUnit);
@@ -162,6 +177,20 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
         }
     }
 
-
+    /**
+     * 晶圆导入生成导入编码
+     * @param ruleId
+     * @return
+     */
+    private String generatorMLotUnitImportCode(String ruleId) throws ClientException{
+        try {
+            GeneratorContext generatorContext = new GeneratorContext();
+            generatorContext.setRuleName(ruleId);
+            String importCode = generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
+            return importCode;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
 }
