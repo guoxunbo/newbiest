@@ -829,7 +829,7 @@ public class MmsServiceImpl implements MmsService {
             }
             MaterialLot materialLot = getMLotByMLotId(mLotId);
             if (materialLot != null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_EXIST);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, mLotId);
             }
             materialLot = new MaterialLot();
             materialLot.setMaterialLotId(mLotId);
