@@ -58,6 +58,9 @@ public class Material extends NBVersionControl {
      */
     public static final String TYPE_PRODUCT = "Product";
 
+    public static final String QUERY_WAFERTYPEINFO = "queryWaferType";
+    public static final String QUERY_PRODUCTINFO = "GETPRODUCTINFO";
+
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;
 

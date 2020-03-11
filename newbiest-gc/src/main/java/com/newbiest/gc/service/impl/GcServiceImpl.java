@@ -1761,9 +1761,27 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncMesProduct() throws ClientException{
         try {
+            queryMesProductOrWaferTypeInfoByQueryName(Material.QUERY_PRODUCTINFO);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 格科同步MES的晶圆型号、描述、单位
+     */
+    public void asyncMesWaferType() throws ClientException{
+        try {
+            queryMesProductOrWaferTypeInfoByQueryName(Material.QUERY_WAFERTYPEINFO);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private void queryMesProductOrWaferTypeInfoByQueryName(String queryName) {
+        try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
-            String queryName = "GETPRODUCTINFO";
             RawMaterial rawMaterial = new RawMaterial();
             List<Map> materialList = findEntityMapListByQueryName(queryName,null,0,999,"","");
             if(CollectionUtils.isNotEmpty(materialList)){

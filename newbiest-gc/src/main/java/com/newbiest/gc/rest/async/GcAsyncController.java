@@ -48,6 +48,8 @@ public class GcAsyncController extends AbstractRestController {
             gcService.asyncShipOrder();
         } else if(GcAsyncRequest.ACTION_ASYNC_PRODUCT.equals(actionType)){
             gcService.asyncMesProduct();
+        } else if(GcAsyncRequest.ACTION_ASYNC_WAFERTYPE.equals(actionType)){
+            gcService.asyncMesWaferType();
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
