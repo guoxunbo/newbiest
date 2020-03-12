@@ -250,9 +250,6 @@ public class GcServiceImpl implements GcService {
                 BigDecimal totalReservedQty = parentMaterialLots.get(parentMLotId).stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
                 BigDecimal parentMaterialLotReservedQty = parentMLot.getReservedQty() == null ? BigDecimal.ZERO : parentMLot.getReservedQty();
                 parentMLot.setReservedQty(parentMaterialLotReservedQty.add(totalReservedQty));
-                if(parentMLot.getCurrentQty().compareTo(parentMLot.getReservedQty()) == 0){
-                    parentMLot.setReserved16(MaterialLot.RESERVED);
-                }
                 materialLotRepository.saveAndFlush(parentMLot);
             });
 
@@ -286,7 +283,6 @@ public class GcServiceImpl implements GcService {
                 MaterialLot parentMLot = mmsService.getMLotByMLotId(parentMLotId);
                 BigDecimal totalUnReservedQty = parentMaterialLots.get(parentMLotId).stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
                 parentMLot.setReservedQty(parentMLot.getReservedQty().subtract(totalUnReservedQty));
-                parentMLot.setReserved16(StringUtils.EMPTY);
                 parentMLot.setReserved19(StringUtils.EMPTY);
                 parentMLot.setReserved20(StringUtils.EMPTY);
                 materialLotRepository.saveAndFlush(parentMLot);
