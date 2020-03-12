@@ -506,7 +506,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(waferIssueOrder.getObjectRrn(), String.valueOf(erpMaterialOutOrder.getSeq()));
                                 if (documentLine != null) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpMaterialOutOrder.getSynStatus())) {
-                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutOrder.getIquantity()) < 0) {
+                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutOrder.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
@@ -603,7 +603,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(reTestOrder.getObjectRrn(), String.valueOf(erpMaterialOutOrder.getSeq()));
                                 if (documentLine != null) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpMaterialOutOrder.getSynStatus())) {
-                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutOrder.getIquantity()) < 0) {
+                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutOrder.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
@@ -1235,7 +1235,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(receiveOrder.getObjectRrn(), String.valueOf(erpSo.getSeq()));
                                 if (documentLine != null) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpSo.getSynStatus())) {
-                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpSo.getIquantity()) < 0) {
+                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpSo.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
@@ -1351,7 +1351,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(deliveryOrder.getObjectRrn(), String.valueOf(erpSo.getSeq()));
                                 if (documentLine != null) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpSo.getSynStatus())) {
-                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpSo.getIquantity()) < 0) {
+                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpSo.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
@@ -1385,6 +1385,7 @@ public class GcServiceImpl implements GcService {
                             }
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(erpSo.getLeftNum());
+                            documentLine.setUnReservedQty(erpSo.getIquantity());
                             totalQty = totalQty.add(erpSo.getIquantity());
                             documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
@@ -1409,7 +1410,7 @@ public class GcServiceImpl implements GcService {
                     }
                     deliveryOrder.setQty(totalQty);
                     deliveryOrder.setUnHandledQty(deliveryOrder.getQty().subtract(deliveryOrder.getHandledQty()));
-
+                    deliveryOrder.setUnReservedQty(totalQty);
                     // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
                     if (deliveryOrder.getObjectRrn() != null) {
                         List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(deliveryOrder.getObjectRrn());

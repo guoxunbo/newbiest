@@ -7,7 +7,7 @@ import com.newbiest.gc.service.GcService;
  */
 public class AsyncErpReceiveOrderThread extends GcTriggerThread {
 
-    public static final String CRON_EXPRESS = "0 0/15 * * * ?";
+    public static final String CRON_EXPRESS = "0 0/10 * * * ?";
 
     public AsyncErpReceiveOrderThread(GcService gcService) {
         super(gcService);
