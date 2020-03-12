@@ -7,6 +7,7 @@ import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotUnit;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void deleteIncomingMaterialLot(List<MaterialLotUnit> materialLotUnitList, String deleteNote) throws ClientException;
     String saveIncomingMaterialList(List<MaterialLot> materialLots, String warehouseId, String specialType, String importType)throws ClientException;
     void validationStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions)throws ClientException;
     void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;

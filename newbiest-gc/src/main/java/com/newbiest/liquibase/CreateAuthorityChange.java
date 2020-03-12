@@ -75,6 +75,7 @@ public class CreateAuthorityChange extends VCimAbstractChange  {
                 if (existTableRrn == null) {
                     changeValidationErrors.addError(String.format("Authority [%s]'s table [%s] data is not exist", authority.getName(), authority.getTableName()));
                 }
+                authority.setTableRrn(existTableRrn);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

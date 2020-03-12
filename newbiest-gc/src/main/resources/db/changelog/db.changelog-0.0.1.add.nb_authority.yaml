@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_IncomingMaterialDelete_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add IncomingMaterialDelete to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCIncomingMaterialDelete
+              description: 来料删除
+              tableName: GCIncomingMaterialDelete
+              url: /WMS/GCIncomingMLotDelete
+              parentRrn: 210
+              seqNo: 10
+              image: icon-recipe
+              labelZh: 来料删除
+              labelEn: IncomingMaterialDelete

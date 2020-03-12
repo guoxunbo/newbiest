@@ -23,6 +23,8 @@ public class AuthorityConfig extends VCimAbstractLiquibaseConfig {
 
     private String tableName;
 
+    private Long tableRrn;
+
     private String url;
 
     private Long parentRrn;
