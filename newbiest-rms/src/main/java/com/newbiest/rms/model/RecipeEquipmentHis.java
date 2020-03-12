@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import com.newbiest.base.model.NBHis;
+import com.newbiest.base.model.NBVersionControlHis;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Table(name="RMS_RECIPE_EQUIPMENT_HIS")
 @Data
 @NoArgsConstructor
-public class RecipeEquipmentHis extends NBHis {
+public class RecipeEquipmentHis extends NBVersionControlHis {
 
 	private static final long serialVersionUID = 1L;
 	

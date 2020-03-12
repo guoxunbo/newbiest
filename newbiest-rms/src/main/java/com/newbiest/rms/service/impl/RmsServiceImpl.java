@@ -76,7 +76,7 @@ public class RmsServiceImpl implements RmsService {
                 recipeEquipment.setStatus(AbstractRecipeEquipment.STATUS_UNFROZEN);
                 recipeEquipment.setPattern(StringUtils.isNullOrEmpty(recipeEquipment.getPattern()) ? AbstractRecipeEquipment.PATTERN_NORMAL : recipeEquipment.getPattern());
                 // 取得激活的，没有存在激活的就取最高版本的，paramter的compareFlag/SpecialFlag以及range值都从原有版本上来
-                List<AbstractRecipeEquipment> allRecipeEquipments = abstractRecipeEquipmentRepository.getRecipeEquipment(recipeEquipment.getOrgRrn(), recipeEquipment.getRecipeName(),
+                List<AbstractRecipeEquipment> allRecipeEquipments = abstractRecipeEquipmentRepository.getRecipeEquipment(recipeEquipment.getOrgRrn(), recipeEquipment.getName(),
                                                                                                     recipeEquipment.getEquipmentId(), recipeEquipment.getEquipmentType(), recipeEquipment.getPattern());
                 Map<String, RecipeEquipmentParameter> parameterMap = Maps.newHashMap();
                 if (CollectionUtils.isNotEmpty(allRecipeEquipments)) {
@@ -217,7 +217,7 @@ public class RmsServiceImpl implements RmsService {
             // 如果激活的是GoldenRecipe
             if (recipeEquipment.getGoldenFlag()) {
                 // 检查是否存在相同的名称并且已经激活的GoldenRecipe。如果存在。则不能激活
-                AbstractRecipeEquipment activeGoldenRecipeEquipment = abstractRecipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), recipeEquipment.getEquipmentType(), recipeEquipment.getRecipeName(), AbstractRecipeEquipment.STATUS_ACTIVE, recipeEquipment.getPattern(), false);
+                AbstractRecipeEquipment activeGoldenRecipeEquipment = abstractRecipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), recipeEquipment.getEquipmentType(), recipeEquipment.getName(), AbstractRecipeEquipment.STATUS_ACTIVE, recipeEquipment.getPattern(), false);
                 if (activeGoldenRecipeEquipment != null) {
                     // 如果存在暂时不让激活
                     if (isActiveGloden) {
@@ -228,7 +228,7 @@ public class RmsServiceImpl implements RmsService {
                 }
             } else {
                 // 不是GDRecipe 则先失效原有设备上的Recipe
-                AbstractRecipeEquipment activeRecipeEquipment = abstractRecipeEquipmentRepository.getActiveRecipeEquipment(ThreadLocalContext.getOrgRrn(), recipeEquipment.getRecipeName(), recipeEquipment.getEquipmentId(), recipeEquipment.getPattern(), false);
+                AbstractRecipeEquipment activeRecipeEquipment = abstractRecipeEquipmentRepository.getActiveRecipeEquipment(ThreadLocalContext.getOrgRrn(), recipeEquipment.getName(), recipeEquipment.getEquipmentId(), recipeEquipment.getPattern(), false);
                 if (activeRecipeEquipment != null) {
                     inActiveRecipeEquipment(activeRecipeEquipment, false);
                 }
@@ -244,7 +244,7 @@ public class RmsServiceImpl implements RmsService {
                 Map<String, Object> notificationMap = Maps.newHashMap();
                 // TODO 处理激活通知
 //                notificationMap.put(SendRmsTransContext.KEY_ACTIVE_TYPE, recipeEquipment.getActiveType());
-//                sendNotification(recipeEquipment.getRecipeName(), recipeEquipment.getEquipmentId(), recipeEquipment.getEquipmentType(), recipeEquipment.getPattern(), NotificationRequest.NOTIFICATION_TYPE_ACTIVE, notificationMap, sc);
+//                sendNotification(recipeEquipment.getName(), recipeEquipment.getEquipmentId(), recipeEquipment.getEquipmentType(), recipeEquipment.getPattern(), NotificationRequest.NOTIFICATION_TYPE_ACTIVE, notificationMap, sc);
             }
             return recipeEquipment;
         } catch (Exception e) {
@@ -336,7 +336,7 @@ public class RmsServiceImpl implements RmsService {
                 throw new ClientException(RmsException.EQP_IS_NOT_EXIST);
             }
             if (AbstractRecipeEquipment.STATUS_ACTIVE.equals(abstractRecipeEquipment.getStatus())) {
-                AbstractRecipeEquipment recipeEqp = abstractRecipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), equipment.getEquipmentType(), abstractRecipeEquipment.getRecipeName(), AbstractRecipeEquipment.STATUS_ACTIVE, abstractRecipeEquipment.getPattern(), false);
+                AbstractRecipeEquipment recipeEqp = abstractRecipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), equipment.getEquipmentType(), abstractRecipeEquipment.getName(), AbstractRecipeEquipment.STATUS_ACTIVE, abstractRecipeEquipment.getPattern(), false);
 
                 if (recipeEqp != null) {
                     throw new ClientException(RmsException.EQP_RECIPE_GOLDEN_RECIPE_IS_EXIST);
@@ -410,7 +410,7 @@ public class RmsServiceImpl implements RmsService {
      */
     public void checkRecipeEquipmentBody(AbstractRecipeEquipment checkRecipeEquipment, List<String> tempValues, boolean checkHoldState)  throws ClientException{
         try {
-            AbstractRecipeEquipment recipeEquipment = abstractRecipeEquipmentRepository.getActiveRecipeEquipment(ThreadLocalContext.getOrgRrn(), checkRecipeEquipment.getRecipeName(), checkRecipeEquipment.getEquipmentId(), checkRecipeEquipment.getPattern(), true);
+            AbstractRecipeEquipment recipeEquipment = abstractRecipeEquipmentRepository.getActiveRecipeEquipment(ThreadLocalContext.getOrgRrn(), checkRecipeEquipment.getName(), checkRecipeEquipment.getEquipmentId(), checkRecipeEquipment.getPattern(), true);
             if (recipeEquipment == null) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_NOT_EXIST);
             }

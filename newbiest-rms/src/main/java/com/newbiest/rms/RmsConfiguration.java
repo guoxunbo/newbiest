@@ -3,6 +3,8 @@ package com.newbiest.rms;
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.rms.model.Equipment;
 import com.newbiest.rms.model.Recipe;
+import com.newbiest.rms.model.RecipeEquipment;
+import com.newbiest.rms.model.RecipeEquipmentHis;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
@@ -24,6 +26,9 @@ public class RmsConfiguration {
         //注册modelClassLoader
         ModelFactory.registerModelClassLoader(Equipment.class.getName(), Equipment.class.getClassLoader());
         ModelFactory.registerModelClassLoader(Recipe.class.getName(), Recipe.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(RecipeEquipment.class.getName(), RecipeEquipment.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(RecipeEquipmentHis.class.getName(), RecipeEquipmentHis.class.getClassLoader());
+
     }
 
     @Bean(name="rmsLiquibase")

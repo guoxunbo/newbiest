@@ -2,6 +2,7 @@ package com.newbiest.rms.model;
 
 import com.google.common.collect.Lists;
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 
@@ -17,7 +18,7 @@ import java.util.List;
 @Inheritance(strategy= InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="CLASS", discriminatorType = DiscriminatorType.STRING, length = 32)
 @Data
-public class AbstractRecipeEquipment extends NBUpdatable {
+public class AbstractRecipeEquipment extends NBVersionControl {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,9 +44,8 @@ public class AbstractRecipeEquipment extends NBUpdatable {
     public static final int RECIPE_TYPE_CHECKSUM = 1 << 2;
     public static final int RECIPE_TYPE_PARAMETER = 1 << 3;
 
-
-    @Column(name="RECIPE_NAME")
-    private String recipeName;
+    @Column(name="name")
+    private String name;
 
     @Column(name="VERSION")
     private Long version;
@@ -86,17 +86,11 @@ public class AbstractRecipeEquipment extends NBUpdatable {
     @Column(name="GOLDEN_FLAG")
     private String goldenFlag;
 
-    @Column(name="ACTIVE_TIME")
-    private Date activeTime;
-
     /**
      * 激活类型(ByWafer/ByLot)
      */
     @Column(name="ACTIVE_TYPE")
     private String activeType;
-
-    @Column(name="ACTIVE_USER")
-    private String activeUser;
 
     /**
      * 当前Recipe所处在的模式。不同模式下只能有一个Recipe是激活的
@@ -118,7 +112,6 @@ public class AbstractRecipeEquipment extends NBUpdatable {
 
     @Column(name="RESERVED5")
     private String reserved5;
-
 
     // 只在删除的时候做级联
     @OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REMOVE})

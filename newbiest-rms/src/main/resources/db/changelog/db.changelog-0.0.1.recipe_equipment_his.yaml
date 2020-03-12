@@ -51,9 +51,13 @@ databaseChangeLog:
                   defaultValueNumeric: 1
                   remarks: 乐观锁版本 程序自己更新 不可人为改变
               - column:
-                  name: RECIPE_NAME
+                  name: NAME
                   type: varchar(32)
                   remarks: recipe名称
+              - column:
+                  name: DESCRIPTION
+                  type: varchar(32)
+                  remarks: 描述
               - column:
                   name: VERSION
                   type: bigint
