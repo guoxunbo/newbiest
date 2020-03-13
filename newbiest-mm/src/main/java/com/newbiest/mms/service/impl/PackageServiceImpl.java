@@ -112,6 +112,13 @@ public class PackageServiceImpl implements PackageService{
             List<MaterialLot> allMaterialLot = Lists.newArrayList();
 
             List<MaterialLot> waitToAddPackingMLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+
+            // 预约过后的不能包装
+            for (MaterialLot waitToAddPackingMLot : waitToAddPackingMLots) {
+                if (!StringUtils.isNullOrEmpty(waitToAddPackingMLot.getReserved16())) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_RESERVED, waitToAddPackingMLot.getMaterialLotId(), waitToAddPackingMLot.getReserved17());
+                }
+            }
             allMaterialLot.addAll(waitToAddPackingMLots);
             // 取到包装规则
             MaterialLotPackageType materialLotPackageType = getMaterialPackageTypeByName(packedMaterialLot.getPackageType());
@@ -183,6 +190,9 @@ public class PackageServiceImpl implements PackageService{
                     .collect(Collectors.groupingBy(MaterialLot::getParentMaterialLotId));
             for (String packageMLotId : packedLotMap.keySet()) {
                 MaterialLot packagedLot = mmsService.getMLotByMLotId(packageMLotId, true);
+                if (packagedLot.getReservedQty() != null && packagedLot.getReservedQty().compareTo(BigDecimal.ZERO) != 0) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_RESERVED, packagedLot.getMaterialLotId());
+                }
                 packagedLot = unPack(packagedLot, packedLotMap.get(packageMLotId), materialLotActions);
                 unPackedMainMaterialLots.add(packagedLot);
             }
@@ -362,6 +372,13 @@ public class PackageServiceImpl implements PackageService{
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
 
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+
+            // 预约过后的不能包装
+            for (MaterialLot waitToPackageLot : materialLots) {
+                if (!StringUtils.isNullOrEmpty(waitToPackageLot.getReserved16())) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_RESERVED, waitToPackageLot.getMaterialLotId(), waitToPackageLot.getReserved17());
+                }
+            }
 
             //格科要求装过箱的真空包也可以再次装箱，将等待装箱的真空包按照箱号分组，先进行拆箱操作
             materialLots = getWaitPackMaterialLots(materialLots);

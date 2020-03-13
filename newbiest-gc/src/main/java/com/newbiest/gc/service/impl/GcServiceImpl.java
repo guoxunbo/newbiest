@@ -49,7 +49,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.newbiest.mms.exception.MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST;
-import static com.newbiest.mms.exception.MmsException.MM_MATERIAL_LOT_RESERVED_INFO_UNLIKE;
 
 /**
  * Created by guoxunbo on 2019-08-21 12:41
@@ -1050,20 +1049,23 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    public void validationStockDocLine(DocumentLine documentLine, MaterialLot materialLot, String treasuryNote) throws ClientException{
+    public void validationStockDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException{
         validationDocLine(documentLine,materialLot);
-        //出货验证箱中真空包的备货信息和出货单rrn是否一致
+        // 出货验证箱中真空包的备货信息和出货单rrn是否一致
         List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-        try {
-            Assert.assertEquals(materialLot.getReserved4(), treasuryNote);
-        } catch (AssertionError e) {
-            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "treasuryNote", treasuryNote, materialLot.getReserved4());
-        }
-        if(!StringUtils.isNullOrEmpty(packageDetailLots.get(0).getReserved16())){
+        if (CollectionUtils.isNotEmpty(packageDetailLots)) {
+            for (MaterialLot packagedMaterialLot : packageDetailLots) {
+                try {
+                    Assert.assertEquals(packagedMaterialLot.getReserved16() , documentLine.getObjectRrn().toString());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "reservedDocRrn", documentLine.getObjectRrn(), packagedMaterialLot.getReserved16());
+                }
+            }
+        } else {
             try {
-                Assert.assertEquals(packageDetailLots.get(0).getReserved16() , documentLine.getObjectRrn().toString());
+                Assert.assertEquals(materialLot.getReserved16() , documentLine.getObjectRrn().toString());
             } catch (AssertionError e) {
-                throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "reservedRrn", documentLine.getObjectRrn(), packageDetailLots.get(0).getReserved16());
+                throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "reservedDocRrn", documentLine.getObjectRrn(), materialLot.getReserved16());
             }
         }
 
@@ -1129,9 +1131,12 @@ public class GcServiceImpl implements GcService {
         try {
             documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-            String treasuryNote = materialLots.get(0).getReserved4();
+            Set treasuryNoteInfo = materialLots.stream().map(materialLot -> materialLot.getReserved4()).collect(Collectors.toSet());
+            if (treasuryNoteInfo != null &&  treasuryNoteInfo.size() > 1) {
+                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TREASURY_INFO_IS_NOT_SAME);
+            }
             for (MaterialLot materialLot : materialLots) {
-                validationStockDocLine(documentLine, materialLot, treasuryNote);
+                validationStockDocLine(documentLine, materialLot);
             }
 
             BigDecimal handledQty = BigDecimal.ZERO;
@@ -1711,31 +1716,6 @@ public class GcServiceImpl implements GcService {
 
     }
 
-    private void validationMaterial(MaterialLot materialLotFirst, MaterialLot materialLot) throws ClientException{
-        try {
-            Assert.assertEquals(materialLotFirst.getMaterialName(), materialLot.getMaterialName());
-        } catch (AssertionError e) {
-            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "materialName", materialLotFirst.getMaterialName(), materialLot.getMaterialName());
-        }
-
-        try {
-            Assert.assertEquals(materialLotFirst.getReserved1(), materialLot.getReserved1());
-        } catch (AssertionError e) {
-            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "secondcode", materialLotFirst.getReserved1(),  materialLot.getReserved1());
-        }
-
-        try {
-            Assert.assertEquals(materialLotFirst.getGrade(), materialLot.getGrade());
-        } catch (AssertionError e) {
-            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "grade", materialLotFirst.getGrade(), materialLot.getGrade());
-        }
-        try {
-            Assert.assertEquals(materialLotFirst.getReserved6(), materialLot.getReserved6());
-        } catch (AssertionError e) {
-            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "other1", materialLotFirst.getReserved6(), materialLot.getReserved6());
-        }
-    }
-
     /**
      * 获取能和箱信息匹配的订单信息
      * @return
@@ -1974,28 +1954,49 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 验证出货的物料信息是否全部备货、验证扫描的物料批次基础信息是否一致
-     * @param materialLot
-     * @param materialLotActions
+     * 验证出货的物料信息是否全部备货、
+     *      如果是包装批次，要验证内部所有的物料批次是否都备货到了相同的DocLine以及备货备注是否一致
+     *      验证扫描的物料批次基础信息是否一致
+     * @param waitValidationLot 待验证的物料批次
+     * @param validatedMLotActions 以验证过的物料批次动作
      */
-    public void validationStockOutMaterialLot(MaterialLot materialLot, List<MaterialLotAction> materialLotActions)throws ClientException{
+    public void validationStockOutMaterialLot(MaterialLot waitValidationLot, List<MaterialLotAction> validatedMLotActions)throws ClientException{
         try {
-            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-            if(packageDetailLots.size() > 0){
-                MaterialLot packageDetailLotFirst = packageDetailLots.get(0);
-                String reservedInfo = packageDetailLotFirst.getReserved16() + packageDetailLotFirst.getReserved17() + packageDetailLotFirst.getReserved18();
-                for (MaterialLot packageDetailLot : packageDetailLots){
-                    String vboxReservedInfo = packageDetailLot.getReserved16() + packageDetailLot.getReserved17() + packageDetailLot.getReserved18();
-                    try {
-                        Assert.assertEquals(reservedInfo, vboxReservedInfo);
-                    } catch (AssertionError e) {
-                        throw new ClientParameterException(MM_MATERIAL_LOT_RESERVED_INFO_UNLIKE);
-                    }
+            waitValidationLot = mmsService.getMLotByMLotId(waitValidationLot.getMaterialLotId(), true);
+            if (waitValidationLot.getReservedQty().compareTo(waitValidationLot.getCurrentQty()) != 0) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_RESERVED_ALL, waitValidationLot.getMaterialLotId());
+            }
+            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(waitValidationLot.getObjectRrn());
+            if(CollectionUtils.isNotEmpty(packageDetailLots)){
+                Set reservedInfo = packageDetailLots.stream().map(mLot -> mLot.getReserved16() + StringUtils.SPLIT_CODE + mLot.getReserved18()).collect(Collectors.toSet());
+                if (reservedInfo == null || reservedInfo.size() > 1) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_RESERVED_INFO_IS_NOT_SAME);
                 }
             }
-            if(materialLotActions.size() > 0){
-                List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-                validationMaterial(materialLots.get(0), materialLot);
+            if (CollectionUtils.isNotEmpty(validatedMLotActions)) {
+                MaterialLot validatedMLot = mmsService.getMLotByMLotId(validatedMLotActions.get(0).getMaterialLotId(), true);
+                try {
+                    Assert.assertEquals(waitValidationLot.getMaterialName(), validatedMLot.getMaterialName());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "materialName", waitValidationLot.getMaterialName(), validatedMLot.getMaterialName());
+                }
+
+                try {
+                    Assert.assertEquals(waitValidationLot.getReserved1(), validatedMLot.getReserved1());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "secondcode", waitValidationLot.getReserved1(),  validatedMLot.getReserved1());
+                }
+
+                try {
+                    Assert.assertEquals(waitValidationLot.getGrade(), validatedMLot.getGrade());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "grade", waitValidationLot.getGrade(), validatedMLot.getGrade());
+                }
+                try {
+                    Assert.assertEquals(waitValidationLot.getReserved6(), validatedMLot.getReserved6());
+                } catch (AssertionError e) {
+                    throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "other1", waitValidationLot.getReserved6(), validatedMLot.getReserved6());
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -2075,7 +2076,7 @@ public class GcServiceImpl implements GcService {
             for(String materialName : materialMap.keySet()){
                 RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
                 if (rawMaterial == null) {
-                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
+                    throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
                 }
             }
             List<MaterialLot> materialLots = new ArrayList<>();

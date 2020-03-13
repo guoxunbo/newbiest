@@ -18,5 +18,6 @@ public class GcExceptions {
 
     public static final String OVER_DOC_QTY = "gc.over_doc_qty";
     public static final String MATERIAL_LOT_WAREHOUSE_IS_NULL = "gc.material_lot_is_not_def_warehouse";
+    public static final String MATERIAL_LOT_TREASURY_INFO_IS_NOT_SAME = "gc.material_lot_treaseury_is_not_same";
 
 }

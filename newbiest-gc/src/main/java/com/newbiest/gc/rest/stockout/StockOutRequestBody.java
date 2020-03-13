@@ -20,13 +20,13 @@ public class StockOutRequestBody extends RequestBody {
 	@ApiModelProperty(value = "操作类型")
 	private String actionType;
 
-	@ApiModelProperty(value = "待出货的批次")
-	private List<MaterialLotAction> materialLotActions;
-
 	@ApiModelProperty(value = "单据详情")
 	private DocumentLine documentLine;
 
 	@ApiModelProperty(value = "箱信息")
 	private MaterialLot queryMaterialLot;
+
+	@ApiModelProperty(value = "待出货的批次")
+	private List<MaterialLotAction> materialLotActions;
 
 }

@@ -7,7 +7,7 @@ import com.newbiest.gc.service.GcService;
  */
 public class AsyncWaferTypeThread extends GcTriggerThread {
 
-    public static final String CRON_EXPRESS = "0 0/30 * * * ?";
+    public static final String CRON_EXPRESS = "0 0/60 * * * ?";
 
     public AsyncWaferTypeThread(GcService gcService) {
         super(gcService);
