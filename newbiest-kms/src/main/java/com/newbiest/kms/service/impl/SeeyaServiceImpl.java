@@ -45,6 +45,7 @@ public class SeeyaServiceImpl implements SeeyaService {
     EntityManager em;
 
     public static final String QUERY_NAME_GET_MES_USER = "GetMesUser";
+    public static final String QUERY_NAME_GET_MES_LEAVE_USER = "GetMesLeaveUser";
 
     public void asyncMesUser() {
         List<Map> mesUserMap = findEntityMapListByQueryName(QUERY_NAME_GET_MES_USER, Maps.newHashMap(), 0, StringUtils.EMPTY, StringUtils.EMPTY);
@@ -70,7 +71,18 @@ public class SeeyaServiceImpl implements SeeyaService {
             }
         }
 
+        // 同步离职人员
+        List<Map> mesLeaveUserMap = findEntityMapListByQueryName(QUERY_NAME_GET_MES_LEAVE_USER, Maps.newHashMap(), 0, StringUtils.EMPTY, StringUtils.EMPTY);
+        if (CollectionUtils.isNotEmpty(mesLeaveUserMap)) {
+            for (Map mesLeaveUser : mesLeaveUserMap) {
+                String userId = (String) mesLeaveUser.get("USERID");
+                NBUser nbUser = securityService.getUserByUsername(userId);
+                if (nbUser != null) {
+                    baseService.delete(nbUser);
+                }
 
+            }
+        }
     }
 
     public List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, String whereClause, String orderByClause) throws ClientException {
