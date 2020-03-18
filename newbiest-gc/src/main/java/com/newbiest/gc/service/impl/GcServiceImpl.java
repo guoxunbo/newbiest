@@ -159,6 +159,7 @@ public class GcServiceImpl implements GcService {
     @Autowired
     MaterialLotUnitHisRepository materialLotUnitHisRepository;
 
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -443,6 +444,23 @@ public class GcServiceImpl implements GcService {
                             checkHistory = new CheckHistory();
                             PropertyUtils.copyProperties(packageDetailLot, checkHistory, new HistoryBeanConverter());
                             checkHistory.setTransQty(packageDetailLot.getCurrentQty());
+                            checkHistory.setTransType(MaterialLotHistory.TRANS_TYPE_CHECK);
+                            checkHistory.setObjectRrn(null);
+                            checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
+                            checkHistoryRepository.save(checkHistory);
+                        }
+                    }
+
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                    if (CollectionUtils.isNotEmpty(materialLotUnitList)) {
+                        for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
+                            MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_CHECK);
+                            materialLotUnitHistory.setTransQty(materialLotUnit.getCurrentQty());
+                            materialLotUnitHisRepository.save(materialLotUnitHistory);
+
+                            checkHistory = new CheckHistory();
+                            checkHistory.setMaterialLotUnit(materialLotUnit);
+                            checkHistory.setTransQty(materialLotUnit.getCurrentQty());
                             checkHistory.setTransType(MaterialLotHistory.TRANS_TYPE_CHECK);
                             checkHistory.setObjectRrn(null);
                             checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
@@ -769,6 +787,7 @@ public class GcServiceImpl implements GcService {
                             MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, GCMaterialEvent.EVENT_WAFER_ISSUE);
                             history.setTransQty(materialLotUnit.getCurrentQty());
                             materialLotUnitHisRepository.save(history);
+
                         }
 
                     } else {
@@ -817,6 +836,7 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
 
     /**
      * 晶圆接收

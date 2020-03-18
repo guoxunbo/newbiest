@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_check_history_0.0.1
+      author: Guozhang Luo
+      remarks: gc_check_history add column unit_id
+      changes:
+        - addColumn:
+            tableName: GC_CHECK_HISTORY
+            columns:
+              - column:
+                  name: UNIT_ID
+                  type: varchar(64)
+                  remarks: 晶圆号
+

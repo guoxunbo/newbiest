@@ -5,6 +5,7 @@ import com.newbiest.base.model.NBHis;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.model.MaterialLotUnit;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -245,6 +246,12 @@ public class CheckHistory extends NBHis {
     @Column(name="RESERVED10")
     private String reserved10;
 
+    /**
+     * GlaxyCore 晶圆号
+     */
+    @Column(name="UNIT_ID")
+    private String unitId;
+
     public Boolean getErrorFlag() {
         return StringUtils.YES.equalsIgnoreCase(errorFlag);
     }
@@ -259,5 +266,24 @@ public class CheckHistory extends NBHis {
 
     public boolean getSubMaterialLotFlag() {
         return StringUtils.YES.equalsIgnoreCase(this.subMaterialLotFlag);
+    }
+
+    public void setMaterialLotUnit(MaterialLotUnit materialLotUnit){
+        this.setUnitId(materialLotUnit.getUnitId());
+        this.setMaterialLotId(materialLotUnit.getMaterialLotId());
+        this.setCurrentQty(materialLotUnit.getCurrentQty());
+        this.setGrade(materialLotUnit.getGrade());
+        this.setReceiveQty(materialLotUnit.getReceiveQty());
+        this.setMaterialName(materialLotUnit.getMaterialName());
+        this.setStatus(materialLotUnit.getState());
+        this.setMaterialCategory(materialLotUnit.getMaterialCategory());
+        this.setMaterialDesc(materialLotUnit.getMaterialDesc());
+        this.setMaterialRrn(materialLotUnit.getMaterialRrn());
+        this.setMaterialType(materialLotUnit.getMaterialType());
+        this.setMaterialVersion(materialLotUnit.getMaterialVersion());
+        this.setReserved1(materialLotUnit.getReserved1());
+        this.setReserved6(materialLotUnit.getReserved4());
+        this.setWorkOrderId(materialLotUnit.getWorkOrderId());
+        this.setStoreUom(materialLotUnit.getStoreUom());
     }
 }
