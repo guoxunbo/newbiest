@@ -159,6 +159,8 @@ public class GcServiceImpl implements GcService {
     @Autowired
     MaterialLotUnitHisRepository materialLotUnitHisRepository;
 
+    @Autowired
+    MesWaferReceiveRepository mesWaferReceiveRepository;
 
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
@@ -788,6 +790,8 @@ public class GcServiceImpl implements GcService {
                             history.setTransQty(materialLotUnit.getCurrentQty());
                             materialLotUnitHisRepository.save(history);
 
+                            //发料成功，将晶圆信息保存到MES的BACKEND_WAFER_RECEIVE表中
+                            saveMesBackendWaferReceive(materialLotUnit);
                         }
 
                     } else {
@@ -837,6 +841,20 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    private void saveMesBackendWaferReceive(MaterialLotUnit materialLotUnit) throws ClientException{
+        try {
+            MesWaferReceive waferReceive = new MesWaferReceive();
+            waferReceive.setMaterialLotUnit(materialLotUnit);
+            Warehouse warehouse = new Warehouse();
+            if(!StringUtils.isNullOrEmpty(materialLotUnit.getReserved13())){
+                warehouse = warehouseRepository.getOne(Long.parseLong(materialLotUnit.getReserved13()));
+            }
+            waferReceive.setStockId(warehouse.getName());
+            mesWaferReceiveRepository.save(waferReceive);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     /**
      * 晶圆接收
