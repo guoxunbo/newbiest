@@ -96,5 +96,11 @@ public class ErpMo implements Serializable {
     @Column(name="BBONDED")
     private String bonded;
 
+    /**
+     * 保税属性 对应mesPackedLot的secondcode
+     */
+    @Column(name="SECONDCODE")
+    private String secondcode;
+
 
 }

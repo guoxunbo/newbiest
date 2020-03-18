@@ -1617,13 +1617,18 @@ public class GcServiceImpl implements GcService {
                     ErpMo erpMo = new ErpMo();
                     erpMo.setCCode(mesPackedLot.getShipSerialNumber());
                     erpMo.setDDate(mesPackedLot.getFinalOperationTime());
+                    erpMo.setSecondcode(mesPackedLot.getLevelTwoCode());
                     erpMo.setCWHCode(warehouseName);
                     if (StringUtils.isNullOrEmpty(mesPackedLot.getWorkorderId())) {
                         erpMo.setCmoCode(ErpMo.DEFAULT_WO_ID);
                     } else {
                         erpMo.setCmoCode(mesPackedLot.getWorkorderId());
                     }
-                    erpMo.setCinVCode(mesPackedLot.getProductId());
+                    if(StringUtils.isNullOrEmpty(mesPackedLot.getErpProductId())){
+                        erpMo.setCinVCode(mesPackedLot.getProductId());
+                    } else {
+                        erpMo.setCinVCode(mesPackedLot.getErpProductId());
+                    }
                     erpMo.setFQty(mesPackedLot.getQuantity());
 
                     erpMo.setCGrade(mesPackedLot.getGrade());
