@@ -160,6 +160,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                         materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
+                        materialLotUnit.setReserved18("0");
                         materialLotUnit.setReserved48(importCode);
                         materialLotUnit.setMaterial(rawMaterial);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);

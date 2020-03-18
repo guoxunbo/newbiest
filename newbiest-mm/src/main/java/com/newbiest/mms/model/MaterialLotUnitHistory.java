@@ -222,6 +222,9 @@ public class MaterialLotUnitHistory extends NBHis {
     @Column(name="RESERVED17")
     private String reserved17;
 
+    /**
+     * GlaxyCore mes建批lot flag，(0：未建批；1:已建批)
+     */
     @Column(name="RESERVED18")
     private String reserved18;
 
