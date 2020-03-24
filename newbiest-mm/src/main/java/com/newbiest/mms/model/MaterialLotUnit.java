@@ -22,6 +22,7 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String STATE_CREATE = "Create";
     public static final String STATE_IN = "In";
     public static final String STATE_ISSUE = "Issue";
+    public static final String STATE_SCRAP = "Scrap";
 
     public static final String COB_FINISH_PRODUCT = "COB（-4成品）";
     public static final String WLA_UNMEASURED = "WLA未测（-2.5）";

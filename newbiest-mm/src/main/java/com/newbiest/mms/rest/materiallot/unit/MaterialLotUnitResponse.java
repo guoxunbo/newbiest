@@ -9,5 +9,7 @@ public class MaterialLotUnitResponse extends Response {
 	private static final long serialVersionUID = 1L;
 	
 	private MaterialLotUnitResponseBody body;
+
+	private String message;
 	
 }

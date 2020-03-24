@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,6 +49,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
 
     @Autowired
     MaterialLotUnitHisRepository materialLotUnitHisRepository;
+
+    @Autowired
+    MaterialLotRepository materialLotRepository;
 
     @Autowired
     BaseService baseService;
@@ -194,4 +198,52 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
         }
     }
 
+    /**
+     * MES晶圆退仓库时验证晶圆信息是否已经存在，如果存在则修改状态
+     * 晶圆换箱号则修改原箱号中的晶圆状态
+     * @param materialLotUnitList
+     */
+    public String validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
+        String errorMessage = "";
+        try {
+            Warehouse warehouse;
+            Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
+            for(String materialLotId : materialLotUnitMap.keySet()){
+                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
+                List<MaterialLotUnit> materialLotUnitInfo = materialLotUnitMap.get(materialLotId);
+
+                for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
+                    String warehouseName = materialLotUnit.getReserved13();
+                    if(!StringUtils.isNullOrEmpty(warehouseName)){
+                        warehouse = mmsService.getWarehouseByName(warehouseName);
+                        materialLotUnit.setReserved13(warehouse.getObjectRrn().toString());
+                    }
+                }
+                if(materialLot != null){
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
+                        materialLotUnitRepository.updateMLotUnitByUnitIdAndMLotId(materialLotUnit.getUnitId(), materialLotUnit.getMaterialLotId(), MaterialLotUnit.STATE_CREATE);
+                    }
+                    materialLot.setStatusCategory(MaterialLotUnit.STATE_CREATE);
+                    materialLot.setStatus(MaterialLotUnit.STATE_CREATE);
+                    materialLot.setPreStatus("");
+                    materialLot.setPreStatusCategory("");
+                    materialLotRepository.saveAndFlush(materialLot);
+                } else{
+                    //修改unit表中存在且已发料的晶圆状态
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
+                        List<MaterialLotUnit> issuedMLotUnitInfo = materialLotUnitRepository.getMLotUnitByUnitIdAndState(materialLotUnit.getUnitId(), MaterialLotUnit.STATE_ISSUE);
+                        for(MaterialLotUnit issuedMLotUnit : issuedMLotUnitInfo){
+                            issuedMLotUnit.setState(MaterialLotUnit.STATE_SCRAP);
+                            materialLotUnitRepository.saveAndFlush(issuedMLotUnit);
+                        }
+                    }
+                    //重新导入退仓库的晶圆
+                    createMLot(materialLotUnitInfo);
+                }
+            }
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+        return errorMessage;
+    }
 }
