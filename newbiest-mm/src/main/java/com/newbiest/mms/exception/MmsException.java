@@ -34,6 +34,7 @@ public class MmsException {
     public static final String MM_MATERIAL_LOT_IS_NOT_RESERVED_ALL = "mm.material_lot_is_not_reserved_all";
 
     public static final String MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO= "mm.material_lot_currentQty_less_than_zero";
+    public static final String MM_MATERIAL_LOT_UNIT_ID_REPEATS = "mm.material_lot_unitId_repeats";
 
 
 }

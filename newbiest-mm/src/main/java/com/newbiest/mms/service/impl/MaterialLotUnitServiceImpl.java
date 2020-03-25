@@ -110,6 +110,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
     public List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
         try {
             List<MaterialLotUnit> materialLotUnitArrayList = new ArrayList<>();
+            Map<String, List<MaterialLotUnit>> materialUnitIdMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getUnitId));
+            for(String unitId : materialUnitIdMap.keySet()){
+                if(materialUnitIdMap.get(unitId).size() > 1){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_ID_REPEATS, unitId);
+                }
+            }
             //生成导入编码
             String importCode = "";
             if(!StringUtils.isNullOrEmpty(materialLotUnitList.get(0).getReserved47())){
@@ -130,7 +136,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     BigDecimal totalQty = materialLotUnits.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
                     Map<String, Object> propsMap = Maps.newHashMap();
                     propsMap.put("category", MaterialLot.CATEGORY_UNIT);
-                    propsMap.put("durable", materialLotUnits.get(0).getDurable());
+                    propsMap.put("durable", materialLotUnits.get(0).getDurable().toUpperCase());
                     propsMap.put("supplier", materialLotUnits.get(0).getSupplier());
                     propsMap.put("shipper", materialLotUnits.get(0).getShipper());
                     propsMap.put("grade", materialLotUnits.get(0).getGrade());
@@ -161,6 +167,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
 
                     MaterialLot materialLot = mmsService.createMLot(rawMaterial, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap);
                     for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                        materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                         materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
