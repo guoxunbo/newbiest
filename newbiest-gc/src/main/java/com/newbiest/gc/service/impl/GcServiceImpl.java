@@ -162,6 +162,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     MesWaferReceiveRepository mesWaferReceiveRepository;
 
+    @Autowired
+    MesWaferReceiveHisRepository mesWaferReceiveHisRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -850,7 +853,15 @@ public class GcServiceImpl implements GcService {
                 warehouse = warehouseRepository.getOne(Long.parseLong(materialLotUnit.getReserved13()));
             }
             waferReceive.setStockId(warehouse.getName());
-            mesWaferReceiveRepository.save(waferReceive);
+            waferReceive = mesWaferReceiveRepository.saveAndFlush(waferReceive);
+
+            //mes的晶圆历史表中记录晶圆发料历史
+            MesWaferReceiveHis mesWaferReceiveHis = new MesWaferReceiveHis();
+            mesWaferReceiveHis.setTransType(MesWaferReceiveHis.TRNAS_TYPE_ISSUE);
+            PropertyUtils.copyProperties(waferReceive, mesWaferReceiveHis, new HistoryBeanConverter());
+            mesWaferReceiveHis.setObjectRrn(null);
+            mesWaferReceiveHisRepository.save(mesWaferReceiveHis);
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

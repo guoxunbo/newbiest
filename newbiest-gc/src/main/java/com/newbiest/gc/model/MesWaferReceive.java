@@ -30,6 +30,7 @@ public class MesWaferReceive implements Serializable {
     public static final long FACILITY_RRN = 1;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="OBJECT_RRN")
     private Long objectRrn;
 
@@ -141,7 +142,6 @@ public class MesWaferReceive implements Serializable {
     private String storageLocation;
 
     public void setMaterialLotUnit(MaterialLotUnit materialLotUnit){
-        this.setObjectRrn(materialLotUnit.getObjectRrn());
         this.setFacilityRrn(FACILITY_RRN);
         this.setWaferId(materialLotUnit.getUnitId());
         this.setBondPro(materialLotUnit.getReserved4());
