@@ -53,8 +53,8 @@ public class IncomingMaterialImportController {
 
         BiMap<String, String> fieldMap = HashBiMap.create(CsvUtils.buildHeaderByTable(nbTable, incomingMaterialImportRequest.getHeader().getLanguage()));
         fieldMap = fieldMap.inverse();
-
-        List dataList = (List) CsvUtils.importCsv(classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), ",");
+        CsvUtils.validateImportFile(fieldMap, file.getInputStream());
+        List dataList = (List) CsvUtils.importCsv(nbTable, classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), ",");
         responseBody.setDataList(dataList);
         response.setBody(responseBody);
         return response;

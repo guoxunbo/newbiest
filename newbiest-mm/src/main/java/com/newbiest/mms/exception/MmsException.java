@@ -36,5 +36,9 @@ public class MmsException {
     public static final String MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO= "mm.material_lot_currentQty_less_than_zero";
     public static final String MM_MATERIAL_LOT_UNIT_ID_REPEATS = "mm.material_lot_unitId_repeats";
 
+    public static final String MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME = "mm.material_lot_import_type_is_not_same";
+    public static final String MM_IMPORT_FILE_CONTAINS_EMPTY_DATA = "mm.the_import_file_contains_empty_data";
+    public static final String MM_MATERIAL_LOT_UNIT_IS_NOT_BIND_WORKORDER = "mm.material_lot_unit_is_not_bind_workorder";
+
 
 }
