@@ -1133,6 +1133,26 @@ public class GcServiceImpl implements GcService {
                 validationDocLine(documentLine, materialLot);
             }
         }
+        //箱中至少有一个晶圆绑定工单才允许发料
+        validateMLotUnitBindWorkorder(materialLot);
+    }
+
+    /**
+     * 验证箱中晶圆是否绑定工单
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void validateMLotUnitBindWorkorder(MaterialLot materialLot) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().filter(materialLotUnit -> !StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderId()))
+                    .collect(Collectors.groupingBy(MaterialLotUnit :: getWorkOrderId));
+            if(materialLotUnitMap != null && materialLotUnitMap.size() == 0){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_IS_NOT_BIND_WORKORDER, materialLot.getMaterialLotId());
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     /**
