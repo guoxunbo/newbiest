@@ -83,7 +83,7 @@ public class RmsServiceImpl implements RmsService {
                     AbstractRecipeEquipment lastRecipeEquipment = allRecipeEquipments.get(0);
                     recipeEquipment.setVersion(lastRecipeEquipment.getVersion() + 1);
 
-                    Optional<AbstractRecipeEquipment> optional = allRecipeEquipments.stream().filter(temp -> NBVersionControl.STATUS_ACTIVE.equals(temp.getStatus())).findFirst();
+                    Optional<AbstractRecipeEquipment> optional = allRecipeEquipments.stream().filter(temp -> DefaultStatusMachine.STATUS_ACTIVE.equals(temp.getStatus())).findFirst();
                     if (optional.isPresent()) {
                         AbstractRecipeEquipment activeRecipeEquipment = optional.get();
                         activeRecipeEquipment = abstractRecipeEquipmentRepository.getByObjectRrn(activeRecipeEquipment.getObjectRrn());
@@ -646,7 +646,7 @@ public class RmsServiceImpl implements RmsService {
                     throw new ClientException(RmsException.EQP_RECIPE_ONLINE_MULTI_CHANGE);
                 } else {
                     ContextValue value = contextValues.get(0);
-                    List<RecipeEquipmentParameterTemp> temps = recipeEquipmentParameterTempRepository.getByEcnId(value.getResultValue1(), NBVersionControl.STATUS_ACTIVE);
+                    List<RecipeEquipmentParameterTemp> temps = recipeEquipmentParameterTempRepository.getByEcnId(value.getResultValue1(), DefaultStatusMachine.STATUS_ACTIVE);
                     return temps;
                 }
             }
@@ -674,7 +674,7 @@ public class RmsServiceImpl implements RmsService {
             if (CollectionUtils.isNotEmpty(temps)) {
                 for (RecipeEquipmentParameterTemp temp : temps) {
                     // 失效
-                    temp.setStatus(NBVersionControl.STATUS_INACTIVE);
+                    temp.setStatus(DefaultStatusMachine.STATUS_INACTIVE);
                     recipeEquipmentParameterTempRepository.save(temp);
                 }
             }
@@ -698,7 +698,7 @@ public class RmsServiceImpl implements RmsService {
                 List<ContextValue> activedContextValues = contextService.getContextValue(context, contextValue);
                 if (activedContextValues != null && activedContextValues.size() > 0) {
                     for (ContextValue activedContextValue : activedContextValues) {
-                        activedContextValue.setStatus(NBVersionControl.STATUS_INACTIVE);
+                        activedContextValue.setStatus(DefaultStatusMachine.STATUS_INACTIVE);
                         contextValueRepository.save(activedContextValue);
                     }
                 }
@@ -708,7 +708,7 @@ public class RmsServiceImpl implements RmsService {
 
                 RecipeEquipmentParameterTemp paraTemp = new RecipeEquipmentParameterTemp();
                 paraTemp.setEcnId(ecnId);
-                paraTemp.setStatus(NBVersionControl.STATUS_ACTIVE);
+                paraTemp.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
                 paraTemp.setRecipeEquipmentRrn(recipeEquipment.getObjectRrn());
                 paraTemp.setParameterName(parameter.getParameterName());
                 paraTemp.setParameterGroup(parameter.getParameterGroup());

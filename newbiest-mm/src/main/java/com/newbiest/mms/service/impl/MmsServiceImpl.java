@@ -123,7 +123,7 @@ public class MmsServiceImpl implements MmsService {
             if (rawMaterial.getObjectRrn() == null) {
                 rawMaterial.setActiveTime(new Date());
                 rawMaterial.setActiveUser(ThreadLocalContext.getUsername());
-                rawMaterial.setStatus(NBVersionControl.STATUS_ACTIVE);
+                rawMaterial.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
                 Long version = versionControlService.getNextVersion(rawMaterial);
                 rawMaterial.setVersion(version);
 

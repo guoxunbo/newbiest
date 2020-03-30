@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.factory.SqlBuilderFactory;
 import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
+import com.newbiest.base.utils.DefaultStatusMachine;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.rms.model.RecipeEquipmentParameterTemp;
 import com.newbiest.rms.repository.custom.RecipeEquipmentParameterTempRepositoryCustom;
@@ -30,7 +31,7 @@ public class RecipeEquipmentParameterTempRepositoryImpl implements RecipeEquipme
     public List<RecipeEquipmentParameterTemp> getByEcnId(String ecnId, String status) throws ClientException {
         try {
             if(StringUtils.isNullOrEmpty(status)) {
-                status = NBVersionControl.STATUS_ACTIVE;
+                status = DefaultStatusMachine.STATUS_ACTIVE;
             }
             StringBuffer sqlBuffer = SqlBuilderFactory.createSqlBuilder().selectWithBasedCondition(RecipeEquipmentParameterTemp.class, ThreadLocalContext.getOrgRrn())
                                                 .mapFieldValue(ImmutableMap.of("ecnId", ecnId, "status", status))
