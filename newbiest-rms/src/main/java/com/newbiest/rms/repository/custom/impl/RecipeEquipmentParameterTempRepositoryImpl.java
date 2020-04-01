@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.factory.SqlBuilderFactory;
-import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.DefaultStatusMachine;
 import com.newbiest.base.utils.StringUtils;

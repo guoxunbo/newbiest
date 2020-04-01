@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class RmsServiceImpl implements RmsService {
 
     @Autowired
-    private AbstractRecipeEquipmentRepository abstractRecipeEquipmentRepository;
+    private RecipeEquipmentRepository recipeEquipmentRepository;
 
     @Autowired
     private RecipeEquipmentParameterRepository recipeEquipmentParameterRepository;
@@ -68,30 +68,29 @@ public class RmsServiceImpl implements RmsService {
      * @return
      * @throws ClientException
      */
-    public AbstractRecipeEquipment saveRecipeEquipment(AbstractRecipeEquipment recipeEquipment) throws ClientException {
+    public RecipeEquipment saveRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException {
         try {
             String transType;
             if (recipeEquipment.getObjectRrn() == null) {
                 transType = NBHis.TRANS_TYPE_CREATE;
-                recipeEquipment.setStatus(AbstractRecipeEquipment.STATUS_UNFROZEN);
-                recipeEquipment.setPattern(StringUtils.isNullOrEmpty(recipeEquipment.getPattern()) ? AbstractRecipeEquipment.PATTERN_NORMAL : recipeEquipment.getPattern());
+                recipeEquipment.setStatus(DefaultStatusMachine.STATUS_UNFROZEN);
+                recipeEquipment.setPattern(StringUtils.isNullOrEmpty(recipeEquipment.getPattern()) ? RecipeEquipment.PATTERN_NORMAL : recipeEquipment.getPattern());
                 // 取得激活的，没有存在激活的就取最高版本的，paramter的compareFlag/SpecialFlag以及range值都从原有版本上来
-                List<AbstractRecipeEquipment> allRecipeEquipments = abstractRecipeEquipmentRepository.getRecipeEquipment(recipeEquipment.getOrgRrn(), recipeEquipment.getName(),
+                List<RecipeEquipment> allRecipeEquipments = recipeEquipmentRepository.getRecipeEquipment(recipeEquipment.getOrgRrn(), recipeEquipment.getName(),
                                                                                                     recipeEquipment.getEquipmentId(), recipeEquipment.getEquipmentType(), recipeEquipment.getPattern());
                 Map<String, RecipeEquipmentParameter> parameterMap = Maps.newHashMap();
                 if (CollectionUtils.isNotEmpty(allRecipeEquipments)) {
-                    AbstractRecipeEquipment lastRecipeEquipment = allRecipeEquipments.get(0);
+                    RecipeEquipment lastRecipeEquipment = allRecipeEquipments.get(0);
                     recipeEquipment.setVersion(lastRecipeEquipment.getVersion() + 1);
 
-                    Optional<AbstractRecipeEquipment> optional = allRecipeEquipments.stream().filter(temp -> DefaultStatusMachine.STATUS_ACTIVE.equals(temp.getStatus())).findFirst();
+                    Optional<RecipeEquipment> optional = allRecipeEquipments.stream().filter(temp -> DefaultStatusMachine.STATUS_ACTIVE.equals(temp.getStatus())).findFirst();
                     if (optional.isPresent()) {
-                        AbstractRecipeEquipment activeRecipeEquipment = optional.get();
-                        activeRecipeEquipment = abstractRecipeEquipmentRepository.getByObjectRrn(activeRecipeEquipment.getObjectRrn());
+                        RecipeEquipment activeRecipeEquipment = optional.get();
+                        activeRecipeEquipment = (RecipeEquipment) recipeEquipmentRepository.findByObjectRrn(activeRecipeEquipment.getObjectRrn());
                         parameterMap = activeRecipeEquipment.getRecipeEquipmentParameters().stream().
                                 collect(Collectors.toConcurrentMap(parameter -> parameter.getFullName(), Function.identity()));
                     } else {
-
-                        lastRecipeEquipment = abstractRecipeEquipmentRepository.getByObjectRrn(lastRecipeEquipment.getObjectRrn());
+                        lastRecipeEquipment = (RecipeEquipment) recipeEquipmentRepository.findByObjectRrn(lastRecipeEquipment.getObjectRrn());
                         parameterMap = lastRecipeEquipment.getRecipeEquipmentParameters().stream().
                                 collect(Collectors.toConcurrentMap(parameter -> parameter.getFullName(), Function.identity()));
                     }
@@ -135,7 +134,7 @@ public class RmsServiceImpl implements RmsService {
                     recipeEquipmentParameterRepository.save(parameter);
                 }
             }
-            recipeEquipment = abstractRecipeEquipmentRepository.saveAndFlush(recipeEquipment);
+            recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
 
             RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
             recipeEquipmentHis.setTransType(transType);
@@ -151,9 +150,9 @@ public class RmsServiceImpl implements RmsService {
     @Override
     public void deleteRecipeEquipment(Long recipeEquipmentRrn) throws ClientException {
         try {
-            AbstractRecipeEquipment recipeEquipment = abstractRecipeEquipmentRepository.getByObjectRrn(recipeEquipmentRrn);
-            if (!(AbstractRecipeEquipment.STATUS_UNFROZEN.equals(recipeEquipment.getStatus())
-                    || AbstractRecipeEquipment.STATUS_INACTIVE.equals(recipeEquipment.getStatus()))) {
+            RecipeEquipment recipeEquipment = (RecipeEquipment) recipeEquipmentRepository.findByObjectRrn(recipeEquipmentRrn);
+            if (!(DefaultStatusMachine.STATUS_UNFROZEN.equals(recipeEquipment.getStatus())
+                    || DefaultStatusMachine.STATUS_INACTIVE.equals(recipeEquipment.getStatus()))) {
                 throw new ClientException(RmsException.EQP_RECIPE_DELETE_ONLY_UNFROZEN_OR_INACTIVE);
             }
 
@@ -163,7 +162,7 @@ public class RmsServiceImpl implements RmsService {
             // 删除自己是子recipe本身
             recipeEquipmentUnitRepository.deleteByUnitRecipeRrn(recipeEquipment.getObjectRrn());
 
-            abstractRecipeEquipmentRepository.delete(recipeEquipment);
+            recipeEquipmentRepository.delete(recipeEquipment);
 
             RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
             recipeEquipmentHis.setTransType(NBHis.TRANS_TYPE_DELETE);
@@ -175,16 +174,16 @@ public class RmsServiceImpl implements RmsService {
     }
 
     @Override
-    public AbstractRecipeEquipment frozenRecipeEquipment(AbstractRecipeEquipment recipeEquipment) throws ClientException {
+    public RecipeEquipment frozenRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException {
         try {
             if (recipeEquipment.getGoldenFlag()) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_GOLDEN_RECIPE);
             }
-            recipeEquipment.setStatus(AbstractRecipeEquipment.STATUS_FROZEN);
-            recipeEquipment = abstractRecipeEquipmentRepository.saveAndFlush(recipeEquipment);
+            recipeEquipment.setStatus(DefaultStatusMachine.STATUS_FROZEN);
+            recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
 
             RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setTransType(AbstractRecipeEquipment.STATUS_FROZEN);
+            recipeEquipmentHis.setTransType(DefaultStatusMachine.STATUS_FROZEN);
             recipeEquipmentHisRepository.save(recipeEquipmentHis);
 
             return recipeEquipment;
@@ -195,13 +194,13 @@ public class RmsServiceImpl implements RmsService {
     }
 
     @Override
-    public AbstractRecipeEquipment unFrozenRecipeEquipment(AbstractRecipeEquipment recipeEquipment) throws ClientException {
+    public RecipeEquipment unFrozenRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException {
         try {
-            recipeEquipment.setStatus(AbstractRecipeEquipment.STATUS_UNFROZEN);
-            recipeEquipment = abstractRecipeEquipmentRepository.saveAndFlush(recipeEquipment);
+            recipeEquipment.setStatus(DefaultStatusMachine.STATUS_UNFROZEN);
+            recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
 
             RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setTransType(AbstractRecipeEquipment.STATUS_UNFROZEN);
+            recipeEquipmentHis.setTransType(DefaultStatusMachine.STATUS_UNFROZEN);
             recipeEquipmentHisRepository.save(recipeEquipmentHis);
 
             return recipeEquipment;
@@ -212,12 +211,12 @@ public class RmsServiceImpl implements RmsService {
     }
 
     @Override
-    public AbstractRecipeEquipment activeRecipeEquipment(AbstractRecipeEquipment recipeEquipment, boolean isActiveGloden, boolean sendNotification) throws ClientException {
+    public RecipeEquipment activeRecipeEquipment(RecipeEquipment recipeEquipment, boolean isActiveGloden, boolean sendNotification) throws ClientException {
         try {
             // 如果激活的是GoldenRecipe
             if (recipeEquipment.getGoldenFlag()) {
                 // 检查是否存在相同的名称并且已经激活的GoldenRecipe。如果存在。则不能激活
-                AbstractRecipeEquipment activeGoldenRecipeEquipment = abstractRecipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), recipeEquipment.getEquipmentType(), recipeEquipment.getName(), AbstractRecipeEquipment.STATUS_ACTIVE, recipeEquipment.getPattern(), false);
+                RecipeEquipment activeGoldenRecipeEquipment = recipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), recipeEquipment.getEquipmentType(), recipeEquipment.getName(), DefaultStatusMachine.STATUS_ACTIVE, recipeEquipment.getPattern(), false);
                 if (activeGoldenRecipeEquipment != null) {
                     // 如果存在暂时不让激活
                     if (isActiveGloden) {
@@ -228,16 +227,16 @@ public class RmsServiceImpl implements RmsService {
                 }
             } else {
                 // 不是GDRecipe 则先失效原有设备上的Recipe
-                AbstractRecipeEquipment activeRecipeEquipment = abstractRecipeEquipmentRepository.getActiveRecipeEquipment(ThreadLocalContext.getOrgRrn(), recipeEquipment.getName(), recipeEquipment.getEquipmentId(), recipeEquipment.getPattern(), false);
+                RecipeEquipment activeRecipeEquipment = recipeEquipmentRepository.getActiveRecipeEquipment(ThreadLocalContext.getOrgRrn(), recipeEquipment.getName(), recipeEquipment.getEquipmentId(), recipeEquipment.getPattern(), false);
                 if (activeRecipeEquipment != null) {
                     inActiveRecipeEquipment(activeRecipeEquipment, false);
                 }
             }
-            recipeEquipment.setStatus(AbstractRecipeEquipment.STATUS_ACTIVE);
-            recipeEquipment = abstractRecipeEquipmentRepository.saveAndFlush(recipeEquipment);
+            recipeEquipment.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
+            recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
 
             RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setTransType(AbstractRecipeEquipment.STATUS_ACTIVE);
+            recipeEquipmentHis.setTransType(DefaultStatusMachine.STATUS_ACTIVE);
             recipeEquipmentHisRepository.save(recipeEquipmentHis);
 
             if (sendNotification) {
@@ -254,17 +253,17 @@ public class RmsServiceImpl implements RmsService {
     }
 
     @Override
-    public AbstractRecipeEquipment inActiveRecipeEquipment(AbstractRecipeEquipment recipeEquipment, boolean checkGoldenFlag) throws ClientException {
+    public RecipeEquipment inActiveRecipeEquipment(RecipeEquipment recipeEquipment, boolean checkGoldenFlag) throws ClientException {
         try {
             if (checkGoldenFlag && recipeEquipment.getGoldenFlag()) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_GOLDEN_RECIPE);
             }
 
-            recipeEquipment.setStatus(AbstractRecipeEquipment.STATUS_INACTIVE);
-            recipeEquipment = abstractRecipeEquipmentRepository.saveAndFlush(recipeEquipment);
+            recipeEquipment.setStatus(DefaultStatusMachine.STATUS_INACTIVE);
+            recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
 
             RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setTransType(AbstractRecipeEquipment.STATUS_INACTIVE);
+            recipeEquipmentHis.setTransType(DefaultStatusMachine.STATUS_INACTIVE);
             recipeEquipmentHisRepository.save(recipeEquipmentHis);
             return recipeEquipment;
         } catch (Exception e) {
@@ -275,19 +274,19 @@ public class RmsServiceImpl implements RmsService {
 
     /**
      * ReleaseRecipe
-     * @param abstractRecipeEquipment
+     * @param RecipeEquipment
      * @throws ClientException
      */
-    public void holdRecipeEquipment(AbstractRecipeEquipment abstractRecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException{
+    public void holdRecipeEquipment(RecipeEquipment RecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException{
         try {
-            PreConditionalUtils.checkNotNull(abstractRecipeEquipment.getObjectRrn(), "RecipeEquipment ObjectRrn");
-            if (AbstractRecipeEquipment.HOLD_STATE_ON.equals(abstractRecipeEquipment.getHoldState())) {
+            PreConditionalUtils.checkNotNull(RecipeEquipment.getObjectRrn(), "RecipeEquipment ObjectRrn");
+            if (RecipeEquipment.HOLD_STATE_ON.equals(RecipeEquipment.getHoldState())) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_ALREADY_HOLD);
             }
-            abstractRecipeEquipment.setHoldState(AbstractRecipeEquipment.HOLD_STATE_ON);
-            abstractRecipeEquipmentRepository.saveAndFlush(abstractRecipeEquipment);
+            RecipeEquipment.setHoldState(RecipeEquipment.HOLD_STATE_ON);
+            recipeEquipmentRepository.saveAndFlush(RecipeEquipment);
 
-            RecipeEquipmentHis his = new RecipeEquipmentHis(abstractRecipeEquipment);
+            RecipeEquipmentHis his = new RecipeEquipmentHis(RecipeEquipment);
             his.setActionCode(actionCode);
             his.setActionComment(actionComment);
             his.setActionReason(actionReason);
@@ -301,19 +300,19 @@ public class RmsServiceImpl implements RmsService {
 
     /**
      * ReleaseRecipe
-     * @param abstractRecipeEquipment
+     * @param RecipeEquipment
      * @throws ClientException
      */
-    public void releaseRecipeEquipment(AbstractRecipeEquipment abstractRecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException{
+    public void releaseRecipeEquipment(RecipeEquipment RecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException{
         try {
-            PreConditionalUtils.checkNotNull(abstractRecipeEquipment.getObjectRrn(), "RecipeEquipment ObjectRrn");
-            if (AbstractRecipeEquipment.HOLD_STATE_OFF.equals(abstractRecipeEquipment.getHoldState())) {
+            PreConditionalUtils.checkNotNull(RecipeEquipment.getObjectRrn(), "RecipeEquipment ObjectRrn");
+            if (RecipeEquipment.HOLD_STATE_OFF.equals(RecipeEquipment.getHoldState())) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_ALREADY_RELEASE);
             }
-            abstractRecipeEquipment.setHoldState(AbstractRecipeEquipment.HOLD_STATE_OFF);
-            abstractRecipeEquipmentRepository.saveAndFlush(abstractRecipeEquipment);
+            RecipeEquipment.setHoldState(RecipeEquipment.HOLD_STATE_OFF);
+            recipeEquipmentRepository.saveAndFlush(RecipeEquipment);
 
-            RecipeEquipmentHis his = new RecipeEquipmentHis(abstractRecipeEquipment);
+            RecipeEquipmentHis his = new RecipeEquipmentHis(RecipeEquipment);
             his.setActionCode(actionCode);
             his.setActionComment(actionComment);
             his.setActionReason(actionReason);
@@ -326,28 +325,28 @@ public class RmsServiceImpl implements RmsService {
     }
 
     @Override
-    public void setGoldenRecipe(AbstractRecipeEquipment abstractRecipeEquipment) throws ClientException {
+    public void setGoldenRecipe(RecipeEquipment RecipeEquipment) throws ClientException {
         try {
-            if (abstractRecipeEquipment.getGoldenFlag()) {
+            if (RecipeEquipment.getGoldenFlag()) {
                 throw new ClientException(RmsException.EQP_RECIPE_GOLDEN_RECIPE_IS_EXIST);
             }
-            Equipment equipment = equipmentRepository.getByEquipmentId(abstractRecipeEquipment.getEquipmentId());
+            Equipment equipment = equipmentRepository.getByEquipmentId(RecipeEquipment.getEquipmentId());
             if (equipment == null) {
                 throw new ClientException(RmsException.EQP_IS_NOT_EXIST);
             }
-            if (AbstractRecipeEquipment.STATUS_ACTIVE.equals(abstractRecipeEquipment.getStatus())) {
-                AbstractRecipeEquipment recipeEqp = abstractRecipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), equipment.getEquipmentType(), abstractRecipeEquipment.getName(), AbstractRecipeEquipment.STATUS_ACTIVE, abstractRecipeEquipment.getPattern(), false);
+            if (DefaultStatusMachine.STATUS_ACTIVE.equals(RecipeEquipment.getStatus())) {
+                RecipeEquipment recipeEqp = recipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), equipment.getEquipmentType(), RecipeEquipment.getName(), DefaultStatusMachine.STATUS_ACTIVE, RecipeEquipment.getPattern(), false);
 
                 if (recipeEqp != null) {
                     throw new ClientException(RmsException.EQP_RECIPE_GOLDEN_RECIPE_IS_EXIST);
                 }
                 // 设置成GoldenRecipe则需要清空EquipmentId
-                abstractRecipeEquipment.setEquipmentId(null);
-                abstractRecipeEquipment.setEquipmentType(equipment.getEquipmentType());
-                abstractRecipeEquipment.setGoldenFlag(true);
-                abstractRecipeEquipment = abstractRecipeEquipmentRepository.save(abstractRecipeEquipment);
+                RecipeEquipment.setEquipmentId(null);
+                RecipeEquipment.setEquipmentType(equipment.getEquipmentType());
+                RecipeEquipment.setGoldenFlag(true);
+                RecipeEquipment = recipeEquipmentRepository.save(RecipeEquipment);
                 // 记录历史
-                RecipeEquipmentHis recipeEqpHis = new RecipeEquipmentHis(abstractRecipeEquipment);
+                RecipeEquipmentHis recipeEqpHis = new RecipeEquipmentHis(RecipeEquipment);
                 recipeEqpHis.setTransType(RecipeEquipmentHis.TRANS_TYPE_SET_GOLDEN);
                 recipeEquipmentHisRepository.save(recipeEqpHis);
             } else {
@@ -361,12 +360,12 @@ public class RmsServiceImpl implements RmsService {
     }
 
     @Override
-    public void unSetGoldenRecipe(AbstractRecipeEquipment abstractRecipeEquipment, String equipmentId) throws ClientException {
+    public void unSetGoldenRecipe(RecipeEquipment RecipeEquipment, String equipmentId) throws ClientException {
         try {
-            if (!abstractRecipeEquipment.getGoldenFlag()) {
+            if (!RecipeEquipment.getGoldenFlag()) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_NOT_GOLDEN);
             }
-            if (!AbstractRecipeEquipment.STATUS_ACTIVE.equals(abstractRecipeEquipment.getStatus())) {
+            if (!DefaultStatusMachine.STATUS_ACTIVE.equals(RecipeEquipment.getStatus())) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_ACTIVE);
             }
             // TODO unset的时候是否卡控必输equipmentId
@@ -375,13 +374,13 @@ public class RmsServiceImpl implements RmsService {
                 if (equipment == null) {
                     throw new ClientException(RmsException.EQP_IS_NOT_EXIST);
                 }
-                abstractRecipeEquipment.setEquipmentId(equipment.getEquipmentId());
+                RecipeEquipment.setEquipmentId(equipment.getEquipmentId());
             }
 
-            abstractRecipeEquipment.setGoldenFlag(false);
-            abstractRecipeEquipment = abstractRecipeEquipmentRepository.save(abstractRecipeEquipment);
+            RecipeEquipment.setGoldenFlag(false);
+            RecipeEquipment = recipeEquipmentRepository.save(RecipeEquipment);
             // 记录历史
-            RecipeEquipmentHis recipeEqpHis = new RecipeEquipmentHis(abstractRecipeEquipment);
+            RecipeEquipmentHis recipeEqpHis = new RecipeEquipmentHis(RecipeEquipment);
             recipeEqpHis.setTransType(RecipeEquipmentHis.TRANS_TYPE_UNSET_GOLDEN);
             recipeEquipmentHisRepository.save(recipeEqpHis);
         } catch (ClientException e) {
@@ -390,9 +389,9 @@ public class RmsServiceImpl implements RmsService {
         }
     }
 
-    public void checkRecipeEquipmentBody(List<AbstractRecipeEquipment> recipeEquipmentList, List<String> tempValues, boolean checkHoldState)  throws ClientException{
+    public void checkRecipeEquipmentBody(List<RecipeEquipment> recipeEquipmentList, List<String> tempValues, boolean checkHoldState)  throws ClientException{
         try {
-            for (AbstractRecipeEquipment checkRecipeEquipment : recipeEquipmentList) {
+            for (RecipeEquipment checkRecipeEquipment : recipeEquipmentList) {
                 checkRecipeEquipmentBody(checkRecipeEquipment, tempValues, checkHoldState);
             }
         } catch (ClientException e) {
@@ -408,9 +407,9 @@ public class RmsServiceImpl implements RmsService {
      * @param checkHoldState 是否检查Hold
      * @throws ClientException
      */
-    public void checkRecipeEquipmentBody(AbstractRecipeEquipment checkRecipeEquipment, List<String> tempValues, boolean checkHoldState)  throws ClientException{
+    public void checkRecipeEquipmentBody(RecipeEquipment checkRecipeEquipment, List<String> tempValues, boolean checkHoldState)  throws ClientException{
         try {
-            AbstractRecipeEquipment recipeEquipment = abstractRecipeEquipmentRepository.getActiveRecipeEquipment(ThreadLocalContext.getOrgRrn(), checkRecipeEquipment.getName(), checkRecipeEquipment.getEquipmentId(), checkRecipeEquipment.getPattern(), true);
+            RecipeEquipment recipeEquipment = recipeEquipmentRepository.getActiveRecipeEquipment(ThreadLocalContext.getOrgRrn(), checkRecipeEquipment.getName(), checkRecipeEquipment.getEquipmentId(), checkRecipeEquipment.getPattern(), true);
             if (recipeEquipment == null) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_NOT_EXIST);
             }
@@ -448,7 +447,7 @@ public class RmsServiceImpl implements RmsService {
             }
 
             if (checkHoldState) {
-                if (AbstractRecipeEquipment.HOLD_STATE_ON.equals(recipeEquipment.getHoldState())) {
+                if (RecipeEquipment.HOLD_STATE_ON.equals(recipeEquipment.getHoldState())) {
                     throw new ClientException(RmsException.EQP_RECIPE_STATE_ON_HOLD);
                 }
             }
@@ -512,10 +511,10 @@ public class RmsServiceImpl implements RmsService {
      * @throws ClientException
      */
     @Override
-    public AbstractRecipeEquipment changeRecipeCheckSum(AbstractRecipeEquipment recipeEquipment, String checkSum) throws ClientException {
+    public RecipeEquipment changeRecipeCheckSum(RecipeEquipment recipeEquipment, String checkSum) throws ClientException {
         try {
             recipeEquipment.setCheckSum(checkSum);
-            recipeEquipment = abstractRecipeEquipmentRepository.saveAndFlush(recipeEquipment);
+            recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
 
             RecipeEquipmentHis his = new RecipeEquipmentHis(recipeEquipment);
             his.setTransType(RecipeEquipmentHis.TRANS_TYPE_CHANGE_CHECK_SUM);
@@ -537,9 +536,9 @@ public class RmsServiceImpl implements RmsService {
      * @throws ClientException
      */
     @Override
-    public AbstractRecipeEquipment downloadRecipe(String lotId, String equipmentId, long recipeEquipmentRrn) throws ClientException {
+    public RecipeEquipment downloadRecipe(String lotId, String equipmentId, long recipeEquipmentRrn) throws ClientException {
         try {
-            AbstractRecipeEquipment recipeEquipment = getDeepRecipeEquipment(recipeEquipmentRrn);
+            RecipeEquipment recipeEquipment = getDeepRecipeEquipment(recipeEquipmentRrn);
             // 记录download历史
             RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
             recipeEquipmentHis.setEquipmentId(equipmentId);
@@ -561,11 +560,11 @@ public class RmsServiceImpl implements RmsService {
      * @return
      * @throws ClientException
      */
-    public AbstractRecipeEquipment getDeepRecipeEquipment(long recipeEquipmentRrn) throws ClientException {
+    public RecipeEquipment getDeepRecipeEquipment(long recipeEquipmentRrn) throws ClientException {
         try {
-            AbstractRecipeEquipment abstractRecipeEquipment = abstractRecipeEquipmentRepository.getDeepRecipeEquipment(recipeEquipmentRrn);
-            abstractRecipeEquipment = getRecipeEquipment(abstractRecipeEquipment, true);
-            return abstractRecipeEquipment;
+            RecipeEquipment RecipeEquipment = recipeEquipmentRepository.getDeepRecipeEquipment(recipeEquipmentRrn);
+            RecipeEquipment = getRecipeEquipment(RecipeEquipment, true);
+            return RecipeEquipment;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -578,17 +577,17 @@ public class RmsServiceImpl implements RmsService {
      * @param bodyFlag 是否要取得params
      * @return
      */
-    public AbstractRecipeEquipment getRecipeEquipment(AbstractRecipeEquipment recipeEquipment, boolean bodyFlag) {
+    public RecipeEquipment getRecipeEquipment(RecipeEquipment recipeEquipment, boolean bodyFlag) {
         try {
             List<RecipeEquipmentUnit> units = recipeEquipmentUnitRepository.getByRecipeEquipmentRrn(recipeEquipment.getObjectRrn());
             if (CollectionUtils.isNotEmpty(units)) {
-                List<AbstractRecipeEquipment> subRecipeEquipments = Lists.newArrayList();
+                List<RecipeEquipment> subRecipeEquipments = Lists.newArrayList();
                 for (RecipeEquipmentUnit unit : units) {
-                    AbstractRecipeEquipment subRecipeEquipment;
+                    RecipeEquipment subRecipeEquipment;
                     if (bodyFlag) {
-                        subRecipeEquipment = abstractRecipeEquipmentRepository.getDeepRecipeEquipment(unit.getObjectRrn());
+                        subRecipeEquipment = recipeEquipmentRepository.getDeepRecipeEquipment(unit.getObjectRrn());
                     } else {
-                        subRecipeEquipment = abstractRecipeEquipmentRepository.getByObjectRrn(unit.getUnitRecipeRrn());
+                        subRecipeEquipment = (RecipeEquipment) recipeEquipmentRepository.findByObjectRrn(unit.getUnitRecipeRrn());
                     }
                     if (subRecipeEquipment == null) {
                         continue;
@@ -605,7 +604,7 @@ public class RmsServiceImpl implements RmsService {
         }
     }
     @Override
-    public void recipeOnlineChange(AbstractRecipeEquipment recipeEquipment, Map<String, List<String>> contextParameterGroup, List<RecipeEquipmentParameter> changeParameters, String expriedPolicy, int life) throws ClientException {
+    public void recipeOnlineChange(RecipeEquipment recipeEquipment, Map<String, List<String>> contextParameterGroup, List<RecipeEquipmentParameter> changeParameters, String expriedPolicy, int life) throws ClientException {
         try {
             for (String key : contextParameterGroup.keySet()) {
                 recipeOnlineChange(recipeEquipment, contextParameterGroup.get(key), changeParameters, expriedPolicy, life);
@@ -624,9 +623,9 @@ public class RmsServiceImpl implements RmsService {
      * @throws ClientException
      */
     @Override
-    public List<RecipeEquipmentParameterTemp> getOnlineRecipe(AbstractRecipeEquipment recipeEquipment, List<String> contextParameters) throws ClientException {
+    public List<RecipeEquipmentParameterTemp> getOnlineRecipe(RecipeEquipment recipeEquipment, List<String> contextParameters) throws ClientException {
         try {
-            Context context = contextService.getContextByName(AbstractRecipeEquipment.CONTEXT_RECIPE_EQUIPMENT);
+            Context context = contextService.getContextByName(RecipeEquipment.CONTEXT_RECIPE_EQUIPMENT);
 
             // 根据不同的parameter给contextFieldValue赋值
             ContextValue contextValue = new ContextValue();
@@ -666,7 +665,7 @@ public class RmsServiceImpl implements RmsService {
      * @param life 周期 次数时表示多少次，时间时表示多少天
      * @throws ClientException
      */
-    public void recipeOnlineChange(AbstractRecipeEquipment recipeEquipment, List<String> contextParameters,
+    public void recipeOnlineChange(RecipeEquipment recipeEquipment, List<String> contextParameters,
                                    List<RecipeEquipmentParameter> changeParameters, String expriedPolicy, int life) throws ClientException{
         try {
             //1. 查找此Recipe是否已经设置了临时修改，如果有, 失效原本值
@@ -678,7 +677,7 @@ public class RmsServiceImpl implements RmsService {
                     recipeEquipmentParameterTempRepository.save(temp);
                 }
             }
-            Context context = contextService.getContextByName(AbstractRecipeEquipment.CONTEXT_RECIPE_EQUIPMENT);
+            Context context = contextService.getContextByName(RecipeEquipment.CONTEXT_RECIPE_EQUIPMENT);
 
             List<ContextValue> contextValues = Lists.newArrayList();
             // 通过ECNID关联相应的变更通知

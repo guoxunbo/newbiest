@@ -1,19 +1,18 @@
 package com.newbiest.rms.model;
 
+import com.google.common.collect.ImmutableMap;
+import com.newbiest.base.model.NBUpdatable;
 import lombok.Data;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 @Entity
-@DiscriminatorValue("PROGRAM")
+@Table(name="RMS_RECIPE_EQUIPMENT_PROGRAM")
 @Data
-public class RecipeEquipmentProgram extends AbstractRecipeEquipment {
+public class RecipeEquipmentProgram extends NBUpdatable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,12 +36,11 @@ public class RecipeEquipmentProgram extends AbstractRecipeEquipment {
 	/**
 	 * 程序的不同目录下的规则
 	 */
-	public static Map<String, Integer> statusStyles = new HashMap<String, Integer>();
+	public static Map<String, Integer> statusStyles = ImmutableMap.of(PROGRAM_PATH_PROD, FILE_STYLE_ONLY_BY_NAME);
 	
-	static {
-		statusStyles.put(PROGRAM_PATH_PROD, FILE_STYLE_ONLY_BY_NAME);
-	}
-	
+	@Column(name="RECIPE_EQUIPMENT_RRN")
+	private Long recipeEquipmentRrn;
+
 	/**
 	 * 文件名称
 	 */
@@ -58,8 +56,8 @@ public class RecipeEquipmentProgram extends AbstractRecipeEquipment {
 	/**
 	 * 后缀
 	 */
-	@Column(name="PROGRAM_SUBFIX")
-	private String programSubfix;
+	@Column(name="PROGRAM_SUFFIX")
+	private String programSuffix;
  
 	/**
 	 * 检查文件存在类型

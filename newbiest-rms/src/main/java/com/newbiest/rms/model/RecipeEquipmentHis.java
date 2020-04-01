@@ -142,7 +142,7 @@ public class RecipeEquipmentHis extends NBVersionControlHis {
 	@Column(name="RESERVED5")
 	private String reserved5;
 
-	public RecipeEquipmentHis(AbstractRecipeEquipment recipeEquipment) {
+	public RecipeEquipmentHis(RecipeEquipment recipeEquipment) {
 		super(recipeEquipment);
 		this.recipeEquipmentRrn = recipeEquipment.getObjectRrn();
 	}

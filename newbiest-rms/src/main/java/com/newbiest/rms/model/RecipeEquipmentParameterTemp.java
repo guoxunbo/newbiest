@@ -4,6 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
+import com.newbiest.base.utils.DefaultStatusMachine;
 import com.newbiest.rms.exception.RmsException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -73,11 +74,11 @@ public class RecipeEquipmentParameterTemp extends NBUpdatable {
 		try {
 			if (RecipeEquipmentParameterTemp.EXPIRED_POLICY_COUNT.equals(this.getExpiredPolicy())) {
 				if (this.getCurrentCount() >= this.getLife()) {
-					setStatus(AbstractRecipeEquipment.STATUS_INACTIVE);
+					setStatus(DefaultStatusMachine.STATUS_INACTIVE);
 				}
 			} else if (RecipeEquipmentParameterTemp.EXPIRED_POLICY_TIME.equals(this.getExpiredPolicy())) {
 				if (DateUtils.now().after(DateUtils.plus(this.getCreated(), this.getLife(), ChronoUnit.DAYS))) {
-					setStatus(AbstractRecipeEquipment.STATUS_INACTIVE);
+					setStatus(DefaultStatusMachine.STATUS_INACTIVE);
 				}
 			} else {
 				throw new ClientParameterException(RmsException.NONSUPPORT_EXPIRED_POLICY, this.getExpiredPolicy());

@@ -8,13 +8,14 @@ import com.newbiest.base.factory.SqlBuilder;
 import com.newbiest.base.factory.SqlBuilderFactory;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.utils.CollectionUtils;
+import com.newbiest.base.utils.DefaultStatusMachine;
 import com.newbiest.base.utils.SqlUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.rms.exception.RmsException;
-import com.newbiest.rms.model.AbstractRecipeEquipment;
+import com.newbiest.rms.model.RecipeEquipment;
 import com.newbiest.rms.model.Equipment;
 import com.newbiest.rms.repository.EquipmentRepository;
-import com.newbiest.rms.repository.custom.AbstractRecipeEquipmentRepositoryCustom;
+import com.newbiest.rms.repository.custom.RecipeEquipmentRepositoryCustom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,7 +30,7 @@ import java.util.Map;
  * Created by guoxunbo on 2018/7/4.
  */
 @Slf4j
-public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEquipmentRepositoryCustom {
+public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryCustom {
 
     @Autowired
     @PersistenceContext
@@ -48,10 +49,10 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
      * @return
      * @throws ClientException
      */
-    public List<AbstractRecipeEquipment> getRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String equipmentType, String pattern) throws ClientException {
+    public List<RecipeEquipment> getRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String equipmentType, String pattern) throws ClientException {
         try {
             SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
-            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(AbstractRecipeEquipment.class, orgRrn)
+            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(RecipeEquipment.class, orgRrn)
                     .mapFieldValue(ImmutableMap.of("recipeName", recipeName, "pattern", pattern))
                     .build();
             sqlBuffer.append(" AND ");
@@ -66,7 +67,7 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
             Query query = em.createQuery(sqlBuffer.toString());
 
             query.setParameter("orgRrn", orgRrn);
-            List<AbstractRecipeEquipment> list = query.getResultList();
+            List<RecipeEquipment> list = query.getResultList();
             if (CollectionUtils.isNotEmpty(list)) {
                 return list;
             }
@@ -77,10 +78,10 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
         }
     }
 
-    public AbstractRecipeEquipment getGoldenRecipe(long orgRrn, String eqpType, String recipeName, String status, String pattern, boolean bodyFlag) throws ClientException {
+    public RecipeEquipment getGoldenRecipe(long orgRrn, String eqpType, String recipeName, String status, String pattern, boolean bodyFlag) throws ClientException {
         try {
             SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
-            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(AbstractRecipeEquipment.class, orgRrn)
+            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(RecipeEquipment.class, orgRrn)
                     .mapFieldValue(ImmutableMap.of("goldenFlag", "Y"))
                     .build();
             sqlBuffer.append(" AND equipmentType = :equipmentType");
@@ -97,16 +98,16 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
             if (!StringUtils.isNullOrEmpty(status)) {
                 query.setParameter("status", status);
             }
-            List<AbstractRecipeEquipment> goldenRecipeList = query.getResultList();
+            List<RecipeEquipment> goldenRecipeList = query.getResultList();
             if (goldenRecipeList != null && goldenRecipeList.size() > 0) {
                 if (goldenRecipeList.size() > 1) {
                     throw new ClientException(RmsException.EQP_GOLDEN_RECIPE_IS_MULTI);
                 } else {
-                    AbstractRecipeEquipment abstractRecipeEquipment =  goldenRecipeList.get(0);
+                    RecipeEquipment RecipeEquipment =  goldenRecipeList.get(0);
                     if (bodyFlag) {
-                        abstractRecipeEquipment.getRecipeEquipmentParameters().size();
+                        RecipeEquipment.getRecipeEquipmentParameters().size();
                     }
-                    return abstractRecipeEquipment;
+                    return RecipeEquipment;
                 }
             }
             return null;
@@ -122,22 +123,22 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
      * @return
      * @throws ClientException
      */
-    public AbstractRecipeEquipment getDeepRecipeEquipment(long objectRrn) throws ClientException{
+    public RecipeEquipment getDeepRecipeEquipment(long objectRrn) throws ClientException{
         try {
-            EntityGraph graph = em.createEntityGraph(AbstractRecipeEquipment.class);
+            EntityGraph graph = em.createEntityGraph(RecipeEquipment.class);
             graph.addSubgraph("recipeEquipmentParameters");
             Map<String, Object> props = Maps.newHashMap();
             props.put(NBBase.LAZY_FETCH_PROP, graph);
 
-            AbstractRecipeEquipment abstractRecipeEquipment = em.find(AbstractRecipeEquipment.class, objectRrn, props);
-            return abstractRecipeEquipment;
+            RecipeEquipment RecipeEquipment = em.find(RecipeEquipment.class, objectRrn, props);
+            return RecipeEquipment;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
         }
     }
 
-    public AbstractRecipeEquipment getActiveRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String pattern, boolean bodyFlag) throws ClientException {
+    public RecipeEquipment getActiveRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String pattern, boolean bodyFlag) throws ClientException {
         try {
             Equipment equipment = equipmentRepository.getByEquipmentId(equipmentId);
             if (equipment == null) {
@@ -145,8 +146,8 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
             }
 
             SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
-            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(AbstractRecipeEquipment.class, orgRrn)
-                    .mapFieldValue(ImmutableMap.of("status", AbstractRecipeEquipment.STATUS_ACTIVE))
+            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(RecipeEquipment.class, orgRrn)
+                    .mapFieldValue(ImmutableMap.of("status", DefaultStatusMachine.STATUS_ACTIVE))
                     .build();
             sqlBuffer.append(" AND recipeName = :recipeName");
             sqlBuffer.append(" AND equipmentId = :equipmentId");
@@ -156,14 +157,14 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
             query.setParameter("recipeName", recipeName);
             query.setParameter("equipmentId", equipmentId);
             if (StringUtils.isNullOrEmpty(pattern)) {
-                query.setParameter("pattern", AbstractRecipeEquipment.PATTERN_NORMAL);
+                query.setParameter("pattern", RecipeEquipment.PATTERN_NORMAL);
             } else {
                 query.setParameter("pattern", pattern);
             }
-            List<AbstractRecipeEquipment> activeRecipeEquipments = query.getResultList();
+            List<RecipeEquipment> activeRecipeEquipments = query.getResultList();
             if (activeRecipeEquipments != null && activeRecipeEquipments.size() > 0) {
                 if (bodyFlag) {
-                    AbstractRecipeEquipment activeRecipeEquipment = activeRecipeEquipments.get(0);
+                    RecipeEquipment activeRecipeEquipment = activeRecipeEquipments.get(0);
                     activeRecipeEquipment.getRecipeEquipmentParameters().size();
                     return activeRecipeEquipment;
                 }
@@ -171,8 +172,8 @@ public class AbstractRecipeEquipmentRepositoryImpl implements AbstractRecipeEqui
             } else {
 //                // 如果没找到，则去GoldenRecipe上去找
                 if (!StringUtils.isNullOrEmpty(equipment.getEquipmentType())) {
-                    AbstractRecipeEquipment abstractRecipeEquipment = getGoldenRecipe(orgRrn, equipment.getEquipmentType(), recipeName, AbstractRecipeEquipment.STATUS_ACTIVE, pattern, bodyFlag);
-                    return abstractRecipeEquipment;
+                    RecipeEquipment RecipeEquipment = getGoldenRecipe(orgRrn, equipment.getEquipmentType(), recipeName, DefaultStatusMachine.STATUS_ACTIVE, pattern, bodyFlag);
+                    return RecipeEquipment;
                 }
             }
             return null;
