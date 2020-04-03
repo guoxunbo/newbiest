@@ -145,7 +145,7 @@ public class MesWaferReceive implements Serializable {
         this.setFacilityRrn(FACILITY_RRN);
         this.setWaferId(materialLotUnit.getUnitId());
         this.setBondPro(materialLotUnit.getReserved4());
-        this.setBoxId(materialLotUnit.getMaterialLotId());
+        this.setBoxId(materialLotUnit.getLotId());
         this.setCartonNo(materialLotUnit.getReserved39());
         this.setCstId(materialLotUnit.getDurable());
         this.setCstWaferqty(materialLotUnit.getReserved44());

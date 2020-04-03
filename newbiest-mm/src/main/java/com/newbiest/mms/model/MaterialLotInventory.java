@@ -67,6 +67,12 @@ public class MaterialLotInventory extends NBUpdatable {
     private String storageId;
 
     /**
+     * 载具号aliasId
+     */
+    @Column(name="LOT_ID")
+    private String lotId;
+
+    /**
      * 库存数量
      */
     @Column(name = "STOCK_QTY")
@@ -85,6 +91,7 @@ public class MaterialLotInventory extends NBUpdatable {
         this.setMaterialDesc(materialLot.getMaterialDesc());
         this.setMaterialType(materialLot.getMaterialType());
         this.setMaterialCategory(materialLot.getMaterialCategory());
+        this.setLotId(materialLot.getLotId());
         return this;
     }
 

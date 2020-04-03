@@ -252,6 +252,12 @@ public class CheckHistory extends NBHis {
     @Column(name="UNIT_ID")
     private String unitId;
 
+    /**
+     * 载具号aliasId
+     */
+    @Column(name="LOT_ID")
+    private String lotId;
+
     public Boolean getErrorFlag() {
         return StringUtils.YES.equalsIgnoreCase(errorFlag);
     }
@@ -285,5 +291,6 @@ public class CheckHistory extends NBHis {
         this.setReserved6(materialLotUnit.getReserved4());
         this.setWorkOrderId(materialLotUnit.getWorkOrderId());
         this.setStoreUom(materialLotUnit.getStoreUom());
+        this.setLotId(materialLotUnit.getLotId());
     }
 }

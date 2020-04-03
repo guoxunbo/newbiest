@@ -139,6 +139,12 @@ public class MaterialLotUnitHistory extends NBHis {
     private String shipper;
 
     /**
+     * 载具号aliasId
+     */
+    @Column(name="LOT_ID")
+    private String lotId;
+
+    /**
      * 二级代码
      */
     @Column(name="RESERVED1")

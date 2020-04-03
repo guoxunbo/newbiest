@@ -13,6 +13,7 @@ public class StockInRequest extends Request {
 	public static final String MESSAGE_NAME = "GCStockIn";
 
 	public static final String ACTION_QUERY = "Query";
+	public static final String ACTION_QUERY_WAFER = "QueryWafer";
 	public static final String ACTION_STOCK_IN = "StockIn";
 
 	private StockInRequestBody body;

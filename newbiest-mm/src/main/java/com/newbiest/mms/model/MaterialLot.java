@@ -244,6 +244,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String shipper;
 
     /**
+     * 载具号aliasId
+     */
+    @Column(name="LOT_ID")
+    private String lotId;
+
+    /**
      * GlaxyCore MES完成品的levelTwoCode
      */
     @Column(name="RESERVED1")

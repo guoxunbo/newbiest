@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_check_history_0.0.2
+      author: Guozhang Luo
+      remarks: gc_check_history add column lot_id
+      changes:
+        - addColumn:
+            tableName: GC_CHECK_HISTORY
+            columns:
+              - column:
+                  name: LOT_ID
+                  type: varchar(64)
+                  remarks: 载具号aliasId
+

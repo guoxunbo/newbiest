@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException;
     void deleteIncomingMaterialLot(List<MaterialLotUnit> materialLotUnitList, String deleteNote) throws ClientException;
     String saveIncomingMaterialList(List<MaterialLot> materialLots, String warehouseId, String specialType, String importType)throws ClientException;
     void validationStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions)throws ClientException;

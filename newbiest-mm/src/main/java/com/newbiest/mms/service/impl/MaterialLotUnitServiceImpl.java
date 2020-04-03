@@ -128,10 +128,16 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
                 }
                 StatusModel statusModel = mmsService.getMaterialStatusModel(rawMaterial);
-                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getMaterialLotId));
+                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
 
-                for (String materialLotId : materialLotUnitMap.keySet()) {
-                    List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(materialLotId);
+                for (String lotId : materialLotUnitMap.keySet()) {
+                    MaterialLot materialLotInfo = materialLotRepository.getMLotByLotId(lotId);
+                    if(materialLotInfo != null){
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
+                    }
+
+                    List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
+                    String materialLotId = materialLotUnits.get(0).getMaterialLotId();
 
                     BigDecimal totalQty = materialLotUnits.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
                     Map<String, Object> propsMap = Maps.newHashMap();
@@ -140,6 +146,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("supplier", materialLotUnits.get(0).getSupplier());
                     propsMap.put("shipper", materialLotUnits.get(0).getShipper());
                     propsMap.put("grade", materialLotUnits.get(0).getGrade());
+                    propsMap.put("lotId", lotId);
 
                     propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
                     propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());
@@ -170,6 +177,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
+                        materialLotUnit.setLotId(materialLot.getLotId());
                         materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                         materialLotUnit.setReserved18("0");
                         materialLotUnit.setReserved48(importCode);
@@ -252,5 +260,30 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             errorMessage = e.getMessage();
         }
         return errorMessage;
+    }
+
+    /**
+     * WLT导入更具FabLotId和第一片waferId获取载具号
+     * @param materialLotUnitList
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
+        try {
+            List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
+            Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getReserved30));
+            for(String fabLotId : materialLotUnitMap.keySet()){
+                List<MaterialLotUnit> mLotUnitList = materialLotUnitMap.get(fabLotId);
+                String waferId = mLotUnitList.get(0).getReserved31();
+                String lotId = fabLotId +"."+ waferId;
+                for(MaterialLotUnit materialLotUnit : mLotUnitList){
+                    materialLotUnit.setLotId(lotId);
+                    materialLotUnits.add(materialLotUnit);
+                }
+            }
+            return materialLotUnits;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 }

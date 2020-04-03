@@ -23,6 +23,9 @@ public class StockInRequestBody extends RequestBody {
 	@ApiModelProperty(value = "物料批次号")
 	private String materialLotId;
 
+	@ApiModelProperty(value = "载具aliasId")
+	private String lotId;
+
 	@ApiModelProperty(value = "直接绑定中转箱号，以及库位号")
 	private List<StockInModel> stockInModels;
 

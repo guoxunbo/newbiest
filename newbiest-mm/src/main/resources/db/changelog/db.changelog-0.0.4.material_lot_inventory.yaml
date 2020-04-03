@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-column-mms_material_lot_inventory-0.0.4
+      author: Guozhang Luo
+      comment: Add Column MMS_MATERIAL_LOT_INVENTORY LOT_ID
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_INVENTORY
+            columns:
+              - column:
+                  name: LOT_ID
+                  type: varchar2(64)
+                  remarks: 载具号aliasId

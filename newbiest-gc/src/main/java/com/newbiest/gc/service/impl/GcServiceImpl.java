@@ -358,6 +358,22 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 获取到可以入库的批次
+     *  当前只验证了物料批次是否是完结
+     * @param lotId
+     * @return
+     */
+    public MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException {
+        try {
+            MaterialLot materialLot = materialLotRepository.getMLotByLotId(lotId);
+            materialLot.isFinish();
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 入库位
      * @return
      */

@@ -55,8 +55,13 @@ public class IncomingMaterialSaveController {
         }
         String importCode = "";
         String warehouseId = requestBody.getWarehouseId();
-        if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType) || MaterialLotUnit.WLA_UNMEASURED.equals(importType)){
+        if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType) ){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
+            materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
+            importCode = materialLotUnitList.get(0).getReserved48();
+        } else if(MaterialLotUnit.WLA_UNMEASURED.equals(importType)){
+            List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
+            materialLotUnitList = materialLotUnitService.getMaterialLotUnitByFabLotAndWaferId(materialLotUnitList);
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
         } else {
