@@ -69,6 +69,6 @@ public class GCTriggerService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        System.out.println("a");
+
     }
 }

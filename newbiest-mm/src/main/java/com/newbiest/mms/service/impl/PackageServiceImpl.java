@@ -68,7 +68,7 @@ public class PackageServiceImpl implements PackageService{
     MaterialLotInventoryRepository materialLotInventoryRepository;
 
     public MaterialLotPackageType getMaterialPackageTypeByName(String name) throws ClientException{
-        List<MaterialLotPackageType> packageTypes = materialLotPackageTypeRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
+        List<MaterialLotPackageType> packageTypes = materialLotPackageTypeRepository.findByName(name);
         if (CollectionUtils.isNotEmpty(packageTypes)) {
             return packageTypes.get(0);
         } else {

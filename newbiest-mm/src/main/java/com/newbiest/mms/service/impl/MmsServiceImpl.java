@@ -1,6 +1,7 @@
 package com.newbiest.mms.service.impl;
 
 import com.google.common.collect.Lists;
+import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
@@ -44,6 +45,7 @@ import java.util.List;
 @Service
 @Slf4j
 @Transactional
+@BaseJpaFilter
 public class MmsServiceImpl implements MmsService {
 
     @Autowired
@@ -79,7 +81,6 @@ public class MmsServiceImpl implements MmsService {
     @Autowired
     StorageRepository storageRepository;
 
-
     @Autowired
     MaterialLotMergeRuleRepository materialLotMergeRuleRepository;
 
@@ -92,11 +93,7 @@ public class MmsServiceImpl implements MmsService {
      */
     public RawMaterial getRawMaterialByName(String name) throws ClientException {
         try {
-            List<RawMaterial> rawMaterialList = (List<RawMaterial>) rawMaterialRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
-            if (CollectionUtils.isNotEmpty(rawMaterialList)) {
-                return rawMaterialList.get(0);
-            }
-            return null;
+            return rawMaterialRepository.findOneByName(name);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -233,7 +230,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             Storage targetStorage;
             if (materialLotAction.getTargetStorageRrn() != null) {
-                targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getTargetStorageRrn());
+                targetStorage = storageRepository.findByObjectRrn(materialLotAction.getTargetStorageRrn());
             } else if (!StringUtils.isNullOrEmpty(materialLotAction.getTargetStorageId())) {
                 targetStorage = getStorageByWarehouseRrnAndName(warehouse, materialLotAction.getTargetStorageId());
                 if (targetStorage == null ) {
@@ -267,7 +264,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             Storage targetStorage = null;
             if (materialLotAction.getFromStorageRrn() != null) {
-                targetStorage = (Storage) storageRepository.findByObjectRrn(materialLotAction.getFromStorageRrn());
+                targetStorage = storageRepository.findByObjectRrn(materialLotAction.getFromStorageRrn());
             } else {
                 targetStorage = getDefaultStorage(warehouse);
                 materialLotAction.setFromStorageRrn(targetStorage.getObjectRrn());
@@ -289,7 +286,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), "TargetWarehouseRrn");
             materialLot.validateMLotHold();
-            Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
+            Warehouse targetWarehouse = warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
             Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
 
             // 变更物料库存并改变物料批次状态
@@ -314,7 +311,7 @@ public class MmsServiceImpl implements MmsService {
     }
 
     public MaterialLot getMLotByObjectRrn(long materialLotRrn) throws ClientException{
-        return (MaterialLot) materialLotRepository.findByObjectRrn(materialLotRrn);
+        return materialLotRepository.findByObjectRrn(materialLotRrn);
     }
     
     /**
@@ -329,7 +326,7 @@ public class MmsServiceImpl implements MmsService {
             PreConditionalUtils.checkNotNull(materialLotAction.getFromWarehouseRrn(), StringUtils.EMPTY);
             materialLot.validateMLotHold();
 
-            Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
+            Warehouse fromWarehouse = warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
@@ -377,7 +374,7 @@ public class MmsServiceImpl implements MmsService {
             PreConditionalUtils.checkNotNull(materialLotAction.getFromWarehouseRrn(), StringUtils.EMPTY);
             materialLot.validateMLotHold();
 
-            Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
+            Warehouse fromWarehouse = warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
@@ -419,7 +416,7 @@ public class MmsServiceImpl implements MmsService {
             PreConditionalUtils.checkNotNull(materialLotAction.getFromWarehouseRrn(), StringUtils.EMPTY);
             materialLot.validateMLotHold();
 
-            Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
+            Warehouse fromWarehouse = warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
@@ -461,10 +458,10 @@ public class MmsServiceImpl implements MmsService {
 
             materialLot.validateMLotHold();
 
-            Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
+            Warehouse fromWarehouse = warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
 
-            Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
+            Warehouse targetWarehouse = warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
             Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
 
             if (materialLotAction.getFromWarehouseRrn().equals(materialLotAction.getTargetWarehouseRrn()) && fromStorage.getObjectRrn().equals(targetStorage.getObjectRrn())) {
@@ -725,9 +722,9 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setMaterialLotId(mLotId);
             materialLot.setGrade(grade);
             if (rawMaterial.getStatusModelRrn() == null) {
-                List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, ThreadLocalContext.getOrgRrn());
-                if (CollectionUtils.isNotEmpty(statusModels)) {
-                    rawMaterial.setStatusModelRrn(statusModels.get(0).getObjectRrn());
+                MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
+                if (statusModel != null) {
+                    rawMaterial.setStatusModelRrn(statusModel.getObjectRrn());
                 } else {
                     throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
                 }
@@ -786,14 +783,14 @@ public class MmsServiceImpl implements MmsService {
      */
     public void validationMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException{
         try {
-            List<MaterialLotMergeRule> mergeRule = materialLotMergeRuleRepository.findByNameAndOrgRrn(ruleName, ThreadLocalContext.getOrgRrn());
-            if (CollectionUtils.isEmpty(mergeRule)) {
+            MaterialLotMergeRule mergeRule = materialLotMergeRuleRepository.findOneByName(ruleName);
+            if (mergeRule == null) {
                 throw new ClientParameterException(ContextException.MERGE_RULE_IS_NOT_EXIST, ruleName);
             }
             MergeRuleContext mergeRuleContext = new MergeRuleContext();
             mergeRuleContext.setBaseObject(materialLots.get(0));
             mergeRuleContext.setCompareObjects(materialLots);
-            mergeRuleContext.setMergeRuleLines(mergeRule.get(0).getLines());
+            mergeRuleContext.setMergeRuleLines(mergeRule.getLines());
             mergeRuleContext.validation();
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -819,10 +816,6 @@ public class MmsServiceImpl implements MmsService {
     }
 
     public Warehouse getWarehouseByName(String name) throws ClientException {
-        List<Warehouse> warehouses = warehouseRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
-        if (CollectionUtils.isNotEmpty(warehouses)) {
-            return warehouses.get(0);
-        }
-        return null;
+        return warehouseRepository.findOneByName(name);
     }
 }

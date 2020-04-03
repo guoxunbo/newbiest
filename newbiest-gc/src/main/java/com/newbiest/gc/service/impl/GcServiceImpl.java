@@ -225,13 +225,10 @@ public class GcServiceImpl implements GcService {
             if (CollectionUtils.isNotEmpty(erpMaterialOutOrders)) {
                 Map<String, List<ErpMaterialOutOrder>> documentIdMap = erpMaterialOutOrders.stream().collect(Collectors.groupingBy(ErpMaterialOutOrder :: getCcode));
                 for (String documentId : documentIdMap.keySet()) {
-                    List<ReTestOrder> reTestOrderList = reTestOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
-                    ReTestOrder reTestOrder;
-                    if (CollectionUtils.isEmpty(reTestOrderList)) {
+                    ReTestOrder reTestOrder = reTestOrderRepository.findOneByName(documentId);
+                    if (reTestOrder == null) {
                         reTestOrder = new ReTestOrder();
                         reTestOrder.setStatus(Document.STATUS_OPEN);
-                    } else {
-                        reTestOrder = reTestOrderList.get(0);
                     }
                     reTestOrder.setName(documentId);
                     BigDecimal totalQty = BigDecimal.ZERO;
@@ -327,13 +324,13 @@ public class GcServiceImpl implements GcService {
             if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
                 throw new ClientParameterException(GcExceptions.OVER_DOC_QTY);
             }
-            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            documentLine = documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
             documentLine.setUnHandledQty(unHandleQty);
             documentLineRepository.save(documentLine);
 
             // 获取到主单据
-            ReTestOrder reTestOrder = (ReTestOrder) reTestOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            ReTestOrder reTestOrder = reTestOrderRepository.findByObjectRrn(documentLine.getDocRrn());
             reTestOrder.setHandledQty(reTestOrder.getHandledQty().add(handledQty));
             reTestOrder.setUnHandledQty(reTestOrder.getUnHandledQty().subtract(handledQty));
             reTestOrderRepository.save(reTestOrder);
@@ -392,7 +389,7 @@ public class GcServiceImpl implements GcService {
      */
     public void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
-            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            documentLine = documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             for (MaterialLot materialLot : materialLots) {
                 validationDocLine(documentLine, materialLot);
@@ -416,13 +413,13 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(GcExceptions.OVER_DOC_QTY);
             }
 
-            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            documentLine = documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
             documentLine.setUnHandledQty(unHandleQty);
             documentLineRepository.save(documentLine);
 
             // 获取到主单据
-            DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            DeliveryOrder deliveryOrder = deliveryOrderRepository.findByObjectRrn(documentLine.getDocRrn());
             deliveryOrder.setHandledQty(deliveryOrder.getHandledQty().add(handledQty));
             deliveryOrder.setUnHandledQty(deliveryOrder.getUnHandledQty().subtract(handledQty));
             deliveryOrderRepository.save(deliveryOrder);
@@ -455,13 +452,10 @@ public class GcServiceImpl implements GcService {
             if (CollectionUtils.isNotEmpty(erpSos)) {
                 Map<String, List<ErpSo>> documentIdMap = erpSos.stream().collect(Collectors.groupingBy(ErpSo :: getCcode));
                 for (String documentId : documentIdMap.keySet()) {
-                    List<DeliveryOrder> deliveryOrderList = deliveryOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
-                    DeliveryOrder deliveryOrder;
-                    if (CollectionUtils.isEmpty(deliveryOrderList)) {
+                    DeliveryOrder deliveryOrder = deliveryOrderRepository.findOneByName(documentId);
+                    if (deliveryOrder == null) {
                         deliveryOrder = new DeliveryOrder();
                         deliveryOrder.setStatus(Document.STATUS_OPEN);
-                    } else {
-                        deliveryOrder = deliveryOrderList.get(0);
                     }
                     deliveryOrder.setName(documentId);
                     BigDecimal totalQty = BigDecimal.ZERO;
