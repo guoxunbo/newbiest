@@ -6,6 +6,10 @@ import com.newbiest.rms.model.Equipment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+/**
+ * @author guoxunbo
+ * @date 2020-04-02 14:27
+ */
 @Repository
 public interface EquipmentRepository extends IRepository<Equipment, Long> {
 

@@ -17,12 +17,11 @@ public class RmsException extends NewbiestException{
     public static final String RECIPE_PARAMETER_VALUE_IS_NOT_EXIST = "rms.recipe_parameter_value_is_not_exist";
     public static final String RECIPE_PARAMETER_NOT_IN_RANGE = "rms.recipe_parameter_not_in_range";
 
-
+    public static final String EQP_IS_NOT_EXIST = "rms.eqp_is_not_exist";
     public static final String EQP_GOLDEN_RECIPE_IS_MULTI = " rms.eqp_golden_recipe_is_multi";
     public static final String EQP_RECIPE_DELETE_ONLY_UNFROZEN_OR_INACTIVE = "rms.delete_only_unfrozen_or_inactive";
     public static final String EQP_RECIPE_IS_GOLDEN_RECIPE = "rms.eqp_recipe_is_golden_recipe";
     public static final String EQP_RECIPE_GOLDEN_RECIPE_IS_EXIST = "rms.eqp_golden_recipe_is_exist";
-    public static final String EQP_IS_NOT_EXIST = "rms.eqp_is_not_exist";
     public static final String EQP_RECIPE_IS_NOT_ACTIVE = "rms.eqp_recipe_is_not_active";
     public static final String EQP_RECIPE_IS_NOT_GOLDEN = "rms.eqp_recipe_is_not_golden";
     public static final String EQP_RECIPE_IS_ACTIVE = "rms.eqp_recipe_is_active";

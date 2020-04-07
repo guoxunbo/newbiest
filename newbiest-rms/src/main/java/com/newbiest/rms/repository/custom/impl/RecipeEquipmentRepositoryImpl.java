@@ -4,9 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.factory.SqlBuilder;
-import com.newbiest.base.factory.SqlBuilderFactory;
 import com.newbiest.base.model.NBBase;
+import com.newbiest.base.sql.SQLBuilder;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.DefaultStatusMachine;
 import com.newbiest.base.utils.SqlUtils;
@@ -40,7 +39,7 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
     private EquipmentRepository equipmentRepository;
 
     /**
-     * 根据recipeName + equipmentId/equipmentType + pattern进行查找RecipeEquipment
+     * 根据recipeName + equipmentId + equipmentType + pattern进行查找RecipeEquipment
      * @param orgRrn
      * @param recipeName
      * @param equipmentId
@@ -51,15 +50,14 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
      */
     public List<RecipeEquipment> getRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String equipmentType, String pattern) throws ClientException {
         try {
-            SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
-            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(RecipeEquipment.class, orgRrn)
+            StringBuffer sqlBuffer = SQLBuilder.newInstance().selectEntity(RecipeEquipment.class)
                     .mapFieldValue(ImmutableMap.of("recipeName", recipeName, "pattern", pattern))
                     .build();
             sqlBuffer.append(" AND ");
             if (!StringUtils.isNullOrEmpty(equipmentId)) {
-                sqlBuffer.append(" equipmentId = " + SqlUtils.quotationMarks(equipmentId));
+                sqlBuffer.append(" equipmentId = " + SqlUtils.getValueByType(equipmentId));
             } else {
-                sqlBuffer.append(" equipmentType = " + SqlUtils.quotationMarks(equipmentType));
+                sqlBuffer.append(" equipmentType = " + SqlUtils.getValueByType(equipmentType));
             }
             sqlBuffer.append(" ORDER BY ");
             sqlBuffer.append(" version desc");
@@ -80,8 +78,7 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
 
     public RecipeEquipment getGoldenRecipe(long orgRrn, String eqpType, String recipeName, String status, String pattern, boolean bodyFlag) throws ClientException {
         try {
-            SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
-            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(RecipeEquipment.class, orgRrn)
+            StringBuffer sqlBuffer = SQLBuilder.newInstance().selectEntity(RecipeEquipment.class)
                     .mapFieldValue(ImmutableMap.of("goldenFlag", "Y"))
                     .build();
             sqlBuffer.append(" AND equipmentType = :equipmentType");
@@ -145,8 +142,7 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
                 throw new ClientException(RmsException.EQP_IS_NOT_EXIST);
             }
 
-            SqlBuilder sqlBuilder = SqlBuilderFactory.createSqlBuilder();
-            StringBuffer sqlBuffer = sqlBuilder.selectWithBasedCondition(RecipeEquipment.class, orgRrn)
+            StringBuffer sqlBuffer = SQLBuilder.newInstance().selectEntity(RecipeEquipment.class)
                     .mapFieldValue(ImmutableMap.of("status", DefaultStatusMachine.STATUS_ACTIVE))
                     .build();
             sqlBuffer.append(" AND recipeName = :recipeName");

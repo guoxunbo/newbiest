@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public interface RmsService {
 
-    RecipeEquipment saveRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
+    RecipeEquipment createRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
     void deleteRecipeEquipment(Long recipeEquipmentRrn) throws ClientException;
     RecipeEquipment frozenRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
     RecipeEquipment unFrozenRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;

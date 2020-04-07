@@ -10,7 +10,6 @@ public interface RecipeEquipmentRepositoryCustom {
 
     RecipeEquipment getDeepRecipeEquipment(long objectRrn) throws ClientException;
     RecipeEquipment getGoldenRecipe(long orgRrn, String eqpType, String recipeName, String status, String pattern, boolean bodyFlag) throws ClientException;
-    List<RecipeEquipment> getRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String equipmentType, String pattern) throws ClientException;
     RecipeEquipment getActiveRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String pattern, boolean bodyFlag) throws ClientException;
 
 }

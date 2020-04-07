@@ -1,9 +1,12 @@
 package com.newbiest.rms.model;
 
 import com.google.common.collect.Lists;
+import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBVersionControl;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.Date;
