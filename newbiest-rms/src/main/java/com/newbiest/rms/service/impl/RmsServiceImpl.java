@@ -9,6 +9,7 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.*;
 import com.newbiest.context.model.Context;
@@ -33,7 +34,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Created by guoxunbo on 2018/7/4.
+ * @author guoxunbo
+ * @date 2020-04-05 11:16
  */
 @Service
 @Transactional
@@ -68,6 +70,9 @@ public class RmsServiceImpl implements RmsService {
     @Autowired
     private BaseService baseService;
 
+    @Autowired
+    private VersionControlService versionControlService;
+
     /**
      * 创建recipeEquipment 如果存在以前的版本，则做升版本，不然就直接保存第一版本
      * @param recipeEquipment
@@ -85,73 +90,68 @@ public class RmsServiceImpl implements RmsService {
             recipeEquipment.setPattern(StringUtils.isNullOrEmpty(recipeEquipment.getPattern()) ? RecipeEquipment.PATTERN_NORMAL : recipeEquipment.getPattern());
             recipeEquipment.setEquipmentType(equipment.getEquipmentType());
 
-            // 取得激活的，没有存在激活的就取最高版本的，parameter的compareFlag/SpecialFlag以及range值都从原有版本上来
-            List<RecipeEquipment> allRecipeEquipments = recipeEquipmentRepository.getByNameAndEquipmentIdAndEquipmentTypeAndPattern(recipeEquipment.getName(), recipeEquipment.getEquipmentId(),
-                                                                                                                                            recipeEquipment.getEquipmentType(), recipeEquipment.getPattern());
+            // 取得最高版本
+            List<RecipeEquipment> allRecipeEquipments = recipeEquipmentRepository.getByNameAndEquipmentIdAndPatternOrderByVersionDesc(recipeEquipment.getName(), recipeEquipment.getEquipmentId(), recipeEquipment.getPattern());
             Map<String, RecipeEquipmentParameter> parameterMap = Maps.newHashMap();
             if (CollectionUtils.isNotEmpty(allRecipeEquipments)) {
                 RecipeEquipment lastRecipeEquipment = allRecipeEquipments.get(0);
                 recipeEquipment.setVersion(lastRecipeEquipment.getVersion() + 1);
 
+                // 取得激活版本或者没有存在激活的就取最高版本参数，parameter的compareFlag/SpecialFlag以及range值都从原有版本上来
                 Optional<RecipeEquipment> optional = allRecipeEquipments.stream().filter(temp -> DefaultStatusMachine.STATUS_ACTIVE.equals(temp.getStatus())).findFirst();
                 if (optional.isPresent()) {
                     RecipeEquipment activeRecipeEquipment = optional.get();
-                    activeRecipeEquipment = recipeEquipmentRepository.findByObjectRrn(activeRecipeEquipment.getObjectRrn());
-                    parameterMap = activeRecipeEquipment.getRecipeEquipmentParameters().stream().
-                            collect(Collectors.toConcurrentMap(parameter -> parameter.getFullName(), Function.identity()));
+                    activeRecipeEquipment = getRecipeEquipmentParameter(activeRecipeEquipment);
+                    parameterMap = activeRecipeEquipment.getRecipeEquipmentParameters().stream().collect(Collectors.toConcurrentMap(parameter -> parameter.getFullName(), Function.identity()));
                 } else {
-                    lastRecipeEquipment = recipeEquipmentRepository.findByObjectRrn(lastRecipeEquipment.getObjectRrn());
-                    parameterMap = lastRecipeEquipment.getRecipeEquipmentParameters().stream().
-                            collect(Collectors.toConcurrentMap(parameter -> parameter.getFullName(), Function.identity()));
+                    lastRecipeEquipment = getRecipeEquipmentParameter(lastRecipeEquipment);
+                    parameterMap = lastRecipeEquipment.getRecipeEquipmentParameters().stream().collect(Collectors.toConcurrentMap(parameter -> parameter.getFullName(), Function.identity()));
                 }
             } else {
                 recipeEquipment.setVersion(1L);
             }
-
-            /**
-             * 如果没有设备号，但是有设备类型，则保存为GoldenRecipe
-             */
-            if (StringUtils.isNullOrEmpty(recipeEquipment.getEquipmentId()) && !StringUtils.isNullOrEmpty(recipeEquipment.getEquipmentType())) {
-                recipeEquipment.setGoldenFlag(true);
-            }
+            List<RecipeEquipmentParameter> recipeEquipmentParameters = recipeEquipment.getRecipeEquipmentParameters();
+            recipeEquipment = (RecipeEquipment) baseService.saveEntity(recipeEquipment);
             // 保存parameter 如果是升级从原有版本上拿到是否比较,是否特殊以及range范围
-            for (RecipeEquipmentParameter parameter : recipeEquipment.getRecipeEquipmentParameters()) {
-                if (parameterMap.containsKey(parameter.getParameterName())) {
-                    RecipeEquipmentParameter checkParameter = parameterMap.get(parameter.getParameterName());
+            for (RecipeEquipmentParameter parameter : recipeEquipmentParameters) {
+                if (parameterMap.containsKey(parameter.getFullName())) {
+                    RecipeEquipmentParameter checkParameter = parameterMap.get(parameter.getFullName());
                     parameter.setCompareFlag(checkParameter.getCompareFlag());
                     parameter.setSpecialParameterFlag(checkParameter.getSpecialParameterFlag());
-                    if (RecipeEquipmentParameter.VALIDATE_TYPE_RANGE.equals(parameter.getValidateType()) && RecipeEquipmentParameter.VALIDATE_TYPE_RANGE.equals(checkParameter.getValidateType())) {
-                        if (StringUtils.isNullOrEmpty(parameter.getMinValue()) && !StringUtils.isNullOrEmpty(checkParameter.getMinValue())) {
-                            double minValue = Double.parseDouble(parameter.getMinValue());
-                            double checkMinValue = Double.parseDouble(checkParameter.getMinValue());
-                            parameter.setMinValue(String.valueOf(minValue < checkMinValue ? minValue : checkMinValue));
-                        }
-                        if (StringUtils.isNullOrEmpty(parameter.getMaxValue()) && !StringUtils.isNullOrEmpty(checkParameter.getMaxValue())) {
-                            double maxValue = Double.parseDouble(parameter.getMaxValue());
-                            double checkMaxValue = Double.parseDouble(checkParameter.getMaxValue());
-                            parameter.setMinValue(String.valueOf(maxValue > checkMaxValue ? maxValue : checkMaxValue));
-                        }
-                    }
+                    parameter.setRecipeEquipmentRrn(recipeEquipment.getObjectRrn());
+                    //TODO 此处暂时无法确定EAP上报能否上报range相关。
+//                    if (RecipeEquipmentParameter.VALIDATE_TYPE_RANGE.equals(parameter.getValidateType()) && RecipeEquipmentParameter.VALIDATE_TYPE_RANGE.equals(checkParameter.getValidateType())) {
+//                        if (StringUtils.isNullOrEmpty(parameter.getMinValue()) && !StringUtils.isNullOrEmpty(checkParameter.getMinValue())) {
+//                            double minValue = Double.parseDouble(parameter.getMinValue());
+//                            double checkMinValue = Double.parseDouble(checkParameter.getMinValue());
+//                            parameter.setMinValue(String.valueOf(minValue < checkMinValue ? minValue : checkMinValue));
+//                        }
+//                        if (StringUtils.isNullOrEmpty(parameter.getMaxValue()) && !StringUtils.isNullOrEmpty(checkParameter.getMaxValue())) {
+//                            double maxValue = Double.parseDouble(parameter.getMaxValue());
+//                            double checkMaxValue = Double.parseDouble(checkParameter.getMaxValue());
+//                            parameter.setMinValue(String.valueOf(maxValue > checkMaxValue ? maxValue : checkMaxValue));
+//                        }
+//                    }
                 }
                 recipeEquipmentParameterRepository.save(parameter);
             }
-//            }
-//            else {
-//                transType = NBHis.TRANS_TYPE_UPDATE;
-//                recipeEquipmentParameterRepository.deleteByRecipeEquipmentRrn(recipeEquipment.getObjectRrn());
-//                for (RecipeEquipmentParameter parameter : recipeEquipment.getRecipeEquipmentParameters()) {
-//                    parameter.setObjectRrn(null);
-//                    parameter.setRecipeEquipmentRrn(recipeEquipment.getObjectRrn());
-//                    recipeEquipmentParameterRepository.save(parameter);
-//                }
-//            }
-
-            recipeEquipment = (RecipeEquipment) baseService.saveEntity(recipeEquipment);
-
             return recipeEquipment;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
+        }
+    }
+
+    public RecipeEquipment getRecipeEquipmentParameter(RecipeEquipment recipeEquipment) {
+        try {
+            List<RecipeEquipmentParameter> parameters = recipeEquipmentParameterRepository.findByRecipeEquipmentRrn(recipeEquipment.getObjectRrn());
+            if (CollectionUtils.isEmpty(parameters)) {
+                parameters = Lists.newArrayList();
+            }
+            recipeEquipment.setRecipeEquipmentParameters(parameters);
+            return recipeEquipment;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
         }
     }
 
@@ -172,46 +172,7 @@ public class RmsServiceImpl implements RmsService {
 
             recipeEquipmentRepository.delete(recipeEquipment);
 
-            RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setTransType(NBHis.TRANS_TYPE_DELETE);
-            recipeEquipmentHisRepository.save(recipeEquipmentHis);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
-    @Override
-    public RecipeEquipment frozenRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException {
-        try {
-            if (recipeEquipment.getGoldenFlag()) {
-                throw new ClientException(RmsException.EQP_RECIPE_IS_GOLDEN_RECIPE);
-            }
-            recipeEquipment.setStatus(DefaultStatusMachine.STATUS_FROZEN);
-            recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
-
-            RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setTransType(DefaultStatusMachine.STATUS_FROZEN);
-            recipeEquipmentHisRepository.save(recipeEquipmentHis);
-
-            return recipeEquipment;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
-    @Override
-    public RecipeEquipment unFrozenRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException {
-        try {
-            recipeEquipment.setStatus(DefaultStatusMachine.STATUS_UNFROZEN);
-            recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
-
-            RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setTransType(DefaultStatusMachine.STATUS_UNFROZEN);
-            recipeEquipmentHisRepository.save(recipeEquipmentHis);
-
-            return recipeEquipment;
+            baseService.saveHistoryEntity(recipeEquipment, NBHis.TRANS_TYPE_DELETE);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -228,7 +189,7 @@ public class RmsServiceImpl implements RmsService {
                 if (activeGoldenRecipeEquipment != null) {
                     // 如果存在暂时不让激活
                     if (isActiveGloden) {
-                        inActiveRecipeEquipment(activeGoldenRecipeEquipment, false);
+                        versionControlService.inactive(activeGoldenRecipeEquipment);
                     } else {
                         throw new ClientException(RmsException.EQP_RECIPE_GOLDEN_RECIPE_IS_EXIST);
                     }
@@ -237,15 +198,12 @@ public class RmsServiceImpl implements RmsService {
                 // 不是GDRecipe 则先失效原有设备上的Recipe
                 RecipeEquipment activeRecipeEquipment = recipeEquipmentRepository.getActiveRecipeEquipment(ThreadLocalContext.getOrgRrn(), recipeEquipment.getName(), recipeEquipment.getEquipmentId(), recipeEquipment.getPattern(), false);
                 if (activeRecipeEquipment != null) {
-                    inActiveRecipeEquipment(activeRecipeEquipment, false);
+                    versionControlService.inactive(activeRecipeEquipment);
                 }
             }
             recipeEquipment.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
             recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
-
-            RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setTransType(DefaultStatusMachine.STATUS_ACTIVE);
-            recipeEquipmentHisRepository.save(recipeEquipmentHis);
+            baseService.saveHistoryEntity(recipeEquipment, DefaultStatusMachine.EVENT_ACTIVE);
 
             if (sendNotification) {
                 Map<String, Object> notificationMap = Maps.newHashMap();
@@ -260,20 +218,26 @@ public class RmsServiceImpl implements RmsService {
         }
     }
 
-    @Override
-    public RecipeEquipment inActiveRecipeEquipment(RecipeEquipment recipeEquipment, boolean checkGoldenFlag) throws ClientException {
+    /**
+     * ReleaseRecipe
+     * @param recipeEquipment
+     * @throws ClientException
+     */
+    public void holdRecipeEquipment(RecipeEquipment recipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException{
         try {
-            if (checkGoldenFlag && recipeEquipment.getGoldenFlag()) {
-                throw new ClientException(RmsException.EQP_RECIPE_IS_GOLDEN_RECIPE);
-            }
-
-            recipeEquipment.setStatus(DefaultStatusMachine.STATUS_INACTIVE);
-            recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
-
-            RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setTransType(DefaultStatusMachine.STATUS_INACTIVE);
-            recipeEquipmentHisRepository.save(recipeEquipmentHis);
-            return recipeEquipment;
+//            PreConditionalUtils.checkNotNull(recipeEquipment.getObjectRrn(), "RecipeEquipment ObjectRrn");
+//            if (RecipeEquipment.HOLD_STATE_ON.equals(recipeEquipment.getHoldState())) {
+//                throw new ClientException(RmsException.EQP_RECIPE_IS_ALREADY_HOLD);
+//            }
+//            recipeEquipment.setHoldState(recipeEquipment.HOLD_STATE_ON);
+//            recipeEquipmentRepository.saveAndFlush(recipeEquipment);
+//
+//            RecipeEquipmentHis his = new RecipeEquipmentHis(recipeEquipment);
+//            his.setActionCode(actionCode);
+//            his.setActionComment(actionComment);
+//            his.setActionReason(actionReason);
+//            his.setTransType(RecipeEquipmentHis.TRANS_TYPE_HOLD);
+//            recipeEquipmentHisRepository.save(his);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -282,50 +246,24 @@ public class RmsServiceImpl implements RmsService {
 
     /**
      * ReleaseRecipe
-     * @param RecipeEquipment
+     * @param recipeEquipment
      * @throws ClientException
      */
-    public void holdRecipeEquipment(RecipeEquipment RecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException{
+    public void releaseRecipeEquipment(RecipeEquipment recipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException{
         try {
-            PreConditionalUtils.checkNotNull(RecipeEquipment.getObjectRrn(), "RecipeEquipment ObjectRrn");
-            if (RecipeEquipment.HOLD_STATE_ON.equals(RecipeEquipment.getHoldState())) {
-                throw new ClientException(RmsException.EQP_RECIPE_IS_ALREADY_HOLD);
-            }
-            RecipeEquipment.setHoldState(RecipeEquipment.HOLD_STATE_ON);
-            recipeEquipmentRepository.saveAndFlush(RecipeEquipment);
-
-            RecipeEquipmentHis his = new RecipeEquipmentHis(RecipeEquipment);
-            his.setActionCode(actionCode);
-            his.setActionComment(actionComment);
-            his.setActionReason(actionReason);
-            his.setTransType(RecipeEquipmentHis.TRANS_TYPE_HOLD);
-            recipeEquipmentHisRepository.save(his);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw ExceptionManager.handleException(e);
-        }
-    }
-
-    /**
-     * ReleaseRecipe
-     * @param RecipeEquipment
-     * @throws ClientException
-     */
-    public void releaseRecipeEquipment(RecipeEquipment RecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException{
-        try {
-            PreConditionalUtils.checkNotNull(RecipeEquipment.getObjectRrn(), "RecipeEquipment ObjectRrn");
-            if (RecipeEquipment.HOLD_STATE_OFF.equals(RecipeEquipment.getHoldState())) {
-                throw new ClientException(RmsException.EQP_RECIPE_IS_ALREADY_RELEASE);
-            }
-            RecipeEquipment.setHoldState(RecipeEquipment.HOLD_STATE_OFF);
-            recipeEquipmentRepository.saveAndFlush(RecipeEquipment);
-
-            RecipeEquipmentHis his = new RecipeEquipmentHis(RecipeEquipment);
-            his.setActionCode(actionCode);
-            his.setActionComment(actionComment);
-            his.setActionReason(actionReason);
-            his.setTransType(RecipeEquipmentHis.TRANS_TYPE_RELEASE);
-            recipeEquipmentHisRepository.save(his);
+//            PreConditionalUtils.checkNotNull(recipeEquipment.getObjectRrn(), "RecipeEquipment ObjectRrn");
+//            if (recipeEquipment.HOLD_STATE_OFF.equals(recipeEquipment.getHoldState())) {
+//                throw new ClientException(RmsException.EQP_RECIPE_IS_ALREADY_RELEASE);
+//            }
+//            recipeEquipment.setHoldState(recipeEquipment.HOLD_STATE_OFF);
+//            recipeEquipmentRepository.saveAndFlush(recipeEquipment);
+//
+//            RecipeEquipmentHis his = new RecipeEquipmentHis(recipeEquipment);
+//            his.setActionCode(actionCode);
+//            his.setActionComment(actionComment);
+//            his.setActionReason(actionReason);
+//            his.setTransType(RecipeEquipmentHis.TRANS_TYPE_RELEASE);
+//            recipeEquipmentHisRepository.save(his);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -333,30 +271,28 @@ public class RmsServiceImpl implements RmsService {
     }
 
     @Override
-    public void setGoldenRecipe(RecipeEquipment RecipeEquipment) throws ClientException {
+    public void setGoldenRecipe(RecipeEquipment recipeEquipment) throws ClientException {
         try {
-            if (RecipeEquipment.getGoldenFlag()) {
+            if (recipeEquipment.getGoldenFlag()) {
                 throw new ClientException(RmsException.EQP_RECIPE_GOLDEN_RECIPE_IS_EXIST);
             }
-            Equipment equipment = equipmentRepository.getByEquipmentId(RecipeEquipment.getEquipmentId());
+            Equipment equipment = equipmentRepository.getByEquipmentId(recipeEquipment.getEquipmentId());
             if (equipment == null) {
                 throw new ClientException(RmsException.EQP_IS_NOT_EXIST);
             }
-            if (DefaultStatusMachine.STATUS_ACTIVE.equals(RecipeEquipment.getStatus())) {
-                RecipeEquipment recipeEqp = recipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), equipment.getEquipmentType(), RecipeEquipment.getName(), DefaultStatusMachine.STATUS_ACTIVE, RecipeEquipment.getPattern(), false);
+            if (DefaultStatusMachine.STATUS_ACTIVE.equals(recipeEquipment.getStatus())) {
+                RecipeEquipment recipeEqp = recipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), equipment.getEquipmentType(), recipeEquipment.getName(), DefaultStatusMachine.STATUS_ACTIVE, recipeEquipment.getPattern(), false);
 
                 if (recipeEqp != null) {
                     throw new ClientException(RmsException.EQP_RECIPE_GOLDEN_RECIPE_IS_EXIST);
                 }
                 // 设置成GoldenRecipe则需要清空EquipmentId
-                RecipeEquipment.setEquipmentId(null);
-                RecipeEquipment.setEquipmentType(equipment.getEquipmentType());
-                RecipeEquipment.setGoldenFlag(true);
-                RecipeEquipment = recipeEquipmentRepository.save(RecipeEquipment);
-                // 记录历史
-                RecipeEquipmentHis recipeEqpHis = new RecipeEquipmentHis(RecipeEquipment);
-                recipeEqpHis.setTransType(RecipeEquipmentHis.TRANS_TYPE_SET_GOLDEN);
-                recipeEquipmentHisRepository.save(recipeEqpHis);
+                recipeEquipment.setEquipmentId(null);
+                recipeEquipment.setEquipmentType(equipment.getEquipmentType());
+                recipeEquipment.setGoldenFlag(true);
+                recipeEquipment = recipeEquipmentRepository.save(recipeEquipment);
+
+                baseService.saveHistoryEntity(recipeEquipment, RecipeEquipmentHis.TRANS_TYPE_SET_GOLDEN);
             } else {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_NOT_ACTIVE);
             }
@@ -368,12 +304,12 @@ public class RmsServiceImpl implements RmsService {
     }
 
     @Override
-    public void unSetGoldenRecipe(RecipeEquipment RecipeEquipment, String equipmentId) throws ClientException {
+    public void unSetGoldenRecipe(RecipeEquipment recipeEquipment, String equipmentId) throws ClientException {
         try {
-            if (!RecipeEquipment.getGoldenFlag()) {
+            if (!recipeEquipment.getGoldenFlag()) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_NOT_GOLDEN);
             }
-            if (!DefaultStatusMachine.STATUS_ACTIVE.equals(RecipeEquipment.getStatus())) {
+            if (!DefaultStatusMachine.STATUS_ACTIVE.equals(recipeEquipment.getStatus())) {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_ACTIVE);
             }
             // TODO unset的时候是否卡控必输equipmentId
@@ -382,15 +318,12 @@ public class RmsServiceImpl implements RmsService {
                 if (equipment == null) {
                     throw new ClientException(RmsException.EQP_IS_NOT_EXIST);
                 }
-                RecipeEquipment.setEquipmentId(equipment.getEquipmentId());
+                recipeEquipment.setEquipmentId(equipment.getEquipmentId());
             }
 
-            RecipeEquipment.setGoldenFlag(false);
-            RecipeEquipment = recipeEquipmentRepository.save(RecipeEquipment);
-            // 记录历史
-            RecipeEquipmentHis recipeEqpHis = new RecipeEquipmentHis(RecipeEquipment);
-            recipeEqpHis.setTransType(RecipeEquipmentHis.TRANS_TYPE_UNSET_GOLDEN);
-            recipeEquipmentHisRepository.save(recipeEqpHis);
+            recipeEquipment.setGoldenFlag(false);
+            recipeEquipment = recipeEquipmentRepository.save(recipeEquipment);
+            baseService.saveHistoryEntity(recipeEquipment, RecipeEquipmentHis.TRANS_TYPE_UNSET_GOLDEN);
         } catch (ClientException e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -422,7 +355,7 @@ public class RmsServiceImpl implements RmsService {
                 throw new ClientException(RmsException.EQP_RECIPE_IS_NOT_EXIST);
             }
 
-            if (recipeEquipment.getBodyFlag()) {
+            if (recipeEquipment.getCheckBodyFlag()) {
                 if (!StringUtils.isNullOrEmpty(recipeEquipment.getBody())) {
                     if (!recipeEquipment.getBody().equals(checkRecipeEquipment.getBody())) {
                         throw new ClientException(RmsException.EQP_RECIPE_BODY_NOT_SAME);
@@ -432,17 +365,17 @@ public class RmsServiceImpl implements RmsService {
                 }
             }
 
-            if (recipeEquipment.getTimestampFlag()) {
-                if (recipeEquipment.getTimestamp() != null) {
-                    long time = recipeEquipment.getTimestamp().getTime();
-                    long checkTime = checkRecipeEquipment.getTimestamp().getTime();
-                    if (time != checkTime) {
-                        throw new ClientException(RmsException.EQP_RECIPE_TIMESTAMP_NOT_SAME);
-                    }
-                } else {
-                    throw new ClientException(RmsException.EQP_RECIPE_TIMESTAMP_IS_NOT_EXIST);
-                }
-            }
+//            if (recipeEquipment.getTimestampFlag()) {
+//                if (recipeEquipment.getTimestamp() != null) {
+//                    long time = recipeEquipment.getTimestamp().getTime();
+//                    long checkTime = checkRecipeEquipment.getTimestamp().getTime();
+//                    if (time != checkTime) {
+//                        throw new ClientException(RmsException.EQP_RECIPE_TIMESTAMP_NOT_SAME);
+//                    }
+//                } else {
+//                    throw new ClientException(RmsException.EQP_RECIPE_TIMESTAMP_IS_NOT_EXIST);
+//                }
+//            }
 
             if (recipeEquipment.getCheckSumFlag()) {
                 if (!StringUtils.isNullOrEmpty(recipeEquipment.getCheckSum())) {
@@ -460,7 +393,7 @@ public class RmsServiceImpl implements RmsService {
                 }
             }
 
-            if (recipeEquipment.getParameterFlag()) {
+            if (recipeEquipment.getCheckParameterFlag()) {
                 if (CollectionUtils.isNotEmpty(tempValues)) {
                     // 根据临时参数找到相应的临时修改参数
                     List<RecipeEquipmentParameterTemp> tempParameters = getOnlineRecipe(recipeEquipment, tempValues);
@@ -470,7 +403,7 @@ public class RmsServiceImpl implements RmsService {
                             Optional<RecipeEquipmentParameterTemp> optional = tempParameters.stream().filter(temp -> temp.getParameterName().equals(parameter.getParameterName()) && temp.getParameterGroup().equals(parameter.getParameterGroup())).findFirst();
                             if (optional.isPresent()) {
                                 RecipeEquipmentParameterTemp temp = optional.get();
-                                parameter.setDefaultValue(temp.getParameterValue());
+                                parameter.setCurrentValue(temp.getParameterValue());
                                 // 计数
                                 temp.setCurrentCount(temp.getCurrentCount() + 1);
                                 temp.changeStatus();
@@ -523,11 +456,7 @@ public class RmsServiceImpl implements RmsService {
         try {
             recipeEquipment.setCheckSum(checkSum);
             recipeEquipment = recipeEquipmentRepository.saveAndFlush(recipeEquipment);
-
-            RecipeEquipmentHis his = new RecipeEquipmentHis(recipeEquipment);
-            his.setTransType(RecipeEquipmentHis.TRANS_TYPE_CHANGE_CHECK_SUM);
-            recipeEquipmentHisRepository.save(his);
-
+            baseService.saveHistoryEntity(recipeEquipment, RecipeEquipmentHis.TRANS_TYPE_CHANGE_CHECK_SUM);
             return recipeEquipment;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -546,16 +475,17 @@ public class RmsServiceImpl implements RmsService {
     @Override
     public RecipeEquipment downloadRecipe(String lotId, String equipmentId, long recipeEquipmentRrn) throws ClientException {
         try {
-            RecipeEquipment recipeEquipment = getDeepRecipeEquipment(recipeEquipmentRrn);
-            // 记录download历史
-            RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
-            recipeEquipmentHis.setEquipmentId(equipmentId);
-            recipeEquipmentHis.setTransType(RecipeEquipmentHis.TRANS_TYPE_DOWNLOAD);
-            recipeEquipmentHis.setEquipmentId(equipmentId);
-            recipeEquipmentHis.setLotId(lotId);
-            recipeEquipmentHisRepository.save(recipeEquipmentHis);
-
-            return recipeEquipment;
+//            RecipeEquipment recipeEquipment = getDeepRecipeEquipment(recipeEquipmentRrn);
+//            // 记录download历史
+//            RecipeEquipmentHis recipeEquipmentHis = new RecipeEquipmentHis(recipeEquipment);
+//            recipeEquipmentHis.setEquipmentId(equipmentId);
+//            recipeEquipmentHis.setTransType(RecipeEquipmentHis.TRANS_TYPE_DOWNLOAD);
+//            recipeEquipmentHis.setEquipmentId(equipmentId);
+//            recipeEquipmentHis.setLotId(lotId);
+//            recipeEquipmentHisRepository.save(recipeEquipmentHis);
+//
+//            return recipeEquipment;
+            return null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
@@ -719,7 +649,7 @@ public class RmsServiceImpl implements RmsService {
                 paraTemp.setRecipeEquipmentRrn(recipeEquipment.getObjectRrn());
                 paraTemp.setParameterName(parameter.getParameterName());
                 paraTemp.setParameterGroup(parameter.getParameterGroup());
-                paraTemp.setParameterValue(parameter.getDefaultValue());
+                paraTemp.setParameterValue(parameter.getCurrentValue());
                 paraTemp.setMinValue(parameter.getMinValue());
                 paraTemp.setMaxValue(parameter.getMaxValue());
                 paraTemp.setCurrentCount(0);

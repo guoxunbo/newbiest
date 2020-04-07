@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Created by guoxunbo on 2018/7/4.
  */
@@ -17,4 +19,6 @@ public interface RecipeEquipmentParameterRepository extends IRepository<RecipeEq
     @Modifying
     @Query("DELETE FROM RecipeEquipmentParameter where recipeEquipmentRrn = :recipeEquipmentRrn")
     void deleteByRecipeEquipmentRrn(@Param("recipeEquipmentRrn") Long recipeEquipmentRrn) throws ClientException;
+
+    List<RecipeEquipmentParameter> findByRecipeEquipmentRrn(Long recipeEquipmentRrn) throws ClientException;
 }

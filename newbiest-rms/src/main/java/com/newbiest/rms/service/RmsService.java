@@ -15,10 +15,7 @@ public interface RmsService {
 
     RecipeEquipment createRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
     void deleteRecipeEquipment(Long recipeEquipmentRrn) throws ClientException;
-    RecipeEquipment frozenRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
-    RecipeEquipment unFrozenRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
     RecipeEquipment activeRecipeEquipment(RecipeEquipment recipeEquipment,  boolean isActiveGloden, boolean sendNotification) throws ClientException;
-    RecipeEquipment inActiveRecipeEquipment(RecipeEquipment recipeEquipment, boolean checkGoldenFlag) throws ClientException;
 
     void holdRecipeEquipment(RecipeEquipment RecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException;
     void releaseRecipeEquipment(RecipeEquipment RecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException;

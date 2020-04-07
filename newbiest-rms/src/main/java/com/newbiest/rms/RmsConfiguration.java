@@ -25,8 +25,12 @@ public class RmsConfiguration {
         ModelFactory.registerModelClassLoader(Recipe.class.getName(), Recipe.class.getClassLoader());
         ModelFactory.registerModelClassLoader(RecipeEquipment.class.getName(), RecipeEquipment.class.getClassLoader());
         ModelFactory.registerModelClassLoader(RecipeEquipmentHis.class.getName(), RecipeEquipmentHis.class.getClassLoader());
-
         ModelFactory.registerModelClassLoader(RecipeEquipmentParameter.class.getName(), RecipeEquipmentParameter.class.getClassLoader());
+
+        // 注册历史
+        ModelFactory.registerHistoryModelClassLoader(RecipeEquipment.class.getName(), RecipeEquipmentHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(RecipeEquipment.class.getName(), RecipeEquipmentHis.class.getName());
+
     }
 
     @Bean(name="rmsLiquibase")

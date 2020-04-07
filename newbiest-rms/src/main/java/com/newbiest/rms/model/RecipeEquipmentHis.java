@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBVersionControlHis;
 import com.newbiest.base.utils.StringUtils;
@@ -31,21 +32,6 @@ public class RecipeEquipmentHis extends NBVersionControlHis {
 	@Column(name="RECIPE_EQUIPMENT_RRN")
 	private Long recipeEquipmentRrn;
 
-	@Column(name="RECIPE_NAME")
-	private String recipeName;
-	
-	@Column(name="VERSION")
-	private Long version;
-	
-	@Column(name="LOT_ID")
-	private String lotId;
-	
-	@Column(name="STATUS")
-	private String status;
-
-	@Column(name="RECIPE_TYPE")
-	private Integer recipeType;
-	
 	@Column(name="EQUIPMENT_ID")
 	private String equipmentId;
 
@@ -69,63 +55,84 @@ public class RecipeEquipmentHis extends NBVersionControlHis {
 
 	@Column(name="GOLDEN_FLAG")
 	private String goldenFlag;
-	
-	@Column(name="PROGRAM_NAME")
-	private String programName;
 
-	@Column(name="PROGRAM_VERSION")
-	private String programVersion;
-
-	@Column(name="PROGRAM_SUBFIX")
-	private String programSubfix;
-	
-	@Column(name="ACTIVE_TIME")
-	private Date activeTime;
-	
-	@Column(name="ACTIVE_USER")
-	private String activeUser;
-	
 	@Column(name="ACTIVE_TYPE")
 	private String activeType;
-	
+
 	@Column(name="PATTERN")
 	private String pattern;
-	
+
 	/**
-	 * 文件传输方式(EAP/FTP/SFTP)
+	 * 验证Body.此处的Body不是Parameter，而是一个二进制码
 	 */
-	@Column(name="FILE_TRANS_TYPE")
-	private String fileTransType;
-	
+	@Column(name="CHECK_BODY_FLAG")
+	private String checkBodyFlag;
+
+	@Column(name="CHECK_SUM_FLAG")
+	private String checkSumFlag;
+
 	/**
-	 * 从哪个FTP上来
+	 * 验证Parameter
 	 */
-	@Column(name="FROM_FTP_ID")
-	private String fromFtpId;
-	
-	@Column(name="FILE_CHECK_TYPE")
-	private String fileCheckType;
+	@Column(name="CHECK_PARAMETER_FLAG")
+	private String checkParameterFlag;
 
-	@Column(name="FTP_ID")
-	private String ftpId;
+	/**
+	 * Download的时候请求的lotId
+	 */
+	@Column(name="LOT_ID")
+	private String lotId;
 
-	@Column(name="FULL_PATH")
-	private String fullPath;
-	
-	@Column(name="FROM_RECIPE_NAME")
-	private String fromRecipeName;
-	
-	@Column(name="FROM_RECIPE_VERSION")
-	private Long fromRecipeVersion;
-	
-	@Column(name="FROM_EQUIPMENT_ID")
-	private String fromEquipmentId;
-	
-	@Column(name="FROM_EQUIPMENT_TYPE")
-	private String fromEquipmentType;
+	/**
+	 * Download的时候请求的UNIT_ID比如waferId
+	 */
+	@Column(name="UNIT_ID")
+	private String unitId;
 
-	@Column(name="FROM_PATTERN")
-	private String fromPattern;
+//	@Column(name="PROGRAM_NAME")
+//	private String programName;
+//
+//	@Column(name="PROGRAM_VERSION")
+//	private String programVersion;
+//
+//	@Column(name="PROGRAM_SUFFIX")
+//	private String programSuffix;
+
+//	/**
+//	 * 文件传输方式(EAP/FTP/SFTP)
+//	 */
+//	@Column(name="FILE_TRANS_TYPE")
+//	private String fileTransType;
+//
+//	/**
+//	 * 从哪个FTP上来
+//	 */
+//	@Column(name="FROM_FTP_ID")
+//	private String fromFtpId;
+//
+//	@Column(name="FILE_CHECK_TYPE")
+//	private String fileCheckType;
+//
+//	@Column(name="FTP_ID")
+//	private String ftpId;
+//
+//	@Column(name="FULL_PATH")
+//	private String fullPath;
+//
+//	@Column(name="FROM_RECIPE_NAME")
+//	private String fromRecipeName;
+//
+//	@Column(name="FROM_RECIPE_VERSION")
+//	private Long fromRecipeVersion;
+//
+//	@Column(name="FROM_EQUIPMENT_ID")
+//	private String fromEquipmentId;
+//
+//	@Column(name="FROM_EQUIPMENT_TYPE")
+//	private String fromEquipmentType;
+//
+//	@Column(name="FROM_PATTERN")
+//	private String fromPattern;
 
 	@Column(name="RESERVED1")
 	private String reserved1;
@@ -142,9 +149,10 @@ public class RecipeEquipmentHis extends NBVersionControlHis {
 	@Column(name="RESERVED5")
 	private String reserved5;
 
-	public RecipeEquipmentHis(RecipeEquipment recipeEquipment) {
-		super(recipeEquipment);
-		this.recipeEquipmentRrn = recipeEquipment.getObjectRrn();
+	@Override
+	public void setNbBase(NBBase base) {
+		super.setNbBase(base);
+		this.recipeEquipmentRrn = base.getObjectRrn();
 	}
 
 	public Boolean getGoldenFlag() {
@@ -154,4 +162,29 @@ public class RecipeEquipmentHis extends NBVersionControlHis {
 	public void setGoldenFlag(Boolean goldenFlag) {
 		this.goldenFlag = goldenFlag ? StringUtils.YES : StringUtils.NO;
 	}
+
+	public Boolean getCheckBodyFlag() {
+		return StringUtils.YES.equalsIgnoreCase(checkBodyFlag);
+	}
+
+	public void setCheckBodyFlag(Boolean checkBodyFlag) {
+		this.checkBodyFlag = checkBodyFlag ? StringUtils.YES : StringUtils.NO;
+	}
+
+	public Boolean getCheckSumFlag() {
+		return StringUtils.YES.equalsIgnoreCase(checkSumFlag);
+	}
+
+	public void setCheckSumFlag(Boolean checkSumFlag) {
+		this.checkSumFlag = checkSumFlag ? StringUtils.YES : StringUtils.NO;
+	}
+
+	public Boolean getCheckParameterFlag() {
+		return StringUtils.YES.equalsIgnoreCase(checkParameterFlag);
+	}
+
+	public void setCheckParameterFlag(Boolean checkParameterFlag) {
+		this.checkParameterFlag = checkParameterFlag ? StringUtils.YES : StringUtils.NO;
+	}
+
 }

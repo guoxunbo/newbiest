@@ -11,9 +11,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-/**
- * Created by guoxunbo on 2018/7/4.
- */
 @Entity
 @Table(name="RMS_RECIPE_EQUIPMENT_PARAMETER")
 @Data
@@ -60,8 +57,8 @@ public class RecipeEquipmentParameter extends NBBase {
     @Column(name = "MAX_VALUE")
     private String maxValue;
 
-    @Column(name = "DEFAULT_VALUE")
-    private String defaultValue;
+    @Column(name = "CURRENT_VALUE")
+    private String currentValue;
 
     /**
      * 是否允许onLine修改
@@ -102,18 +99,18 @@ public class RecipeEquipmentParameter extends NBBase {
     }
 
     public String getFullName() {
-        return this.parameterGroup + "_" + this.parameterName;
+        return this.parameterGroup + StringUtils.UNDERLINE_CODE + this.parameterName;
     }
 
     public void compare(RecipeEquipmentParameter other) throws Exception {
-        if (!StringUtils.isNullOrEmpty(getDefaultValue()) && !StringUtils.isNullOrEmpty(other.getDefaultValue())) {
+        if (!StringUtils.isNullOrEmpty(currentValue) && !StringUtils.isNullOrEmpty(other.getCurrentValue())) {
             if (VALIDATE_TYPE_EXACT.equals(getValidateType())) {
                 exactValidate(other);
             } else if (VALIDATE_TYPE_RANGE.equals(getValidateType())) {
                 rangeValidate(other);
             }
         } else {
-            throw new ClientParameterException(RmsException.RECIPE_PARAMETER_VALUE_IS_NOT_EXIST, getRecipeEquipmentRrn(), getFullName(), getDefaultValue(), other.getDefaultValue());
+            throw new ClientParameterException(RmsException.RECIPE_PARAMETER_VALUE_IS_NOT_EXIST, getRecipeEquipmentRrn(), getFullName(), currentValue, other.getCurrentValue());
         }
     }
 
@@ -142,42 +139,42 @@ public class RecipeEquipmentParameter extends NBBase {
      */
     public void validateString(RecipeEquipmentParameter other) throws Exception {
         //比较字符串
-        if (!getDefaultValue().equals(other.getDefaultValue())) {
-           throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_SAME, getRecipeEquipmentRrn(), getFullName(), getDefaultValue(), other.getDefaultValue());
+        if (!currentValue.equals(other.getCurrentValue())) {
+           throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_SAME, getRecipeEquipmentRrn(), getFullName(), currentValue, other.getCurrentValue());
         }
     }
 
     public void validateDouble(RecipeEquipmentParameter other) throws Exception {
         try {
-            double value = Double.parseDouble(getDefaultValue());
-            double checkValue = Double.parseDouble(other.getDefaultValue());
+            double value = Double.parseDouble(getCurrentValue());
+            double checkValue = Double.parseDouble(other.getCurrentValue());
             if (value != checkValue) {
-                throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_SAME, getRecipeEquipmentRrn(), getFullName(), getDefaultValue(), other.getDefaultValue());
+                throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_SAME, getRecipeEquipmentRrn(), getFullName(), getCurrentValue(), other.getCurrentValue());
             }
         } catch (NumberFormatException e) {
-            throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_NUMBER_FORMAT, getRecipeEquipmentRrn(), getFullName(), getDefaultValue(), other.getDefaultValue());
+            throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_NUMBER_FORMAT, getRecipeEquipmentRrn(), getFullName(), getCurrentValue(), other.getCurrentValue());
         }
     }
 
     public void validateInt(RecipeEquipmentParameter other) throws Exception {
         try {
             // 出现类似20.0 转 int报错
-            double doubleValue = Double.parseDouble(getDefaultValue());
+            double doubleValue = Double.parseDouble(getCurrentValue());
             int value = (int)doubleValue;
 
-            double doubleCheckValue = Double.parseDouble(other.getDefaultValue());
+            double doubleCheckValue = Double.parseDouble(other.getCurrentValue());
             int checkValue = (int)doubleCheckValue;
             if (value != checkValue) {
-                throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_SAME, getRecipeEquipmentRrn(), getFullName(), getDefaultValue(), other.getDefaultValue());
+                throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_SAME, getRecipeEquipmentRrn(), getFullName(), getCurrentValue(), other.getCurrentValue());
             }
         } catch (NumberFormatException e) {
-            throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_NUMBER_FORMAT, getRecipeEquipmentRrn(), getFullName(), getDefaultValue(), other.getDefaultValue());
+            throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_NUMBER_FORMAT, getRecipeEquipmentRrn(), getFullName(), getCurrentValue(), other.getCurrentValue());
         }
     }
 
     public void validateRange(RecipeEquipmentParameter other) throws Exception {
         try {
-            double checkValue = Double.parseDouble(other.getDefaultValue());
+            double checkValue = Double.parseDouble(other.getCurrentValue());
             Double maxValue =  null;
             Double minValue = null;
             if (!StringUtils.isNullOrEmpty(getMaxValue()) || !StringUtils.isNullOrEmpty(getMinValue())) {
@@ -185,24 +182,24 @@ public class RecipeEquipmentParameter extends NBBase {
                     maxValue = Double.parseDouble(getMaxValue());
                     minValue = Double.parseDouble(getMinValue());
                     if (checkValue > maxValue || checkValue < minValue) {
-                        throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_IN_RANGE, getRecipeEquipmentRrn(), getFullName(), getMaxValue(), getMinValue(), other.getDefaultValue());
+                        throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_IN_RANGE, getRecipeEquipmentRrn(), getFullName(), getMaxValue(), getMinValue(), other.getCurrentValue());
                     }
                 } else if (!StringUtils.isNullOrEmpty(getMaxValue())) {
                     maxValue = Double.parseDouble(getMaxValue());
                     if (checkValue > maxValue) {
-                        throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_IN_RANGE, getRecipeEquipmentRrn(), getFullName(), getMaxValue(), other.getDefaultValue());
+                        throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_IN_RANGE, getRecipeEquipmentRrn(), getFullName(), getMaxValue(), other.getCurrentValue());
                     }
                 } else if (!StringUtils.isNullOrEmpty(getMinValue())) {
                     minValue = Double.parseDouble(getMinValue());
                     if (checkValue < minValue) {
-                        throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_IN_RANGE, getRecipeEquipmentRrn(), getFullName(), getMinValue(), other.getDefaultValue());
+                        throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_IN_RANGE, getRecipeEquipmentRrn(), getFullName(), getMinValue(), other.getCurrentValue());
                     }
                 }
             } else {
                 // 没有设置上限限 则都表示正常Do Nothing
             }
         } catch (NumberFormatException e) {
-            throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_NUMBER_FORMAT, getRecipeEquipmentRrn(), getFullName(), getMaxValue(), getMinValue(), other.getDefaultValue());
+            throw new ClientParameterException(RmsException.RECIPE_PARAMETER_NOT_NUMBER_FORMAT, getRecipeEquipmentRrn(), getFullName(), getMaxValue(), getMinValue(), other.getCurrentValue());
         }
     }
 }

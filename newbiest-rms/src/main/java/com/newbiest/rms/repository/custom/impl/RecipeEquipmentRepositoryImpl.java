@@ -79,8 +79,8 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
     public RecipeEquipment getGoldenRecipe(long orgRrn, String eqpType, String recipeName, String status, String pattern, boolean bodyFlag) throws ClientException {
         try {
             StringBuffer sqlBuffer = SQLBuilder.newInstance().selectEntity(RecipeEquipment.class)
-                    .mapFieldValue(ImmutableMap.of("goldenFlag", "Y"))
-                    .build();
+                                        .mapFieldValue(ImmutableMap.of("goldenFlag", "Y"))
+                                        .build();
             sqlBuffer.append(" AND equipmentType = :equipmentType");
             sqlBuffer.append(" AND recipeName = :recipeName");
             sqlBuffer.append(" AND pattern = :pattern");

@@ -69,7 +69,7 @@ databaseChangeLog:
                   type: varchar(32)
                   remarks: 最大值
               - column:
-                  name: DEFAULT_VALUE
+                  name: CURRENT_VALUE
                   type: varchar(32)
                   remarks: 参数值
               - column:

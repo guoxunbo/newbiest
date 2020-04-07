@@ -15,6 +15,6 @@ import java.util.List;
 @Repository
 public interface RecipeEquipmentRepository extends IRepository<RecipeEquipment, Long>, RecipeEquipmentRepositoryCustom {
 
-    List<RecipeEquipment> getByNameAndEquipmentIdAndEquipmentTypeAndPattern(String name, String equipmentId, String equipmentType, String pattern) throws ClientException;
+    List<RecipeEquipment> getByNameAndEquipmentIdAndPatternOrderByVersionDesc(String name, String equipmentId, String pattern) throws ClientException;
 
 }

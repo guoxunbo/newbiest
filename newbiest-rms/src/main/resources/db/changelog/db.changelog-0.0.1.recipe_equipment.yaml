@@ -63,17 +63,9 @@ databaseChangeLog:
                   type: bigint
                   remarks: 版本
               - column:
-                  name: CLASS
-                  type: varchar(32)
-                  remarks: 类别 Recipe Program
-              - column:
                   name: STATUS
                   type: varchar(32)
                   remarks: 状态
-              - column:
-                  name: RECIPE_TYPE
-                  type: varchar(32)
-                  remarks: 类型
               - column:
                   name: EQUIPMENT_ID
                   type: varchar(32)
@@ -107,36 +99,6 @@ databaseChangeLog:
                   type: varchar(1)
                   remarks: 是否是GDRecipe
               - column:
-                  name: PROGRAM_NAME
-                  type: varchar(32)
-                  remarks: 程序包名称
-              - column:
-                  name: PROGRAM_VERSION
-                  type: varchar(32)
-                  remarks: 程序包版本
-              - column:
-                  name: PROGRAM_SUBFIX
-                  type: varchar(32)
-                  remarks: 程序包后缀
-              - column:
-                  name: FILE_TRANS_TYPE
-                  type: varchar(32)
-                  remarks: 文件传输方式(EAP FTP SFTP)
-              - column:
-                  name: FILE_CHECK_TYPE
-                  type: varchar(32)
-              - column:
-                  name: FROM_FTP_ID
-                  type: varchar(32)
-              - column:
-                  name: FTP_ID
-                  type: varchar(32)
-                  remarks: 当前的FTP
-              - column:
-                  name: FULL_PATH
-                  type: varchar(256)
-                  remarks: 全路径
-              - column:
                   name: ACTIVE_TIME
                   type: datetime
                   remarks: 激活时间
@@ -152,6 +114,20 @@ databaseChangeLog:
                   name: PATTERN
                   type: varchar(32)
                   remarks: 模式
+              - column:
+                  name: CHECK_BODY_FLAG
+                  type: varchar(1)
+                  defaultValue: N
+                  remarks: 验证Body.此处的Body不是Parameter，而是一个二进制码
+              - column:
+                  name: CHECK_SUM_FLAG
+                  type: varchar(1)
+                  defaultValue: N
+              - column:
+                  name: CHECK_PARAMETER_FLAG
+                  type: varchar(1)
+                  defaultValue: N
+                  remarks: 验证Parameter
               - column:
                   name: RESERVED1
                   type: varchar(32)

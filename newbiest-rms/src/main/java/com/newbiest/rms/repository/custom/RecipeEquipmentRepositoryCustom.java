@@ -3,8 +3,6 @@ package com.newbiest.rms.repository.custom;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.rms.model.RecipeEquipment;
 
-import java.util.List;
-
 
 public interface RecipeEquipmentRepositoryCustom {
 

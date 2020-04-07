@@ -1,12 +1,9 @@
 package com.newbiest.rms.model;
 
 import com.google.common.collect.Lists;
-import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBVersionControl;
-import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -22,29 +19,15 @@ public class RecipeEquipment extends NBVersionControl {
     public static final String HOLD_STATE_ON = "On";
     public static final String HOLD_STATE_OFF = "Off";
 
-    public static final int RECIPE_TYPE_BODY = 1 << 0;
-    public static final int RECIPE_TYPE_TIMESTAMP = 1 << 1;
-    public static final int RECIPE_TYPE_CHECKSUM = 1 << 2;
-    public static final int RECIPE_TYPE_PARAMETER = 1 << 3;
-
     /**
      * Normal 正常Recipe，默认的RecipeMode。
      */
     public static final String PATTERN_NORMAL = "Normal";
 
+    public static final String ACTIVE_TYPE_BY_LOT = "ByLot";
+    public static final String ACTIVE_TYPE_BY_WAFER = "ByWafer";
+
     public static final String CONTEXT_RECIPE_EQUIPMENT= "RecipeEquipment";
-
-    @Column(name="name")
-    private String name;
-
-    @Column(name="VERSION")
-    private Long version;
-
-    @Column(name="STATUS")
-    private String status;
-
-    @Column(name="RECIPE_TYPE")
-    private Integer recipeType = RECIPE_TYPE_PARAMETER;
 
     @Column(name="EQUIPMENT_ID")
     private String equipmentId;
@@ -80,13 +63,28 @@ public class RecipeEquipment extends NBVersionControl {
      * 激活类型(ByWafer/ByLot)
      */
     @Column(name="ACTIVE_TYPE")
-    private String activeType;
+    private String activeType = ACTIVE_TYPE_BY_LOT;
 
     /**
      * 当前Recipe所处在的模式。不同模式下只能有一个Recipe是激活的
      */
     @Column(name="PATTERN")
     private String pattern = PATTERN_NORMAL;
+
+    /**
+     * 验证Body.此处的Body不是Parameter，而是一个二进制码
+     */
+    @Column(name="CHECK_BODY_FLAG")
+    private String checkBodyFlag;
+
+    @Column(name="CHECK_SUM_FLAG")
+    private String checkSumFlag;
+
+    /**
+     * 验证Parameter
+     */
+    @Column(name="CHECK_PARAMETER_FLAG")
+    private String checkParameterFlag;
 
     @Column(name="RESERVED1")
     private String reserved1;
@@ -103,10 +101,7 @@ public class RecipeEquipment extends NBVersionControl {
     @Column(name="RESERVED5")
     private String reserved5;
 
-    // 只在删除的时候做级联
-    @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.REMOVE})
-    @OrderBy(value = "seqNo ASC")
-    @JoinColumn(name = "RECIPE_EQUIPMENT_RRN", referencedColumnName = "OBJECT_RRN")
+    @Transient
     private List<RecipeEquipmentParameter> recipeEquipmentParameters = Lists.newArrayList();
 
     @Transient
@@ -124,52 +119,27 @@ public class RecipeEquipment extends NBVersionControl {
         this.goldenFlag = goldenFlag ? StringUtils.YES : StringUtils.NO;
     }
 
-    public Boolean getBodyFlag(){
-        return (recipeType & RECIPE_TYPE_BODY) == RECIPE_TYPE_BODY;
+    public Boolean getCheckBodyFlag() {
+        return StringUtils.YES.equalsIgnoreCase(checkBodyFlag);
     }
 
-    public void setBodyFlag(Boolean bodyFlag) {
-        if (bodyFlag) {
-            recipeType |= RECIPE_TYPE_BODY;
-        } else {
-            recipeType &= ~RECIPE_TYPE_BODY;
-        }
+    public void setCheckBodyFlag(Boolean checkBodyFlag) {
+        this.checkBodyFlag = checkBodyFlag ? StringUtils.YES : StringUtils.NO;
     }
 
-    public Boolean getTimestampFlag(){
-        return (recipeType & RECIPE_TYPE_TIMESTAMP) == RECIPE_TYPE_TIMESTAMP;
-    }
-
-    public void setTimestampFlag(Boolean timestampFlag) {
-        if (timestampFlag) {
-            recipeType |= RECIPE_TYPE_TIMESTAMP;
-        } else {
-            recipeType &= ~RECIPE_TYPE_TIMESTAMP;
-        }
-    }
-
-    public Boolean getCheckSumFlag(){
-        return (recipeType & RECIPE_TYPE_CHECKSUM) == RECIPE_TYPE_CHECKSUM;
+    public Boolean getCheckSumFlag() {
+        return StringUtils.YES.equalsIgnoreCase(checkSumFlag);
     }
 
     public void setCheckSumFlag(Boolean checkSumFlag) {
-        if (checkSumFlag) {
-            recipeType |= RECIPE_TYPE_CHECKSUM;
-        } else {
-            recipeType &= ~RECIPE_TYPE_CHECKSUM;
-        }
+        this.checkSumFlag = checkSumFlag ? StringUtils.YES : StringUtils.NO;
     }
 
-    public Boolean getParameterFlag(){
-        return (recipeType & RECIPE_TYPE_PARAMETER) == RECIPE_TYPE_PARAMETER;
+    public Boolean getCheckParameterFlag() {
+        return StringUtils.YES.equalsIgnoreCase(checkParameterFlag);
     }
 
-    public void setParameterFlag(Boolean parameterFlag) {
-        if (parameterFlag) {
-            recipeType |= RECIPE_TYPE_PARAMETER;
-        } else {
-            recipeType &= ~RECIPE_TYPE_PARAMETER;
-        }
+    public void setCheckParameterFlag(Boolean checkParameterFlag) {
+        this.checkParameterFlag = checkParameterFlag ? StringUtils.YES : StringUtils.NO;
     }
-
 }
