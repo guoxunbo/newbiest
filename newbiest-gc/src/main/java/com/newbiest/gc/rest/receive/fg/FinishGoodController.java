@@ -1,6 +1,8 @@
 package com.newbiest.gc.rest.receive.fg;
 
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -32,7 +34,14 @@ public class FinishGoodController {
 
         FinishGoodResponseBody responseBody = new FinishGoodResponseBody();
         FinishGoodRequestBody requestBody = request.getBody();
-        gcService.receiveFinishGood(requestBody.getMesPackedLots());
+
+        if(FinishGoodRequest.ACTION_COM_RECEIVE.equals(requestBody.getActionType())){
+            gcService.receiveFinishGood(requestBody.getMesPackedLots());
+        } else if(FinishGoodRequest.ACTION_WLT_RECEIVE.equals(requestBody.getActionType())){
+            gcService.receiveWltFinishGood(requestBody.getMesPackedLots());
+        } else {
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+        }
 
         response.setBody(responseBody);
         return response;

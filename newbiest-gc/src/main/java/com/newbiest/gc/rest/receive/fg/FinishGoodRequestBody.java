@@ -20,4 +20,6 @@ public class FinishGoodRequestBody extends RequestBody {
 	@ApiModelProperty(value = "GC：Mes完成品批次，必须携带boxId")
 	private List<MesPackedLot> mesPackedLots;
 
+	@ApiModelProperty(value = "操作类型", example = "receive")
+	private String actionType;
 }

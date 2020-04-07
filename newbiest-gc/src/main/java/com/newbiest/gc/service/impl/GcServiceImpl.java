@@ -1674,6 +1674,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
+                    otherReceiveProps.put("lotId", mesPackedLot.getCstId());
                     materialLotAction.setPropsMap(otherReceiveProps);
 
                     materialLotActions.add(materialLotAction);
@@ -2222,6 +2223,65 @@ public class GcServiceImpl implements GcService {
                 materialLotHistoryRepository.save(history);
             }
 
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 接收WLT的完成品
+     * @param packedLotList
+     */
+    public void receiveWltFinishGood(List<MesPackedLot> packedLotList) throws ClientException {
+        try {
+            Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().map(packedLot -> mesPackedLotRepository.findByBoxId(packedLot.getBoxId())).collect(Collectors.groupingBy(MesPackedLot :: getCstId));
+            List<MesPackedLot> mesPackedLots = Lists.newArrayList();
+            for(String cstId : packedLotMap.keySet()){
+                List<MesPackedLot> mesPackedLotList = packedLotMap.get(cstId);
+                Long totalQuantity = mesPackedLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getQuantity().longValue()));
+                MesPackedLot mesPackedLot = mesPackedLotList.get(0);
+                RawMaterial rawMaterial = mmsService.getRawMaterialByName(mesPackedLot.getProductId());
+                if (rawMaterial == null) {
+                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, mesPackedLot.getProductId());
+                }
+                String mLotId  =  mmsService.generatorMLotId(rawMaterial);
+                mesPackedLot.setBoxId(mLotId);
+                mesPackedLot.setQuantity(totalQuantity.intValue());
+                mesPackedLot.setWaferId("");
+                mesPackedLots.add(mesPackedLot);
+            }
+            receiveFinishGood(mesPackedLots);
+
+            for(MesPackedLot mesPackedLot : mesPackedLots){
+                String cstId = mesPackedLot.getCstId();
+                List<MesPackedLot> mesPackedLotList = packedLotMap.get(cstId);
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mesPackedLot.getBoxId(), ThreadLocalContext.getOrgRrn());
+                RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialLot.getMaterialName());
+                for(MesPackedLot packedLot : mesPackedLotList){
+                    MaterialLotUnit materialLotUnit = new MaterialLotUnit();
+                    materialLotUnit.setUnitId(packedLot.getWaferId());
+                    materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
+                    materialLotUnit.setLotId(cstId);
+                    materialLotUnit.setMaterial(rawMaterial);
+                    materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                    materialLotUnit.setGrade(packedLot.getGrade());
+                    materialLotUnit.setWorkOrderId(packedLot.getWorkorderId());
+                    materialLotUnit.setCurrentQty(BigDecimal.valueOf(packedLot.getQuantity()));
+                    materialLotUnit.setReceiveQty(BigDecimal.valueOf(packedLot.getQuantity()));
+                    materialLotUnit.setReserved1(packedLot.getLevelTwoCode());
+                    materialLotUnit.setReserved3(String.valueOf(mesPackedLotList.size()));
+                    materialLotUnit.setReserved4(packedLot.getBondedProperty());
+                    materialLotUnit.setReserved13(materialLot.getReserved13());
+                    materialLotUnit.setReserved18("1");
+                    materialLotUnit =  materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                    MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
+                    history.setTransQty(materialLotUnit.getReceiveQty());
+                    materialLotUnitHisRepository.save(history);
+                }
+            }
+            mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

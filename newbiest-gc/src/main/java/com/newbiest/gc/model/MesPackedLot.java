@@ -119,4 +119,7 @@ public class MesPackedLot implements Serializable {
     @Column(name="ERP_PRODUCT_ID")
     private String erpProductId;
 
+    @Column(name="CST_ID")
+    private String cstId;
+
 }

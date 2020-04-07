@@ -17,6 +17,7 @@ public interface MmsService {
     // rawMaterial
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial getRawMaterialByName(String name) throws ClientException;
+    String generatorMLotId(RawMaterial rawMaterial) throws  ClientException;
 
     // MaterialLot
     MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException;
