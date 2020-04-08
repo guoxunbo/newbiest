@@ -366,6 +366,9 @@ public class GcServiceImpl implements GcService {
     public MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException {
         try {
             MaterialLot materialLot = materialLotRepository.getMLotByLotId(lotId);
+            if (materialLot == null) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
+            }
             materialLot.isFinish();
             return materialLot;
         } catch (Exception e) {
@@ -2239,15 +2242,18 @@ public class GcServiceImpl implements GcService {
             for(String cstId : packedLotMap.keySet()){
                 List<MesPackedLot> mesPackedLotList = packedLotMap.get(cstId);
                 Long totalQuantity = mesPackedLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getQuantity().longValue()));
-                MesPackedLot mesPackedLot = mesPackedLotList.get(0);
-                RawMaterial rawMaterial = mmsService.getRawMaterialByName(mesPackedLot.getProductId());
+                RawMaterial rawMaterial = mmsService.getRawMaterialByName(mesPackedLotList.get(0).getProductId());
                 if (rawMaterial == null) {
-                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, mesPackedLot.getProductId());
+                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, mesPackedLotList.get(0).getProductId());
                 }
-                String mLotId  =  mmsService.generatorMLotId(rawMaterial);
+                MesPackedLot mesPackedLot = new MesPackedLot();
+                PropertyUtils.copyProperties(mesPackedLotList.get(0), mesPackedLot, new HistoryBeanConverter());
+                String mLotId = mmsService.generatorMLotId(rawMaterial);
                 mesPackedLot.setBoxId(mLotId);
-                mesPackedLot.setQuantity(totalQuantity.intValue());
+                mesPackedLot.setPackedLotRrn(null);
                 mesPackedLot.setWaferId("");
+                mesPackedLot.setQuantity(totalQuantity.intValue());
+                mesPackedLot = mesPackedLotRepository.saveAndFlush(mesPackedLot);
                 mesPackedLots.add(mesPackedLot);
             }
             receiveFinishGood(mesPackedLots);
@@ -2273,7 +2279,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved3(String.valueOf(mesPackedLotList.size()));
                     materialLotUnit.setReserved4(packedLot.getBondedProperty());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
-                    materialLotUnit.setReserved18("1");
+                    materialLotUnit.setReserved18("0");
                     materialLotUnit =  materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);

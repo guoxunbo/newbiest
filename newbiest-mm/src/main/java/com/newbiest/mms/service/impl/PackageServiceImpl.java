@@ -521,6 +521,7 @@ public class PackageServiceImpl implements PackageService{
                 packagedLotDetail.setPackagedLotId(packedMaterialLot.getMaterialLotId());
                 packagedLotDetail.setMaterialLotRrn(materialLot.getObjectRrn());
                 packagedLotDetail.setMaterialLotId(materialLot.getMaterialLotId());
+                packagedLotDetail.setLotId(materialLot.getLotId());
             }
             packagedLotDetail.setQty(packagedLotDetail.getQty().add(materialLotAction.getTransQty()));
             packagedLotDetailRepository.save(packagedLotDetail);

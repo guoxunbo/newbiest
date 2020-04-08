@@ -21,6 +21,7 @@ public class MesPackedLot implements Serializable {
     public static final String PACKED_STATUS_RECEIVED = "RECEIVED";
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "PACKED_LOT_RRN")
     private Long packedLotRrn;
 

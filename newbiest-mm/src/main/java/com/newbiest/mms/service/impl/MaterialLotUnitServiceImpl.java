@@ -275,6 +275,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             for(String fabLotId : materialLotUnitMap.keySet()){
                 List<MaterialLotUnit> mLotUnitList = materialLotUnitMap.get(fabLotId);
                 String waferId = mLotUnitList.get(0).getReserved31();
+                if(waferId.length() < 2){
+                    waferId = "0" + waferId;
+                }
                 String lotId = fabLotId +"."+ waferId;
                 for(MaterialLotUnit materialLotUnit : mLotUnitList){
                     materialLotUnit.setLotId(lotId);

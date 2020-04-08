@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_package_lot_detail_addColumn-lotId
+      author: Guozhang Luo
+      remarks: mms_package_lot_detail add column LOT_ID
+      changes:
+        - addColumn:
+            tableName: MMS_PACKAGED_LOT_DETAIL
+            columns:
+              - column:
+                  name: LOT_ID
+                  type: varchar(64)
+                  remarks: 载具号

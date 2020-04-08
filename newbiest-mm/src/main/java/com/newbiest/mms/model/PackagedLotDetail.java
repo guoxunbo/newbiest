@@ -44,4 +44,10 @@ public class PackagedLotDetail extends NBBase {
     @Column(name="QTY")
     private BigDecimal qty = BigDecimal.ZERO;
 
+    /**
+     * 载具号
+     */
+    @Column(name="LOT_ID")
+    private String lotId;
+
 }
