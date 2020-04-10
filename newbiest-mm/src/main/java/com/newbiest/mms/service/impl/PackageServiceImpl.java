@@ -373,10 +373,15 @@ public class PackageServiceImpl implements PackageService{
 
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
 
+            int waferQty = 0;
             // 预约过后的不能包装
             for (MaterialLot waitToPackageLot : materialLots) {
                 if (!StringUtils.isNullOrEmpty(waitToPackageLot.getReserved16())) {
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_RESERVED, waitToPackageLot.getMaterialLotId(), waitToPackageLot.getReserved17());
+                }
+                //WLT装箱时获取晶圆数量
+                if(!StringUtils.isNullOrEmpty(waitToPackageLot.getReserved44())){
+                    waferQty += Integer.parseInt(waitToPackageLot.getReserved44());
                 }
             }
 
@@ -390,6 +395,9 @@ public class PackageServiceImpl implements PackageService{
             String packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
             if (mmsService.getMLotByMLotId(packedMaterialLotId) != null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_EXIST);
+            }
+            if(waferQty > 0){
+                packedMaterialLot.setReserved44(String.valueOf(waferQty));
             }
             packedMaterialLot.setMaterialLotId(packedMaterialLotId);
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(materialLotActions));
@@ -406,6 +414,7 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot.setReserved16(StringUtils.EMPTY);
             packedMaterialLot.setReserved17(StringUtils.EMPTY);
             packedMaterialLot.setReserved18(StringUtils.EMPTY);
+            packedMaterialLot.setLotId(StringUtils.EMPTY);
 
             packedMaterialLot.setMaterialType(StringUtils.isNullOrEmpty(materialLotPackageType.getTargetMaterialType()) ? packedMaterialLot.getMaterialType() : materialLotPackageType.getTargetMaterialType());
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);

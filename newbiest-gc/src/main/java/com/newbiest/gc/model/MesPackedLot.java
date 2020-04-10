@@ -123,4 +123,7 @@ public class MesPackedLot implements Serializable {
     @Column(name="CST_ID")
     private String cstId;
 
+    @Column(name="WAFER_QTY")
+    private Integer waferQty;
+
 }

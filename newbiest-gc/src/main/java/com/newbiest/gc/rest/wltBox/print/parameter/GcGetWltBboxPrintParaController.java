@@ -57,14 +57,16 @@ public class GcGetWltBboxPrintParaController extends AbstractRestController {
         parameterMap.put("GRADE", materialLot.getGrade());
         parameterMap.put("SUBCODE", materialLot.getReserved1());
         parameterMap.put("LOCATION", materialLot.getReserved6());
-        parameterMap.put("NUMBER", materialLot.getCurrentQty().toPlainString());
+        parameterMap.put("QUANTITY", materialLot.getCurrentQty().toPlainString());
+        parameterMap.put("NUMBER", materialLot.getReserved44());
+
 
         List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(requestBody.getMaterialLotRrn());
         int i = 1;
         if (CollectionUtils.isNotEmpty(packageDetailLots)) {
             for (MaterialLot packedMLot : packageDetailLots) {
                 parameterMap.put("CSTID" + i, packedMLot.getLotId());
-                parameterMap.put("WAFERQTY" + i, packedMLot.getCurrentQty().toPlainString());
+                parameterMap.put("WAFERQTY" + i, packedMLot.getReserved44());
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedMLot.getMaterialLotId());
                 String unitIdList1 = "";
                 String unitIdLisr2 = "";

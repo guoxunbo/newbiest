@@ -1678,6 +1678,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
+                    otherReceiveProps.put("reserved44", mesPackedLot.getWaferQty().toString());
                     materialLotAction.setPropsMap(otherReceiveProps);
 
                     materialLotActions.add(materialLotAction);
@@ -2253,6 +2254,7 @@ public class GcServiceImpl implements GcService {
                 mesPackedLot.setPackedLotRrn(null);
                 mesPackedLot.setWaferId("");
                 mesPackedLot.setQuantity(totalQuantity.intValue());
+                mesPackedLot.setWaferQty(mesPackedLotList.size());
                 mesPackedLot = mesPackedLotRepository.saveAndFlush(mesPackedLot);
                 mesPackedLots.add(mesPackedLot);
             }
