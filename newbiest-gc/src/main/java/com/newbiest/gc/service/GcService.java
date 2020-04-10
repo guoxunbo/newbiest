@@ -49,6 +49,7 @@ public interface GcService {
     void judgePackedMaterialLot(List<MaterialLot> materialLots, List<StockOutCheck> checkList) throws ClientException;
 
     List<NBOwnerReferenceList> getJudgePackCaseCheckList() throws ClientException;
+    List<NBOwnerReferenceList> getWltJudgePackCaseCheckList() throws ClientException;
     List<NBOwnerReferenceList> getStockOutCheckList() throws ClientException;
     void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> ngStockOutCheckList) throws ClientException;
 

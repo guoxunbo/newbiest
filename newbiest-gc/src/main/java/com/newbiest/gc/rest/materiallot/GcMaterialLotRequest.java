@@ -33,6 +33,11 @@ public class GcMaterialLotRequest extends Request {
 	 */
 	public static final String ACTION_GET_PACK_CASE_CHECK_LIST = "GetPackCaseCheckList";
 
+	/**
+	 * WLT装箱检验
+	 */
+	public static final String ACTION_GET_WLT_PACK_CASE_CHECK_LIST = "GetWltPackCaseCheckList";
+
 	private GcMaterialLotRequestBody body;
 
 }

@@ -66,6 +66,7 @@ public class GcServiceImpl implements GcService {
 
     public static final String REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST = "StockOutCheckItemList";
     public static final String REFERENCE_NAME_PACK_CASE_CHECK_ITEM_LIST = "PackCaseCheckItemList";
+    public static final String REFERENCE_NAME_WLTPACK_CASE_CHECK_ITEM_LIST = "WltPackCaseCheckItemList";
 
     public static final String EVENT_OQC = "OQC";
 
@@ -1599,6 +1600,14 @@ public class GcServiceImpl implements GcService {
      */
     public List<NBOwnerReferenceList> getJudgePackCaseCheckList() throws ClientException {
         List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_PACK_CASE_CHECK_ITEM_LIST, NBReferenceList.CATEGORY_OWNER);
+        if (CollectionUtils.isNotEmpty(nbReferenceList)) {
+            return nbReferenceList;
+        }
+        return Lists.newArrayList();
+    }
+
+    public List<NBOwnerReferenceList> getWltJudgePackCaseCheckList() throws ClientException {
+        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_WLTPACK_CASE_CHECK_ITEM_LIST, NBReferenceList.CATEGORY_OWNER);
         if (CollectionUtils.isNotEmpty(nbReferenceList)) {
             return nbReferenceList;
         }

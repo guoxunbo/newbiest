@@ -50,6 +50,9 @@ public class GcMaterialLotController extends AbstractRestController {
         } else if (GcMaterialLotRequest.ACTION_GET_PACK_CASE_CHECK_LIST.equals(actionType)) {
             List<NBOwnerReferenceList> judgePackCaseItemList = gcService.getJudgePackCaseCheckList();
             responseBody.setJudgePackCaseItemList(judgePackCaseItemList);
+        }  else if (GcMaterialLotRequest.ACTION_GET_WLT_PACK_CASE_CHECK_LIST.equals(actionType)) {
+            List<NBOwnerReferenceList> judgeWltPackCaseItemList = gcService.getWltJudgePackCaseCheckList();
+            responseBody.setJudgeWltPackCaseItemList(judgeWltPackCaseItemList);
         } else if (GcMaterialLotRequest.ACTION_JUDGE_PACKED_LOT.equals(actionType)) {
             gcService.judgePackedMaterialLot(materialLots, requestBody.getCheckList());
         } else {
