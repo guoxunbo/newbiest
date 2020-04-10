@@ -15,40 +15,31 @@ public class RecipeEquipmentUnit extends NBUpdatable {
 
     private static final long serialVersionUID = 1L;
 
-    @Column(name="EQP_RECIPE_RRN")
+    @Column(name="RECIPE_EQUIPMENT_RRN")
     private Long recipeEquipmentRrn;
 
     @Column(name="RECIPE_NAME")
-    private Long recipeName;
+    private String recipeName;
 
     @Column(name="EQUIPMENT_ID")
     private String equipmentId;
 
-    @Column(name="EQUIPMENT_TYPE")
-    private String equipmentType;
-
-    @Column(name="EQP_RECIPE_VERSION")
-    private Long recipeEquipmentVersion;
-
-    @Column(name="PATTERN")
-    private String pattern;
-
-    @Column(name="UNIT_RECIPE_RRN")
-    private Long unitRecipeRrn;
-
-    @Column(name="UNIT_RECIPE_NAME")
-    private String unitRecipeName;
+    @Column(name="VERSION")
+    private Long version;
 
     @Column(name="UNIT_ID")
     private String unitId;
 
-    @Column(name="UNIT_TYPE")
-    private String unitType;
+    @Column(name="UNIT_RECIPE_EQUIPMENT_RRN")
+    private Long unitRecipeEquipmentRrn;
+
+    @Column(name="UNIT_RECIPE_NAME")
+    private String unitRecipeName;
 
     @Column(name="UNIT_RECIPE_VERSION")
     private Long unitRecipeVersion;
 
-    @Column(name="UNIT_SEQ")
-    private Long unitSeq;
+    @Column(name="SEQ_NO")
+    private Long seqNo;
 
 }

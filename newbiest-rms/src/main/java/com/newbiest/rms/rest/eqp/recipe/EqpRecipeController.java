@@ -39,9 +39,12 @@ public class EqpRecipeController extends AbstractRestController {
             recipeEquipment = rmsService.createRecipeEquipment(recipeEquipment);
         } else if (EqpRecipeRequest.ACTION_UPDATE.equals(actionType)) {
             validateEntity(recipeEquipment);
-            baseService.saveEntity(recipeEquipment);
+            recipeEquipment = (RecipeEquipment) baseService.saveEntity(recipeEquipment);
+        } else if (EqpRecipeRequest.ACTION_TYPE_ACTIVE.equals(actionType)) {
+            validationVersionControl(recipeEquipment);
+            recipeEquipment = rmsService.activeRecipeEquipment(recipeEquipment);
         } else if (EqpRecipeRequest.ACTION_DELETE.equals(actionType)) {
-
+            rmsService.deleteRecipeEquipment(recipeEquipment.getObjectRrn());
         } else if (EqpRecipeRequest.ACTION_TYPE_SET_GOLDEN.equals(actionType)) {
 
         } else if (EqpRecipeRequest.ACTION_TYPE_UNSET_GOLDEN.equals(actionType)) {

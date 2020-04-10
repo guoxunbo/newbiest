@@ -14,11 +14,9 @@ import java.util.Map;
 public interface RmsService {
 
     RecipeEquipment createRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
-    void deleteRecipeEquipment(Long recipeEquipmentRrn) throws ClientException;
-    RecipeEquipment activeRecipeEquipment(RecipeEquipment recipeEquipment,  boolean isActiveGloden, boolean sendNotification) throws ClientException;
+    RecipeEquipment activeRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
 
-    void holdRecipeEquipment(RecipeEquipment RecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException;
-    void releaseRecipeEquipment(RecipeEquipment RecipeEquipment, String actionCode, String actionReason, String actionComment) throws ClientException;
+    void deleteRecipeEquipment(Long recipeEquipmentRrn) throws ClientException;
 
     void setGoldenRecipe(RecipeEquipment RecipeEquipment) throws ClientException;
     void unSetGoldenRecipe(RecipeEquipment RecipeEquipment, String equipmentId) throws ClientException;

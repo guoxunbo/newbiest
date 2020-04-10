@@ -17,4 +17,8 @@ public interface RecipeEquipmentRepository extends IRepository<RecipeEquipment, 
 
     List<RecipeEquipment> getByNameAndEquipmentIdAndPatternOrderByVersionDesc(String name, String equipmentId, String pattern) throws ClientException;
 
+    RecipeEquipment getByNameAndEquipmentIdAndPatternAndStatus(String name, String equipmentId, String pattern, String status) throws ClientException;
+
+    RecipeEquipment getByNameAndEquipmentTypeAndPatternAndStatusAndGoldenFlag(String name, String equipmentType, String pattern, String status, String goldenFlag) throws ClientException;
+
 }

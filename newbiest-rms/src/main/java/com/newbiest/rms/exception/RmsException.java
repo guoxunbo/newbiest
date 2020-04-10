@@ -19,7 +19,9 @@ public class RmsException extends NewbiestException{
 
     public static final String EQP_IS_NOT_EXIST = "rms.eqp_is_not_exist";
     public static final String EQP_GOLDEN_RECIPE_IS_MULTI = " rms.eqp_golden_recipe_is_multi";
-    public static final String EQP_RECIPE_DELETE_ONLY_UNFROZEN_OR_INACTIVE = "rms.delete_only_unfrozen_or_inactive";
+    public static final String EQP_RECIPE_DELETE_ONLY_UNFROZEN = "rms.delete_only_unfrozen";
+    public static final String EQP_RECIPE_ALREADY_USED_BY_OTHERS = "rms.eqp_recipe_already_used_by_others";
+
     public static final String EQP_RECIPE_IS_GOLDEN_RECIPE = "rms.eqp_recipe_is_golden_recipe";
     public static final String EQP_RECIPE_GOLDEN_RECIPE_IS_EXIST = "rms.eqp_golden_recipe_is_exist";
     public static final String EQP_RECIPE_IS_NOT_ACTIVE = "rms.eqp_recipe_is_not_active";
