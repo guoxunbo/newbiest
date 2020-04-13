@@ -18,6 +18,11 @@ public class StockOutCheckRequest extends Request {
 	public static final String ACTION_GET_CHECK_LIST = "GetCheckList";
 
 	/**
+	 * 获取出货前检验内容
+	 */
+	public static final String ACTION_GET_WLTCHECK_LIST = "GetWltCheckList";
+
+	/**
 	 * 判定
 	 */
 	public static final String ACTION_JUDGE = "Judge";

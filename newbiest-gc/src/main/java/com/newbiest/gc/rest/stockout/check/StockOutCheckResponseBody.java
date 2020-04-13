@@ -15,4 +15,6 @@ public class StockOutCheckResponseBody extends ResponseBody {
 
 	private List<NBOwnerReferenceList> stockOutCheckList;
 
+	private List<NBOwnerReferenceList> wltStockOutCheckList;
+
 }

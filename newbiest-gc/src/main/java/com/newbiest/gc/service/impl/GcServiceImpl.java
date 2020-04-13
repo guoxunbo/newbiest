@@ -65,6 +65,7 @@ public class GcServiceImpl implements GcService {
     public static final String TRANS_TYPE_OQC = "OQC";
 
     public static final String REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST = "StockOutCheckItemList";
+    public static final String REFERENCE_NAME_WLTSTOCK_OUT_CHECK_ITEM_LIST = "WltStockOutCheckItemList";
     public static final String REFERENCE_NAME_PACK_CASE_CHECK_ITEM_LIST = "PackCaseCheckItemList";
     public static final String REFERENCE_NAME_WLTPACK_CASE_CHECK_ITEM_LIST = "WltPackCaseCheckItemList";
 
@@ -1546,6 +1547,7 @@ public class GcServiceImpl implements GcService {
      */
     public void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> stockOutCheckList) throws ClientException {
         try {
+
             String checkResult = StockOutCheck.RESULT_OK;
             List<StockOutCheck> ngStockOutCheckList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(stockOutCheckList)) {
@@ -1622,6 +1624,14 @@ public class GcServiceImpl implements GcService {
         return Lists.newArrayList();
     }
 
+    public List<NBOwnerReferenceList> getWltStockOutCheckList() throws ClientException {
+        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_WLTSTOCK_OUT_CHECK_ITEM_LIST, NBReferenceList.CATEGORY_OWNER);
+        if (CollectionUtils.isNotEmpty(nbReferenceList)) {
+            return nbReferenceList;
+        }
+        return Lists.newArrayList();
+    }
+
     public MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException {
         return mesPackedLotRepository.findByPackedLotRrn(packedLotRrn);
     }
@@ -1687,7 +1697,9 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
-                    otherReceiveProps.put("reserved44", mesPackedLot.getWaferQty().toString());
+                    if(mesPackedLot.getWaferQty() != null){
+                        otherReceiveProps.put("reserved44", mesPackedLot.getWaferQty().toString());
+                    }
                     materialLotAction.setPropsMap(otherReceiveProps);
 
                     materialLotActions.add(materialLotAction);
