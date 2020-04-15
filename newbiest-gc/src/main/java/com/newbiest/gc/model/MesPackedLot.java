@@ -1,7 +1,6 @@
 package com.newbiest.gc.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
 
@@ -50,7 +49,7 @@ public class MesPackedLot implements Serializable {
 
     @Column(name = "FINAL_OPERATION_TIME")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = NBUpdatable.GMT_PE, pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
+    @JsonFormat(pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date finalOperationTime;
 
     /**

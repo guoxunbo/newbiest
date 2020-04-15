@@ -42,7 +42,7 @@ public class DocumentLine extends NBUpdatable {
 
     @Column(name="ERP_CREATED", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    @JsonFormat(pattern = DateUtils.DEFAULT_DATE_PATTERN)
     @Getter
     protected Date erpCreated;
 
