@@ -39,7 +39,7 @@
             <artifactId>rms</artifactId>
             <version>1.0.5-SNAPSHOT</version>
         </dependency>
-        <!--
+
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>kms</artifactId>
@@ -51,7 +51,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        -->
     </dependencies>
     <build>
         <resources>

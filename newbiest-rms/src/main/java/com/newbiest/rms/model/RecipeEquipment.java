@@ -54,7 +54,16 @@ public class RecipeEquipment extends NBVersionControl {
     private String checkSum;
 
     @Column(name="LEVEL_NUMBER")
-    private Integer levelNumber;
+    private Integer levelNumber = 1;
+
+    /**
+     * 设备Upload Recipe的时候有则记录。没有则不管
+     */
+    @Column(name="LAYER_NAME")
+    private String layerName;
+
+    @Column(name="PARENT_RRN")
+    private Long parentRrn;
 
     @Column(name="GOLDEN_FLAG")
     private String goldenFlag;
@@ -86,6 +95,13 @@ public class RecipeEquipment extends NBVersionControl {
     @Column(name="CHECK_PARAMETER_FLAG")
     private String checkParameterFlag;
 
+//    /**
+//     * 当设置成Golden的时候记录记录设备号
+//     * 用于取消Golden的时候进行还原
+//     */
+//    @Column(name="PRE_EQUIPMENT_ID")
+//    private String preEquipmentId;
+
     @Column(name="RESERVED1")
     private String reserved1;
 
@@ -106,10 +122,6 @@ public class RecipeEquipment extends NBVersionControl {
 
     @Transient
     private List<RecipeEquipment> subRecipeEquipments;
-
-    @Transient
-    private int layers = 0;
-
 
     public Boolean getGoldenFlag() {
         return StringUtils.YES.equalsIgnoreCase(this.goldenFlag) ? true : false;

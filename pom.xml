@@ -40,7 +40,7 @@
         <newbiest.idgenerator.version>1.0.2-SNAPSHOT</newbiest.idgenerator.version>
         <newbiest.statusmachine.version>1.0.2-SNAPSHOT</newbiest.statusmachine.version>
         <newbiest.framework.version>1.0.5.RELEASE</newbiest.framework.version>
-        <newbiest.kms.version>1.0.0.RELEASE</newbiest.kms.version>
+        <newbiest.kms.version>1.0.2-SNAPSHOT</newbiest.kms.version>
         <newbiest.trigger.version>1.0.1.RELEASE</newbiest.trigger.version>
         <platform.version>1.0.5-SNAPSHOT</platform.version>
     </properties>

@@ -53,6 +53,12 @@ public class RecipeEquipmentHis extends NBVersionControlHis {
 	@Column(name="LEVEL_NUMBER")
 	private Integer levelNumber;
 
+	@Column(name="LAYER_NAME")
+	private String layerName;
+
+	@Column(name="PARENT_RRN")
+	private Long parentRrn;
+
 	@Column(name="GOLDEN_FLAG")
 	private String goldenFlag;
 
@@ -78,18 +84,61 @@ public class RecipeEquipmentHis extends NBVersionControlHis {
 	private String checkParameterFlag;
 
 	/**
-	 * Download的时候请求的lotId
+	 * Compare的时候请求的lotId
 	 */
 	@Column(name="LOT_ID")
 	private String lotId;
 
 	/**
-	 * Download的时候请求的UNIT_ID比如waferId
+	 * Compare的时候请求的UNIT_ID比如waferId
 	 */
 	@Column(name="UNIT_ID")
 	private String unitId;
 
 //	@Column(name="PROGRAM_NAME")
+//	private String programName;
+
+//	@Column(name="PROGRAM_VERSION")
+//	private String programVersion;
+//
+//	@Column(name="PROGRAM_SUFFIX")
+//	private String programSuffix;
+
+//	/**
+//	 * 文件传输方式(EAP/FTP/SFTP)
+//	 */
+//	@Column(name="FILE_TRANS_TYPE")
+//	private String fileTransType;
+//
+//	/**
+//	 * 从哪个FTP上来
+//	 */
+//	@Column(name="FROM_FTP_ID")
+//	private String fromFtpId;
+//
+//	@Column(name="FILE_CHECK_TYPE")
+//	private String fileCheckType;
+//
+//	@Column(name="FTP_ID")
+//	private String ftpId;
+//
+//	@Column(name="FULL_PATH")
+//	private String fullPath;
+//
+//	@Column(name="FROM_RECIPE_NAME")
+//	private String fromRecipeName;
+//
+//	@Column(name="FROM_RECIPE_VERSION")
+//	private Long fromRecipeVersion;
+//
+//	@Column(name="FROM_EQUIPMENT_ID")
+//	private String fromEquipmentId;
+//
+//	@Column(name="FROM_EQUIPMENT_TYPE")
+//	private String fromEquipmentType;
+//
+//	@Column(name="FROM_PATTERN")
+//	private String fromPattern;/	@Column(name="PROGRAM_NAME")
 //	private String programName;
 //
 //	@Column(name="PROGRAM_VERSION")
@@ -103,7 +152,7 @@ public class RecipeEquipmentHis extends NBVersionControlHis {
 //	 */
 //	@Column(name="FILE_TRANS_TYPE")
 //	private String fileTransType;
-//
+
 //	/**
 //	 * 从哪个FTP上来
 //	 */

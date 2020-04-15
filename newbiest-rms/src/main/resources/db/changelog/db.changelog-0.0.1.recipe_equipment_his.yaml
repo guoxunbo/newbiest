@@ -99,6 +99,14 @@ databaseChangeLog:
                   type: int
                   remarks: 层级
               - column:
+                  name: LAYER_NAME
+                  type: varchar(32)
+                  remarks: 设备Upload Recipe的时候有则记录。没有则不管
+              - column:
+                  name: PARENT_RRN
+                  type: bigint
+                  remarks: 父级主键
+              - column:
                   name: GOLDEN_FLAG
                   type: varchar(1)
                   remarks: 是否是GDRecipe
