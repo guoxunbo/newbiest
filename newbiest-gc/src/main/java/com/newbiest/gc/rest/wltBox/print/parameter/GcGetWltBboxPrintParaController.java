@@ -53,9 +53,9 @@ public class GcGetWltBboxPrintParaController extends AbstractRestController {
 
         MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
         parameterMap.put("BOXID", materialLot.getMaterialLotId());
-        parameterMap.put("DEVICEID", materialLot.getMaterialName());
+        parameterMap.put("PRODUCTID", materialLot.getMaterialName());
         parameterMap.put("GRADE", materialLot.getGrade());
-        parameterMap.put("SUBCODE", materialLot.getReserved1());
+        parameterMap.put("SECONDCODE", materialLot.getReserved1());
         parameterMap.put("LOCATION", materialLot.getReserved6());
         parameterMap.put("QUANTITY", materialLot.getCurrentQty().toPlainString());
         parameterMap.put("NUMBER", materialLot.getReserved44());
@@ -69,14 +69,14 @@ public class GcGetWltBboxPrintParaController extends AbstractRestController {
                 parameterMap.put("WAFERQTY" + i, packedMLot.getReserved44());
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedMLot.getMaterialLotId());
                 String unitIdList1 = "";
-                String unitIdLisr2 = "";
+                String unitIdList2 = "";
                 for(int j = 0; j <  materialLotUnitList.size() ; j++){
                     String[] unitIdList = materialLotUnitList.get(j).getUnitId().split(StringUtils.SPLIT_CODE);
                     String waferSeq = unitIdList[1] + ",";
                     if(j < 5){
                         unitIdList1 = unitIdList1 + waferSeq;
                     } else {
-                        unitIdLisr2 = unitIdLisr2 + waferSeq;
+                        unitIdList2 = unitIdList2 + waferSeq;
                     }
                 }
                 if(!StringUtils.isNullOrEmpty(unitIdList1)){
@@ -84,8 +84,8 @@ public class GcGetWltBboxPrintParaController extends AbstractRestController {
                 } else {
                     parameterMap.put("UNITID" + i + 1 , StringUtils.EMPTY);
                 }
-                if(!StringUtils.isNullOrEmpty(unitIdLisr2)){
-                    parameterMap.put("UNITID" + i + 2 , unitIdList1);
+                if(!StringUtils.isNullOrEmpty(unitIdList2)){
+                    parameterMap.put("UNITID" + i + 2 , unitIdList2);
                 }else {
                     parameterMap.put("UNITID" + i + 2 , StringUtils.EMPTY);
                 }

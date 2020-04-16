@@ -1239,8 +1239,10 @@ public class GcServiceImpl implements GcService {
 
                 //箱中的真空包也触发出货事件，修改状态、记录历史
                 List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
-                for (MaterialLot packageLot : packageDetailLots){
-                    changeMaterialLotStatusAndSaveHistory(packageLot);
+                if(CollectionUtils.isNotEmpty(packageDetailLots)){
+                    for (MaterialLot packageLot : packageDetailLots){
+                        changeMaterialLotStatusAndSaveHistory(packageLot);
+                    }
                 }
             }
 

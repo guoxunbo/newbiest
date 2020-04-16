@@ -49,12 +49,11 @@ public class GcGetWltBoxPrintParaController extends AbstractRestController {
                 MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
                 parameterMap.put("LOTID", materialLot.getLotId());
                 parameterMap.put("PRODUCTID", materialLot.getMaterialName());
-                parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
                 parameterMap.put("SECONDCODE", materialLot.getReserved1());
                 parameterMap.put("LOCATION", materialLot.getReserved6());
                 parameterMap.put("VENDER", materialLot.getReserved22());
                 List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(materialLotId);
-                int waferNumber = 0;
+                Integer waferNumber = 0;
                 String unitIdList1 = "";
                 String unitIdLisr2 = "";
                 if(CollectionUtils.isNotEmpty(materialLotUnits)){
@@ -79,7 +78,8 @@ public class GcGetWltBoxPrintParaController extends AbstractRestController {
                 } else {
                     parameterMap.put("WAFERLIST2", StringUtils.EMPTY);
                 }
-                parameterMap.put("GRADE", materialLot.getGrade() + "(" + waferNumber + ")");
+                parameterMap.put("GRADE", materialLot.getGrade());
+                parameterMap.put("QTY", waferNumber.toString());
                 parameterMapList.add(parameterMap);
             }
         }
