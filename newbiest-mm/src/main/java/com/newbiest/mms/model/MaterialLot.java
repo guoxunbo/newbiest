@@ -49,6 +49,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String HOLD_STATE_ON = "On";
     public static final String HOLD_STATE_OFF = "Off";
 
+    public static final String STATUS_STOCK = "Stock";
+
     public static final String CATEGORY_PACKAGE = "Package";
     
     public static final String INCOMING_MLOT_IMPORTTYPE = "ImcomingMLotImportType";

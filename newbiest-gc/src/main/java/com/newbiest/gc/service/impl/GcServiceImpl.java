@@ -1575,6 +1575,10 @@ public class GcServiceImpl implements GcService {
                             materialLotRepository.save(packedMaterialLot);
                         }
                     }
+                } else if(StockOutCheck.RESULT_OK.equals(checkResult) && MaterialLot.STATUS_STOCK.equals(materialLot.getStatusCategory())){
+                    materialLot.setReserved9(StockOutCheck.RESULT_PASS );
+                } else if(StockOutCheck.RESULT_NG.equals(checkResult) && MaterialLot.STATUS_STOCK.equals(materialLot.getStatusCategory())){
+                    materialLot.setReserved9(StockOutCheck.RESULT_PASS + "0");
                 }
                 materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
 //              GC要求只记录NG的判定历史即可
@@ -2390,7 +2394,7 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getLotId));
             for (String lotId : materialLotUnitMap.keySet()){
                 MaterialLotUnit materialLotUnit = materialLotUnitMap.get(lotId).get(0);
-                GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialLotUnit.getMaterialName(), materialLotUnit.getReserved4());
+                GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialLotUnit.getMaterialName(), materialLotUnit.getReserved1());
                 if(gcProductSubcode == null ){
                     throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST);
                 }
