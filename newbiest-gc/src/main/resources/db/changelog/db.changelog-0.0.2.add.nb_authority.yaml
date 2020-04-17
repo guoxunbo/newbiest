@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_WLTFinishGoodReceive_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add WLTFinishGoodReceive to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: WLTFinishGoodReceive
+              description: WLT产线入库
+              tableName: WLTPackagedLotShow
+              url: /WLT/WLTFinishGoodManager
+              parentRrn: 24
+              seqNo: 30
+              image: icon-history
+              labelZh: WLT产线入库
+              labelEn: WLTFinishGoodReceive

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_WLTPackCaseCheck_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add WLTPackCaseCheck to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCWltPackCaseCheck
+              description: LOT装箱检验
+              tableName: GCWltPackCaseCheckScan
+              url: /WLT/WLTPackCaseCheck
+              parentRrn: 211
+              seqNo: 10
+              image: icon-rule
+              labelZh: LOT装箱检验
+              labelEn: WltPackCaseCheck

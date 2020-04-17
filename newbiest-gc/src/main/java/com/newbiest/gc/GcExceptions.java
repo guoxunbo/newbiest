@@ -19,5 +19,8 @@ public class GcExceptions {
     public static final String OVER_DOC_QTY = "gc.over_doc_qty";
     public static final String MATERIAL_LOT_WAREHOUSE_IS_NULL = "gc.material_lot_is_not_def_warehouse";
     public static final String MATERIAL_LOT_TREASURY_INFO_IS_NOT_SAME = "gc.material_lot_treaseury_is_not_same";
+    public static final String PRODUCT_AND_SUBCODE_IS_EXIST = "gc.productId_and_subcode_is_exist";
+    public static final String PRODUCT_AND_SUBCODE_IS_NOT_EXIST = "gc.productId_and_subcode_is_not_exist";
+    public static final String FILE_NAME_CANNOT_BONDED_PROPERTY_INFO = "gc.file_name_cannot_bonded_property_innfo";
 
 }

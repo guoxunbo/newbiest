@@ -1,6 +1,7 @@
 package com.newbiest.mms.model;
 
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -433,5 +434,12 @@ public class MaterialLotUnit extends NBUpdatable {
         this.setReserved36(materialLot.getReserved36());
         this.setReserved41(materialLot.getReserved41());
         this.setReserved46(materialLot.getReserved46());
+    }
+
+    public void setMaterialLotUnit(String importType, String  warehouseId, String bondedProperty) {
+        this.setReserved4(bondedProperty);
+        this.setReserved6(StringUtils.EMPTY);
+        this.setReserved13(warehouseId);
+        this.setReserved47(importType);
     }
 }

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_WLTStockOutCheck_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add WLTStockOutCheck to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCWltStockOutCheck
+              description: LOT装箱检验
+              tableName: GCWltStockOutCheckScan
+              url: /WLT/WLTStockOutCheck
+              parentRrn: 211
+              seqNo: 20
+              image: icon-rule
+              labelZh: LOT出货检验
+              labelEn: WltStockOutCheck

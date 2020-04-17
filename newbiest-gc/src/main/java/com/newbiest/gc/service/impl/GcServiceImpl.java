@@ -167,6 +167,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     MesWaferReceiveHisRepository mesWaferReceiveHisRepository;
 
+    @Autowired
+    GCProductSubcodeSetRepository gcProductSubcodeSetRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -2318,4 +2321,82 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 产品型号二级代码信息
+     * @param productId
+     * @param subcode
+     * @return
+     */
+    private GCProductSubcode getProductAndSubcodeInfo(String productId, String subcode) throws ClientException {
+        try {
+            return gcProductSubcodeSetRepository.getProductAndSubcodeInfoByProductIdAndSubcode(productId, subcode);
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 保存产品二级代码信息
+     * @param productSubcode
+     * @return
+     */
+    public GCProductSubcode saveProductSubcode(GCProductSubcode productSubcode) throws ClientException {
+        try {
+            RawMaterial rawMaterial = mmsService.getRawMaterialByName(productSubcode.getProductId());
+            if (rawMaterial == null) {
+                throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, productSubcode.getProductId());
+            }
+            GCProductSubcode oldProductSubcode = getProductAndSubcodeInfo(productSubcode.getProductId(),productSubcode.getSubcode());
+            if(oldProductSubcode != null){
+                throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_EXIST);
+            }
+            productSubcode = gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
+            return productSubcode;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据导入文件名称获取保税属性
+     * @param fileName
+     * @return
+     */
+    public String validationAndGetBondedPropertyByFileName(String fileName) throws ClientException{
+        try {
+            String bondedProperty = "";
+            List<NBOwnerReferenceList> bondedProReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(MaterialLot.BONDED_PROPERTY_LIST, NBReferenceList.CATEGORY_OWNER);
+            String bondedPro = fileName.substring(fileName.lastIndexOf("_")+1);
+            bondedPro = bondedPro.substring(0, bondedPro.indexOf("."));
+            for (NBOwnerReferenceList nbOwnerReferenceList : bondedProReferenceList){
+                if(nbOwnerReferenceList.getValue().equals(bondedPro)){
+                    bondedProperty = bondedPro;
+                }
+            }
+            if(StringUtils.isNullOrEmpty(bondedProperty)){
+                throw new ClientParameterException(GcExceptions.FILE_NAME_CANNOT_BONDED_PROPERTY_INFO);
+            }
+            return bondedProperty;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证来料信息中产品型号和二级代码是否存在
+     */
+    public void validateMLotUnitProductAndBondedProperty(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
+        try {
+            Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getLotId));
+            for (String lotId : materialLotUnitMap.keySet()){
+                MaterialLotUnit materialLotUnit = materialLotUnitMap.get(lotId).get(0);
+                GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialLotUnit.getMaterialName(), materialLotUnit.getReserved4());
+                if(gcProductSubcode == null ){
+                    throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST);
+                }
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

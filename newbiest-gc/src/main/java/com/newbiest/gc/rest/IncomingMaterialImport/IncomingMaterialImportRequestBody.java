@@ -13,4 +13,7 @@ public class IncomingMaterialImportRequestBody   extends RequestBody {
 
     @ApiModelProperty(value = "导入类型")
     private String importType;
+
+    @ApiModelProperty(value = "导入文件名称")
+    private String fileName;
 }

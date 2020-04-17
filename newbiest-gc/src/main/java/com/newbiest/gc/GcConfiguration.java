@@ -1,5 +1,7 @@
 package com.newbiest.gc;
 
+import com.newbiest.base.factory.ModelFactory;
+import com.newbiest.gc.model.GCProductSubcode;
 import com.newbiest.main.YmlPropertyLoaderFactory;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.Data;
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 /**
@@ -42,4 +45,9 @@ public class GcConfiguration {
         return liquibase;
     }
 
+    @PostConstruct
+    public void init() {
+        // 注册modelClassLoader
+        ModelFactory.registerModelClassLoader(GCProductSubcode.class.getName(), GCProductSubcode.class.getClassLoader());
+    }
 }

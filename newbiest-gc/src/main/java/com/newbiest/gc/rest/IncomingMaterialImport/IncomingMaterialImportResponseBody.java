@@ -13,4 +13,6 @@ public class IncomingMaterialImportResponseBody extends ResponseBody {
     private static final long serialVersionUID = 1L;
 
     private List dataList;
+
+    private String bondedProperty;
 }

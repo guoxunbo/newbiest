@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_ProductAndSubcodeSet_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add ProductAndSubcodeSet to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: ProductAndSubcodeSet
+              description: 产品二级代码设置
+              tableName: GCProductAndSubcodeSet
+              url: /GC/GCProductSubcodeSetManager
+              parentRrn: 3
+              seqNo: 25
+              image: icon-wuliao
+              labelZh: 产品二级代码管理
+              labelEn: ProductAndSubcodeSet

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_WLTPackMaterialLot_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add WLTPackMaterialLot to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: WLTPackMaterialLot
+              description: WLT装箱
+              tableName: WLTPackMaterialLot
+              url: /WLT/WLTPackMaterialLot
+              parentRrn: 1001
+              seqNo: 15
+              image: icon-rule
+              labelZh: WLT装箱
+              labelEn: WLTFinishGoodReceive

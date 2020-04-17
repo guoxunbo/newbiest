@@ -55,6 +55,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public static final String INCOMING_MLOT_SPECIAL_TYPE = "GCIncomingMLotSpecialType";
 
+    public static final String BONDED_PROPERTY_LIST = "GCBondedPropertyList";
+
     /**
      * 物料批次号
      */

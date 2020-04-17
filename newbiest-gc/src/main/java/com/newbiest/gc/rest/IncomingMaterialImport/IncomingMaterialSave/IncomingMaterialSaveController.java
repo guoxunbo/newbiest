@@ -4,6 +4,7 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -57,11 +58,18 @@ public class IncomingMaterialSaveController {
         String warehouseId = requestBody.getWarehouseId();
         if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType) ){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                materialLotUnit.setMaterialLotUnit(importType, warehouseId, materialLotUnit.getReserved6());
+            }
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
         } else if(MaterialLotUnit.WLA_UNMEASURED.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                materialLotUnit.setMaterialLotUnit(importType, warehouseId, materialLotUnit.getReserved6());
+            }
             materialLotUnitList = materialLotUnitService.getMaterialLotUnitByFabLotAndWaferId(materialLotUnitList);
+            gcService.validateMLotUnitProductAndBondedProperty(materialLotUnitList);
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
         } else {

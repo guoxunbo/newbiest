@@ -17,6 +17,9 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void validateMLotUnitProductAndBondedProperty(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+    String validationAndGetBondedPropertyByFileName(String fileName) throws ClientException;
+    GCProductSubcode saveProductSubcode(GCProductSubcode gcProductSubcode) throws ClientException;
     void receiveWltFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
     MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException;
     void deleteIncomingMaterialLot(List<MaterialLotUnit> materialLotUnitList, String deleteNote) throws ClientException;
