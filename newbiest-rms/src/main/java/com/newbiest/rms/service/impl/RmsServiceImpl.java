@@ -171,6 +171,10 @@ public class RmsServiceImpl implements RmsService {
                 throw new ClientException(RmsException.EQP_RECIPE_ALREADY_USED_BY_OTHERS);
             }
 
+            List<RecipeEquipment> subRecipeEquipments = recipeEquipmentRepository.getByParentRrn(recipeEquipment.getObjectRrn());
+            for (RecipeEquipment subRecipeEquipment : subRecipeEquipments) {
+                deleteRecipeEquipment(subRecipeEquipment.getObjectRrn());
+            }
             recipeEquipmentParameterRepository.deleteByRecipeEquipmentRrn(recipeEquipment.getObjectRrn());
 
             // 删除所属的子Recipe关系

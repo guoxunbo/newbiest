@@ -1,14 +1,9 @@
 package com.newbiest.im.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBBase;
-import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
-import lombok.Getter;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -36,7 +31,6 @@ public class InterfaceMonitor extends NBBase {
 
     @Column(name="LAST_EXEC_TIME")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = NBUpdatable.GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date lastExecTime;
 
     public void start() {

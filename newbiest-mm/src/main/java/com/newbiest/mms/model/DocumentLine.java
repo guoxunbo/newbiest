@@ -1,8 +1,6 @@
 package com.newbiest.mms.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
-import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
 import lombok.Getter;
 
@@ -42,7 +40,6 @@ public class DocumentLine extends NBUpdatable {
 
     @Column(name="ERP_CREATED", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(pattern = DateUtils.DEFAULT_DATE_PATTERN)
     @Getter
     protected Date erpCreated;
 

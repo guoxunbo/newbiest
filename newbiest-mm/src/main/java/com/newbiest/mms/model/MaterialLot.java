@@ -1,6 +1,5 @@
 package com.newbiest.mms.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
@@ -189,7 +188,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="RECEIVE_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date receiveDate;
 
     /**

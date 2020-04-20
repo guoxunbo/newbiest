@@ -21,4 +21,6 @@ public interface RecipeEquipmentRepository extends IRepository<RecipeEquipment, 
 
     RecipeEquipment getByNameAndEquipmentTypeAndPatternAndStatusAndGoldenFlag(String name, String equipmentType, String pattern, String status, String goldenFlag) throws ClientException;
 
+    List<RecipeEquipment> getByParentRrn(Long parentRrn) throws ClientException;
+
 }

@@ -2,7 +2,6 @@ package com.newbiest.rms.rest.eqp.recipe;
 
 import com.newbiest.base.msg.RequestBody;
 import com.newbiest.rms.model.RecipeEquipment;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

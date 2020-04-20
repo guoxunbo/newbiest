@@ -16,14 +16,5 @@ public class NewbiestApplication {
 		SpringApplication.run(NewbiestApplication.class, args);
 	}
 
-	@Bean
-	public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-		ObjectMapper objectMapper = DefaultParser.getObjectMapper();
-		jsonConverter.setObjectMapper(objectMapper);
-		return jsonConverter;
-	}
-
-
 }
 

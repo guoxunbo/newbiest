@@ -1,10 +1,7 @@
 package com.newbiest.gc.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBHis;
-import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.mms.dto.MaterialLotAction;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -173,7 +170,6 @@ public class CheckHistory extends NBHis {
      */
     @Column(name="RECEIVE_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date receiveDate;
 
     /**
