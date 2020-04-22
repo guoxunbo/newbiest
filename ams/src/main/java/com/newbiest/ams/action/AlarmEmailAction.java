@@ -2,10 +2,10 @@ package com.newbiest.ams.action;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.newbiest.base.core.ApplicationContextProvider;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.main.ApplicationContextProvider;
 import com.newbiest.main.MailService;
 import com.newbiest.security.model.NBRole;
 import com.newbiest.security.model.NBUser;
