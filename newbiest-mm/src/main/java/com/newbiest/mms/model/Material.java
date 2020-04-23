@@ -57,6 +57,7 @@ public class Material extends NBVersionControl {
      * 物料类别
      */
     public static final String TYPE_PRODUCT = "Product";
+    public static final String TYPE_WAFER = "Wafer";
 
     public static final String QUERY_WAFERTYPEINFO = "queryWaferType";
     public static final String QUERY_PRODUCTINFO = "GETPRODUCTINFO";

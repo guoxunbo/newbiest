@@ -1863,7 +1863,7 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncMesProduct() throws ClientException{
         try {
-            queryMesProductOrWaferTypeInfoByQueryName(Material.QUERY_PRODUCTINFO);
+            queryMesProductOrWaferTypeInfoByQueryName(Material.QUERY_PRODUCTINFO, Material.TYPE_PRODUCT);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -1874,13 +1874,13 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncMesWaferType() throws ClientException{
         try {
-            queryMesProductOrWaferTypeInfoByQueryName(Material.QUERY_WAFERTYPEINFO);
+            queryMesProductOrWaferTypeInfoByQueryName(Material.QUERY_WAFERTYPEINFO, Material.TYPE_WAFER);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
-    private void queryMesProductOrWaferTypeInfoByQueryName(String queryName) {
+    private void queryMesProductOrWaferTypeInfoByQueryName(String queryName, String materialType) {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
@@ -1897,8 +1897,8 @@ public class GcServiceImpl implements GcService {
                         rawMaterial.setName(productId);
                         rawMaterial.setDescription(productDesc);
                         rawMaterial.setStoreUom(storeUom);
-                        rawMaterial.setMaterialCategory(Material.TYPE_PRODUCT);
-                        rawMaterial.setMaterialType(Material.TYPE_PRODUCT);
+                        rawMaterial.setMaterialCategory(materialType);
+                        rawMaterial.setMaterialType(materialType);
 
                         rawMaterial = mmsService.saveRawMaterial(rawMaterial);
 
