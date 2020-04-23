@@ -63,7 +63,8 @@ public class IncomingMaterialSaveController {
             }
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
-        } else if(MaterialLotUnit.WLA_UNMEASURED.equals(importType)){
+        } else if(MaterialLotUnit.WLA_UNMEASURED.equals(importType) || MaterialLotUnit.LCD_CP_25.equals(importType)
+                || MaterialLotUnit.FAB_SENSOR_2.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 materialLotUnit.setMaterialLotUnit(importType, warehouseId, materialLotUnit.getReserved6());

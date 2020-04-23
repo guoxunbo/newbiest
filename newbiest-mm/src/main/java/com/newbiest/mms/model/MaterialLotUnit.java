@@ -28,6 +28,8 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String COB_FINISH_PRODUCT = "COB（-4成品）";
     public static final String WLA_UNMEASURED = "WLA未测（-2.5）";
     public static final String SAMSUING_PACKING_LIST = "三星packing list(-2CP未测)";
+    public static final String LCD_CP_25 = "LCD CP未测（-2.5未测）";
+    public static final String FAB_SENSOR_2 = "FAB sensor(-2未测)";
 
     @Column(name="UNIT_ID")
     private String unitId;

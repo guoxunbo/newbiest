@@ -142,7 +142,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     BigDecimal totalQty = materialLotUnits.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
                     Map<String, Object> propsMap = Maps.newHashMap();
                     propsMap.put("category", MaterialLot.CATEGORY_UNIT);
-                    propsMap.put("durable", materialLotUnits.get(0).getDurable().toUpperCase());
+                    if(!StringUtils.isNullOrEmpty(materialLotUnits.get(0).getDurable())){
+                        propsMap.put("durable", materialLotUnits.get(0).getDurable().toUpperCase());
+                    }
                     propsMap.put("supplier", materialLotUnits.get(0).getSupplier());
                     propsMap.put("shipper", materialLotUnits.get(0).getShipper());
                     propsMap.put("grade", materialLotUnits.get(0).getGrade());
@@ -174,7 +176,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
 
                     MaterialLot materialLot = mmsService.createMLot(rawMaterial, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap);
                     for (MaterialLotUnit materialLotUnit : materialLotUnits) {
-                        materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
+                        if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
+                            materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
+                        }
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                         materialLotUnit.setLotId(materialLot.getLotId());
