@@ -74,3 +74,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.6.add.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.7.add.nb_authority.yaml
+      relativeToChangelogFile: true

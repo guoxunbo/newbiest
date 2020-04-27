@@ -63,6 +63,7 @@ public class GcServiceImpl implements GcService {
     public static final String TRANS_TYPE_UNBIND_RELAY_BOX = "UnbindRelayBox";
     public static final String TRANS_TYPE_JUDGE = "Judge";
     public static final String TRANS_TYPE_OQC = "OQC";
+    public static final String TRANS_TYPE_UPDATE_TREASURY_NOTE = "UpdateTreasuryNote";
 
     public static final String REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST = "StockOutCheckItemList";
     public static final String REFERENCE_NAME_WLTSTOCK_OUT_CHECK_ITEM_LIST = "WltStockOutCheckItemList";
@@ -2400,6 +2401,24 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 批量修改真空包的入库备注
+     */
+    public void updateMaterialLotTreasuryNote(List<MaterialLot> materialLotList, String treasuryNote) throws ClientException{
+        try {
+            for (MaterialLot materialLot : materialLotList){
+                materialLot.setReserved4(treasuryNote);
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+                // 记录历史
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UPDATE_TREASURY_NOTE);
+                history.setTransQty(materialLot.getCurrentQty());
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
