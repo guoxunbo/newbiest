@@ -78,7 +78,7 @@ public class GcGetWltBoxPrintParaController extends AbstractRestController {
                 } else {
                     parameterMap.put("WAFERLIST2", StringUtils.EMPTY);
                 }
-                if(MaterialLotUnit.LCD_CP_25.equals(materialLot.getReserved47()) || MaterialLotUnit.FAB_SENSOR_2.equals(materialLot.getReserved47())){
+                if(MaterialLotUnit.LCD_CP_25UNMEASURED.equals(materialLot.getReserved47()) || MaterialLotUnit.FAB_SENSOR_2UNMEASURED.equals(materialLot.getReserved47())){
                     parameterMap.put("GRADE", materialLot.getGrade() + "(" + waferNumber.toString() + ")");
                     parameterMap.put("QTY", materialLot.getCurrentQty().toString());
                 }  else {
