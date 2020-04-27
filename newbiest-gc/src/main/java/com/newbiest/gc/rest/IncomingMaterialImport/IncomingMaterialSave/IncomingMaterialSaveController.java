@@ -56,15 +56,17 @@ public class IncomingMaterialSaveController {
         }
         String importCode = "";
         String warehouseId = requestBody.getWarehouseId();
-        if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType) ){
+        if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType) || MaterialLotUnit.LCD_COG_FINISH_PRODUCT.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 materialLotUnit.setMaterialLotUnit(importType, warehouseId, materialLotUnit.getReserved6());
             }
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
-        } else if(MaterialLotUnit.WLA_UNMEASURED.equals(importType) || MaterialLotUnit.LCD_CP_25.equals(importType)
-                || MaterialLotUnit.FAB_SENSOR_2.equals(importType)){
+        } else if(MaterialLotUnit.SAMSUING_PACKING_LIST.equals(importType)){
+            List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
+            importCode = gcService.saveIncomingMaterialList(materialLotList, warehouseId, specialtype, importType);
+        } else {
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 materialLotUnit.setMaterialLotUnit(importType, warehouseId, materialLotUnit.getReserved6());
@@ -73,9 +75,6 @@ public class IncomingMaterialSaveController {
             gcService.validateMLotUnitProductAndBondedProperty(materialLotUnitList);
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
-        } else {
-            List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
-            importCode = gcService.saveIncomingMaterialList(materialLotList, warehouseId, specialtype, importType);
         }
         responseBody.setImportCode(importCode);
         response.setBody(responseBody);
