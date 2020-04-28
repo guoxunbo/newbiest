@@ -64,6 +64,7 @@ public class GcServiceImpl implements GcService {
     public static final String TRANS_TYPE_JUDGE = "Judge";
     public static final String TRANS_TYPE_OQC = "OQC";
     public static final String TRANS_TYPE_UPDATE_TREASURY_NOTE = "UpdateTreasuryNote";
+    public static final String TRANS_TYPE_UPDATE_LOCAYTION = "UpdateLocation";
 
     public static final String REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST = "StockOutCheckItemList";
     public static final String REFERENCE_NAME_WLTSTOCK_OUT_CHECK_ITEM_LIST = "WltStockOutCheckItemList";
@@ -2415,6 +2416,36 @@ public class GcServiceImpl implements GcService {
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
                 // 记录历史
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UPDATE_TREASURY_NOTE);
+                history.setTransQty(materialLot.getCurrentQty());
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 批量修改真空包的保税属性
+     */
+    public void updateMaterialLotLocation(List<MaterialLot> materialLotList, String location) throws ClientException{
+        try {
+            for (MaterialLot materialLot : materialLotList){
+                materialLot.setReserved4(location);
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for (MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        materialLotUnit.setReserved4(location);
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, TRANS_TYPE_UPDATE_LOCAYTION);
+                        materialLotUnitHistory.setTransQty(materialLotUnit.getCurrentQty());
+                        materialLotUnitHisRepository.save(materialLotUnitHistory);
+                    }
+                }
+                // 记录历史
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UPDATE_LOCAYTION);
                 history.setTransQty(materialLot.getCurrentQty());
                 materialLotHistoryRepository.save(history);
             }

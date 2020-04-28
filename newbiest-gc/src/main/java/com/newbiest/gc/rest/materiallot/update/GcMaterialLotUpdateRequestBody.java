@@ -24,4 +24,10 @@ public class GcMaterialLotUpdateRequestBody extends RequestBody {
 	@ApiModelProperty("入库备注")
 	private String treasuryeNote;
 
+	@ApiModelProperty("保税属性")
+	private String location;
+
+	@ApiModelProperty(value = "物料批次号")
+	private String materialLotId;
+
 }

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMLotUpdateLocation_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCMLotUpdateLocation to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MLotUpdateLocation
+              description: 批量修改保税属性
+              tableName: GCMLotUpdateLocation
+              url: /Warehouse/GCMLotsUpdateLocation
+              parentRrn: 55
+              seqNo: 10
+              image: icon-wuliao
+              labelZh: 批量修改保税属性
+              labelEn: MLotUpdateLocation
