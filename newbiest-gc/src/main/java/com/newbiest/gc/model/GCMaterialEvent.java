@@ -9,4 +9,6 @@ public class GCMaterialEvent {
 
     public static final String EVENT_RETEST = "ReTest";
 
+    public static final String EVENT_HOLD = "Hold";
+
 }

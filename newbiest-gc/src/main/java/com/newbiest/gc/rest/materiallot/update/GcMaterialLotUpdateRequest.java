@@ -15,6 +15,7 @@ public class GcMaterialLotUpdateRequest extends Request {
 	public static final String ACTION_UPDATE_TREASURY_NOTE = "UpdateTreasuryNote";
 	public static final String ACTION_UPDATE_LOCATION = "UpdateLocation";
 	public static final String ACTION_QUERY = "Query";
+	public static final String ACTION_HOLD = "HoldMLot";
 
 	private GcMaterialLotUpdateRequestBody body;
 

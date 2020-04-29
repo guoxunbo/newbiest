@@ -65,6 +65,7 @@ public class GcServiceImpl implements GcService {
     public static final String TRANS_TYPE_OQC = "OQC";
     public static final String TRANS_TYPE_UPDATE_TREASURY_NOTE = "UpdateTreasuryNote";
     public static final String TRANS_TYPE_UPDATE_LOCAYTION = "UpdateLocation";
+    public static final String TRANS_TYPE_HOLD = "HOLD";
 
     public static final String REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST = "StockOutCheckItemList";
     public static final String REFERENCE_NAME_WLTSTOCK_OUT_CHECK_ITEM_LIST = "WltStockOutCheckItemList";
@@ -2446,6 +2447,27 @@ public class GcServiceImpl implements GcService {
                 }
                 // 记录历史
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UPDATE_LOCAYTION);
+                history.setTransQty(materialLot.getCurrentQty());
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 真空包批量HOLD
+     */
+    public void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException{
+        try {
+            for (MaterialLot materialLot : materialLotList){
+                //修改状态
+                materialLot.setReserved49(holdReason);
+                materialLot.setReserved50(remarks);
+                materialLot=  mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_HOLD, StringUtils.EMPTY);
+
+                // 记录历史
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_HOLD);
                 history.setTransQty(materialLot.getCurrentQty());
                 materialLotHistoryRepository.save(history);
             }

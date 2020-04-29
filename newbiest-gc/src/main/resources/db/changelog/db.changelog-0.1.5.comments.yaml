@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_add_reserved_comments_0.1.5
+      author: Guozhang Luo
+      comment: add commments for MMS_MATERIAL_LOT_UNIT and  MMS_MATERIAL_LOT_UNIT_HIS
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/comments_0.1.5.sql
