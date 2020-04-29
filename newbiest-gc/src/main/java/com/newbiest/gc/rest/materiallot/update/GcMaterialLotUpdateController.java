@@ -50,7 +50,9 @@ public class GcMaterialLotUpdateController extends AbstractRestController {
         } else if(GcMaterialLotUpdateRequest.ACTION_UPDATE_LOCATION.equals(actionType)){
             gcService.updateMaterialLotLocation(materialLotList, requestBody.getLocation());
         } else if(GcMaterialLotUpdateRequest.ACTION_HOLD.equals(actionType)){
-            gcService.materialLotHold(materialLotList, requestBody.getHoldReason(), requestBody.getRemarks());
+            gcService.materialLotHold(materialLotList, requestBody.getReason(), requestBody.getRemarks());
+        } else if(GcMaterialLotUpdateRequest.ACTION_RELEASE.equals(actionType)){
+            gcService.materialLotRelease(materialLotList, requestBody.getReason(), requestBody.getRemarks());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

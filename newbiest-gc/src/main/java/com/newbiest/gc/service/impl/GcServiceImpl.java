@@ -2475,4 +2475,25 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 真空包批量释放
+     */
+    public void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException{
+        try {
+            for (MaterialLot materialLot : materialLotList){
+                //恢复到扣留前的状态
+                materialLot.restoreStatus();
+                materialLot.setReserved51(ReleaseReason);
+                materialLot.setReserved52(remarks);
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+                // 记录历史
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_HOLD);
+                history.setTransQty(materialLot.getCurrentQty());
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

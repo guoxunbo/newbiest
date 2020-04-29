@@ -30,8 +30,8 @@ public class GcMaterialLotUpdateRequestBody extends RequestBody {
 	@ApiModelProperty(value = "物料批次号")
 	private String materialLotId;
 
-	@ApiModelProperty("扣留原因")
-	private String holdReason;
+	@ApiModelProperty("扣留/释放原因")
+	private String reason;
 
 	@ApiModelProperty("扣留备注")
 	private String remarks;

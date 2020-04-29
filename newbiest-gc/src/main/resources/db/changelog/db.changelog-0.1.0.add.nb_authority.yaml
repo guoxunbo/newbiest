@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMaterialLotRelease_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCMaterialLotRelease to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MaterialLotRelease
+              description: 真空包批量释放
+              tableName: GCMaterialLotRelease
+              url: /Warehouse/GCMaterialLotRelease
+              parentRrn: 55
+              seqNo: 20
+              image: icon-wuliao
+              labelZh: 真空包批量释放
+              labelEn: MaterialLotRelease
