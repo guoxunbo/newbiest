@@ -40,7 +40,7 @@ public class WaferManagerController {
     public WaferManagerResponse execute(@RequestBody WaferManagerRequest request) throws Exception {
         WaferManagerResponse response = new WaferManagerResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
-
+        WaferManagerResponseBody responseBody = new WaferManagerResponseBody();
         String actionType = request.getBody().getActionType();
         List<DocumentLine> documentLineList = request.getBody().getDocumentLines();
 
@@ -52,9 +52,13 @@ public class WaferManagerController {
             gcService.validationDocLine(documentLineList, materialLot);
         } else if (WaferManagerRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
             gcService.validationAndWaferIssue(documentLineList, materialLotActions);
+        } else if(WaferManagerRequest.ACTION_TYPE_VALIDATION_WAIT_ISSUE.equals(actionType)){
+            List<MaterialLot> materialLotList = gcService.validationAndGetWaitIssueWafer(materialLotActions);
+            responseBody.setMaterialLotList(materialLotList);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }
+        response.setBody(responseBody);
         return response;
     }
 }

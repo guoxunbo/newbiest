@@ -1160,26 +1160,6 @@ public class GcServiceImpl implements GcService {
                 validationDocLine(documentLine, materialLot);
             }
         }
-        //箱中至少有一个晶圆绑定工单才允许发料
-        validateMLotUnitBindWorkorder(materialLot);
-    }
-
-    /**
-     * 验证箱中晶圆是否绑定工单
-     * @param materialLot
-     * @throws ClientException
-     */
-    private void validateMLotUnitBindWorkorder(MaterialLot materialLot) throws ClientException{
-        try {
-            List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-            Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().filter(materialLotUnit -> !StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderId()))
-                    .collect(Collectors.groupingBy(MaterialLotUnit :: getWorkOrderId));
-            if(materialLotUnitMap != null && materialLotUnitMap.size() == 0){
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_IS_NOT_BIND_WORKORDER, materialLot.getMaterialLotId());
-            }
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
     }
 
     /**
@@ -2431,7 +2411,7 @@ public class GcServiceImpl implements GcService {
     public void updateMaterialLotLocation(List<MaterialLot> materialLotList, String location) throws ClientException{
         try {
             for (MaterialLot materialLot : materialLotList){
-                materialLot.setReserved4(location);
+                materialLot.setReserved6(location);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
@@ -2492,6 +2472,24 @@ public class GcServiceImpl implements GcService {
                 history.setTransQty(materialLot.getCurrentQty());
                 materialLotHistoryRepository.save(history);
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public List<MaterialLot> validationAndGetWaitIssueWafer(List<MaterialLotAction> materialLotActions) throws ClientException{
+        try {
+            List<MaterialLot> materialLotList = new ArrayList<>();
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for(MaterialLot materialLot: materialLots){
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().filter(materialLotUnit -> !StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderId()))
+                        .collect(Collectors.groupingBy(MaterialLotUnit :: getWorkOrderId));
+                if(materialLotUnitMap != null && materialLotUnitMap.size() > 0){
+                    materialLotList.add(materialLot);
+                }
+            }
+            return materialLotList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

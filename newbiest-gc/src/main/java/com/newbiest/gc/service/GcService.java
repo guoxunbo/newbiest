@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    List<MaterialLot> validationAndGetWaitIssueWafer(List<MaterialLotAction> materialLotActions) throws ClientException;
     void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException;
     void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException;
     void updateMaterialLotLocation(List<MaterialLot> materialLotList , String location) throws ClientException;
