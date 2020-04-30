@@ -282,7 +282,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 if(waferId.length() < 2){
                     waferId = "0" + waferId;
                 }
-                String lotId = fabLotId +"."+ waferId;
+                String lotId = fabLotId.split("\\.")[0] +"."+ waferId;
                 for(MaterialLotUnit materialLotUnit : mLotUnitList){
                     materialLotUnit.setLotId(lotId);
                     materialLotUnits.add(materialLotUnit);
