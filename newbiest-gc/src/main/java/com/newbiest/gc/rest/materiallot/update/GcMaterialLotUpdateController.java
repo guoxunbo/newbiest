@@ -2,6 +2,8 @@ package com.newbiest.gc.rest.materiallot.update;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.base.ui.model.NBOwnerReferenceList;
+import com.newbiest.gc.rest.receive.wafer.WaferManagerRequest;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
@@ -43,16 +45,15 @@ public class GcMaterialLotUpdateController extends AbstractRestController {
 
         if (GcMaterialLotUpdateRequest.ACTION_UPDATE_TREASURY_NOTE.equals(actionType)) {
             gcService.updateMaterialLotTreasuryNote(materialLotList, requestBody.getTreasuryeNote());
-        } else if(GcMaterialLotUpdateRequest.ACTION_QUERY.equals(actionType)){
-            String materialLotId = requestBody.getMaterialLotId();
-            MaterialLot materialLot = gcService.getWaitWeightMaterialLot(materialLotId);
-            responseBody.setMaterialLot(materialLot);
         } else if(GcMaterialLotUpdateRequest.ACTION_UPDATE_LOCATION.equals(actionType)){
             gcService.updateMaterialLotLocation(materialLotList, requestBody.getLocation());
         } else if(GcMaterialLotUpdateRequest.ACTION_HOLD.equals(actionType)){
             gcService.materialLotHold(materialLotList, requestBody.getReason(), requestBody.getRemarks());
         } else if(GcMaterialLotUpdateRequest.ACTION_RELEASE.equals(actionType)){
             gcService.materialLotRelease(materialLotList, requestBody.getReason(), requestBody.getRemarks());
+        }else if(GcMaterialLotUpdateRequest.ACTION_TYPE_QUERY_REFERENCE_LIST.equals(actionType)){
+            List<NBOwnerReferenceList> referenceList = gcService.getReferenceListByName(requestBody.getReferenceName());
+            responseBody.setReferenceList(referenceList);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

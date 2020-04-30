@@ -60,6 +60,7 @@ public interface GcService {
     List<NBOwnerReferenceList> getWltJudgePackCaseCheckList() throws ClientException;
     List<NBOwnerReferenceList> getStockOutCheckList() throws ClientException;
     List<NBOwnerReferenceList> getWltStockOutCheckList() throws ClientException;
+    List<NBOwnerReferenceList> getReferenceListByName(String reserenceName) throws ClientException;
     void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> ngStockOutCheckList) throws ClientException;
 
     void asyncReceiveOrder() throws ClientException;

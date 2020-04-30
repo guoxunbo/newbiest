@@ -35,4 +35,7 @@ public class GcMaterialLotUpdateRequestBody extends RequestBody {
 
 	@ApiModelProperty("扣留备注")
 	private String remarks;
+
+	@ApiModelProperty("系统参数名称")
+	private String referenceName;
 }

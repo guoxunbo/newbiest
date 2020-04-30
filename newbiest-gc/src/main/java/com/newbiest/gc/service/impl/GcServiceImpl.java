@@ -1624,6 +1624,14 @@ public class GcServiceImpl implements GcService {
         return Lists.newArrayList();
     }
 
+    public List<NBOwnerReferenceList> getReferenceListByName(String reserenceName) throws ClientException {
+        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(reserenceName, NBReferenceList.CATEGORY_OWNER);
+        if (CollectionUtils.isNotEmpty(nbReferenceList)) {
+            return nbReferenceList;
+        }
+        return Lists.newArrayList();
+    }
+
     public MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException {
         return mesPackedLotRepository.findByPackedLotRrn(packedLotRrn);
     }
