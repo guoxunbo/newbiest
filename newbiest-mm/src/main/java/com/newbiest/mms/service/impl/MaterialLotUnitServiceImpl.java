@@ -168,7 +168,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved38",materialLotUnits.get(0).getReserved38());
                     propsMap.put("reserved39",materialLotUnits.get(0).getReserved39());
                     propsMap.put("reserved41",materialLotUnits.get(0).getReserved41());
-                    propsMap.put("reserved44",materialLotUnits.get(0).getReserved44());
+                    propsMap.put("reserved44",String.valueOf(materialLotUnits.size()));
                     propsMap.put("reserved45",materialLotUnits.get(0).getReserved45());
                     propsMap.put("reserved46",materialLotUnits.get(0).getReserved46());
                     propsMap.put("reserved47",materialLotUnits.get(0).getReserved47());
