@@ -2416,16 +2416,18 @@ public class GcServiceImpl implements GcService {
     /**
      * 批量修改真空包的保税属性
      */
-    public void updateMaterialLotLocation(List<MaterialLot> materialLotList, String location) throws ClientException{
+    public void updateMaterialLotLocation(List<MaterialLot> materialLotList, String location, String remarks) throws ClientException{
         try {
             for (MaterialLot materialLot : materialLotList){
                 materialLot.setReserved6(location);
+                materialLot.setReserved53(remarks);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
                 if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                     for (MaterialLotUnit materialLotUnit : materialLotUnitList){
                         materialLotUnit.setReserved4(location);
+                        materialLotUnit.setReserved10(remarks);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                         MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, TRANS_TYPE_UPDATE_LOCAYTION);
