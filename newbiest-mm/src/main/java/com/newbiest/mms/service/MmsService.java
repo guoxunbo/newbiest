@@ -19,7 +19,7 @@ public interface MmsService {
     // MaterialLot
     MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException;
     MaterialLot getMLotByMLotId(String mLotId) throws ClientException;
-    MaterialLot getMLotByObjectRrn(long materialLotRrn) throws ClientException;
+    MaterialLot getMLotByObjectRrn(String materialLotRrn) throws ClientException;
 
     MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot stockIn(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
@@ -37,8 +37,8 @@ public interface MmsService {
 
     MaterialLot consumeMLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
 
-    List<MaterialLotInventory> getMaterialLotInv(long mLotRrn) throws ClientException;
-    MaterialLotInventory getMaterialLotInv(long mLotRrn, long warehouseRrn, long storageRrn) throws ClientException;
+    List<MaterialLotInventory> getMaterialLotInv(String mLotRrn) throws ClientException;
+    MaterialLotInventory getMaterialLotInv(String mLotRrn, String warehouseRrn, String storageRrn) throws ClientException;
 
     Warehouse getWarehouseByName(String name) throws ClientException;
     public Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;

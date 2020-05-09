@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by guoxunbo on 2018/7/6.
  */
-public interface RecipeEquipmentParameterTempRepository extends IRepository<RecipeEquipmentParameterTemp, Long> {
+public interface RecipeEquipmentParameterTempRepository extends IRepository<RecipeEquipmentParameterTemp, String> {
 
     List<RecipeEquipmentParameterTemp> findByEcnIdAndStatus(String ecnId, String status) throws ClientException;
 }

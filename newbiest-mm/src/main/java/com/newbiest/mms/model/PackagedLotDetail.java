@@ -18,7 +18,7 @@ public class PackagedLotDetail extends NBBase {
      * 包装批次主键
      */
     @Column(name="PACKAGED_LOT_RRN")
-    private Long packagedLotRrn;
+    private String packagedLotRrn;
 
     /**
      * 包装批次号
@@ -30,7 +30,7 @@ public class PackagedLotDetail extends NBBase {
      * 被包装批次的主键
      */
     @Column(name="MATERIAL_LOT_RRN")
-    private Long materialLotRrn;
+    private String materialLotRrn;
 
     /**
      * 被包装批次的批次号

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface StorageRepository extends IRepository<Storage, Long> {
+public interface StorageRepository extends IRepository<Storage, String> {
 
-    Storage findByWarehouseRrnAndName(Long warehouseRrn, String name) throws ClientException;
+    Storage findByWarehouseRrnAndName(String warehouseRrn, String name) throws ClientException;
 }

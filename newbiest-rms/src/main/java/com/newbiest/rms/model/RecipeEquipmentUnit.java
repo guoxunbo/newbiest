@@ -16,7 +16,7 @@ public class RecipeEquipmentUnit extends NBUpdatable {
     private static final long serialVersionUID = 1L;
 
     @Column(name="RECIPE_EQUIPMENT_RRN")
-    private Long recipeEquipmentRrn;
+    private String recipeEquipmentRrn;
 
     @Column(name="RECIPE_NAME")
     private String recipeName;
@@ -31,7 +31,7 @@ public class RecipeEquipmentUnit extends NBUpdatable {
     private String unitId;
 
     @Column(name="UNIT_RECIPE_EQUIPMENT_RRN")
-    private Long unitRecipeEquipmentRrn;
+    private String unitRecipeEquipmentRrn;
 
     @Column(name="UNIT_RECIPE_NAME")
     private String unitRecipeName;

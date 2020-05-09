@@ -14,11 +14,11 @@ import java.util.List;
  * Created by guoxunbo on 2018/7/4.
  */
 @Repository
-public interface RecipeEquipmentParameterRepository extends IRepository<RecipeEquipmentParameter, Long> {
+public interface RecipeEquipmentParameterRepository extends IRepository<RecipeEquipmentParameter, String> {
 
     @Modifying
     @Query("DELETE FROM RecipeEquipmentParameter where recipeEquipmentRrn = :recipeEquipmentRrn")
-    void deleteByRecipeEquipmentRrn(@Param("recipeEquipmentRrn") Long recipeEquipmentRrn) throws ClientException;
+    void deleteByRecipeEquipmentRrn(@Param("recipeEquipmentRrn") String recipeEquipmentRrn) throws ClientException;
 
-    List<RecipeEquipmentParameter> findByRecipeEquipmentRrn(Long recipeEquipmentRrn) throws ClientException;
+    List<RecipeEquipmentParameter> findByRecipeEquipmentRrn(String recipeEquipmentRrn) throws ClientException;
 }

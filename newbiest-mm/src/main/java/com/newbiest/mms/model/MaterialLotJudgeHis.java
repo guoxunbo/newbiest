@@ -23,7 +23,7 @@ public class MaterialLotJudgeHis extends NBHis {
     public static final String TRANS_TYPE_IQC = "IQC";
 
     @Column(name = "MATERIAL_LOT_RRN")
-    private Long materialLotRrn;
+    private String materialLotRrn;
 
     @Column(name = "MATERIAL_LOT_ID")
     private String materialLotId;

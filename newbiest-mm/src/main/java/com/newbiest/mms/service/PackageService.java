@@ -13,7 +13,7 @@ import java.util.List;
 public interface PackageService {
 
     MaterialLotPackageType getMaterialPackageTypeByName(String name) throws ClientException;
-    List<MaterialLot> getPackageDetailLots(Long packagedLotRrn) throws ClientException;
+    List<MaterialLot> getPackageDetailLots(String packagedLotRrn) throws ClientException;
 
     MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException;
     MaterialLot appendPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException;

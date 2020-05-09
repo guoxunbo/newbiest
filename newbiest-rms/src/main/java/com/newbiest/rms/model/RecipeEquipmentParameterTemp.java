@@ -41,7 +41,7 @@ public class RecipeEquipmentParameterTemp extends NBUpdatable {
 	private String ecnId;
 	
 	@Column(name="RECIPE_EQUIPMENT_RRN")
-	private Long recipeEquipmentRrn;
+	private String recipeEquipmentRrn;
 
 	@Column(name="PARAMETER_NAME")
 	private String parameterName;

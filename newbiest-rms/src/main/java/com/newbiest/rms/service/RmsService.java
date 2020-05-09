@@ -16,7 +16,7 @@ public interface RmsService {
     RecipeEquipment createRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
     RecipeEquipment activeRecipeEquipment(RecipeEquipment recipeEquipment) throws ClientException;
 
-    void deleteRecipeEquipment(Long recipeEquipmentRrn) throws ClientException;
+    void deleteRecipeEquipment(String recipeEquipmentRrn) throws ClientException;
 
     void setGoldenRecipe(RecipeEquipment RecipeEquipment) throws ClientException;
     void unSetGoldenRecipe(RecipeEquipment RecipeEquipment, String equipmentId) throws ClientException;

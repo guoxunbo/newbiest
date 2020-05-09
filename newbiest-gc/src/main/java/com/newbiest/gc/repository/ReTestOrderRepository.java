@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface ReTestOrderRepository extends IRepository<ReTestOrder, Long> {
+public interface ReTestOrderRepository extends IRepository<ReTestOrder, String> {
 
 }

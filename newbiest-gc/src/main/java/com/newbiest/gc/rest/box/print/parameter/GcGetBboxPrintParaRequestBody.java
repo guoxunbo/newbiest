@@ -16,6 +16,6 @@ public class GcGetBboxPrintParaRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
-	private Long materialLotRrn;
+	private String materialLotRrn;
 
 }

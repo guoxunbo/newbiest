@@ -5,6 +5,6 @@ import com.newbiest.im.model.InterfaceMonitor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InterfaceMonitorRepository extends IRepository<InterfaceMonitor, Long> {
+public interface InterfaceMonitorRepository extends IRepository<InterfaceMonitor, String> {
 
 }

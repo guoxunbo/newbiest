@@ -39,7 +39,7 @@ public class RecipeEquipmentProgram extends NBUpdatable {
 	public static Map<String, Integer> statusStyles = ImmutableMap.of(PROGRAM_PATH_PROD, FILE_STYLE_ONLY_BY_NAME);
 	
 	@Column(name="RECIPE_EQUIPMENT_RRN")
-	private Long recipeEquipmentRrn;
+	private String recipeEquipmentRrn;
 
 	/**
 	 * 文件名称

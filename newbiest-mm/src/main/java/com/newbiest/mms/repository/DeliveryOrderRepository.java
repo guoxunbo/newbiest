@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface DeliveryOrderRepository extends IRepository<DeliveryOrder, Long> {
+public interface DeliveryOrderRepository extends IRepository<DeliveryOrder, String> {
 
 }

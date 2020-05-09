@@ -22,7 +22,7 @@ public class MaterialLotInventory extends NBUpdatable {
     private static final long serialVersionUID = 677152248659968811L;
 
     @Column(name = "MATERIAL_LOT_RRN")
-    private Long materialLotRrn;
+    private String materialLotRrn;
 
     @Column(name = "MATERIAL_LOT_ID")
     private String materialLotId;
@@ -46,13 +46,13 @@ public class MaterialLotInventory extends NBUpdatable {
     private String materialType;
 
     @Column(name = "WAREHOUSE_RRN")
-    private Long warehouseRrn;
+    private String warehouseRrn;
 
     @Column(name = "WAREHOUSE_ID")
     private String warehouseId;
 
     @Column(name = "STORAGE_RRN")
-    private Long storageRrn;
+    private String storageRrn;
 
     /**
      * 库位类型

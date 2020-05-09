@@ -29,7 +29,7 @@ public class MaterialLotAction extends Action {
     /**
      * 来源仓库主键
      */
-    private Long fromWarehouseRrn;
+    private String fromWarehouseRrn;
 
     /**
      * 来源仓库名称
@@ -40,7 +40,7 @@ public class MaterialLotAction extends Action {
     /**
      * 来源库位主键
      */
-    private Long fromStorageRrn;
+    private String fromStorageRrn;
 
     /**
      * 来源库位名称
@@ -51,7 +51,7 @@ public class MaterialLotAction extends Action {
     /**
      * 目标仓库主键
      */
-    private Long targetWarehouseRrn;
+    private String targetWarehouseRrn;
 
     /**
      * 目标仓库名称
@@ -62,7 +62,7 @@ public class MaterialLotAction extends Action {
     /**
      * 目标库位主键
      */
-    private Long targetStorageRrn;
+    private String targetStorageRrn;
 
     /**
      * 目标库位名称

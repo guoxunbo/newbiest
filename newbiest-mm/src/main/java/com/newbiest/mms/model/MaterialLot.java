@@ -54,7 +54,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 从物料上携带
      */
     @Column(name="STATUS_MODEL_RRN")
-    private Long statusModelRrn;
+    private String statusModelRrn;
 
     /**
      * 状态大类
@@ -115,7 +115,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 如果是子批，对应的母批的主键
      */
     @Column(name="PARENT_MATERIAL_LOT_RRN")
-    private Long parentMaterialLotRrn;
+    private String parentMaterialLotRrn;
 
     /**
      * 是否是子批的标记
@@ -145,7 +145,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 物料主键
      */
     @Column(name="MATERIAL_RRN")
-    private Long materialRrn;
+    private String materialRrn;
 
     /**
      * 物料名称
@@ -213,7 +213,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 最近入库的仓库主键 只具备显示意义，不具备统计意义
      */
     @Column(name="LAST_WAREHOUSE_RRN")
-    private Long lastWarehouseRrn;
+    private String lastWarehouseRrn;
 
     /**
      * 最近入库的仓库号 只具备显示意义，不具备统计意义
@@ -225,7 +225,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 最近入库的库位主键 只具备显示意义，不具备统计意义
      */
     @Column(name="LAST_STORAGE_RRN")
-    private Long lastStorageRrn;
+    private String lastStorageRrn;
 
     /**
      * 最近入库的库位号 只具备显示意义，不具备统计意义
@@ -235,7 +235,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     @Column(name="RESERVED1")
     private String reserved1;
-
 
     @Column(name="RESERVED2")
     private String reserved2;

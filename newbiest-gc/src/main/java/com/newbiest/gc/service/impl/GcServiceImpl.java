@@ -153,7 +153,7 @@ public class GcServiceImpl implements GcService {
                 }
 
                 MaterialLotAction action = new MaterialLotAction();
-                action.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
+                action.setTargetWarehouseRrn(materialLot.getReserved13());
                 action.setTargetStorageId(storageId);
                 action.setTransQty(materialLot.getCurrentQty());
 

@@ -13,10 +13,10 @@ import java.util.List;
  * Created by guoxunbo on 2019/2/20.
  */
 @Repository
-public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
+public interface MaterialLotRepository extends IRepository<MaterialLot, String> {
 
-    MaterialLot findByMaterialLotIdAndOrgRrn(String materialLotId, Long orgRrn);
+    MaterialLot findByMaterialLotId(String materialLotId);
 
     @Query("SELECT m FROM MaterialLot m, PackagedLotDetail p where p.materialLotRrn = m.objectRrn and p.packagedLotRrn = :packagedLotRrn")
-    List<MaterialLot> getPackageDetailLots(Long packagedLotRrn);
+    List<MaterialLot> getPackageDetailLots(String packagedLotRrn);
 }

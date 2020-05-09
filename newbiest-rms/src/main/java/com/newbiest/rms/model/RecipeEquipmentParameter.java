@@ -28,7 +28,7 @@ public class RecipeEquipmentParameter extends NBBase {
     public static final String GROUP_DEFAULT = "Default";
 
     @Column(name="RECIPE_EQUIPMENT_RRN")
-    private Long recipeEquipmentRrn;
+    private String recipeEquipmentRrn;
 
     @Column(name="PARAMETER_NAME")
     private String parameterName;

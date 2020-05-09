@@ -6,7 +6,7 @@ import com.newbiest.im.model.WSDefinition;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface WsDefinitionRepository extends IRepository<WSDefinition, Long> {
+public interface WsDefinitionRepository extends IRepository<WSDefinition, String> {
 
     WSDefinition findByImIdAndEnv(String imId, String env) throws ClientException;
 

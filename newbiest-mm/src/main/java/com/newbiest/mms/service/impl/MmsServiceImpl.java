@@ -181,7 +181,7 @@ public class MmsServiceImpl implements MmsService {
      * @param warehouseRrn 仓库
      * @param storageRrn 库位
      */
-    public MaterialLotInventory getMaterialLotInv(long mLotRrn, long warehouseRrn, long storageRrn) throws ClientException {
+    public MaterialLotInventory getMaterialLotInv(String mLotRrn, String warehouseRrn, String storageRrn) throws ClientException {
         return materialLotInventoryRepository.findByMaterialLotRrnAndWarehouseRrnAndStorageRrn(mLotRrn, warehouseRrn, storageRrn);
     }
 
@@ -191,7 +191,7 @@ public class MmsServiceImpl implements MmsService {
      * @return
      * @throws ClientException
      */
-    public List<MaterialLotInventory> getMaterialLotInv(long mLotRrn) throws ClientException {
+    public List<MaterialLotInventory> getMaterialLotInv(String mLotRrn) throws ClientException {
         return materialLotInventoryRepository.findByMaterialLotRrn(mLotRrn);
     }
 
@@ -310,7 +310,7 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
-    public MaterialLot getMLotByObjectRrn(long materialLotRrn) throws ClientException{
+    public MaterialLot getMLotByObjectRrn(String materialLotRrn) throws ClientException{
         return materialLotRepository.findByObjectRrn(materialLotRrn);
     }
     
@@ -684,7 +684,7 @@ public class MmsServiceImpl implements MmsService {
 
     public MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException{
         try {
-            MaterialLot materialLot =  materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId, ThreadLocalContext.getOrgRrn());
+            MaterialLot materialLot =  materialLotRepository.findByMaterialLotId(mLotId);
             if (materialLot == null && throwExceptionFlag) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mLotId);
             }

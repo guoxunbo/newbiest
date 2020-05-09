@@ -63,7 +63,7 @@ public class RecipeEquipment extends NBVersionControl {
     private String layerName;
 
     @Column(name="PARENT_RRN")
-    private Long parentRrn;
+    private String parentRrn;
 
     @Column(name="GOLDEN_FLAG")
     private String goldenFlag;

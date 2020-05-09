@@ -18,10 +18,10 @@ public class MaterialHistory extends NBVersionControlHis {
     private static final long serialVersionUID = -8075936261995774501L;
 
     @Column(name="MATERIAL_RRN")
-    private Long materialRrn;
+    private String materialRrn;
 
     @Column(name="STATUS_MODEL_RRN")
-    private Long statusModelRrn;
+    private String statusModelRrn;
 
     /**
      * 物料类别
@@ -58,7 +58,7 @@ public class MaterialHistory extends NBVersionControlHis {
      * 默认仓库
      */
     @Column(name="WAREHOUSE_RRN")
-    private Long warehouseRrn;
+    private String warehouseRrn;
 
     /**
      * 有效时长

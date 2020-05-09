@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
  * Created by guoxunbo on 2019/2/20.
  */
 @Repository
-public interface MaterialLotHistoryRepository extends IRepository<MaterialLotHistory, Long> {
+public interface MaterialLotHistoryRepository extends IRepository<MaterialLotHistory, String> {
 
     MaterialLotHistory findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(String materialLotId, String transType);
 

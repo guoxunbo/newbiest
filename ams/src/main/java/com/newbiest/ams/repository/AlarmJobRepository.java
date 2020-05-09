@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AlarmJobRepository extends IRepository<AlarmJob, Long> {
+public interface AlarmJobRepository extends IRepository<AlarmJob, String> {
 
     List<AlarmJob> findByCategoryAndType(String category, String type);
 

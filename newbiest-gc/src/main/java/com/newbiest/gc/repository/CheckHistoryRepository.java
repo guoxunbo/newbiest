@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface CheckHistoryRepository extends IRepository<CheckHistory, Long> {
+public interface CheckHistoryRepository extends IRepository<CheckHistory, String> {
 
 }

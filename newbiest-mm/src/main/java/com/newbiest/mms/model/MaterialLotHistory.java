@@ -53,7 +53,7 @@ public class MaterialLotHistory extends NBHis {
      * 从物料上携带
      */
     @Column(name="STATUS_MODEL_RRN")
-    private Long statusModelRrn;
+    private String statusModelRrn;
 
     /**
      * 状态大类
@@ -114,7 +114,7 @@ public class MaterialLotHistory extends NBHis {
      * 如果是子批，对应的母批的主键
      */
     @Column(name="PARENT_MATERIAL_LOT_RRN")
-    private Long parentMaterialLotRrn;
+    private String parentMaterialLotRrn;
 
     /**
      * 是否是子批的标记
@@ -146,7 +146,7 @@ public class MaterialLotHistory extends NBHis {
      * 物料主键
      */
     @Column(name="MATERIAL_RRN")
-    private Long materialRrn;
+    private String materialRrn;
 
     /**
      * 物料名称

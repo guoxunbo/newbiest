@@ -28,13 +28,13 @@ public class Storage extends NBUpdatable {
     private String storageType;
 
     @Column(name="WAREHOUSE_RRN")
-    private Long warehouseRrn;
+    private String warehouseRrn;
 
     /**
      * 父级节点
      */
     @Column(name="PARENT_RRN")
-    private Long parentRrn;
+    private String parentRrn;
 
 
 }

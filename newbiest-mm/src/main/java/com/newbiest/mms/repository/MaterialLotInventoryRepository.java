@@ -13,17 +13,17 @@ import java.util.List;
  * Created by guoxunbo on 2019/2/20.
  */
 @Repository
-public interface MaterialLotInventoryRepository extends IRepository<MaterialLotInventory, Long> {
+public interface MaterialLotInventoryRepository extends IRepository<MaterialLotInventory, String> {
 
     /**
      * 一个仓库的库位上只能存在一个相同名称的物料批次
      */
-    MaterialLotInventory findByMaterialLotRrnAndWarehouseRrnAndStorageRrn(long materialLotRrn, long warehouseRrn, long storageRrn) throws ClientException;
+    MaterialLotInventory findByMaterialLotRrnAndWarehouseRrnAndStorageRrn(String materialLotRrn, String warehouseRrn, String storageRrn) throws ClientException;
 
     /**
      * 根据物料批次或者物料批次对应的所有仓库
      */
-    List<MaterialLotInventory> findByMaterialLotRrn(long materialLotRrn) throws ClientException;
+    List<MaterialLotInventory> findByMaterialLotRrn(String materialLotRrn) throws ClientException;
 
     /**
      * 删除库存
@@ -32,6 +32,6 @@ public interface MaterialLotInventoryRepository extends IRepository<MaterialLotI
      */
     @Modifying
     @Query("DELETE FROM MaterialLotInventory MaterialLotInventory WHERE MaterialLotInventory.materialLotRrn = :materialLotRrn")
-    void deleteByMaterialLotRrn(Long materialLotRrn) throws ClientException;
+    void deleteByMaterialLotRrn(String materialLotRrn) throws ClientException;
 
 }

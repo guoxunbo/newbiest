@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
  * Created by guoxunbo on 2019/1/4.
  */
 @Repository
-public interface MaterialStatusCategoryRepository extends IRepository<MaterialStatusCategory, Long> {
+public interface MaterialStatusCategoryRepository extends IRepository<MaterialStatusCategory, String> {
 
 }

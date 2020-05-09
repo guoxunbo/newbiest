@@ -11,13 +11,13 @@ import java.util.List;
 
 
 @Repository
-public interface PackagedLotDetailRepository extends IRepository<PackagedLotDetail, Long> {
+public interface PackagedLotDetailRepository extends IRepository<PackagedLotDetail, String> {
 
-    PackagedLotDetail findByPackagedLotRrnAndMaterialLotRrn(Long packagedLotRrn, Long materialLotRrn) throws ClientException;
+    PackagedLotDetail findByPackagedLotRrnAndMaterialLotRrn(String packagedLotRrn, String materialLotRrn) throws ClientException;
 
-    List<PackagedLotDetail> findByPackagedLotRrn(Long packagedLotRrn) throws ClientException;
+    List<PackagedLotDetail> findByPackagedLotRrn(String packagedLotRrn) throws ClientException;
 
     @Modifying
     @Query("DELETE FROM PackagedLotDetail WHERE packagedLotRrn = :packagedLotRrn")
-    void deleteByPackagedLotRrn(Long packagedLotRrn) throws ClientException;
+    void deleteByPackagedLotRrn(String packagedLotRrn) throws ClientException;
 }

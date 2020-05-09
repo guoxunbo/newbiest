@@ -13,7 +13,7 @@ import java.util.List;
  * @date 2020-04-02 14:27
  */
 @Repository
-public interface RecipeEquipmentRepository extends IRepository<RecipeEquipment, Long>, RecipeEquipmentRepositoryCustom {
+public interface RecipeEquipmentRepository extends IRepository<RecipeEquipment, String>, RecipeEquipmentRepositoryCustom {
 
     List<RecipeEquipment> getByNameAndEquipmentIdAndPatternOrderByVersionDesc(String name, String equipmentId, String pattern) throws ClientException;
 
@@ -21,6 +21,6 @@ public interface RecipeEquipmentRepository extends IRepository<RecipeEquipment, 
 
     RecipeEquipment getByNameAndEquipmentTypeAndPatternAndStatusAndGoldenFlag(String name, String equipmentType, String pattern, String status, String goldenFlag) throws ClientException;
 
-    List<RecipeEquipment> getByParentRrn(Long parentRrn) throws ClientException;
+    List<RecipeEquipment> getByParentRrn(String parentRrn) throws ClientException;
 
 }

@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  * Created by guoxunbo on 2018/7/4.
  */
 @Repository
-public interface RecipeEquipmentHisRepository extends IRepository<RecipeEquipmentHis, Long> {
+public interface RecipeEquipmentHisRepository extends IRepository<RecipeEquipmentHis, String> {
 }

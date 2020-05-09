@@ -40,7 +40,6 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
 
     /**
      * 根据recipeName + equipmentId + equipmentType + pattern进行查找RecipeEquipment
-     * @param orgRrn
      * @param recipeName
      * @param equipmentId
      * @param equipmentType
@@ -48,7 +47,7 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
      * @return
      * @throws ClientException
      */
-    public List<RecipeEquipment> getRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String equipmentType, String pattern) throws ClientException {
+    public List<RecipeEquipment> getRecipeEquipment(String recipeName, String equipmentId, String equipmentType, String pattern) throws ClientException {
         try {
             StringBuffer sqlBuffer = SQLBuilder.newInstance().selectEntity(RecipeEquipment.class)
                     .mapFieldValue(ImmutableMap.of("recipeName", recipeName, "pattern", pattern))
@@ -63,8 +62,6 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
             sqlBuffer.append(" version desc");
 
             Query query = em.createQuery(sqlBuffer.toString());
-
-            query.setParameter("orgRrn", orgRrn);
             List<RecipeEquipment> list = query.getResultList();
             if (CollectionUtils.isNotEmpty(list)) {
                 return list;
@@ -76,7 +73,7 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
         }
     }
 
-    public RecipeEquipment getGoldenRecipe(long orgRrn, String eqpType, String recipeName, String status, String pattern, boolean bodyFlag) throws ClientException {
+    public RecipeEquipment getGoldenRecipe(String eqpType, String recipeName, String status, String pattern, boolean bodyFlag) throws ClientException {
         try {
             StringBuffer sqlBuffer = SQLBuilder.newInstance().selectEntity(RecipeEquipment.class)
                                         .mapFieldValue(ImmutableMap.of("goldenFlag", "Y"))
@@ -88,7 +85,6 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
                 sqlBuffer.append(" AND status = :status");
             }
             Query query = em.createQuery(sqlBuffer.toString());
-            query.setParameter("orgRrn", orgRrn);
             query.setParameter("equipmentType", eqpType);
             query.setParameter("recipeName", recipeName);
             query.setParameter("pattern", pattern);
@@ -120,7 +116,7 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
      * @return
      * @throws ClientException
      */
-    public RecipeEquipment getDeepRecipeEquipment(long objectRrn) throws ClientException{
+    public RecipeEquipment getDeepRecipeEquipment(String objectRrn) throws ClientException{
         try {
             EntityGraph graph = em.createEntityGraph(RecipeEquipment.class);
             graph.addSubgraph("recipeEquipmentParameters");
@@ -135,47 +131,5 @@ public class RecipeEquipmentRepositoryImpl implements RecipeEquipmentRepositoryC
         }
     }
 
-//    public RecipeEquipment getActiveRecipeEquipment(long orgRrn, String recipeName, String equipmentId, String pattern, boolean bodyFlag) throws ClientException {
-//        try {
-//            Equipment equipment = equipmentRepository.getByEquipmentId(equipmentId);
-//            if (equipment == null) {
-//                throw new ClientException(RmsException.EQP_IS_NOT_EXIST);
-//            }
-//
-//            StringBuffer sqlBuffer = SQLBuilder.newInstance().selectEntity(RecipeEquipment.class)
-//                    .mapFieldValue(ImmutableMap.of("status", DefaultStatusMachine.STATUS_ACTIVE))
-//                    .build();
-//            sqlBuffer.append(" AND recipeName = :recipeName");
-//            sqlBuffer.append(" AND equipmentId = :equipmentId");
-//            sqlBuffer.append(" AND pattern = :pattern");
-//            Query query = em.createQuery(sqlBuffer.toString());
-//            query.setParameter("orgRrn", orgRrn);
-//            query.setParameter("recipeName", recipeName);
-//            query.setParameter("equipmentId", equipmentId);
-//            if (StringUtils.isNullOrEmpty(pattern)) {
-//                query.setParameter("pattern", RecipeEquipment.PATTERN_NORMAL);
-//            } else {
-//                query.setParameter("pattern", pattern);
-//            }
-//            List<RecipeEquipment> activeRecipeEquipments = query.getResultList();
-//            if (activeRecipeEquipments != null && activeRecipeEquipments.size() > 0) {
-//                if (bodyFlag) {
-//                    RecipeEquipment activeRecipeEquipment = activeRecipeEquipments.get(0);
-//                    activeRecipeEquipment.getRecipeEquipmentParameters().size();
-//                    return activeRecipeEquipment;
-//                }
-//                return activeRecipeEquipments.get(0);
-//            } else {
-////                // 如果没找到，则去GoldenRecipe上去找
-//                if (!StringUtils.isNullOrEmpty(equipment.getEquipmentType())) {
-//                    RecipeEquipment RecipeEquipment = getGoldenRecipe(orgRrn, equipment.getEquipmentType(), recipeName, DefaultStatusMachine.STATUS_ACTIVE, pattern, bodyFlag);
-//                    return RecipeEquipment;
-//                }
-//            }
-//            return null;
-//        } catch (Exception e) {
-//            log.error(e.getMessage(), e);
-//            throw ExceptionManager.handleException(e);
-//        }
-//    }
+
 }

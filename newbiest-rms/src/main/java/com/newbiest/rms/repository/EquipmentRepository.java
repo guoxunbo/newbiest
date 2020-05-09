@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
  * @date 2020-04-02 14:27
  */
 @Repository
-public interface EquipmentRepository extends IRepository<Equipment, Long> {
+public interface EquipmentRepository extends IRepository<Equipment, String> {
 
     Equipment getByEquipmentId(String equipmentId) throws ClientException;
 

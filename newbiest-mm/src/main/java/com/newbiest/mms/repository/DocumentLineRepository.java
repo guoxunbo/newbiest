@@ -7,10 +7,10 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface DocumentLineRepository extends IRepository<DocumentLine, Long> {
+public interface DocumentLineRepository extends IRepository<DocumentLine, String> {
 
-    DocumentLine findByDocRrnAndMaterialName(Long docRrn, String materialName) throws ClientException;
-    DocumentLine findByDocRrnAndReserved1(Long docRrn, String reserved1) throws ClientException;
+    DocumentLine findByDocRrnAndMaterialName(String docRrn, String materialName) throws ClientException;
+    DocumentLine findByDocRrnAndReserved1(String docRrn, String reserved1) throws ClientException;
 
 
 }

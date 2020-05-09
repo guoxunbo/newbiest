@@ -30,7 +30,7 @@ public class RecipeEquipmentHis extends NBVersionControlHis {
 	public static final String TRANS_TYPE_RELEASE = "Release";
 
 	@Column(name="RECIPE_EQUIPMENT_RRN")
-	private Long recipeEquipmentRrn;
+	private String recipeEquipmentRrn;
 
 	@Column(name="EQUIPMENT_ID")
 	private String equipmentId;

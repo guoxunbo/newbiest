@@ -160,7 +160,7 @@ public class RmsServiceImpl implements RmsService {
     }
 
     @Override
-    public void deleteRecipeEquipment(Long recipeEquipmentRrn) throws ClientException {
+    public void deleteRecipeEquipment(String recipeEquipmentRrn) throws ClientException {
         try {
             RecipeEquipment recipeEquipment = recipeEquipmentRepository.findByObjectRrn(recipeEquipmentRrn);
             if (!(DefaultStatusMachine.STATUS_UNFROZEN.equals(recipeEquipment.getStatus()))) {
@@ -269,7 +269,7 @@ public class RmsServiceImpl implements RmsService {
                 throw new ClientException(RmsException.EQP_IS_NOT_EXIST);
             }
             if (DefaultStatusMachine.STATUS_ACTIVE.equals(recipeEquipment.getStatus())) {
-                RecipeEquipment recipeEqp = recipeEquipmentRepository.getGoldenRecipe(ThreadLocalContext.getOrgRrn(), equipment.getEquipmentType(), recipeEquipment.getName(), DefaultStatusMachine.STATUS_ACTIVE, recipeEquipment.getPattern(), false);
+                RecipeEquipment recipeEqp = recipeEquipmentRepository.getGoldenRecipe(equipment.getEquipmentType(), recipeEquipment.getName(), DefaultStatusMachine.STATUS_ACTIVE, recipeEquipment.getPattern(), false);
 
                 if (recipeEqp != null) {
                     throw new ClientException(RmsException.EQP_RECIPE_GOLDEN_RECIPE_IS_EXIST);
@@ -479,7 +479,7 @@ public class RmsServiceImpl implements RmsService {
      * @return
      * @throws ClientException
      */
-    public RecipeEquipment getDeepRecipeEquipment(long recipeEquipmentRrn) throws ClientException {
+    public RecipeEquipment getDeepRecipeEquipment(String recipeEquipmentRrn) throws ClientException {
         try {
             RecipeEquipment RecipeEquipment = recipeEquipmentRepository.getDeepRecipeEquipment(recipeEquipmentRrn);
             RecipeEquipment = getRecipeEquipment(RecipeEquipment, true);

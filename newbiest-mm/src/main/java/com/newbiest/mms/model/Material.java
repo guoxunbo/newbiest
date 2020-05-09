@@ -47,7 +47,7 @@ public class Material extends NBVersionControl {
     private String clazz;
 
     @Column(name="STATUS_MODEL_RRN")
-    private Long statusModelRrn;
+    private String statusModelRrn;
 
     /**
      * 物料类别
@@ -84,7 +84,7 @@ public class Material extends NBVersionControl {
      * 默认仓库
      */
     @Column(name="WAREHOUSE_RRN")
-    private Long warehouseRrn;
+    private String warehouseRrn;
 
     /**
      * 有效时长

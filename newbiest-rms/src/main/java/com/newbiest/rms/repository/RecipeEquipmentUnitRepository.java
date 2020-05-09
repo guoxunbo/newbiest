@@ -11,11 +11,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RecipeEquipmentUnitRepository extends IRepository<RecipeEquipmentUnit, Long> {
+public interface RecipeEquipmentUnitRepository extends IRepository<RecipeEquipmentUnit, String> {
 
     @Modifying
     @Query("DELETE FROM RecipeEquipmentUnit where recipeEquipmentRrn = :recipeEquipmentRrn")
-    void deleteByRecipeEquipmentRrn(@Param("recipeEquipmentRrn") Long recipeEquipmentRrn) throws ClientException;
+    void deleteByRecipeEquipmentRrn(@Param("recipeEquipmentRrn") String recipeEquipmentRrn) throws ClientException;
 
-    List<RecipeEquipmentUnit> findByUnitRecipeEquipmentRrn(Long unitRecipeEquipmentRrn) throws ClientException;
+    List<RecipeEquipmentUnit> findByUnitRecipeEquipmentRrn(String unitRecipeEquipmentRrn) throws ClientException;
 }
