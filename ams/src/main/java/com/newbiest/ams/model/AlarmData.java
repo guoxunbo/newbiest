@@ -22,7 +22,7 @@ public class AlarmData extends NBBase {
     public static final String STATUS_CLOSE = "Close";
 
     @Column(name="JOB_RRN")
-    private Long jobRrn;
+    private String jobRrn;
 
     @Column(name="JOB_ID")
     private String jobId;
