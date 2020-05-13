@@ -30,6 +30,8 @@ import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatus;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.mms.utils.CollectorsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -172,6 +174,12 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     GCProductSubcodeSetRepository gcProductSubcodeSetRepository;
+
+    @Autowired
+    PackagedLotDetailRepository packagedLotDetailRepository;
+
+    @Autowired
+    GCLcdCogDetialRepository gcLcdCogDetialRepository;
 
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
@@ -2136,6 +2144,69 @@ public class GcServiceImpl implements GcService {
                     List<MaterialLotUnit> materialLotUnitList = getMaterialLotUnitList(materialLot, warehouseId);
                     materialLotUnitService.createMLot(materialLotUnitList);
                 }
+            } else if (importType.equals(MaterialLotUnit.LCD_COG_FINISH_PRODUCT)){
+                //来料导入模板LCD（COG成品-ECRETIVE）数据处理
+                Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getParentMaterialLotId));
+                importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+                for (String parentMaterialLotId : materialLotMap.keySet()) {
+                    if (mmsService.getMLotByMLotId(parentMaterialLotId) != null) {
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, parentMaterialLotId);
+                    }
+                    List<MaterialLot> materialLots = materialLotMap.get(parentMaterialLotId);
+                    //生成一条箱信息
+                    MaterialLot parentMaterialLot = new MaterialLot();
+                    RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialLots.get(0).getMaterialName());
+                    if (rawMaterial == null) {
+                        throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, parentMaterialLot.getMaterialName());
+                    }
+                    parentMaterialLot.setMaterial(rawMaterial);
+                    Long totalMaterialLotQty = materialLotMap.get(parentMaterialLotId).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                    parentMaterialLot.setMaterialLotId(parentMaterialLotId);
+                    parentMaterialLot.setCurrentQty(BigDecimal.valueOf(totalMaterialLotQty));
+                    parentMaterialLot.setMaterialLot(materialLots.get(0));
+                    parentMaterialLot.initialMaterialLot();
+                    parentMaterialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_USE);
+                    parentMaterialLot.setStatus(MaterialStatus.STATUS_WAIT);
+                    parentMaterialLot.setPackageType(MaterialLot.PACKAGE_TYPE);
+                    parentMaterialLot.setReserved47(importType);
+                    parentMaterialLot.setReserved48(importCode);
+                    parentMaterialLot = materialLotRepository.saveAndFlush(parentMaterialLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(parentMaterialLot, NBHis.TRANS_TYPE_CREATE);
+                    history.setTransQty(parentMaterialLot.getCurrentQty());
+                    materialLotHistoryRepository.save(history);
+
+                    //保存真空包信息
+                    for(MaterialLot materialLot : materialLots){
+                        if (mmsService.getMLotByMLotId(materialLot.getMaterialLotId()) != null) {
+                            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLot.getMaterialLotId());
+                        }
+                        materialLot.setMaterial(rawMaterial);
+                        materialLot.initialMaterialLot();
+                        materialLot.setParentMaterialLotRrn(parentMaterialLot.getObjectRrn());
+                        materialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_FIN);
+                        materialLot.setStatus(MaterialStatus.STATUS_PACKAGE);
+                        materialLot.setPreStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_STOCK);
+                        materialLot.setStatus(MaterialStatus.STATUS_IN);
+                        materialLot.setReserved47(importType);
+                        materialLot.setReserved48(importCode);
+                        materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                        //存入库存中
+                        PackagedLotDetail packagedLotDetail = new PackagedLotDetail();
+                        packagedLotDetail.setPackagedLotRrn(parentMaterialLot.getObjectRrn());
+                        packagedLotDetail.setPackagedLotId(parentMaterialLot.getMaterialLotId());
+                        packagedLotDetail.setMaterialLotRrn(materialLot.getObjectRrn());
+                        packagedLotDetail.setMaterialLotId(materialLot.getMaterialLotId());
+                        packagedLotDetail.setQty(materialLot.getCurrentQty());
+                        packagedLotDetailRepository.save(packagedLotDetail);
+
+                        history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
+                        history.setTransQty(materialLot.getCurrentQty());
+                        materialLotHistoryRepository.save(history);
+                    }
+                }
+
             } else {
                 //验证来料信息
                 List<MaterialLot> materialLots = validateIncomingMaterialLot(materialLotList, specialType);
@@ -2144,7 +2215,6 @@ public class GcServiceImpl implements GcService {
                 for (MaterialLot materialLot : materialLots) {
                     materialLot.setReserved13(warehouseId);
                     materialLot.setReserved48(importCode);
-                    materialLot.setReserved46(materialLot.getWorkOrderId());
                     materialLot.setWorkOrderId(StringUtils.EMPTY);
                     materialLotRepository.saveAndFlush(materialLot);
 
@@ -2500,6 +2570,34 @@ public class GcServiceImpl implements GcService {
                 }
             }
             return materialLotList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 保存来料信息
+     * @param materialLotList
+     * @param warehouseId
+     * @param importType
+     * @return
+     */
+    public String saveLCDCOGDetialList(List<MaterialLot> materialLotList, String warehouseId, String importType) throws ClientException {
+        try {
+            ThreadLocalContext.getSessionContext().buildTransInfo();
+            String importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+            for(MaterialLot materialLot : materialLotList){
+                GCLcdCogDetial gcLcdCogDetial = gcLcdCogDetialRepository.getGcLcdCogDetialByBoxaIdAndBoxbId(materialLot.getMaterialLotId(), materialLot.getParentMaterialLotId());
+                if(gcLcdCogDetial != null){
+                    throw new ClientParameterException(GcExceptions.BOXAID_AND_BOXBID_IS_EXIST, gcLcdCogDetial.getBoxaId() + StringUtils.SPLIT_CODE + gcLcdCogDetial.getBoxbId());
+                }
+                gcLcdCogDetial.setGcLcdCogDetial(materialLot);
+                gcLcdCogDetial.setWarehouseId(warehouseId);
+                gcLcdCogDetial.setImportCode(importCode);
+                gcLcdCogDetial.setImportType(importType);
+                gcLcdCogDetialRepository.save(gcLcdCogDetial);
+            }
+            return importCode;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

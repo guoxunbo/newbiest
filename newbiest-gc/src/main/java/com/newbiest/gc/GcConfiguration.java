@@ -1,6 +1,7 @@
 package com.newbiest.gc;
 
 import com.newbiest.base.factory.ModelFactory;
+import com.newbiest.gc.model.GCLcdCogDetial;
 import com.newbiest.gc.model.GCProductSubcode;
 import com.newbiest.main.YmlPropertyLoaderFactory;
 import liquibase.integration.spring.SpringLiquibase;
@@ -49,5 +50,6 @@ public class GcConfiguration {
     public void init() {
         // 注册modelClassLoader
         ModelFactory.registerModelClassLoader(GCProductSubcode.class.getName(), GCProductSubcode.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(GCLcdCogDetial.class.getName(), GCLcdCogDetial.class.getClassLoader());
     }
 }

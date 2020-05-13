@@ -31,6 +31,7 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String LCD_CP_25UNMEASURED = "LCD CP未测（-2.5未测）";
     public static final String FAB_SENSOR_2UNMEASURED = "FAB sensor(-2未测)";
     public static final String LCD_COG_FINISH_PRODUCT = "LCD（COG成品-ECRETIVE）";
+    public static final String LCD_COG_DETIAL = "LCD(COG成品-明细)";
 
     @Column(name="UNIT_ID")
     private String unitId;

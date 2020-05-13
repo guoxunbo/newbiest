@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    String saveLCDCOGDetialList(List<MaterialLot> materialLots, String warehouseId, String importType)throws ClientException;
     List<MaterialLot> validationAndGetWaitIssueWafer(List<MaterialLotAction> materialLotActions) throws ClientException;
     void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException;
     void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException;

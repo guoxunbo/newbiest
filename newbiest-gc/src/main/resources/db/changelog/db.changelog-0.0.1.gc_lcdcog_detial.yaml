@@ -1,0 +1,100 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-GC_LCDCOG_DETAIL-table
+      author: Guozhang Luo
+      comment: Create table GC_LCDCOG_DETAIL
+      changes:
+        - createTable:
+            tableName: GC_LCDCOG_DETAIL
+            remarks: LCDCOG DETAIL
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: CREATED
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 创建时间
+              - column:
+                  name: CREATED_BY
+                  type: varchar(32)
+                  remarks: 创建者
+              - column:
+                  name: UPDATED
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 更新时间
+              - column:
+                  name: UPDATED_BY
+                  type: varchar(32)
+                  remarks: 更新者
+              - column:
+                  name: LOCK_VERSION
+                  type: bigint
+                  defaultValueNumeric: 1
+                  remarks: 乐观锁版本 程序自己更新 不可人为改变
+              - column:
+                  name: BOXA_ID
+                  type: varchar(64)
+                  remarks: 外包装ID
+              - column:
+                  name: BOXB_ID
+                  type: varchar(64)
+                  remarks: 内包装ID
+              - column:
+                  name: CHIP_QTY
+                  type: bigint
+                  remarks: 数量
+              - column:
+                  name: GRADE
+                  type: varchar(32)
+                  remarks: 等级
+              - column:
+                  name: BOX_TYPE
+                  type: varchar(32)
+                  remarks: 类型
+              - column:
+                  name: SERIAL_NUM
+                  type: varchar(32)
+                  remarks: 序号
+              - column:
+                  name: WAREHOUSE_ID
+                  type: varchar(32)
+                  remarks: 仓库
+              - column:
+                  name: BONDED_PROPERTY
+                  type: varchar(32)
+                  remarks: 保税属性
+              - column:
+                  name: IMPORT_TYPE
+                  type: varchar(32)
+                  remarks: 导入类型
+              - column:
+                  name: IMPORT_CODE
+                  type: varchar(32)
+                  remarks: 导入编码
+  - changeSet:
+      id: add-unique-constraint-for-GC_LCDCOG_DETAIL-table
+      author: Guozhang Luo
+      comment: Apply unique constraint (ORG_RRN, BOXA_ID, BOXB_ID) for GC_LCDCOG_DETAIL
+      changes:
+        - addUniqueConstraint:
+            tableName: GC_LCDCOG_DETAIL
+            columnNames: ORG_RRN, BOXA_ID, BOXB_ID
+            constraintName: UK_GC_LCDCOG_DETAIL

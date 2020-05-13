@@ -56,16 +56,19 @@ public class IncomingMaterialSaveController {
         }
         String importCode = "";
         String warehouseId = requestBody.getWarehouseId();
-        if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType) || MaterialLotUnit.LCD_COG_FINISH_PRODUCT.equals(importType)){
+        if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 materialLotUnit.setMaterialLotUnit(importType, warehouseId, materialLotUnit.getReserved6());
             }
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
-        } else if(MaterialLotUnit.SAMSUING_PACKING_LIST.equals(importType)){
+        } else if(MaterialLotUnit.SAMSUING_PACKING_LIST.equals(importType) || MaterialLotUnit.LCD_COG_FINISH_PRODUCT.equals(importType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
             importCode = gcService.saveIncomingMaterialList(materialLotList, warehouseId, specialtype, importType);
+        } else if(MaterialLotUnit.LCD_COG_DETIAL.equals(importType)){
+            List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
+            importCode = gcService.saveLCDCOGDetialList(materialLotList, warehouseId, importType);
         } else {
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){

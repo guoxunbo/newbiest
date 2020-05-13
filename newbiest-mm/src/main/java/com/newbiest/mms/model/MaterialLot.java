@@ -54,7 +54,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String STATUS_HOLD = "Hold";
 
     public static final String CATEGORY_PACKAGE = "Package";
-    
+
+    public static final String PACKAGE_TYPE = "PackCase";
+
     public static final String INCOMING_MLOT_IMPORTTYPE = "ImcomingMLotImportType";
 
     public static final String INCOMING_MLOT_SPECIAL_TYPE = "GCIncomingMLotSpecialType";
@@ -676,5 +678,29 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         setPreSubStatus(StringUtils.EMPTY);
         setReceiveQty(this.getCurrentQty());
         setReservedQty(BigDecimal.ZERO);
+    }
+
+    public void setMaterial(Material material) {
+        this.setMaterialRrn(material.getObjectRrn());
+        this.setMaterialName(material.getName());
+        this.setMaterialDesc(material.getDescription());
+        this.setMaterialVersion(material.getVersion());
+        this.setMaterialCategory(material.getMaterialCategory());
+        this.setMaterialType(material.getMaterialType());
+        this.setStoreUom(material.getStoreUom());
+    }
+
+    public void setMaterialLot(MaterialLot materialLot) {
+        this.setGrade(materialLot.getGrade());
+        this.setReserved1(materialLot.getReserved1());
+        this.setReserved6(materialLot.getReserved6());
+        this.setReserved22(materialLot.getReserved22());
+        this.setReserved23(materialLot.getReserved23());
+        this.setReserved27(materialLot.getReserved27());
+        this.setReserved28(materialLot.getReserved28());
+        this.setReserved29(materialLot.getReserved29());
+        this.setReserved39(materialLot.getReserved39());
+        this.setReserved41(materialLot.getReserved41());
+        this.setReserved46(materialLot.getReserved46());
     }
 }
