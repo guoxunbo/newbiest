@@ -11,6 +11,7 @@ import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.utils.CsvUtils;
 import com.newbiest.msg.DefaultParser;
 import io.swagger.annotations.ApiImplicitParam;
@@ -41,10 +42,13 @@ public class IncomingMaterialImportController {
         IncomingMaterialImportResponseBody responseBody = new IncomingMaterialImportResponseBody();
 
         //验证导入模板文件名中是否包含保税属性
-        String bondedProperty = gcService.validationAndGetBondedPropertyByFileName(requestBody.getFileName());
+        String importType = requestBody.getImportType();
+        String bondedProperty = "";
+        if(!MaterialLotUnit.LCD_COG_DETIAL.equals(importType)){
+            bondedProperty = gcService.validationAndGetBondedPropertyByFileName(requestBody.getFileName());
+        }
 
         List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(MaterialLot.INCOMING_MLOT_IMPORTTYPE, NBReferenceList.CATEGORY_OWNER);
-        String importType = requestBody.getImportType();
         String nbTableName = "";
         for(NBReferenceList nbReferenceListInfo : nbReferenceList){
             if(importType.equals(nbReferenceListInfo.getValue())){

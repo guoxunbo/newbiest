@@ -101,3 +101,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.1.8.comments.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.gc_lcdcog_detial.yaml
+      relativeToChangelogFile: true

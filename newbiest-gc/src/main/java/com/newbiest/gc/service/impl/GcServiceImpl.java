@@ -2590,6 +2590,8 @@ public class GcServiceImpl implements GcService {
                 GCLcdCogDetial gcLcdCogDetial = gcLcdCogDetialRepository.getGcLcdCogDetialByBoxaIdAndBoxbId(materialLot.getMaterialLotId(), materialLot.getParentMaterialLotId());
                 if(gcLcdCogDetial != null){
                     throw new ClientParameterException(GcExceptions.BOXAID_AND_BOXBID_IS_EXIST, gcLcdCogDetial.getBoxaId() + StringUtils.SPLIT_CODE + gcLcdCogDetial.getBoxbId());
+                } else {
+                    gcLcdCogDetial = new GCLcdCogDetial();
                 }
                 gcLcdCogDetial.setGcLcdCogDetial(materialLot);
                 gcLcdCogDetial.setWarehouseId(warehouseId);

@@ -62,12 +62,6 @@ public class GCLcdCogDetial extends NBUpdatable {
     private String warehouseId;
 
     /**
-     * 保税属性
-     */
-    @Column(name = "BONDED_PROPERTY")
-    private String bondedProperty;
-
-    /**
      * 导入类型
      */
     @Column(name = "IMPORT_TYPE")
@@ -86,7 +80,6 @@ public class GCLcdCogDetial extends NBUpdatable {
         this.setBoxType(materialLot.getMaterialName());
         this.setChipQty(materialLot.getCurrentQty());
         this.setSerialNum(materialLot.getStoreUom());
-        this.setBondedProperty(materialLot.getReserved6());
     }
 
 }

@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: GC_LCDCOG_DETAIL-dropColumn-BONDED_PROPERTY
+      author: Guozhang Luo
+      comment: GC_LCDCOG_DETAIL Drop Column BONDED_PROPERTY
+      changes:
+        - dropColumn:
+            tableName: GC_LCDCOG_DETAIL
+            columnName: BONDED_PROPERTY
