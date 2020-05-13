@@ -2490,23 +2490,23 @@ public class GcServiceImpl implements GcService {
         try {
             for (MaterialLot materialLot : materialLotList){
                 materialLot.setReserved6(location);
-                materialLot.setReserved53(remarks);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
                 if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                     for (MaterialLotUnit materialLotUnit : materialLotUnitList){
                         materialLotUnit.setReserved4(location);
-                        materialLotUnit.setReserved10(remarks);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                         MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, TRANS_TYPE_UPDATE_LOCAYTION);
+                        materialLotUnitHistory.setActionComment(remarks);
                         materialLotUnitHistory.setTransQty(materialLotUnit.getCurrentQty());
                         materialLotUnitHisRepository.save(materialLotUnitHistory);
                     }
                 }
                 // 记录历史
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UPDATE_LOCAYTION);
+                history.setActionComment(remarks);
                 history.setTransQty(materialLot.getCurrentQty());
                 materialLotHistoryRepository.save(history);
             }
@@ -2522,12 +2522,12 @@ public class GcServiceImpl implements GcService {
         try {
             for (MaterialLot materialLot : materialLotList){
                 //修改状态
-                materialLot.setReserved49(holdReason);
-                materialLot.setReserved50(remarks);
                 materialLot=  mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_HOLD, StringUtils.EMPTY);
 
                 // 记录历史
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_HOLD);
+                history.setActionComment(remarks);
+                history.setActionReason(holdReason);
                 history.setTransQty(materialLot.getCurrentQty());
                 materialLotHistoryRepository.save(history);
             }
@@ -2544,11 +2544,11 @@ public class GcServiceImpl implements GcService {
             for (MaterialLot materialLot : materialLotList){
                 //恢复到扣留前的状态
                 materialLot.restoreStatus();
-                materialLot.setReserved51(ReleaseReason);
-                materialLot.setReserved52(remarks);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
                 // 记录历史
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_HOLD);
+                history.setActionReason(ReleaseReason);
+                history.setActionComment(remarks);
                 history.setTransQty(materialLot.getCurrentQty());
                 materialLotHistoryRepository.save(history);
             }

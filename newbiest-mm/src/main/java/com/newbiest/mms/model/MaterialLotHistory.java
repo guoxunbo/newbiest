@@ -569,33 +569,18 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED48")
     private String reserved48;
 
-    /**
-     * GlaxyCore 扣留原因
-     */
     @Column(name="RESERVED49")
     private String reserved49;
 
-    /**
-     * GlaxyCore 扣留备注
-     */
     @Column(name="RESERVED50")
     private String reserved50;
 
-    /**
-     * GlaxyCore 释放原因
-     */
     @Column(name="RESERVED51")
     private String reserved51;
 
-    /**
-     * GlaxyCore 释放备注
-     */
     @Column(name="RESERVED52")
     private String reserved52;
 
-    /**
-     * GlaxyCore 修改保税属性备注
-     */
     @Column(name="RESERVED53")
     private String reserved53;
 
