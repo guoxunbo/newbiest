@@ -131,6 +131,9 @@ public class Material extends NBVersionControl {
     @Column(name="DELIVERY_POLICY")
     private String deliveryPolicy;
 
+    /**
+     * 产品绑定的真空包包标准数量
+     */
     @Column(name="RESERVED1")
     private String reserved1;
 

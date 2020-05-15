@@ -43,6 +43,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE = "ImcomingMLotImport";
 
+    /**
+     * 生成二维码标签打印流水
+     */
+    public static final String GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE = "GCQRCodePrintSeq";
+
     public static final String CATEGORY_UNIT = "Unit";
     public static final String CATEGORY_LOT = "Lot";
 
@@ -62,6 +67,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String INCOMING_MLOT_SPECIAL_TYPE = "GCIncomingMLotSpecialType";
 
     public static final String BONDED_PROPERTY_LIST = "GCBondedPropertyList";
+
+    public static final String PRINT_CHECK = "check";
+    public static final String PRINT_DATE_PATTERN = "yyMMdd";
+    public static final String PRODUCT_CATEGORY = "COM";
+    public static final String GC_CODE = "0000110461";
 
     /**
      * 物料批次号

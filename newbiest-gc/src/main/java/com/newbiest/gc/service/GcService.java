@@ -17,6 +17,8 @@ import java.util.Map;
  */
 public interface GcService {
 
+    Map<String, String> getCOBBoxLabelPrintParamater(MaterialLot materialLot) throws ClientException;
+    List<Map<String, String>> getBoxQRCodeLabelPrintParamater(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
     String saveLCDCOGDetialList(List<MaterialLot> materialLots, String warehouseId, String importType)throws ClientException;
     List<MaterialLot> validationAndGetWaitIssueWafer(List<MaterialLotAction> materialLotActions) throws ClientException;
     void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException;

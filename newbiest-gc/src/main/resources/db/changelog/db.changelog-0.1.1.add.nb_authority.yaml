@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCPrintQRCodeLabel_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCPrintQRCodeLabel to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: PrintQRCodeLabel
+              description: 二维码标签打印
+              tableName: GCPrintQRCodeLabel
+              url: /GC/GCPrintQRCodeLabelManager
+              parentRrn: 1010
+              seqNo: 30
+              image: icon-rule
+              labelZh: 二维码标签打印
+              labelEn: PrintQRCodeLabel
