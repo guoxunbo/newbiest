@@ -40,7 +40,7 @@ public class CsvUtils {
                     } else {
                         Object object = clazz.newInstance();
                         for (int i = 0 ; i < stringCode.length ; i++){
-                            if (headersMapped.containsKey(boxhead[i])){
+                            if (i <= headersMapped.size() && headersMapped.containsKey(boxhead[i])){
                                 NBField nbField = fieldMap.get(boxhead[i]);
                                 if(nbField.getRequiredFlag() && StringUtils.isNullOrEmpty(stringCode[i].trim())){
                                     throw new ClientParameterException(MmsException.MM_IMPORT_FILE_CONTAINS_EMPTY_DATA, boxhead[i]);

@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void deleteCogDetial(List<GCLcdCogDetial> lcdCogDetials, String deleteNote)throws ClientException;
     Map<String, String> getCOBBoxLabelPrintParamater(MaterialLot materialLot) throws ClientException;
     List<Map<String, String>> getBoxQRCodeLabelPrintParamater(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
     String saveLCDCOGDetialList(List<MaterialLot> materialLots, String warehouseId, String importType)throws ClientException;

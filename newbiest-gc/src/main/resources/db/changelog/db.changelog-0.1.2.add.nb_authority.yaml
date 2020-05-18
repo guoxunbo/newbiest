@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCOGDetialDelete_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCCOGDetialDelete to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: COGDetialDelete
+              description: COG明细删除
+              tableName: GCCOGDetialDelete
+              url: /GC/GCCOGDetialDeleteManager
+              parentRrn: 210
+              seqNo: 15
+              image: icon-recipe
+              labelZh: COG明细删除
+              labelEn: COGDetialDelete

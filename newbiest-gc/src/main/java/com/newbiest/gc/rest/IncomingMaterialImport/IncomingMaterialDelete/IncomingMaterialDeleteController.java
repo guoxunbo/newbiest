@@ -1,6 +1,9 @@
 package com.newbiest.gc.rest.IncomingMaterialImport.IncomingMaterialDelete;
 
+import com.newbiest.base.exception.ClientException;
+import com.newbiest.gc.rest.boxQRCode.print.paamater.GcGetBoxQRCodePrintParaRequest;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.msg.Request;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +30,15 @@ public class IncomingMaterialDeleteController {
         IncomingMaterialDeleteResponseBody responseBody = new IncomingMaterialDeleteResponseBody();
         IncomingMaterialDeleteRequestBody requestBody = request.getBody();
 
-        gcService.deleteIncomingMaterialLot(requestBody.getMaterialLotUnitList(), requestBody.getDeleteNote());
+        String actionType = requestBody.getActionType();
+
+        if(IncomingMaterialDeleteRequest.ACTION_DELETE_INCOMINGMLOT.equals(actionType)){
+            gcService.deleteIncomingMaterialLot(requestBody.getMaterialLotUnitList(), requestBody.getDeleteNote());
+        } else if(IncomingMaterialDeleteRequest.ACTION_DELETE_COGDETIAL.equals(actionType)){
+            gcService.deleteCogDetial(requestBody.getLcdCogDetialList(), requestBody.getDeleteNote());
+        } else{
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+        }
 
         response.setBody(responseBody);
         return response;

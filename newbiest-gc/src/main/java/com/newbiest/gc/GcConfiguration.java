@@ -2,8 +2,11 @@ package com.newbiest.gc;
 
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.gc.model.GCLcdCogDetial;
+import com.newbiest.gc.model.GCLcdCogDetialHis;
 import com.newbiest.gc.model.GCProductSubcode;
 import com.newbiest.main.YmlPropertyLoaderFactory;
+import com.newbiest.mms.model.MaterialHistory;
+import com.newbiest.mms.model.RawMaterial;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -51,5 +54,9 @@ public class GcConfiguration {
         // 注册modelClassLoader
         ModelFactory.registerModelClassLoader(GCProductSubcode.class.getName(), GCProductSubcode.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCLcdCogDetial.class.getName(), GCLcdCogDetial.class.getClassLoader());
+
+        // 注册历史
+        ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetial.class.getName(), GCLcdCogDetialHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(GCLcdCogDetial.class.getName(), GCLcdCogDetialHis.class.getName());
     }
 }

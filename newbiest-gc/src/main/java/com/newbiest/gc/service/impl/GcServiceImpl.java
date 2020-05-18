@@ -183,6 +183,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     GCLcdCogDetialRepository gcLcdCogDetialRepository;
 
+    @Autowired
+    GCLcdCogDetialHisRepository gcLcdCogDetialHisRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -2796,4 +2799,25 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 删除COG明细信息
+     * @param lcdCogDetials
+     * @param deleteNote
+     * @return
+     */
+    public void deleteCogDetial(List<GCLcdCogDetial> lcdCogDetials, String deleteNote) throws ClientException{
+        try {
+            for(GCLcdCogDetial lcdCogDetial : lcdCogDetials){
+                gcLcdCogDetialRepository.delete(lcdCogDetial);
+
+                GCLcdCogDetialHis history = (GCLcdCogDetialHis) baseService.buildHistoryBean(lcdCogDetial, NBHis.TRANS_TYPE_DELETE);
+                history.setActionComment(deleteNote);
+                gcLcdCogDetialHisRepository.save(history);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 }

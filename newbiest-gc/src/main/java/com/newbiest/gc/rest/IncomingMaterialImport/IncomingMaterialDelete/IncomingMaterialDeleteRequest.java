@@ -10,6 +10,11 @@ public class IncomingMaterialDeleteRequest extends Request {
 
     public static final String MESSAGE_NAME = "GCIncomingDelete";
 
+    public static final String ACTION_DELETE_INCOMINGMLOT = "DeleteIncomingMLot";
+
+    public static final String ACTION_DELETE_COGDETIAL = "DeleteCOGDetial";
+
+
     private IncomingMaterialDeleteRequestBody body;
 
 }
