@@ -558,7 +558,7 @@ public class MaterialLotHistory extends NBHis {
     private String reserved46;
 
     /**
-     * GlaxyCore 来料导入的导入类型
+     * GlaxyCore 来料导入的文件名称
      */
     @Column(name="RESERVED47")
     private String reserved47;
@@ -569,9 +569,15 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED48")
     private String reserved48;
 
+    /**
+     * GlaxyCore 导入型号
+     */
     @Column(name="RESERVED49")
     private String reserved49;
 
+    /**
+     * GlaxyCore Wafer Source
+     */
     @Column(name="RESERVED50")
     private String reserved50;
 

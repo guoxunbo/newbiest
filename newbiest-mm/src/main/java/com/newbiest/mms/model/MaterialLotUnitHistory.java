@@ -393,15 +393,27 @@ public class MaterialLotUnitHistory extends NBHis {
     @Column(name="RESERVED46")
     private String reserved46;
 
+    /**
+     * GlaxyCore 导入文件名称
+     */
     @Column(name="RESERVED47")
     private String reserved47;
 
+    /**
+     * GlaxyCore 导入编码
+     */
     @Column(name="RESERVED48")
     private String reserved48;
 
+    /**
+     * GlaxyCore 导入类型
+     */
     @Column(name="RESERVED49")
     private String reserved49;
 
+    /**
+     * GlaxyCore Wafer Source
+     */
     @Column(name="RESERVED50")
     private String reserved50;
 

@@ -17,6 +17,7 @@ import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.commom.sm.exception.StatusMachineExceptions;
+import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.common.exception.ContextException;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
@@ -50,6 +51,8 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.newbiest.mms.exception.MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST;
@@ -2153,18 +2156,16 @@ public class GcServiceImpl implements GcService {
     /**
      * 保存来料信息
      * @param materialLotList
-     * @param warehouseId
-     * @param specialType
      * @param importType
      * @return
      */
-    public String saveIncomingMaterialList(List<MaterialLot> materialLotList, String warehouseId, String specialType, String importType) throws ClientException {
+    public String saveIncomingMaterialList(List<MaterialLot> materialLotList, String importType) throws ClientException {
         try {
             ThreadLocalContext.getSessionContext().buildTransInfo();
             String importCode = "";
             if(importType.equals(MaterialLotUnit.SAMSUING_PACKING_LIST)){
                 for(MaterialLot materialLot: materialLotList){
-                    List<MaterialLotUnit> materialLotUnitList = getMaterialLotUnitList(materialLot, warehouseId);
+                    List<MaterialLotUnit> materialLotUnitList = getMaterialLotUnitList(materialLot);
                     materialLotUnitService.createMLot(materialLotUnitList);
                 }
             } else if (importType.equals(MaterialLotUnit.LCD_COG_FINISH_PRODUCT)){
@@ -2176,23 +2177,27 @@ public class GcServiceImpl implements GcService {
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, parentMaterialLotId);
                     }
                     List<MaterialLot> materialLots = materialLotMap.get(parentMaterialLotId);
-                    //生成一条箱信息
+                    //合成一条箱信息
                     MaterialLot parentMaterialLot = new MaterialLot();
                     RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialLots.get(0).getMaterialName());
                     if (rawMaterial == null) {
                         throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, parentMaterialLot.getMaterialName());
                     }
+                    StatusModel statusModel = mmsService.getMaterialStatusModel(rawMaterial);
+
                     parentMaterialLot.setMaterial(rawMaterial);
                     Long totalMaterialLotQty = materialLotMap.get(parentMaterialLotId).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
                     parentMaterialLot.setMaterialLotId(parentMaterialLotId);
                     parentMaterialLot.setCurrentQty(BigDecimal.valueOf(totalMaterialLotQty));
                     parentMaterialLot.setMaterialLot(materialLots.get(0));
                     parentMaterialLot.initialMaterialLot();
+                    parentMaterialLot.setStatusModelRrn(statusModel.getObjectRrn());
                     parentMaterialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_USE);
                     parentMaterialLot.setStatus(MaterialStatus.STATUS_WAIT);
                     parentMaterialLot.setPackageType(MaterialLot.PACKAGE_TYPE);
-                    parentMaterialLot.setReserved47(importType);
                     parentMaterialLot.setReserved48(importCode);
+                    parentMaterialLot.setReserved49(MaterialLot.IMPORT_COG);
+                    parentMaterialLot.setReserved50("17");
                     parentMaterialLot = materialLotRepository.saveAndFlush(parentMaterialLot);
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(parentMaterialLot, NBHis.TRANS_TYPE_CREATE);
@@ -2206,13 +2211,15 @@ public class GcServiceImpl implements GcService {
                         }
                         materialLot.setMaterial(rawMaterial);
                         materialLot.initialMaterialLot();
+                        parentMaterialLot.setStatusModelRrn(statusModel.getObjectRrn());
                         materialLot.setParentMaterialLotRrn(parentMaterialLot.getObjectRrn());
                         materialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_FIN);
                         materialLot.setStatus(MaterialStatus.STATUS_PACKAGE);
                         materialLot.setPreStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_STOCK);
                         materialLot.setStatus(MaterialStatus.STATUS_IN);
-                        materialLot.setReserved47(importType);
                         materialLot.setReserved48(importCode);
+                        materialLot.setReserved49(MaterialLot.IMPORT_COG);
+                        materialLot.setReserved50("17");
                         materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                         //存入库存中
@@ -2229,23 +2236,42 @@ public class GcServiceImpl implements GcService {
                         materialLotHistoryRepository.save(history);
                     }
                 }
-
-            } else {
-                //验证来料信息
-                List<MaterialLot> materialLots = validateIncomingMaterialLot(materialLotList, specialType);
-                //生成来料导入编码
+            } else if(importType.equals(MaterialLotUnit.RMA_GOOD_PRODUCT) || importType.equals(MaterialLotUnit.RMA_RETURN)
+                    ||importType.equals(MaterialLotUnit.RMA_PURE)){
                 importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
-                for (MaterialLot materialLot : materialLots) {
-                    materialLot.setReserved13(warehouseId);
-                    materialLot.setReserved48(importCode);
-                    materialLot.setWorkOrderId(StringUtils.EMPTY);
-                    materialLotRepository.saveAndFlush(materialLot);
+                Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getMaterialLotId));
+                for(String materialLotId : materialLotMap.keySet()){
+                    List<MaterialLot> materialLots = materialLotMap.get(materialLotId);
+                    RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialLots.get(0).getMaterialName());
+                    if (rawMaterial == null) {
+                        throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, materialLots.get(0).getMaterialName());
+                    }
+                    StatusModel statusModel = mmsService.getMaterialStatusModel(rawMaterial);
 
-                    // 记录历史
-                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
-                    history.setTransQty(materialLot.getCurrentQty());
-                    materialLotHistoryRepository.save(history);
+                    for(MaterialLot materialLot : materialLots){
+                        materialLot.setMaterial(rawMaterial);
+                        materialLot.setReserved48(importCode);
+                        materialLot.initialMaterialLot();
+                        materialLot.setStatusModelRrn(statusModel.getObjectRrn());
+                        materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                        materialLot.setStatus(MaterialStatus.STATUS_CREATE);
+                        if(MaterialLotUnit.RMA_GOOD_PRODUCT.equals(importType)){
+                            materialLot.setReserved50("11");
+                            materialLot.setReserved49(MaterialLot.IMPORT_RMA);
+                        } else if(MaterialLotUnit.RMA_RETURN.equals(importType)){
+                            materialLot.setReserved50("12");
+                            materialLot.setReserved49(MaterialLot.IMPORT_RETURN);
+                        } else if(MaterialLotUnit.RMA_PURE.equals(importType)){
+                            materialLot.setReserved50("15");
+                            materialLot.setReserved49(MaterialLot.IMPORT_CRMA);
+                        }
+                        materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
+                        materialLotHistoryRepository.save(history);
+                    }
                 }
+
             }
             return importCode;
         } catch (Exception e) {
@@ -2253,7 +2279,7 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    private List<MaterialLotUnit> getMaterialLotUnitList(MaterialLot materialLot, String warehouseId) {
+    private List<MaterialLotUnit> getMaterialLotUnitList(MaterialLot materialLot) {
         try {
             List<MaterialLotUnit> materialLotUnitList = new ArrayList<>();
             String waferId = materialLot.getReserved31();
@@ -2262,56 +2288,14 @@ public class GcServiceImpl implements GcService {
                 MaterialLotUnit materialLotUnit = new MaterialLotUnit();
                 materialLotUnit.setMaterialLot(materialLot);
                 materialLotUnit.setCurrentQty(BigDecimal.ONE);
+                materialLotUnit.setReserved13(materialLot.getReserved13());
+                materialLotUnit.setReserved14(materialLot.getReserved14());
+                materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR_CP);
+                materialLotUnit.setReserved50("1");
                 materialLotUnit.setUnitId(unitIdArray[i]);
-                materialLotUnit.setReserved13(warehouseId);
                 materialLotUnitList.add(materialLotUnit);
             }
             return materialLotUnitList;
-        } catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 验证来料信息
-     * @param materialLotList
-     * @param type
-     * @return
-     */
-    private List<MaterialLot> validateIncomingMaterialLot(List<MaterialLot> materialLotList, String type) throws ClientException {
-        try {
-            //验证产品号是否存在
-            Map<String, List<MaterialLot>> materialMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getMaterialName));
-            for(String materialName : materialMap.keySet()){
-                RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
-                if (rawMaterial == null) {
-                    throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
-                }
-            }
-            List<MaterialLot> materialLots = new ArrayList<>();
-            for (MaterialLot materialLot : materialLotList){
-                //根据导入模板类型判断是否需要PackingList中FabLotId与WaferId拼接
-                String materialLotId = "";
-                if(type.equals(MaterialLot.INCOMING_MLOT_SPECIAL_TYPE)){
-                    materialLotId = materialLot.getReserved31();
-                } else {
-                    String fabLotId = materialLot.getReserved30();
-                    String waferId = materialLot.getReserved31();
-                    if(waferId.length() < 2){
-                        waferId = "0" + waferId;
-                    }
-                    materialLotId = fabLotId.split("\\.")[0] + StringUtils.SPLIT_CODE + waferId;
-                }
-
-                MaterialLot materialLotInfo = mmsService.getMLotByMLotId(materialLotId);
-                if(materialLotInfo != null){
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);
-                } else {
-                    materialLot.setMaterialLotId(materialLotId);
-                    materialLots.add(materialLot);
-                }
-            }
-            return materialLots;
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -2601,11 +2585,10 @@ public class GcServiceImpl implements GcService {
     /**
      * 保存来料信息
      * @param materialLotList
-     * @param warehouseId
      * @param importType
      * @return
      */
-    public String saveLCDCOGDetialList(List<MaterialLot> materialLotList, String warehouseId, String importType) throws ClientException {
+    public String saveLCDCOGDetialList(List<MaterialLot> materialLotList, String importType) throws ClientException {
         try {
             ThreadLocalContext.getSessionContext().buildTransInfo();
             String importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
@@ -2617,7 +2600,7 @@ public class GcServiceImpl implements GcService {
                     gcLcdCogDetial = new GCLcdCogDetial();
                 }
                 gcLcdCogDetial.setGcLcdCogDetial(materialLot);
-                gcLcdCogDetial.setWarehouseId(warehouseId);
+                gcLcdCogDetial.setWarehouseId(materialLot.getReserved13());
                 gcLcdCogDetial.setImportCode(importCode);
                 gcLcdCogDetial.setImportType(importType);
                 gcLcdCogDetialRepository.save(gcLcdCogDetial);
@@ -2820,4 +2803,149 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    public List<MaterialLotUnit> validateAndSetWaferSource(String importType, String checkFourCodeFlag, List<MaterialLotUnit> materialLotUnitList) throws ClientException{
+        try {
+            //按照载具号分组，相同载具号的产品型号、晶圆数量必须一致(暂时只对WLA未测（-2.5）模板做特殊验证处理)
+            String waferSource = StringUtils.EMPTY;
+            Map<String, List<MaterialLotUnit>> mLotUnitMap = new HashMap<>();
+            Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getLotId));
+            if(MaterialLotUnit.WLA_UNMEASURED.equals(importType)){
+                Pattern pattern = Pattern.compile("^[_][a-zA-Z0-9]{4}$");
+                for (String lotId : materialLotUnitMap.keySet()) {
+                    List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
+                    mLotUnitMap = groupMaterialLotUnitByMLotIdAndMaterialNameAndWaferQty(materialLotUnits);
+                    if(mLotUnitMap.size() > 1){
+                        throw new ClientParameterException(GcExceptions.MATERIALNAME_AND_WAFERQTY_IS_NOT_SAME, lotId);
+                    }
+                }
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setReserved50("5");
+                    materialLotUnit.setReserved49(MaterialLot.IMPORT_WLA);
+                    Matcher matcher = pattern.matcher(materialLotUnit.getReserved38());
+                    if(!matcher.find()){
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_FOUR_CODE_ERROR, materialLotUnit.getLotId());
+                    }
+                }
+            } else if(MaterialLotUnit.FAB_SENSOR.equals(importType) || MaterialLotUnit.FAB_SENSOR_2UNMEASURED.equals(importType) || MaterialLotUnit.SENSOR_CP_KLT.equals(importType)
+                    || MaterialLotUnit.SENSOR_CP.equals(importType) || MaterialLotUnit.SENSOR_UNMEASURED.equals(importType)){
+                //根据页面是否勾选四位码检测flag，验证来料信息四位码是否符合，不符合不让导入
+                if("check".equals(checkFourCodeFlag)){
+                    validateMaterialLotUnitFourCode(materialLotUnitList);
+                }
+                //验证同一个载具号的晶圆型号是否一致
+                for (String lotId : materialLotUnitMap.keySet()) {
+                    mLotUnitMap = materialLotUnitMap.get(lotId).stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
+                    if(mLotUnitMap.size() > 1){
+                        throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_NOT_SAME, lotId);
+                    }
+                }
+                for(String materialName : mLotUnitMap.keySet()){
+                    String materialNameQty = materialName.split("-")[1];
+                    //通过晶圆型号末尾的数字获取不同的Wafer Source
+                    if(materialNameQty.equals("1") || materialNameQty.equals("2")){
+                        waferSource = "1";
+                    } else if(materialNameQty.equals("2.1")) {
+                        waferSource = "2";
+                    } else {
+                        throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_ERROR, materialName);
+                    }
+                    List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
+                    for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                        materialLotUnit.setReserved50(waferSource);
+                        materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR_CP);
+                    }
+                }
+            }  else if(MaterialLotUnit.FAB_LCD_PTC.equals(importType) || MaterialLotUnit.FAB_LCD_SILTERRA.equals(importType)
+                    || MaterialLotUnit.LCD_CP_25UNMEASURED.equals(importType) || MaterialLotUnit.LCD_CP_25UNMEASURED.equals(importType)){
+                for (String lotId : materialLotUnitMap.keySet()) {
+                    mLotUnitMap = materialLotUnitMap.get(lotId).stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
+                    if(mLotUnitMap.size() > 1){
+                        throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_NOT_SAME, lotId);
+                    }
+                }
+                for(String materialName : mLotUnitMap.keySet()){
+                    String materialNameQty = materialName.split("-")[1];
+                    if(materialNameQty.equals("1") || materialNameQty.equals("2.5")){
+                        waferSource = "3";
+                    } else if(materialNameQty.equals("2.6")) {
+                        waferSource = "4";
+                    } else {
+                        throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_ERROR, materialName);
+                    }
+                    List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
+                    for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                        materialLotUnit.setReserved50(waferSource);
+                        materialLotUnit.setReserved49(MaterialLot.IMPORT_LCD_CP);
+                    }
+                }
+            } else if(MaterialLotUnit.SENSOR_PACK_RETURN_COGO.equals(importType) || MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)
+                    || MaterialLotUnit.SENSOR_TPLCC.equals(importType)){
+                for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
+                    materialLotUnit.setReserved50("9");
+                    materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR);
+                }
+            } else {
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
+                        materialLotUnit.setReserved50("7");
+                        materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
+                    } else if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType)){
+                        materialLotUnit.setReserved50("16");
+                        materialLotUnit.setReserved49(MaterialLot.IMPORT_COB);
+                    }
+                }
+            }
+            return materialLotUnitList;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证来料信息的四位码
+     * @param materialLotUnitList
+     */
+    private void validateMaterialLotUnitFourCode(List<MaterialLotUnit> materialLotUnitList) {
+        try {
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                String waferMark = materialLotUnit.getReserved38();
+                if(!StringUtils.isNullOrEmpty(waferMark)){
+                    if(waferMark.length() == 4){
+                        Pattern pattern = Pattern.compile("^[a-zA-Z0-9]$");
+                        Matcher matcher = pattern.matcher(waferMark);
+                        if(!matcher.matches()){
+                            throw new ClientParameterException(GcExceptions.MATERIAL_LOT_FOUR_CODE_ERROR, materialLotUnit.getLotId());
+                        }
+                    } else {
+                        Pattern pattern = Pattern.compile("^[_][a-zA-Z0-9]{4}$");
+                        Matcher matcher = pattern.matcher(waferMark);
+                        if(!matcher.matches()){
+                            throw new ClientParameterException(GcExceptions.MATERIAL_LOT_FOUR_CODE_ERROR, materialLotUnit.getLotId());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 来料根据晶圆型号、晶圆数量分组
+     * @param materialLotUnitList
+     * @return
+     */
+    public Map<String, List<MaterialLotUnit>> groupMaterialLotUnitByMLotIdAndMaterialNameAndWaferQty(List<MaterialLotUnit> materialLotUnitList) {
+        return  materialLotUnitList.stream().collect(Collectors.groupingBy(materialLotUnit -> {
+            StringBuffer key = new StringBuffer();
+
+            key.append(materialLotUnit.getMaterialName());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(materialLotUnit.getReserved44());
+            key.append(StringUtils.SPLIT_CODE);
+
+            return key.toString();
+        }));
+    }
 }

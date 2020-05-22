@@ -17,10 +17,11 @@ import java.util.Map;
  */
 public interface GcService {
 
+    List<MaterialLotUnit> validateAndSetWaferSource(String importType, String checkFourCodeFlag, List<MaterialLotUnit> materialLotUnitList)throws ClientException;
     void deleteCogDetial(List<GCLcdCogDetial> lcdCogDetials, String deleteNote)throws ClientException;
     Map<String, String> getCOBBoxLabelPrintParamater(MaterialLot materialLot) throws ClientException;
     List<Map<String, String>> getBoxQRCodeLabelPrintParamater(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
-    String saveLCDCOGDetialList(List<MaterialLot> materialLots, String warehouseId, String importType)throws ClientException;
+    String saveLCDCOGDetialList(List<MaterialLot> materialLots, String importType)throws ClientException;
     List<MaterialLot> validationAndGetWaitIssueWafer(List<MaterialLotAction> materialLotActions) throws ClientException;
     void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException;
     void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException;
@@ -32,7 +33,7 @@ public interface GcService {
     void receiveWltFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
     MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException;
     void deleteIncomingMaterialLot(List<MaterialLotUnit> materialLotUnitList, String deleteNote) throws ClientException;
-    String saveIncomingMaterialList(List<MaterialLot> materialLots, String warehouseId, String specialType, String importType)throws ClientException;
+    String saveIncomingMaterialList(List<MaterialLot> materialLots, String importType)throws ClientException;
     void validationStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions)throws ClientException;
     void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
 

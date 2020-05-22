@@ -25,13 +25,28 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String STATE_ISSUE = "Issue";
     public static final String STATE_SCRAP = "Scrap";
 
-    public static final String COB_FINISH_PRODUCT = "COB（-4成品）";
-    public static final String WLA_UNMEASURED = "WLA未测（-2.5）";
-    public static final String SAMSUING_PACKING_LIST = "三星packing list(-2CP未测)";
-    public static final String LCD_CP_25UNMEASURED = "LCD CP未测（-2.5未测）";
-    public static final String FAB_SENSOR_2UNMEASURED = "FAB sensor(-2未测)";
-    public static final String LCD_COG_FINISH_PRODUCT = "LCD（COG成品-ECRETIVE）";
-    public static final String LCD_COG_DETIAL = "LCD(COG成品-明细)";
+    public static final String FAB_SENSOR = "GCFabSensor1Unmeasured";//FAB sensor(-1未测)
+    public static final String FAB_SENSOR_2UNMEASURED = "GCFabSensor2Unmeasured";//FAB sensor(-2未测)
+    public static final String SENSOR_CP_KLT = "GCSensorCPMeasuredKLT";//sensor CP已测（KLT）
+    public static final String SENSOR_CP = "GCSensorCPMeasuredHuaLing";//sensor CP已测（-2.1华领）
+    public static final String SENSOR_UNMEASURED = "GCSensorUnmeasured";//sensor未测(-2未测)
+    public static final String SAMSUING_PACKING_LIST = "GCSamsungPackingList";//三星packing list(-2CP未测)
+    public static final String FAB_LCD_PTC = "GCFabLCD1UnmeasuredPTC";//FAB LCD(-1未测PTC)
+    public static final String FAB_LCD_SILTERRA = "GCFabLCD1UnmeasuredSilterra";//FAB LCD(-1未测Silterra)
+    public static final String LCD_CP_25UNMEASURED = "GCLCDCPUnmeasured25";//LCD CP未测（-2.5未测）
+    public static final String LCD_CP =  "GCLCDCPMeasured26";//LCD CP已测（-2.6已测）
+    public static final String WLA_UNMEASURED = "GCWLAUnmeasured";//WLA未测（-2.5）
+    public static final String WLT_PACK_RETURN =  "GCWLTPackageReturn";//WLT封装回货（-3）
+    public static final String SENSOR_PACK_RETURN_COGO = "GCSensorPackageReturnCogo";//sensor封装回货（积高-3未测）
+    public static final String SENSOR_PACK_RETURN = "GCSensorPackageReturn";//sensor封装回货（-3未测）
+    public static final String SENSOR_TPLCC = "GCSensorTplccSenBang";//sensor-tplcc（森邦-3.5）
+    public static final String RMA_GOOD_PRODUCT = "GCRMAGoodProductImport";//RMA良品_-3.5导入
+    public static final String RMA_RETURN = "GCRMACustomerReturnFinishProduct";//RMA_客户退货_成品
+    public static final String RMA_PURE = "GCRMAPureFinishProduct";//RMA纯_成品-4
+    public static final String COB_FINISH_PRODUCT = "GCCOBFinishProduct"; //COB（-4成品）
+    public static final String LCD_COG_FINISH_PRODUCT = "GCLCDCOGFinishProductEcretive";//LCD（COG成品-ECRETIVE）
+    public static final String LCD_COG_DETIAL = "GCLcdCogDetial";//LCD(COG成品-明细)
+    public static final String FINISH_PRODUCT_IMPORT = "GCFinishProductImport";//成品导入模板
 
     @Column(name="UNIT_ID")
     private String unitId;
@@ -399,15 +414,27 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name="RESERVED46")
     private String reserved46;
 
+    /**
+     * GlaxyCore 导入文件名称
+     */
     @Column(name="RESERVED47")
     private String reserved47;
 
+    /**
+     * GlaxyCore 导入编码
+     */
     @Column(name="RESERVED48")
     private String reserved48;
 
+    /**
+     * GlaxyCore 导入型号
+     */
     @Column(name="RESERVED49")
     private String reserved49;
 
+    /**
+     * GlaxyCore Wafer Source
+     */
     @Column(name="RESERVED50")
     private String reserved50;
 
@@ -438,12 +465,5 @@ public class MaterialLotUnit extends NBUpdatable {
         this.setReserved36(materialLot.getReserved36());
         this.setReserved41(materialLot.getReserved41());
         this.setReserved46(materialLot.getReserved46());
-    }
-
-    public void setMaterialLotUnit(String importType, String  warehouseId, String bondedProperty) {
-        this.setReserved4(bondedProperty);
-        this.setReserved6(StringUtils.EMPTY);
-        this.setReserved13(warehouseId);
-        this.setReserved47(importType);
     }
 }

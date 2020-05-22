@@ -44,18 +44,15 @@ public class IncomingMaterialImportController {
         //验证导入模板文件名中是否包含保税属性
         String importType = requestBody.getImportType();
         String bondedProperty = "";
-        if(!MaterialLotUnit.LCD_COG_DETIAL.equals(importType)){
+        if(MaterialLotUnit.FAB_SENSOR.equals(importType) || MaterialLotUnit.FAB_SENSOR_2UNMEASURED.equals(importType) || MaterialLotUnit.SENSOR_CP_KLT.equals(importType)
+                || MaterialLotUnit.SENSOR_CP.equals(importType) || MaterialLotUnit.SENSOR_UNMEASURED.equals(importType) || MaterialLotUnit.SAMSUING_PACKING_LIST.equals(importType)
+                || MaterialLotUnit.FAB_LCD_PTC.equals(importType) ||MaterialLotUnit.FAB_LCD_SILTERRA.equals(importType) ||MaterialLotUnit.LCD_CP_25UNMEASURED.equals(importType)
+                || MaterialLotUnit.LCD_CP.equals(importType) || MaterialLotUnit.WLT_PACK_RETURN.equals(importType) || MaterialLotUnit.SENSOR_PACK_RETURN_COGO.equals(importType)
+                || MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType) || MaterialLotUnit.SENSOR_TPLCC.equals(importType)){
             bondedProperty = gcService.validationAndGetBondedPropertyByFileName(requestBody.getFileName());
         }
 
-        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(MaterialLot.INCOMING_MLOT_IMPORTTYPE, NBReferenceList.CATEGORY_OWNER);
-        String nbTableName = "";
-        for(NBReferenceList nbReferenceListInfo : nbReferenceList){
-            if(importType.equals(nbReferenceListInfo.getValue())){
-                nbTableName = nbReferenceListInfo.getDescription();
-            }
-        }
-        NBTable nbTable = uiService.getNBTableByName(nbTableName);
+        NBTable nbTable = uiService.getNBTableByName(importType);
 
         ClassLoader classLoader = ModelFactory.getModelClassLoader(nbTable.getModelClass());
         if (classLoader == null) {

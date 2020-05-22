@@ -62,9 +62,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public static final String PACKAGE_TYPE = "PackCase";
 
-    public static final String INCOMING_MLOT_IMPORTTYPE = "ImcomingMLotImportType";
-
-    public static final String INCOMING_MLOT_SPECIAL_TYPE = "GCIncomingMLotSpecialType";
+    public static final String INCOMING_MLOT_IMPORTTYPE = "GCMaterialLotImportType";
 
     public static final String BONDED_PROPERTY_LIST = "GCBondedPropertyList";
 
@@ -72,6 +70,17 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String PRINT_DATE_PATTERN = "yyMMdd";
     public static final String PRODUCT_CATEGORY = "COM";
     public static final String GC_CODE = "0000110461";
+
+    public static final String IMPORT_SENSOR_CP = "SENSOR_CP";
+    public static final String IMPORT_LCD_CP = "LCD_CP";
+    public static final String IMPORT_WLA = "WLA";
+    public static final String IMPORT_WLT = "WLT";
+    public static final String IMPORT_SENSOR = "SENSOR";
+    public static final String IMPORT_RMA = "RMA";
+    public static final String IMPORT_RETURN = "RETURN";
+    public static final String IMPORT_CRMA = "CRMA";
+    public static final String IMPORT_COB = "COB";
+    public static final String IMPORT_COG = "COG";
 
     /**
      * 物料批次号
@@ -544,7 +553,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved46;
 
     /**
-     * GlaxyCore 来料导入的导入类型
+     * GlaxyCore 来料导入文件名称
      */
     @Column(name="RESERVED47")
     private String reserved47;
@@ -555,9 +564,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED48")
     private String reserved48;
 
+    /**
+     * GlaxyCore 来料导入的导入类型
+     */
     @Column(name="RESERVED49")
     private String reserved49;
 
+    /**
+     * GlaxyCore Wafer Source
+     */
     @Column(name="RESERVED50")
     private String reserved50;
 
@@ -697,5 +712,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setReserved39(materialLot.getReserved39());
         this.setReserved41(materialLot.getReserved41());
         this.setReserved46(materialLot.getReserved46());
+        this.setReserved47(materialLot.getReserved47());
     }
 }

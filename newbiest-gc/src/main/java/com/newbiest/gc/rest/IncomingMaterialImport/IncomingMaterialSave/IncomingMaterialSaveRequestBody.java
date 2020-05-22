@@ -25,8 +25,8 @@ public class IncomingMaterialSaveRequestBody extends RequestBody {
     @ApiModelProperty(value = "晶圆信息")
     private List<MaterialLotUnit> materialLotUnitList;
 
-    @ApiModelProperty(value = "仓库号")
-    private String warehouseId;
+    @ApiModelProperty(value = "四位码检测")
+    private String checkFourCodeFlag;
 
     @ApiModelProperty(value = "导入类型")
     private String importType;

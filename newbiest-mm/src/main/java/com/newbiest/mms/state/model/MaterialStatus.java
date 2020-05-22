@@ -16,5 +16,6 @@ public class MaterialStatus extends Status{
     public static final String STATUS_WAIT = "Wait";
     public static final String STATUS_IN = "In";
     public static final String STATUS_PACKAGE = "Package";
+    public static final String STATUS_CREATE = "Create";
 
 }
