@@ -747,7 +747,7 @@ public class GcServiceImpl implements GcService {
                 MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
                 materialLots.add(materialLot);
             }
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
+            Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
@@ -766,6 +766,30 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    private Map<String,List<MaterialLot>> groupWaferByMaterialAndSecondCodeAndGradeAndBondProp(List<MaterialLot> materialLots) {
+        return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
+            StringBuffer key = new StringBuffer();
+            key.append(materialLot.getMaterialName());
+            key.append(StringUtils.SPLIT_CODE);
+
+            String materialSecondCode = StringUtils.EMPTY;
+            if(StringUtils.isNullOrEmpty(materialLot.getReserved49()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved49())){
+                materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
+            } else {
+                materialSecondCode = materialLot.getReserved1();
+            }
+            key.append(materialSecondCode);
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(materialLot.getGrade());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(materialLot.getReserved6());
+            key.append(StringUtils.SPLIT_CODE);
+            return key.toString();
+        }));
+    }
+
     public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
@@ -776,7 +800,7 @@ public class GcServiceImpl implements GcService {
                 MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
                 materialLots.add(materialLot);
             }
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
+            Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
@@ -2652,7 +2676,7 @@ public class GcServiceImpl implements GcService {
                 twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + "weizhi" + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
                 parameterMap.put("FLOW", flow);
                 parameterMap.put("BOXSEQ", boxSeq);
-                parameterMap.put("2DCODE", twoDCode);
+                parameterMap.put("TWODCODE", twoDCode);
                 parameterMap.put("printCount", "1");
 
                 parameterMapList.add(parameterMap);
@@ -2686,7 +2710,7 @@ public class GcServiceImpl implements GcService {
                     parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
                     parameterMap.put("FLOW", flow);
                     parameterMap.put("BOXSEQ", "BL");
-                    parameterMap.put("2DCODE", twoDCode);
+                    parameterMap.put("TWODCODE", twoDCode);
                     parameterMapList.add(parameterMap);
                 }
             }
@@ -2729,7 +2753,7 @@ public class GcServiceImpl implements GcService {
                 parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
                 parameterMap.put("FLOW", flow);
                 parameterMap.put("BOXSEQ", boxSeq);
-                parameterMap.put("2DCODE", twoDCode);
+                parameterMap.put("TWODCODE", twoDCode);
                 parameterMap.put("printCount", "1");
                 parameterMapList.add(parameterMap);
             }
@@ -2743,7 +2767,7 @@ public class GcServiceImpl implements GcService {
             parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
             parameterMap.put("FLOW", flow);
             parameterMap.put("BOXSEQ", "BL");
-            parameterMap.put("2DCODE", twoDCode);
+            parameterMap.put("TWODCODE", twoDCode);
             parameterMap.put("printCount", "2");
             parameterMapList.add(parameterMap);
 
@@ -2775,7 +2799,7 @@ public class GcServiceImpl implements GcService {
             parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
             parameterMap.put("FLOW", flow);
             parameterMap.put("BOXSEQ", "BZ");
-            parameterMap.put("2DCODE", twoDCode);
+            parameterMap.put("TWODCODE", twoDCode);
 
             return parameterMap;
         } catch (Exception e) {
@@ -2813,6 +2837,10 @@ public class GcServiceImpl implements GcService {
                 Pattern pattern = Pattern.compile("^[_][a-zA-Z0-9]{4}$");
                 for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
+                    Integer waferCount = Integer.parseInt(materialLotUnits.get(0).getReserved44());
+                    if(waferCount != materialLotUnits.size()){
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_WAFER_QTY_IS_NOT_SAME_REAL_QTY, lotId);
+                    }
                     mLotUnitMap = groupMaterialLotUnitByMLotIdAndMaterialNameAndWaferQty(materialLotUnits);
                     if(mLotUnitMap.size() > 1){
                         throw new ClientParameterException(GcExceptions.MATERIALNAME_AND_WAFERQTY_IS_NOT_SAME, lotId);
