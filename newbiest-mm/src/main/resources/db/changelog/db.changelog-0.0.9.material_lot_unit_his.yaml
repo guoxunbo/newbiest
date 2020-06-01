@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_his_0.0.9
+      author: Guozhang Luo
+      remarks: mms_material_lot_unit_his add column CURRENT_SUB_QTY
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT_HIS
+            columns:
+              - column:
+                  name: CURRENT_SUB_QTY
+                  type: bigint
+                  remarks: die数量

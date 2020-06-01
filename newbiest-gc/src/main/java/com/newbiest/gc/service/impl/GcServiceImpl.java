@@ -754,13 +754,30 @@ public class GcServiceImpl implements GcService {
                 if (!documentLineMap.keySet().contains(key)) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getLotId());
                 }
+                Long totalMaterialLotQty = getTotalMaterialLotQtyByMLotUnitImportType(materialLotMap.get(key));
                 Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
-                Long totalMaterialLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
                 if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
                     throw new ClientException(GcExceptions.OVER_DOC_QTY);
                 }
                 receiveWafer(documentLineMap.get(key), materialLotMap.get(key));
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Long getTotalMaterialLotQtyByMLotUnitImportType(List<MaterialLot> materialLotList) throws ClientException {
+        try{
+            Long totalMaterialLotQty = 0L;
+            for (MaterialLot materialLot : materialLotList){
+                String importType = materialLot.getReserved49();
+                if(MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)){
+                    totalMaterialLotQty += materialLot.getCurrentSubQty().longValue();
+                } else {
+                    totalMaterialLotQty += materialLot.getCurrentQty().longValue();
+                }
+            }
+            return totalMaterialLotQty;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -773,7 +790,7 @@ public class GcServiceImpl implements GcService {
             key.append(StringUtils.SPLIT_CODE);
 
             String materialSecondCode = StringUtils.EMPTY;
-            if(StringUtils.isNullOrEmpty(materialLot.getReserved49()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved49())){
+            if(!StringUtils.isNullOrEmpty(materialLot.getReserved49()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved49())){
                 materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
             } else {
                 materialSecondCode = materialLot.getReserved1();
@@ -808,7 +825,7 @@ public class GcServiceImpl implements GcService {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
                 }
                 Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
-                Long totalMaterialLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                Long totalMaterialLotQty = getTotalMaterialLotQtyByMLotUnitImportType(materialLotMap.get(key));
                 if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
                     throw new ClientException(GcExceptions.OVER_DOC_QTY);
                 }
@@ -832,47 +849,64 @@ public class GcServiceImpl implements GcService {
                 Iterator<MaterialLot> iterator = materialLots.iterator();
                 while (iterator.hasNext()) {
                     MaterialLot materialLot = iterator.next();
-                    BigDecimal currentQty = materialLot.getCurrentQty();
-                    if (unhandedQty.compareTo(currentQty) >= 0) {
-                        unhandedQty = unhandedQty.subtract(currentQty);
-                        currentQty = BigDecimal.ZERO;
-                    } else {
-                        currentQty = currentQty.subtract(unhandedQty);
-                        unhandedQty = BigDecimal.ZERO;
-                    }
-                    materialLot.setCurrentQty(currentQty);
+                    String importType = materialLot.getReserved49();
                     if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
                         materialLot.setReserved12(documentLine.getObjectRrn().toString());
                     } else {
                         materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
                     }
-                    if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
-                        mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
-                        materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
-                        iterator.remove();
-
-                        List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
-                        for (MaterialLotUnit materialLotUnit : materialLotUnits) {
-                            materialLotUnit.setState(MaterialLotUnit.STATE_ISSUE);
-                            materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-
-                            MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, GCMaterialEvent.EVENT_WAFER_ISSUE);
-                            history.setTransQty(materialLotUnit.getCurrentQty());
-                            materialLotUnitHisRepository.save(history);
-
-                            //发料成功，将晶圆信息保存到MES的BACKEND_WAFER_RECEIVE表中
-                            saveMesBackendWaferReceive(materialLotUnit);
+                    if(MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)){
+                        BigDecimal currentSubQty = materialLot.getCurrentSubQty();
+                        if (unhandedQty.compareTo(currentSubQty) >= 0) {
+                            unhandedQty = unhandedQty.subtract(currentSubQty);
+                            currentSubQty = BigDecimal.ZERO;
+                        } else {
+                            currentSubQty = currentSubQty.subtract(unhandedQty);
+                            unhandedQty = BigDecimal.ZERO;
                         }
-
+                        materialLot.setCurrentSubQty(currentSubQty);
+                        if (materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) == 0) {
+                            mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
+                            materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                            iterator.remove();
+                            changeMLotUnitStateAndSaveMesWaferBackendWaferReceive(materialLot);
+                        } else {
+                            List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
+                            if (CollectionUtils.isNotEmpty(materialLotInvList)) {
+                                //GC一个批次只会在一个库存
+                                MaterialLotInventory materialLotInv = materialLotInvList.get(0);
+                                materialLotInv.setStockQty(materialLot.getCurrentQty());
+                                materialLot.setCurrentSubQty(currentSubQty);
+                                materialLotInventoryRepository.save(materialLotInv);
+                            }
+                        }
                     } else {
-                        List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
-                        if (CollectionUtils.isNotEmpty(materialLotInvList)) {
-                            //GC一个批次只会在一个库存
-                            MaterialLotInventory materialLotInv = materialLotInvList.get(0);
-                            materialLotInv.setStockQty(currentQty);
-                            materialLotInventoryRepository.save(materialLotInv);
+                        BigDecimal currentQty = materialLot.getCurrentQty();
+                        if (unhandedQty.compareTo(currentQty) >= 0) {
+                            unhandedQty = unhandedQty.subtract(currentQty);
+                            currentQty = BigDecimal.ZERO;
+                        } else {
+                            currentQty = currentQty.subtract(unhandedQty);
+                            unhandedQty = BigDecimal.ZERO;
+                        }
+                        materialLot.setCurrentQty(currentQty);
+                        if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                            mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
+                            materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                            iterator.remove();
+                            changeMLotUnitStateAndSaveMesWaferBackendWaferReceive(materialLot);
+                        } else {
+                            List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
+                            if (CollectionUtils.isNotEmpty(materialLotInvList)) {
+                                //GC一个批次只会在一个库存
+                                MaterialLotInventory materialLotInv = materialLotInvList.get(0);
+                                materialLotInv.setStockQty(currentQty);
+                                materialLotInv.setCurrentSubQty(materialLot.getCurrentSubQty());
+                                materialLotInventoryRepository.save(materialLotInv);
+                            }
                         }
                     }
+
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE);
                     materialLotHistoryRepository.save(history);
                     if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
@@ -905,6 +939,25 @@ public class GcServiceImpl implements GcService {
                     erpMaterialOutOrder.setDeliveredNum(docHandledQty.toPlainString());
                 }
                 erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private void changeMLotUnitStateAndSaveMesWaferBackendWaferReceive(MaterialLot materialLot) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                materialLotUnit.setState(MaterialLotUnit.STATE_ISSUE);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, GCMaterialEvent.EVENT_WAFER_ISSUE);
+                history.setTransQty(materialLotUnit.getCurrentQty());
+                materialLotUnitHisRepository.save(history);
+
+                //发料成功，将晶圆信息保存到MES的BACKEND_WAFER_RECEIVE表中
+                saveMesBackendWaferReceive(materialLotUnit);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -946,31 +999,58 @@ public class GcServiceImpl implements GcService {
             for (DocumentLine documentLine: documentLines) {
 
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
-                Map<String, BigDecimal> mLotQty = materialLots.stream().collect(Collectors.toMap(MaterialLot :: getMaterialLotId, MaterialLot :: getCurrentQty));
+                Map<String, BigDecimal> mLotQty = Maps.newHashMap();
+                for(MaterialLot materialLot : materialLots){
+                    String importType = materialLot.getReserved49();
+                    if(MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)) {
+                        mLotQty.put(materialLot.getMaterialLotId(), materialLot.getCurrentSubQty());
+                    } else {
+                        mLotQty.put(materialLot.getMaterialLotId(), materialLot.getCurrentQty());
+                    }
+                }
 
                 Iterator<MaterialLot> iterator = materialLots.iterator();
 
                 while (iterator.hasNext()) {
                     MaterialLot materialLot = iterator.next();
+                    String importType = materialLot.getReserved49();
                     if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
                         materialLot.setReserved12(documentLine.getObjectRrn().toString());
                     } else {
                         materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
                     }
-                    BigDecimal currentQty = materialLot.getCurrentQty();
-                    if (unhandedQty.compareTo(currentQty) >= 0) {
-                        unhandedQty = unhandedQty.subtract(currentQty);
-                        currentQty =  BigDecimal.ZERO;
+                    if(MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)) {
+                        BigDecimal waferQty = materialLot.getCurrentSubQty();
+                        if (unhandedQty.compareTo(waferQty) >= 0) {
+                            unhandedQty = unhandedQty.subtract(waferQty);
+                            waferQty =  BigDecimal.ZERO;
+                        } else {
+                            waferQty = waferQty.subtract(unhandedQty);
+                            unhandedQty = BigDecimal.ZERO;
+                        }
+                        materialLot.setCurrentSubQty(waferQty);
+                        if (materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) == 0) {
+                            //数量进行还原。不能扣减。
+                            materialLot.setCurrentSubQty(mLotQty.get(materialLot.getMaterialLotId()));
+                            materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            iterator.remove();
+                        }
                     } else {
-                        currentQty = currentQty.subtract(unhandedQty);
-                        unhandedQty = BigDecimal.ZERO;
-                    }
-                    materialLot.setCurrentQty(currentQty);
-                    if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
-                        //数量进行还原。不能扣减。
-                        materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
-                        materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
-                        iterator.remove();
+                        BigDecimal currentQty = materialLot.getCurrentQty();
+                        if (unhandedQty.compareTo(currentQty) >= 0) {
+                            unhandedQty = unhandedQty.subtract(currentQty);
+                            currentQty =  BigDecimal.ZERO;
+                        } else {
+                            currentQty = currentQty.subtract(unhandedQty);
+                            unhandedQty = BigDecimal.ZERO;
+                        }
+                        materialLot.setCurrentQty(currentQty);
+                        if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                            //数量进行还原。不能扣减。
+                            materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
+                            materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            iterator.remove();
+                        }
                     }
                     if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
                         break;
@@ -1739,7 +1819,8 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
                     if(mesPackedLot.getWaferQty() != null){
-                        otherReceiveProps.put("reserved44", mesPackedLot.getWaferQty().toString());
+                        BigDecimal waferQty = new BigDecimal(mesPackedLot.getWaferQty().toString());
+                        materialLotAction.setTransCount(waferQty);
                     }
                     materialLotAction.setPropsMap(otherReceiveProps);
 
@@ -2312,6 +2393,7 @@ public class GcServiceImpl implements GcService {
                 MaterialLotUnit materialLotUnit = new MaterialLotUnit();
                 materialLotUnit.setMaterialLot(materialLot);
                 materialLotUnit.setCurrentQty(BigDecimal.ONE);
+                materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                 materialLotUnit.setReserved13(materialLot.getReserved13());
                 materialLotUnit.setReserved14(materialLot.getReserved14());
                 materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR_CP);
@@ -2398,6 +2480,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setGrade(packedLot.getGrade());
                     materialLotUnit.setWorkOrderId(packedLot.getWorkorderId());
                     materialLotUnit.setCurrentQty(BigDecimal.valueOf(packedLot.getQuantity()));
+                    materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                     materialLotUnit.setReceiveQty(BigDecimal.valueOf(packedLot.getQuantity()));
                     materialLotUnit.setReserved1(packedLot.getLevelTwoCode());
                     materialLotUnit.setReserved3(String.valueOf(mesPackedLotList.size()));
@@ -2837,7 +2920,7 @@ public class GcServiceImpl implements GcService {
                 Pattern pattern = Pattern.compile("^[_][a-zA-Z0-9]{4}$");
                 for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
-                    Integer waferCount = Integer.parseInt(materialLotUnits.get(0).getReserved44());
+                    Integer waferCount = materialLotUnits.get(0).getCurrentSubQty().intValue();
                     if(waferCount != materialLotUnits.size()){
                         throw new ClientParameterException(GcExceptions.MATERIAL_LOT_WAFER_QTY_IS_NOT_SAME_REAL_QTY, lotId);
                     }
@@ -2970,7 +3053,7 @@ public class GcServiceImpl implements GcService {
             key.append(materialLotUnit.getMaterialName());
             key.append(StringUtils.SPLIT_CODE);
 
-            key.append(materialLotUnit.getReserved44());
+            key.append(materialLotUnit.getCurrentSubQty());
             key.append(StringUtils.SPLIT_CODE);
 
             return key.toString();

@@ -82,6 +82,12 @@ public class MaterialLotUnit extends NBUpdatable {
     private BigDecimal currentQty;
 
     /**
+     * die数量
+     */
+    @Column(name="CURRENT_SUB_QTY")
+    private BigDecimal currentSubQty;
+
+    /**
      * 等级
      */
     @Column(name="GRADE")

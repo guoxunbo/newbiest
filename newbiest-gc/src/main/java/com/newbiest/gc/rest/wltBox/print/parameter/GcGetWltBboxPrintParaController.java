@@ -58,7 +58,7 @@ public class GcGetWltBboxPrintParaController extends AbstractRestController {
         parameterMap.put("SECONDCODE", materialLot.getReserved1());
         parameterMap.put("LOCATION", materialLot.getReserved6());
         parameterMap.put("QUANTITY", materialLot.getCurrentQty().toPlainString());
-        parameterMap.put("NUMBER", materialLot.getReserved44());
+        parameterMap.put("NUMBER", materialLot.getCurrentSubQty().toPlainString());
 
 
         List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(requestBody.getMaterialLotRrn());
@@ -66,7 +66,7 @@ public class GcGetWltBboxPrintParaController extends AbstractRestController {
         if (CollectionUtils.isNotEmpty(packageDetailLots)) {
             for (MaterialLot packedMLot : packageDetailLots) {
                 parameterMap.put("CSTID" + i, packedMLot.getLotId());
-                parameterMap.put("WAFERQTY" + i, packedMLot.getReserved44());
+                parameterMap.put("WAFERQTY" + i, packedMLot.getCurrentSubQty().toString());
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedMLot.getMaterialLotId());
                 String unitIdList1 = "";
                 String unitIdList2 = "";

@@ -57,6 +57,12 @@ public class MaterialLotUnitHistory extends NBHis {
     @Column(name="CURRENT_QTY")
     private BigDecimal currentQty;
 
+    /**
+     * die数量
+     */
+    @Column(name="CURRENT_SUB_QTY")
+    private BigDecimal currentSubQty;
+
     @Column(name="TRANS_QTY")
     private BigDecimal transQty;
 

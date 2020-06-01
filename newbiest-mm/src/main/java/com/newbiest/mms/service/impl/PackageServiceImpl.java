@@ -373,16 +373,15 @@ public class PackageServiceImpl implements PackageService{
 
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
 
-            int waferQty = 0;
+            BigDecimal waferCount = BigDecimal.ZERO;
             // 预约过后的不能包装
             for (MaterialLot waitToPackageLot : materialLots) {
                 if (!StringUtils.isNullOrEmpty(waitToPackageLot.getReserved16())) {
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_RESERVED, waitToPackageLot.getMaterialLotId(), waitToPackageLot.getReserved17());
                 }
                 //WLT装箱时获取晶圆数量
-                if(!StringUtils.isNullOrEmpty(waitToPackageLot.getReserved44())){
-                    waferQty += Integer.parseInt(waitToPackageLot.getReserved44());
-                }
+                BigDecimal waferqty = waitToPackageLot.getCurrentSubQty() == null ? BigDecimal.ZERO : waitToPackageLot.getCurrentSubQty();
+                waferCount = waferCount.add(waferqty);
             }
 
             //格科要求装过箱的真空包也可以再次装箱，将等待装箱的真空包按照箱号分组，先进行拆箱操作
@@ -396,8 +395,8 @@ public class PackageServiceImpl implements PackageService{
             if (mmsService.getMLotByMLotId(packedMaterialLotId) != null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_EXIST);
             }
-            if(waferQty > 0){
-                packedMaterialLot.setReserved44(String.valueOf(waferQty));
+            if(waferCount.compareTo(BigDecimal.ZERO) > 0){
+                packedMaterialLot.setCurrentSubQty(waferCount);
             }
             packedMaterialLot.setMaterialLotId(packedMaterialLotId);
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(materialLotActions));

@@ -71,4 +71,9 @@ public class MaterialLotAction extends Action {
      */
     private Map<String, Object> propsMap;
 
+    /**
+     * 操作的晶圆片数
+     */
+    private BigDecimal transCount;
+
 }

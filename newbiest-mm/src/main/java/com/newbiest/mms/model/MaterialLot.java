@@ -145,6 +145,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private BigDecimal currentQty = BigDecimal.ZERO;
 
     /**
+     * die数量
+     */
+    @Column(name="CURRENT_SUB_QTY")
+    private BigDecimal currentSubQty = BigDecimal.ZERO;
+
+    /**
      * 预留数量
      */
     @Column(name="RESERVED_QTY")

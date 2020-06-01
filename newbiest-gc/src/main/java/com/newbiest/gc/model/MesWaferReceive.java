@@ -141,6 +141,9 @@ public class MesWaferReceive implements Serializable {
     @Column(name="STORAGE_LOCATION")
     private String storageLocation;
 
+    @Column(name="IMPORT_TYPE")
+    private String importType;
+
     public void setMaterialLotUnit(MaterialLotUnit materialLotUnit){
         this.setFacilityRrn(FACILITY_RRN);
         this.setWaferId(materialLotUnit.getUnitId());
@@ -148,7 +151,7 @@ public class MesWaferReceive implements Serializable {
         this.setBoxId(materialLotUnit.getLotId());
         this.setCartonNo(materialLotUnit.getReserved39());
         this.setCstId(materialLotUnit.getDurable());
-        this.setCstWaferqty(materialLotUnit.getReserved44());
+        this.setCstWaferqty(materialLotUnit.getCurrentSubQty().toString());
         this.setDevice(materialLotUnit.getMaterialName());
         this.setDocName(materialLotUnit.getReserved47());
         this.setImportNo(materialLotUnit.getReserved48());
@@ -167,10 +170,11 @@ public class MesWaferReceive implements Serializable {
         this.setVender(materialLotUnit.getReserved22());
         this.setVersion(materialLotUnit.getReserved1());
         this.setWaferNum(materialLotUnit.getCurrentQty().toString());
-        this.setWaferSource(WAFER_SOURCE);
+        this.setWaferSource(materialLotUnit.getReserved50());
         this.setWaferType(materialLotUnit.getGrade());
         this.setWo(materialLotUnit.getReserved46());
         this.setWorkorderId(materialLotUnit.getWorkOrderId());
+        this.setImportType(materialLotUnit.getReserved49());
     }
 
 }

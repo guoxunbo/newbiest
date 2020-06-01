@@ -166,7 +166,7 @@ public class MmsServiceImpl implements MmsService {
             StatusModel statusModel = getMaterialStatusModel(rawMaterial);
             for (MaterialLotAction materialLotImportAction : materialLotImportActions) {
                 MaterialLot materialLot = createMLot(rawMaterial, statusModel, materialLotImportAction.getMaterialLotId(),
-                                                        materialLotImportAction.getGrade(), materialLotImportAction.getTransQty(), materialLotImportAction.getPropsMap());
+                                                        materialLotImportAction.getGrade(), materialLotImportAction.getTransQty(), materialLotImportAction.getPropsMap(), BigDecimal.ZERO);
                 materialLots.add(materialLot);
             }
             return materialLots;
@@ -370,6 +370,7 @@ public class MmsServiceImpl implements MmsService {
             if (materialLotInventory != null) {
                 throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_SUPPORT_MULTI_INVENTORY);
             }
+            materialLot.setCurrentSubQty(materialLotAction.getTransCount());
             // 变更物料库存并改变物料批次状态
             saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty());
 
@@ -721,7 +722,7 @@ public class MmsServiceImpl implements MmsService {
             StatusModel statusModel = getMaterialStatusModel(rawMaterial);
 
             for (MaterialLotAction materialLotAction : materialLotActionList) {
-                MaterialLot materialLot = createMLot(rawMaterial, statusModel, materialLotAction.getMaterialLotId(), materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap());
+                MaterialLot materialLot = createMLot(rawMaterial, statusModel, materialLotAction.getMaterialLotId(), materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap(),materialLotAction.getTransCount());
                 materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
@@ -767,7 +768,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             StatusModel statusModel = getMaterialStatusModel(rawMaterial);
 
-            MaterialLot materialLot = createMLot(rawMaterial, statusModel, mLotId, materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap());
+            MaterialLot materialLot = createMLot(rawMaterial, statusModel, mLotId, materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap(), materialLotAction.getTransCount());
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
@@ -820,7 +821,7 @@ public class MmsServiceImpl implements MmsService {
      * @return
      * @throws ClientException
      */
-    public MaterialLot createMLot(RawMaterial rawMaterial, StatusModel statusModel, String mLotId, String grade, BigDecimal transQty, Map<String, Object> propsMap) throws ClientException {
+    public MaterialLot createMLot(RawMaterial rawMaterial, StatusModel statusModel, String mLotId, String grade, BigDecimal transQty, Map<String, Object> propsMap, BigDecimal currentSubQty) throws ClientException {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
@@ -842,6 +843,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setReceiveQty(transQty);
             materialLot.setReceiveDate(new Date());
             materialLot.setCurrentQty(transQty);
+            materialLot.setCurrentSubQty(currentSubQty);
 
             materialLot.setMaterialRrn(rawMaterial.getObjectRrn());
             materialLot.setMaterialName(rawMaterial.getName());
