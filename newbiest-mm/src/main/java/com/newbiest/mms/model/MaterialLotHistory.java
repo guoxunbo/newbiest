@@ -41,6 +41,11 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_ADDITIONAL_PACKAGE = "AdditionalPackage";
 
     /**
+     * 产品分类
+     */
+    public static final String PRODUCT_TYPE = "PROD";
+
+    /**
      * 物料批次号
      */
     @Column(name="MATERIAL_LOT_ID")
@@ -286,6 +291,12 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="LOT_ID")
     private String lotId;
+
+    /**
+     * 产品分类 PROD/ENG
+     */
+    @Column(name="PRODUCT_TYPE")
+    private String productType = PRODUCT_TYPE;
 
     /**
      * GlaxyCore MES完成品的levelTwoCode

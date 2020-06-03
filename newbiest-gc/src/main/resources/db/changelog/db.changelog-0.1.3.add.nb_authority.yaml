@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCPurchaseOutsoureReceive_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCPurchaseOutsoureReceive to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCPurchaseOutsoureReceiveManager
+              description: 采购委外接收
+              tableName: GCPurchaseOutsoureReceive
+              url: /Wafer/GCPurchaseOutsoureReceive
+              parentRrn: 2000
+              seqNo: 25
+              image: icon-delivery
+              labelZh: 采购委外接收
+              labelEn: PurchaseOutsoureReceive

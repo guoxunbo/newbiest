@@ -21,6 +21,8 @@ public class MaterialLotUnitHistory extends NBHis {
 
     public static final String TRANS_TYPE_IN = "In";
 
+    public static final String PRODUCT_TYPE = "PROD";
+
     /**
      * 物料批次单元号
      */
@@ -149,6 +151,12 @@ public class MaterialLotUnitHistory extends NBHis {
      */
     @Column(name="LOT_ID")
     private String lotId;
+
+    /**
+     * 产品分类 PROD/ENG
+     */
+    @Column(name="PRODUCT_TYPE")
+    private String productType = PRODUCT_TYPE;
 
     /**
      * 二级代码

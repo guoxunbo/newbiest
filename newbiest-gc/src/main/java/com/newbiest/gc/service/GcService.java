@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void purchaseOutsourceWaferReceive(List<MaterialLotAction> materialLotActions)throws ClientException;
     List<MaterialLotUnit> validateAndSetWaferSource(String importType, String checkFourCodeFlag, List<MaterialLotUnit> materialLotUnitList)throws ClientException;
     void deleteCogDetial(List<GCLcdCogDetial> lcdCogDetials, String deleteNote)throws ClientException;
     Map<String, String> getCOBBoxLabelPrintParamater(MaterialLot materialLot) throws ClientException;

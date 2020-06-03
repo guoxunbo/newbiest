@@ -189,6 +189,10 @@ public class GcServiceImpl implements GcService {
     @Autowired
     GCLcdCogDetialHisRepository gcLcdCogDetialHisRepository;
 
+
+    @Autowired
+    ErpInStockRepository erpInStockRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -3058,5 +3062,33 @@ public class GcServiceImpl implements GcService {
 
             return key.toString();
         }));
+    }
+
+    /**
+     * 委外采购晶圆接收
+     * @param materialLotActions
+     */
+    public void purchaseOutsourceWaferReceive(List<MaterialLotAction> materialLotActions) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for(MaterialLot materialLot : materialLots){
+                Warehouse warehouse = new Warehouse();
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
+                    warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                }
+                materialLotUnitService.receiveMLotWithUnit(materialLot, warehouse.getName());
+                ErpInStock erpInStock = new ErpInStock();
+                if(StringUtils.isNullOrEmpty(materialLot.getProductType())){
+                    erpInStock.setProdCate(MaterialLot.PRODUCT_TYPE);
+                } else {
+                    erpInStock.setProdCate(materialLot.getProductType());
+                }
+                erpInStock.setMaterialLot(materialLot);
+                erpInStock.setWarehouse(warehouse.getName());
+                erpInStockRepository.save(erpInStock);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 }

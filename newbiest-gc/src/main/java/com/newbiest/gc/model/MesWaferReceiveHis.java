@@ -19,7 +19,7 @@ public class MesWaferReceiveHis implements Serializable {
     public static final String TRNAS_TYPE_ISSUE = "ISSUE";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name="OBJECT_RRN")
     private Long objectRrn;
 

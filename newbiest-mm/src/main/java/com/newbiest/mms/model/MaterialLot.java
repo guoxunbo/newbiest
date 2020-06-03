@@ -24,6 +24,11 @@ import java.util.Date;
 public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     /**
+     * 产品分类
+     */
+    public static final String PRODUCT_TYPE = "PROD";
+
+    /**
      * 生成物料批次号的规则
      */
     public static final String GENERATOR_MATERIAL_LOT_ID_RULE = "CreateMLot";
@@ -281,6 +286,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="LOT_ID")
     private String lotId;
+
+    /**
+     * 产品分类 PROD/ENG
+     */
+    @Column(name="PRODUCT_TYPE")
+    private String productType = PRODUCT_TYPE;
 
     /**
      * GlaxyCore MES完成品的levelTwoCode

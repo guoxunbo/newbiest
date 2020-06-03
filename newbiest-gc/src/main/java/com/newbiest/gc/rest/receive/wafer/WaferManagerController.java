@@ -55,7 +55,9 @@ public class WaferManagerController {
         } else if(WaferManagerRequest.ACTION_TYPE_VALIDATION_WAIT_ISSUE.equals(actionType)){
             List<MaterialLot> materialLotList = gcService.validationAndGetWaitIssueWafer(materialLotActions);
             responseBody.setMaterialLotList(materialLotList);
-        } else {
+        } else if(WaferManagerRequest.ACTION_TYPE_PURCHASEOUTSOURE_RECEIVE.equals(actionType)){
+            gcService.purchaseOutsourceWaferReceive(materialLotActions);
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }
         response.setBody(responseBody);
