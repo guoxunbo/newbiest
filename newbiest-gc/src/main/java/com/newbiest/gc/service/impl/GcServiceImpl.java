@@ -189,9 +189,11 @@ public class GcServiceImpl implements GcService {
     @Autowired
     GCLcdCogDetialHisRepository gcLcdCogDetialHisRepository;
 
-
     @Autowired
     ErpInStockRepository erpInStockRepository;
+
+    @Autowired
+    ErpMoaRepository erpMoaRepository;
 
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
@@ -1774,6 +1776,7 @@ public class GcServiceImpl implements GcService {
             Map<String, Warehouse> warehouseMap = Maps.newHashMap();
 
             List<ErpMo> erpMos = Lists.newArrayList();
+            List<ErpMoa> erpMoaList = Lists.newArrayList();
             for (String productId : packedLotMap.keySet()) {
                 RawMaterial rawMaterial = mmsService.getRawMaterialByName(productId);
                 if (rawMaterial == null) {
@@ -1830,34 +1833,73 @@ public class GcServiceImpl implements GcService {
 
                     materialLotActions.add(materialLotAction);
 
-                    // ERP MO插入数据
-                    ErpMo erpMo = new ErpMo();
-                    erpMo.setCCode(mesPackedLot.getShipSerialNumber());
-                    erpMo.setDDate(mesPackedLot.getFinalOperationTime());
-                    erpMo.setSecondcode(mesPackedLot.getLevelTwoCode());
-                    erpMo.setCWHCode(warehouseName);
-                    if (StringUtils.isNullOrEmpty(mesPackedLot.getWorkorderId())) {
-                        erpMo.setCmoCode(ErpMo.DEFAULT_WO_ID);
-                    } else {
-                        erpMo.setCmoCode(mesPackedLot.getWorkorderId());
-                    }
-                    if(StringUtils.isNullOrEmpty(mesPackedLot.getErpProductId())){
-                        erpMo.setCinVCode(mesPackedLot.getProductId());
-                    } else {
-                        erpMo.setCinVCode(mesPackedLot.getErpProductId());
-                    }
-                    erpMo.setFQty(mesPackedLot.getQuantity());
+                    String productCateGory = mesPackedLot.getProductCategory();
+                    if(MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory)){
+                        // ERP_MOA插入数据
+                        ErpMoa erpMoa = new ErpMoa();
+                        erpMoa.setFQty(mesPackedLot.getQuantity());
+                        erpMoa.setWarehouse(warehouseName);
+                        erpMoa.setMesPackedLot(mesPackedLot);
+                        //TODO MES_PACKED_LOT表中暂时没有物料型号、物料数据等相关数据，后续从MM_PACKED_LOT_RELATION表中获取
+                        erpMoa.setCMemo("EMPTY");
+                        erpMoa.setMaterialBonded("EMPTY");
+                        erpMoa.setMaterialCode("EMPTY");
+                        erpMoa.setMaterialQty(0);
+                        erpMoa.setMaterialGrade("EMPTY");
+                        erpMoa.setMaterialVersion("EMPTY");
 
-                    erpMo.setCGrade(mesPackedLot.getGrade());
-                    erpMo.setBonded(mesPackedLot.getBondedProperty());
-                    erpMos.add(erpMo);
+                        erpMoaList.add(erpMoa);
+                    } else if(MesPackedLot.PRODUCT_CATEGORY_CP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLT.equals(productCateGory)){
+                        // ERP_MOA插入数据
+                        ErpMoa erpMoa = new ErpMoa();
+                        erpMoa.setFQty(mesPackedLot.getWaferQty());
+                        erpMoa.setWarehouse(warehouseName);
+                        erpMoa.setMesPackedLot(mesPackedLot);
+
+                        //TODO MES_PACKED_LOT表中暂时没有物料型号、物料数据等相关数据，后续从MM_PACKED_LOT_RELATION表中获取
+                        erpMoa.setCMemo("EMPTY");
+                        erpMoa.setMaterialBonded("EMPTY");
+                        erpMoa.setMaterialCode("EMPTY");
+                        erpMoa.setMaterialQty(0);
+                        erpMoa.setMaterialGrade("EMPTY");
+                        erpMoa.setMaterialVersion("EMPTY");
+
+                        erpMoaList.add(erpMoa);
+                    } else if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(productCateGory)){
+                        // ERP MO插入数据
+                        ErpMo erpMo = new ErpMo();
+                        erpMo.setCCode(mesPackedLot.getShipSerialNumber());
+                        erpMo.setDDate(mesPackedLot.getFinalOperationTime());
+                        erpMo.setSecondcode(mesPackedLot.getLevelTwoCode());
+                        erpMo.setCWHCode(warehouseName);
+                        if (StringUtils.isNullOrEmpty(mesPackedLot.getWorkorderId())) {
+                            erpMo.setCmoCode(ErpMo.DEFAULT_WO_ID);
+                        } else {
+                            erpMo.setCmoCode(mesPackedLot.getWorkorderId());
+                        }
+                        if(StringUtils.isNullOrEmpty(mesPackedLot.getErpProductId())){
+                            erpMo.setCinVCode(mesPackedLot.getProductId());
+                        } else {
+                            erpMo.setCinVCode(mesPackedLot.getErpProductId());
+                        }
+                        erpMo.setFQty(mesPackedLot.getQuantity());
+
+                        erpMo.setCGrade(mesPackedLot.getGrade());
+                        erpMo.setBonded(mesPackedLot.getBondedProperty());
+                        erpMos.add(erpMo);
+                    }
                 }
                 mmsService.receiveMLotList2Warehouse(rawMaterial, materialLotActions);
             };
 
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
             //TODO 如果后续有ERP dblink问题。此处需要考虑批量插入。JPA提供的saveAll本质也是for循环调用save。
-            erpMoRepository.saveAll(erpMos);
+            if(CollectionUtils.isNotEmpty(erpMos)){
+                erpMoRepository.saveAll(erpMos);
+            }
+            if(CollectionUtils.isNotEmpty(erpMoaList)){
+                erpMoaRepository.saveAll(erpMoaList);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
