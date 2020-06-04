@@ -3118,7 +3118,11 @@ public class GcServiceImpl implements GcService {
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
                     warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                 }
-                materialLotUnitService.receiveMLotWithUnit(materialLot, warehouse.getName());
+                if(warehouse == null){
+                    throw new ClientParameterException(GcExceptions.WAREHOUSE_CANNOT_EMPTY);
+                }
+                String warehosueName = warehouse.getName();
+                materialLotUnitService.receiveMLotWithUnit(materialLot, warehosueName);
                 ErpInStock erpInStock = new ErpInStock();
                 if(StringUtils.isNullOrEmpty(materialLot.getProductType())){
                     erpInStock.setProdCate(MaterialLot.PRODUCT_TYPE);
@@ -3126,7 +3130,15 @@ public class GcServiceImpl implements GcService {
                     erpInStock.setProdCate(materialLot.getProductType());
                 }
                 erpInStock.setMaterialLot(materialLot);
-                erpInStock.setWarehouse(warehouse.getName());
+                if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehosueName)){
+                    erpInStock.setWarehouse(ErpInStock.ZJ_STOCK);
+                } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehosueName)){
+                    erpInStock.setWarehouse(ErpInStock.SH_STOCK);
+                } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehosueName)){
+                    erpInStock.setWarehouse(ErpInStock.HK_STOCK);
+                } else {
+                    throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehosueName);
+                }
                 erpInStockRepository.save(erpInStock);
             }
         } catch (Exception e) {

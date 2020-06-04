@@ -18,6 +18,15 @@ public class ErpInStock implements Serializable {
 
     public static final String C_MAKER_MES = "MES";
 
+    public static final String ZJ_STOCK = "601";
+    public static final String SH_STOCK = "400";
+    public static final String HK_STOCK = "300";
+    public static final String ERROR_STOCK = "ERROR";
+
+    public static final String WAREHOUSE_ZJ_STOCK = "ZJ_STOCK";
+    public static final String WAREHOUSE_SH_STOCK = "SH_STOCK";
+    public static final String WAREHOUSE_HK_STOCK = "HK_STOCK";
+
     @Column(name="SEQ")
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
