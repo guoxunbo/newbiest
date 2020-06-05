@@ -2315,7 +2315,9 @@ public class GcServiceImpl implements GcService {
             ThreadLocalContext.getSessionContext().buildTransInfo();
             String importCode = "";
             if(importType.equals(MaterialLotUnit.SAMSUING_PACKING_LIST)){
+                importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
                 for(MaterialLot materialLot: materialLotList){
+                    materialLot.setReserved48(importCode);
                     List<MaterialLotUnit> materialLotUnitList = getMaterialLotUnitList(materialLot);
                     materialLotUnitService.createMLot(materialLotUnitList);
                 }
@@ -2339,13 +2341,15 @@ public class GcServiceImpl implements GcService {
                     parentMaterialLot.setMaterial(rawMaterial);
                     Long totalMaterialLotQty = materialLotMap.get(parentMaterialLotId).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
                     parentMaterialLot.setMaterialLotId(parentMaterialLotId);
+                    parentMaterialLot.setLotId(parentMaterialLotId);
                     parentMaterialLot.setCurrentQty(BigDecimal.valueOf(totalMaterialLotQty));
                     parentMaterialLot.setMaterialLot(materialLots.get(0));
                     parentMaterialLot.initialMaterialLot();
                     parentMaterialLot.setStatusModelRrn(statusModel.getObjectRrn());
-                    parentMaterialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_USE);
-                    parentMaterialLot.setStatus(MaterialStatus.STATUS_WAIT);
+                    parentMaterialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                    parentMaterialLot.setStatus(MaterialStatus.STATUS_CREATE);
                     parentMaterialLot.setPackageType(MaterialLot.PACKAGE_TYPE);
+                    parentMaterialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_COG);
                     parentMaterialLot.setReserved48(importCode);
                     parentMaterialLot.setReserved49(MaterialLot.IMPORT_COG);
                     parentMaterialLot.setReserved50("17");
@@ -2364,23 +2368,22 @@ public class GcServiceImpl implements GcService {
                         materialLot.initialMaterialLot();
                         parentMaterialLot.setStatusModelRrn(statusModel.getObjectRrn());
                         materialLot.setParentMaterialLotRrn(parentMaterialLot.getObjectRrn());
-                        materialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_FIN);
-                        materialLot.setStatus(MaterialStatus.STATUS_PACKAGE);
-                        materialLot.setPreStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_STOCK);
-                        materialLot.setStatus(MaterialStatus.STATUS_IN);
+                        materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                        materialLot.setStatus(MaterialStatus.STATUS_CREATE);
+                        materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_COG);
                         materialLot.setReserved48(importCode);
                         materialLot.setReserved49(MaterialLot.IMPORT_COG);
                         materialLot.setReserved50("17");
                         materialLot = materialLotRepository.saveAndFlush(materialLot);
 
-                        //存入库存中
-                        PackagedLotDetail packagedLotDetail = new PackagedLotDetail();
-                        packagedLotDetail.setPackagedLotRrn(parentMaterialLot.getObjectRrn());
-                        packagedLotDetail.setPackagedLotId(parentMaterialLot.getMaterialLotId());
-                        packagedLotDetail.setMaterialLotRrn(materialLot.getObjectRrn());
-                        packagedLotDetail.setMaterialLotId(materialLot.getMaterialLotId());
-                        packagedLotDetail.setQty(materialLot.getCurrentQty());
-                        packagedLotDetailRepository.save(packagedLotDetail);
+//                        //存入库存中
+//                        PackagedLotDetail packagedLotDetail = new PackagedLotDetail();
+//                        packagedLotDetail.setPackagedLotRrn(parentMaterialLot.getObjectRrn());
+//                        packagedLotDetail.setPackagedLotId(parentMaterialLot.getMaterialLotId());
+//                        packagedLotDetail.setMaterialLotRrn(materialLot.getObjectRrn());
+//                        packagedLotDetail.setMaterialLotId(materialLot.getMaterialLotId());
+//                        packagedLotDetail.setQty(materialLot.getCurrentQty());
+//                        packagedLotDetailRepository.save(packagedLotDetail);
 
                         history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
                         history.setTransQty(materialLot.getCurrentQty());
@@ -2406,6 +2409,7 @@ public class GcServiceImpl implements GcService {
                         materialLot.setStatusModelRrn(statusModel.getObjectRrn());
                         materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         materialLot.setStatus(MaterialStatus.STATUS_CREATE);
+                        materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_RMA);
                         if(MaterialLotUnit.RMA_GOOD_PRODUCT.equals(importType)){
                             materialLot.setReserved50("11");
                             materialLot.setReserved49(MaterialLot.IMPORT_RMA);
@@ -2435,13 +2439,20 @@ public class GcServiceImpl implements GcService {
             List<MaterialLotUnit> materialLotUnitList = new ArrayList<>();
             String waferId = materialLot.getReserved31();
             String [] unitIdArray = waferId.split(",");
+            Arrays.sort(unitIdArray);
+            String fabLotId = materialLot.getReserved30().split("\\.")[0];
+            String lotId = fabLotId + "." + unitIdArray[0].split("\\.")[1];
             for(int i=0; i< unitIdArray.length; i++){
                 MaterialLotUnit materialLotUnit = new MaterialLotUnit();
                 materialLotUnit.setMaterialLot(materialLot);
+                materialLotUnit.setLotId(lotId);
+                materialLotUnit.setReserved4(materialLot.getReserved6());
+                materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
                 materialLotUnit.setCurrentQty(BigDecimal.ONE);
                 materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                 materialLotUnit.setReserved13(materialLot.getReserved13());
                 materialLotUnit.setReserved14(materialLot.getReserved14());
+                materialLotUnit.setReserved48(materialLot.getReserved48());
                 materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR_CP);
                 materialLotUnit.setReserved50("1");
                 materialLotUnit.setUnitId(unitIdArray[i]);
@@ -2976,6 +2987,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLA);
                     materialLotUnit.setReserved50("5");
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_WLA);
                     Matcher matcher = pattern.matcher(materialLotUnit.getReserved38());
@@ -3008,6 +3020,7 @@ public class GcServiceImpl implements GcService {
                     }
                     List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
                     for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
                         materialLotUnit.setReserved50(waferSource);
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR_CP);
                     }
@@ -3031,6 +3044,7 @@ public class GcServiceImpl implements GcService {
                     }
                     List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
                     for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
                         materialLotUnit.setReserved50(waferSource);
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_LCD_CP);
                     }
@@ -3038,15 +3052,18 @@ public class GcServiceImpl implements GcService {
             } else if(MaterialLotUnit.SENSOR_PACK_RETURN_COGO.equals(importType) || MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)
                     || MaterialLotUnit.SENSOR_TPLCC.equals(importType)){
                 for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
+                    materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);
                     materialLotUnit.setReserved50("9");
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR);
                 }
             } else {
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                     if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
+                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
                         materialLotUnit.setReserved50("7");
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
                     } else if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType)){
+                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_COB);
                         materialLotUnit.setReserved50("16");
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_COB);
                     }

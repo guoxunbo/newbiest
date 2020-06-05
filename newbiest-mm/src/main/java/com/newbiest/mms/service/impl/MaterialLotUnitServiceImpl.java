@@ -119,8 +119,10 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             }
             //生成导入编码
             String importCode = "";
-            if(!StringUtils.isNullOrEmpty(materialLotUnitList.get(0).getReserved47())){
+            if(!StringUtils.isNullOrEmpty(materialLotUnitList.get(0).getReserved47()) && !StringUtils.isNullOrEmpty(materialLotUnitList.get(0).getReserved48())){
                 importCode = generatorMLotUnitImportCode(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+            } else {
+                importCode = materialLotUnitList.get(0).getReserved48();
             }
             Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
             for (String materialName : materialUnitMap.keySet()) {
@@ -154,6 +156,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
 
                     propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
                     propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());
+                    propsMap.put("reserved7",materialLotUnits.get(0).getReserved7());
                     propsMap.put("reserved13",materialLotUnits.get(0).getReserved13());
                     propsMap.put("reserved14",materialLotUnits.get(0).getReserved14());
                     propsMap.put("reserved22",materialLotUnits.get(0).getReserved22());

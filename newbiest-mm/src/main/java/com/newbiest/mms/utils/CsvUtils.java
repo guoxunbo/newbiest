@@ -40,12 +40,14 @@ public class CsvUtils {
                     } else {
                         Object object = clazz.newInstance();
                         for (int i = 0 ; i < stringCode.length ; i++){
-                            if (i <= headersMapped.size() && headersMapped.containsKey(boxhead[i])){
-                                NBField nbField = fieldMap.get(boxhead[i]);
-                                if(nbField.getRequiredFlag() && StringUtils.isNullOrEmpty(stringCode[i].trim())){
-                                    throw new ClientParameterException(MmsException.MM_IMPORT_FILE_CONTAINS_EMPTY_DATA, boxhead[i]);
-                                } else {
-                                    PropertyUtils.setProperty(object,headersMapped.get(boxhead[i]),stringCode[i].trim() );
+                            if(i < boxhead.length && !StringUtils.isNullOrEmpty(boxhead[i])){
+                                if (headersMapped.containsKey(boxhead[i])){
+                                    NBField nbField = fieldMap.get(boxhead[i]);
+                                    if(nbField.getRequiredFlag() && StringUtils.isNullOrEmpty(stringCode[i].trim())){
+                                        throw new ClientParameterException(MmsException.MM_IMPORT_FILE_CONTAINS_EMPTY_DATA, boxhead[i]);
+                                    } else {
+                                        PropertyUtils.setProperty(object,headersMapped.get(boxhead[i]),stringCode[i].trim() );
+                                    }
                                 }
                             }
                         }

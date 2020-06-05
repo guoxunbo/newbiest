@@ -50,6 +50,17 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String LCD_COG_DETIAL = "GCLcdCogDetial";//LCD(COG成品-明细)
     public static final String FINISH_PRODUCT_IMPORT = "GCFinishProductImport";//成品导入模板
 
+    //产品型号
+    public static final String PRODUCT_CLASSIFY_CP = "CP";
+    public static final String PRODUCT_CLASSIFY_WLA = "WLA";
+    public static final String PRODUCT_CLASSIFY_WLT = "WLT";
+    public static final String PRODUCT_CLASSIFY_SENSOR = "SENSOR";
+    public static final String PRODUCT_CLASSIFY_RMA = "RMA";
+    public static final String PRODUCT_CLASSIFY_COB = "COB";
+    public static final String PRODUCT_CLASSIFY_COG = "COG";
+
+
+
     @Column(name="UNIT_ID")
     private String unitId;
 
@@ -464,7 +475,6 @@ public class MaterialLotUnit extends NBUpdatable {
 
     public void setMaterialLot(MaterialLot materialLot) {
         this.setMaterialName(materialLot.getMaterialName());
-        this.setMaterialLotId(materialLot.getMaterialLotId());
         this.setReserved1(materialLot.getReserved1());
         this.setReserved22(materialLot.getReserved22());
         this.setReserved23(materialLot.getReserved23());
@@ -472,7 +482,6 @@ public class MaterialLotUnit extends NBUpdatable {
         this.setReserved27(materialLot.getReserved27());
         this.setReserved28(materialLot.getReserved28());
         this.setReserved29(materialLot.getReserved29());
-        this.setReserved31(materialLot.getReserved31());
         this.setReserved32(materialLot.getReserved32());
         this.setReserved33(materialLot.getReserved33());
         this.setReserved34(materialLot.getReserved34());
