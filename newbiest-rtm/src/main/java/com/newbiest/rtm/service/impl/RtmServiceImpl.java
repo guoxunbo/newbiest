@@ -44,11 +44,17 @@ public class RtmServiceImpl implements RtmService {
     public void analyseFile(AnalyseContext analyseContext, SessionContext sc) throws ClientException{
         try {
             IAnalyse analyser = analyseContext.match();
+            log.info("Start to analyse");
             List<AnalyseResult> analyseResultList = analyser.analyse(analyseContext);
+            log.info("Analysed. start to delete exist data");
             if (analyser instanceof DynaxAnalyse) {
                 deleteDynaxAnalyseResultByFileName(analyseContext.getFileName());
             }
-            baseService.saveEntity(analyseResultList, sc);
+            log.info("deleted start to save data");
+            analyseResultList.parallelStream().forEach(result -> {
+                baseService.saveEntity(result, sc);
+            });
+            log.info("saved");
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

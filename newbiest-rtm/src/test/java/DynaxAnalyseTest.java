@@ -18,13 +18,17 @@ public class DynaxAnalyseTest {
     public void test() {
         try {
             IAnalyse analyse = new DynaxAnalyse();
-            File file = new File("/Users/apple/Desktop/D1H38140C1_D1923232_25Feb2019_1032_Site0.txt");
+
+
+            String path = this.getClass().getResource("/DWX19G64-37HC_15Dec2019_1448.txt").getPath();
+            System.out.println(path);
+            File file = new File(path);
 
             AnalyseContext context = new AnalyseContext();
             context.setFileName(file.getName());
             context.setInputStream(new FileInputStream(file));
             List<AnalyseResult> analyseResultList = analyse.analyse(context);
-            assert analyseResultList.size() == 64;
+            assert analyseResultList.size() == 148;
             for (AnalyseResult result : analyseResultList) {
                 System.out.println(result);
             }
