@@ -20,6 +20,9 @@ import java.math.BigDecimal;
 @Data
 public class MaterialLotUnit extends NBUpdatable {
 
+    //三星等级
+    public static final String SAMSUING_GRADE = "A";
+
     public static final String STATE_CREATE = "Create";
     public static final String STATE_IN = "In";
     public static final String STATE_ISSUE = "Issue";
@@ -51,13 +54,13 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String FINISH_PRODUCT_IMPORT = "GCFinishProductImport";//成品导入模板
 
     //产品型号
-    public static final String PRODUCT_CLASSIFY_CP = "CP";
-    public static final String PRODUCT_CLASSIFY_WLA = "WLA";
-    public static final String PRODUCT_CLASSIFY_WLT = "WLT";
-    public static final String PRODUCT_CLASSIFY_SENSOR = "SENSOR";
-    public static final String PRODUCT_CLASSIFY_RMA = "RMA";
-    public static final String PRODUCT_CLASSIFY_COB = "COB";
-    public static final String PRODUCT_CLASSIFY_COG = "COG";
+    public static final String PRODUCT_CLASSIFY_CP = "CP0";
+    public static final String PRODUCT_CLASSIFY_WLA = "WLA0";
+    public static final String PRODUCT_CLASSIFY_WLT = "WLT0";
+    public static final String PRODUCT_CLASSIFY_SENSOR = "SENSOR0";
+    public static final String PRODUCT_CLASSIFY_RMA = "RMA0";
+    public static final String PRODUCT_CLASSIFY_COB = "COB0";
+    public static final String PRODUCT_CLASSIFY_COG = "COG0";
 
 
 

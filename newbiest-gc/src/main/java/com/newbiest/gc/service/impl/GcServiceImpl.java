@@ -83,6 +83,7 @@ public class GcServiceImpl implements GcService {
 
     public static final String WAREHOUSE_SH = "SH_STOCK";
     public static final String WAREHOUSE_ZJ = "ZJ_STOCK";
+    public static final String WAREHOUSE_HK = "HK_STOCK";
 
     @Autowired
     MesPackedLotRepository mesPackedLotRepository;
@@ -1838,7 +1839,7 @@ public class GcServiceImpl implements GcService {
                         // ERP_MOA插入数据
                         ErpMoa erpMoa = new ErpMoa();
                         erpMoa.setFQty(mesPackedLot.getQuantity());
-                        erpMoa.setWarehouse(warehouseName);
+                        erpMoa.setWarehouseCode(warehouseName);
                         erpMoa.setMesPackedLot(mesPackedLot);
                         //TODO MES_PACKED_LOT表中暂时没有物料型号、物料数据等相关数据，后续从MM_PACKED_LOT_RELATION表中获取
                         erpMoa.setCMemo("EMPTY");
@@ -1853,7 +1854,7 @@ public class GcServiceImpl implements GcService {
                         // ERP_MOA插入数据
                         ErpMoa erpMoa = new ErpMoa();
                         erpMoa.setFQty(mesPackedLot.getWaferQty());
-                        erpMoa.setWarehouse(warehouseName);
+                        erpMoa.setWarehouseCode(warehouseName);
                         erpMoa.setMesPackedLot(mesPackedLot);
 
                         //TODO MES_PACKED_LOT表中暂时没有物料型号、物料数据等相关数据，后续从MM_PACKED_LOT_RELATION表中获取
@@ -2366,7 +2367,7 @@ public class GcServiceImpl implements GcService {
                         }
                         materialLot.setMaterial(rawMaterial);
                         materialLot.initialMaterialLot();
-                        parentMaterialLot.setStatusModelRrn(statusModel.getObjectRrn());
+                        materialLot.setStatusModelRrn(statusModel.getObjectRrn());
                         materialLot.setParentMaterialLotRrn(parentMaterialLot.getObjectRrn());
                         materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         materialLot.setStatus(MaterialStatus.STATUS_CREATE);
@@ -2446,12 +2447,14 @@ public class GcServiceImpl implements GcService {
                 MaterialLotUnit materialLotUnit = new MaterialLotUnit();
                 materialLotUnit.setMaterialLot(materialLot);
                 materialLotUnit.setLotId(lotId);
+                materialLotUnit.setGrade(MaterialLotUnit.SAMSUING_GRADE);
                 materialLotUnit.setReserved4(materialLot.getReserved6());
                 materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
-                materialLotUnit.setCurrentQty(BigDecimal.ONE);
+                materialLotUnit.setCurrentQty(materialLot.getCurrentQty());
                 materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                 materialLotUnit.setReserved13(materialLot.getReserved13());
                 materialLotUnit.setReserved14(materialLot.getReserved14());
+                materialLotUnit.setReserved47(materialLot.getReserved47());
                 materialLotUnit.setReserved48(materialLot.getReserved48());
                 materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR_CP);
                 materialLotUnit.setReserved50("1");
@@ -3162,4 +3165,109 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 获取物料编码标签打印参数
+     * @param materialLotList
+     * @param printType
+     * @return
+     */
+    public List<Map<String, String>> getMlotCodePrintParameter(List<MaterialLot> materialLotList, String printType) throws ClientException {
+        try {
+            ThreadLocalContext.getSessionContext().buildTransInfo();
+            List<Map<String, String>> parameterMapList = Lists.newArrayList();
+            //获取当前日期，时间格式yyyy-MM-dd
+            SimpleDateFormat formatter = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            Calendar calendar = Calendar.getInstance();
+            String date = formatter.format(new Date());
+
+            if(MLotCodePrint.GENERAL_MLOT_LABEL.equals(printType)){
+                for(MaterialLot materialLot : materialLotList){
+                    Map<String, String> parameterMap = Maps.newHashMap();
+                    Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                    long documentLineRrn = Long.parseLong(materialLot.getReserved16());
+                    DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+                    String productType = StringUtils.EMPTY;
+                    String materialName = materialLot.getMaterialName();
+                    String [] materialNameArray = materialName.split(StringUtils.SPLIT_CODE);
+                    if(materialNameArray.length >= 3){
+                        productType = materialName.substring(0, materialName.indexOf(StringUtils.SPLIT_CODE,materialName.indexOf(StringUtils.SPLIT_CODE)+1 ));
+                    } else {
+                        productType = materialName;
+                    }
+                    parameterMap.put("CUSTOMER", documentLine.getReserved8());
+                    //TODO 物料编码暂时无数据来源  后续补上
+                    parameterMap.put("MLOTCODE", "1111111111111");
+                    if(warehouse.getName().equals(WAREHOUSE_HK)){
+                        parameterMap.put("SUPPLIER", MLotCodePrint.HK_SUPPLIER);
+                    } else {
+                        parameterMap.put("SUPPLIER", MLotCodePrint.SH_SUPPLIER);
+                    }
+                    parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
+                    parameterMap.put("ORDERID", documentLine.getDocId());
+                    parameterMap.put("OUTDATE", date);
+                    parameterMap.put("DELIVERYPLACE", MLotCodePrint.DELIVERY_PLACE);
+                    parameterMap.put("PRODUCTTYPE", productType);
+                    parameterMap.put("MLOTID", materialLot.getMaterialLotId());
+
+                    if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                        parameterMap.put("LABEL", MLotCodePrint.VBOX_LABEL);
+                        parameterMap.put("printCount", "1");
+                    } else {
+                        parameterMap.put("LABEL", MLotCodePrint.BOX_LABEL);
+                        parameterMap.put("printCount", "2");
+                    }
+                    parameterMap.put("portId", MLotCodePrint.GENERAL_MLOT_PORTID);
+                    parameterMapList.add(parameterMap);
+                }
+            } else if (MLotCodePrint.OPHELION_MLOT_LABEL.equals(printType)){
+                for(MaterialLot materialLot : materialLotList){
+                    Map<String, String> parameterMap = Maps.newHashMap();
+                    String startDate = formatter.format(materialLot.getReceiveDate());
+                    calendar.setTime(materialLot.getReceiveDate());
+                    calendar.add(Calendar.YEAR, +1);
+                    String endDate = formatter.format(calendar.getTime());
+                    String [] endDateStrArray = endDate.split(StringUtils.SPLIT_CODE);
+
+                    parameterMap.put("SUPPLIERCODE", MLotCodePrint.SUPPLIER_CODE);
+                    parameterMap.put("ORDERID", materialLot.getReserved17());
+                    parameterMap.put("MATERIALCODE", "1111111111");
+                    parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
+                    parameterMap.put("MLOTID", materialLot.getMaterialLotId());
+                    parameterMap.put("STARTDATE", startDate);
+                    if(endDateStrArray[1].equals("02") && endDateStrArray[2].equals("29")){
+                        endDate = endDateStrArray[0] + StringUtils.SPLIT_CODE + endDateStrArray[1] + StringUtils.SPLIT_CODE + "28";
+                        parameterMap.put("ENDDATE", endDate);
+                    } else {
+                        parameterMap.put("ENDDATE", endDate);
+                    }
+                    parameterMap.put("PRINTDATE", date);
+                    parameterMap.put("QC", MLotCodePrint.QC);
+
+                    formatter = new SimpleDateFormat(MLotCodePrint.DATE_PATTERN);
+                    String effectiveDate = formatter.format(materialLot.getReceiveDate());//有效日期
+                    String expirationDate = formatter.format(calendar.getTime());//失效日期
+                    if(expirationDate.endsWith("0229")){
+                        expirationDate = expirationDate.substring(0,2) + "0228";
+                    }
+                    String code = MLotCodePrint.SUPPLIER_CODE + "|"  + "1111" + "|" + materialLot.getMaterialLotId() + "|"
+                            + materialLot.getCurrentSubQty().toString() + "|"  + effectiveDate + "|" + expirationDate;
+                    parameterMap.put("CODE", code);
+
+                    if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                        parameterMap.put("printCount", "1");
+                    } else {
+                        parameterMap.put("printCount", "2");
+                    }
+                    parameterMap.put("portId", MLotCodePrint.OPHELION_MLOT_PORTID);
+                    parameterMapList.add(parameterMap);
+                }
+            }
+
+            return parameterMapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 }

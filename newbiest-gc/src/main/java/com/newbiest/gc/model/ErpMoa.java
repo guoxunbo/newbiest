@@ -18,6 +18,8 @@ public class ErpMoa implements Serializable {
 
     public static final String C_MAKER_MES = "MES";
 
+
+
     @Column(name="SEQ")
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
@@ -147,4 +149,13 @@ public class ErpMoa implements Serializable {
         this.setCInvCode(mesPackedLot.getProductId());
     }
 
+    public void setWarehouseCode(String warehouseName){
+        if(warehouseName.equals(ErpInStock.WAREHOUSE_ZJ_STOCK)){
+            this.setWarehouse(ErpInStock.ZJ_STOCK);
+        } else if(warehouseName.equals(ErpInStock.WAREHOUSE_SH_STOCK)){
+            this.setWarehouse(ErpInStock.SH_STOCK);
+        } else if(warehouseName.equals(ErpInStock.WAREHOUSE_HK_STOCK)){
+            this.setWarehouse(ErpInStock.HK_STOCK);
+        }
+    }
 }

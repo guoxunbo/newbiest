@@ -119,7 +119,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             }
             //生成导入编码
             String importCode = "";
-            if(!StringUtils.isNullOrEmpty(materialLotUnitList.get(0).getReserved47()) && !StringUtils.isNullOrEmpty(materialLotUnitList.get(0).getReserved48())){
+            if(StringUtils.isNullOrEmpty(materialLotUnitList.get(0).getReserved48())){
                 importCode = generatorMLotUnitImportCode(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
             } else {
                 importCode = materialLotUnitList.get(0).getReserved48();
@@ -192,6 +192,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                         materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                         materialLotUnit.setReserved18("0");
+                        materialLotUnit.setReserved7(StringUtils.EMPTY);//晶圆信息不保存产品型号
                         materialLotUnit.setReserved48(importCode);
                         materialLotUnit.setMaterial(rawMaterial);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);

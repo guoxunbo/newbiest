@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMaterialLotCodePrint_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCMaterialLotCodePrint to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCMaterialLotCodePrintManager
+              description: 物料编码打印
+              tableName: GCMaterialLotCodePrint
+              url: /Wafer/GCMaterialLotCodePrintManager
+              parentRrn: 210
+              seqNo: 25
+              image: icon-warehouse
+              labelZh: 物料编码打印
+              labelEn: MaterialLotCodePrint
