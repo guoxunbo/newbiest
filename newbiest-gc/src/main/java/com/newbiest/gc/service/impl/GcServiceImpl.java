@@ -2306,6 +2306,59 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 格科要求扫描箱号的时候不满足条件的箱号信息显示表单的异常栏位信息，不做异常提示
+     * 验证出货的物料信息是否全部备货、
+     *      如果是包装批次，要验证内部所有的物料批次是否都备货到了相同的DocLine以及备货备注是否一致
+     *      验证扫描的物料批次基础信息是否一致
+     * @param waitValidationLot 待验证的物料批次
+     * @param validatedMLotActions 以验证过的物料批次动作
+     */
+    public boolean validateStockOutMaterialLot(MaterialLot waitValidationLot, List<MaterialLotAction> validatedMLotActions)throws ClientException{
+        try {
+            boolean falg = true;
+            waitValidationLot = mmsService.getMLotByMLotId(waitValidationLot.getMaterialLotId(), true);
+            if (waitValidationLot.getReservedQty().compareTo(waitValidationLot.getCurrentQty()) != 0) {
+                falg = false;
+            }
+            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(waitValidationLot.getObjectRrn());
+            if(CollectionUtils.isNotEmpty(packageDetailLots)){
+                Set reservedInfo = packageDetailLots.stream().map(mLot -> mLot.getReserved16() + StringUtils.SPLIT_CODE + mLot.getReserved18()).collect(Collectors.toSet());
+                if (reservedInfo == null || reservedInfo.size() > 1) {
+                    falg = false;
+                }
+            }
+            if (CollectionUtils.isNotEmpty(validatedMLotActions)) {
+                MaterialLot validatedMLot = mmsService.getMLotByMLotId(validatedMLotActions.get(0).getMaterialLotId(), true);
+                try {
+                    Assert.assertEquals(waitValidationLot.getMaterialName(), validatedMLot.getMaterialName());
+                } catch (AssertionError e) {
+                    falg = false;
+                }
+
+                try {
+                    Assert.assertEquals(waitValidationLot.getReserved1(), validatedMLot.getReserved1());
+                } catch (AssertionError e) {
+                    falg = false;
+                }
+
+                try {
+                    Assert.assertEquals(waitValidationLot.getGrade(), validatedMLot.getGrade());
+                } catch (AssertionError e) {
+                    falg = false;
+                }
+                try {
+                    Assert.assertEquals(waitValidationLot.getReserved6(), validatedMLot.getReserved6());
+                } catch (AssertionError e) {
+                    falg = false;
+                }
+            }
+            return falg;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 保存来料信息
      * @param materialLotList
      * @param importType

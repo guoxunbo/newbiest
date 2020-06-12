@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    boolean validateStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<Map<String, String>> getMlotCodePrintParameter(List<MaterialLot> materialLotList, String printType) throws ClientException;
     void purchaseOutsourceWaferReceive(List<MaterialLotAction> materialLotActions)throws ClientException;
     List<MaterialLotUnit> validateAndSetWaferSource(String importType, String checkFourCodeFlag, List<MaterialLotUnit> materialLotUnitList)throws ClientException;

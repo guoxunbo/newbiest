@@ -41,7 +41,9 @@ public class StockOutController {
         if (StockOutRequest.ACTION_STOCKOUT.equals(actionType)) {
             gcService.stockOut(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
         } else if(StockOutRequest.ACTION_VALIDATION.equals(actionType)){
-            gcService.validationStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
+//            gcService.validationStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
+            boolean falg = gcService.validateStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
+            responseBody.setFalg(falg);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
