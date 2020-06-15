@@ -14,6 +14,8 @@ public class IncomingMaterialDeleteRequest extends Request {
 
     public static final String ACTION_DELETE_COGDETIAL = "DeleteCOGDetial";
 
+    public static final String ACTION_DELETE_COGECRETIVE = "DeleteCOGEcretive";
+
 
     private IncomingMaterialDeleteRequestBody body;
 

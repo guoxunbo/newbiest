@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCogEcretiveMaterialDelete_to_NB_AUTHORITY
+      author: Zhi Cao
+      comment: add GCCogEcretiveMaterialDelete to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCCogEcretiveMaterialDelete
+              description: 来料LOT删除
+              tableName: GCCogEcretiveMaterialDelete
+              url: /Wafer/GCCogEcretiveMaterialDelete
+              parentRrn: 210
+              seqNo: 25
+              image: icon-delivery
+              labelZh: 来料LOT删除
+              labelEn: IncomingMaterialLotDelete

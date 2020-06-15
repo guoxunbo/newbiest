@@ -22,6 +22,7 @@ public interface GcService {
     void purchaseOutsourceWaferReceive(List<MaterialLotAction> materialLotActions)throws ClientException;
     List<MaterialLotUnit> validateAndSetWaferSource(String importType, String checkFourCodeFlag, List<MaterialLotUnit> materialLotUnitList)throws ClientException;
     void deleteCogDetial(List<GCLcdCogDetial> lcdCogDetials, String deleteNote)throws ClientException;
+    void deleteCogEcretive(List<MaterialLot> lcdCogEcretiveList, String deleteNote) throws ClientException;
     Map<String, String> getCOBBoxLabelPrintParamater(MaterialLot materialLot) throws ClientException;
     List<Map<String, String>> getBoxQRCodeLabelPrintParamater(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
     String saveLCDCOGDetialList(List<MaterialLot> materialLots, String importType)throws ClientException;
