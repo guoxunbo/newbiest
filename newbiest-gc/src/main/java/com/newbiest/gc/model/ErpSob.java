@@ -11,24 +11,13 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * GlaxyCore的ERP的单据。
- *              发货单 Type为SO
- *              晶圆接收单 TYPE为TV
+ * 其他发货单据
+ * 发货单 Type为SO
  */
 @Data
 @Entity
-@Table(name="ERP_SO")
-public class ErpSo implements Serializable {
-
-    /**
-     * 发货单
-     */
-    public static final String TYPE_SO = "SO";
-
-    /**
-     * 晶圆接收单
-     */
-    public static final String TYPE_TV = "TV";
+@Table(name="ERP_SOB")
+public class ErpSob implements Serializable {
 
     /**
      * 未同步
@@ -150,15 +139,6 @@ public class ErpSo implements Serializable {
     @Column(name="DELIVERED_NUM")
     private String deliveredNum;
 
-    @Column(name="TYPE")
-    private String type;
-
-    @Column(name="G_CODE")
-    private String gCode;
-
-    @Column(name="G_NAME")
-    private String gName;
-
     @Column(name="CVOUCHTYPE")
     private String cvouchtype;
 
@@ -176,5 +156,32 @@ public class ErpSo implements Serializable {
 
     @Column(name="CWHNAME")
     private String cwhname;
+
+    @Column(name="OTHER2")
+    private String other2;
+
+    @Column(name="OTHER8")
+    private String other8;
+
+    @Column(name="OTHER9")
+    private String other9;
+
+    @Column(name="OTHER10")
+    private String other10;
+
+    @Column(name="OTHER11")
+    private String other11;
+
+    @Column(name="OTHER12")
+    private String other12;
+
+    @Column(name="OTHER13")
+    private String other13;
+
+    @Column(name="OTHER14")
+    private String other14;
+
+    @Column(name="OTHER15")
+    private String other15;
 
 }

@@ -1,6 +1,5 @@
 package com.newbiest.gc.model;
 
-
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -11,22 +10,19 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * GlaxyCore的ERP的单据。
- *              发货单 Type为SO
- *              晶圆接收单 TYPE为TV
+ * 其他线发料单
+ * Type为TV
+ * Created by guozhangLuo on 2020-06-16 15:01
  */
 @Data
 @Entity
-@Table(name="ERP_SO")
-public class ErpSo implements Serializable {
+@Table(name="ERP_MATERIAL_OUTA_ORDER")
+public class ErpMaterialOutaOrder implements Serializable {
+
+    public static final String CATEGORY_WAFER_ISSUEA = "WaferIssueA";
 
     /**
-     * 发货单
-     */
-    public static final String TYPE_SO = "SO";
-
-    /**
-     * 晶圆接收单
+     * 其他线晶圆发料单
      */
     public static final String TYPE_TV = "TV";
 
@@ -84,11 +80,10 @@ public class ErpSo implements Serializable {
     private BigDecimal iquantity;
 
     /**
-     * 未发货数量
+     * 未发数量
      */
     @Column(name="LEFT_NUM")
     private BigDecimal leftNum;
-
 
     /**
      * 二级代码
@@ -101,12 +96,6 @@ public class ErpSo implements Serializable {
      */
     @Column(name="GRADE")
     private String grade;
-
-    /**
-     * 主计量
-     */
-    @Column(name="CFREE3")
-    private String cfree3;
 
     /**
      * 制单人
@@ -127,10 +116,10 @@ public class ErpSo implements Serializable {
     private String other1;
 
     /**
-     * 客户名称
+     * 已发货数量
      */
-    @Column(name="CUSNAME")
-    private String cusname;
+    @Column(name="DELIVERED_NUM")
+    private String deliveredNum;
 
     /**
      * 同步状态
@@ -144,37 +133,6 @@ public class ErpSo implements Serializable {
     @Column(name="ERROR_MEMO")
     private String errorMemo;
 
-    /**
-     * 已发货数量
-     */
-    @Column(name="DELIVERED_NUM")
-    private String deliveredNum;
-
     @Column(name="TYPE")
     private String type;
-
-    @Column(name="G_CODE")
-    private String gCode;
-
-    @Column(name="G_NAME")
-    private String gName;
-
-    @Column(name="CVOUCHTYPE")
-    private String cvouchtype;
-
-    @Column(name="CVOUCHNAME")
-    private String cvouchname;
-
-    @Column(name="CBUSTYPE")
-    private String cbustype;
-
-    @Column(name="CSOURCE")
-    private String csource;
-
-    @Column(name="CWHCODE")
-    private String cwhcode;
-
-    @Column(name="CWHNAME")
-    private String cwhname;
-
 }

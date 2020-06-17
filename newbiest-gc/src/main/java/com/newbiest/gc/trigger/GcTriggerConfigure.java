@@ -32,6 +32,9 @@ public class GcTriggerConfigure implements SchedulingConfigurer {
         scheduledTaskRegistrar.addCronTask(new AsyncErpShipOrderThread(gcService), AsyncErpShipOrderThread.CRON_EXPRESS);
         scheduledTaskRegistrar.addCronTask(new AsyncReTestOrderThread(gcService), AsyncReTestOrderThread.CRON_EXPRESS);
         scheduledTaskRegistrar.addCronTask(new AsyncWaferIssueOrderThread(gcService), AsyncWaferIssueOrderThread.CRON_EXPRESS);
+        scheduledTaskRegistrar.addCronTask(new AsyncOtherIssueOrderThread(gcService), AsyncOtherIssueOrderThread.CRON_EXPRESS);
+        scheduledTaskRegistrar.addCronTask(new AsyncOtherStockOutOrderThread(gcService), AsyncOtherStockOutOrderThread.CRON_EXPRESS);
+        scheduledTaskRegistrar.addCronTask(new AsyncOtherShipOrderThread(gcService), AsyncOtherShipOrderThread.CRON_EXPRESS);
 
         scheduledTaskRegistrar.addCronTask(new AsyncProductThread(gcService), AsyncProductThread.CRON_EXPRESS);
         scheduledTaskRegistrar.addCronTask(new AsyncWaferTypeThread(gcService), AsyncWaferTypeThread.CRON_EXPRESS);

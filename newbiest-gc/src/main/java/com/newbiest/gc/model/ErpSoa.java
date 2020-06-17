@@ -11,24 +11,12 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * GlaxyCore的ERP的单据。
- *              发货单 Type为SO
- *              晶圆接收单 TYPE为TV
+ * 其他线
  */
 @Data
 @Entity
-@Table(name="ERP_SO")
-public class ErpSo implements Serializable {
-
-    /**
-     * 发货单
-     */
-    public static final String TYPE_SO = "SO";
-
-    /**
-     * 晶圆接收单
-     */
-    public static final String TYPE_TV = "TV";
+@Table(name="ERP_SOA")
+public class ErpSoa implements Serializable {
 
     /**
      * 未同步
@@ -62,69 +50,56 @@ public class ErpSo implements Serializable {
     /**
      * ERP单号
      */
-    @Column(name="CCODE")
-    private String ccode;
+    @Column(name="SOCODE")
+    private String socode;
 
     /**
      * 创建日期
      */
-    @Column(name="DDATE")
-    private String ddate;
+    @Column(name="ORDER_DATE")
+    private String orderDate;
 
     /**
      * 产品型号
      */
-    @Column(name="CINVCODE")
-    private String cinvcode;
+    @Column(name="INVCODE")
+    private String invcode;
 
     /**
      * 数量
      */
-    @Column(name="IQUANTITY")
-    private BigDecimal iquantity;
-
-    /**
-     * 未发货数量
-     */
-    @Column(name="LEFT_NUM")
-    private BigDecimal leftNum;
-
+    @Column(name="QUANTITY")
+    private BigDecimal quantity;
 
     /**
      * 二级代码
      */
-    @Column(name="SECONDCODE")
-    private String secondcode;
+    @Column(name="BATCH")
+    private String batch;
 
     /**
      * 等级
      */
-    @Column(name="GRADE")
-    private String grade;
+    @Column(name="FREE2")
+    private String free2;
 
     /**
      * 主计量
      */
-    @Column(name="CFREE3")
-    private String cfree3;
+    @Column(name="FREE3")
+    private String free3;
 
     /**
      * 制单人
      */
-    @Column(name="CMAKER")
-    private String cmaker;
+    @Column(name="SHIP_MAKER")
+    private String shipMaker;
 
     /**
      * 审核人
      */
-    @Column(name="CHANDLER")
-    private String chandler;
-
-    /**
-     * 物流属性
-     */
-    @Column(name="OTHER1")
-    private String other1;
+    @Column(name="SHIP_VERIFIER")
+    private String shipVerifier;
 
     /**
      * 客户名称
@@ -150,31 +125,46 @@ public class ErpSo implements Serializable {
     @Column(name="DELIVERED_NUM")
     private String deliveredNum;
 
-    @Column(name="TYPE")
-    private String type;
+    @Column(name="OTHER16")
+    private String other16;
 
-    @Column(name="G_CODE")
-    private String gCode;
+    @Column(name="OTHER17")
+    private String other17;
 
-    @Column(name="G_NAME")
-    private String gName;
+    @Column(name="CUSABBNAME")
+    private String cusabbName;
 
-    @Column(name="CVOUCHTYPE")
-    private String cvouchtype;
+    @Column(name="MEMO")
+    private String memo;
 
-    @Column(name="CVOUCHNAME")
-    private String cvouchname;
+    @Column(name="ITEMCODE")
+    private String itemcode;
 
-    @Column(name="CBUSTYPE")
-    private String cbustype;
+    @Column(name="SHIPADDRESS")
+    private String shipAddress;
 
-    @Column(name="CSOURCE")
-    private String csource;
+    @Column(name="OTHER3")
+    private String other3;
 
-    @Column(name="CWHCODE")
-    private String cwhcode;
+    @Column(name="OTHER6")
+    private String other6;
 
-    @Column(name="CWHNAME")
-    private String cwhname;
+    @Column(name="OTHER8")
+    private String other8;
+
+    @Column(name="OTHER9")
+    private String other9;
+
+    @Column(name="OTHER10")
+    private String other10;
+
+    @Column(name="OTHER11")
+    private String other11;
+
+    @Column(name="OTHER12")
+    private String other12;
+
+    @Column(name="OTHER13")
+    private String other13;
 
 }

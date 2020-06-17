@@ -119,6 +119,24 @@ public class GcServiceImpl implements GcService {
     ErpMaterialOutOrderRepository erpMaterialOutOrderRepository;
 
     @Autowired
+    ErpMaterialOutAOrderRepository erpMaterialOutAOrderRepository;
+
+    @Autowired
+    OtherIssueOrderRepository otherIssueOrderRepository;
+
+    @Autowired
+    ErpSoaOrderRepository erpSoaOrderRepository;
+
+    @Autowired
+    OtherStockOutOrderRepository otherStockOutOrderRepository;
+
+    @Autowired
+    ErpSobOrderRepository erpSobOrderRepository;
+
+    @Autowired
+    OtherShipOrderRepository otherShipOrderRepository;
+
+    @Autowired
     DeliveryOrderRepository deliveryOrderRepository;
 
     @Autowired
@@ -619,17 +637,15 @@ public class GcServiceImpl implements GcService {
                     // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
                     if (waferIssueOrder.getObjectRrn() != null) {
                         List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(waferIssueOrder.getObjectRrn());
-                        if (CollectionUtils.isNotEmpty(existDocumentLines)) {
-                            Map<Long, DocumentLine> documentLinesMap = documentLines.stream().collect(Collectors.toConcurrentMap(DocumentLine :: getObjectRrn, Function.identity()));
-                            for (DocumentLine documentLine : existDocumentLines) {
-                                if (!documentLinesMap.containsKey(documentLine.getObjectRrn())) {
-                                    documentLines.add(documentLine);
-                                }
-                            }
-                        }
+                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
                     }
                     waferIssueOrder.setDocumentLines(documentLines);
                     waferIssueOrderRepository.save(waferIssueOrder);
+
+                    // 保存单据的时候同步下客户
+                    if (!StringUtils.isNullOrEmpty(waferIssueOrder.getSupplierName())) {
+                        savaCustomer(waferIssueOrder.getSupplierName());
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
@@ -717,17 +733,15 @@ public class GcServiceImpl implements GcService {
                     // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
                     if (reTestOrder.getObjectRrn() != null) {
                         List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(reTestOrder.getObjectRrn());
-                        if (CollectionUtils.isNotEmpty(existDocumentLines)) {
-                            Map<Long, DocumentLine> documentLinesMap = documentLines.stream().collect(Collectors.toConcurrentMap(DocumentLine :: getObjectRrn, Function.identity()));
-                            for (DocumentLine documentLine : existDocumentLines) {
-                                if (!documentLinesMap.containsKey(documentLine.getObjectRrn())) {
-                                    documentLines.add(documentLine);
-                                }
-                            }
-                        }
+                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
                     }
                     reTestOrder.setDocumentLines(documentLines);
                     reTestOrderRepository.save(reTestOrder);
+
+                    // 保存单据的时候同步下客户
+                    if (!StringUtils.isNullOrEmpty(reTestOrder.getSupplierName())) {
+                        savaCustomer(reTestOrder.getSupplierName());
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
@@ -1473,6 +1487,15 @@ public class GcServiceImpl implements GcService {
 
                                 documentLine.setReserved8(erpSo.getCusname());
                                 documentLine.setReserved9(Document.CATEGORY_RECEIVE);
+
+                                documentLine.setReserved10(erpSo.getGCode());
+                                documentLine.setReserved11(erpSo.getGName());
+                                documentLine.setDocType(erpSo.getCvouchtype());
+                                documentLine.setDocName(erpSo.getCvouchname());
+                                documentLine.setDocBusType(erpSo.getCbustype());
+                                documentLine.setDocSource(erpSo.getCsource());
+                                documentLine.setWarehouseCode(erpSo.getCwhcode());
+                                documentLine.setWarehouseName(erpSo.getCwhname());
                             }
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(erpSo.getLeftNum());
@@ -1504,17 +1527,15 @@ public class GcServiceImpl implements GcService {
                     // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
                     if (receiveOrder.getObjectRrn() != null) {
                         List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(receiveOrder.getObjectRrn());
-                        if (CollectionUtils.isNotEmpty(existDocumentLines)) {
-                            Map<Long, DocumentLine> documentLinesMap = documentLines.stream().collect(Collectors.toConcurrentMap(DocumentLine :: getObjectRrn, Function.identity()));
-                            for (DocumentLine documentLine : existDocumentLines) {
-                                if (!documentLinesMap.containsKey(documentLine.getObjectRrn())) {
-                                    documentLines.add(documentLine);
-                                }
-                            }
-                        }
+                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
                     }
                     receiveOrder.setDocumentLines(documentLines);
                     receiveOrderRepository.save(receiveOrder);
+
+                    // 保存单据的时候同步下客户
+                    if (!StringUtils.isNullOrEmpty(receiveOrder.getSupplierName())) {
+                        savaCustomer(receiveOrder.getSupplierName());
+                    }
                 }
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
@@ -1589,6 +1610,15 @@ public class GcServiceImpl implements GcService {
 
                                 documentLine.setReserved8(erpSo.getCusname());
                                 documentLine.setReserved9(DeliveryOrder.CATEGORY_DELIVERY);
+
+                                documentLine.setReserved10(erpSo.getGCode());
+                                documentLine.setReserved11(erpSo.getGName());
+                                documentLine.setDocType(erpSo.getCvouchtype());
+                                documentLine.setDocName(erpSo.getCvouchname());
+                                documentLine.setDocBusType(erpSo.getCbustype());
+                                documentLine.setDocSource(erpSo.getCsource());
+                                documentLine.setWarehouseCode(erpSo.getCwhcode());
+                                documentLine.setWarehouseName(erpSo.getCwhname());
                             }
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(erpSo.getLeftNum());
@@ -1621,27 +1651,14 @@ public class GcServiceImpl implements GcService {
                     // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
                     if (deliveryOrder.getObjectRrn() != null) {
                         List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(deliveryOrder.getObjectRrn());
-                        if (CollectionUtils.isNotEmpty(existDocumentLines)) {
-                            Map<Long, DocumentLine> documentLinesMap = documentLines.stream().collect(Collectors.toConcurrentMap(DocumentLine :: getObjectRrn, Function.identity()));
-                            for (DocumentLine documentLine : existDocumentLines) {
-                                if (!documentLinesMap.containsKey(documentLine.getObjectRrn())) {
-                                    documentLines.add(documentLine);
-                                }
-                            }
-                        }
+                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
                     }
                     deliveryOrder.setDocumentLines(documentLines);
                     deliveryOrderRepository.save(deliveryOrder);
 
                     // 保存单据的时候同步下客户
                     if (!StringUtils.isNullOrEmpty(deliveryOrder.getSupplierName())) {
-                        Customer customer = customerRepository.getByName(deliveryOrder.getSupplierName());
-                        if (customer == null) {
-                            customer = new Customer();
-                            customer.setName(deliveryOrder.getSupplierName());
-                            customer.setDescription(deliveryOrder.getSupplierName());
-                            customerRepository.save(customer);
-                        }
+                        savaCustomer(deliveryOrder.getSupplierName());
                     }
                 }
 
@@ -2890,10 +2907,10 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     if( CollectionUtils.isNotEmpty(fullPackageMLotList)){
-                        parameterMapList = getQRCodeLabelPrintParmByVboxStandardQty(parameterMapList ,fullPackageMLotList, date);
+                        parameterMapList = getQRCodeLabelPrintParmByVboxStandardQty(parameterMapList ,fullPackageMLotList, date, "VZ");
                     }
                     if( CollectionUtils.isNotEmpty(zeroPackageMLotList)){
-                        parameterMapList = getQRCodeLabelPrintParmByVboxStandardQty(parameterMapList ,zeroPackageMLotList, date);
+                        parameterMapList = getQRCodeLabelPrintParmByVboxStandardQty(parameterMapList ,zeroPackageMLotList, date, "VL");
                     }
                 } else {
                     Map<String, String> parameterMap = Maps.newHashMap();
@@ -2923,7 +2940,7 @@ public class GcServiceImpl implements GcService {
      * @param materialLotList
      * @return
      */
-    private List<Map<String, String>> getQRCodeLabelPrintParmByVboxStandardQty(List<Map<String, String>> parameterMapList, List<MaterialLot> materialLotList, String date)throws ClientException{
+    private List<Map<String, String>> getQRCodeLabelPrintParmByVboxStandardQty(List<Map<String, String>> parameterMapList, List<MaterialLot> materialLotList, String date, String boxStart)throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             String dateAndNumber = StringUtils.EMPTY;
@@ -2942,7 +2959,7 @@ public class GcServiceImpl implements GcService {
                 }
                 flow = printSeq + StringUtils.UNDERLINE_CODE + printSeq;
                 dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(fullMlot.getCurrentQty().toString() , 6 , "0");
-                boxSeq = "VL" + fullMlot.getMaterialLotId().substring(fullMlot.getMaterialLotId().length() - 3);
+                boxSeq = boxStart + fullMlot.getMaterialLotId().substring(fullMlot.getMaterialLotId().length() - 3);
                 twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + "weizhi" + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
                 parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
                 parameterMap.put("MATERIALCODE", "weizhi" + StringUtils.UNDERLINE_CODE);
@@ -3337,6 +3354,386 @@ public class GcServiceImpl implements GcService {
             }
 
             return parameterMapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
+    /**
+     * 同步其他发料单
+     * @throws ClientException
+     */
+    public void asyncOtherIssueOrder() throws ClientException {
+        try {
+            List<ErpMaterialOutaOrder> otherIssueOrders = erpMaterialOutAOrderRepository.findByTypeAndSynStatusNotIn(ErpMaterialOutaOrder.TYPE_TV, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<Long> asyncSuccessSeqList = Lists.newArrayList();
+
+            if (CollectionUtils.isNotEmpty(otherIssueOrders)) {
+                Map<String, List<ErpMaterialOutaOrder>> documentIdMap = otherIssueOrders.stream().collect(Collectors.groupingBy(ErpMaterialOutaOrder :: getCcode));
+                for (String documentId : documentIdMap.keySet()) {
+                    List<OtherIssueOrder> otherIssueOrderList = otherIssueOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    OtherIssueOrder otherIssueOrder;
+                    if (CollectionUtils.isEmpty(otherIssueOrderList)) {
+                        otherIssueOrder = new OtherIssueOrder();
+                        otherIssueOrder.setStatus(Document.STATUS_OPEN);
+                    } else {
+                        otherIssueOrder = otherIssueOrderList.get(0);
+                    }
+                    otherIssueOrder.setName(documentId);
+                    BigDecimal totalQty = BigDecimal.ZERO;
+
+                    List<DocumentLine> documentLines = Lists.newArrayList();
+                    for  (ErpMaterialOutaOrder erpMaterialOutaOrder : documentIdMap.get(documentId)) {
+                        try {
+                            DocumentLine documentLine = null;
+                            if (otherIssueOrder.getObjectRrn() != null) {
+                                documentLine = documentLineRepository.findByDocRrnAndReserved1(otherIssueOrder.getObjectRrn(), String.valueOf(erpMaterialOutaOrder.getSeq()));
+                                if (documentLine != null) {
+                                    if (ErpMaterialOutaOrder.SYNC_STATUS_CHANGED.equals(erpMaterialOutaOrder.getSynStatus())) {
+                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutaOrder.getIquantity()) > 0) {
+                                            throw new ClientException("gc.order_handled_qty_gt_qty");
+                                        }
+                                    }
+                                }
+                            }
+                            // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
+                            if (documentLine == null) {
+                                documentLine = new DocumentLine();
+                                Material material = mmsService.getRawMaterialByName(erpMaterialOutaOrder.getCinvcode());
+                                if (material == null) {
+                                    throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpMaterialOutaOrder.getCinvcode());
+                                }
+                                documentLine.setDocId(documentId);
+                                documentLine.setErpCreated(DateUtils.parseDate(erpMaterialOutaOrder.getDdate()));
+                                documentLine.setMaterialRrn(material.getObjectRrn());
+                                documentLine.setMaterialName(material.getName());
+                                documentLine.setReserved1(String.valueOf(erpMaterialOutaOrder.getSeq()));
+                                documentLine.setReserved2(erpMaterialOutaOrder.getSecondcode());
+                                documentLine.setReserved3(erpMaterialOutaOrder.getGrade());
+                                documentLine.setReserved5(erpMaterialOutaOrder.getCmaker());
+                                documentLine.setReserved6(erpMaterialOutaOrder.getChandler());
+                                documentLine.setReserved7(erpMaterialOutaOrder.getOther1());
+                                documentLine.setReserved9(ErpMaterialOutaOrder.CATEGORY_WAFER_ISSUEA);
+                            }
+                            documentLine.setQty(erpMaterialOutaOrder.getIquantity());
+                            documentLine.setUnHandledQty(erpMaterialOutaOrder.getLeftNum());
+                            totalQty = totalQty.add(erpMaterialOutaOrder.getIquantity());
+                            documentLine = documentLineRepository.saveAndFlush(documentLine);
+                            documentLines.add(documentLine);
+
+                            otherIssueOrder.setOwner(erpMaterialOutaOrder.getChandler());
+                            asyncSuccessSeqList.add(erpMaterialOutaOrder.getSeq());
+                        } catch (Exception e) {
+                            // 修改状态为2
+                            erpMaterialOutaOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                            erpMaterialOutaOrder.setErrorMemo(e.getMessage());
+                            erpMaterialOutAOrderRepository.save(erpMaterialOutaOrder);
+                        }
+                    }
+                    otherIssueOrder.setQty(totalQty);
+                    otherIssueOrder.setUnHandledQty(otherIssueOrder.getQty().subtract(otherIssueOrder.getHandledQty()));
+                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
+                    if (otherIssueOrder.getObjectRrn() != null) {
+                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(otherIssueOrder.getObjectRrn());
+                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
+                    }
+                    otherIssueOrder.setDocumentLines(documentLines);
+                    otherIssueOrderRepository.save(otherIssueOrder);
+                }
+                if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
+                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private void getExistDocumentLineDocRrn(List<DocumentLine> existDocumentLines, List<DocumentLine> documentLines) throws ClientException{
+        try {
+            if (CollectionUtils.isNotEmpty(existDocumentLines)) {
+                Map<Long, DocumentLine> documentLinesMap = documentLines.stream().collect(Collectors.toConcurrentMap(DocumentLine :: getObjectRrn, Function.identity()));
+                for (DocumentLine documentLine : existDocumentLines) {
+                    if (!documentLinesMap.containsKey(documentLine.getObjectRrn())) {
+                        documentLines.add(documentLine);
+                    }
+                }
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 同步其他出货单
+     * @throws ClientException
+     */
+    public void asyncOtherStockOutOrder() throws ClientException {
+        try {
+            List<ErpSoa> erpSos = erpSoaOrderRepository.findErpSoaBySynStatusNotIn(Lists.newArrayList(ErpSoa.SYNC_STATUS_OPERATION, ErpSoa.SYNC_STATUS_SYNC_SUCCESS));
+            List<Long> asyncSuccessSeqList = Lists.newArrayList();
+
+            if (CollectionUtils.isNotEmpty(erpSos)) {
+                Map<String, List<ErpSoa>> documentIdMap = erpSos.stream().collect(Collectors.groupingBy(ErpSoa :: getSocode));
+
+                for (String documentId : documentIdMap.keySet()) {
+                    List<OtherStockOutOrder> otherStockOutOrderList = otherStockOutOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    OtherStockOutOrder otherStockOutOrder;
+                    if (CollectionUtils.isEmpty(otherStockOutOrderList)) {
+                        otherStockOutOrder = new OtherStockOutOrder();
+                        otherStockOutOrder.setName(documentId);
+                        otherStockOutOrder.setStatus(Document.STATUS_OPEN);
+                    } else {
+                        otherStockOutOrder = otherStockOutOrderList.get(0);
+                    }
+                    BigDecimal totalQty = BigDecimal.ZERO;
+
+                    List<DocumentLine> documentLines = Lists.newArrayList();
+                    for  (ErpSoa erpSoa : documentIdMap.get(documentId)) {
+                        try {
+                            DocumentLine documentLine = null;
+                            if (otherStockOutOrder.getObjectRrn() != null) {
+                                documentLine = documentLineRepository.findByDocRrnAndReserved1(otherStockOutOrder.getObjectRrn(), String.valueOf(erpSoa.getSeq()));
+                                if (documentLine != null) {
+                                    if (ErpSoa.SYNC_STATUS_CHANGED.equals(erpSoa.getSynStatus())) {
+                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpSoa.getQuantity()) > 0) {
+                                            throw new ClientException("gc.order_handled_qty_gt_qty");
+                                        }
+                                    }
+                                }
+                            }
+
+                            Date erpCreatedDate = DateUtils.parseDate(erpSoa.getOrderDate());
+                            // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
+                            if (documentLine == null) {
+                                documentLine = new DocumentLine();
+                                Material material = mmsService.getRawMaterialByName(erpSoa.getInvcode());
+                                if (material == null) {
+                                    throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSoa.getInvcode());
+                                }
+                                documentLine.setDocRrn(otherStockOutOrder.getObjectRrn());
+                                documentLine.setDocId(documentId);
+                                documentLine.setErpCreated(erpCreatedDate);
+                                documentLine.setMaterialRrn(material.getObjectRrn());
+                                documentLine.setMaterialName(material.getName());
+
+                                documentLine.setReserved1(String.valueOf(erpSoa.getSeq()));
+                                documentLine.setReserved2(erpSoa.getBatch());
+                                documentLine.setReserved3(erpSoa.getFree2());
+                                documentLine.setReserved4(erpSoa.getFree3());
+                                documentLine.setReserved5(erpSoa.getShipMaker());
+                                documentLine.setReserved6(erpSoa.getShipVerifier());
+
+                                documentLine.setReserved8(erpSoa.getCusname());
+                                documentLine.setReserved9(OtherStockOutOrder.CATEGORY_DELIVERYA);
+
+                                documentLine.setReserved10(erpSoa.getOther16());
+                                documentLine.setReserved11(erpSoa.getOther17());
+                                documentLine.setReserved12(erpSoa.getCusabbName());
+                                documentLine.setReserved13(erpSoa.getMemo());
+                                documentLine.setReserved14(erpSoa.getItemcode());
+                                documentLine.setReserved15(erpSoa.getShipAddress());
+                                documentLine.setReserved17(erpSoa.getOther3());
+                                documentLine.setReserved18(erpSoa.getOther6());
+                                documentLine.setReserved19(erpSoa.getOther8());
+                                documentLine.setReserved20(erpSoa.getOther9());
+                                documentLine.setReserved21(erpSoa.getOther10());
+                                documentLine.setReserved22(erpSoa.getOther11());
+                                documentLine.setReserved23(erpSoa.getOther12());
+                                documentLine.setReserved24(erpSoa.getOther13());
+                            }
+                            documentLine.setQty(erpSoa.getQuantity());
+                            documentLine.setUnHandledQty(erpSoa.getQuantity());
+                            documentLine.setUnReservedQty(erpSoa.getQuantity());
+                            totalQty = totalQty.add(erpSoa.getQuantity());
+                            documentLine = documentLineRepository.saveAndFlush(documentLine);
+                            documentLines.add(documentLine);
+
+                            // 同一个单据下，所有的客户都是一样的。
+                            otherStockOutOrder.setSupplierName(erpSoa.getCusname());
+                            otherStockOutOrder.setOwner(erpSoa.getShipVerifier());
+                            if (otherStockOutOrder.getErpCreated() == null) {
+                                otherStockOutOrder.setErpCreated(erpCreatedDate);
+                            } else {
+                                if (otherStockOutOrder.getErpCreated().after(erpCreatedDate)) {
+                                    otherStockOutOrder.setErpCreated(erpCreatedDate);
+                                }
+                            }
+                            asyncSuccessSeqList.add(erpSoa.getSeq());
+                        } catch (Exception e) {
+                            // 修改状态为2
+                            erpSoa.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                            erpSoa.setErrorMemo(e.getMessage());
+                            erpSoaOrderRepository.save(erpSoa);
+                        }
+                    }
+                    otherStockOutOrder.setQty(totalQty);
+                    otherStockOutOrder.setUnHandledQty(otherStockOutOrder.getQty().subtract(otherStockOutOrder.getHandledQty()));
+                    otherStockOutOrder.setUnReservedQty(totalQty);
+                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
+                    if (otherStockOutOrder.getObjectRrn() != null) {
+                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(otherStockOutOrder.getObjectRrn());
+                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
+                    }
+                    otherStockOutOrder.setDocumentLines(documentLines);
+                    otherStockOutOrderRepository.save(otherStockOutOrder);
+
+                    // 保存单据的时候同步下客户
+                    if (!StringUtils.isNullOrEmpty(otherStockOutOrder.getSupplierName())) {
+                        savaCustomer(otherStockOutOrder.getSupplierName());
+                    }
+                }
+
+                if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
+                    erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSoa.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private void savaCustomer(String cuetomerName) throws ClientException{
+        try {
+            Customer customer = customerRepository.getByName(cuetomerName);
+            if (customer == null) {
+                customer = new Customer();
+                customer.setName(cuetomerName);
+                customer.setDescription(cuetomerName);
+                customerRepository.save(customer);
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 同步其他发货单
+     * @throws ClientException
+     */
+    public void asyncOtherShipOrder() throws ClientException {
+        try {
+            List<ErpSob> erpSobs = erpSobOrderRepository.findErpSobBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<Long> asyncSuccessSeqList = Lists.newArrayList();
+
+            if (CollectionUtils.isNotEmpty(erpSobs)) {
+                Map<String, List<ErpSob>> documentIdMap = erpSobs.stream().collect(Collectors.groupingBy(ErpSob :: getCcode));
+
+                for (String documentId : documentIdMap.keySet()) {
+                    List<OtherShipOrder> otherShipOrderList = otherShipOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    OtherShipOrder otherShipOrder;
+                    if (CollectionUtils.isEmpty(otherShipOrderList)) {
+                        otherShipOrder = new OtherShipOrder();
+                        otherShipOrder.setName(documentId);
+                        otherShipOrder.setStatus(Document.STATUS_OPEN);
+                    } else {
+                        otherShipOrder = otherShipOrderList.get(0);
+                    }
+                    BigDecimal totalQty = BigDecimal.ZERO;
+
+                    List<DocumentLine> documentLines = Lists.newArrayList();
+                    for  (ErpSob erpSob : documentIdMap.get(documentId)) {
+                        try {
+                            DocumentLine documentLine = null;
+                            if (otherShipOrder.getObjectRrn() != null) {
+                                documentLine = documentLineRepository.findByDocRrnAndReserved1(otherShipOrder.getObjectRrn(), String.valueOf(erpSob.getSeq()));
+                                if (documentLine != null) {
+                                    if (ErpSo.SYNC_STATUS_CHANGED.equals(erpSob.getSynStatus())) {
+                                        if (documentLine != null && documentLine.getHandledQty().compareTo(erpSob.getIquantity()) > 0) {
+                                            throw new ClientException("gc.order_handled_qty_gt_qty");
+                                        }
+                                    }
+                                }
+                            }
+
+                            Date erpCreatedDate = DateUtils.parseDate(erpSob.getDdate());
+                            // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
+                            if (documentLine == null) {
+                                documentLine = new DocumentLine();
+                                Material material = mmsService.getRawMaterialByName(erpSob.getCinvcode());
+                                if (material == null) {
+                                    throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSob.getCinvcode());
+                                }
+                                documentLine.setDocRrn(otherShipOrder.getObjectRrn());
+                                documentLine.setDocId(documentId);
+                                documentLine.setErpCreated(erpCreatedDate);
+                                documentLine.setMaterialRrn(material.getObjectRrn());
+                                documentLine.setMaterialName(material.getName());
+
+                                documentLine.setReserved1(String.valueOf(erpSob.getSeq()));
+                                documentLine.setReserved2(erpSob.getSecondcode());
+                                documentLine.setReserved3(erpSob.getGrade());
+                                documentLine.setReserved4(erpSob.getCfree3());
+                                documentLine.setReserved5(erpSob.getCmaker());
+                                documentLine.setReserved6(erpSob.getChandler());
+                                documentLine.setReserved7(erpSob.getOther1());
+
+                                documentLine.setReserved8(erpSob.getCusname());
+                                documentLine.setReserved9(OtherShipOrder.CATEGORY_DELIVERYB);
+                                documentLine.setReserved16(erpSob.getOther2());
+                                documentLine.setReserved19(erpSob.getOther8());
+                                documentLine.setReserved20(erpSob.getOther9());
+                                documentLine.setReserved21(erpSob.getOther10());
+                                documentLine.setReserved22(erpSob.getOther11());
+                                documentLine.setReserved23(erpSob.getOther12());
+                                documentLine.setReserved24(erpSob.getOther13());
+                                documentLine.setReserved25(erpSob.getOther14());
+                                documentLine.setReserved26(erpSob.getOther15());
+
+                                documentLine.setDocType(erpSob.getCvouchtype());
+                                documentLine.setDocName(erpSob.getCvouchname());
+                                documentLine.setDocBusType(erpSob.getCbustype());
+                                documentLine.setDocSource(erpSob.getCsource());
+                                documentLine.setWarehouseCode(erpSob.getCwhcode());
+                                documentLine.setWarehouseName(erpSob.getCwhname());
+                            }
+                            documentLine.setQty(erpSob.getIquantity());
+                            documentLine.setUnHandledQty(erpSob.getLeftNum());
+                            documentLine.setUnReservedQty(erpSob.getIquantity());
+                            totalQty = totalQty.add(erpSob.getIquantity());
+                            documentLine = documentLineRepository.saveAndFlush(documentLine);
+                            documentLines.add(documentLine);
+
+                            // 同一个单据下，所有的客户都是一样的。
+                            otherShipOrder.setSupplierName(erpSob.getCusname());
+                            otherShipOrder.setOwner(erpSob.getChandler());
+                            if (otherShipOrder.getErpCreated() == null) {
+                                otherShipOrder.setErpCreated(erpCreatedDate);
+                            } else {
+                                if (otherShipOrder.getErpCreated().after(erpCreatedDate)) {
+                                    otherShipOrder.setErpCreated(erpCreatedDate);
+                                }
+                            }
+                            asyncSuccessSeqList.add(erpSob.getSeq());
+                        } catch (Exception e) {
+                            // 修改状态为2
+                            erpSob.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                            erpSob.setErrorMemo(e.getMessage());
+                            erpSobOrderRepository.save(erpSob);
+                        }
+                    }
+                    otherShipOrder.setQty(totalQty);
+                    otherShipOrder.setUnHandledQty(otherShipOrder.getQty().subtract(otherShipOrder.getHandledQty()));
+                    otherShipOrder.setUnReservedQty(totalQty);
+                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
+                    if (otherShipOrder.getObjectRrn() != null) {
+                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(otherShipOrder.getObjectRrn());
+                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
+                    }
+                    otherShipOrder.setDocumentLines(documentLines);
+                    otherShipOrderRepository.save(otherShipOrder);
+
+                    // 保存单据的时候同步下客户
+                    if (!StringUtils.isNullOrEmpty(otherShipOrder.getSupplierName())) {
+                        savaCustomer(otherShipOrder.getSupplierName());
+                    }
+                }
+
+                if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
+                    erpSobOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                }
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

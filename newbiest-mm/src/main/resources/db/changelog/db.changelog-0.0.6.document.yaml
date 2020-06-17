@@ -1,0 +1,113 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_0.0.6
+      author: Guozhang Luo
+      remarks: mms_document add column
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT
+            columns:
+              - column:
+                  name: DOC_TYPE
+                  type: varchar2(64)
+                  remarks: 单据类型
+              - column:
+                  name: DOC_NAME
+                  type: varchar2(64)
+                  remarks: 单据名称
+              - column:
+                  name: DOC_BUS_TYPE
+                  type: varchar2(64)
+                  remarks: 单据业务类型
+              - column:
+                  name: DOC_SOURCE
+                  type: varchar2(64)
+                  remarks: 单据源
+              - column:
+                  name: WAREHOUSE_CODE
+                  type: varchar2(64)
+                  remarks: 转入/转出仓库编码
+              - column:
+                  name: WAREHOUSE_NAME
+                  type: varchar2(64)
+                  remarks: 仓库名称
+              - column:
+                  name: RESERVED11
+                  type: varchar2(64)
+                  remarks: 关联 ERP G_NAME
+              - column:
+                  name: RESERVED12
+                  type: varchar2(64)
+                  remarks: 关联 ERP CUSABBNAME
+              - column:
+                  name: RESERVED13
+                  type: varchar2(64)
+                  remarks: 关联 ERP MEMO
+              - column:
+                  name: RESERVED14
+                  type: varchar2(64)
+                  remarks: 关联 ERP ITEMCODE
+              - column:
+                  name: RESERVED15
+                  type: varchar2(64)
+                  remarks: 关联 ERP SHIPADDRESS
+              - column:
+                  name: RESERVED16
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER2
+              - column:
+                  name: RESERVED17
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER3
+              - column:
+                  name: RESERVED18
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER6
+              - column:
+                  name: RESERVED19
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER8
+              - column:
+                  name: RESERVED20
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER9
+              - column:
+                  name: RESERVED21
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER10
+              - column:
+                  name: RESERVED22
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER11
+              - column:
+                  name: RESERVED23
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER12
+              - column:
+                  name: RESERVED24
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER13
+              - column:
+                  name: RESERVED25
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER14
+              - column:
+                  name: RESERVED26
+                  type: varchar2(64)
+                  remarks: 关联 ERP OTHER15
+              - column:
+                  name: RESERVED27
+                  type: varchar2(64)
+                  remarks: 预留字段27
+              - column:
+                  name: RESERVED28
+                  type: varchar2(64)
+                  remarks: 预留字段28
+              - column:
+                  name: RESERVED29
+                  type: varchar2(64)
+                  remarks: 预留字段29
+              - column:
+                  name: RESERVED30
+                  type: varchar2(64)
+                  remarks: 预留字段30

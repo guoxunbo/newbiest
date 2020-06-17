@@ -75,6 +75,10 @@ public interface GcService {
     void asyncReceiveOrder() throws ClientException;
     void asyncShipOrder() throws ClientException;
 
+    void asyncOtherIssueOrder() throws ClientException;
+    void asyncOtherStockOutOrder() throws ClientException;
+    void asyncOtherShipOrder() throws ClientException;
+
     void asyncReTestOrder() throws ClientException;
     void asyncWaferIssueOrder() throws ClientException;
 
