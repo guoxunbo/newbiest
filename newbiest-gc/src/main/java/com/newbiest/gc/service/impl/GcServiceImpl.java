@@ -3669,7 +3669,6 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved6(erpSob.getChandler());
                                 documentLine.setReserved7(erpSob.getOther1());
 
-                                documentLine.setReserved8(erpSob.getCusname());
                                 documentLine.setReserved9(OtherShipOrder.CATEGORY_DELIVERYB);
                                 documentLine.setReserved16(erpSob.getOther2());
                                 documentLine.setReserved19(erpSob.getOther8());
