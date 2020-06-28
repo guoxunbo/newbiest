@@ -118,8 +118,8 @@ public class ErpSob implements Serializable {
     /**
      * 客户名称
      */
-    @Column(name="CUSNAME")
-    private String cusname;
+    //@Column(name="CUSNAME")
+    //private String cusname;
 
     /**
      * 同步状态

@@ -20,6 +20,8 @@ public abstract class GcTriggerThread implements Runnable{
 
     protected GcService gcService;
 
+    private static final Long ORG_RRN = 1L;
+
     @Override
     public void run() {
         generatorSessionContext();
@@ -30,7 +32,7 @@ public abstract class GcTriggerThread implements Runnable{
 
     public void generatorSessionContext() {
         SessionContext sc = new SessionContext();
-        sc.setOrgRrn(NBOrg.GLOBAL_ORG_RRN);
+        sc.setOrgRrn(this.ORG_RRN);
         sc.setUsername(StringUtils.SYSTEM_USER);
         sc.setTransRrn(UUID.randomUUID().toString());
         sc.setTransTime(new Date());
