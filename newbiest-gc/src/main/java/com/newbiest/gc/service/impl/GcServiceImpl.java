@@ -242,7 +242,16 @@ public class GcServiceImpl implements GcService {
                     for (MaterialLot materialLot : materialLots) {
                         try {
                             validationDocLine(documentLine, materialLot);
-                            waitForReservedMaterialLots.add(materialLot);
+                            if(nbTable.getName().equals("MMReservedCase")){
+                                List<String> packedLotIdList = new ArrayList<String>();
+                                packedLotIdList.add(materialLot.getMaterialLotId());
+                                List<MaterialLot> packedMaterialLots = getPackedDetailsAndNotReserved(packedLotIdList);
+                                if(CollectionUtils.isNotEmpty(packedMaterialLots)){
+                                    waitForReservedMaterialLots.add(materialLot);
+                                }
+                            }else{
+                                waitForReservedMaterialLots.add(materialLot);
+                            }
                         } catch (Exception e) {
                             // 验证不过 Do nothing。
                         }
