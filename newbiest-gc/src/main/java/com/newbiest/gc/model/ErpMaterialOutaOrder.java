@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @Table(name="ERP_MATERIAL_OUTA_ORDER")
 public class ErpMaterialOutaOrder implements Serializable {
 
-    public static final String CATEGORY_WAFER_ISSUEA = "WaferIssue";
+    public static final String CATEGORY_WAFER_ISSUEA = "WaferIssueA";
 
     /**
      * 其他线晶圆发料单
