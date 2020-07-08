@@ -98,7 +98,7 @@ public class CsvUtils {
      * @param inputStream
      * @param headersMapped
      */
-    public static void validateImportFile( Map<String, String> headersMapped, InputStream inputStream) throws ClientException {
+    public static void validateImportFile( Map<String, String> headersMapped, InputStream inputStream, NBTable nbTable) throws ClientException {
         try(CSVReader csvReader = new CSVReader(new BufferedReader(new InputStreamReader(inputStream,"GBK")))){
             List<String[]> csvReaderCode = csvReader.readAll();
             List<String> fieldNameList = Arrays.asList(csvReaderCode.get(0));
@@ -107,9 +107,18 @@ public class CsvUtils {
                 nbFieldNameList.add(headerName);
             }
             nbFieldNameList.removeAll(fieldNameList);
-            if(nbFieldNameList != null && nbFieldNameList.size() > 0){
-                throw new ClientParameterException(MmsException.MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME);
+            if(nbFieldNameList != null){
+                for(String headerName : nbFieldNameList){
+                    for(NBField nbField :nbTable.getFields() ){
+                        if(nbField.getLabelZh().equals(headerName) && nbField.getRequiredFlag()){
+                            throw new ClientParameterException(MmsException.MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME);
+                        }
+                    }
+                }
             }
+            //if(nbFieldNameList != null && nbFieldNameList.size() > 0){
+            //    throw new ClientParameterException(MmsException.MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME);
+            //}
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
