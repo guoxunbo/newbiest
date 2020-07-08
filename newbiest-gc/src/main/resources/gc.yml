@@ -7,3 +7,9 @@ gc:
     enabled: true
     #每次都是否把表删除在处理
     drop-first: false
+  express:
+    tokenUrl: https://open.ky-express.com/security/sandbox/accessToken
+    appKey: 80523
+    appSecret: 16FF86A2E08C7145DE58003EE9B45F2E
+    customerCode: 75525131031
+    platformFlag: 6820933B508C2977269F78B2DCD329CB

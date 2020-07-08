@@ -17,6 +17,14 @@
             <artifactId>mm</artifactId>
             <version>${platform.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.express</groupId>
+            <artifactId>kuayue</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/kye-open-api-sdk-1.0.0-SNAPSHOT.jar</systemPath>
+        </dependency>
     </dependencies>
 
 </project>

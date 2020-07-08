@@ -32,4 +32,9 @@ public class GcExceptions {
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";
 
+
+
+    //快递相关
+    public static final String GET_EXPRESS_TOKEN_ERROR = "gc.get_express_token_error";
+
 }
