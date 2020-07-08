@@ -1,5 +1,6 @@
 package com.newbiest.gc.rest.reserved;
 
+import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.msg.RequestBody;
@@ -17,6 +18,7 @@ public class ReServedRequestBody extends RequestBody {
 	private static final long serialVersionUID = 1L;
 
 	public static final String ACTION_TYPE_GET_MATERIAL_LOT = "GetMLot";
+	public static final String ACTION_TYPE_GET_MATERIAL_LOT_AND_USER = "GetMLotAndUser";
 	public static final String ACTION_TYPE_RESERVED = "Reserved";
 	public static final String ACTION_TYPE_UN_RESERVED = "UnReserved";
 
@@ -40,4 +42,6 @@ public class ReServedRequestBody extends RequestBody {
 	@ApiModelProperty(value = "备货备注")
 	private String stockNote;
 
+	@ApiModelProperty(example = "动态表")
+	private NBTable table;
 }

@@ -3746,4 +3746,41 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 按条件查询需要取消备货的数据并带出
+     * @param tableRrn
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+
+            // 没传递查询条件 则默认使用InitWhereClause进行查询
+            if (StringUtils.isNullOrEmpty(whereClause)) {
+                whereClause = nbTable.getInitWhereClause();
+            } else {
+                if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
+                    StringBuffer clauseBuffer = new StringBuffer(whereClause);
+                    clauseBuffer.append(" AND ");
+                    clauseBuffer.append(nbTable.getWhereClause());
+                    whereClause = clauseBuffer.toString();
+                }
+            }
+
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+            for(MaterialLot materialLot : materialLots){
+                DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLot.getReserved16()));
+                materialLot.setDocumentLineUser(documentLine.getReserved8());
+            }
+
+            return materialLots;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
 }

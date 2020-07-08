@@ -623,6 +623,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED60")
     private String reserved60;
 
+    @Transient
+    private String documentLineUser;
+
 
     /**
      * 验证物料批次是否在有效期内

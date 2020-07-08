@@ -13,8 +13,6 @@ public interface DocumentLineRepository extends IRepository<DocumentLine, Long> 
 
     DocumentLine findByDocRrnAndMaterialName(Long docRrn, String materialName) throws ClientException;
     List<DocumentLine> findByDocRrn(Long docRrn) throws ClientException;
-
     DocumentLine findByDocRrnAndReserved1(Long docRrn, String reserved1) throws ClientException;
-
 
 }

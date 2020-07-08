@@ -1,6 +1,8 @@
 package com.newbiest.gc.rest.reserved;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Material;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/gc")
 @Slf4j
 @Api(value="/gc", tags="gc客制化接口", description = "GalaxyCore客制化接口")
-public class ReservedController {
+public class ReservedController extends AbstractRestController {
 
     @Autowired
     GcService gcService;
@@ -44,6 +46,11 @@ public class ReservedController {
         if (ReServedRequestBody.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)) {
             List<MaterialLot> waitForReservedMaterialLots = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn());
             responseBody.setMaterialLotList(waitForReservedMaterialLots);
+        } else if (ReServedRequestBody.ACTION_TYPE_GET_MATERIAL_LOT_AND_USER.equals(actionType)) {
+            NBTable nbTable = uiService.getDeepNBTable(requestBody.getTableRrn());
+            List<MaterialLot> waitForUnReservedMaterialLots = gcService.getMaterialLotAndDocUserToUnReserved(requestBody.getTableRrn());
+            responseBody.setMaterialLotList(waitForUnReservedMaterialLots);
+            responseBody.setTable(nbTable);
         } else if (ReServedRequestBody.ACTION_TYPE_RESERVED.equals(actionType)) {
             gcService.reservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getMaterialLotActions(), requestBody.getStockNote());
         } else if (ReServedRequestBody.ACTION_TYPE_UN_RESERVED.equals(actionType)) {
