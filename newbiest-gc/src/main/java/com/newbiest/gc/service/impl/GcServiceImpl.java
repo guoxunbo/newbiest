@@ -3771,9 +3771,15 @@ public class GcServiceImpl implements GcService {
             }
 
             List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
-            for(MaterialLot materialLot : materialLots){
-                DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLot.getReserved16()));
-                materialLot.setDocumentLineUser(documentLine.getReserved8());
+
+            Map<String, List<MaterialLot>> docLineMaterialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot:: getReserved16));
+
+            for(String docLineRrn : docLineMaterialLotMap.keySet()){
+                List<MaterialLot> docLineMaterialLot = docLineMaterialLotMap.get(docLineRrn);
+                DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
+                for(MaterialLot materialLot : docLineMaterialLot){
+                    materialLot.setDocumentLineUser(documentLine.getReserved8());
+                }
             }
 
             return materialLots;
