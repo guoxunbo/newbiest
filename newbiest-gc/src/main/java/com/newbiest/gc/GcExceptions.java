@@ -32,6 +32,7 @@ public class GcExceptions {
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";
 
+    public static final String CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY = "gc.corresponding_raw_material_info_is_empty";
 
 
     //快递相关
