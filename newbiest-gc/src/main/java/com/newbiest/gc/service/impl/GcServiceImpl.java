@@ -591,14 +591,16 @@ public class GcServiceImpl implements GcService {
                         waferIssueOrder = new WaferIssueOrder();
                         waferIssueOrder.setStatus(Document.STATUS_OPEN);
                     } else {
+                        waferIssueOrder = waferIssueOrderList.get(0);
                         //存在相同ccodes时，执行以下业务
+                        /*
                         List<Long> noAsyncSeqList = Lists.newArrayList();
                         for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdMap.get(documentId)) {
                             noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
                         }
                         erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
                                 "ERP单据号重复", noAsyncSeqList);
-                        continue;
+                        continue;*/
                     }
                     waferIssueOrder.setName(documentId);
                     BigDecimal totalQty = BigDecimal.ZERO;
@@ -615,7 +617,10 @@ public class GcServiceImpl implements GcService {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
+                                } else{
+
                                 }
+
                             }
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
                             if (documentLine == null) {
@@ -1504,7 +1509,6 @@ public class GcServiceImpl implements GcService {
                                 if (material == null) {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
                                 }
-                                documentLine.setDocRrn(receiveOrder.getObjectRrn());
                                 documentLine.setDocId(documentId);
                                 documentLine.setErpCreated(erpCreatedDate);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
@@ -1634,7 +1638,6 @@ public class GcServiceImpl implements GcService {
                                 if (material == null) {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
                                 }
-                                documentLine.setDocRrn(deliveryOrder.getObjectRrn());
                                 documentLine.setDocId(documentId);
                                 documentLine.setErpCreated(erpCreatedDate);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
@@ -3581,7 +3584,6 @@ public class GcServiceImpl implements GcService {
                                 if (material == null) {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSoa.getInvcode());
                                 }
-                                documentLine.setDocRrn(otherStockOutOrder.getObjectRrn());
                                 documentLine.setDocId(documentId);
                                 documentLine.setErpCreated(erpCreatedDate);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
@@ -3697,14 +3699,7 @@ public class GcServiceImpl implements GcService {
                         otherShipOrder.setName(documentId);
                         otherShipOrder.setStatus(Document.STATUS_OPEN);
                     } else {
-                        //存在相同ccodes时，执行以下业务
-                        List<Long> noAsyncSeqList = Lists.newArrayList();
-                        for  (ErpSob erpSob : documentIdMap.get(documentId)) {
-                            noAsyncSeqList.add(erpSob.getSeq());
-                        }
-                        erpSobOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                "ERP单据号重复", noAsyncSeqList);
-                        continue;
+                        otherShipOrder = otherShipOrderList.get(0);
                     }
                     BigDecimal totalQty = BigDecimal.ZERO;
 
@@ -3731,7 +3726,6 @@ public class GcServiceImpl implements GcService {
                                 if (material == null) {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSob.getCinvcode());
                                 }
-                                documentLine.setDocRrn(otherShipOrder.getObjectRrn());
                                 documentLine.setDocId(documentId);
                                 documentLine.setErpCreated(erpCreatedDate);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
