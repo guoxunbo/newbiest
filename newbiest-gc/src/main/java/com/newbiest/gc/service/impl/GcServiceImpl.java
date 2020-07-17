@@ -592,15 +592,6 @@ public class GcServiceImpl implements GcService {
                         waferIssueOrder.setStatus(Document.STATUS_OPEN);
                     } else {
                         waferIssueOrder = waferIssueOrderList.get(0);
-                        //存在相同ccodes时，执行以下业务
-                        /*
-                        List<Long> noAsyncSeqList = Lists.newArrayList();
-                        for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdMap.get(documentId)) {
-                            noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
-                        }
-                        erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                "ERP单据号重复", noAsyncSeqList);
-                        continue;*/
                     }
                     waferIssueOrder.setName(documentId);
                     BigDecimal totalQty = BigDecimal.ZERO;
@@ -618,7 +609,11 @@ public class GcServiceImpl implements GcService {
                                         }
                                     }
                                 } else{
-
+                                    List<Long> noAsyncSeqList = Lists.newArrayList();
+                                    noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
+                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                            "ERP单据号重复", noAsyncSeqList);
+                                    continue;
                                 }
 
                             }
@@ -698,14 +693,7 @@ public class GcServiceImpl implements GcService {
                         reTestOrder = new ReTestOrder();
                         reTestOrder.setStatus(Document.STATUS_OPEN);
                     } else {
-                        //存在相同ccodes时，执行以下业务
-                        List<Long> noAsyncSeqList = Lists.newArrayList();
-                        for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdMap.get(documentId)) {
-                            noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
-                        }
-                        erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                "ERP单据号重复", noAsyncSeqList);
-                        continue;
+                        reTestOrder = reTestOrderList.get(0);
                     }
                     reTestOrder.setName(documentId);
                     BigDecimal totalQty = BigDecimal.ZERO;
@@ -722,6 +710,12 @@ public class GcServiceImpl implements GcService {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
+                                } else {
+                                    List<Long> noAsyncSeqList = Lists.newArrayList();
+                                    noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
+                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                            "ERP单据号重复", noAsyncSeqList);
+                                    continue;
                                 }
                             }
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
@@ -1475,14 +1469,7 @@ public class GcServiceImpl implements GcService {
                         receiveOrder.setName(documentId);
                         receiveOrder.setStatus(Document.STATUS_OPEN);
                     } else {
-                        //存在相同ccodes时，执行以下业务
-                        List<Long> noAsyncSeqList = Lists.newArrayList();
-                        for  (ErpSo erpSo : documentIdMap.get(documentId)) {
-                            noAsyncSeqList.add(erpSo.getSeq());
-                        }
-                        erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                "ERP单据号重复", noAsyncSeqList);
-                        continue;
+                        receiveOrder = receiveOrderList.get(0);
                     }
                     BigDecimal totalQty = BigDecimal.ZERO;
 
@@ -1498,6 +1485,12 @@ public class GcServiceImpl implements GcService {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
+                                }else{
+                                    List<Long> noAsyncSeqList = Lists.newArrayList();
+                                    noAsyncSeqList.add(erpSo.getSeq());
+                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                            "ERP单据号重复", noAsyncSeqList);
+                                    continue;
                                 }
                             }
 
@@ -1604,14 +1597,7 @@ public class GcServiceImpl implements GcService {
                         deliveryOrder.setName(documentId);
                         deliveryOrder.setStatus(Document.STATUS_OPEN);
                     } else {
-                        //存在相同ccodes时，执行以下业务
-                        List<Long> noAsyncSeqList = Lists.newArrayList();
-                        for  (ErpSo erpSo : documentIdMap.get(documentId)) {
-                            noAsyncSeqList.add(erpSo.getSeq());
-                        }
-                        erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                "ERP单据号重复", noAsyncSeqList);
-                        continue;
+                        deliveryOrder = deliveryOrderList.get(0);
                     }
                     BigDecimal totalQty = BigDecimal.ZERO;
 
@@ -1627,6 +1613,12 @@ public class GcServiceImpl implements GcService {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
+                                }else{
+                                    List<Long> noAsyncSeqList = Lists.newArrayList();
+                                    noAsyncSeqList.add(erpSo.getSeq());
+                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                            "ERP单据号重复", noAsyncSeqList);
+                                    continue;
                                 }
                             }
 
@@ -1896,11 +1888,6 @@ public class GcServiceImpl implements GcService {
 
                     String productCateGory = mesPackedLot.getProductCategory();
 
-                    MesPackedLotRelation mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLot.getPackedLotRrn());
-
-                    if(mesPackedLotRelation == null || !mesPackedLotRelation.checkMaterialDataComplete()){
-                        throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
-                    }
                     if(MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory)){
                         // ERP_MOA插入数据
                         ErpMoa erpMoa = new ErpMoa();
@@ -1909,11 +1896,11 @@ public class GcServiceImpl implements GcService {
                         erpMoa.setMesPackedLot(mesPackedLot);
                         //从MM_PACKED_LOT_RELATION表中获取物料型号、物料数据等相关数据
                         erpMoa.setCMemo("EMPTY");
-                        erpMoa.setMaterialBonded(mesPackedLotRelation.getMaterialBonded());
-                        erpMoa.setMaterialCode(mesPackedLotRelation.getMaterialCode());
-                        erpMoa.setMaterialQty(mesPackedLotRelation.getMaterialQty());
-                        erpMoa.setMaterialGrade(mesPackedLotRelation.getMaterialGrade());
-                        erpMoa.setMaterialVersion(mesPackedLotRelation.getMaterialVersion());
+                        erpMoa.setMaterialBonded(mesPackedLot.getMaterialBonded());
+                        erpMoa.setMaterialCode(mesPackedLot.getMaterialCode());
+                        erpMoa.setMaterialQty(mesPackedLot.getMaterialQty());
+                        erpMoa.setMaterialGrade(mesPackedLot.getMaterialGrade());
+                        erpMoa.setMaterialVersion(mesPackedLot.getMaterialVersion());
 
                         erpMoaList.add(erpMoa);
                     } else if(MesPackedLot.PRODUCT_CATEGORY_CP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLT.equals(productCateGory)){
@@ -1925,11 +1912,11 @@ public class GcServiceImpl implements GcService {
 
                         //从MM_PACKED_LOT_RELATION表中获取物料型号、物料数据等相关数据
                         erpMoa.setCMemo("EMPTY");
-                        erpMoa.setMaterialBonded(mesPackedLotRelation.getMaterialBonded());
-                        erpMoa.setMaterialCode(mesPackedLotRelation.getMaterialCode());
-                        erpMoa.setMaterialQty(mesPackedLotRelation.getMaterialQty());
-                        erpMoa.setMaterialGrade(mesPackedLotRelation.getMaterialGrade());
-                        erpMoa.setMaterialVersion(mesPackedLotRelation.getMaterialVersion());
+                        erpMoa.setMaterialBonded(mesPackedLot.getMaterialBonded());
+                        erpMoa.setMaterialCode(mesPackedLot.getMaterialCode());
+                        erpMoa.setMaterialQty(mesPackedLot.getMaterialQty());
+                        erpMoa.setMaterialGrade(mesPackedLot.getMaterialGrade());
+                        erpMoa.setMaterialVersion(mesPackedLot.getMaterialVersion());
 
                         erpMoaList.add(erpMoa);
                     } else if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(productCateGory)){
@@ -2630,6 +2617,8 @@ public class GcServiceImpl implements GcService {
                 if (rawMaterial == null) {
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, mesPackedLotList.get(0).getProductId());
                 }
+                MesPackedLotRelation mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
+
                 MesPackedLot mesPackedLot = new MesPackedLot();
                 PropertyUtils.copyProperties(mesPackedLotList.get(0), mesPackedLot, new HistoryBeanConverter());
                 String mLotId = mmsService.generatorMLotId(rawMaterial);
@@ -2639,6 +2628,16 @@ public class GcServiceImpl implements GcService {
                 mesPackedLot.setQuantity(totalQuantity.intValue());
                 mesPackedLot.setWaferQty(mesPackedLotList.size());
                 mesPackedLot = mesPackedLotRepository.saveAndFlush(mesPackedLot);
+                if(mesPackedLotRelation == null || !mesPackedLotRelation.checkMaterialDataComplete()){
+                    if(!MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory())){
+                        throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
+                    }
+                }
+                mesPackedLot.setMaterialBonded(mesPackedLotRelation.getMaterialBonded());
+                mesPackedLot.setMaterialCode(mesPackedLotRelation.getMaterialCode());
+                mesPackedLot.setMaterialQty(mesPackedLotRelation.getMaterialQty());
+                mesPackedLot.setMaterialGrade(mesPackedLotRelation.getMaterialGrade());
+                mesPackedLot.setMaterialVersion(mesPackedLotRelation.getMaterialVersion());
                 mesPackedLots.add(mesPackedLot);
             }
             receiveFinishGood(mesPackedLots);
@@ -3436,14 +3435,7 @@ public class GcServiceImpl implements GcService {
                         otherIssueOrder = new OtherIssueOrder();
                         otherIssueOrder.setStatus(Document.STATUS_OPEN);
                     } else {
-                        //存在相同ccodes时，执行以下业务
-                        List<Long> noAsyncSeqList = Lists.newArrayList();
-                        for  (ErpMaterialOutaOrder erpMaterialOutaOrder : documentIdMap.get(documentId)) {
-                            noAsyncSeqList.add(erpMaterialOutaOrder.getSeq());
-                        }
-                        erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                "ERP单据号重复", noAsyncSeqList);
-                        continue;
+                        otherIssueOrder = otherIssueOrderList.get(0);
                     }
                     otherIssueOrder.setName(documentId);
                     BigDecimal totalQty = BigDecimal.ZERO;
@@ -3460,6 +3452,12 @@ public class GcServiceImpl implements GcService {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
+                                }else{
+                                    List<Long> noAsyncSeqList = Lists.newArrayList();
+                                    noAsyncSeqList.add(erpMaterialOutaOrder.getSeq());
+                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                            "ERP单据号重复", noAsyncSeqList);
+                                    continue;
                                 }
                             }
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
@@ -3550,14 +3548,7 @@ public class GcServiceImpl implements GcService {
                         otherStockOutOrder.setName(documentId);
                         otherStockOutOrder.setStatus(Document.STATUS_OPEN);
                     } else {
-                        //存在相同ccodes时，执行以下业务
-                        List<Long> noAsyncSeqList = Lists.newArrayList();
-                        for  (ErpSoa erpSoa : documentIdMap.get(documentId)) {
-                            noAsyncSeqList.add(erpSoa.getSeq());
-                        }
-                        erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                "ERP单据号重复", noAsyncSeqList);
-                        continue;
+                        otherStockOutOrder = otherStockOutOrderList.get(0);
                     }
                     BigDecimal totalQty = BigDecimal.ZERO;
 
@@ -3573,6 +3564,12 @@ public class GcServiceImpl implements GcService {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
+                                }else{
+                                    List<Long> noAsyncSeqList = Lists.newArrayList();
+                                    noAsyncSeqList.add(erpSoa.getSeq());
+                                    erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                            "ERP单据号重复", noAsyncSeqList);
+                                    continue;
                                 }
                             }
 
@@ -3813,25 +3810,27 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    public List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn) throws ClientException {
+    public List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn, String whereClause) throws ClientException {
         try {
             NBTable nbTable = uiService.getDeepNBTable(tableRrn);
-            String whereClause = nbTable.getWhereClause();
+            String _whereClause = nbTable.getWhereClause();
             String orderBy = nbTable.getOrderBy();
 
             // 没传递查询条件 则默认使用InitWhereClause进行查询
-            if (StringUtils.isNullOrEmpty(whereClause)) {
-                whereClause = nbTable.getInitWhereClause();
+            if (StringUtils.isNullOrEmpty(_whereClause)) {
+                _whereClause = nbTable.getInitWhereClause();
             } else {
                 if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
-                    StringBuffer clauseBuffer = new StringBuffer(whereClause);
-                    clauseBuffer.append(" AND ");
-                    clauseBuffer.append(nbTable.getWhereClause());
-                    whereClause = clauseBuffer.toString();
+                    StringBuffer clauseBuffer = new StringBuffer(_whereClause);
+                    if(!StringUtils.isNullOrEmpty(whereClause)){
+                        clauseBuffer.append(" AND ");
+                        clauseBuffer.append(whereClause);
+                    }
+                    _whereClause = clauseBuffer.toString();
                 }
             }
 
-            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
 
             Map<String, List<MaterialLot>> docLineMaterialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot:: getReserved16));
 

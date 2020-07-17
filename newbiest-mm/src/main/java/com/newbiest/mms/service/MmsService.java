@@ -23,6 +23,7 @@ public interface MmsService {
     MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException;
     MaterialLot getMLotByMLotId(String mLotId) throws ClientException;
     MaterialLot getMLotByObjectRrn(long materialLotRrn) throws ClientException;
+    MaterialLot getMLotByMLotIdAndBindWorkOrderId(String mLotId, boolean throwExceptionFlag) throws ClientException;
 
     StatusModel getMaterialStatusModel(RawMaterial rawMaterial) throws ClientException;
     List<MaterialLot> createMaterialLotList(RawMaterial rawMaterial, List<MaterialLotAction> materialLotImportActions) throws ClientException;

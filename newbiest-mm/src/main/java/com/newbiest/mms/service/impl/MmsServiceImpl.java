@@ -10,6 +10,9 @@ import com.newbiest.base.model.NBVersionControlHis;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
+import com.newbiest.base.ui.exception.UIExceptions;
+import com.newbiest.base.ui.model.NBTable;
+import com.newbiest.base.ui.repository.TableRepository;
 import com.newbiest.base.utils.*;
 import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.commom.sm.model.StatusModel;
@@ -23,6 +26,7 @@ import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
+import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatusModel;
@@ -80,10 +84,14 @@ public class MmsServiceImpl implements MmsService {
     @Autowired
     StorageRepository storageRepository;
 
-
     @Autowired
     MaterialLotMergeRuleRepository materialLotMergeRuleRepository;
 
+    @Autowired
+    MaterialLotUnitService materialLotUnitService;
+
+    @Autowired
+    private TableRepository tableRepository;
     /**
      * 根据名称获取源物料。
      *  源物料不区分版本。故此处只会有1个
@@ -797,6 +805,29 @@ public class MmsServiceImpl implements MmsService {
     public MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException{
         try {
             MaterialLot materialLot =  materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId, ThreadLocalContext.getOrgRrn());
+            if (materialLot == null && throwExceptionFlag) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mLotId);
+            }
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public MaterialLot getMLotByMLotIdAndBindWorkOrderId(String mLotId, boolean throwExceptionFlag) throws ClientException{
+        try {
+            MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId, ThreadLocalContext.getOrgRrn());
+
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(mLotId);
+            if(materialLotUnitList != null && materialLotUnitList.size() > 0){
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    if(!StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderId())){
+                        materialLot.setWorkOrderId(materialLotUnit.getWorkOrderId());
+                        break;
+                    }
+                }
+            }
+
             if (materialLot == null && throwExceptionFlag) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mLotId);
             }

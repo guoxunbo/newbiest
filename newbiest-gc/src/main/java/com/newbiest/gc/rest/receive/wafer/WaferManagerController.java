@@ -1,15 +1,20 @@
 package com.newbiest.gc.rest.receive.wafer;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotUnit;
+import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import liquibase.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +31,7 @@ import java.util.List;
 @RequestMapping("/gc")
 @Slf4j
 @Api(value="/gc", tags="gc客制化接口", description = "GalaxyCore客制化接口")
-public class WaferManagerController {
+public class WaferManagerController extends AbstractRestController {
 
     @Autowired
     GcService gcService;
@@ -41,15 +46,17 @@ public class WaferManagerController {
         WaferManagerResponse response = new WaferManagerResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         WaferManagerResponseBody responseBody = new WaferManagerResponseBody();
-        String actionType = request.getBody().getActionType();
+        WaferManagerRequestBody requestBody = request.getBody();
+        String actionType = requestBody.getActionType();
         List<DocumentLine> documentLineList = request.getBody().getDocumentLines();
 
         List<MaterialLotAction> materialLotActions = request.getBody().getMaterialLotActions();
         if (WaferManagerRequest.ACTION_TYPE_RECEIVE.equals(actionType)) {
             gcService.validationAndReceiveWafer(documentLineList, materialLotActions);
         } else if (WaferManagerRequest.ACTION_TYPE_VALIDATION_ISSUE.equals(actionType)) {
-            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotActions.get(0).getMaterialLotId(), true);
+            MaterialLot materialLot = mmsService.getMLotByMLotIdAndBindWorkOrderId(materialLotActions.get(0).getMaterialLotId(), true);
             gcService.validationDocLine(documentLineList, materialLot);
+            responseBody.setWorkOrderId(materialLot.getWorkOrderId());
         } else if (WaferManagerRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
             gcService.validationAndWaferIssue(documentLineList, materialLotActions);
         } else if(WaferManagerRequest.ACTION_TYPE_VALIDATION_WAIT_ISSUE.equals(actionType)){
