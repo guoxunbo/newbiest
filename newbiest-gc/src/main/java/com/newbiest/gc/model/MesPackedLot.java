@@ -131,4 +131,25 @@ public class MesPackedLot implements Serializable {
     @Column(name="WAFER_QTY")
     private Integer waferQty;
 
+    //下面五个字段用于从MesPackedLotRelation中传递数据
+    //物料编码
+    @Transient
+    private String materialCode;
+
+    //物料数量
+    @Transient
+    private Integer materialQty;
+
+    //物料二级代码
+    @Transient
+    private String materialVersion;
+
+    //物料保税属性
+    @Transient
+    private String materialBonded;
+
+    //物料等级
+    @Transient
+    private String materialGrade;
+
 }
