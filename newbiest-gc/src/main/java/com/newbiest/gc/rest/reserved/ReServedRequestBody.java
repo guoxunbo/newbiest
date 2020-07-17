@@ -44,4 +44,7 @@ public class ReServedRequestBody extends RequestBody {
 
 	@ApiModelProperty(example = "动态表")
 	private NBTable table;
+
+	@ApiModelProperty(example = "查询条件")
+	private String whereClause;
 }

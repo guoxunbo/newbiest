@@ -96,5 +96,5 @@ public interface GcService {
     List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
     List<MaterialLot>  getWaitChangeStorageMaterialLotByRelayBoxId(String relayBoxId) throws ClientException;
     void transferStorage(List<RelayBoxStockInModel> relayBoxStockInModel) throws  ClientException;
-    List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn) throws ClientException;
+    List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn,String whereClause) throws ClientException;
 }
