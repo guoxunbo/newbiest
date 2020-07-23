@@ -137,3 +137,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.1.mms_document.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.mms_material_lot.yaml
+      relativeToChangelogFile: true

@@ -294,6 +294,14 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String productType = PRODUCT_TYPE;
 
     /**
+     * 单据日期
+     */
+    @Column(name="DOC_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
+    private Date docDate;
+
+    /**
      * GlaxyCore MES完成品的levelTwoCode
      */
     @Column(name="RESERVED1")
@@ -593,6 +601,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED50")
     private String reserved50;
 
+    /**
+     * GlaxyCore 发货地址
+     */
     @Column(name="RESERVED51")
     private String reserved51;
 
