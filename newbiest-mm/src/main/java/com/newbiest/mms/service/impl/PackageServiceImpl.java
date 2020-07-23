@@ -374,11 +374,13 @@ public class PackageServiceImpl implements PackageService{
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
 
             BigDecimal waferCount = BigDecimal.ZERO;
+            BigDecimal totalReservedQty = BigDecimal.ZERO;
             // 预约过后的不能包装
             for (MaterialLot waitToPackageLot : materialLots) {
-                //if (!StringUtils.isNullOrEmpty(waitToPackageLot.getReserved16())) {
-                //    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_RESERVED, waitToPackageLot.getMaterialLotId(), waitToPackageLot.getReserved17());
-                //}
+                //计算箱中已经备货过的真空包备货总数量
+                if (!StringUtils.isNullOrEmpty(waitToPackageLot.getReserved16())) {
+                    totalReservedQty = totalReservedQty.add(waitToPackageLot.getReservedQty());
+                }
                 //WLT装箱时获取晶圆数量
                 BigDecimal waferqty = waitToPackageLot.getCurrentSubQty() == null ? BigDecimal.ZERO : waitToPackageLot.getCurrentSubQty();
                 waferCount = waferCount.add(waferqty);
@@ -414,6 +416,7 @@ public class PackageServiceImpl implements PackageService{
             //packedMaterialLot.setReserved17(StringUtils.EMPTY);
             //packedMaterialLot.setReserved18(StringUtils.EMPTY);
             packedMaterialLot.setLotId(StringUtils.EMPTY);
+            packedMaterialLot.setReservedQty(totalReservedQty);
 
             packedMaterialLot.setMaterialType(StringUtils.isNullOrEmpty(materialLotPackageType.getTargetMaterialType()) ? packedMaterialLot.getMaterialType() : materialLotPackageType.getTargetMaterialType());
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
