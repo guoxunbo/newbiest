@@ -26,6 +26,8 @@ public class MesWaferReceive implements Serializable {
     public static final String POINT_ID = "EMPTY";
     public static final String PROD_STATUS = "8";
     public static final String WAFER_SOURCE = "31";
+    public static final String DEFAULT_WAFER_TYPE = "MAIN";
+
 
     public static final long FACILITY_RRN = 1;
 
@@ -151,7 +153,7 @@ public class MesWaferReceive implements Serializable {
         this.setBoxId(materialLotUnit.getLotId());
         this.setCartonNo(materialLotUnit.getReserved39());
         this.setCstId(materialLotUnit.getDurable());
-        this.setCstWaferqty(materialLotUnit.getCurrentSubQty().toString());
+        this.setCstWaferqty(materialLotUnit.getCurrentSubQty()+"");
         this.setDevice(materialLotUnit.getMaterialName());
         this.setDocName(materialLotUnit.getReserved47());
         this.setImportNo(materialLotUnit.getReserved48());

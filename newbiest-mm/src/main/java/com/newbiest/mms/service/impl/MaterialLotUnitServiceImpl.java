@@ -134,7 +134,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
 
                 for (String lotId : materialLotUnitMap.keySet()) {
-                    MaterialLot materialLotInfo = materialLotRepository.getMLotByLotId(lotId);
+                    MaterialLot materialLotInfo = materialLotRepository.getByLotId(lotId);
                     if(materialLotInfo != null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
                     }
@@ -287,7 +287,13 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getReserved30));
             for(String fabLotId : materialLotUnitMap.keySet()){
                 List<MaterialLotUnit> mLotUnitList = materialLotUnitMap.get(fabLotId);
-                String waferId = mLotUnitList.get(0).getReserved31();
+                Integer minWaferId = 0;
+                for (MaterialLotUnit materialLotUnit : mLotUnitList) {
+                    if(minWaferId == 0 || minWaferId > Integer.parseInt(materialLotUnit.getReserved31())){
+                        minWaferId = Integer.parseInt(materialLotUnit.getReserved31());
+                    }
+                }
+                String waferId = minWaferId+"";
                 if(waferId.length() < 2){
                     waferId = "0" + waferId;
                 }
