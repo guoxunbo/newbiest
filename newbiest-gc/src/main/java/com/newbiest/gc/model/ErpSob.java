@@ -19,6 +19,8 @@ import java.math.BigDecimal;
 @Table(name="ERP_SOB")
 public class ErpSob implements Serializable {
 
+    public static final String SOURCE_TABLE_NAME = "ERP_SOB";
+
     /**
      * 未同步
      */

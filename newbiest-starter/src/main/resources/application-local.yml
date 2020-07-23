@@ -1,5 +1,5 @@
 gc:
-  openSchedule: false
+  openSchedule: true
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense

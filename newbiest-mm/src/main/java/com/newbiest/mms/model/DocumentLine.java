@@ -255,4 +255,7 @@ public class DocumentLine extends NBUpdatable {
 
     @Column(name="RESERVED30")
     private String reserved30;
+
+    @Column(name="RESERVED31")
+    private String reserved31;
 }

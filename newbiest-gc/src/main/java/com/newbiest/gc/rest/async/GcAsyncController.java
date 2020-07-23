@@ -41,7 +41,7 @@ public class GcAsyncController extends AbstractRestController {
         if (GcAsyncRequest.ACTION_ASYNC_RETEST_ISSUE_ORDER.equals(actionType)) {
             gcService.asyncReTestOrder();
         } else if (GcAsyncRequest.ACTION_ASYNC_WAFER_ISSUE_ORDER.equals(actionType)) {
-            gcService.asyncWaferIssueOrder();
+            gcService.asyncWaferIssueOrderAndOtherIssueOrder();
         } else if (GcAsyncRequest.ACTION_ASYNC_RECEIVE_ORDER.equals(actionType)) {
             gcService.asyncReceiveOrder();
         } else if (GcAsyncRequest.ACTION_ASYNC_SHIP_ORDER.equals(actionType)) {

@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 @Table(name="ERP_SO")
 public class ErpSo implements Serializable {
 
+    public static final String SOURCE_TABLE_NAME = "ERP_SO";
+
     /**
      * 发货单
      */

@@ -21,6 +21,8 @@ public class ErpMaterialOutaOrder implements Serializable {
 
     public static final String CATEGORY_WAFER_ISSUEA = "WaferIssue";
 
+    public static final String SOURCE_TABLE_NAME = "ERP_MATERIAL_OUTA_ORDER";
+
     /**
      * 其他线晶圆发料单
      */

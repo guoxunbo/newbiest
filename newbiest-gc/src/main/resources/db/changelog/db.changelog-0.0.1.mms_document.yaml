@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document add column
+      author: Zhi Cao
+      comment: mms_document add column
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT
+            columns: 
+              - column: 
+                  name: RESERVED31
+                  type: varchar(50)
+                  remarks: 来源表

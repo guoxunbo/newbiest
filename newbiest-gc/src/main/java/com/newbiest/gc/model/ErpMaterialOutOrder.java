@@ -18,6 +18,8 @@ import java.util.Date;
 @Table(name="ERP_MATERIAL_OUT_ORDER")
 public class ErpMaterialOutOrder implements Serializable {
 
+    public static final String SOURCE_TABLE_NAME = "ERP_MATERIAL_OUT_ORDER";
+
     /**
      * 重测发料单
      */

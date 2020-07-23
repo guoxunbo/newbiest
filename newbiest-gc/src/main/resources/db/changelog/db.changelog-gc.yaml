@@ -131,3 +131,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.2.1.comments.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.mms_document_line.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.mms_document.yaml
+      relativeToChangelogFile: true

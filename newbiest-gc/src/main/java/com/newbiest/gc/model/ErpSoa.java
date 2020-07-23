@@ -18,6 +18,8 @@ import java.math.BigDecimal;
 @Table(name="ERP_SOA")
 public class ErpSoa implements Serializable {
 
+    public static final String SOURCE_TABLE_NAME = "ERP_SOA";
+
     /**
      * 未同步
      */
