@@ -1874,19 +1874,27 @@ public class GcServiceImpl implements GcService {
                 List<MesPackedLot> mesPackedLots = packedLotMap.get(productId);
                 List<MaterialLotAction> materialLotActions = Lists.newArrayList();
                 for (MesPackedLot mesPackedLot : mesPackedLots) {
-                    if(doWltReceiveFlag){
-                        mesPackedLotRelation = new MesPackedLotRelation();
-                        mesPackedLotRelation.setMaterialBonded(mesPackedLot.getMaterialBonded());
-                        mesPackedLotRelation.setMaterialCode(mesPackedLot.getMaterialCode());
-                        mesPackedLotRelation.setMaterialQty(mesPackedLot.getMaterialQty());
-                        mesPackedLotRelation.setMaterialGrade(mesPackedLot.getMaterialGrade());
-                        mesPackedLotRelation.setMaterialVersion(mesPackedLot.getMaterialVersion());
-                    }
-                    if(mesPackedLotRelation == null || !mesPackedLotRelation.checkMaterialDataComplete()){
-                        if(!MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory())){
-                            throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
+                    //由于wlt的业务在之前会更改PackedLotRrn，所以在mesPackedLot中传递数据
+                    if(!MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory())){
+                        if(doWltReceiveFlag){
+                            if(mesPackedLot.getHaveBindMaterialData()){
+                                mesPackedLotRelation = new MesPackedLotRelation();
+                                mesPackedLotRelation.setMaterialBonded(mesPackedLot.getMaterialBonded());
+                                mesPackedLotRelation.setMaterialCode(mesPackedLot.getMaterialCode());
+                                mesPackedLotRelation.setMaterialQty(mesPackedLot.getMaterialQty());
+                                mesPackedLotRelation.setMaterialGrade(mesPackedLot.getMaterialGrade());
+                                mesPackedLotRelation.setMaterialVersion(mesPackedLot.getMaterialVersion());
+                            }else{
+                                //当前Relation查不到数据并且没有从mesPackedLot中传递数据时提示
+                                throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
+                            }
+                        }else{
+                            if(mesPackedLotRelation == null){
+                                throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
+                            }
                         }
                     }
+
                     MaterialLotAction materialLotAction = new MaterialLotAction();
                     materialLotAction.setMaterialLotId(mesPackedLot.getBoxId());
                     materialLotAction.setGrade(mesPackedLot.getGrade());
@@ -2682,6 +2690,7 @@ public class GcServiceImpl implements GcService {
                     mesPackedLot.setMaterialQty(mesPackedLotRelation.getMaterialQty());
                     mesPackedLot.setMaterialGrade(mesPackedLotRelation.getMaterialGrade());
                     mesPackedLot.setMaterialVersion(mesPackedLotRelation.getMaterialVersion());
+                    mesPackedLot.setHaveBindMaterialData(true);
                 }
                 mesPackedLots.add(mesPackedLot);
             }
@@ -2710,6 +2719,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved4(packedLot.getBondedProperty());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved18("0");
+                    materialLotUnit.setReserved38(packedLot.getWaferMark());
                     materialLotUnit =  materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);

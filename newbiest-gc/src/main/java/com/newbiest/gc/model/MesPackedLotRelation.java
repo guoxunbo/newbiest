@@ -62,16 +62,5 @@ public class MesPackedLotRelation implements Serializable {
     @Column(name = "PACKED_LOT_RRN")
     private Long packedLotRrn;
 
-    public boolean checkMaterialDataComplete(){
-        if(StringUtils.isNullOrEmpty(this.materialCode)
-            || StringUtils.isNullOrEmpty(this.materialVersion)
-            || StringUtils.isNullOrEmpty(this.materialBonded)
-            || StringUtils.isNullOrEmpty(this.materialGrade)
-            || materialQty == 0L){
-            return false;
-        }else{
-            return true;
-        }
-    }
 
 }

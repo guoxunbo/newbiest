@@ -131,6 +131,10 @@ public class MesPackedLot implements Serializable {
     @Column(name="WAFER_QTY")
     private Integer waferQty;
 
+
+    @Column(name="WAFER_MARK")
+    private String waferMark;
+
     //下面五个字段用于从MesPackedLotRelation中传递数据
     //物料编码
     @Transient
@@ -152,4 +156,11 @@ public class MesPackedLot implements Serializable {
     @Transient
     private String materialGrade;
 
+    //用于判断是否绑定过MesPackedLotRelation中的物料数据
+    @Transient
+    private boolean haveBindMaterialData = false;
+
+    public boolean getHaveBindMaterialData(){
+        return this.haveBindMaterialData;
+    }
 }
