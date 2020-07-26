@@ -129,6 +129,54 @@ public class ErpSo implements Serializable {
     private String other1;
 
     /**
+     * 入库备注
+     */
+    @Column(name="OTHER3")
+    private String other3;
+
+    /**
+     * 出库备注
+     */
+    @Column(name="OTHER4")
+    private String other4;
+
+    /**
+     * ODM
+     */
+    @Column(name="OTHER7")
+    private String other7;
+
+    /**
+     * 客户简称
+     */
+    @Column(name="OTHER8")
+    private String other8;
+
+    /**
+     * 客户联系人
+     */
+    @Column(name="OTHER9")
+    private String other9;
+
+    /**
+     * 客户联系电话
+     */
+    @Column(name="OTHER10")
+    private String other10;
+
+    /**
+     * 发货地址
+     */
+    @Column(name="OTHER18")
+    private String other18;
+
+    /**
+     * 快递单号
+     */
+    @Column(name="OTHER19")
+    private String other19;
+
+    /**
      * 客户名称
      */
     @Column(name="CUSNAME")

@@ -1546,6 +1546,13 @@ public class GcServiceImpl implements GcService {
 
                                 documentLine.setReserved10(erpSo.getGCode());
                                 documentLine.setReserved11(erpSo.getGName());
+                                documentLine.setReserved12(erpSo.getOther8());
+                                documentLine.setReserved15(erpSo.getOther18());
+                                documentLine.setReserved17(erpSo.getOther3());
+                                documentLine.setReserved20(erpSo.getOther9());
+                                documentLine.setReserved21(erpSo.getOther10());
+                                documentLine.setReserved27(erpSo.getOther7());
+                                documentLine.setReserved28(erpSo.getOther4());
                                 documentLine.setDocType(erpSo.getCvouchtype());
                                 documentLine.setDocName(erpSo.getCvouchname());
                                 documentLine.setDocBusType(erpSo.getCbustype());
@@ -3156,6 +3163,10 @@ public class GcServiceImpl implements GcService {
                 if(StringUtils.isNullOrEmpty(materialLotId)){
                     continue;
                 }
+                List<MaterialLot> fullBoxData = materialLotRepository.getByParentMaterialLotId(materialLotId);
+                if(materialLotMap.get(materialLotId).size() < fullBoxData.size()){
+                    throw new ClientParameterException(GcExceptions.MUST_DELETE_FULL_BOX_DATA, materialLotId);
+                }
                 MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
                 materialLotRepository.delete(materialLot);
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
@@ -3646,7 +3657,7 @@ public class GcServiceImpl implements GcService {
 
                                 documentLine.setReserved1(String.valueOf(erpSoa.getSeq()));
                                 documentLine.setReserved2(erpSoa.getBatch());
-                                documentLine.setReserved3(erpSoa.getFree2());
+                                documentLine.setReserved3(erpSoa.getGrade());
                                 documentLine.setReserved4(erpSoa.getFree3());
                                 documentLine.setReserved5(erpSoa.getShipMaker());
                                 documentLine.setReserved6(erpSoa.getShipVerifier());
@@ -3660,14 +3671,17 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved13(erpSoa.getMemo());
                                 documentLine.setReserved14(erpSoa.getItemcode());
                                 documentLine.setReserved15(erpSoa.getShipAddress());
-                                documentLine.setReserved17(erpSoa.getOther3());
+                                documentLine.setReserved17(erpSoa.getOther13());
                                 documentLine.setReserved18(erpSoa.getOther6());
                                 documentLine.setReserved19(erpSoa.getOther8());
-                                documentLine.setReserved20(erpSoa.getOther9());
-                                documentLine.setReserved21(erpSoa.getOther10());
+                                documentLine.setReserved20(erpSoa.getCusperson());
+                                documentLine.setReserved21(erpSoa.getCusphone());
                                 documentLine.setReserved22(erpSoa.getOther11());
                                 documentLine.setReserved23(erpSoa.getOther12());
                                 documentLine.setReserved24(erpSoa.getOther13());
+                                documentLine.setReserved27(erpSoa.getOdm());
+                                documentLine.setReserved28(erpSoa.getOther19());
+                                documentLine.setReserved29(erpSoa.getOther18());
                                 documentLine.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
                             }
                             documentLine.setQty(erpSoa.getQuantity());

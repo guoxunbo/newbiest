@@ -23,4 +23,6 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     List<MaterialLot> getPackedDetailsAndNotReserved(@Param("packagedLotId")List<String> packagedLotId);
 
     MaterialLot getByLotId(@Param("lotId")String lotId);
+
+    List<MaterialLot> getByParentMaterialLotId(@Param("parentMaterialLotId")String parentMaterialLotId);
 }

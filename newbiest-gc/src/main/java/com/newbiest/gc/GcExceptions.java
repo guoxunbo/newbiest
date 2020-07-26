@@ -28,6 +28,7 @@ public class GcExceptions {
     public static final String MATERIALNAME_IS_NOT_SAME = "gc.materialName_is_not_same";
     public static final String MATERIAL_LOT_FOUR_CODE_ERROR = "gc.material_lot_four_code_error";
     public static final String MATERIAL_LOT_WAFER_QTY_IS_NOT_SAME_REAL_QTY = "gc.material_lot_wafer_qty_is_not_same_real_qty";
+    public static final String MUST_DELETE_FULL_BOX_DATA = "gc.must_delete_full_box_data";
 
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";

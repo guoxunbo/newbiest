@@ -145,8 +145,52 @@ public class ErpSoa implements Serializable {
     @Column(name="SHIPADDRESS")
     private String shipAddress;
 
+    /**
+     * 客户联系人
+     */
+    @Column(name="CUSPERSON")
+    private String cusperson;
+
+    /**
+     * 客户联系电话
+     */
+    @Column(name="CUSPHONE")
+    private String cusphone;
+
+    /**
+     * odm
+     */
+    @Column(name="ODM")
+    private String odm;
+
+    /**
+     * 剩余数量
+     */
+    @Column(name="LEFT_NUM")
+    private String leftNum;
+
+    /**
+     * 已处理数量
+     */
+    @Column(name="FHQUANTITY")
+    private String fhquantity;
+
+    /**
+     * 关联ERP grade
+     */
+    @Column(name="GRADE")
+    private String grade;
+
+
+
     @Column(name="OTHER3")
     private String other3;
+
+    /**
+     * 快递单号
+     */
+    @Column(name="OTHER4")
+    private String other4;
 
     @Column(name="OTHER6")
     private String other6;
@@ -168,5 +212,17 @@ public class ErpSoa implements Serializable {
 
     @Column(name="OTHER13")
     private String other13;
+
+    /**
+     * ERP发货地
+     */
+    @Column(name="OTHER18")
+    private String Other18;
+
+    /**
+     * 出库备注
+     */
+    @Column(name="OTHER19")
+    private String Other19;
 
 }
