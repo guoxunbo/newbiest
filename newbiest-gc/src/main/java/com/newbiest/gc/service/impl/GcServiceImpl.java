@@ -990,8 +990,8 @@ public class GcServiceImpl implements GcService {
                         break;
                     }
                 }
-                BigDecimal handledQty = documentLine.getHandledQty().add((documentLine.getUnHandledQty().subtract(unhandedQty)));
-                documentLine.setHandledQty(handledQty);
+                BigDecimal handledQty = (documentLine.getUnHandledQty().subtract(unhandedQty));
+                documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
                 documentLine.setUnHandledQty(unhandedQty);
                 documentLineRepository.save(documentLine);
 
