@@ -1997,7 +1997,7 @@ public class GcServiceImpl implements GcService {
                         erpMoa.setCMemo("EMPTY");
                         erpMoa.setMaterialBonded(mesPackedLotRelation.getMaterialBonded());
                         erpMoa.setMaterialCode(mesPackedLotRelation.getMaterialCode());
-                        erpMoa.setMaterialQty(mesPackedLotRelation.getMaterialQty());
+                        erpMoa.setMaterialQty(mesPackedLot.getWaferQty());
                         erpMoa.setMaterialGrade(mesPackedLotRelation.getMaterialGrade());
                         erpMoa.setMaterialVersion(mesPackedLotRelation.getMaterialVersion());
 
