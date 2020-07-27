@@ -20,6 +20,8 @@ public class ErpMaterialOutOrder implements Serializable {
 
     public static final String SOURCE_TABLE_NAME = "ERP_MATERIAL_OUT_ORDER";
 
+    public static final String ERROR_CODE_DUPLICATE_DOC_ID = "duplicate_document_number";
+
     /**
      * 重测发料单
      */
