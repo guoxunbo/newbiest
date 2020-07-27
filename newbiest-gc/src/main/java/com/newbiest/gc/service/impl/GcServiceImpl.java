@@ -301,6 +301,11 @@ public class GcServiceImpl implements GcService {
                 materialLot.setReserved16(documentLine.getObjectRrn().toString());
                 materialLot.setReserved17(documentLine.getDocId());
                 materialLot.setReserved18(stockNote);
+
+                materialLot.setDocDate(documentLine.getErpCreated());
+                materialLot.setShipper(documentLine.getReserved8());
+                materialLot.setReserved51(documentLine.getReserved15());
+
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RESERVED);
                 materialLotHistoryRepository.save(history);
@@ -308,13 +313,23 @@ public class GcServiceImpl implements GcService {
 
             Map<String, List<MaterialLot>> parentMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
                     .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
-            parentMaterialLots.keySet().forEach(parentMLotId -> {
+
+            for (String parentMLotId : parentMaterialLots.keySet()) {
                 MaterialLot parentMLot = mmsService.getMLotByMLotId(parentMLotId);
                 BigDecimal totalReservedQty = parentMaterialLots.get(parentMLotId).stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
                 BigDecimal parentMaterialLotReservedQty = parentMLot.getReservedQty() == null ? BigDecimal.ZERO : parentMLot.getReservedQty();
                 parentMLot.setReservedQty(parentMaterialLotReservedQty.add(totalReservedQty));
+
+                parentMLot.setReserved16(documentLine.getObjectRrn().toString());
+                parentMLot.setReserved17(documentLine.getDocId());
+                parentMLot.setReserved18(stockNote);
+
+                parentMLot.setDocDate(documentLine.getErpCreated());
+                parentMLot.setShipper(documentLine.getReserved8());
+                parentMLot.setReserved51(documentLine.getReserved15());
+
                 materialLotRepository.saveAndFlush(parentMLot);
-            });
+            }
 
             documentLine.setUnReservedQty(unReservedQty.subtract(reservedQty));
             BigDecimal lineReservedQty = documentLine.getReservedQty() == null ? BigDecimal.ZERO : documentLine.getReservedQty();
@@ -339,15 +354,21 @@ public class GcServiceImpl implements GcService {
             // 根据documentLine分组 依次还原数量
             Map<String, List<MaterialLot>> docLineReservedMaterialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             Map<Long, BigDecimal> docUnReservedQtyMap = Maps.newHashMap();
+
             //还原箱备货数量
             Map<String, List<MaterialLot>> parentMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
                     .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+
             parentMaterialLots.keySet().forEach(parentMLotId -> {
                 MaterialLot parentMLot = mmsService.getMLotByMLotId(parentMLotId);
                 BigDecimal totalUnReservedQty = parentMaterialLots.get(parentMLotId).stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
                 parentMLot.setReservedQty(parentMLot.getReservedQty().subtract(totalUnReservedQty));
                 parentMLot.setReserved19(StringUtils.EMPTY);
                 parentMLot.setReserved20(StringUtils.EMPTY);
+
+                if (parentMLot.getReservedQty().compareTo(BigDecimal.ZERO) == 0) {
+                    parentMLot.clearReservedInfo();
+                }
                 materialLotRepository.saveAndFlush(parentMLot);
             });
 
@@ -357,11 +378,9 @@ public class GcServiceImpl implements GcService {
                 BigDecimal unReservedQty = BigDecimal.ZERO;
                 for (MaterialLot materialLot : docLineReservedMaterialLots) {
                     unReservedQty = unReservedQty.add(materialLot.getReservedQty());
-                    materialLot.setReservedQty(BigDecimal.ZERO);
-                    materialLot.setReserved16(StringUtils.EMPTY);
-                    materialLot.setReserved17(StringUtils.EMPTY);
-                    materialLot.setReserved18(StringUtils.EMPTY);
 
+                    materialLot.setReservedQty(BigDecimal.ZERO);
+                    materialLot.clearReservedInfo();
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_RESERVED);
                     materialLotHistoryRepository.save(history);
@@ -378,6 +397,7 @@ public class GcServiceImpl implements GcService {
                 docUnReservedQty.add(unReservedQty);
                 docUnReservedQtyMap.put(documentLine.getDocRrn(), unReservedQty);
             }
+
             for (Long docRrn : docUnReservedQtyMap.keySet()) {
                 DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(docRrn);
                 deliveryOrder.setUnReservedQty(deliveryOrder.getUnReservedQty().add(docUnReservedQtyMap.get(docRrn)));

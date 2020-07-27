@@ -50,7 +50,8 @@ public class ValidationPackMaterialLotController extends AbstractRestController 
 
         List<MaterialLot> waitToPackLots = requestBody.getWaitToPackMaterialLots();
         if (ValidationPackMaterialLotRequest.ACTION_VALIDATION_PACK.equals(actionType)) {
-            packageService.validationPackageRule(waitToPackLots, packageType);
+            MaterialLotPackageType materialLotPackageType = packageService.getMaterialPackageTypeByName(packageType);
+            packageService.validationPackageRule(waitToPackLots, materialLotPackageType);
         } else if (ValidationPackMaterialLotRequest.ACTION_VALIDATION_APPEND.equals(actionType)) {
             MaterialLot packagedMaterialLot = mmsService.getMLotByMLotId(requestBody.getPackagedMaterialLotId());
             // 当前追加包装只验证合批规则，其他都不验证。

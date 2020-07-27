@@ -20,7 +20,7 @@ public interface PackageService {
     MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException;
     MaterialLot appendPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException;
 
-    void validationPackageRule(List<MaterialLot> materialLots, String packageType) throws ClientException;
+    void validationPackageRule(List<MaterialLot> materialLots, MaterialLotPackageType materialLotPackageType) throws ClientException;
     List<MaterialLot> unPack(List<MaterialLotAction> materialLotActions) throws ClientException;
 
 }

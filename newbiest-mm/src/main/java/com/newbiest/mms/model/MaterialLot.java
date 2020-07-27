@@ -8,6 +8,7 @@ import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.commom.sm.model.StatusLifeCycle;
 import com.newbiest.mms.exception.MmsException;
+import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.state.model.MaterialStatusCategory;
 import lombok.Data;
 
@@ -282,7 +283,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String shipper;
 
     /**
-     * 载具号aliasId
+     * 载具号 aliasId
      */
     @Column(name="LOT_ID")
     private String lotId;
@@ -294,7 +295,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String productType = PRODUCT_TYPE;
 
     /**
-     * 单据日期
+     * ERP备货的单据日期
      */
     @Column(name="DOC_DATE")
     @Temporal(TemporalType.TIMESTAMP)
@@ -719,6 +720,51 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         setPreSubStatus(StringUtils.EMPTY);
         setReceiveQty(this.getCurrentQty());
         setReservedQty(BigDecimal.ZERO);
+    }
+
+    /**
+     * 清空预留相关栏位信息
+     */
+    public void clearReservedInfo() {
+        this.setReserved16(StringUtils.EMPTY);
+        this.setReserved17(StringUtils.EMPTY);
+        this.setReserved18(StringUtils.EMPTY);
+
+        this.setDocDate(null);
+        this.setShipper(StringUtils.EMPTY);
+        this.setReserved51(StringUtils.EMPTY);
+    }
+
+    /**
+     * 清空被包装批次的相关信息
+     */
+    public void clearPackedMaterialLot() {
+        //TODO 此处为GC客制化
+        // 清除中转箱号以及库位号
+        this.setReserved8(StringUtils.EMPTY);
+        this.setReserved14(StringUtils.EMPTY);
+    }
+
+    /**
+     * 构建包装批次
+     * @param packageType
+     */
+    public void buildPackageMaterialLot(String packageType) {
+        this.initialMaterialLot();
+        this.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_USE);
+        this.setStatus(MaterialStatus.STATUS_WAIT);
+        this.setPackageType(packageType);
+
+        //TODO 此处为GC客制化
+        // 清除中转箱号以及库位号 清空场外LOTID号
+        this.setReserved8(StringUtils.EMPTY);
+        this.setReserved14(StringUtils.EMPTY);
+        this.setLotId(StringUtils.EMPTY);
+
+        // 清空备货相关信息
+        //this.setReserved16(StringUtils.EMPTY);
+        //this.setReserved17(StringUtils.EMPTY);
+        //.setReserved18(StringUtils.EMPTY);
     }
 
     public void setMaterial(Material material) {

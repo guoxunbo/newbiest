@@ -22,17 +22,6 @@ public class WaybillDelivery implements Serializable {
     public static final String DEFAULT_COUNTRY_NAME = "";
     public static final String DEFAULT_ADDRESS = "";
 
-//    "preWaybillDelivery": {
-//                "companyName": "寄件公司001",
-//                        "person": "张三",
-//                        "phone": "18379151111",
-//                        "mobile": "",
-//                        "provinceName": "广东省",
-//                        "cityName": "深圳市",
-//                        "countyName": "宝安区",
-//                        "address": "福永街道福永二路深翔物流园"
-//            },
-
     private String companyName;
 
     private String person;

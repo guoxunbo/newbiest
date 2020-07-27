@@ -24,6 +24,7 @@ import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.express.dto.WaybillDelivery;
 import com.newbiest.gc.service.ExpressService;
 import com.newbiest.mms.model.DocumentLine;
+import com.newbiest.mms.model.MaterialLot;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,12 +122,15 @@ public class ExpressServiceImpl implements ExpressService {
     /**
      * 给跨域速递下单
      * @param expressNumber 快递单号，如果没值，由快递生成
-     * @param documentLine 单据
+     * @param materialLots 物料批次
      * @param serviceMode 服务模式 次日达等等
      * @param payMode 支付方式
      */
-    public String planOrder(String expressNumber, DocumentLine documentLine, int serviceMode, int payMode) throws ClientException {
+    public String planOrder(String expressNumber, List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException {
         try {
+            //TODO 收货人地址待从单据上来。现在还没提供
+            String shippingAddress = "tttttt";
+
             Map<String, Object> requestParameters = Maps.newHashMap();
             requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
             requestParameters.put("platformFlag", expressConfiguration.getPlatformFlag());
@@ -135,13 +139,17 @@ public class ExpressServiceImpl implements ExpressService {
             OrderInfo orderInfo = new OrderInfo();
             orderInfo.setWaybillNumber(expressNumber);
             orderInfo.setPreWaybillDelivery(buildPreWaybillDelivery());
-            orderInfo.setPreWaybillPickup(buildWaybillPickup(documentLine));
 
-            orderInfo.setServiceMode(20);
-            orderInfo.setPayMode(10);
+            WaybillDelivery preWaybillPickup = new WaybillDelivery();
+            preWaybillPickup.setAddress(shippingAddress);
+            orderInfo.setPreWaybillPickup(preWaybillPickup);
 
-            orderInfo.setOrderId("testdocid");
+            orderInfo.setServiceMode(serviceMode);
+            orderInfo.setPayMode(payMode);
+
+            orderInfo.setOrderId("GC00000001");
             orderInfos.add(orderInfo);
+
             requestParameters.put("orderInfos", orderInfos);
 
             ExpressResponse response = sendRequest(ExpressConfiguration.PLAN_ORDER_METHOD, requestParameters);
@@ -160,15 +168,6 @@ public class ExpressServiceImpl implements ExpressService {
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
-    }
-
-    /**
-     * 从单据上获取出货地址
-     * @return
-     * @throws ClientException
-     */
-    public WaybillDelivery buildWaybillPickup(DocumentLine documentLine) throws ClientException{
-        return buildPreWaybillDelivery();
     }
 
     /**
