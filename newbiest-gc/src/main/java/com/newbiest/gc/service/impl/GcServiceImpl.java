@@ -329,6 +329,10 @@ public class GcServiceImpl implements GcService {
                 parentMLot.setReserved51(documentLine.getReserved15());
 
                 materialLotRepository.saveAndFlush(parentMLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(parentMLot, MaterialLotHistory.TRANS_TYPE_RESERVED);
+                materialLotHistoryRepository.save(history);
+
             }
 
             documentLine.setUnReservedQty(unReservedQty.subtract(reservedQty));
@@ -370,6 +374,9 @@ public class GcServiceImpl implements GcService {
                     parentMLot.clearReservedInfo();
                 }
                 materialLotRepository.saveAndFlush(parentMLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(parentMLot, MaterialLotHistory.TRANS_TYPE_UN_RESERVED);
+                materialLotHistoryRepository.save(history);
             });
 
             for (String docLine : docLineReservedMaterialLotMap.keySet()) {
