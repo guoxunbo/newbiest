@@ -15,7 +15,7 @@ public class AsyncWaferIssueOrderThread extends GcTriggerThread {
 
     @Override
     public void execute() {
-        this.gcService.asyncWaferIssueOrder();
+        this.gcService.asyncWaferIssueOrderAndOtherIssueOrder();
     }
 }
 
