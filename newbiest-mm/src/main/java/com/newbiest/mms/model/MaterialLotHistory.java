@@ -299,6 +299,14 @@ public class MaterialLotHistory extends NBHis {
     private String productType = PRODUCT_TYPE;
 
     /**
+     * ERP备货的单据日期
+     */
+    @Column(name="DOC_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
+    private Date docDate;
+
+    /**
      * GlaxyCore MES完成品的levelTwoCode
      */
     @Column(name="RESERVED1")
