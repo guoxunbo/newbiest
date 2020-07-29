@@ -435,7 +435,7 @@ public class GcServiceImpl implements GcService {
     public MaterialLot getWaitStockInStorageMaterialLot(String materialLotId) throws ClientException {
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
-            materialLot.isFinish();
+            //materialLot.isFinish();
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
