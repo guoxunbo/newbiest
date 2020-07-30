@@ -1047,6 +1047,10 @@ public class GcServiceImpl implements GcService {
     private void changeMLotUnitStateAndSaveMesWaferBackendWaferReceive(MaterialLot materialLot) throws ClientException{
         try {
             List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            String waferType = null;
+            if(MaterialLot.IMPORT_WLT.equals(materialLot.getReserved7())){
+                waferType = MesWaferReceive.DEFAULT_WAFER_TYPE;
+            }
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
                 materialLotUnit.setState(MaterialLotUnit.STATE_ISSUE);
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
@@ -1056,14 +1060,14 @@ public class GcServiceImpl implements GcService {
                 materialLotUnitHisRepository.save(history);
 
                 //发料成功，将晶圆信息保存到MES的BACKEND_WAFER_RECEIVE表中
-                saveMesBackendWaferReceive(materialLotUnit);
+                saveMesBackendWaferReceive(materialLotUnit,waferType);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
-    private void saveMesBackendWaferReceive(MaterialLotUnit materialLotUnit) throws ClientException{
+    private void saveMesBackendWaferReceive(MaterialLotUnit materialLotUnit,String waferType) throws ClientException{
         try {
             MesWaferReceive waferReceive = new MesWaferReceive();
             waferReceive.setMaterialLotUnit(materialLotUnit);
@@ -1073,7 +1077,9 @@ public class GcServiceImpl implements GcService {
             }
             waferReceive.setCstId(materialLotUnit.getLotId());
             waferReceive.setStockId(warehouse.getName());
-            waferReceive.setWaferType(MesWaferReceive.DEFAULT_WAFER_TYPE);
+            if(!StringUtils.isNullOrEmpty(waferType)){
+                waferReceive.setWaferType(MesWaferReceive.DEFAULT_WAFER_TYPE);
+            }
             waferReceive = mesWaferReceiveRepository.saveAndFlush(waferReceive);
 
             //mes的晶圆历史表中记录晶圆发料历史
