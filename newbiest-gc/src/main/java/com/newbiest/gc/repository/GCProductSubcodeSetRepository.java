@@ -14,4 +14,7 @@ public interface GCProductSubcodeSetRepository extends IRepository<GCProductSubc
     @Query("SELECT p FROM GCProductSubcode p where p.productId = :productId and p.subcode = :subcode")
     GCProductSubcode getProductAndSubcodeInfoByProductIdAndSubcode(@Param("productId") String productId, @Param("subcode")  String subcode) throws ClientException;
 
+    @Query("SELECT p FROM GCProductSubcode p where p.productId = :productId")
+    GCProductSubcode getProductAndSubcodeInfoByProductId(@Param("productId") String productId) throws ClientException;
+
 }

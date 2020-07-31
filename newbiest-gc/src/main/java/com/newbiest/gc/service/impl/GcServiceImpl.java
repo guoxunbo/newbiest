@@ -2205,6 +2205,42 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 格科同步MES的晶圆型号、描述、单位
+     */
+    public void asyncMesProductAndSubcode() throws ClientException{
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            RawMaterial rawMaterial = new RawMaterial();
+            List<Map> productSubcodeList = findEntityMapListByQueryName(Material.QUERY_PRODUCT_SUBCODE,null,0,999,"","");
+            if(CollectionUtils.isNotEmpty(productSubcodeList)){
+                for(Map<String, String> m : productSubcodeList){
+                    String productId = m.get("MODEL_ID");
+                    String subcode = m.get("SUB_CODE");
+                    rawMaterial = mmsService.getRawMaterialByName(productId);
+                    if(rawMaterial != null){
+                        GCProductSubcode productSubcode = gcProductSubcodeSetRepository.getProductAndSubcodeInfoByProductId(productId);
+                        if(productSubcode == null){
+                            productSubcode = new GCProductSubcode();
+                            productSubcode.setProductId(productId);
+                            productSubcode.setSubcode(subcode);
+                            gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
+                        } else {
+                            GCProductSubcode oldProductSubcode = gcProductSubcodeSetRepository.getProductAndSubcodeInfoByProductIdAndSubcode(productId, subcode);
+                            if(oldProductSubcode == null){
+                                productSubcode.setSubcode(subcode);
+                                gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     private void queryMesProductOrWaferTypeInfoByQueryName(String queryName, String materialType) {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();

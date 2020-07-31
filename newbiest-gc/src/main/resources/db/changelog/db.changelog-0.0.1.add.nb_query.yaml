@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_add_nb_query_0.0.1
+      author: Guozhang Luo
+      comment: add nb_query for queryProductSubcode
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/insert_nb_query_0.0.1.sql
