@@ -72,7 +72,8 @@ public class GcServiceImpl implements GcService {
     public static final String TRANS_TYPE_OQC = "OQC";
     public static final String TRANS_TYPE_UPDATE_TREASURY_NOTE = "UpdateTreasuryNote";
     public static final String TRANS_TYPE_UPDATE_LOCAYTION = "UpdateLocation";
-    public static final String TRANS_TYPE_HOLD = "HOLD";
+    public static final String TRANS_TYPE_HOLD = "Hold";
+    public static final String TRANS_TYPE_RELEASE = "Release";
 
     public static final String REFERENCE_NAME_STOCK_OUT_CHECK_ITEM_LIST = "StockOutCheckItemList";
     public static final String REFERENCE_NAME_WLTSTOCK_OUT_CHECK_ITEM_LIST = "WltStockOutCheckItemList";
@@ -664,9 +665,11 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved1(String.valueOf(erpMaterialOutOrder.getSeq()));
                                 documentLine.setReserved2(erpMaterialOutOrder.getSecondcode());
                                 documentLine.setReserved3(erpMaterialOutOrder.getGrade());
+                                documentLine.setReserved4(erpMaterialOutOrder.getCfree3());
                                 documentLine.setReserved5(erpMaterialOutOrder.getCmaker());
                                 documentLine.setReserved6(erpMaterialOutOrder.getChandler());
                                 documentLine.setReserved7(erpMaterialOutOrder.getOther1());
+                                documentLine.setReserved8(erpMaterialOutOrder.getCusname());
                                 documentLine.setReserved9(waferIssueOrder.CATEGORY_WAFER_ISSUE);
                                 documentLine.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
                             }
@@ -767,9 +770,11 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved1(String.valueOf(erpMaterialOutOrder.getSeq()));
                                 documentLine.setReserved2(erpMaterialOutOrder.getSecondcode());
                                 documentLine.setReserved3(erpMaterialOutOrder.getGrade());
+                                documentLine.setReserved4(erpMaterialOutOrder.getCfree3());
                                 documentLine.setReserved5(erpMaterialOutOrder.getCmaker());
                                 documentLine.setReserved6(erpMaterialOutOrder.getChandler());
                                 documentLine.setReserved7(erpMaterialOutOrder.getOther1());
+                                documentLine.setReserved8(erpMaterialOutOrder.getCusname());
                                 documentLine.setReserved9(ReTestOrder.CATEGORY_RETEST);
                                 documentLine.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
 
@@ -1597,6 +1602,8 @@ public class GcServiceImpl implements GcService {
                             }
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(erpSo.getLeftNum());
+                            documentLine.setReservedQty(BigDecimal.ZERO);
+                            documentLine.setUnReservedQty(erpSo.getIquantity());
                             totalQty = totalQty.add(erpSo.getIquantity());
                             documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
@@ -1717,6 +1724,14 @@ public class GcServiceImpl implements GcService {
 
                                 documentLine.setReserved10(erpSo.getGCode());
                                 documentLine.setReserved11(erpSo.getGName());
+                                documentLine.setReserved12(erpSo.getOther8());
+                                documentLine.setReserved15(erpSo.getOther18());
+                                documentLine.setReserved17(erpSo.getOther3());
+                                documentLine.setReserved20(erpSo.getOther9());
+                                documentLine.setReserved21(erpSo.getOther10());
+                                documentLine.setReserved27(erpSo.getOther7());
+                                documentLine.setReserved28(erpSo.getOther4());
+
                                 documentLine.setDocType(erpSo.getCvouchtype());
                                 documentLine.setDocName(erpSo.getCvouchname());
                                 documentLine.setDocBusType(erpSo.getCbustype());
@@ -2934,7 +2949,7 @@ public class GcServiceImpl implements GcService {
                 materialLot.restoreStatus();
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
                 // 记录历史
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_HOLD);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_RELEASE);
                 history.setActionReason(ReleaseReason);
                 history.setActionComment(remarks);
                 history.setTransQty(materialLot.getCurrentQty());
