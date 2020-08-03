@@ -305,7 +305,8 @@ public class GcServiceImpl implements GcService {
                 materialLot.setDocDate(documentLine.getErpCreated());
                 materialLot.setShipper(documentLine.getReserved8());
                 materialLot.setReserved51(documentLine.getReserved15());
-
+                materialLot.setReserved52(documentLine.getReserved20());
+                materialLot.setReserved53(documentLine.getReserved21());
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RESERVED);
                 materialLotHistoryRepository.save(history);
@@ -327,7 +328,8 @@ public class GcServiceImpl implements GcService {
                 parentMLot.setDocDate(documentLine.getErpCreated());
                 parentMLot.setShipper(documentLine.getReserved8());
                 parentMLot.setReserved51(documentLine.getReserved15());
-
+                parentMLot.setReserved52(documentLine.getReserved20());
+                parentMLot.setReserved53(documentLine.getReserved21());
                 materialLotRepository.saveAndFlush(parentMLot);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(parentMLot, MaterialLotHistory.TRANS_TYPE_RESERVED);
