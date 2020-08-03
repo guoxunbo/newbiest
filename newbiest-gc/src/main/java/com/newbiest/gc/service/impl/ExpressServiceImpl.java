@@ -12,28 +12,34 @@ import com.kyexpress.openapi.sdk.request.DefaultRequest;
 import com.kyexpress.openapi.sdk.response.AccessTokenKyeResponse;
 import com.kyexpress.openapi.sdk.response.DefaultKyeResponse;
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.ExpressConfiguration;
 import com.newbiest.gc.GcExceptions;
-import com.newbiest.gc.express.dto.ExpressResponse;
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.express.dto.WaybillDelivery;
 import com.newbiest.gc.service.ExpressService;
-import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotHistory;
+import com.newbiest.mms.repository.MaterialLotHistoryRepository;
+import com.newbiest.mms.repository.MaterialLotRepository;
+import com.newbiest.msg.DefaultParser;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author guoxunbo
@@ -41,7 +47,6 @@ import java.util.Map;
  */
 @Service
 @Slf4j
-@ConfigurationProperties(prefix = "gc.express")
 @Data
 public class ExpressServiceImpl implements ExpressService {
 
@@ -53,6 +58,15 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Autowired
     UIService uiService;
+
+    @Autowired
+    MaterialLotRepository materialLotRepository;
+
+    @Autowired
+    MaterialLotHistoryRepository materialLotHistoryRepository;
+
+    @Autowired
+    BaseService baseService;
 
     @Value("${spring.profiles.active}")
     private String profiles;
@@ -91,7 +105,7 @@ public class ExpressServiceImpl implements ExpressService {
         }
     }
 
-    private ExpressResponse sendRequest(String methodCode, Object parameter) throws ClientException{
+    private List sendRequest(String methodCode, Object parameter) throws ClientException{
         try {
             if (log.isInfoEnabled()) {
                 log.info("Start to send [" + methodCode + "] to express.");
@@ -101,7 +115,7 @@ public class ExpressServiceImpl implements ExpressService {
             DefaultRequest request = new DefaultRequest(methodCode, parameter, KyeConstants.REQUEST_DATA_FORMAT_JSON, KyeConstants.RESPONSE_DATA_FORMAT_JSON);
             DefaultKyeResponse response = kyeClient.execute(request);
             if (response == null) {
-                throw new ClientException("网络异常");
+                throw new ClientException(GcExceptions.EXPRESS_NETWORK_ERROR);
             }
             if (log.isInfoEnabled()) {
                 log.info("end to send [" + methodCode + "] to express.");
@@ -113,7 +127,31 @@ public class ExpressServiceImpl implements ExpressService {
             if (!response.isSuccess()) {
                 throw new ClientException(response.getMsg());
             }
-            return response.getData(ExpressResponse.class);
+            return DefaultParser.getObjectMapper().readValue(response.getData(), List.class);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 绑定快递单号
+     * @param materialLots
+     * @param expressNumber
+     */
+    public List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException{
+        try {
+            for (MaterialLot materialLot : materialLots) {
+                if (!StringUtils.isNullOrEmpty(materialLot.getExpressNumber())) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_ALREADY_RECORD_EXPRESS, materialLot.getMaterialLotId());
+                }
+                materialLot.setExpressNumber(expressNumber);
+                materialLot.setPlanOrderType(planOrderType);
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECORD_EXPRESS);
+                materialLotHistoryRepository.save(history);
+            }
+            return materialLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -121,15 +159,20 @@ public class ExpressServiceImpl implements ExpressService {
 
     /**
      * 给跨域速递下单
-     * @param expressNumber 快递单号，如果没值，由快递生成
      * @param materialLots 物料批次
      * @param serviceMode 服务模式 次日达等等
      * @param payMode 支付方式
      */
-    public String planOrder(String expressNumber, List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException {
+    public List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException {
         try {
-            //TODO 收货人地址待从单据上来。现在还没提供
-            String shippingAddress = "tttttt";
+            Optional optional = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved51())).findFirst();
+            if (optional.isPresent()) {
+                throw new ClientException(GcExceptions.PICKUP_ADDRESS_IS_NULL);
+            }
+            Set<String> pickUpAddresses = materialLots.stream().map(MaterialLot :: getReserved51).collect(Collectors.toSet());
+            if (CollectionUtils.isNotEmpty(pickUpAddresses)  && pickUpAddresses.size() != 1) {
+                throw new ClientException(GcExceptions.PICKUP_ADDRESS_MORE_THEN_ONE);
+            }
 
             Map<String, Object> requestParameters = Maps.newHashMap();
             requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
@@ -137,23 +180,45 @@ public class ExpressServiceImpl implements ExpressService {
 
             List<OrderInfo> orderInfos = Lists.newArrayList();
             OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setWaybillNumber(expressNumber);
+            // 寄件人信息
             orderInfo.setPreWaybillDelivery(buildPreWaybillDelivery());
-
+            // 收货人信息
             WaybillDelivery preWaybillPickup = new WaybillDelivery();
-            preWaybillPickup.setAddress(shippingAddress);
+            preWaybillPickup.setPerson(materialLots.get(0).getReserved52());
+            preWaybillPickup.setMobile(materialLots.get(0).getReserved53());
+            preWaybillPickup.setAddress(pickUpAddresses.iterator().next());
             orderInfo.setPreWaybillPickup(preWaybillPickup);
 
             orderInfo.setServiceMode(serviceMode);
             orderInfo.setPayMode(payMode);
 
-            orderInfo.setOrderId("GC00000001");
+            orderInfo.setOrderId(ExpressConfiguration.PLAN_ORDER_DEFAULT_ORDER_ID);
+            orderInfo.setPaymentCustomer(expressConfiguration.getCustomerCode());
             orderInfos.add(orderInfo);
 
             requestParameters.put("orderInfos", orderInfos);
 
-            ExpressResponse response = sendRequest(ExpressConfiguration.PLAN_ORDER_METHOD, requestParameters);
-            return response.getWaybillNumber();
+            List responseMap = sendRequest(ExpressConfiguration.PLAN_ORDER_METHOD, requestParameters);
+            String waybillNumber = (String) ((Map)responseMap.get(0)).get("waybillNumber");
+
+            if (log.isDebugEnabled()) {
+                List<String> materialLotIds = materialLots.stream().map(MaterialLot :: getMaterialLotId).collect(Collectors.toList());
+                log.debug(String.format("MaterialLotIds [%s] records express number [%s]", materialLotIds, waybillNumber));
+            }
+            recordExpressNumber(materialLots, waybillNumber, MaterialLot.PLAN_ORDER_TYPE_AUTO);
+            return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void cancelOrderByMaterialLots(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            List<String> expressNumbers = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
+                    .map(MaterialLot :: getExpressNumber).collect(Collectors.toList());
+            for (String expressNumber : expressNumbers) {
+                cancelOrder(expressNumber);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -161,10 +226,24 @@ public class ExpressServiceImpl implements ExpressService {
 
     public void cancelOrder(String expressNumber) throws ClientException {
         try {
-            Map<String, Object> requestParameters = Maps.newHashMap();
-            requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
-            requestParameters.put("waybillNumber", expressNumber);
-            sendRequest(ExpressConfiguration.PLAN_ORDER_METHOD, requestParameters);
+            List<MaterialLot> materialLots = materialLotRepository.getByExpressNumber(expressNumber);
+            if (CollectionUtils.isNotEmpty(materialLots)) {
+                String planOrderType = materialLots.get(0).getPlanOrderType();
+                if (MaterialLot.PLAN_ORDER_TYPE_AUTO.equals(planOrderType)) {
+                    Map<String, Object> requestParameters = Maps.newHashMap();
+                    requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
+                    requestParameters.put("waybillNumber", expressNumber);
+                    sendRequest(ExpressConfiguration.CANCEL_ORDER_METHOD, requestParameters);
+                }
+                for (MaterialLot materialLot : materialLots) {
+                    materialLot.clearReservedInfo();
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_CANCEL_EXPRESS);
+                    materialLotHistoryRepository.save(history);
+                }
+            }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -179,10 +258,9 @@ public class ExpressServiceImpl implements ExpressService {
         try {
             // TODO 当前只有ZJ发货，后续如果有别的发货的话，再加入判断逻辑
             String shippingAddress = ZJ_SHIPPING_ADDRESS;
-
             List<? extends NBReferenceList> nbReferenceLists = uiService.getReferenceList(shippingAddress, NBReferenceList.CATEGORY_SYSTEM);
             if (CollectionUtils.isEmpty(nbReferenceLists)) {
-                //TODO 抛异常
+                throw new ClientParameterException(GcExceptions.SHIPPING_ADDRESS_IS_NULL, shippingAddress);
             }
             WaybillDelivery preWaybillDelivery = new WaybillDelivery();
             for (NBReferenceList nbReference : nbReferenceLists) {
@@ -218,7 +296,7 @@ public class ExpressServiceImpl implements ExpressService {
                     continue;
                 }
             }
-            return preWaybillDelivery.build();
+            return preWaybillDelivery;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

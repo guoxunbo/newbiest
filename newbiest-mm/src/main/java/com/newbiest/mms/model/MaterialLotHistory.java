@@ -34,6 +34,9 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_PACKAGE = "Package";
     public static final String TRANS_TYPE_UN_PACKAGE = "UnPackage";
 
+    public static final String TRANS_TYPE_RECORD_EXPRESS = "RecordExpress";
+    public static final String TRANS_TYPE_CANCEL_EXPRESS = "CancelExpress";
+
     /**
      * 因为包装产生的批次
      */
@@ -243,6 +246,18 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="SHIPPER")
     private String shipper;
+
+    /**
+     * 快递单号
+     */
+    @Column(name="EXPRESS_NUMBER")
+    private String expressNumber;
+
+    /**
+     * 下单类型
+     */
+    @Column(name="PLAN_ORDER_TYPE")
+    private String planOrderType;
 
     /**
      * 操作数量
@@ -598,12 +613,21 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED50")
     private String reserved50;
 
+    /**
+     * GlaxyCore 收货地址
+     */
     @Column(name="RESERVED51")
     private String reserved51;
 
+    /**
+     * shipper_person 具体收货人
+     */
     @Column(name="RESERVED52")
     private String reserved52;
 
+    /**
+     * shipperPhone 具体收货电话
+     */
     @Column(name="RESERVED53")
     private String reserved53;
 

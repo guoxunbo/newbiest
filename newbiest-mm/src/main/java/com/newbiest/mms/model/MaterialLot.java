@@ -54,6 +54,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE = "GCQRCodePrintSeq";
 
+    /**
+     * 手动快递下单
+     */
+    public static final String PLAN_ORDER_TYPE_MANUAL  = "ManualOrder";
+
+    /**
+     * 自动快递下单
+     */
+    public static final String PLAN_ORDER_TYPE_AUTO  = "AutoOrder";
+
     public static final String CATEGORY_UNIT = "Unit";
     public static final String CATEGORY_LOT = "Lot";
 
@@ -281,6 +291,18 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="SHIPPER")
     private String shipper;
+
+    /**
+     * 快递单号
+     */
+    @Column(name="EXPRESS_NUMBER")
+    private String expressNumber;
+
+    /**
+     * 下单类型
+     */
+    @Column(name="PLAN_ORDER_TYPE")
+    private String planOrderType;
 
     /**
      * 载具号 aliasId
@@ -603,14 +625,20 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved50;
 
     /**
-     * GlaxyCore 发货地址
+     * GlaxyCore 收货地址
      */
     @Column(name="RESERVED51")
     private String reserved51;
 
+    /**
+     * shipper_person 具体收货人
+     */
     @Column(name="RESERVED52")
     private String reserved52;
 
+    /**
+     * shipperPhone 具体收货电话
+     */
     @Column(name="RESERVED53")
     private String reserved53;
 
@@ -723,6 +751,14 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     }
 
     /**
+     * 清空快递相关信息
+     */
+    public void clearExpressInfo() {
+        this.setExpressNumber(StringUtils.EMPTY);
+        this.setPlanOrderType(StringUtils.EMPTY);
+    }
+
+    /**
      * 清空预留相关栏位信息
      */
     public void clearReservedInfo() {
@@ -733,6 +769,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setDocDate(null);
         this.setShipper(StringUtils.EMPTY);
         this.setReserved51(StringUtils.EMPTY);
+        this.setReserved52(StringUtils.EMPTY);
+        this.setReserved53(StringUtils.EMPTY);
     }
 
     /**

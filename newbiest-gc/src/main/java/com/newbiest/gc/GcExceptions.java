@@ -37,6 +37,13 @@ public class GcExceptions {
 
 
     //快递相关
+    public static final String MATERIAL_LOT_ALREADY_RECORD_EXPRESS = "gc.material_lot_recorded_express";
+
     public static final String GET_EXPRESS_TOKEN_ERROR = "gc.get_express_token_error";
+    public static final String SHIPPING_ADDRESS_IS_NULL = "gc.shipping_address_is_null";
+    public static final String EXPRESS_NETWORK_ERROR = "gc.express_network_error";
+    public static final String PICKUP_ADDRESS_IS_NULL = "gc.pickup_address_is_null";
+    public static final String PICKUP_ADDRESS_MORE_THEN_ONE = "gc.pickup_address_more_then_one";
+
 
 }

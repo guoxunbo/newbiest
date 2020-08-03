@@ -25,4 +25,6 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     MaterialLot getByLotId(@Param("lotId")String lotId);
 
     List<MaterialLot> getByParentMaterialLotId(@Param("parentMaterialLotId")String parentMaterialLotId);
+
+    List<MaterialLot> getByExpressNumber(String expressNumber) throws Exception;
 }

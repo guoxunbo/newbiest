@@ -1,5 +1,6 @@
 package com.newbiest.gc.express.dto;
 
+import com.newbiest.gc.ExpressConfiguration;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,7 +12,6 @@ import java.io.Serializable;
 @Data
 public class OrderInfo implements Serializable {
 
-    public static final String DEFAULT_GOODS_TYPE = "WAFER";
 
     /**
      * 快递单号 为空的话由跨越速递自动生成
@@ -39,9 +39,14 @@ public class OrderInfo implements Serializable {
     private Integer payMode;
 
     /**
+     * 付款卡号
+     */
+    private String paymentCustomer;
+
+    /**
      * 物品类型
      */
-    private String goodsType = DEFAULT_GOODS_TYPE;
+    private String goodsType = ExpressConfiguration.DEFAULT_GOODS_TYPE;
 
     /**
      * ERP订单号
@@ -51,6 +56,10 @@ public class OrderInfo implements Serializable {
     /**
      * 有无回单
      */
-    private Integer receiptFlag = 20;
+    private Integer receiptFlag = ExpressConfiguration.RECEIPT_FLAG_10;
 
+    /**
+     * 回单份数
+     */
+    private Integer receiptCount = ExpressConfiguration.DEFAULT_RECEIPT_COUNT;
 }

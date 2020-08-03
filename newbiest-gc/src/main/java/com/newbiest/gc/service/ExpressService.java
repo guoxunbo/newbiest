@@ -13,7 +13,10 @@ import java.util.List;
  */
 public interface ExpressService {
 
-    String planOrder(String expressNumber, List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException;
-    void cancelOrder(String expressNumber) throws ClientException;
+    List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException;
+    void cancelOrderByMaterialLots(List<MaterialLot> materialLots) throws ClientException;
+
+    List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException;
+
 
 }

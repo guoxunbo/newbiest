@@ -13,15 +13,6 @@ import java.io.Serializable;
 @Data
 public class WaybillDelivery implements Serializable {
 
-    public static final String DEFAULT_COMPANY_NAME = "";
-    public static final String DEFAULT_PERSON = "";
-    public static final String DEFAULT_PHONE = "";
-    public static final String DEFAULT_MOBILE = "";
-    public static final String DEFAULT_PROVINCE_NAME = "";
-    public static final String DEFAULT_CITY_NAME = "";
-    public static final String DEFAULT_COUNTRY_NAME = "";
-    public static final String DEFAULT_ADDRESS = "";
-
     private String companyName;
 
     private String person;
@@ -38,31 +29,4 @@ public class WaybillDelivery implements Serializable {
 
     private String address;
 
-    public WaybillDelivery build() {
-        if (StringUtils.isNullOrEmpty(companyName)) {
-            companyName = DEFAULT_COMPANY_NAME;
-        }
-        if (StringUtils.isNullOrEmpty(person)) {
-            person = DEFAULT_PERSON;
-        }
-        if (StringUtils.isNullOrEmpty(phone)) {
-            phone = DEFAULT_PHONE;
-        }
-        if (StringUtils.isNullOrEmpty(mobile)) {
-            mobile = DEFAULT_MOBILE;
-        }
-        if (StringUtils.isNullOrEmpty(provinceName)) {
-            provinceName = DEFAULT_PROVINCE_NAME;
-        }
-        if (StringUtils.isNullOrEmpty(cityName)) {
-            cityName = DEFAULT_CITY_NAME;
-        }
-        if (StringUtils.isNullOrEmpty(countyName)) {
-            countyName = DEFAULT_COUNTRY_NAME;
-        }
-        if (StringUtils.isNullOrEmpty(address)) {
-            address = DEFAULT_ADDRESS;
-        }
-        return this;
-    }
 }
