@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_0.0.2
+      author: Xunbo Guo
+      remarks: MMS_DOCUMENT_HIS add column UN_HANDLE_QTY
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT_HIS
+            columns:
+              - column:
+                  name: UN_HANDLE_QTY
+                  type: bigint
+                  remarks: 未处理数量
+
