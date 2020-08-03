@@ -82,6 +82,13 @@ public class MmsConfiguration {
 
         ModelFactory.registerHistoryModelClassLoader(MaterialLotUnit.class.getName(), MaterialLotUnitHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(MaterialLotUnit.class.getName(), MaterialLotUnitHistory.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(DocumentLine.class.getName(), DocumentLineHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(DocumentLine.class.getName(), DocumentLineHistory.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(DeliveryOrder.class.getName(), DocumentHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(DeliveryOrder.class.getName(), DocumentHistory.class.getName());
+
     }
 
 }

@@ -1,10 +1,10 @@
 package com.newbiest.gc;
 
 import com.newbiest.base.factory.ModelFactory;
-import com.newbiest.gc.model.GCLcdCogDetial;
-import com.newbiest.gc.model.GCLcdCogDetialHis;
-import com.newbiest.gc.model.GCProductSubcode;
+import com.newbiest.gc.model.*;
 import com.newbiest.main.YmlPropertyLoaderFactory;
+import com.newbiest.mms.model.DeliveryOrder;
+import com.newbiest.mms.model.DocumentHistory;
 import com.newbiest.mms.model.MaterialHistory;
 import com.newbiest.mms.model.RawMaterial;
 import liquibase.integration.spring.SpringLiquibase;
@@ -58,5 +58,15 @@ public class GcConfiguration {
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetial.class.getName(), GCLcdCogDetialHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(GCLcdCogDetial.class.getName(), GCLcdCogDetialHis.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(WaferIssueOrder.class.getName(), DocumentHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(WaferIssueOrder.class.getName(), DocumentHistory.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(OtherShipOrder.class.getName(), DocumentHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(OtherShipOrder.class.getName(), DocumentHistory.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(ReTestOrder.class.getName(), DocumentHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(ReTestOrder.class.getName(), DocumentHistory.class.getName());
+
     }
 }

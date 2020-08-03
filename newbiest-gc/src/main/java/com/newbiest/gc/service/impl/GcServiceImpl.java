@@ -152,6 +152,12 @@ public class GcServiceImpl implements GcService {
     DocumentLineRepository documentLineRepository;
 
     @Autowired
+    DocumentHistoryRepository documentHistoryRepository;
+
+    @Autowired
+    DocumentLineHistoryRepository documentLineHistoryRepository;
+
+    @Autowired
     MaterialLotJudgeHisRepository materialLotJudgeHisRepository;
 
     @Autowired
@@ -691,11 +697,11 @@ public class GcServiceImpl implements GcService {
                     waferIssueOrder.setQty(totalQty);
                     waferIssueOrder.setUnHandledQty(waferIssueOrder.getQty().subtract(waferIssueOrder.getHandledQty()));
                     waferIssueOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
-                    waferIssueOrder = waferIssueOrderRepository.saveAndFlush(waferIssueOrder);
+                    waferIssueOrder = (WaferIssueOrder) baseService.saveEntity(waferIssueOrder);
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(waferIssueOrder);
-                        documentLineRepository.save(documentLine);
+                        baseService.saveEntity(documentLine);
                     }
 
                     // 保存单据的时候同步下客户
@@ -796,11 +802,11 @@ public class GcServiceImpl implements GcService {
                     reTestOrder.setQty(totalQty);
                     reTestOrder.setUnHandledQty(reTestOrder.getQty().subtract(reTestOrder.getHandledQty()));
                     reTestOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
-                    reTestOrder = reTestOrderRepository.saveAndFlush(reTestOrder);
+                    reTestOrder = (ReTestOrder) baseService.saveEntity(reTestOrder);
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(reTestOrder);
-                        documentLineRepository.save(documentLine);
+                        baseService.saveEntity(documentLine);
                     }
 
                     // 保存单据的时候同步下客户
@@ -1519,7 +1525,6 @@ public class GcServiceImpl implements GcService {
         try {
             List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_TV, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
-
             if (CollectionUtils.isNotEmpty(erpSos)) {
                 Map<String, List<ErpSo>> documentIdMap = erpSos.stream().collect(Collectors.groupingBy(ErpSo :: getCcode));
 
@@ -1623,14 +1628,12 @@ public class GcServiceImpl implements GcService {
                     }
                     receiveOrder.setQty(totalQty);
                     receiveOrder.setUnHandledQty(receiveOrder.getQty().subtract(receiveOrder.getHandledQty()));
-
-
                     receiveOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
-                    receiveOrder = receiveOrderRepository.saveAndFlush(receiveOrder);
+                    receiveOrder = (ReceiveOrder) baseService.saveEntity(receiveOrder);
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(receiveOrder);
-                        documentLineRepository.save(documentLine);
+                        baseService.saveEntity(documentLine);
                     }
                     // 保存单据的时候同步下客户
                     if (!StringUtils.isNullOrEmpty(receiveOrder.getSupplierName())) {
@@ -1762,11 +1765,11 @@ public class GcServiceImpl implements GcService {
                     deliveryOrder.setUnReservedQty(totalQty);
 
                     deliveryOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
-                    deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
+                    deliveryOrder = (DeliveryOrder) baseService.saveEntity(deliveryOrder);
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(deliveryOrder);
-                        documentLineRepository.save(documentLine);
+                        baseService.saveEntity(documentLine);
                     }
 
                     // 保存单据的时候同步下客户
@@ -3642,10 +3645,11 @@ public class GcServiceImpl implements GcService {
                     otherIssueOrder.setUnHandledQty(otherIssueOrder.getQty().subtract(otherIssueOrder.getHandledQty()));
 
                     otherIssueOrder.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
-                    otherIssueOrder = waferIssueOrderRepository.saveAndFlush(otherIssueOrder);
+                    otherIssueOrder = (WaferIssueOrder) baseService.saveEntity(otherIssueOrder);
+
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(otherIssueOrder);
-                        documentLineRepository.save(documentLine);
+                        baseService.saveEntity(documentLine);
                     }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
@@ -3772,11 +3776,11 @@ public class GcServiceImpl implements GcService {
                     otherStockOutOrder.setUnHandledQty(otherStockOutOrder.getQty().subtract(otherStockOutOrder.getHandledQty()));
                     otherStockOutOrder.setUnReservedQty(totalQty);
                     otherStockOutOrder.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
-                    otherStockOutOrder = otherStockOutOrderRepository.saveAndFlush(otherStockOutOrder);
+                    otherStockOutOrder = (OtherStockOutOrder) baseService.saveEntity(otherStockOutOrder);
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(otherStockOutOrder);
-                        documentLineRepository.save(documentLine);
+                        baseService.saveEntity(documentLine);
                     }
 
                     // 保存单据的时候同步下客户
@@ -3912,11 +3916,11 @@ public class GcServiceImpl implements GcService {
                     otherShipOrder.setQty(totalQty);
                     otherShipOrder.setUnHandledQty(otherShipOrder.getQty().subtract(otherShipOrder.getHandledQty()));
                     otherShipOrder.setUnReservedQty(totalQty);
-                    otherShipOrder = otherShipOrderRepository.saveAndFlush(otherShipOrder);
+                    otherShipOrder = (OtherShipOrder) baseService.saveEntity(otherShipOrder);
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(otherShipOrder);
-                        documentLineRepository.save(documentLine);
+                        baseService.saveEntity(documentLine);
                     }
 
                     // 保存单据的时候同步下客户
