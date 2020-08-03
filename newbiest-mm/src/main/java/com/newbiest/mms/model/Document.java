@@ -29,7 +29,6 @@ public class Document extends NBUpdatable {
 
     public static final String STATUS_OPEN = "OPEN";
 
-
     @Column(name="NAME")
     private String name;
 
@@ -90,8 +89,9 @@ public class Document extends NBUpdatable {
     @Column(name="UN_RESERVED_QTY")
     private BigDecimal unReservedQty = BigDecimal.ZERO;
 
-    @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.ALL})
-    @JoinColumn(name = "DOC_RRN", referencedColumnName = "OBJECT_RRN")
+//    @OneToMany(fetch= FetchType.LAZY, cascade={CascadeType.ALL})
+//    @JoinColumn(name = "DOC_RRN", referencedColumnName = "OBJECT_RRN")
+    @Transient
     private List<DocumentLine> documentLines;
 
     /**

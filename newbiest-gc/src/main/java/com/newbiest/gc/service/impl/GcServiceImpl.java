@@ -65,7 +65,6 @@ import static com.newbiest.mms.exception.MmsException.MM_RAW_MATERIAL_IS_NOT_EXI
 @Transactional
 public class GcServiceImpl implements GcService {
 
-
     public static final String TRANS_TYPE_BIND_RELAY_BOX = "BindRelayBox";
     public static final String TRANS_TYPE_UNBIND_RELAY_BOX = "UnbindRelayBox";
     public static final String TRANS_TYPE_JUDGE = "Judge";
@@ -678,7 +677,6 @@ public class GcServiceImpl implements GcService {
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
                             documentLine.setUnHandledQty(erpMaterialOutOrder.getLeftNum());
                             totalQty = totalQty.add(erpMaterialOutOrder.getIquantity());
-                            documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
 
                             waferIssueOrder.setOwner(erpMaterialOutOrder.getChandler());
@@ -692,14 +690,13 @@ public class GcServiceImpl implements GcService {
                     }
                     waferIssueOrder.setQty(totalQty);
                     waferIssueOrder.setUnHandledQty(waferIssueOrder.getQty().subtract(waferIssueOrder.getHandledQty()));
-                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
-                    if (waferIssueOrder.getObjectRrn() != null) {
-                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(waferIssueOrder.getObjectRrn());
-                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
-                    }
-                    waferIssueOrder.setDocumentLines(documentLines);
                     waferIssueOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
-                    waferIssueOrderRepository.save(waferIssueOrder);
+                    waferIssueOrder = waferIssueOrderRepository.saveAndFlush(waferIssueOrder);
+
+                    for (DocumentLine documentLine : documentLines) {
+                        documentLine.setDoc(waferIssueOrder);
+                        documentLineRepository.save(documentLine);
+                    }
 
                     // 保存单据的时候同步下客户
                     if (!StringUtils.isNullOrEmpty(waferIssueOrder.getSupplierName())) {
@@ -784,7 +781,6 @@ public class GcServiceImpl implements GcService {
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
                             documentLine.setUnHandledQty(erpMaterialOutOrder.getLeftNum());
                             totalQty = totalQty.add(erpMaterialOutOrder.getIquantity());
-                            documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
 
                             reTestOrder.setOwner(erpMaterialOutOrder.getChandler());
@@ -799,14 +795,13 @@ public class GcServiceImpl implements GcService {
                     }
                     reTestOrder.setQty(totalQty);
                     reTestOrder.setUnHandledQty(reTestOrder.getQty().subtract(reTestOrder.getHandledQty()));
-                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
-                    if (reTestOrder.getObjectRrn() != null) {
-                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(reTestOrder.getObjectRrn());
-                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
-                    }
-                    reTestOrder.setDocumentLines(documentLines);
                     reTestOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
-                    reTestOrderRepository.save(reTestOrder);
+                    reTestOrder = reTestOrderRepository.saveAndFlush(reTestOrder);
+
+                    for (DocumentLine documentLine : documentLines) {
+                        documentLine.setDoc(reTestOrder);
+                        documentLineRepository.save(documentLine);
+                    }
 
                     // 保存单据的时候同步下客户
                     if (!StringUtils.isNullOrEmpty(reTestOrder.getSupplierName())) {
@@ -1552,7 +1547,7 @@ public class GcServiceImpl implements GcService {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
-                                }else{
+                                } else {
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpSo.getSeq());
                                     erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
@@ -1569,7 +1564,6 @@ public class GcServiceImpl implements GcService {
                                 if (material == null) {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
                                 }
-                                documentLine.setDocId(documentId);
                                 documentLine.setErpCreated(erpCreatedDate);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
                                 documentLine.setMaterialName(material.getName());
@@ -1607,7 +1601,6 @@ public class GcServiceImpl implements GcService {
                             documentLine.setReservedQty(BigDecimal.ZERO);
                             documentLine.setUnReservedQty(erpSo.getIquantity());
                             totalQty = totalQty.add(erpSo.getIquantity());
-                            documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
@@ -1631,15 +1624,14 @@ public class GcServiceImpl implements GcService {
                     receiveOrder.setQty(totalQty);
                     receiveOrder.setUnHandledQty(receiveOrder.getQty().subtract(receiveOrder.getHandledQty()));
 
-                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
-                    if (receiveOrder.getObjectRrn() != null) {
-                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(receiveOrder.getObjectRrn());
-                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
-                    }
-                    receiveOrder.setDocumentLines(documentLines);
-                    receiveOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
-                    receiveOrderRepository.save(receiveOrder);
 
+                    receiveOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
+                    receiveOrder = receiveOrderRepository.saveAndFlush(receiveOrder);
+
+                    for (DocumentLine documentLine : documentLines) {
+                        documentLine.setDoc(receiveOrder);
+                        documentLineRepository.save(documentLine);
+                    }
                     // 保存单据的时候同步下客户
                     if (!StringUtils.isNullOrEmpty(receiveOrder.getSupplierName())) {
                         savaCustomer(receiveOrder.getSupplierName());
@@ -1708,7 +1700,6 @@ public class GcServiceImpl implements GcService {
                                 if (material == null) {
                                     throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
                                 }
-                                documentLine.setDocId(documentId);
                                 documentLine.setErpCreated(erpCreatedDate);
                                 documentLine.setMaterialRrn(material.getObjectRrn());
                                 documentLine.setMaterialName(material.getName());
@@ -1746,7 +1737,6 @@ public class GcServiceImpl implements GcService {
                             documentLine.setUnHandledQty(erpSo.getLeftNum());
                             documentLine.setUnReservedQty(erpSo.getIquantity());
                             totalQty = totalQty.add(erpSo.getIquantity());
-                            documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
@@ -1770,14 +1760,14 @@ public class GcServiceImpl implements GcService {
                     deliveryOrder.setQty(totalQty);
                     deliveryOrder.setUnHandledQty(deliveryOrder.getQty().subtract(deliveryOrder.getHandledQty()));
                     deliveryOrder.setUnReservedQty(totalQty);
-                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
-                    if (deliveryOrder.getObjectRrn() != null) {
-                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(deliveryOrder.getObjectRrn());
-                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
-                    }
-                    deliveryOrder.setDocumentLines(documentLines);
+
                     deliveryOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
-                    deliveryOrderRepository.save(deliveryOrder);
+                    deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
+
+                    for (DocumentLine documentLine : documentLines) {
+                        documentLine.setDoc(deliveryOrder);
+                        documentLineRepository.save(documentLine);
+                    }
 
                     // 保存单据的时候同步下客户
                     if (!StringUtils.isNullOrEmpty(deliveryOrder.getSupplierName())) {
@@ -3637,7 +3627,6 @@ public class GcServiceImpl implements GcService {
                             documentLine.setQty(erpMaterialOutaOrder.getIquantity());
                             documentLine.setUnHandledQty(erpMaterialOutaOrder.getLeftNum());
                             totalQty = totalQty.add(erpMaterialOutaOrder.getIquantity());
-                            documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
 
                             otherIssueOrder.setOwner(erpMaterialOutaOrder.getChandler());
@@ -3651,35 +3640,19 @@ public class GcServiceImpl implements GcService {
                     }
                     otherIssueOrder.setQty(totalQty);
                     otherIssueOrder.setUnHandledQty(otherIssueOrder.getQty().subtract(otherIssueOrder.getHandledQty()));
-                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
-                    if (otherIssueOrder.getObjectRrn() != null) {
-                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(otherIssueOrder.getObjectRrn());
-                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
-                    }
-                    otherIssueOrder.setDocumentLines(documentLines);
+
                     otherIssueOrder.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
-                    waferIssueOrderRepository.save(otherIssueOrder);
+                    otherIssueOrder = waferIssueOrderRepository.saveAndFlush(otherIssueOrder);
+                    for (DocumentLine documentLine : documentLines) {
+                        documentLine.setDoc(otherIssueOrder);
+                        documentLineRepository.save(documentLine);
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    private void getExistDocumentLineDocRrn(List<DocumentLine> existDocumentLines, List<DocumentLine> documentLines) throws ClientException{
-        try {
-            if (CollectionUtils.isNotEmpty(existDocumentLines)) {
-                Map<Long, DocumentLine> documentLinesMap = documentLines.stream().collect(Collectors.toConcurrentMap(DocumentLine :: getObjectRrn, Function.identity()));
-                for (DocumentLine documentLine : existDocumentLines) {
-                    if (!documentLinesMap.containsKey(documentLine.getObjectRrn())) {
-                        documentLines.add(documentLine);
-                    }
-                }
-            }
-        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -3775,7 +3748,6 @@ public class GcServiceImpl implements GcService {
                             documentLine.setUnHandledQty(erpSoa.getQuantity());
                             documentLine.setUnReservedQty(erpSoa.getQuantity());
                             totalQty = totalQty.add(erpSoa.getQuantity());
-                            documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
@@ -3799,14 +3771,13 @@ public class GcServiceImpl implements GcService {
                     otherStockOutOrder.setQty(totalQty);
                     otherStockOutOrder.setUnHandledQty(otherStockOutOrder.getQty().subtract(otherStockOutOrder.getHandledQty()));
                     otherStockOutOrder.setUnReservedQty(totalQty);
-                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
-                    if (otherStockOutOrder.getObjectRrn() != null) {
-                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(otherStockOutOrder.getObjectRrn());
-                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
-                    }
-                    otherStockOutOrder.setDocumentLines(documentLines);
                     otherStockOutOrder.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
-                    otherStockOutOrderRepository.save(otherStockOutOrder);
+                    otherStockOutOrder = otherStockOutOrderRepository.saveAndFlush(otherStockOutOrder);
+
+                    for (DocumentLine documentLine : documentLines) {
+                        documentLine.setDoc(otherStockOutOrder);
+                        documentLineRepository.save(documentLine);
+                    }
 
                     // 保存单据的时候同步下客户
                     if (!StringUtils.isNullOrEmpty(otherStockOutOrder.getSupplierName())) {
@@ -3919,7 +3890,6 @@ public class GcServiceImpl implements GcService {
                             documentLine.setUnHandledQty(erpSob.getLeftNum());
                             documentLine.setUnReservedQty(erpSob.getIquantity());
                             totalQty = totalQty.add(erpSob.getIquantity());
-                            documentLine = documentLineRepository.saveAndFlush(documentLine);
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
@@ -3942,13 +3912,12 @@ public class GcServiceImpl implements GcService {
                     otherShipOrder.setQty(totalQty);
                     otherShipOrder.setUnHandledQty(otherShipOrder.getQty().subtract(otherShipOrder.getHandledQty()));
                     otherShipOrder.setUnReservedQty(totalQty);
-                    // 同步的时候并不会同步老数据。故需要将老数据添加进来。防止在级联保存的时候docRrn被清空
-                    if (otherShipOrder.getObjectRrn() != null) {
-                        List<DocumentLine> existDocumentLines = documentLineRepository.findByDocRrn(otherShipOrder.getObjectRrn());
-                        getExistDocumentLineDocRrn(existDocumentLines, documentLines);
+                    otherShipOrder = otherShipOrderRepository.saveAndFlush(otherShipOrder);
+
+                    for (DocumentLine documentLine : documentLines) {
+                        documentLine.setDoc(otherShipOrder);
+                        documentLineRepository.save(documentLine);
                     }
-                    otherShipOrder.setDocumentLines(documentLines);
-                    otherShipOrderRepository.save(otherShipOrder);
 
                     // 保存单据的时候同步下客户
                     if (!StringUtils.isNullOrEmpty(otherShipOrder.getSupplierName())) {

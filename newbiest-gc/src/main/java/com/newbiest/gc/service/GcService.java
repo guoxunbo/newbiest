@@ -83,6 +83,10 @@ public interface GcService {
     void asyncWaferIssueOrder() throws ClientException;
     void asyncWaferIssueOrderAndOtherIssueOrder() throws ClientException;
 
+    void asyncMesProduct() throws ClientException;
+    void asyncMesWaferType() throws ClientException;
+    void asyncMesProductAndSubcode() throws ClientException;
+
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 
     void validationDocLine(List<DocumentLine> documentLineList, MaterialLot materialLot) throws ClientException;
@@ -91,9 +95,6 @@ public interface GcService {
     void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
-    void asyncMesProduct() throws ClientException;
-    void asyncMesWaferType() throws ClientException;
-    void asyncMesProductAndSubcode() throws ClientException;
 
     List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
     List<MaterialLot>  getWaitChangeStorageMaterialLotByRelayBoxId(String relayBoxId) throws ClientException;
