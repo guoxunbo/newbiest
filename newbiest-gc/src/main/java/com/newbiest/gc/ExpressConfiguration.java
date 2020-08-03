@@ -43,6 +43,11 @@ public class ExpressConfiguration {
      */
     public static final Integer DEFAULT_RECEIPT_COUNT = 1;
 
+    /**
+     * 默认的预约取货
+     */
+    public static final Integer DEFAULT_DISMANTLING = 10;
+
     private String customerCode;
 
     private String platformFlag;

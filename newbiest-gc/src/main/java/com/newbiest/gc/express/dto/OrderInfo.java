@@ -1,9 +1,12 @@
 package com.newbiest.gc.express.dto;
 
+import com.newbiest.base.utils.DateUtils;
 import com.newbiest.gc.ExpressConfiguration;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author guoxunbo
@@ -62,4 +65,20 @@ public class OrderInfo implements Serializable {
      * 回单份数
      */
     private Integer receiptCount = ExpressConfiguration.DEFAULT_RECEIPT_COUNT;
+
+    /**
+     * 是否取货
+     */
+    private Integer dismantling = ExpressConfiguration.DEFAULT_DISMANTLING;
+
+
+    private String goodsTime = getDefaultGoodTime();
+
+
+    private String getDefaultGoodTime() {
+        LocalDateTime ldt = LocalDateTime.now();
+        ldt = ldt.withHour(19);
+        ldt = ldt.withMinute(30);
+        return ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+    }
 }

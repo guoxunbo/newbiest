@@ -105,7 +105,7 @@ public class ExpressServiceImpl implements ExpressService {
         }
     }
 
-    private List sendRequest(String methodCode, Object parameter) throws ClientException{
+    private String sendRequest(String methodCode, Object parameter) throws ClientException{
         try {
             if (log.isInfoEnabled()) {
                 log.info("Start to send [" + methodCode + "] to express.");
@@ -127,7 +127,7 @@ public class ExpressServiceImpl implements ExpressService {
             if (!response.isSuccess()) {
                 throw new ClientException(response.getMsg());
             }
-            return DefaultParser.getObjectMapper().readValue(response.getData(), List.class);
+            return response.getData();
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -141,9 +141,6 @@ public class ExpressServiceImpl implements ExpressService {
     public List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException{
         try {
             for (MaterialLot materialLot : materialLots) {
-                if (!StringUtils.isNullOrEmpty(materialLot.getExpressNumber())) {
-                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_ALREADY_RECORD_EXPRESS, materialLot.getMaterialLotId());
-                }
                 materialLot.setExpressNumber(expressNumber);
                 materialLot.setPlanOrderType(planOrderType);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
@@ -198,7 +195,9 @@ public class ExpressServiceImpl implements ExpressService {
 
             requestParameters.put("orderInfos", orderInfos);
 
-            List responseMap = sendRequest(ExpressConfiguration.PLAN_ORDER_METHOD, requestParameters);
+            String responseData = sendRequest(ExpressConfiguration.PLAN_ORDER_METHOD, requestParameters);
+            List responseMap =  DefaultParser.getObjectMapper().readValue(responseData, List.class);
+
             String waybillNumber = (String) ((Map)responseMap.get(0)).get("waybillNumber");
 
             if (log.isDebugEnabled()) {
@@ -236,7 +235,7 @@ public class ExpressServiceImpl implements ExpressService {
                     sendRequest(ExpressConfiguration.CANCEL_ORDER_METHOD, requestParameters);
                 }
                 for (MaterialLot materialLot : materialLots) {
-                    materialLot.clearReservedInfo();
+                    materialLot.clearExpressInfo();
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_CANCEL_EXPRESS);
