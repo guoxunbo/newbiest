@@ -458,7 +458,7 @@ public class GcServiceImpl implements GcService {
      */
     public MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException {
         try {
-            MaterialLot materialLot = materialLotRepository.getByLotId(lotId);
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndProductType(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
             if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
@@ -3361,6 +3361,10 @@ public class GcServiceImpl implements GcService {
                         materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_COB);
                         materialLotUnit.setReserved50("16");
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_COB);
+                    } else if(MaterialLotUnit.SOC_FINISH_PRODUCT.equals(importType)){
+                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_SOC);
+                        materialLotUnit.setReserved50("18");
+                        materialLotUnit.setReserved49(MaterialLot.IMPORT_SOC);
                     }
                 }
             }

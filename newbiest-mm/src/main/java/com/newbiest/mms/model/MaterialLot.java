@@ -97,6 +97,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String IMPORT_CRMA = "CRMA";
     public static final String IMPORT_COB = "COB";
     public static final String IMPORT_COG = "COG";
+    public static final String IMPORT_SOC = "SOC";
 
     /**
      * 物料批次号

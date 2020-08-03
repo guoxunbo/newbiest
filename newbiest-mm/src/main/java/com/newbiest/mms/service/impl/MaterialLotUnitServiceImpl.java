@@ -134,7 +134,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
 
                 for (String lotId : materialLotUnitMap.keySet()) {
-                    MaterialLot materialLotInfo = materialLotRepository.getByLotId(lotId);
+                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndProductType(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
                     if(materialLotInfo != null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
                     }
