@@ -53,11 +53,11 @@ public class GcConfiguration {
     public void init() {
         // 注册modelClassLoader
         ModelFactory.registerModelClassLoader(GCProductSubcode.class.getName(), GCProductSubcode.class.getClassLoader());
-        ModelFactory.registerModelClassLoader(GCLcdCogDetial.class.getName(), GCLcdCogDetial.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetail.class.getClassLoader());
 
         // 注册历史
-        ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetial.class.getName(), GCLcdCogDetialHis.class.getClassLoader());
-        ModelFactory.registerHistoryClassName(GCLcdCogDetial.class.getName(), GCLcdCogDetialHis.class.getName());
+        ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getName());
 
         ModelFactory.registerHistoryModelClassLoader(WaferIssueOrder.class.getName(), DocumentHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(WaferIssueOrder.class.getName(), DocumentHistory.class.getName());

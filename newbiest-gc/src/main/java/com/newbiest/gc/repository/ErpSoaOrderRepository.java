@@ -13,9 +13,7 @@ import java.util.List;
 @Repository
 public interface ErpSoaOrderRepository extends IRepository<ErpSoa, Long> {
 
-    @Query("SELECT e FROM ErpSoa e where e.synStatus not in (:asyncStatus)")
-    @Modifying
-    List<ErpSoa> findErpSoaBySynStatusNotIn(@Param("asyncStatus") List<String> asyncStatus);
+    List<ErpSoa> findBySynStatusNotIn(@Param("asyncStatus") List<String> asyncStatus);
 
     @Query("update ErpSoa p set p.synStatus=:synStatus, p.errorMemo = :errorMemo where p.seq in (:seqList)")
     @Modifying

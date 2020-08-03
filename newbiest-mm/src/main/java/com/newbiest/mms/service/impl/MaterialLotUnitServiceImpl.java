@@ -134,7 +134,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
 
                 for (String lotId : materialLotUnitMap.keySet()) {
-                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndProductType(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
+                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
                     if(materialLotInfo != null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
                     }
@@ -259,7 +259,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 } else{
                     //修改unit表中存在且已发料的晶圆状态
                     for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
-                        List<MaterialLotUnit> issuedMLotUnitInfo = materialLotUnitRepository.getMLotUnitByUnitIdAndState(materialLotUnit.getUnitId(), MaterialLotUnit.STATE_ISSUE);
+                        List<MaterialLotUnit> issuedMLotUnitInfo = materialLotUnitRepository.findByUnitIdAndState(materialLotUnit.getUnitId(), MaterialLotUnit.STATE_ISSUE);
                         for(MaterialLotUnit issuedMLotUnit : issuedMLotUnitInfo){
                             issuedMLotUnit.setState(MaterialLotUnit.STATE_SCRAP);
                             materialLotUnitRepository.saveAndFlush(issuedMLotUnit);

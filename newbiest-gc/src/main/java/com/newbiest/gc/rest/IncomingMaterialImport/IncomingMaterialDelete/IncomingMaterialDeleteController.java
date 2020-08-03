@@ -35,7 +35,7 @@ public class IncomingMaterialDeleteController {
         if(IncomingMaterialDeleteRequest.ACTION_DELETE_INCOMINGMLOT.equals(actionType)){
             gcService.deleteIncomingMaterialLot(requestBody.getMaterialLotUnitList(), requestBody.getDeleteNote());
         } else if(IncomingMaterialDeleteRequest.ACTION_DELETE_COGDETIAL.equals(actionType)){
-            gcService.deleteCogDetial(requestBody.getLcdCogDetialList(), requestBody.getDeleteNote());
+            gcService.deleteCogDetail(requestBody.getLcdCogDetialList(), requestBody.getDeleteNote());
         } else if(IncomingMaterialDeleteRequest.ACTION_DELETE_COGECRETIVE.equals(actionType)){
             gcService.deleteCogEcretive(requestBody.getLcdCogEcretiveList(), requestBody.getDeleteNote());
         } else{

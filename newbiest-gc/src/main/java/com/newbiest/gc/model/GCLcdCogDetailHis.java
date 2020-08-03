@@ -1,7 +1,6 @@
 package com.newbiest.gc.model;
 
-import com.newbiest.base.model.NBUpdatable;
-import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.base.model.NBHis;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -13,9 +12,9 @@ import java.math.BigDecimal;
  * Created by guozhangLuo
  */
 @Entity
-@Table(name="GC_LCDCOG_DETAIL")
+@Table(name="GC_LCDCOG_DETAIL_HIS")
 @Data
-public class GCLcdCogDetial extends NBUpdatable {
+public class GCLcdCogDetailHis extends NBHis {
 
     private static final long serialVersionUID = -8075936261995774501L;
 
@@ -72,14 +71,5 @@ public class GCLcdCogDetial extends NBUpdatable {
      */
     @Column(name = "IMPORT_CODE")
     private String importCode;
-
-    public void setGcLcdCogDetial(MaterialLot materialLot) {
-        this.setGrade(materialLot.getGrade());
-        this.setBoxaId(materialLot.getMaterialLotId());
-        this.setBoxbId(materialLot.getParentMaterialLotId());
-        this.setBoxType(materialLot.getMaterialName());
-        this.setChipQty(materialLot.getCurrentQty());
-        this.setSerialNum(materialLot.getStoreUom());
-    }
 
 }

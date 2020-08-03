@@ -15,9 +15,7 @@ public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, 
 
     List<MaterialLotUnit> findByMaterialLotId(String materialLotId);
 
-    @Modifying
-    @Query("SELECT m FROM MaterialLotUnit m where m.unitId = :unitId and m.state = :state")
-    List<MaterialLotUnit> getMLotUnitByUnitIdAndState(@Param("unitId") String unitId, @Param("state") String state) throws ClientException;
+    List<MaterialLotUnit> findByUnitIdAndState(@Param("unitId") String unitId, @Param("state") String state) throws ClientException;
 
     @Modifying
     @Query("update MaterialLotUnit m set m.state = :state where m.unitId = :unitId and m.materialLotId = :materialLotId")
