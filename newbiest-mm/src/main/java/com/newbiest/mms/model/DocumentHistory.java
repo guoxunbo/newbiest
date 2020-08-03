@@ -1,6 +1,7 @@
 package com.newbiest.mms.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
@@ -15,7 +16,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name="MMS_DOCUMENT_HIS")
-public class DocumentHistory extends NBUpdatable {
+public class DocumentHistory extends NBHis {
 
     @Column(name="NAME")
     private String name;

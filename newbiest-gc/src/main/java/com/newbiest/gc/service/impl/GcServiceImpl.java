@@ -347,13 +347,14 @@ public class GcServiceImpl implements GcService {
             BigDecimal lineReservedQty = documentLine.getReservedQty() == null ? BigDecimal.ZERO : documentLine.getReservedQty();
             documentLine.setReservedQty(lineReservedQty.add(reservedQty));
             documentLine = documentLineRepository.saveAndFlush(documentLine);
+            baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RESERVED);
 
             DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(documentLine.getDocRrn());
             BigDecimal docReservedQty = deliveryOrder.getReservedQty() == null ? BigDecimal.ZERO : deliveryOrder.getReservedQty();
             deliveryOrder.setUnReservedQty(deliveryOrder.getUnReservedQty().subtract(reservedQty));
             deliveryOrder.setReservedQty(docReservedQty.add(reservedQty));
-            deliveryOrderRepository.save(deliveryOrder);
-
+            deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
+            baseService.saveHistoryEntity(deliveryOrder, MaterialLotHistory.TRANS_TYPE_RESERVED);
             return documentLine;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -403,6 +404,7 @@ public class GcServiceImpl implements GcService {
                 documentLine.setReservedQty(documentLine.getReservedQty().subtract(unReservedQty));
                 documentLine.setUnReservedQty(documentLine.getUnReservedQty().add(unReservedQty));
                 documentLine = documentLineRepository.saveAndFlush(documentLine);
+                baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_UN_RESERVED);
 
                 // 还原主单据数量
                 BigDecimal docUnReservedQty = BigDecimal.ZERO;
@@ -417,21 +419,14 @@ public class GcServiceImpl implements GcService {
                 DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(docRrn);
                 deliveryOrder.setUnReservedQty(deliveryOrder.getUnReservedQty().add(docUnReservedQtyMap.get(docRrn)));
                 deliveryOrder.setReservedQty(deliveryOrder.getReservedQty().subtract(docUnReservedQtyMap.get(docRrn)));
-                deliveryOrderRepository.save(deliveryOrder);
+                deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
+
+                baseService.saveHistoryEntity(deliveryOrder, MaterialLotHistory.TRANS_TYPE_UN_RESERVED);
             }
 
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
-    }
-
-    public List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException {
-        List<DeliveryOrder> deliveryOrderList = Lists.newArrayList();
-        for (DeliveryOrder deliveryOrder : deliveryOrders) {
-            deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
-            deliveryOrderList.add(deliveryOrder);
-        }
-        return deliveryOrderList;
     }
 
     /**
@@ -1008,12 +1003,14 @@ public class GcServiceImpl implements GcService {
                 BigDecimal handledQty = (documentLine.getUnHandledQty().subtract(unhandedQty));
                 documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
                 documentLine.setUnHandledQty(unhandedQty);
-                documentLineRepository.save(documentLine);
+                documentLine = documentLineRepository.saveAndFlush(documentLine);
+                baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_WAFER_ISSUE);
 
                 WaferIssueOrder waferIssueOrder = (WaferIssueOrder) waferIssueOrderRepository.findByObjectRrn(documentLine.getDocRrn());
                 waferIssueOrder.setHandledQty(waferIssueOrder.getHandledQty().add(handledQty));
                 waferIssueOrder.setUnHandledQty(waferIssueOrder.getUnHandledQty().subtract(handledQty));
                 waferIssueOrderRepository.save(waferIssueOrder);
+                baseService.saveHistoryEntity(waferIssueOrder, GCMaterialEvent.EVENT_WAFER_ISSUE);
                 //晶圆发料单的回写来源表有两个，分别判断是否存在并回写数据
                 Optional<ErpMaterialOutOrder> erpMaterialOutOrderOptional = erpMaterialOutOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
                 if(erpMaterialOutOrderOptional.isPresent()) {
@@ -1173,12 +1170,14 @@ public class GcServiceImpl implements GcService {
                 BigDecimal handledQty = documentLine.getHandledQty().add((documentLine.getUnHandledQty().subtract(unhandedQty)));
                 documentLine.setHandledQty(handledQty);
                 documentLine.setUnHandledQty(unhandedQty);
-                documentLineRepository.save(documentLine);
+                documentLine = documentLineRepository.saveAndFlush(documentLine);
+                baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RECEIVE);
 
                 ReceiveOrder receiveOrder = (ReceiveOrder) receiveOrderRepository.findByObjectRrn(documentLine.getDocRrn());
                 receiveOrder.setHandledQty(receiveOrder.getHandledQty().add(handledQty));
                 receiveOrder.setUnHandledQty(receiveOrder.getUnHandledQty().subtract(handledQty));
-                receiveOrderRepository.save(receiveOrder);
+                receiveOrder = receiveOrderRepository.saveAndFlush(receiveOrder);
+                baseService.saveHistoryEntity(receiveOrder, MaterialLotHistory.TRANS_TYPE_RECEIVE);
 
                 Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
                 if (!erpSoOptional.isPresent()) {
@@ -1331,12 +1330,14 @@ public class GcServiceImpl implements GcService {
                 BigDecimal handledQty = documentLine.getHandledQty().add((documentLine.getUnHandledQty().subtract(unhandedQty)));
                 documentLine.setHandledQty(handledQty);
                 documentLine.setUnHandledQty(unhandedQty);
-                documentLineRepository.save(documentLine);
+                documentLine = documentLineRepository.saveAndFlush(documentLine);
+                baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_RETEST);
 
                 ReTestOrder reTestOrder = (ReTestOrder) reTestOrderRepository.findByObjectRrn(documentLine.getDocRrn());
                 reTestOrder.setHandledQty(reTestOrder.getHandledQty().add(handledQty));
                 reTestOrder.setUnHandledQty(reTestOrder.getUnHandledQty().subtract(handledQty));
-                reTestOrderRepository.save(reTestOrder);
+                reTestOrder = reTestOrderRepository.saveAndFlush(reTestOrder);
+                baseService.saveHistoryEntity(reTestOrder, GCMaterialEvent.EVENT_RETEST);
 
                 Optional<ErpMaterialOutOrder> erpMaterialOutOrderOptional = erpMaterialOutOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
                 if (!erpMaterialOutOrderOptional.isPresent()) {
@@ -1476,13 +1477,15 @@ public class GcServiceImpl implements GcService {
             documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
             documentLine.setUnHandledQty(unHandleQty);
-            documentLineRepository.save(documentLine);
+            documentLine = documentLineRepository.saveAndFlush(documentLine);
+            baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SHIP);
 
             // 获取到主单据
             DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(documentLine.getDocRrn());
             deliveryOrder.setHandledQty(deliveryOrder.getHandledQty().add(handledQty));
             deliveryOrder.setUnHandledQty(deliveryOrder.getUnHandledQty().subtract(handledQty));
-            deliveryOrderRepository.save(deliveryOrder);
+            deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
+            baseService.saveHistoryEntity(deliveryOrder, MaterialLotHistory.TRANS_TYPE_SHIP);
 
             Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
             if (!erpSoOptional.isPresent()) {
