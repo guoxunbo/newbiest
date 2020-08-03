@@ -22,7 +22,8 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     @Query("SELECT m FROM MaterialLot m, PackagedLotDetail p where p.materialLotRrn = m.objectRrn and p.packagedLotId in (:packagedLotId) and m.reserved16 is null")
     List<MaterialLot> getPackedDetailsAndNotReserved(@Param("packagedLotId")List<String> packagedLotId);
 
-    MaterialLot getByLotId(@Param("lotId")String lotId);
+    @Query("SELECT m FROM MaterialLot m where m.lotId = :lotId and m.reserved7 <> productType")
+    MaterialLot findByLotIdAndProductType(@Param("lotId")String lotId, @Param("reserved7")String productType);
 
     List<MaterialLot> getByParentMaterialLotId(@Param("parentMaterialLotId")String parentMaterialLotId);
 

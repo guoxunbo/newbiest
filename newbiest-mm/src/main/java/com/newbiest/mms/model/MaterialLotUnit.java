@@ -52,6 +52,8 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String LCD_COG_FINISH_PRODUCT = "GCLCDCOGFinishProductEcretive";//LCD（COG成品-ECRETIVE）
     public static final String LCD_COG_DETIAL = "GCLcdCogDetial";//LCD(COG成品-明细)
     public static final String FINISH_PRODUCT_IMPORT = "GCFinishProductImport";//成品导入模板
+    public static final String SOC_FINISH_PRODUCT = "GCSOCFinishProduct"; //COB（-4成品）
+
 
     //产品型号
     public static final String PRODUCT_CLASSIFY_CP = "CP0";
@@ -61,6 +63,9 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String PRODUCT_CLASSIFY_RMA = "RMA0";
     public static final String PRODUCT_CLASSIFY_COB = "COB0";
     public static final String PRODUCT_CLASSIFY_COG = "COG0";
+    public static final String PRODUCT_CLASSIFY_SOC = "SOC0";
+
+    public static final String PRODUCT_CATEGORY_WLT = "WLT";
 
 
 

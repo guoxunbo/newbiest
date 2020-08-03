@@ -50,7 +50,7 @@ public class IncomingMaterialSaveController {
         String checkFourCodeFlag = requestBody.getCheckFourCodeFlag();
 
         String importCode = "";
-        if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType)){
+        if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType) || MaterialLotUnit.SOC_FINISH_PRODUCT.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             materialLotUnitList = gcService.validateAndSetWaferSource(importType, checkFourCodeFlag, materialLotUnitList);
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
