@@ -93,6 +93,7 @@ public interface GcService {
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
     void asyncMesProduct() throws ClientException;
     void asyncMesWaferType() throws ClientException;
+    void asyncMesProductAndSubcode() throws ClientException;
 
     List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
     List<MaterialLot>  getWaitChangeStorageMaterialLotByRelayBoxId(String relayBoxId) throws ClientException;

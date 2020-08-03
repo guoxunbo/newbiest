@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his add column
+      author: Zhi Cao
+      comment: mms_material_lot_his add column
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: DOC_DATE
+                  type: datetime

@@ -26,6 +26,7 @@ public class GcAsyncRequest extends Request {
 	public static final String ACTION_ASYNC_MATERIAL = "AsyncMaterial";
 	public static final String ACTION_ASYNC_PRODUCT = "AsyncProduct";
 	public static final String ACTION_ASYNC_WAFERTYPE = "AsyncWaferType";
+	public static final String ACTION_ASYNC_PRODUCTSUBCODE = "AsyncProductSubcode";
 
 	private GcAsyncRequestBody body;
 

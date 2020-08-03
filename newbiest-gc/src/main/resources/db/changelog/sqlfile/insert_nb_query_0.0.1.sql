@@ -1,0 +1,1 @@
+insert into nb_query (OBJECT_RRN, ACTIVE_FLAG, ORG_RRN, NAME, DESCRIPTION, QUERY_TEXT) values (hibernate_sequence.nextval, 'Y', 1, 'queryProductSubcode', '获取MES产品二级代码信息','select  n.model_id, n.sub_code from MM_MODEL_RELATION@TO_MES n');
