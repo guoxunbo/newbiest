@@ -453,7 +453,7 @@ public class GcServiceImpl implements GcService {
      */
     public MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException {
         try {
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndProductType(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
             if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
@@ -2218,14 +2218,14 @@ public class GcServiceImpl implements GcService {
                     String subcode = m.get("SUB_CODE");
                     rawMaterial = mmsService.getRawMaterialByName(productId);
                     if(rawMaterial != null){
-                        GCProductSubcode productSubcode = gcProductSubcodeSetRepository.getProductAndSubcodeInfoByProductId(productId);
+                        GCProductSubcode productSubcode = gcProductSubcodeSetRepository.findByProductId(productId);
                         if(productSubcode == null){
                             productSubcode = new GCProductSubcode();
                             productSubcode.setProductId(productId);
                             productSubcode.setSubcode(subcode);
                             gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
                         } else {
-                            GCProductSubcode oldProductSubcode = gcProductSubcodeSetRepository.getProductAndSubcodeInfoByProductIdAndSubcode(productId, subcode);
+                            GCProductSubcode oldProductSubcode = gcProductSubcodeSetRepository.findByProductIdAndSubcode(productId, subcode);
                             if(oldProductSubcode == null){
                                 productSubcode.setSubcode(subcode);
                                 gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
@@ -2831,7 +2831,7 @@ public class GcServiceImpl implements GcService {
      */
     private GCProductSubcode getProductAndSubcodeInfo(String productId, String subcode) throws ClientException {
         try {
-            return gcProductSubcodeSetRepository.getProductAndSubcodeInfoByProductIdAndSubcode(productId, subcode);
+            return gcProductSubcodeSetRepository.findByProductIdAndSubcode(productId, subcode);
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -3018,22 +3018,22 @@ public class GcServiceImpl implements GcService {
      * @param importType
      * @return
      */
-    public String saveLCDCOGDetialList(List<MaterialLot> materialLotList, String importType) throws ClientException {
+    public String saveLCDCOGDetailList(List<MaterialLot> materialLotList, String importType) throws ClientException {
         try {
             ThreadLocalContext.getSessionContext().buildTransInfo();
             String importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
             for(MaterialLot materialLot : materialLotList){
-                GCLcdCogDetial gcLcdCogDetial = gcLcdCogDetialRepository.getGcLcdCogDetialByBoxaIdAndBoxbId(materialLot.getMaterialLotId(), materialLot.getParentMaterialLotId());
-                if(gcLcdCogDetial != null){
-                    throw new ClientParameterException(GcExceptions.BOXAID_AND_BOXBID_IS_EXIST, gcLcdCogDetial.getBoxaId() + StringUtils.SPLIT_CODE + gcLcdCogDetial.getBoxbId());
+                GCLcdCogDetail gcLcdCogDetail = gcLcdCogDetialRepository.findByBoxaIdAndBoxbId(materialLot.getMaterialLotId(), materialLot.getParentMaterialLotId());
+                if(gcLcdCogDetail != null){
+                    throw new ClientParameterException(GcExceptions.BOXAID_AND_BOXBID_IS_EXIST, gcLcdCogDetail.getBoxaId() + StringUtils.SPLIT_CODE + gcLcdCogDetail.getBoxbId());
                 } else {
-                    gcLcdCogDetial = new GCLcdCogDetial();
+                    gcLcdCogDetail = new GCLcdCogDetail();
                 }
-                gcLcdCogDetial.setGcLcdCogDetial(materialLot);
-                gcLcdCogDetial.setWarehouseId(materialLot.getReserved13());
-                gcLcdCogDetial.setImportCode(importCode);
-                gcLcdCogDetial.setImportType(importType);
-                gcLcdCogDetialRepository.save(gcLcdCogDetial);
+                gcLcdCogDetail.setGcLcdCogDetail(materialLot);
+                gcLcdCogDetail.setWarehouseId(materialLot.getReserved13());
+                gcLcdCogDetail.setImportCode(importCode);
+                gcLcdCogDetail.setImportType(importType);
+                gcLcdCogDetialRepository.save(gcLcdCogDetail);
             }
             return importCode;
         } catch (Exception e) {
@@ -3215,16 +3215,16 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 删除COG明细信息
-     * @param lcdCogDetials
+     * @param lcdCogDetails
      * @param deleteNote
      * @return
      */
-    public void deleteCogDetial(List<GCLcdCogDetial> lcdCogDetials, String deleteNote) throws ClientException{
+    public void deleteCogDetail(List<GCLcdCogDetail> lcdCogDetails, String deleteNote) throws ClientException{
         try {
-            for(GCLcdCogDetial lcdCogDetial : lcdCogDetials){
-                gcLcdCogDetialRepository.delete(lcdCogDetial);
+            for(GCLcdCogDetail lcdCogDetail : lcdCogDetails){
+                gcLcdCogDetialRepository.delete(lcdCogDetail);
 
-                GCLcdCogDetialHis history = (GCLcdCogDetialHis) baseService.buildHistoryBean(lcdCogDetial, NBHis.TRANS_TYPE_DELETE);
+                GCLcdCogDetailHis history = (GCLcdCogDetailHis) baseService.buildHistoryBean(lcdCogDetail, NBHis.TRANS_TYPE_DELETE);
                 history.setActionComment(deleteNote);
                 gcLcdCogDetialHisRepository.save(history);
             }
@@ -3674,7 +3674,7 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncOtherStockOutOrder() throws ClientException {
         try {
-            List<ErpSoa> erpSos = erpSoaOrderRepository.findErpSoaBySynStatusNotIn(Lists.newArrayList(ErpSoa.SYNC_STATUS_OPERATION, ErpSoa.SYNC_STATUS_SYNC_SUCCESS));
+            List<ErpSoa> erpSos = erpSoaOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSoa.SYNC_STATUS_OPERATION, ErpSoa.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
 
             if (CollectionUtils.isNotEmpty(erpSos)) {
@@ -3825,7 +3825,7 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncOtherShipOrder() throws ClientException {
         try {
-            List<ErpSob> erpSobs = erpSobOrderRepository.findErpSobBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<ErpSob> erpSobs = erpSobOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
 
             if (CollectionUtils.isNotEmpty(erpSobs)) {

@@ -1,6 +1,6 @@
 package com.newbiest.gc.rest.IncomingMaterialImport.IncomingMaterialDelete;
 
-import com.newbiest.gc.model.GCLcdCogDetial;
+import com.newbiest.gc.model.GCLcdCogDetail;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.msg.RequestBody;
@@ -23,7 +23,7 @@ public class IncomingMaterialDeleteRequestBody extends RequestBody {
     private List<MaterialLotUnit> materialLotUnitList;
 
     @ApiModelProperty(value = "COG明细")
-    private List<GCLcdCogDetial> lcdCogDetialList;
+    private List<GCLcdCogDetail> lcdCogDetialList;
 
     @ApiModelProperty(value = "CogEcretive删除")
     private List<MaterialLot> lcdCogEcretiveList;
