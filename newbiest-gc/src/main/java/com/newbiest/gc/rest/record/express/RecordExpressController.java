@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.ExpressService;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
@@ -51,7 +52,10 @@ public class RecordExpressController {
             materialLots = expressService.recordExpressNumber(requestBody.getMaterialLots(), requestBody.getExpressNumber(), MaterialLot.PLAN_ORDER_TYPE_MANUAL);
         } else if (RecordExpressRequestBody.ACTION_TYPE_CANCEL_ORDER.equals(actionType)) {
             expressService.cancelOrderByMaterialLots(requestBody.getMaterialLots());
-        } else {
+        } else if (RecordExpressRequestBody.ACTION_TYPE_OLD_RECORD_ORDER.equals(actionType)) {
+            List<DeliveryOrder> deliveryOrders = expressService.recordExpressNumber(requestBody.getDeliveryOrderList());
+            responseBody.setDeliveryOrderList(deliveryOrders);
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }
         responseBody.setMaterialLots(materialLots);
