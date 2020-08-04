@@ -1329,8 +1329,8 @@ public class GcServiceImpl implements GcService {
                         break;
                     }
                 }
-                BigDecimal handledQty = documentLine.getUnHandledQty().subtract(unhandedQty);
-                documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
+                BigDecimal handledQty = documentLine.getHandledQty().add((documentLine.getUnHandledQty().subtract(unhandedQty)));
+                documentLine.setHandledQty(handledQty);
                 documentLine.setUnHandledQty(unhandedQty);
                 documentLine = documentLineRepository.saveAndFlush(documentLine);
                 baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_RETEST);
