@@ -438,7 +438,7 @@ public class GcServiceImpl implements GcService {
     public MaterialLot getWaitStockInStorageMaterialLot(String materialLotId) throws ClientException {
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
-            //materialLot.isFinish();
+            materialLot.isFinish();
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -1329,8 +1329,8 @@ public class GcServiceImpl implements GcService {
                         break;
                     }
                 }
-                BigDecimal handledQty = documentLine.getHandledQty().add((documentLine.getUnHandledQty().subtract(unhandedQty)));
-                documentLine.setHandledQty(handledQty);
+                BigDecimal handledQty = documentLine.getUnHandledQty().subtract(unhandedQty);
+                documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
                 documentLine.setUnHandledQty(unhandedQty);
                 documentLine = documentLineRepository.saveAndFlush(documentLine);
                 baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_RETEST);
