@@ -225,4 +225,7 @@ public class ErpSoa implements Serializable {
     @Column(name="OTHER19")
     private String Other19;
 
+    @Column(name="CREATE_SEQ")
+    private String createSeq;
+
 }

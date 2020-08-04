@@ -227,4 +227,7 @@ public class ErpSo implements Serializable {
     @Column(name="CWHNAME")
     private String cwhname;
 
+    @Column(name="CREATE_SEQ")
+    private String createSeq;
+
 }

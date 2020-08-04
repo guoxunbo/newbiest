@@ -638,7 +638,8 @@ public class GcServiceImpl implements GcService {
                             DocumentLine documentLine = null;
                             if (waferIssueOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(waferIssueOrder.getObjectRrn(), String.valueOf(erpMaterialOutOrder.getSeq()));
-                                if (documentLine != null) {
+                                List<ErpMaterialOutOrder> sameCreateSeqData = erpMaterialOutOrderRepository.findByCcodeAndCreateSeq(erpMaterialOutOrder.getCcode(),erpMaterialOutOrder.getCreateSeq());
+                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpMaterialOutOrder.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutOrder.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
@@ -742,7 +743,8 @@ public class GcServiceImpl implements GcService {
                             DocumentLine documentLine = null;
                             if (reTestOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(reTestOrder.getObjectRrn(), String.valueOf(erpMaterialOutOrder.getSeq()));
-                                if (documentLine != null) {
+                                List<ErpMaterialOutOrder> sameCreateSeqData = erpMaterialOutOrderRepository.findByCcodeAndCreateSeq(erpMaterialOutOrder.getCcode(),erpMaterialOutOrder.getCreateSeq());
+                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpMaterialOutOrder.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutOrder.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
@@ -1549,7 +1551,8 @@ public class GcServiceImpl implements GcService {
                             DocumentLine documentLine = null;
                             if (receiveOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(receiveOrder.getObjectRrn(), String.valueOf(erpSo.getSeq()));
-                                if (documentLine != null) {
+                                List<ErpSo> sameCreateSeqData = erpSoRepository.findByCcodeAndCreateSeq(erpSo.getCcode(),erpSo.getCreateSeq());
+                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpSo.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpSo.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
@@ -1683,7 +1686,8 @@ public class GcServiceImpl implements GcService {
                             DocumentLine documentLine = null;
                             if (deliveryOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(deliveryOrder.getObjectRrn(), String.valueOf(erpSo.getSeq()));
-                                if (documentLine != null) {
+                                List<ErpSo> sameCreateSeqData = erpSoRepository.findByCcodeAndCreateSeq(erpSo.getCcode(),erpSo.getCreateSeq());
+                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpSo.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpSo.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
@@ -3600,7 +3604,8 @@ public class GcServiceImpl implements GcService {
                             DocumentLine documentLine = null;
                             if (otherIssueOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(otherIssueOrder.getObjectRrn(), String.valueOf(erpMaterialOutaOrder.getSeq()));
-                                if (documentLine != null) {
+                                List<ErpMaterialOutaOrder> sameCreateSeqData = erpMaterialOutAOrderRepository.findByCcodeAndCreateSeq(erpMaterialOutaOrder.getCcode(),erpMaterialOutaOrder.getCreateSeq());
+                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
                                     if (ErpMaterialOutaOrder.SYNC_STATUS_CHANGED.equals(erpMaterialOutaOrder.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutaOrder.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
@@ -3698,7 +3703,8 @@ public class GcServiceImpl implements GcService {
                             DocumentLine documentLine = null;
                             if (otherStockOutOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(otherStockOutOrder.getObjectRrn(), String.valueOf(erpSoa.getSeq()));
-                                if (documentLine != null) {
+                                List<ErpSoa> sameCreateSeqData = erpSoaOrderRepository.findBySocodeAndCreateSeq(erpSoa.getSocode(),erpSoa.getCreateSeq());
+                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
                                     if (ErpSoa.SYNC_STATUS_CHANGED.equals(erpSoa.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpSoa.getQuantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");

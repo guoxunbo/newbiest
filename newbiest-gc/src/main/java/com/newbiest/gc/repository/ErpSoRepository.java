@@ -18,4 +18,6 @@ public interface ErpSoRepository extends IRepository<ErpSo, Long> {
     @Query("update ErpSo p set p.synStatus=:synStatus, p.errorMemo = :errorMemo where p.seq in (:seqList)")
     @Modifying
     void updateSynStatusAndErrorMemoBySeq(@Param("synStatus") String synStatus,@Param("errorMemo") String errorMemo,@Param("seqList") List<Long> seqList) throws ClientException;
+
+    List<ErpSo> findByCcodeAndCreateSeq(String ccode, String createSeq);
 }

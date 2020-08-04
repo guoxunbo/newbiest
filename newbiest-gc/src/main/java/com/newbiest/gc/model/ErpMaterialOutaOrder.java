@@ -137,4 +137,7 @@ public class ErpMaterialOutaOrder implements Serializable {
 
     @Column(name="TYPE")
     private String type;
+
+    @Column(name="CREATE_SEQ")
+    private String createSeq;
 }
