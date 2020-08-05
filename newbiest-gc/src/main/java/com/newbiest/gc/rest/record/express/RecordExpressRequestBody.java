@@ -1,5 +1,6 @@
 package com.newbiest.gc.rest.record.express;
 
+import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -27,6 +28,8 @@ public class RecordExpressRequestBody extends RequestBody {
 
 	public static final String ACTION_TYPE_CANCEL_ORDER = "CancelOrder";
 
+	public static final String ACTION_TYPE_OLD_RECORD_ORDER = "OldRecordOrder";
+
 	private String actionType;
 
 	private Integer serviceMode;
@@ -36,5 +39,11 @@ public class RecordExpressRequestBody extends RequestBody {
 	public String expressNumber;
 
 	private List<MaterialLot> materialLots;
+
+	/**
+	 * 老版本的记录快递接口使用
+	 */
+	@Deprecated
+	private List<DeliveryOrder> deliveryOrderList;
 
 }

@@ -24,8 +24,11 @@ import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.express.dto.WaybillDelivery;
 import com.newbiest.gc.service.ExpressService;
+import com.newbiest.mms.model.DeliveryOrder;
+import com.newbiest.mms.model.DocumentHistory;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotHistory;
+import com.newbiest.mms.repository.DeliveryOrderRepository;
 import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.msg.DefaultParser;
@@ -67,6 +70,9 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Autowired
     BaseService baseService;
+
+    @Autowired
+    DeliveryOrderRepository deliveryOrderRepository;
 
     @Value("${spring.profiles.active}")
     private String profiles;
@@ -301,5 +307,14 @@ public class ExpressServiceImpl implements ExpressService {
         }
     }
 
+    public List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException {
+        List<DeliveryOrder> deliveryOrderList = Lists.newArrayList();
+        for (DeliveryOrder deliveryOrder : deliveryOrders) {
+            deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
+            deliveryOrderList.add(deliveryOrder);
+            baseService.saveHistoryEntity(deliveryOrder, "RecordExpress");
+        }
+        return deliveryOrderList;
+    }
 
 }
