@@ -1002,47 +1002,50 @@ public class GcServiceImpl implements GcService {
                         break;
                     }
                 }
-                BigDecimal handledQty = (documentLine.getUnHandledQty().subtract(unhandedQty));
-                documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
-                documentLine.setUnHandledQty(unhandedQty);
-                documentLine = documentLineRepository.saveAndFlush(documentLine);
-                baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_WAFER_ISSUE);
 
-                WaferIssueOrder waferIssueOrder = (WaferIssueOrder) waferIssueOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-                waferIssueOrder.setHandledQty(waferIssueOrder.getHandledQty().add(handledQty));
-                waferIssueOrder.setUnHandledQty(waferIssueOrder.getUnHandledQty().subtract(handledQty));
-                waferIssueOrderRepository.save(waferIssueOrder);
-                baseService.saveHistoryEntity(waferIssueOrder, GCMaterialEvent.EVENT_WAFER_ISSUE);
-                //晶圆发料单的回写来源表有两个，分别判断是否存在并回写数据
-                Optional<ErpMaterialOutOrder> erpMaterialOutOrderOptional = erpMaterialOutOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
-                if(erpMaterialOutOrderOptional.isPresent()) {
-                    ErpMaterialOutOrder erpMaterialOutOrder = erpMaterialOutOrderOptional.get();
-                    erpMaterialOutOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-                    erpMaterialOutOrder.setLeftNum(erpMaterialOutOrder.getLeftNum().subtract(handledQty));
-                    if (StringUtils.isNullOrEmpty(erpMaterialOutOrder.getDeliveredNum())) {
-                        erpMaterialOutOrder.setDeliveredNum(handledQty.toPlainString());
-                    } else {
-                        BigDecimal docHandledQty = new BigDecimal(erpMaterialOutOrder.getDeliveredNum());
-                        docHandledQty = docHandledQty.add(handledQty);
-                        erpMaterialOutOrder.setDeliveredNum(docHandledQty.toPlainString());
-                    }
-                    erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
-                } else {
-                    Optional<ErpMaterialOutaOrder> erpMaterialOutAOrderOptional = erpMaterialOutAOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
-                    if(erpMaterialOutAOrderOptional.isPresent()) {
-                        ErpMaterialOutaOrder erpMaterialOutAOrder = erpMaterialOutAOrderOptional.get();
-                        erpMaterialOutAOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-                        erpMaterialOutAOrder.setLeftNum(erpMaterialOutAOrder.getLeftNum().subtract(handledQty));
-                        if (StringUtils.isNullOrEmpty(erpMaterialOutAOrder.getDeliveredNum())) {
-                            erpMaterialOutAOrder.setDeliveredNum(handledQty.toPlainString());
+                BigDecimal handledQty = (documentLine.getUnHandledQty().subtract(unhandedQty));
+                if(handledQty.compareTo(BigDecimal.ZERO) != 0){
+                    documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
+                    documentLine.setUnHandledQty(unhandedQty);
+                    documentLine = documentLineRepository.saveAndFlush(documentLine);
+                    baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_WAFER_ISSUE);
+
+                    WaferIssueOrder waferIssueOrder = (WaferIssueOrder) waferIssueOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                    waferIssueOrder.setHandledQty(waferIssueOrder.getHandledQty().add(handledQty));
+                    waferIssueOrder.setUnHandledQty(waferIssueOrder.getUnHandledQty().subtract(handledQty));
+                    waferIssueOrderRepository.save(waferIssueOrder);
+                    baseService.saveHistoryEntity(waferIssueOrder, GCMaterialEvent.EVENT_WAFER_ISSUE);
+                    //晶圆发料单的回写来源表有两个，分别判断是否存在并回写数据
+                    Optional<ErpMaterialOutOrder> erpMaterialOutOrderOptional = erpMaterialOutOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                    if(erpMaterialOutOrderOptional.isPresent()) {
+                        ErpMaterialOutOrder erpMaterialOutOrder = erpMaterialOutOrderOptional.get();
+                        erpMaterialOutOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                        erpMaterialOutOrder.setLeftNum(erpMaterialOutOrder.getLeftNum().subtract(handledQty));
+                        if (StringUtils.isNullOrEmpty(erpMaterialOutOrder.getDeliveredNum())) {
+                            erpMaterialOutOrder.setDeliveredNum(handledQty.toPlainString());
                         } else {
-                            BigDecimal docHandledQty = new BigDecimal(erpMaterialOutAOrder.getDeliveredNum());
+                            BigDecimal docHandledQty = new BigDecimal(erpMaterialOutOrder.getDeliveredNum());
                             docHandledQty = docHandledQty.add(handledQty);
-                            erpMaterialOutAOrder.setDeliveredNum(docHandledQty.toPlainString());
+                            erpMaterialOutOrder.setDeliveredNum(docHandledQty.toPlainString());
                         }
-                        erpMaterialOutAOrderRepository.save(erpMaterialOutAOrder);
+                        erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
                     } else {
-                        throw new ClientParameterException(GcExceptions.ERP_WAFER_ISSUE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                        Optional<ErpMaterialOutaOrder> erpMaterialOutAOrderOptional = erpMaterialOutAOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                        if(erpMaterialOutAOrderOptional.isPresent()) {
+                            ErpMaterialOutaOrder erpMaterialOutAOrder = erpMaterialOutAOrderOptional.get();
+                            erpMaterialOutAOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                            erpMaterialOutAOrder.setLeftNum(erpMaterialOutAOrder.getLeftNum().subtract(handledQty));
+                            if (StringUtils.isNullOrEmpty(erpMaterialOutAOrder.getDeliveredNum())) {
+                                erpMaterialOutAOrder.setDeliveredNum(handledQty.toPlainString());
+                            } else {
+                                BigDecimal docHandledQty = new BigDecimal(erpMaterialOutAOrder.getDeliveredNum());
+                                docHandledQty = docHandledQty.add(handledQty);
+                                erpMaterialOutAOrder.setDeliveredNum(docHandledQty.toPlainString());
+                            }
+                            erpMaterialOutAOrderRepository.save(erpMaterialOutAOrder);
+                        } else {
+                            throw new ClientParameterException(GcExceptions.ERP_WAFER_ISSUE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                        }
                     }
                 }
             }
@@ -1170,33 +1173,35 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 BigDecimal handledQty = documentLine.getUnHandledQty().subtract(unhandedQty);
-                documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
-                documentLine.setUnHandledQty(unhandedQty);
-                documentLine = documentLineRepository.saveAndFlush(documentLine);
-                baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RECEIVE);
+                if(handledQty.compareTo(BigDecimal.ZERO) != 0){
+                    documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
+                    documentLine.setUnHandledQty(unhandedQty);
+                    documentLine = documentLineRepository.saveAndFlush(documentLine);
+                    baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RECEIVE);
 
-                ReceiveOrder receiveOrder = (ReceiveOrder) receiveOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-                receiveOrder.setHandledQty(receiveOrder.getHandledQty().add(handledQty));
-                receiveOrder.setUnHandledQty(receiveOrder.getUnHandledQty().subtract(handledQty));
-                receiveOrder = receiveOrderRepository.saveAndFlush(receiveOrder);
-                baseService.saveHistoryEntity(receiveOrder, MaterialLotHistory.TRANS_TYPE_RECEIVE);
+                    ReceiveOrder receiveOrder = (ReceiveOrder) receiveOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                    receiveOrder.setHandledQty(receiveOrder.getHandledQty().add(handledQty));
+                    receiveOrder.setUnHandledQty(receiveOrder.getUnHandledQty().subtract(handledQty));
+                    receiveOrder = receiveOrderRepository.saveAndFlush(receiveOrder);
+                    baseService.saveHistoryEntity(receiveOrder, MaterialLotHistory.TRANS_TYPE_RECEIVE);
 
-                Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
-                if (!erpSoOptional.isPresent()) {
-                    throw new ClientParameterException(GcExceptions.ERP_RECEIVE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                    Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                    if (!erpSoOptional.isPresent()) {
+                        throw new ClientParameterException(GcExceptions.ERP_RECEIVE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                    }
+
+                    ErpSo erpSo = erpSoOptional.get();
+                    erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                    erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
+                    if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
+                        erpSo.setDeliveredNum(handledQty.toPlainString());
+                    } else {
+                        BigDecimal docHandledQty = new BigDecimal(erpSo.getDeliveredNum());
+                        docHandledQty = docHandledQty.add(handledQty);
+                        erpSo.setDeliveredNum(docHandledQty.toPlainString());
+                    }
+                    erpSoRepository.save(erpSo);
                 }
-
-                ErpSo erpSo = erpSoOptional.get();
-                erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-                erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
-                if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
-                    erpSo.setDeliveredNum(handledQty.toPlainString());
-                } else {
-                    BigDecimal docHandledQty = new BigDecimal(erpSo.getDeliveredNum());
-                    docHandledQty = docHandledQty.add(handledQty);
-                    erpSo.setDeliveredNum(docHandledQty.toPlainString());
-                }
-                erpSoRepository.save(erpSo);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

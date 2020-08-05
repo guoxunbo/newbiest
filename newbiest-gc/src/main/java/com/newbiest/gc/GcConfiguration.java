@@ -3,10 +3,7 @@ package com.newbiest.gc;
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.gc.model.*;
 import com.newbiest.main.YmlPropertyLoaderFactory;
-import com.newbiest.mms.model.DeliveryOrder;
-import com.newbiest.mms.model.DocumentHistory;
-import com.newbiest.mms.model.MaterialHistory;
-import com.newbiest.mms.model.RawMaterial;
+import com.newbiest.mms.model.*;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +64,9 @@ public class GcConfiguration {
 
         ModelFactory.registerHistoryModelClassLoader(ReTestOrder.class.getName(), DocumentHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(ReTestOrder.class.getName(), DocumentHistory.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(ReceiveOrder.class.getName(), DocumentHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(ReceiveOrder.class.getName(), DocumentHistory.class.getName());
 
     }
 }

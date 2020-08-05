@@ -164,12 +164,6 @@ public class ErpSoa implements Serializable {
     private String odm;
 
     /**
-     * 剩余数量
-     */
-    @Column(name="LEFT_NUM")
-    private String leftNum;
-
-    /**
      * 已处理数量
      */
     @Column(name="FHQUANTITY")
