@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCOMWaferIssue_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCCOMWaferIssue to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCCOMWaferIssueManager
+              description: COM晶圆发料
+              tableName: GCCOMWaferIssueManager
+              url: /Wafer/GCCOMWaferIssue
+              parentRrn: 2000
+              seqNo: 45
+              image: icon-delivery
+              labelZh: COM晶圆发料
+              labelEn: COMWaferIssue
