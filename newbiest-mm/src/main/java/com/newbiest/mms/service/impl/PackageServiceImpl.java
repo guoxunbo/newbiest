@@ -108,6 +108,7 @@ public class PackageServiceImpl implements PackageService{
 
             packedMaterialLot = mmsService.getMLotByMLotId(packedMaterialLot.getMaterialLotId(), true);
             packedMaterialLot.isFinish();
+            packedMaterialLot.validateMLotHold();
             // 取第一个的materialAction作为所有者的actionCode
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
             List<MaterialLot> allMaterialLot = Lists.newArrayList();

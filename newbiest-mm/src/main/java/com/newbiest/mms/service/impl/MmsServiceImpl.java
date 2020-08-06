@@ -964,4 +964,13 @@ public class MmsServiceImpl implements MmsService {
         }
         return null;
     }
+
+    public MaterialLot getMLotByLotId(String lotId) throws ClientException {
+        try {
+            return materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLot.IMPORT_WLA);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 }

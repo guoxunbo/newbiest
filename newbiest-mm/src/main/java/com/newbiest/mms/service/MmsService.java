@@ -50,5 +50,6 @@ public interface MmsService {
     MaterialLotInventory getMaterialLotInv(long mLotRrn, long warehouseRrn, long storageRrn) throws ClientException;
 
     Warehouse getWarehouseByName(String name) throws ClientException;
-    public Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
+    Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
+    MaterialLot getMLotByLotId(String lotId) throws ClientException;
 }

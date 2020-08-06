@@ -753,7 +753,7 @@ public class GcServiceImpl implements GcService {
                                 } else {
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
-                                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
                                             ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
                                     continue;
                                 }
@@ -1567,7 +1567,7 @@ public class GcServiceImpl implements GcService {
                                 } else {
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpSo.getSeq());
-                                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
                                             ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
                                     continue;
                                 }
@@ -1702,7 +1702,7 @@ public class GcServiceImpl implements GcService {
                                 }else{
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpSo.getSeq());
-                                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
                                             ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
                                     continue;
                                 }
@@ -3620,7 +3620,7 @@ public class GcServiceImpl implements GcService {
                                 }else{
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpMaterialOutaOrder.getSeq());
-                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
                                             ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
                                     continue;
                                 }
@@ -3719,7 +3719,7 @@ public class GcServiceImpl implements GcService {
                                 }else{
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpSoa.getSeq());
-                                    erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
+                                    erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
                                             ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
                                     continue;
                                 }
