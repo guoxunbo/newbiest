@@ -997,6 +997,7 @@ public class GcServiceImpl implements GcService {
                     }
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE);
+                    history.setReserved12(documentLine.getObjectRrn().toString());
                     materialLotHistoryRepository.save(history);
                     if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
                         break;
