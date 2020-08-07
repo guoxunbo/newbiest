@@ -186,6 +186,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                             materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                         }
+                        materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                         materialLotUnit.setLotId(materialLot.getLotId());
