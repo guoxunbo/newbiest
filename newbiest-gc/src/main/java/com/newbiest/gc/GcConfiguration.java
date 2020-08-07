@@ -51,6 +51,7 @@ public class GcConfiguration {
         // 注册modelClassLoader
         ModelFactory.registerModelClassLoader(GCProductSubcode.class.getName(), GCProductSubcode.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetail.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(GCProductModelConversion.class.getName(), GCProductModelConversion.class.getClassLoader());
 
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());

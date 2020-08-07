@@ -149,3 +149,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCCOMWaferIssue.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.gc_product_model_conversion.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.product_model_version_nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.add.nb_query.yaml
+      relativeToChangelogFile: true

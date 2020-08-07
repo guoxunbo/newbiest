@@ -1,0 +1,1 @@
+insert into nb_query (OBJECT_RRN, ACTIVE_FLAG, ORG_RRN, NAME, DESCRIPTION, QUERY_TEXT) values (hibernate_sequence.nextval, 'Y', 1, 'queryProductModelConversion', '获取MES产品型号转换信息','select  n.model_id, n.conversion_model_id from MM_MODEL_CONVERSION@TO_MES n');

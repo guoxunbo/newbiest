@@ -84,6 +84,7 @@ public interface GcService {
     void asyncMesProduct() throws ClientException;
     void asyncMesWaferType() throws ClientException;
     void asyncMesProductAndSubcode() throws ClientException;
+    void asyncMesProductModelConversion() throws ClientException;
 
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 

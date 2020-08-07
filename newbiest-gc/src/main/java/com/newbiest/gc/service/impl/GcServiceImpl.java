@@ -206,6 +206,9 @@ public class GcServiceImpl implements GcService {
     GCProductSubcodeSetRepository gcProductSubcodeSetRepository;
 
     @Autowired
+    GCProductModelConversionRepository gcProductModelConversionRepository;
+
+    @Autowired
     PackagedLotDetailRepository packagedLotDetailRepository;
 
     @Autowired
@@ -2246,6 +2249,42 @@ public class GcServiceImpl implements GcService {
                             if(oldProductSubcode == null){
                                 productSubcode.setSubcode(subcode);
                                 gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 格科同步MES的产品型号转换信息
+     */
+    public void asyncMesProductModelConversion() throws ClientException{
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            RawMaterial rawMaterial = new RawMaterial();
+            List<Map> productModelList = findEntityMapListByQueryName(Material.QUERY_PRODUCT_MODEL_CONVERSION,null,0,999,"","");
+            if(CollectionUtils.isNotEmpty(productModelList)){
+                for(Map<String, String> m : productModelList){
+                    String productId = m.get("MODEL_ID");
+                    String conversionModelId = m.get("CONVERSION_MODEL_ID");
+                    rawMaterial = mmsService.getRawMaterialByName(productId);
+                    if(rawMaterial != null){
+                        GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductId(productId);
+                        if(productModelConversion == null){
+                            productModelConversion = new GCProductModelConversion();
+                            productModelConversion.setProductId(productId);
+                            productModelConversion.setConversionModelId(conversionModelId);
+                            gcProductModelConversionRepository.saveAndFlush(productModelConversion);
+                        } else {
+                            GCProductModelConversion oldProductModelConversion = gcProductModelConversionRepository.findByProductIdAndConversionModelId(productId, conversionModelId);
+                            if(oldProductModelConversion == null){
+                                oldProductModelConversion.setConversionModelId(conversionModelId);
+                                gcProductModelConversionRepository.saveAndFlush(oldProductModelConversion);
                             }
                         }
                     }
