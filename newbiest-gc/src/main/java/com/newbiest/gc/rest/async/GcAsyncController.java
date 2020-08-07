@@ -56,6 +56,8 @@ public class GcAsyncController extends AbstractRestController {
             gcService.asyncMesWaferType();
         } else if(GcAsyncRequest.ACTION_ASYNC_PRODUCTSUBCODE.equals(actionType)){
             gcService.asyncMesProductAndSubcode();
+        } else if(GcAsyncRequest.ACTION_ASYNC_PRODUCTMODEL.equals(actionType)){
+            gcService.asyncMesProductModelConversion();
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_ProductModelConversion_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add ProductModelConversion to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: ProductModelConversion
+              description: 产品型号转换
+              tableName: GCProductModelConversion
+              url: /GC/GCProductModelConversionManager
+              parentRrn: 3
+              seqNo: 40
+              image: icon-wuliao
+              labelZh: 产品型号转换
+              labelEn: ProductModelConversion
