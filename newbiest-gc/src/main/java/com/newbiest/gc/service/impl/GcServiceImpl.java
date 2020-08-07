@@ -650,8 +650,8 @@ public class GcServiceImpl implements GcService {
                                 } else{
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
-                                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutOrder.SYNC_STATUS_SYNC_ERROR,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
+                                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutOrder.SYNC_STATUS_SYNC_ERROR,
+                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, noAsyncSeqList);
                                     continue;
                                 }
 
@@ -687,6 +687,7 @@ public class GcServiceImpl implements GcService {
                             asyncSuccessSeqList.add(erpMaterialOutOrder.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
+                            erpMaterialOutOrder.setUserId(Document.SYNC_USER_ID);
                             erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
                             erpMaterialOutOrder.setErrorMemo(e.getMessage());
                             erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
@@ -708,7 +709,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {
@@ -755,8 +756,8 @@ public class GcServiceImpl implements GcService {
                                 } else {
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
-                                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
+                                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
+                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, noAsyncSeqList);
                                     continue;
                                 }
                             }
@@ -793,6 +794,7 @@ public class GcServiceImpl implements GcService {
                             asyncSuccessSeqList.add(erpMaterialOutOrder.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
+                            erpMaterialOutOrder.setUserId(Document.SYNC_USER_ID);
                             erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
                             erpMaterialOutOrder.setErrorMemo(e.getMessage());
                             erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
@@ -814,7 +816,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {
@@ -1569,8 +1571,8 @@ public class GcServiceImpl implements GcService {
                                 } else {
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpSo.getSeq());
-                                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
+                                    erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
+                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, noAsyncSeqList);
                                     continue;
                                 }
                             }
@@ -1635,6 +1637,7 @@ public class GcServiceImpl implements GcService {
                             asyncSuccessSeqList.add(erpSo.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
+                            erpSo.setUserId(Document.SYNC_USER_ID);
                             erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
                             erpSo.setErrorMemo(e.getMessage());
                             erpSoRepository.save(erpSo);
@@ -1656,7 +1659,7 @@ public class GcServiceImpl implements GcService {
                 }
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                    erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {
@@ -1704,8 +1707,8 @@ public class GcServiceImpl implements GcService {
                                 }else{
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpSo.getSeq());
-                                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
+                                    erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
+                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, noAsyncSeqList);
                                     continue;
                                 }
                             }
@@ -1770,6 +1773,7 @@ public class GcServiceImpl implements GcService {
                             asyncSuccessSeqList.add(erpSo.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
+                            erpSo.setUserId(Document.SYNC_USER_ID);
                             erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
                             erpSo.setErrorMemo(e.getMessage());
                             erpSoRepository.save(erpSo);
@@ -1794,7 +1798,7 @@ public class GcServiceImpl implements GcService {
                 }
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                    erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {
@@ -3612,8 +3616,8 @@ public class GcServiceImpl implements GcService {
                                 }else{
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpMaterialOutaOrder.getSeq());
-                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
+                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
+                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, noAsyncSeqList);
                                     continue;
                                 }
                             }
@@ -3646,6 +3650,7 @@ public class GcServiceImpl implements GcService {
                             asyncSuccessSeqList.add(erpMaterialOutaOrder.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
+                            erpMaterialOutaOrder.setUserId(Document.SYNC_USER_ID);
                             erpMaterialOutaOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
                             erpMaterialOutaOrder.setErrorMemo(e.getMessage());
                             erpMaterialOutAOrderRepository.save(erpMaterialOutaOrder);
@@ -3663,7 +3668,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {
@@ -3711,8 +3716,8 @@ public class GcServiceImpl implements GcService {
                                 }else{
                                     List<Long> noAsyncSeqList = Lists.newArrayList();
                                     noAsyncSeqList.add(erpSoa.getSeq());
-                                    erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
+                                    erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
+                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, noAsyncSeqList);
                                     continue;
                                 }
                             }
@@ -3778,6 +3783,7 @@ public class GcServiceImpl implements GcService {
                             asyncSuccessSeqList.add(erpSoa.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
+                            erpSoa.setUserId(Document.SYNC_USER_ID);
                             erpSoa.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
                             erpSoa.setErrorMemo(e.getMessage());
                             erpSoaOrderRepository.save(erpSoa);
@@ -3801,7 +3807,7 @@ public class GcServiceImpl implements GcService {
                 }
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSoa.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                    erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSoa.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {
@@ -3919,6 +3925,7 @@ public class GcServiceImpl implements GcService {
                             asyncSuccessSeqList.add(erpSob.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
+                            erpSob.setUserId(Document.SYNC_USER_ID);
                             erpSob.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
                             erpSob.setErrorMemo(e.getMessage());
                             erpSobOrderRepository.save(erpSob);
@@ -3941,7 +3948,7 @@ public class GcServiceImpl implements GcService {
                 }
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpSobOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                    erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
                 }
             }
         } catch (Exception e) {

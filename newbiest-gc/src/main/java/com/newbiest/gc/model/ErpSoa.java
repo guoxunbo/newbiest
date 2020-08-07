@@ -152,6 +152,18 @@ public class ErpSoa implements Serializable {
     private String cusperson;
 
     /**
+     * 创建人
+     */
+    @Column(name="USER_ID")
+    private String userId;
+
+    /**
+     * 未发货数量
+     */
+    @Column(name="LEFT_NUM")
+    private BigDecimal leftNum;
+
+    /**
      * 客户联系电话
      */
     @Column(name="CUSPHONE")

@@ -15,9 +15,9 @@ public interface ErpSoRepository extends IRepository<ErpSo, Long> {
 
     List<ErpSo> findByTypeAndSynStatusNotIn(String type, List<String> asyncStatus);
 
-    @Query("update ErpSo p set p.synStatus=:synStatus, p.errorMemo = :errorMemo where p.seq in (:seqList)")
+    @Query("update ErpSo p set p.synStatus=:synStatus, p.errorMemo = :errorMemo, p.userId = :userId where p.seq in (:seqList)")
     @Modifying
-    void updateSynStatusAndErrorMemoBySeq(@Param("synStatus") String synStatus,@Param("errorMemo") String errorMemo,@Param("seqList") List<Long> seqList) throws ClientException;
+    void updateSynStatusAndErrorMemoAndUserIdBySeq(@Param("synStatus") String synStatus,@Param("errorMemo") String errorMemo, @Param("userId") String userId,@Param("seqList") List<Long> seqList) throws ClientException;
 
     List<ErpSo> findByCcodeAndCreateSeq(String ccode, String createSeq);
 }

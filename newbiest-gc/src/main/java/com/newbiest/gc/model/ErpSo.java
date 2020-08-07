@@ -153,6 +153,12 @@ public class ErpSo implements Serializable {
     private String other8;
 
     /**
+     * 创建人
+     */
+    @Column(name="USER_ID")
+    private String userId;
+
+    /**
      * 客户联系人
      */
     @Column(name="OTHER9")
