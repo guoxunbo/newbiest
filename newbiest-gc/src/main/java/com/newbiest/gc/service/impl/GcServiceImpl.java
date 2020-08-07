@@ -482,6 +482,7 @@ public class GcServiceImpl implements GcService {
 
             //2. 普通批次才做绑定中转箱功能，直接release原来的中转箱号
             for (MaterialLot materialLot : normalMaterialLots) {
+                materialLot.validateMLotHold();
                 StockInModel stockInModel = stockInModelMap.get(materialLot.getMaterialLotId());
                 // 为空则不处理
                 if (StringUtils.isNullOrEmpty(stockInModel.getRelaxBoxId())) {
@@ -2440,6 +2441,7 @@ public class GcServiceImpl implements GcService {
 
             //3. 入库
             for (MaterialLot materialLot : materialLots) {
+                materialLot.validateMLotHold();
                 RelayBoxStockInModel relayBoxStockInModel = relayBoxStockInModelMap.get(materialLot.getMaterialLotId());
                 String storageId = relayBoxStockInModel.getStorageId();
 
