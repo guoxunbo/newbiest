@@ -110,6 +110,12 @@ public class ErpMaterialOutOrder implements Serializable {
     private String cmaker;
 
     /**
+     * 创建人
+     */
+    @Column(name="USER_ID")
+    private String userId;
+
+    /**
      * 主计量
      */
     @Column(name="CFREE3")

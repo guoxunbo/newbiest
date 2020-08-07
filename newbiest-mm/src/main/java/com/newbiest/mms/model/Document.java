@@ -29,6 +29,8 @@ public class Document extends NBUpdatable {
 
     public static final String STATUS_OPEN = "OPEN";
 
+    public static final String SYNC_USER_ID = "WMS";
+
     @Column(name="NAME")
     private String name;
 

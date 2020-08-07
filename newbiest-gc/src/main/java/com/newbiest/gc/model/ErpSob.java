@@ -69,6 +69,12 @@ public class ErpSob implements Serializable {
     private String cinvcode;
 
     /**
+     * 创建人
+     */
+    @Column(name="USER_ID")
+    private String userId;
+
+    /**
      * 数量
      */
     @Column(name="IQUANTITY")

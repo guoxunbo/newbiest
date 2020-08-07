@@ -88,6 +88,12 @@ public class ErpMaterialOutaOrder implements Serializable {
     private BigDecimal leftNum;
 
     /**
+     * 创建人
+     */
+    @Column(name="USER_ID")
+    private String userId;
+
+    /**
      * 二级代码
      */
     @Column(name="SECONDCODE")
