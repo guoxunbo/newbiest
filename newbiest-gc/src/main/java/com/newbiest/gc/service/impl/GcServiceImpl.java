@@ -442,6 +442,7 @@ public class GcServiceImpl implements GcService {
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
             materialLot.isFinish();
+            materialLot.validateMLotHold();
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -461,6 +462,7 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
             materialLot.isFinish();
+            materialLot.validateMLotHold();
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -3011,15 +3013,10 @@ public class GcServiceImpl implements GcService {
     public void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException{
         try {
             for (MaterialLot materialLot : materialLotList){
-                //修改状态
-                materialLot=  mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_HOLD, StringUtils.EMPTY);
-
-                // 记录历史
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_HOLD);
-                history.setActionComment(remarks);
-                history.setActionReason(holdReason);
-                history.setTransQty(materialLot.getCurrentQty());
-                materialLotHistoryRepository.save(history);
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setTransQty(materialLot.getCurrentQty());
+                materialLotAction.setActionComment(remarks);
+                mmsService.holdMaterialLot(materialLot,materialLotAction);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -3032,15 +3029,10 @@ public class GcServiceImpl implements GcService {
     public void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException{
         try {
             for (MaterialLot materialLot : materialLotList){
-                //恢复到扣留前的状态
-                materialLot.restoreStatus();
-                materialLot = materialLotRepository.saveAndFlush(materialLot);
-                // 记录历史
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_RELEASE);
-                history.setActionReason(ReleaseReason);
-                history.setActionComment(remarks);
-                history.setTransQty(materialLot.getCurrentQty());
-                materialLotHistoryRepository.save(history);
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setTransQty(materialLot.getCurrentQty());
+                materialLotAction.setActionComment(remarks);
+                mmsService.releaseMaterialLot(materialLot,materialLotAction);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
