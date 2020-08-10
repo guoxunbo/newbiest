@@ -27,3 +27,4 @@ newbiest-admin-server/mvnw.cmd
 
 *.xls
 .DS_Store
+*.tmp
