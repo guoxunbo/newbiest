@@ -39,7 +39,8 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object>{
         // 不拦截druid相关请求
         ServletServerHttpRequest servletServerHttpRequest = (ServletServerHttpRequest) serverHttpRequest;
         String requestUrl = servletServerHttpRequest.getURI().toString();
-        if (requestUrl.contains("druid") || requestUrl.contains("actuator") ) {
+        if (requestUrl.contains("druid") || requestUrl.contains("actuator") ||
+                requestUrl.contains("swagger") || requestUrl.contains("api-doc")) {
             return o;
         }
 
