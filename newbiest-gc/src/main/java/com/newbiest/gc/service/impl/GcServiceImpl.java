@@ -2268,6 +2268,7 @@ public class GcServiceImpl implements GcService {
             sc.buildTransInfo();
             RawMaterial rawMaterial = new RawMaterial();
             List<Map> productModelList = findEntityMapListByQueryName(Material.QUERY_PRODUCT_MODEL_CONVERSION,null,0,999,"","");
+            List<GCProductModelConversion> productModelConversionList = Lists.newArrayList();
             if(CollectionUtils.isNotEmpty(productModelList)){
                 for(Map<String, String> m : productModelList){
                     String productId = m.get("MODEL_ID");
@@ -2279,17 +2280,28 @@ public class GcServiceImpl implements GcService {
                             productModelConversion = new GCProductModelConversion();
                             productModelConversion.setProductId(productId);
                             productModelConversion.setConversionModelId(conversionModelId);
-                            gcProductModelConversionRepository.saveAndFlush(productModelConversion);
+                            productModelConversion = gcProductModelConversionRepository.saveAndFlush(productModelConversion);
+                            productModelConversionList.add(productModelConversion);
                         } else {
                             GCProductModelConversion oldProductModelConversion = gcProductModelConversionRepository.findByProductIdAndConversionModelId(productId, conversionModelId);
                             if(oldProductModelConversion == null){
                                 oldProductModelConversion.setConversionModelId(conversionModelId);
-                                gcProductModelConversionRepository.saveAndFlush(oldProductModelConversion);
+                                oldProductModelConversion = gcProductModelConversionRepository.saveAndFlush(oldProductModelConversion);
                             }
+                            productModelConversionList.add(oldProductModelConversion);
                         }
                     }
                 }
             }
+            //MES中删除的产品信息，WMS中也需要删除
+            List<GCProductModelConversion> allProductModelConversion = gcProductModelConversionRepository.findAll();
+            Map<String, GCProductModelConversion> productModelConversionMap = productModelConversionList.stream().collect(Collectors.toMap(GCProductModelConversion :: getProductId, Function.identity()));
+            for(GCProductModelConversion productModelConversion : allProductModelConversion){
+                if(!productModelConversionMap.containsKey(productModelConversion.getProductId())){
+                    gcProductModelConversionRepository.deleteById(productModelConversion.getObjectRrn());
+                }
+            }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
