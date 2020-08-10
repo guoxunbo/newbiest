@@ -85,14 +85,14 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 materialLotUnitHisRepository.save(history);
                 materialLotUnitList.add(materialLotUnit);
             }
-            Long wherehouseRrn = warehouse.getObjectRrn();
+            Long warehouseRrn = warehouse.getObjectRrn();
             if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
-                wherehouseRrn = Long.parseLong(materialLot.getReserved13());
+                warehouseRrn = Long.parseLong(materialLot.getReserved13());
             }
 
             MaterialLotAction materialLotAction = new MaterialLotAction();
             materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
-            materialLotAction.setTargetWarehouseRrn(wherehouseRrn);
+            materialLotAction.setTargetWarehouseRrn(warehouseRrn);
             materialLotAction.setTransQty(materialLot.getCurrentQty());
             materialLotAction.setTransCount(materialLot.getCurrentSubQty());
             mmsService.stockIn(materialLot, materialLotAction);

@@ -28,7 +28,8 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String STATE_ISSUE = "Issue";
     public static final String STATE_SCRAP = "Scrap";
 
-    public static final String PRODUCT_TYPE = "PROD";
+    public static final String PRODUCT_TYPE_PROD = "PROD";
+    public static final String PRODUCT_TYPE_ENG = "ENG";
 
     public static final String FAB_SENSOR = "GCFabSensor1Unmeasured";//FAB sensor(-1未测)
     public static final String FAB_SENSOR_2UNMEASURED = "GCFabSensor2Unmeasured";//FAB sensor(-2未测)
@@ -196,7 +197,7 @@ public class MaterialLotUnit extends NBUpdatable {
      * 产品分类 PROD/ENG
      */
     @Column(name="PRODUCT_TYPE")
-    private String productType = PRODUCT_TYPE;
+    private String productType = PRODUCT_TYPE_PROD;
 
     /**
      * 二级代码

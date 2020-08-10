@@ -27,7 +27,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     /**
      * 产品分类
      */
-    public static final String PRODUCT_TYPE = "PROD";
+    public static final String PRODUCT_TYPE_PROD = "PROD";
 
     /**
      * 生成物料批次号的规则
@@ -315,7 +315,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 产品分类 PROD/ENG
      */
     @Column(name="PRODUCT_TYPE")
-    private String productType = PRODUCT_TYPE;
+    private String productType = PRODUCT_TYPE_PROD;
 
     /**
      * ERP备货的单据日期

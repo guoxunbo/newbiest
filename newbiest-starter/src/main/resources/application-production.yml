@@ -1,3 +1,5 @@
+gc:
+  scmUrl: https://gc-scm.wochacha.com
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense

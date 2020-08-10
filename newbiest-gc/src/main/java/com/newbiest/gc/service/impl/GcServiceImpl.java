@@ -23,6 +23,8 @@ import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.gc.service.ScmService;
+import com.newbiest.mms.SystemPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -222,6 +224,9 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     ErpMoaRepository erpMoaRepository;
+
+    @Autowired
+    ScmService scmService;
 
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
@@ -1121,11 +1126,12 @@ public class GcServiceImpl implements GcService {
      */
     private void receiveWafer(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
+            List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             for (DocumentLine documentLine: documentLines) {
 
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
                 Map<String, BigDecimal> mLotQty = Maps.newHashMap();
-                for(MaterialLot materialLot : materialLots){
+                for(MaterialLot materialLot : materialLots) {
                     String importType = materialLot.getReserved49();
                     if(MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)) {
                         mLotQty.put(materialLot.getMaterialLotId(), materialLot.getCurrentSubQty());
@@ -1157,7 +1163,8 @@ public class GcServiceImpl implements GcService {
                         if (materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) == 0) {
                             //数量进行还原。不能扣减。
                             materialLot.setCurrentSubQty(mLotQty.get(materialLot.getMaterialLotId()));
-                            materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            List<MaterialLotUnit> receiveUnits = materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            materialLotUnits.addAll(receiveUnits);
                             iterator.remove();
                         }
                     } else {
@@ -1173,7 +1180,8 @@ public class GcServiceImpl implements GcService {
                         if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                             //数量进行还原。不能扣减。
                             materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
-                            materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            List<MaterialLotUnit> receiveUnits = materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            materialLotUnits.addAll(receiveUnits);
                             iterator.remove();
                         }
                     }
@@ -1211,6 +1219,10 @@ public class GcServiceImpl implements GcService {
                     }
                     erpSoRepository.save(erpSo);
                 }
+            }
+            if (SystemPropertyUtils.getConnectScmFlag()) {
+                // 请求SCM做是否是ENG产品的验证
+                scmService.assignEngFlag(materialLotUnits);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -3487,23 +3499,23 @@ public class GcServiceImpl implements GcService {
                 if(warehouse == null){
                     throw new ClientParameterException(GcExceptions.WAREHOUSE_CANNOT_EMPTY);
                 }
-                String warehosueName = warehouse.getName();
-                materialLotUnitService.receiveMLotWithUnit(materialLot, warehosueName);
+                String warehouseName = warehouse.getName();
+                materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
                 ErpInStock erpInStock = new ErpInStock();
                 if(StringUtils.isNullOrEmpty(materialLot.getProductType())){
-                    erpInStock.setProdCate(MaterialLot.PRODUCT_TYPE);
+                    erpInStock.setProdCate(MaterialLot.PRODUCT_TYPE_PROD);
                 } else {
                     erpInStock.setProdCate(materialLot.getProductType());
                 }
                 erpInStock.setMaterialLot(materialLot);
-                if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehosueName)){
+                if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehouseName)){
                     erpInStock.setWarehouse(ErpInStock.ZJ_STOCK);
-                } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehosueName)){
+                } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehouseName)){
                     erpInStock.setWarehouse(ErpInStock.SH_STOCK);
-                } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehosueName)){
+                } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehouseName)){
                     erpInStock.setWarehouse(ErpInStock.HK_STOCK);
                 } else {
-                    throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehosueName);
+                    throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouseName);
                 }
                 erpInStockRepository.save(erpInStock);
             }

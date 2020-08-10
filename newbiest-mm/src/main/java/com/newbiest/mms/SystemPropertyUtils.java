@@ -9,6 +9,8 @@ public class SystemPropertyUtils {
 
     public static final String SYSTEM_PROPERTY_UNPACK_RECOVERY_LOT_FLAG = "unpack.recovery_lot_flag";
 
+    public static final String SYSTEM_PROPERTY_CONNECT_SCM_FLAG = "gc.connect_rcm_flag";
+
     public static boolean getAutoCreateStorageFlag() {
         Object autoCreateStorageFlag = System.getProperty(SYSTEM_PROPERTY_AUTO_CREATE_STORAGE_FLAG);
         if (autoCreateStorageFlag != null) {
@@ -25,5 +27,12 @@ public class SystemPropertyUtils {
         return false;
     }
 
+    public static boolean getConnectScmFlag() {
+        Object connectScmFlag = System.getProperty(SYSTEM_PROPERTY_CONNECT_SCM_FLAG);
+        if (connectScmFlag != null) {
+            return Boolean.valueOf(connectScmFlag.toString());
+        }
+        return false;
+    }
 
 }

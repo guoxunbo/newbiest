@@ -1,5 +1,6 @@
 gc:
   openSchedule: true
+  scmUrl: https://gc-scm-beta.wochacha.cn
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
