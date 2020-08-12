@@ -186,4 +186,6 @@ public class ErpSob implements Serializable {
     @Column(name="OTHER15")
     private String other15;
 
+    @Column(name="CREATE_SEQ")
+    private String createSeq;
 }

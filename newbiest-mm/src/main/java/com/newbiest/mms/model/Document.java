@@ -274,4 +274,31 @@ public class Document extends NBUpdatable {
     @Column(name="RESERVED31")
     private String reserved31;
 
+    @Column(name="RESERVED32")
+    private String reserved32;
+
+    @Column(name="RESERVED33")
+    private String reserved33;
+
+    @Column(name="RESERVED34")
+    private String reserved34;
+
+    @Column(name="RESERVED35")
+    private String reserved35;
+
+    @Column(name="RESERVED36")
+    private String reserved36;
+
+    @Column(name="RESERVED37")
+    private String reserved37;
+
+    @Column(name="RESERVED38")
+    private String reserved38;
+
+    @Column(name="RESERVED39")
+    private String reserved39;
+
+    @Column(name="RESERVED40")
+    private String reserved40;
+
 }

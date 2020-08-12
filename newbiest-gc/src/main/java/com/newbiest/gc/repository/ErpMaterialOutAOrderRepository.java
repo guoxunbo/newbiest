@@ -18,5 +18,4 @@ public interface ErpMaterialOutAOrderRepository extends IRepository<ErpMaterialO
     @Modifying
     void updateSynStatusAndErrorMemoBySeq(@Param("synStatus") String synStatus, @Param("errorMemo") String errorMemo, @Param("seqList") List<Long> seqList) throws ClientException;
 
-    List<ErpMaterialOutaOrder> findByCcodeAndCreateSeq(String ccode, String createSeq);
 }

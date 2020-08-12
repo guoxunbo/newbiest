@@ -617,40 +617,59 @@ public class GcServiceImpl implements GcService {
         try {
             List<ErpMaterialOutOrder> waferIssueOrders = erpMaterialOutOrderRepository.findByTypeAndSynStatusNotIn(ErpMaterialOutOrder.TYPE_TV, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
+            List<Long> asyncDuplicateSeqList = Lists.newArrayList();
 
             if (CollectionUtils.isNotEmpty(waferIssueOrders)) {
                 Map<String, List<ErpMaterialOutOrder>> documentIdMap = waferIssueOrders.stream().collect(Collectors.groupingBy(ErpMaterialOutOrder :: getCcode));
                 for (String documentId : documentIdMap.keySet()) {
+                    List<ErpMaterialOutOrder> documentIdList = documentIdMap.get(documentId);
+                    //把即将同步的同Ccode数据按createseq分组
+                    Map<String, List<ErpMaterialOutOrder>> sameCreateSeqOrder = documentIdList.stream().filter(erpMaterialOutOrder -> !StringUtils.isNullOrEmpty(erpMaterialOutOrder.getCreateSeq()))
+                            .collect(Collectors.groupingBy(ErpMaterialOutOrder :: getCreateSeq));
                     List<WaferIssueOrder> waferIssueOrderList = waferIssueOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
                     WaferIssueOrder waferIssueOrder;
                     if (CollectionUtils.isEmpty(waferIssueOrderList)) {
+                        //如果有不同create_seq
+                        if(sameCreateSeqOrder.keySet().size() > 1 ){
+                            for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdList) {
+                                asyncDuplicateSeqList.add(erpMaterialOutOrder.getSeq());
+                            }
+                            continue;
+                        }
                         waferIssueOrder = new WaferIssueOrder();
+                        waferIssueOrder.setName(documentId);
                         waferIssueOrder.setStatus(Document.STATUS_OPEN);
+                        waferIssueOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
                     } else {
                         waferIssueOrder = waferIssueOrderList.get(0);
+                        boolean differentCreateSeq = false;
+                        for  (String createSeq : sameCreateSeqOrder.keySet()) {
+                            if(!createSeq.equals(waferIssueOrder.getReserved32())){
+                                differentCreateSeq = true;
+                                for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdList) {
+                                    asyncDuplicateSeqList.add(erpMaterialOutOrder.getSeq());
+                                }
+                                break;
+                            }
+                        }
+                        if(differentCreateSeq){
+                            continue;
+                        }
                     }
-                    waferIssueOrder.setName(documentId);
                     BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
-                    for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdMap.get(documentId)) {
+                    for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdList) {
                         try {
                             DocumentLine documentLine = null;
                             if (waferIssueOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(waferIssueOrder.getObjectRrn(), String.valueOf(erpMaterialOutOrder.getSeq()));
-                                List<ErpMaterialOutOrder> sameCreateSeqData = erpMaterialOutOrderRepository.findByCcodeAndCreateSeq(erpMaterialOutOrder.getCcode(),erpMaterialOutOrder.getCreateSeq());
-                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
+                                if (documentLine != null) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpMaterialOutOrder.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutOrder.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
-                                } else{
-                                    List<Long> noAsyncSeqList = Lists.newArrayList();
-                                    noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
-                                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutOrder.SYNC_STATUS_SYNC_ERROR,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
-                                    continue;
                                 }
 
                             }
@@ -682,6 +701,7 @@ public class GcServiceImpl implements GcService {
                             documentLines.add(documentLine);
 
                             waferIssueOrder.setOwner(erpMaterialOutOrder.getChandler());
+                            waferIssueOrder.setReserved32(erpMaterialOutOrder.getCreateSeq());
                             asyncSuccessSeqList.add(erpMaterialOutOrder.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
@@ -708,6 +728,10 @@ public class GcServiceImpl implements GcService {
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
                 }
+                if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
+                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
+                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, asyncDuplicateSeqList);
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -722,40 +746,59 @@ public class GcServiceImpl implements GcService {
         try {
             List<ErpMaterialOutOrder> erpMaterialOutOrders = erpMaterialOutOrderRepository.findByTypeAndSynStatusNotIn(ErpMaterialOutOrder.TYPE_RO, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
+            List<Long> asyncDuplicateSeqList = Lists.newArrayList();
 
             if (CollectionUtils.isNotEmpty(erpMaterialOutOrders)) {
                 Map<String, List<ErpMaterialOutOrder>> documentIdMap = erpMaterialOutOrders.stream().collect(Collectors.groupingBy(ErpMaterialOutOrder :: getCcode));
                 for (String documentId : documentIdMap.keySet()) {
+                    List<ErpMaterialOutOrder> documentIdList = documentIdMap.get(documentId);
+                    //把即将同步的同Ccode数据按createseq分组
+                    Map<String, List<ErpMaterialOutOrder>> sameCreateSeqOrder = documentIdList.stream().filter(erpMaterialOutOrder -> !StringUtils.isNullOrEmpty(erpMaterialOutOrder.getCreateSeq()))
+                            .collect(Collectors.groupingBy(ErpMaterialOutOrder :: getCreateSeq));
                     List<ReTestOrder> reTestOrderList = reTestOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
                     ReTestOrder reTestOrder;
                     if (CollectionUtils.isEmpty(reTestOrderList)) {
+                        //如果有不同create_seq
+                        if(sameCreateSeqOrder.keySet().size() > 1 ){
+                            for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdList) {
+                                asyncDuplicateSeqList.add(erpMaterialOutOrder.getSeq());
+                            }
+                            continue;
+                        }
                         reTestOrder = new ReTestOrder();
+                        reTestOrder.setName(documentId);
                         reTestOrder.setStatus(Document.STATUS_OPEN);
+                        reTestOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
                     } else {
                         reTestOrder = reTestOrderList.get(0);
+                        boolean differentCreateSeq = false;
+                        for  (String createSeq : sameCreateSeqOrder.keySet()) {
+                            if(!createSeq.equals(reTestOrder.getReserved32())){
+                                differentCreateSeq = true;
+                                for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdList) {
+                                    asyncDuplicateSeqList.add(erpMaterialOutOrder.getSeq());
+                                }
+                                break;
+                            }
+                        }
+                        if(differentCreateSeq){
+                            continue;
+                        }
                     }
-                    reTestOrder.setName(documentId);
                     BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
-                    for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdMap.get(documentId)) {
+                    for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdList) {
                         try {
                             DocumentLine documentLine = null;
                             if (reTestOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(reTestOrder.getObjectRrn(), String.valueOf(erpMaterialOutOrder.getSeq()));
-                                List<ErpMaterialOutOrder> sameCreateSeqData = erpMaterialOutOrderRepository.findByCcodeAndCreateSeq(erpMaterialOutOrder.getCcode(),erpMaterialOutOrder.getCreateSeq());
-                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
+                                if (documentLine != null) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpMaterialOutOrder.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutOrder.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
-                                } else {
-                                    List<Long> noAsyncSeqList = Lists.newArrayList();
-                                    noAsyncSeqList.add(erpMaterialOutOrder.getSeq());
-                                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
-                                    continue;
                                 }
                             }
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
@@ -787,7 +830,7 @@ public class GcServiceImpl implements GcService {
                             documentLines.add(documentLine);
 
                             reTestOrder.setOwner(erpMaterialOutOrder.getChandler());
-
+                            reTestOrder.setReserved32(erpMaterialOutOrder.getCreateSeq());
                             asyncSuccessSeqList.add(erpMaterialOutOrder.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
@@ -813,6 +856,10 @@ public class GcServiceImpl implements GcService {
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                }
+                if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
+                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,
+                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, asyncDuplicateSeqList);
                 }
             }
         } catch (Exception e) {
@@ -1530,40 +1577,60 @@ public class GcServiceImpl implements GcService {
         try {
             List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_TV, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
+            List<Long> asyncDuplicateSeqList = Lists.newArrayList();
+
             if (CollectionUtils.isNotEmpty(erpSos)) {
                 Map<String, List<ErpSo>> documentIdMap = erpSos.stream().collect(Collectors.groupingBy(ErpSo :: getCcode));
 
                 for (String documentId : documentIdMap.keySet()) {
+                    List<ErpSo> documentIdList = documentIdMap.get(documentId);
+                    //把即将同步的同Ccode数据按createseq分组
+                    Map<String, List<ErpSo>> sameCreateSeqOrder = documentIdList.stream().filter(erpSo -> !StringUtils.isNullOrEmpty(erpSo.getCreateSeq()))
+                            .collect(Collectors.groupingBy(ErpSo :: getCreateSeq));
                     List<ReceiveOrder> receiveOrderList = receiveOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
                     ReceiveOrder receiveOrder;
                     if (CollectionUtils.isEmpty(receiveOrderList)) {
+                        //如果有不同create_seq
+                        if(sameCreateSeqOrder.keySet().size() > 1 ){
+                            for  (ErpSo erpSo : documentIdList) {
+                                asyncDuplicateSeqList.add(erpSo.getSeq());
+                            }
+                            continue;
+                        }
                         receiveOrder = new ReceiveOrder();
                         receiveOrder.setName(documentId);
                         receiveOrder.setStatus(Document.STATUS_OPEN);
+                        receiveOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
                     } else {
                         receiveOrder = receiveOrderList.get(0);
+                        boolean differentCreateSeq = false;
+                        for  (String createSeq : sameCreateSeqOrder.keySet()) {
+                            if(!createSeq.equals(receiveOrder.getReserved32())){
+                                differentCreateSeq = true;
+                                for  (ErpSo erpSo : documentIdList) {
+                                    asyncDuplicateSeqList.add(erpSo.getSeq());
+                                }
+                                break;
+                            }
+                        }
+                        if(differentCreateSeq){
+                            continue;
+                        }
                     }
                     BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
-                    for  (ErpSo erpSo : documentIdMap.get(documentId)) {
+                    for  (ErpSo erpSo : documentIdList) {
                         try {
                             DocumentLine documentLine = null;
                             if (receiveOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(receiveOrder.getObjectRrn(), String.valueOf(erpSo.getSeq()));
-                                List<ErpSo> sameCreateSeqData = erpSoRepository.findByCcodeAndCreateSeq(erpSo.getCcode(),erpSo.getCreateSeq());
-                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
+                                if (documentLine != null ) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpSo.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpSo.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
-                                } else {
-                                    List<Long> noAsyncSeqList = Lists.newArrayList();
-                                    noAsyncSeqList.add(erpSo.getSeq());
-                                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
-                                    continue;
                                 }
                             }
 
@@ -1617,6 +1684,7 @@ public class GcServiceImpl implements GcService {
                             // 同一个单据下，所有的客户都是一样的。
                             receiveOrder.setSupplierName(erpSo.getCusname());
                             receiveOrder.setOwner(erpSo.getChandler());
+                            receiveOrder.setReserved32(erpSo.getCreateSeq());
                             if (receiveOrder.getErpCreated() == null) {
                                 receiveOrder.setErpCreated(erpCreatedDate);
                             } else {
@@ -1650,6 +1718,10 @@ public class GcServiceImpl implements GcService {
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
                 }
+                if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
+                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,
+                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, asyncDuplicateSeqList);
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -1664,19 +1736,45 @@ public class GcServiceImpl implements GcService {
         try {
             List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_SO, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
+            List<Long> asyncDuplicateSeqList = Lists.newArrayList();
 
             if (CollectionUtils.isNotEmpty(erpSos)) {
                 Map<String, List<ErpSo>> documentIdMap = erpSos.stream().collect(Collectors.groupingBy(ErpSo :: getCcode));
 
                 for (String documentId : documentIdMap.keySet()) {
+                    List<ErpSo> documentIdList = documentIdMap.get(documentId);
+                    //把即将同步的同Ccode数据按createseq分组
+                    Map<String, List<ErpSo>> sameCreateSeqOrder = documentIdList.stream().filter(erpSo -> !StringUtils.isNullOrEmpty(erpSo.getCreateSeq()))
+                            .collect(Collectors.groupingBy(ErpSo :: getCreateSeq));
                     List<DeliveryOrder> deliveryOrderList = deliveryOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
                     DeliveryOrder deliveryOrder;
                     if (CollectionUtils.isEmpty(deliveryOrderList)) {
+                        //如果有不同create_seq
+                        if(sameCreateSeqOrder.keySet().size() > 1 ){
+                            for  (ErpSo erpSo : documentIdList) {
+                                asyncDuplicateSeqList.add(erpSo.getSeq());
+                            }
+                            continue;
+                        }
                         deliveryOrder = new DeliveryOrder();
                         deliveryOrder.setName(documentId);
                         deliveryOrder.setStatus(Document.STATUS_OPEN);
+                        deliveryOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
                     } else {
                         deliveryOrder = deliveryOrderList.get(0);
+                        boolean differentCreateSeq = false;
+                        for  (String createSeq : sameCreateSeqOrder.keySet()) {
+                            if(!createSeq.equals(deliveryOrder.getReserved32())){
+                                differentCreateSeq = true;
+                                for  (ErpSo erpSo : documentIdList) {
+                                    asyncDuplicateSeqList.add(erpSo.getSeq());
+                                }
+                                break;
+                            }
+                        }
+                        if(differentCreateSeq){
+                            continue;
+                        }
                     }
                     BigDecimal totalQty = BigDecimal.ZERO;
 
@@ -1686,19 +1784,12 @@ public class GcServiceImpl implements GcService {
                             DocumentLine documentLine = null;
                             if (deliveryOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(deliveryOrder.getObjectRrn(), String.valueOf(erpSo.getSeq()));
-                                List<ErpSo> sameCreateSeqData = erpSoRepository.findByCcodeAndCreateSeq(erpSo.getCcode(),erpSo.getCreateSeq());
-                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
+                                if (documentLine != null) {
                                     if (ErpSo.SYNC_STATUS_CHANGED.equals(erpSo.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpSo.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
-                                }else{
-                                    List<Long> noAsyncSeqList = Lists.newArrayList();
-                                    noAsyncSeqList.add(erpSo.getSeq());
-                                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
-                                    continue;
                                 }
                             }
 
@@ -1752,6 +1843,7 @@ public class GcServiceImpl implements GcService {
                             // 同一个单据下，所有的客户都是一样的。
                             deliveryOrder.setSupplierName(erpSo.getCusname());
                             deliveryOrder.setOwner(erpSo.getChandler());
+                            deliveryOrder.setReserved32(erpSo.getCreateSeq());
                             if (deliveryOrder.getErpCreated() == null) {
                                 deliveryOrder.setErpCreated(erpCreatedDate);
                             } else {
@@ -1787,6 +1879,10 @@ public class GcServiceImpl implements GcService {
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                }
+                if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
+                    erpSoRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,
+                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, asyncDuplicateSeqList);
                 }
             }
         } catch (Exception e) {
@@ -3596,41 +3692,62 @@ public class GcServiceImpl implements GcService {
         try {
             List<ErpMaterialOutaOrder> otherIssueOrders = erpMaterialOutAOrderRepository.findByTypeAndSynStatusNotIn(ErpMaterialOutaOrder.TYPE_TV, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
+            List<Long> asyncDuplicateSeqList = Lists.newArrayList();
 
             if (CollectionUtils.isNotEmpty(otherIssueOrders)) {
                 Map<String, List<ErpMaterialOutaOrder>> documentIdMap = otherIssueOrders.stream().collect(Collectors.groupingBy(ErpMaterialOutaOrder :: getCcode));
+                //判断即将同步的数据中是否有同ccode不同createseq
                 for (String documentId : documentIdMap.keySet()) {
+                    List<ErpMaterialOutaOrder> documentIdList = documentIdMap.get(documentId);
+                    //把即将同步的同Ccode数据按createseq分组
+                    Map<String, List<ErpMaterialOutaOrder>> sameCreateSeqOrder = documentIdList.stream().filter(erpMaterialOutaOrder -> !StringUtils.isNullOrEmpty(erpMaterialOutaOrder.getCreateSeq()))
+                            .collect(Collectors.groupingBy(ErpMaterialOutaOrder :: getCreateSeq));
                     //由于取消值为WaferIssueA的CATEGORY，所以用WaferIssueOrder替代OtherIssueOrder
                     List<WaferIssueOrder> otherIssueOrderList = waferIssueOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
                     WaferIssueOrder otherIssueOrder;
                     if (CollectionUtils.isEmpty(otherIssueOrderList)) {
+                        //如果有不同create_seq
+                        if(sameCreateSeqOrder.keySet().size() > 1 ){
+                            for  (ErpMaterialOutaOrder erpMaterialOutaOrder : documentIdList) {
+                                asyncDuplicateSeqList.add(erpMaterialOutaOrder.getSeq());
+                            }
+                            continue;
+                        }
                         otherIssueOrder = new WaferIssueOrder();
+                        otherIssueOrder.setName(documentId);
                         otherIssueOrder.setStatus(Document.STATUS_OPEN);
+                        otherIssueOrder.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
                     } else {
                         otherIssueOrder = otherIssueOrderList.get(0);
+                        boolean differentCreateSeq = false;
+                        for  (String createSeq : sameCreateSeqOrder.keySet()) {
+                            if(!createSeq.equals(otherIssueOrder.getReserved32())){
+                                differentCreateSeq = true;
+                                for  (ErpMaterialOutaOrder erpMaterialOutaOrder : documentIdList) {
+                                    asyncDuplicateSeqList.add(erpMaterialOutaOrder.getSeq());
+                                }
+                                break;
+                            }
+                        }
+                        if(differentCreateSeq){
+                            continue;
+                        }
                     }
-                    otherIssueOrder.setName(documentId);
+
                     BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
-                    for  (ErpMaterialOutaOrder erpMaterialOutaOrder : documentIdMap.get(documentId)) {
+                    for  (ErpMaterialOutaOrder erpMaterialOutaOrder : documentIdList) {
                         try {
                             DocumentLine documentLine = null;
                             if (otherIssueOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(otherIssueOrder.getObjectRrn(), String.valueOf(erpMaterialOutaOrder.getSeq()));
-                                List<ErpMaterialOutaOrder> sameCreateSeqData = erpMaterialOutAOrderRepository.findByCcodeAndCreateSeq(erpMaterialOutaOrder.getCcode(),erpMaterialOutaOrder.getCreateSeq());
-                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
+                                if (documentLine != null) {
                                     if (ErpMaterialOutaOrder.SYNC_STATUS_CHANGED.equals(erpMaterialOutaOrder.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpMaterialOutaOrder.getIquantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
-                                }else{
-                                    List<Long> noAsyncSeqList = Lists.newArrayList();
-                                    noAsyncSeqList.add(erpMaterialOutaOrder.getSeq());
-                                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
-                                    continue;
                                 }
                             }
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
@@ -3659,6 +3776,7 @@ public class GcServiceImpl implements GcService {
                             documentLines.add(documentLine);
 
                             otherIssueOrder.setOwner(erpMaterialOutaOrder.getChandler());
+                            otherIssueOrder.setReserved32(erpMaterialOutaOrder.getCreateSeq());
                             asyncSuccessSeqList.add(erpMaterialOutaOrder.getSeq());
                         } catch (Exception e) {
                             // 修改状态为2
@@ -3681,6 +3799,10 @@ public class GcServiceImpl implements GcService {
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
                 }
+                if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
+                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
+                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, asyncDuplicateSeqList);
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -3695,41 +3817,59 @@ public class GcServiceImpl implements GcService {
         try {
             List<ErpSoa> erpSos = erpSoaOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSoa.SYNC_STATUS_OPERATION, ErpSoa.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
-
+            List<Long> asyncDuplicateSeqList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(erpSos)) {
                 Map<String, List<ErpSoa>> documentIdMap = erpSos.stream().collect(Collectors.groupingBy(ErpSoa :: getSocode));
 
                 for (String documentId : documentIdMap.keySet()) {
+                    List<ErpSoa> documentIdList = documentIdMap.get(documentId);
+                    //把即将同步的同Ccode数据按createseq分组
+                    Map<String, List<ErpSoa>> sameCreateSeqOrder = documentIdList.stream().filter(erpSoa -> !StringUtils.isNullOrEmpty(erpSoa.getCreateSeq()))
+                            .collect(Collectors.groupingBy(ErpSoa :: getCreateSeq));
                     List<OtherStockOutOrder> otherStockOutOrderList = otherStockOutOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
                     OtherStockOutOrder otherStockOutOrder;
                     if (CollectionUtils.isEmpty(otherStockOutOrderList)) {
+                        //如果有不同create_seq
+                        if(sameCreateSeqOrder.keySet().size() > 1 ){
+                            for  (ErpSoa erpSoa : documentIdList) {
+                                asyncDuplicateSeqList.add(erpSoa.getSeq());
+                            }
+                            continue;
+                        }
                         otherStockOutOrder = new OtherStockOutOrder();
                         otherStockOutOrder.setName(documentId);
                         otherStockOutOrder.setStatus(Document.STATUS_OPEN);
+                        otherStockOutOrder.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
                     } else {
                         otherStockOutOrder = otherStockOutOrderList.get(0);
+                        boolean differentCreateSeq = false;
+                        for  (String createSeq : sameCreateSeqOrder.keySet()) {
+                            if(!createSeq.equals(otherStockOutOrder.getReserved32())){
+                                differentCreateSeq = true;
+                                for  (ErpSoa erpSoa : documentIdList) {
+                                    asyncDuplicateSeqList.add(erpSoa.getSeq());
+                                }
+                                break;
+                            }
+                        }
+                        if(differentCreateSeq){
+                            continue;
+                        }
                     }
                     BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
-                    for  (ErpSoa erpSoa : documentIdMap.get(documentId)) {
+                    for  (ErpSoa erpSoa : documentIdList) {
                         try {
                             DocumentLine documentLine = null;
                             if (otherStockOutOrder.getObjectRrn() != null) {
                                 documentLine = documentLineRepository.findByDocRrnAndReserved1(otherStockOutOrder.getObjectRrn(), String.valueOf(erpSoa.getSeq()));
-                                List<ErpSoa> sameCreateSeqData = erpSoaOrderRepository.findBySocodeAndCreateSeq(erpSoa.getSocode(),erpSoa.getCreateSeq());
-                                if (documentLine != null || (sameCreateSeqData != null && sameCreateSeqData.size() > 1)) {
+                                if (documentLine != null) {
                                     if (ErpSoa.SYNC_STATUS_CHANGED.equals(erpSoa.getSynStatus())) {
                                         if (documentLine != null && documentLine.getHandledQty().compareTo(erpSoa.getQuantity()) > 0) {
                                             throw new ClientException("gc.order_handled_qty_gt_qty");
                                         }
                                     }
-                                }else{
-                                    List<Long> noAsyncSeqList = Lists.newArrayList();
-                                    noAsyncSeqList.add(erpSoa.getSeq());
-                                    erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpMaterialOutaOrder.SYNC_STATUS_OPERATION,
-                                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, noAsyncSeqList);
-                                    continue;
                                 }
                             }
 
@@ -3784,6 +3924,7 @@ public class GcServiceImpl implements GcService {
                             // 同一个单据下，所有的客户都是一样的。
                             otherStockOutOrder.setSupplierName(erpSoa.getCusname());
                             otherStockOutOrder.setOwner(erpSoa.getShipVerifier());
+                            otherStockOutOrder.setReserved32(erpSoa.getCreateSeq());
                             if (otherStockOutOrder.getErpCreated() == null) {
                                 otherStockOutOrder.setErpCreated(erpCreatedDate);
                             } else {
@@ -3802,7 +3943,6 @@ public class GcServiceImpl implements GcService {
                     otherStockOutOrder.setQty(totalQty);
                     otherStockOutOrder.setUnHandledQty(otherStockOutOrder.getQty().subtract(otherStockOutOrder.getHandledQty()));
                     otherStockOutOrder.setUnReservedQty(totalQty);
-                    otherStockOutOrder.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
                     otherStockOutOrder = (OtherStockOutOrder) baseService.saveEntity(otherStockOutOrder);
 
                     for (DocumentLine documentLine : documentLines) {
@@ -3818,6 +3958,10 @@ public class GcServiceImpl implements GcService {
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSoa.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                }
+                if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
+                    erpSoaOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSoa.SYNC_STATUS_SYNC_ERROR,
+                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, asyncDuplicateSeqList);
                 }
             }
         } catch (Exception e) {
@@ -3847,24 +3991,51 @@ public class GcServiceImpl implements GcService {
         try {
             List<ErpSob> erpSobs = erpSobOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
+            List<Long> asyncDuplicateSeqList = Lists.newArrayList();
 
             if (CollectionUtils.isNotEmpty(erpSobs)) {
                 Map<String, List<ErpSob>> documentIdMap = erpSobs.stream().collect(Collectors.groupingBy(ErpSob :: getCcode));
 
                 for (String documentId : documentIdMap.keySet()) {
+                    List<ErpSob> documentIdList = documentIdMap.get(documentId);
+                    //把即将同步的同Ccode数据按createseq分组
+                    Map<String, List<ErpSob>> sameCreateSeqOrder = documentIdList.stream().filter(erpSob -> !StringUtils.isNullOrEmpty(erpSob.getCreateSeq()))
+                            .collect(Collectors.groupingBy(ErpSob :: getCreateSeq));
+
                     List<OtherShipOrder> otherShipOrderList = otherShipOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
                     OtherShipOrder otherShipOrder;
                     if (CollectionUtils.isEmpty(otherShipOrderList)) {
+                        //如果有不同create_seq
+                        if(sameCreateSeqOrder.keySet().size() > 1 ){
+                            for  (ErpSob erpSob : documentIdList) {
+                                asyncDuplicateSeqList.add(erpSob.getSeq());
+                            }
+                            continue;
+                        }
                         otherShipOrder = new OtherShipOrder();
                         otherShipOrder.setName(documentId);
                         otherShipOrder.setStatus(Document.STATUS_OPEN);
+                        otherShipOrder.setReserved31(ErpSob.SOURCE_TABLE_NAME);
                     } else {
                         otherShipOrder = otherShipOrderList.get(0);
+                        boolean differentCreateSeq = false;
+                        for  (String createSeq : sameCreateSeqOrder.keySet()) {
+                            if(!createSeq.equals(otherShipOrder.getReserved32())){
+                                differentCreateSeq = true;
+                                for  (ErpSob erpSob : documentIdList) {
+                                    asyncDuplicateSeqList.add(erpSob.getSeq());
+                                }
+                                break;
+                            }
+                        }
+                        if(differentCreateSeq){
+                            continue;
+                        }
                     }
                     BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
-                    for  (ErpSob erpSob : documentIdMap.get(documentId)) {
+                    for  (ErpSob erpSob : documentIdList) {
                         try {
                             DocumentLine documentLine = null;
                             if (otherShipOrder.getObjectRrn() != null) {
@@ -3925,6 +4096,7 @@ public class GcServiceImpl implements GcService {
 
                             // 同一个单据下，所有的客户都是一样的。
                             otherShipOrder.setOwner(erpSob.getChandler());
+                            otherShipOrder.setReserved32(erpSob.getCreateSeq());
                             if (otherShipOrder.getErpCreated() == null) {
                                 otherShipOrder.setErpCreated(erpCreatedDate);
                             } else {
@@ -3958,6 +4130,10 @@ public class GcServiceImpl implements GcService {
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
                     erpSobOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, asyncSuccessSeqList);
+                }
+                if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
+                    erpSobOrderRepository.updateSynStatusAndErrorMemoBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,
+                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, asyncDuplicateSeqList);
                 }
             }
         } catch (Exception e) {

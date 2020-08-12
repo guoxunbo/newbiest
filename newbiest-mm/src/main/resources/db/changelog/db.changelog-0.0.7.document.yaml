@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_0.0.7
+      author: Zhi Cao
+      remarks: mms_document add column
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT
+            columns:
+              - column:
+                  name: RESERVED32
+                  type: varchar2(64)
+              - column:
+                  name: RESERVED33
+                  type: varchar2(64)
+              - column:
+                  name: RESERVED34
+                  type: varchar2(64)
+              - column:
+                  name: RESERVED35
+                  type: varchar2(64)
+              - column:
+                  name: RESERVED36
+                  type: varchar2(64)
+              - column:
+                  name: RESERVED37
+                  type: varchar2(64)
+              - column:
+                  name: RESERVED38
+                  type: varchar2(64)
+              - column:
+                  name: RESERVED39
+                  type: varchar2(64)
+              - column:
+                  name: RESERVED40
+                  type: varchar2(64)
