@@ -337,12 +337,19 @@ public class ExpressServiceImpl implements ExpressService {
         return deliveryOrderList;
     }
 
-    public List<Map<String,String>> getPrintLabelParameterList(List<MaterialLot> materialLotList) throws ClientException{
+    public List<Map<String,String>> getPrintLabelParameterList(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{
         try {
             List<Map<String, String>> parameterMapList =  Lists.newArrayList();
+            Integer seq = 1;
+            Integer numfix = materialLotList.size();
             for (MaterialLot materialLot : materialLotList){
                 Map<String, String> parameterMap =  Maps.newHashMap();
-
+                parameterMap.put("CSNAME", materialLot.getShipper());
+                parameterMap.put("NUMCHANG", seq.toString());
+                parameterMap.put("NUMFIX", numfix.toString());
+                parameterMap.put("EXNUM", expressNumber);
+                parameterMapList.add(parameterMap);
+                ++seq;
             }
             return parameterMapList;
         } catch (Exception e) {
