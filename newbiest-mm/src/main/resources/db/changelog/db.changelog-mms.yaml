@@ -251,3 +251,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.2.document_his.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.7.document.yaml
+      relativeToChangelogFile: true
