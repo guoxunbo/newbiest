@@ -30,6 +30,8 @@ public class RecordExpressRequestBody extends RequestBody {
 
 	public static final String ACTION_TYPE_OLD_RECORD_ORDER = "OldRecordOrder";
 
+	public static final String ACTION_TYPE_QUERY_PRINTPARAMETER = "QueryPrintParameter";
+
 	private String actionType;
 
 	private Integer serviceMode;

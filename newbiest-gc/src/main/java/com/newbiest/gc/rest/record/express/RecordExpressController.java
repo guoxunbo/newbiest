@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by guoxunbo on 2019-08-21 13:15
@@ -44,6 +45,8 @@ public class RecordExpressController {
         RecordExpressResponseBody responseBody = new RecordExpressResponseBody();
         RecordExpressRequestBody requestBody = request.getBody();
 
+        List<Map<String, String>> parameterMapList = Lists.newArrayList();
+
         String actionType = requestBody.getActionType();
         List<MaterialLot> materialLots = Lists.newArrayList();
         if (RecordExpressRequestBody.ACTION_TYPE_AUTO_ORDER.equals(actionType)) {
@@ -55,7 +58,10 @@ public class RecordExpressController {
         } else if (RecordExpressRequestBody.ACTION_TYPE_OLD_RECORD_ORDER.equals(actionType)) {
             List<DeliveryOrder> deliveryOrders = expressService.recordExpressNumber(requestBody.getDeliveryOrderList());
             responseBody.setDeliveryOrderList(deliveryOrders);
-        }else {
+        } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_PRINTPARAMETER.equals(actionType)){
+            parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(), requestBody.getExpressNumber());
+            responseBody.setParameterMapList(parameterMapList);
+        } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }
         responseBody.setMaterialLots(materialLots);

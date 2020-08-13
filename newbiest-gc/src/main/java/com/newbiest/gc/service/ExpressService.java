@@ -6,6 +6,7 @@ import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 和跨域速递的接口。
@@ -21,5 +22,5 @@ public interface ExpressService {
 
     List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException;
 
-
+    List<Map<String, String>> getPrintLabelParameterList(List<MaterialLot> materialLotList, String expressNumber) throws ClientException;
 }
