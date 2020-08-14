@@ -23,12 +23,12 @@ import com.newbiest.gc.ExpressConfiguration;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.express.dto.WaybillDelivery;
+import com.newbiest.gc.model.ErpSo;
+import com.newbiest.gc.repository.ErpSoRepository;
 import com.newbiest.gc.service.ExpressService;
-import com.newbiest.mms.model.DeliveryOrder;
-import com.newbiest.mms.model.DocumentHistory;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotHistory;
+import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.DeliveryOrderRepository;
+import com.newbiest.mms.repository.DocumentLineRepository;
 import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.msg.DefaultParser;
@@ -73,6 +73,12 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Autowired
     DeliveryOrderRepository deliveryOrderRepository;
+
+    @Autowired
+    DocumentLineRepository documentLineRepository;
+
+    @Autowired
+    ErpSoRepository erpSoRepository;
 
     @Value("${spring.profiles.active}")
     private String profiles;
@@ -307,14 +313,47 @@ public class ExpressServiceImpl implements ExpressService {
         }
     }
 
+    /**
+     * 单据上记录快递单号，将快递单号回写至中间表OTHER19字段
+     * @return
+     * @throws ClientException
+     */
     public List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException {
         List<DeliveryOrder> deliveryOrderList = Lists.newArrayList();
         for (DeliveryOrder deliveryOrder : deliveryOrders) {
             deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
             deliveryOrderList.add(deliveryOrder);
             baseService.saveHistoryEntity(deliveryOrder, "RecordExpress");
+
+            String expressNumber = deliveryOrder.getReserved2();
+            List<ErpSo> erpSoList = erpSoRepository.findByTypeAndCcode(ErpSo.TYPE_SO, deliveryOrder.getName());
+            if(CollectionUtils.isNotEmpty(erpSoList)){
+                for(ErpSo erpSo : erpSoList){
+                    erpSo.setOther19(expressNumber);
+                    erpSoRepository.saveAndFlush(erpSo);
+                }
+            }
         }
         return deliveryOrderList;
     }
 
+    public List<Map<String,String>> getPrintLabelParameterList(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{
+        try {
+            List<Map<String, String>> parameterMapList =  Lists.newArrayList();
+            Integer seq = 1;
+            Integer numfix = materialLotList.size();
+            for (MaterialLot materialLot : materialLotList){
+                Map<String, String> parameterMap =  Maps.newHashMap();
+                parameterMap.put("CSNAME", materialLot.getShipper());
+                parameterMap.put("NUMCHANG", seq.toString());
+                parameterMap.put("NUMFIX", numfix.toString());
+                parameterMap.put("EXNUM", expressNumber);
+                parameterMapList.add(parameterMap);
+                ++seq;
+            }
+            return parameterMapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
