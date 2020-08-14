@@ -1126,7 +1126,6 @@ public class GcServiceImpl implements GcService {
      */
     private void receiveWafer(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
-            List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             for (DocumentLine documentLine: documentLines) {
 
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
@@ -1164,7 +1163,6 @@ public class GcServiceImpl implements GcService {
                             //数量进行还原。不能扣减。
                             materialLot.setCurrentSubQty(mLotQty.get(materialLot.getMaterialLotId()));
                             List<MaterialLotUnit> receiveUnits = materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
-                            materialLotUnits.addAll(receiveUnits);
                             iterator.remove();
                         }
                     } else {
@@ -1181,7 +1179,6 @@ public class GcServiceImpl implements GcService {
                             //数量进行还原。不能扣减。
                             materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
                             List<MaterialLotUnit> receiveUnits = materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
-                            materialLotUnits.addAll(receiveUnits);
                             iterator.remove();
                         }
                     }
@@ -1220,10 +1217,7 @@ public class GcServiceImpl implements GcService {
                     erpSoRepository.save(erpSo);
                 }
             }
-            if (SystemPropertyUtils.getConnectScmFlag()) {
-                // 请求SCM做是否是ENG产品的验证
-                scmService.assignEngFlag(materialLotUnits);
-            }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -3502,8 +3496,9 @@ public class GcServiceImpl implements GcService {
      */
     public void purchaseOutsourceWaferReceive(List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
+            List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-            for(MaterialLot materialLot : materialLots){
+            for (MaterialLot materialLot : materialLots) {
                 Warehouse warehouse = new Warehouse();
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
                     warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
@@ -3512,7 +3507,10 @@ public class GcServiceImpl implements GcService {
                     throw new ClientParameterException(GcExceptions.WAREHOUSE_CANNOT_EMPTY);
                 }
                 String warehouseName = warehouse.getName();
-                materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
+                List<MaterialLotUnit> units = materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
+
+                materialLotUnits.addAll(units);
+
                 ErpInStock erpInStock = new ErpInStock();
                 if(StringUtils.isNullOrEmpty(materialLot.getProductType())){
                     erpInStock.setProdCate(MaterialLot.PRODUCT_TYPE_PROD);
@@ -3530,6 +3528,11 @@ public class GcServiceImpl implements GcService {
                     throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouseName);
                 }
                 erpInStockRepository.save(erpInStock);
+            }
+
+            if (SystemPropertyUtils.getConnectScmFlag()) {
+                // 请求SCM做是否是ENG产品的验证
+                scmService.assignEngFlag(materialLotUnits);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

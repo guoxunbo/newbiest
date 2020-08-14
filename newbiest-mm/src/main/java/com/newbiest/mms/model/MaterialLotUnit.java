@@ -461,7 +461,7 @@ public class MaterialLotUnit extends NBUpdatable {
     private String reserved48;
 
     /**
-     * GlaxyCore 导入型号
+     * GlaxyCore 导入类型 Import_TYPE
      */
     @Column(name="RESERVED49")
     private String reserved49;
