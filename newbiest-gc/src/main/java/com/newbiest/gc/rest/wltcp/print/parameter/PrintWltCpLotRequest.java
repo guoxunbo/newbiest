@@ -10,7 +10,7 @@ public class PrintWltCpLotRequest extends Request {
 
 	private static final long serialVersionUID = 1L;
 	
-	public static final String MESSAGE_NAME = "GCGetVboxPrintParamter";
+	public static final String MESSAGE_NAME = "GCGetWltOrCpPrintParamter";
 
 	private PrintWltCpLotRequestBody body;
 

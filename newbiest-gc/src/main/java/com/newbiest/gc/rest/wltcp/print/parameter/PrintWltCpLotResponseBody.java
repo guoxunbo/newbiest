@@ -1,11 +1,8 @@
 package com.newbiest.gc.rest.wltcp.print.parameter;
 
-import com.google.common.collect.Lists;
-import com.newbiest.mms.model.MaterialLotUnit;
+import com.google.common.collect.Maps;
 import com.newbiest.msg.ResponseBody;
 import lombok.Data;
-
-import java.util.List;
 import java.util.Map;
 
 
@@ -14,5 +11,5 @@ public class PrintWltCpLotResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<MaterialLotUnit> mLotUnitList = Lists.newArrayList();
+	private Map<String, String> parameterMap = Maps.newHashMap();
 }

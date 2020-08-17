@@ -161,3 +161,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.productManager_nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCPrintWltCpLot.nb_authority.yaml
+      relativeToChangelogFile: true
