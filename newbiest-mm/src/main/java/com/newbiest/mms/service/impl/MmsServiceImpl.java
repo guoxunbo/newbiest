@@ -623,7 +623,6 @@ public class MmsServiceImpl implements MmsService {
             PreConditionalUtils.checkNotNull(materialLotAction.getFromWarehouseRrn(), StringUtils.EMPTY);
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), StringUtils.EMPTY);
 
-            materialLot.validateMLotHold();
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);

@@ -2642,7 +2642,6 @@ public class GcServiceImpl implements GcService {
 
             //3. 入库
             for (MaterialLot materialLot : materialLots) {
-                materialLot.validateMLotHold();
                 RelayBoxStockInModel relayBoxStockInModel = relayBoxStockInModelMap.get(materialLot.getMaterialLotId());
                 String storageId = relayBoxStockInModel.getStorageId();
 
