@@ -492,7 +492,6 @@ public class GcServiceImpl implements GcService {
 
             //2. 普通批次才做绑定中转箱功能，直接release原来的中转箱号
             for (MaterialLot materialLot : normalMaterialLots) {
-                materialLot.validateMLotHold();
                 StockInModel stockInModel = stockInModelMap.get(materialLot.getMaterialLotId());
                 // 为空则不处理
                 if (StringUtils.isNullOrEmpty(stockInModel.getRelaxBoxId())) {
@@ -3541,21 +3540,21 @@ public class GcServiceImpl implements GcService {
                     if(mLotUnitMap.size() > 1){
                         throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_NOT_SAME, lotId);
                     }
-                }
-                for(String materialName : mLotUnitMap.keySet()){
-                    String materialNameQty = materialName.split("-")[1];
-                    if(materialNameQty.equals("1") || materialNameQty.equals("2.5")){
-                        waferSource = "3";
-                    } else if(materialNameQty.equals("2.6")) {
-                        waferSource = "4";
-                    } else {
-                        throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_ERROR, materialName);
-                    }
-                    List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
-                    for(MaterialLotUnit materialLotUnit : materialLotUnits){
-                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
-                        materialLotUnit.setReserved50(waferSource);
-                        materialLotUnit.setReserved49(MaterialLot.IMPORT_LCD_CP);
+                    for(String materialName : mLotUnitMap.keySet()){
+                        String materialNameQty = materialName.split("-")[1];
+                        if(materialNameQty.equals("1") || materialNameQty.equals("2.5")){
+                            waferSource = "3";
+                        } else if(materialNameQty.equals("2.6")) {
+                            waferSource = "4";
+                        } else {
+                            throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_ERROR, materialName);
+                        }
+                        List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
+                        for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                            materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
+                            materialLotUnit.setReserved50(waferSource);
+                            materialLotUnit.setReserved49(MaterialLot.IMPORT_LCD_CP);
+                        }
                     }
                 }
             } else if(MaterialLotUnit.SENSOR_PACK_RETURN_COGO.equals(importType) || MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)
