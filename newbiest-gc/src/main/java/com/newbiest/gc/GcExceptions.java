@@ -35,6 +35,8 @@ public class GcExceptions {
 
     public static final String CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY = "gc.corresponding_raw_material_info_is_empty";
 
+    public static final String INCOMINGMLOT_QTY_AND_SENTOUT_QTY_DISCREPANCY = "gc.incomingMlot_qty_and_sentOut_qty_discrepancy";
+
 
     //快递相关
     public static final String MATERIAL_LOT_ALREADY_RECORD_EXPRESS = "gc.material_lot_recorded_express";

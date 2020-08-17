@@ -62,5 +62,46 @@ public class MesPackedLotRelation implements Serializable {
     @Column(name = "PACKED_LOT_RRN")
     private Long packedLotRrn;
 
+    /**
+     * 片号
+     */
+    @Column(name = "OBJECT_ID")
+    private String objectId;
+
+    /**
+     * 测试型号
+     */
+    @Column(name = "TEST_MODEL_ID")
+    private String testModelId;
+
+    /**
+     * 入库型号
+     */
+    @Column(name = "INSTORE_MODEL_ID")
+    private String instoreModelId;
+
+    /**
+     * bin1
+     */
+    @Column(name = "BIN_ID1")
+    private String binId1;
+
+    /**
+     * bin2
+     */
+    @Column(name = "BIN_ID2")
+    private String binId2;
+
+    /**
+     * bin3
+     */
+    @Column(name = "BIN_ID3")
+    private String binId3;
+
+    /**
+     * bin4
+     */
+    @Column(name = "BIN_ID4")
+    private String binId4;
 
 }

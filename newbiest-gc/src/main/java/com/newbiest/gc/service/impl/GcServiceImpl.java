@@ -3056,7 +3056,7 @@ public class GcServiceImpl implements GcService {
     /**
      * 验证来料信息中产品型号和二级代码是否存在
      */
-    public void validateMLotUnitProductAndBondedProperty(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
+    public void validateMLotUnitProductAndSubcode(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
         try {
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getLotId));
             for (String lotId : materialLotUnitMap.keySet()){
@@ -4235,6 +4235,70 @@ public class GcServiceImpl implements GcService {
             }
 
             return materialLots;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 验证WLT封装回货模板是否经WLA处理，根据产品型号转换表验证晶圆型号是否需要转换
+     * @return
+     * @param materialLotUnitList
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
+        try {
+            validateMLotUnitProductAndSubcode(materialLotUnitList);
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                String unitId = materialLotUnit.getUnitId();
+                String materialName = materialLotUnit.getMaterialName();
+                Material material = new Material();
+                //验证晶圆是否在经过WLA测试,经过WLA测试的根据产品型号转换做验证
+                MesPackedLotRelation mesPackedLotRelation = mesPackedLotRelationRepository.findByWaferId(unitId);
+                if(mesPackedLotRelation == null){
+                    //验证是否存在产品型号转换，存在即将晶圆型号转换成产品型号转换的型号
+                    GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductId(materialName);
+                    if(productModelConversion != null){
+                        materialName = productModelConversion.getConversionModelId();
+                        material = mmsService.getRawMaterialByName(materialName);
+                        if(material == null){
+                            RawMaterial rawMaterial = new RawMaterial();
+                            rawMaterial.setName(materialName);
+                            rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
+                            rawMaterial.setMaterialType(Material.TYPE_WAFER);
+                            material = mmsService.saveRawMaterial(rawMaterial);
+                        }
+                    } else {
+                        material = mmsService.getRawMaterialByName(materialName);
+                        if(material == null){
+                            throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
+                        }
+                    }
+                } else {
+                    if(Integer.parseInt(mesPackedLotRelation.getBinId1()) < Integer.parseInt(materialLotUnit.getReserved34()) ||
+                            Integer.parseInt(mesPackedLotRelation.getBinId2()) < Integer.parseInt(materialLotUnit.getReserved42()) ||
+                            Integer.parseInt(mesPackedLotRelation.getBinId4()) < Integer.parseInt(materialLotUnit.getReserved43())){
+                        throw new ClientParameterException(GcExceptions.INCOMINGMLOT_QTY_AND_SENTOUT_QTY_DISCREPANCY, materialLotUnit.getUnitId());
+                    }
+                    String testProductId = mesPackedLotRelation.getTestModelId();
+                    materialName = testProductId.split("-")[0] + "-3.5";
+                    material = mmsService.getRawMaterialByName(materialName);
+                    if(material == null){
+                        RawMaterial rawMaterial = new RawMaterial();
+                        rawMaterial.setName(materialName);
+                        rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
+                        rawMaterial.setMaterialType(Material.TYPE_WAFER);
+                        material = mmsService.saveRawMaterial(rawMaterial);
+                    }
+                }
+                materialLotUnit.setMaterialName(material.getName());
+                materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
+                materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
+                materialLotUnit.setReserved50("7");
+            }
+            materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
+            return materialLotUnitList;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);

@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     boolean validateStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<Map<String, String>> getMlotCodePrintParameter(List<MaterialLot> materialLotList, String printType) throws ClientException;
     void purchaseOutsourceWaferReceive(List<MaterialLotAction> materialLotActions)throws ClientException;
@@ -31,7 +32,7 @@ public interface GcService {
     void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException;
     void updateMaterialLotLocation(List<MaterialLot> materialLotList , String location, String remarks) throws ClientException;
     void updateMaterialLotTreasuryNote(List<MaterialLot> materialLotList, String treasuryNote) throws ClientException;
-    void validateMLotUnitProductAndBondedProperty(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+    void validateMLotUnitProductAndSubcode(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     String validationAndGetBondedPropertyByFileName(String fileName) throws ClientException;
     GCProductSubcode saveProductSubcode(GCProductSubcode gcProductSubcode) throws ClientException;
     void receiveWltFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
