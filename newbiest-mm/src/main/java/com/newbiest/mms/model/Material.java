@@ -24,6 +24,11 @@ public class Material extends NBVersionControl {
     public static final String CLASS_RAW = "RAW";
 
     /**
+     * 产品型号
+     */
+    public static final String CLASS_PRODUCT = "PRODUCT";
+
+    /**
      * 默认状态模型
      */
     public static final String DEFAULT_STATUS_MODEL = "Normal";

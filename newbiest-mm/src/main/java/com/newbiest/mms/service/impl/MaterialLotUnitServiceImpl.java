@@ -126,11 +126,11 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             }
             Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
             for (String materialName : materialUnitMap.keySet()) {
-                RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
-                if (rawMaterial == null) {
+                Material material = mmsService.getRawMaterialByName(materialName);
+                if (material == null) {
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
                 }
-                StatusModel statusModel = mmsService.getMaterialStatusModel(rawMaterial);
+                StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
 
                 for (String lotId : materialLotUnitMap.keySet()) {
@@ -152,7 +152,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("supplier", materialLotUnits.get(0).getSupplier());
                     propsMap.put("shipper", materialLotUnits.get(0).getShipper());
                     propsMap.put("grade", materialLotUnits.get(0).getGrade());
-                    propsMap.put("lotId", lotId);
+                    propsMap.put("lotId", lotId.toUpperCase());
 
                     propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
                     propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());
@@ -181,11 +181,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved50",materialLotUnits.get(0).getReserved50());
                     propsMap.put("reserved48",importCode);
 
-                    MaterialLot materialLot = mmsService.createMLot(rawMaterial, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap, currentSubQty);
+                    MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap, currentSubQty);
                     for (MaterialLotUnit materialLotUnit : materialLotUnits) {
                         if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                             materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                         }
+                        materialLotUnit.setLotId(materialLotUnit.getLotId().toUpperCase());
                         materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
                         materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                         materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
@@ -195,7 +196,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         materialLotUnit.setReserved18("0");
                         materialLotUnit.setReserved7(StringUtils.EMPTY);//晶圆信息不保存产品型号
                         materialLotUnit.setReserved48(importCode);
-                        materialLotUnit.setMaterial(rawMaterial);
+                        materialLotUnit.setMaterial(material);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
                         materialLotUnitArrayList.add(materialLotUnit);
 

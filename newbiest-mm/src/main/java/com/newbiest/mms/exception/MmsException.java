@@ -8,6 +8,7 @@ public class MmsException {
     public static final String MM_RAW_MATERIAL_IS_EXIST = "mm.raw_material_is_exist";
     public static final String MM_RAW_MATERIAL_IS_NOT_EXIST = "mm.raw_material_is_not_exist";
     public static final String MM_WAREHOUSE_IS_NOT_EXIST = "mm.warehouse_is_not_exist";
+    public static final String MM_PRODUCT_ID_IS_NOT_EXIST = "mm.prductId_is_not_exist";
 
     public static final String MM_MATERIAL_LOT_HAS_EXPIRED = "mm.material_lot_has_expired";
 

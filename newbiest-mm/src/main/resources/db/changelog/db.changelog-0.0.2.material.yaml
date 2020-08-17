@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_init_material_0.0.2
+      author: Guozhang Luo
+      comment: init mms_material class
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/init_material_class.sql
