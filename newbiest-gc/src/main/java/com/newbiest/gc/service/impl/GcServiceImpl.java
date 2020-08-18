@@ -1928,7 +1928,7 @@ public class GcServiceImpl implements GcService {
      * @param stockOutCheckList 检查项
      * @return
      */
-    public void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> stockOutCheckList) throws ClientException {
+    public void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> stockOutCheckList, String expressNumber) throws ClientException {
         try {
 
             String checkResult = StockOutCheck.RESULT_OK;
@@ -1955,6 +1955,21 @@ public class GcServiceImpl implements GcService {
                     }
                 } else if(StockOutCheck.RESULT_OK.equals(checkResult) && MaterialLot.STATUS_STOCK.equals(materialLot.getStatusCategory())){
                     materialLot.setReserved9(StockOutCheck.RESULT_PASS );
+                    //判定OK时，检验真空包或者箱号上快递单号是否正确
+                    if(!materialLot.getExpressNumber().equals(expressNumber)){
+                        throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, materialLot.getMaterialLotId());
+                    }
+                    if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                        List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                        for(MaterialLot packageLot : packageDetailLots){
+                            if(StringUtils.isNullOrEmpty(packageLot.getExpressNumber())){
+                                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, packageLot.getMaterialLotId());
+                            } else if(!packageLot.getExpressNumber().equals(expressNumber)){
+                                throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, packageLot.getMaterialLotId());
+                            }
+                        }
+                    }
+
                 } else if(StockOutCheck.RESULT_NG.equals(checkResult) && MaterialLot.STATUS_STOCK.equals(materialLot.getStatusCategory())){
                     materialLot.setReserved9(StockOutCheck.RESULT_PASS + "0");
                 }

@@ -24,4 +24,8 @@ public class StockOutCheckRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "检查结果")
 	private List<StockOutCheck> checkList;
+
+	@ApiModelProperty(value = "快递单号")
+	private String expressNumber;
+
 }
