@@ -106,7 +106,7 @@ public class ScmServiceImpl implements ScmService {
             List<Map> requestWaferList = Lists.newArrayList();
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
                 Map<String, String> requestInfo = Maps.newHashMap();
-                if (StringUtils.isNullOrEmpty(materialLotUnit.getLotId())) {
+                if (StringUtils.isNullOrEmpty(materialLotUnit.getReserved30())) {
                     log.warn(String.format("MaterialUnit [%s] has no lotId.", materialLotUnit.getUnitId()));
                     continue;
                 }
@@ -117,9 +117,9 @@ public class ScmServiceImpl implements ScmService {
                     continue;
                 }
 
-                requestInfo.put("lot_no", materialLotUnit.getLotId());
-                String waferId = materialLotUnit.getUnitId().substring(materialLotUnit.getUnitId().indexOf(StringUtils.SPLIT_CODE) + 1);
-                requestInfo.put("wafer_id", waferId);
+                Integer waferId = Integer.parseInt(materialLotUnit.getReserved31());
+                requestInfo.put("lot_no", materialLotUnit.getReserved30());
+                requestInfo.put("wafer_id", waferId.toString());
                 requestWaferList.add(requestInfo);
             }
             Map<String, Object> requestInfo = Maps.newHashMap();
