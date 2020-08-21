@@ -53,6 +53,7 @@ public class GcConfiguration {
         ModelFactory.registerModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetail.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCProductModelConversion.class.getName(), GCProductModelConversion.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCProductRelation.class.getName(), GCProductRelation.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(GCOutSourcePo.class.getName(), GCOutSourcePo.class.getClassLoader());
 
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());
@@ -69,6 +70,9 @@ public class GcConfiguration {
 
         ModelFactory.registerHistoryModelClassLoader(ReceiveOrder.class.getName(), DocumentHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(ReceiveOrder.class.getName(), DocumentHistory.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(GCOutSourcePo.class.getName(), GCOutSourcePoHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(GCOutSourcePo.class.getName(), GCOutSourcePoHis.class.getName());
 
     }
 }

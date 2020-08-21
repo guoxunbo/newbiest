@@ -308,6 +308,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 String lotId = fabLotId.split("\\.")[0] +"."+ waferId;
                 for(MaterialLotUnit materialLotUnit : mLotUnitList){
                     materialLotUnit.setLotId(lotId);
+                    materialLotUnit.setReserved30(fabLotId.split("\\.")[0]);
                     materialLotUnits.add(materialLotUnit);
                 }
             }

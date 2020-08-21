@@ -170,3 +170,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.1.gc_product_relation.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.gc_outsource_po.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.gc_outsource_po_his.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCOutSourcePoManager_nb_table.yaml
+      relativeToChangelogFile: true
