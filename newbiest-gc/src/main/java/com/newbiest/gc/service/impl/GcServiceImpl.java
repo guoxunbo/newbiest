@@ -34,7 +34,6 @@ import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
-import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.mms.utils.CollectorsUtils;
 import freemarker.template.utility.StringUtil;
@@ -231,6 +230,9 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     ScmService scmService;
+
+    @Autowired
+    GCProductRelationRepository productRelationRepository;
 
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
@@ -2557,6 +2559,43 @@ public class GcServiceImpl implements GcService {
             }
 
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 定时同步mms_material_lot中的产品、等级、二级代码信息
+     * @throws ClientException
+     */
+    public void asyncProductGradeAndSubcode() throws ClientException {
+        try {
+            List<Product> productList = productRepository.findByMaterialType(Material.TYPE_PRODUCT);
+            GCProductRelation productRelation = new GCProductRelation();
+            for (Product product : productList){
+                List<String> gradeList = materialLotRepository.getGradeByMaterialNameAndStatusCategory(product.getName(), MaterialLot.STATUS_FIN);
+                for (String grade : gradeList){
+                    productRelation = productRelationRepository.findByProductIdAndGradeSubcodeAndType(product.getName(), grade, GCProductRelation.GRADE_TYPE);
+                    if(productRelation == null){
+                        productRelation = new GCProductRelation();
+                        productRelation.setProductId(product.getName());
+                        productRelation.setGradeSubcode(grade);
+                        productRelation.setType(GCProductRelation.GRADE_TYPE);
+                        productRelationRepository.save(productRelation);
+                    }
+                }
+                List<String> subCodeList = materialLotRepository.getSubcodeByMaterialNameAndStatusCategory(product.getName(), MaterialLot.STATUS_FIN);
+                for (String subcode : subCodeList){
+                    productRelation = productRelationRepository.findByProductIdAndGradeSubcodeAndType(product.getName(), subcode, GCProductRelation.SUBCODE_TYPE);
+                    if(productRelation == null){
+                        productRelation = new GCProductRelation();
+                        productRelation.setProductId(product.getName());
+                        productRelation.setGradeSubcode(subcode);
+                        productRelation.setType(GCProductRelation.SUBCODE_TYPE);
+                        productRelationRepository.save(productRelation);
+                    }
+                }
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

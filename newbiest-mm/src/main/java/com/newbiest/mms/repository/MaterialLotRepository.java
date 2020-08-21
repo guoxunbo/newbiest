@@ -27,4 +27,11 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     List<MaterialLot> getByParentMaterialLotId(@Param("parentMaterialLotId")String parentMaterialLotId);
 
     List<MaterialLot> getByExpressNumber(String expressNumber) throws Exception;
+
+    @Query("SELECT distinct(m.grade) FROM MaterialLot m where  m.materialName = :materialName and  m.statusCategory not in(:statusCategory) and m.packageType is null")
+    List<String> getGradeByMaterialNameAndStatusCategory(@Param("materialName")String materialName, @Param("statusCategory")String statusCategory);
+
+    @Query("SELECT distinct(m.reserved1) FROM MaterialLot m where  m.materialName = :materialName and  m.statusCategory not in(:statusCategory) and m.packageType is null")
+    List<String> getSubcodeByMaterialNameAndStatusCategory(@Param("materialName")String materialName, @Param("statusCategory")String statusCategory);
+
 }
