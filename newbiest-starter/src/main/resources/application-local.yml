@@ -4,8 +4,8 @@ license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
   storePass: newbiest123
-  licensePath: D:/Design/keytool/newbiest.lic
-  publicKeysStorePath: D:/Design/keytool/nb_public.keystore
+  licensePath: /Users/guoxunbo/Documents/newbiest/keytool/newbiest.lic
+  publicKeysStorePath: /Users/guoxunbo/Documents/newbiest/keytool/nb_public.keystore
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 spring:
   application:
@@ -19,9 +19,9 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@127.0.0.1:1521:orcl
+      url: jdbc:oracle:thin:@127.0.0.1:1521:newbiest
       username: wmstest
-      password: orcl
+      password: wmstest
       driver-class-name: oracle.jdbc.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1

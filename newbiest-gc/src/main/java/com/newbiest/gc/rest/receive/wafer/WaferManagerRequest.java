@@ -15,7 +15,17 @@ public class WaferManagerRequest extends Request {
 	public static final String ACTION_TYPE_RECEIVE = "Receive";
 	public static final String ACTION_TYPE_VALIDATION_ISSUE = "ValidationIssue";
 	public static final String ACTION_TYPE_ISSUE = "Issue";
+
+	/**
+	 * 需要先绑定工单再发料
+	 * 暂时不用
+	 */
+	@Deprecated
 	public static final String ACTION_TYPE_VALIDATION_WAIT_ISSUE = "ValidationWaitIssue";
+
+	/**
+	 * 委外晶圆接收
+	 */
 	public static final String ACTION_TYPE_PURCHASEOUTSOURE_RECEIVE = "PurchaseOutsoureReceive";
 
 	private WaferManagerRequestBody body;

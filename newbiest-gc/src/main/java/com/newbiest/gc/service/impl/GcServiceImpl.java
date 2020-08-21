@@ -23,6 +23,7 @@ import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.SystemPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -943,29 +944,66 @@ public class GcServiceImpl implements GcService {
         }));
     }
 
+
     public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
-            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
-            Map<String, List<MaterialLotAction>> materialLotActionMap = materialLotActions.stream().collect(Collectors.groupingBy(MaterialLotAction:: getMaterialLotId));
             List<MaterialLot> materialLots = new ArrayList<>();
+            Map<String, List<MaterialLotAction>> materialLotActionMap = materialLotActions.stream().collect(Collectors.groupingBy(MaterialLotAction:: getMaterialLotId));
             for(String materialLotId : materialLotActionMap.keySet()){
                 MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
                 materialLots.add(materialLot);
             }
-            Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
 
-            // 确保所有的物料批次都能匹配上单据, 并且数量足够
-            for (String key : materialLotMap.keySet()) {
-                if (!documentLineMap.keySet().contains(key)) {
-                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+            boolean waferIssueWithDocFlag = SystemPropertyUtils.getWaferIssueWithDocFlag();
+            if (waferIssueWithDocFlag) {
+                documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+                Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
+                Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
+
+                // 确保所有的物料批次都能匹配上单据, 并且数量足够
+                for (String key : materialLotMap.keySet()) {
+                    if (!documentLineMap.keySet().contains(key)) {
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+                    }
+                    Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                    Long totalMaterialLotQty = getTotalMaterialLotQtyByMLotUnitImportType(materialLotMap.get(key));
+                    if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
+                        throw new ClientException(GcExceptions.OVER_DOC_QTY);
+                    }
+                    waferIssue(documentLineMap.get(key), materialLotMap.get(key));
                 }
-                Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
-                Long totalMaterialLotQty = getTotalMaterialLotQtyByMLotUnitImportType(materialLotMap.get(key));
-                if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
-                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
+            } else {
+                waferIssueWithOutDocument(materialLots);
+            }
+
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 晶圆发料 但是不和单据挂钩
+     * @param materialLots
+     */
+    public void waferIssueWithOutDocument(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            for (MaterialLot materialLot : materialLots) {
+                String importType = materialLot.getReserved49();
+                if (MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)) {
+                    materialLot.setCurrentSubQty(BigDecimal.ZERO);
+                    mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
+                    materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                    changeMLotUnitStateAndSaveMesWaferBackendWaferReceive(materialLot);
+                } else {
+                    materialLot.setCurrentQty(BigDecimal.ZERO);
+                    if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                        mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
+                        materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                        changeMLotUnitStateAndSaveMesWaferBackendWaferReceive(materialLot);
+                    }
                 }
-                waferIssue(documentLineMap.get(key), materialLotMap.get(key));
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE);
+                materialLotHistoryRepository.save(history);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -977,7 +1015,7 @@ public class GcServiceImpl implements GcService {
      * @param documentLines
      * @param materialLots
      */
-    public void waferIssue(List<DocumentLine> documentLines, List<MaterialLot> materialLots) {
+    public void waferIssue(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
             for (DocumentLine documentLine: documentLines) {
 
@@ -991,7 +1029,7 @@ public class GcServiceImpl implements GcService {
                     } else {
                         materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
                     }
-                    if(MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)){
+                    if (MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)) {
                         BigDecimal currentSubQty = materialLot.getCurrentSubQty();
                         if (unhandedQty.compareTo(currentSubQty) >= 0) {
                             unhandedQty = unhandedQty.subtract(currentSubQty);
