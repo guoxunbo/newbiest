@@ -272,3 +272,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.WaferStockOutTagging.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCWaferUnStockOutTagging.nb_authority.yaml
+      relativeToChangelogFile: true

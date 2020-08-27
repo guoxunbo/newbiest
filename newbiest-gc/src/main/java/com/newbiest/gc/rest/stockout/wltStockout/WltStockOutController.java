@@ -56,6 +56,8 @@ public class WltStockOutController {
             responseBody.setMaterialLotUnitList(materialLotUnitList);
         } else if(WltStockOutRequest.ACTION_STOCKOUTTAG.equals(actionType)){
             gcService.waferStockOutTagging(requestBody.getMaterialLotActions(), requestBody.getStockTagNote(), requestBody.getStockOutType(), requestBody.getCustomerName(), requestBody.getPoId());
+        } else if(WltStockOutRequest.ACTION_UNSTOCKOUTTAG.equals(actionType)){
+            gcService.waferUnStockOutTagging(requestBody.getMaterialLotActions());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

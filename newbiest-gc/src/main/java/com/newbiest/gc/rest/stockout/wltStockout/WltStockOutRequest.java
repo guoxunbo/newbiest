@@ -20,6 +20,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_STOCKOUTTAG = "StockOutTag";
 
+	public static final String ACTION_UNSTOCKOUTTAG = "UnStockOutTag";
+
 	private WltStockOutRequestBody body;
 
 }

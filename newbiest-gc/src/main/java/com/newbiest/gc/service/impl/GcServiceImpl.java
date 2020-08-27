@@ -4587,4 +4587,27 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 清除晶圆出货标注信息
+     * @param materialLotActions
+     * @throws ClientException
+     */
+    public void waferUnStockOutTagging(List<MaterialLotAction> materialLotActions) throws ClientException {
+        try {
+            List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for(MaterialLot materialLot : materialLotList){
+                materialLot.setReserved54(StringUtils.EMPTY);
+                materialLot.setReserved55(StringUtils.EMPTY);
+                materialLot.setReserved56(StringUtils.EMPTY);
+                materialLot.setReserved57(StringUtils.EMPTY);
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_STOCK_OUT_TAG);
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 }
