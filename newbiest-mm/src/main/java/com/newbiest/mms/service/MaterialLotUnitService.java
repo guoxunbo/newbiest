@@ -1,6 +1,7 @@
 package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 
@@ -11,6 +12,8 @@ import java.util.List;
  * Created by guoxunbo on 2020-01-17 12:39
  */
 public interface MaterialLotUnitService {
+
+    List<MaterialLotUnit> queryStockOutTagMLotUnits(List<MaterialLotAction> materialLotActions)throws ClientException;
 
     List<MaterialLotUnit> getUnitsByMaterialLotId(String materialLotId) throws ClientException;
 

@@ -8,6 +8,8 @@ import com.newbiest.gc.rest.stockout.StockOutResponseBody;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotUnit;
+import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/gc")
 @Slf4j
@@ -27,6 +31,9 @@ public class WltStockOutController {
 
     @Autowired
     GcService gcService;
+
+    @Autowired
+    MaterialLotUnitService materialLotUnitService;
 
     @ApiOperation(value = "WltStockOut", notes = "Wlt/CP发货")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "WltStockOutRequest")
@@ -44,6 +51,11 @@ public class WltStockOutController {
         } else if(WltStockOutRequest.ACTION_VALIDATION_WLTMLOT.equals(actionType)){
             boolean falg = gcService.validationWltStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
+        } else if(WltStockOutRequest.ACTION_QUERY_STOCKOUTTAG_MLOTUNIT.equals(actionType)){
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.queryStockOutTagMLotUnits(requestBody.getMaterialLotActions());
+            responseBody.setMaterialLotUnitList(materialLotUnitList);
+        } else if(WltStockOutRequest.ACTION_STOCKOUTTAG.equals(actionType)){
+            gcService.waferStockOutTagging(requestBody.getMaterialLotActions(), requestBody.getStockTagNote(), requestBody.getStockOutType(), requestBody.getCustomerName(), requestBody.getPoId());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

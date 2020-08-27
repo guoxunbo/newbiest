@@ -161,7 +161,7 @@ public class MesWaferReceive implements Serializable {
         this.setOperationTime(new Date());
         this.setOperationUser(ThreadLocalContext.getUsername());
         this.setPackageType(PACKAGR_TYPE);
-        this.setPcode(materialLotUnit.getReserved3());
+        this.setPcode(materialLotUnit.getReserved45());
         this.setPointId(POINT_ID);
         this.setPoNo(materialLotUnit.getReserved27());
         this.setProdStatus(PROD_STATUS);

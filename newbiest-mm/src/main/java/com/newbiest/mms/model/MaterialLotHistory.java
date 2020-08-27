@@ -25,6 +25,7 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_SHIP = "Ship";
     public static final String TRANS_TYPE_RESERVED = "Reserved";
     public static final String TRANS_TYPE_UN_RESERVED = "UnReserved";
+    public static final String TRANS_TYPE_STOCK_OUT_TAG = "StockOutTag";
 
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
@@ -639,15 +640,27 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED53")
     private String reserved53;
 
+    /**
+     * shipperPhone 晶圆出货标记出货形态
+     */
     @Column(name="RESERVED54")
     private String reserved54;
 
+    /**
+     * shipperPhone 晶圆出货标记客户简称
+     */
     @Column(name="RESERVED55")
     private String reserved55;
 
+    /**
+     * shipperPhone 晶圆出货标记PO
+     */
     @Column(name="RESERVED56")
     private String reserved56;
 
+    /**
+     * shipperPhone 晶圆出货标记备注
+     */
     @Column(name="RESERVED57")
     private String reserved57;
 

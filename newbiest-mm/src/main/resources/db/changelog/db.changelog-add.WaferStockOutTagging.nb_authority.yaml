@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCWaferStockOutTaggingManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCWaferStockOutTagManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCWaferStockOutTagManager
+              description: 晶圆出货标注
+              tableName: GCWaferStockOutTagging
+              url: /Wafer/WaferStockOutTagManager
+              parentRrn: 1010
+              seqNo: 45
+              image: icon-rule
+              labelZh: 晶圆出货标注
+              labelEn: WaferStockOutTagging

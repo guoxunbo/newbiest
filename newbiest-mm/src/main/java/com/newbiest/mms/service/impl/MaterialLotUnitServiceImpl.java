@@ -317,4 +317,24 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 获取出货标注的物料批次的晶圆信息
+     * @param materialLotActions
+     * @return materialLotUnitList
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> queryStockOutTagMLotUnits(List<MaterialLotAction> materialLotActions) throws ClientException{
+        try{
+            List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for(MaterialLot materialLot : materialLots){
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                materialLotUnitList.addAll(materialLotUnits);
+            }
+            return materialLotUnitList;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

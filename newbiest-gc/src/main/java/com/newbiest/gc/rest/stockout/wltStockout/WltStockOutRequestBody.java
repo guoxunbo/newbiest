@@ -29,4 +29,16 @@ public class WltStockOutRequestBody extends RequestBody {
 	@ApiModelProperty(value = "待出货的批次")
 	private List<MaterialLotAction> materialLotActions;
 
+	@ApiModelProperty(value = "出货标注备注")
+	private String stockTagNote;
+
+	@ApiModelProperty(value = "客户简称")
+	private String customerName;
+
+	@ApiModelProperty(value = "出货形态")
+	private String stockOutType;
+
+	@ApiModelProperty(value = "PO号")
+	private String poId;
+
 }

@@ -16,6 +16,10 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_VALIDATION_WLTMLOT = "validationWltMlot";
 
+	public static final String ACTION_QUERY_STOCKOUTTAG_MLOTUNIT = "queryTagMlotUnit";
+
+	public static final String ACTION_STOCKOUTTAG = "StockOutTag";
+
 	private WltStockOutRequestBody body;
 
 }
