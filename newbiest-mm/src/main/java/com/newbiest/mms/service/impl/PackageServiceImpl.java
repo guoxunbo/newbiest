@@ -212,7 +212,9 @@ public class PackageServiceImpl implements PackageService{
             BigDecimal packedQty = materialLotPackageType.getPackedQty(materialLotActions);
 
             packedMaterialLot.setCurrentQty(packedMaterialLot.getCurrentQty().subtract(packedQty));
-            packedMaterialLot.setReservedQty(packedMaterialLot.getReservedQty().subtract(packedQty));
+            if(!StringUtils.isNullOrEmpty(packedMaterialLot.getReserved16())){
+                packedMaterialLot.setReservedQty(packedMaterialLot.getReservedQty().subtract(packedQty));
+            }
             if(packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == -1){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO);
             } else if (packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
