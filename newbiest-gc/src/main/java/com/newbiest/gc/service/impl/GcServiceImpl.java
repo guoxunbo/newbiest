@@ -4258,6 +4258,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setDocSource(erpSob.getCsource());
                                 documentLine.setWarehouseCode(erpSob.getCwhcode());
                                 documentLine.setWarehouseName(erpSob.getCwhname());
+                                documentLine.setReserved31(ErpSob.SOURCE_TABLE_NAME);
                             }
                             documentLine.setQty(erpSob.getIquantity());
                             documentLine.setUnHandledQty(erpSob.getLeftNum());
@@ -4423,7 +4424,8 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * Wlt/CP验证物料批次的产品、二级代码、等级、保税属性是否一致
+     * Wlt/CP验证物料批次的产品、二级代码、保税属性是否一致
+     * 不需要验证等级是否一致
      * @param waitValidationMLot 待验证的物料批次
      * @param validatedMLotActions 已经验证过的物料批次
      */
@@ -4431,7 +4433,25 @@ public class GcServiceImpl implements GcService {
         try {
             boolean flag = true;
             waitValidationMLot = mmsService.getMLotByMLotId(waitValidationMLot.getMaterialLotId(), true);
-            flag = validationMaterialLotInfo(waitValidationMLot, validatedMLotActions, flag);
+            if (CollectionUtils.isNotEmpty(validatedMLotActions)) {
+                MaterialLot validatedMLot = mmsService.getMLotByMLotId(validatedMLotActions.get(0).getMaterialLotId(), true);
+                try {
+                    Assert.assertEquals(waitValidationMLot.getMaterialName(),  validatedMLot.getMaterialName());
+                } catch (AssertionError e) {
+                    flag = false;
+                }
+
+                try {
+                    Assert.assertEquals(waitValidationMLot.getReserved1(),  validatedMLot.getReserved1());
+                } catch (AssertionError e) {
+                    flag = false;
+                }
+                try {
+                    Assert.assertEquals(waitValidationMLot.getReserved6(),  validatedMLot.getReserved6());
+                } catch (AssertionError e) {
+                    flag = false;
+                }
+            }
             return flag;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -4479,8 +4499,8 @@ public class GcServiceImpl implements GcService {
 
     /**
      * WLT/CP物料批次根据发货单进行发货，更新单据数据以及，更改ERP的中间表数据
-     *  documentLine 产品型号 materialName，二级代码 reserved2，等级 reserved3,  物流 reserved7 一致
-     *  materialLot 产品型号 materialName，二级代码 reserved1，等级 grade,  物料 reserved6 一致
+     *  documentLine 产品型号 materialName，二级代码 reserved2， 物流 reserved7 一致
+     *  materialLot 产品型号 materialName，二级代码 reserved1， 物料 reserved6 一致
      */
     public void wltStockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
@@ -4491,13 +4511,14 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TREASURY_INFO_IS_NOT_SAME);
             }
             for (MaterialLot materialLot : materialLots) {
-                validationDocLine(documentLine, materialLot);
+                validationWltStockOutDocLine(documentLine, materialLot);
             }
 
+            //WLT/CP出货消耗的是片数
             BigDecimal handledQty = BigDecimal.ZERO;
             for (MaterialLot materialLot : materialLots) {
-                handledQty = handledQty.add(materialLot.getCurrentQty());
-                materialLot.setCurrentQty(BigDecimal.ZERO);
+                handledQty = handledQty.add(materialLot.getCurrentSubQty());
+                materialLot.setCurrentSubQty(BigDecimal.ZERO);
                 materialLot.setReserved12(documentLine.getObjectRrn().toString());
                 changeMaterialLotStatusAndSaveHistory(materialLot);
 
@@ -4557,6 +4578,34 @@ public class GcServiceImpl implements GcService {
 
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证Wlt/CP出货单据和物料批次是否吻合
+     *  1，物料名称
+     *  2. 二级代码（绝对相等）
+     *  4. 保税属性
+     * @param documentLine
+     * @param materialLot
+     * @throws ClientException
+     */
+    public void validationWltStockOutDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException{
+        try {
+            Assert.assertEquals(documentLine.getMaterialName(), materialLot.getMaterialName());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "materialName", documentLine.getMaterialName(), materialLot.getMaterialName());
+        }
+        try {
+            Assert.assertEquals(documentLine.getReserved2(), materialLot.getReserved1());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "secondcode", documentLine.getReserved2(),  materialLot.getReserved1());
+        }
+
+        try {
+            Assert.assertEquals(documentLine.getReserved7(), materialLot.getReserved6());
+        } catch (AssertionError e) {
+            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, "other1", documentLine.getReserved7(), materialLot.getReserved6());
         }
     }
 
