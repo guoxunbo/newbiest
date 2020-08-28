@@ -467,7 +467,16 @@ public class GcServiceImpl implements GcService {
      */
     public MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException {
         try {
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
+            List<String> productCategory = Lists.newArrayList();
+            productCategory.add(MaterialLotUnit.PRODUCT_CLASSIFY_COB);
+            productCategory.add(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
+            productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_CP);
+            productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_LCP);
+            productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_SCP);
+            productCategory.add(MaterialLotUnit.PRODUCT_CLASSIFY_WLA);
+            productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_WLT);
+
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndReserved7In(lotId, productCategory);
             if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
