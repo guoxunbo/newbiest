@@ -479,7 +479,7 @@ public class GcServiceImpl implements GcService {
             productCategory.add(MaterialLotUnit.PRODUCT_CLASSIFY_WLA);
             productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_WLT);
 
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndReserved7In(lotId, productCategory);
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotInAndReserved7In(lotId, MaterialLot.STATUS_FIN, productCategory);
             if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
