@@ -151,4 +151,13 @@ public class MesWaferReceiveHis implements Serializable {
     @Column(name="ERP_ORDER_SEQ")
     private String erpOrderSeq;
 
+    @Column(name="IMPORT_TYPE")
+    private String importType;
+
+    @Column(name="GROSS_DIES")
+    private String grossDies;
+
+    @Column(name="PRODUCT_TYPE")
+    private String productType;
+
 }
