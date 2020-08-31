@@ -2232,6 +2232,22 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
+                    String productCategory = mesPackedLot.getProductCategory();
+                    if(!StringUtils.isNullOrEmpty(productCategory)){
+                        if(MaterialLot.PRODUCT_CATEGORY.equals(productCategory)){
+                            otherReceiveProps.put("reserved50", "19");
+                        } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
+                            otherReceiveProps.put("reserved50", "6");
+                        } else if(MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(productCategory)){
+                            otherReceiveProps.put("reserved50", "4");
+                        } else if(MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(productCategory)){
+                            otherReceiveProps.put("reserved50", "2");
+                        } else if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(productCategory)){
+                            otherReceiveProps.put("reserved50", "10");
+                        } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(productCategory)){
+                            otherReceiveProps.put("reserved50", "8");
+                        }
+                    }
                     if(mesPackedLot.getWaferQty() != null){
                         BigDecimal waferQty = new BigDecimal(mesPackedLot.getWaferQty().toString());
                         materialLotAction.setTransCount(waferQty);
@@ -3157,6 +3173,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved38(packedLot.getWaferMark());
+                    materialLotUnit.setReserved50(materialLot.getReserved50());
                     materialLotUnit =  materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
@@ -4649,7 +4666,7 @@ public class GcServiceImpl implements GcService {
             baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SHIP);
 
             // 获取到主单据
-            OtherShipOrder otherShipOrder = (OtherShipOrder) deliveryOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            OtherShipOrder otherShipOrder = (OtherShipOrder) otherShipOrderRepository.findByObjectRrn(documentLine.getDocRrn());
             otherShipOrder.setHandledQty(otherShipOrder.getHandledQty().add(handledQty));
             otherShipOrder.setUnHandledQty(otherShipOrder.getUnHandledQty().subtract(handledQty));
             otherShipOrder = otherShipOrderRepository.saveAndFlush(otherShipOrder);

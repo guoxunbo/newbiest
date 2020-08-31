@@ -71,6 +71,8 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String PRODUCT_CATEGORY_CP = "CP";
     public static final String PRODUCT_CATEGORY_LCP = "LCP";
     public static final String PRODUCT_CATEGORY_SCP = "SCP";
+    public static final String PRODUCT_CATEGORY_FT = "FT";
+    public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
 
 
 
