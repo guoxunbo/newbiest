@@ -154,6 +154,9 @@ public class GcServiceImpl implements GcService {
     DocumentLineRepository documentLineRepository;
 
     @Autowired
+    DocumentRepository documentRepository;
+
+    @Autowired
     DocumentHistoryRepository documentHistoryRepository;
 
     @Autowired
@@ -650,6 +653,18 @@ public class GcServiceImpl implements GcService {
                     Map<String, List<ErpMaterialOutOrder>> sameCreateSeqOrder = documentIdList.stream().filter(erpMaterialOutOrder -> !StringUtils.isNullOrEmpty(erpMaterialOutOrder.getCreateSeq()))
                             .collect(Collectors.groupingBy(ErpMaterialOutOrder :: getCreateSeq));
                     List<WaferIssueOrder> waferIssueOrderList = waferIssueOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    if(CollectionUtils.isEmpty(waferIssueOrderList)){
+                        List<Document> documentList = documentRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                        if(CollectionUtils.isNotEmpty(documentList)){
+                            for(ErpMaterialOutOrder erpMaterialOutOrder : documentIdList){
+                                erpMaterialOutOrder.setUserId(Document.SYNC_USER_ID);
+                                erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                                erpMaterialOutOrder.setErrorMemo(ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID);
+                                erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
+                            }
+                            continue;
+                        }
+                    }
                     WaferIssueOrder waferIssueOrder;
                     if (CollectionUtils.isEmpty(waferIssueOrderList)) {
                         //如果有不同create_seq
@@ -781,6 +796,18 @@ public class GcServiceImpl implements GcService {
                     Map<String, List<ErpMaterialOutOrder>> sameCreateSeqOrder = documentIdList.stream().filter(erpMaterialOutOrder -> !StringUtils.isNullOrEmpty(erpMaterialOutOrder.getCreateSeq()))
                             .collect(Collectors.groupingBy(ErpMaterialOutOrder :: getCreateSeq));
                     List<ReTestOrder> reTestOrderList = reTestOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    if(CollectionUtils.isEmpty(reTestOrderList)){
+                        List<Document> documentList = documentRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                        if(CollectionUtils.isNotEmpty(documentList)){
+                            for(ErpMaterialOutOrder erpMaterialOutOrder : documentIdList){
+                                erpMaterialOutOrder.setUserId(Document.SYNC_USER_ID);
+                                erpMaterialOutOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                                erpMaterialOutOrder.setErrorMemo(ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID);
+                                erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
+                            }
+                            continue;
+                        }
+                    }
                     ReTestOrder reTestOrder;
                     if (CollectionUtils.isEmpty(reTestOrderList)) {
                         //如果有不同create_seq
@@ -1665,6 +1692,18 @@ public class GcServiceImpl implements GcService {
                     Map<String, List<ErpSo>> sameCreateSeqOrder = documentIdList.stream().filter(erpSo -> !StringUtils.isNullOrEmpty(erpSo.getCreateSeq()))
                             .collect(Collectors.groupingBy(ErpSo :: getCreateSeq));
                     List<ReceiveOrder> receiveOrderList = receiveOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    if(CollectionUtils.isEmpty(receiveOrderList)){
+                        List<Document> documentList = documentRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                        if(CollectionUtils.isNotEmpty(documentList)){
+                            for(ErpSo erpSo : documentIdList){
+                                erpSo.setUserId(Document.SYNC_USER_ID);
+                                erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                                erpSo.setErrorMemo(ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID);
+                                erpSoRepository.save(erpSo);
+                            }
+                            continue;
+                        }
+                    }
                     ReceiveOrder receiveOrder;
                     if (CollectionUtils.isEmpty(receiveOrderList)) {
                         //如果有不同create_seq
@@ -1824,6 +1863,18 @@ public class GcServiceImpl implements GcService {
                     Map<String, List<ErpSo>> sameCreateSeqOrder = documentIdList.stream().filter(erpSo -> !StringUtils.isNullOrEmpty(erpSo.getCreateSeq()))
                             .collect(Collectors.groupingBy(ErpSo :: getCreateSeq));
                     List<DeliveryOrder> deliveryOrderList = deliveryOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    if(CollectionUtils.isEmpty(deliveryOrderList)){
+                        List<Document> documentList = documentRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                        if(CollectionUtils.isNotEmpty(documentList)){
+                            for(ErpSo erpSo : documentIdList){
+                                erpSo.setUserId(Document.SYNC_USER_ID);
+                                erpSo.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                                erpSo.setErrorMemo(ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID);
+                                erpSoRepository.save(erpSo);
+                            }
+                            continue;
+                        }
+                    }
                     DeliveryOrder deliveryOrder;
                     if (CollectionUtils.isEmpty(deliveryOrderList)) {
                         //如果有不同create_seq
@@ -3883,6 +3934,18 @@ public class GcServiceImpl implements GcService {
                             .collect(Collectors.groupingBy(ErpMaterialOutaOrder :: getCreateSeq));
                     //由于取消值为WaferIssueA的CATEGORY，所以用WaferIssueOrder替代OtherIssueOrder
                     List<WaferIssueOrder> otherIssueOrderList = waferIssueOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    if(CollectionUtils.isEmpty(otherIssueOrderList)){
+                        List<Document> documentList = documentRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                        if(CollectionUtils.isNotEmpty(documentList)){
+                            for(ErpMaterialOutaOrder erpMaterialOutaOrder : documentIdList){
+                                erpMaterialOutaOrder.setUserId(Document.SYNC_USER_ID);
+                                erpMaterialOutaOrder.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                                erpMaterialOutaOrder.setErrorMemo(ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID);
+                                erpMaterialOutAOrderRepository.save(erpMaterialOutaOrder);
+                            }
+                            continue;
+                        }
+                    }
                     WaferIssueOrder otherIssueOrder;
                     if (CollectionUtils.isEmpty(otherIssueOrderList)) {
                         //如果有不同create_seq
@@ -4007,6 +4070,18 @@ public class GcServiceImpl implements GcService {
                     Map<String, List<ErpSoa>> sameCreateSeqOrder = documentIdList.stream().filter(erpSoa -> !StringUtils.isNullOrEmpty(erpSoa.getCreateSeq()))
                             .collect(Collectors.groupingBy(ErpSoa :: getCreateSeq));
                     List<OtherStockOutOrder> otherStockOutOrderList = otherStockOutOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    if(CollectionUtils.isEmpty(otherStockOutOrderList)){
+                        List<Document> documentList = documentRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                        if(CollectionUtils.isNotEmpty(documentList)){
+                            for(ErpSoa erpSoa : documentIdList){
+                                erpSoa.setUserId(Document.SYNC_USER_ID);
+                                erpSoa.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                                erpSoa.setErrorMemo(ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID);
+                                erpSoaOrderRepository.save(erpSoa);
+                            }
+                            continue;
+                        }
+                    }
                     OtherStockOutOrder otherStockOutOrder;
                     if (CollectionUtils.isEmpty(otherStockOutOrderList)) {
                         //如果有不同create_seq
@@ -4183,6 +4258,18 @@ public class GcServiceImpl implements GcService {
                     Map<String, List<ErpSob>> sameCreateSeqOrder = documentIdList.stream().filter(erpSob -> !StringUtils.isNullOrEmpty(erpSob.getCreateSeq()))
                             .collect(Collectors.groupingBy(ErpSob :: getCreateSeq));
                     List<OtherShipOrder> otherShipOrderList = otherShipOrderRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                    if(CollectionUtils.isEmpty(otherShipOrderList)){
+                        List<Document> documentList = documentRepository.findByNameAndOrgRrn(documentId, ThreadLocalContext.getOrgRrn());
+                        if(CollectionUtils.isNotEmpty(documentList)){
+                            for(ErpSob erpSob : documentIdList){
+                                erpSob.setUserId(Document.SYNC_USER_ID);
+                                erpSob.setSynStatus(ErpSo.SYNC_STATUS_SYNC_ERROR);
+                                erpSob.setErrorMemo(ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID);
+                                erpSobOrderRepository.save(erpSob);
+                            }
+                            continue;
+                        }
+                    }
                     OtherShipOrder otherShipOrder;
                     if (CollectionUtils.isEmpty(otherShipOrderList)) {
                         //如果有不同create_seq
