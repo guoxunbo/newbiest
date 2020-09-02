@@ -15,6 +15,10 @@ public class RawMaterialRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "RawMaterialManage";
 
+	public static final String ACTION_CREATE_PARTS = "CreataParts";
+
+	public static final String ACTION_UPDATE_PARTS = "UpdateParts";
+
 	private RawMaterialRequestBody body;
 
 }

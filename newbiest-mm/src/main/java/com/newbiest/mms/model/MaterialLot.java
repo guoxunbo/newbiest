@@ -669,12 +669,21 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED57")
     private String reserved57;
 
+    /**
+     * spareSpecs 备件规格
+     */
     @Column(name="RESERVED58")
     private String reserved58;
 
+    /**
+     *  spareModel 备件型号
+     */
     @Column(name="RESERVED59")
     private String reserved59;
 
+    /**
+     * sparePartsLine 备件线别
+     */
     @Column(name="RESERVED60")
     private String reserved60;
 

@@ -97,6 +97,10 @@ public class MmsServiceImpl implements MmsService {
     @Autowired
     ProductRepository productRepository;
 
+    @Autowired
+    PartsRepository partsRepository;
+
+
     /**
      * 根据名称获取源物料。
      *  源物料不区分版本。故此处只会有1个
@@ -133,6 +137,25 @@ public class MmsServiceImpl implements MmsService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 根据名称查询备件信息
+     * @param name 名称
+     * @return
+     * @throws ClientException
+     */
+    public Parts getPartsByName(String name) throws ClientException {
+        try {
+            List<Parts> partsList = partsRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isNotEmpty(partsList)) {
+                return partsList.get(0);
+            }
+            return null;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 
     /**
      * 保存源物料。此处和versionControlService的save不同点在于
@@ -233,6 +256,56 @@ public class MmsServiceImpl implements MmsService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 保存备件信息
+     * @param parts
+     * @return
+     * @throws ClientException
+     */
+    public Parts saveParts(Parts parts) throws ClientException {
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            NBHis nbHis = NBHis.getHistoryBean(parts);
+
+            IRepository modelRepository = baseService.getRepositoryByClassName(parts.getClass().getName());
+            IRepository historyRepository = null;
+            if (nbHis != null) {
+                historyRepository = baseService.getRepositoryByClassName(nbHis.getClass().getName());
+            }
+
+            if (parts.getObjectRrn() == null) {
+                parts.setActiveTime(new Date());
+                parts.setActiveUser(sc.getUsername());
+                parts.setStatus(NBVersionControl.STATUS_ACTIVE);
+                Long version = versionControlService.getNextVersion(parts);
+                parts.setVersion(version);
+
+                parts = (Parts) modelRepository.saveAndFlush(parts);
+                if (nbHis != null) {
+                    nbHis.setTransType(NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
+                    nbHis.setNbBase(parts);
+                    historyRepository.save(nbHis);
+                }
+            } else {
+                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(parts.getObjectRrn());
+                // 不可改变状态
+                parts.setStatus(oldData.getStatus());
+                parts = (Parts) modelRepository.saveAndFlush(parts);
+
+                if (nbHis != null) {
+                    nbHis.setTransType(NBHis.TRANS_TYPE_UPDATE);
+                    nbHis.setNbBase(parts);
+                    historyRepository.save(nbHis);
+                }
+            }
+            return parts;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 
     /**
      * 批量创建批次
@@ -957,6 +1030,9 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setEffectiveLife(material.getEffectiveLife());
             materialLot.setEffectiveUnit(material.getEffectiveUnit());
             materialLot.setWarningLife(material.getWarningLife());
+            materialLot.setReserved58(material.getSpareSpecs());
+            materialLot.setReserved59(material.getSpareModel());
+            materialLot.setReserved60(material.getSparePartsLine());
 
             if (propsMap != null && propsMap.size() > 0) {
                 for (String propName : propsMap.keySet()) {

@@ -84,6 +84,30 @@ public class MaterialLotInventory extends NBUpdatable {
     @Column(name = "CURRENT_SUB_QTY")
     private BigDecimal currentSubQty = BigDecimal.ZERO;
 
+    /**
+     * 备件规格
+     */
+    @Column(name="RESERVED1")
+    private String reserved1;
+
+    /**
+     * 备件型号
+     */
+    @Column(name="RESERVED2")
+    private String reserved2;
+
+    /**
+     * 备件线别
+     */
+    @Column(name="RESERVED3")
+    private String reserved3;
+
+    @Column(name="RESERVED4")
+    private String reserved4;
+
+    @Column(name="RESERVED5")
+    private String reserved5;
+
     public MaterialLotInventory setWarehouse(Warehouse warehouse) {
         this.setWarehouseRrn(warehouse.getObjectRrn());
         this.setWarehouseId(warehouse.getName());
@@ -99,6 +123,9 @@ public class MaterialLotInventory extends NBUpdatable {
         this.setMaterialCategory(materialLot.getMaterialCategory());
         this.setLotId(materialLot.getLotId());
         this.setCurrentSubQty(materialLot.getCurrentSubQty());
+        this.setReserved1(materialLot.getReserved58());
+        this.setReserved2(materialLot.getReserved59());
+        this.setReserved3(materialLot.getReserved60());
         return this;
     }
 

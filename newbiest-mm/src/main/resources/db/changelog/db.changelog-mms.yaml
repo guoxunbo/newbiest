@@ -275,3 +275,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCWaferUnStockOutTagging.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.3.material.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.material_his.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.6.material_lot_inventory.yaml
+      relativeToChangelogFile: true

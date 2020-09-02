@@ -1,6 +1,7 @@
 package com.newbiest.mms.rest.rawmaterial;
 
 import com.newbiest.mms.model.Material;
+import com.newbiest.mms.model.Parts;
 import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -21,5 +22,8 @@ public class RawMaterialRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "操作的物料对象")
 	private RawMaterial material;
+
+	@ApiModelProperty(value = "操作的备件对象")
+	private Parts parts;
 
 }

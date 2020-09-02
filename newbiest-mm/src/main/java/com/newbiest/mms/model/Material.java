@@ -29,6 +29,11 @@ public class Material extends NBVersionControl {
     public static final String CLASS_PRODUCT = "PRODUCT";
 
     /**
+     * 备件型号
+     */
+    public static final String CLASS_PARTS = "PARTS";
+
+    /**
      * 默认状态模型
      */
     public static final String DEFAULT_STATUS_MODEL = "Normal";
@@ -170,4 +175,28 @@ public class Material extends NBVersionControl {
 
     @Column(name="RESERVED10")
     private String reserved10;
+
+    /**
+     * 备件规格
+     */
+    @Transient
+    private String spareSpecs;
+
+    /**
+     * 备件型号
+     */
+    @Transient
+    private String spareModel;
+
+    /**
+     * 备件线别
+     */
+    @Transient
+    private String sparePartsLine;
+
+    public void setParts (Parts parts) {
+        this.setSpareModel(parts.getSpareModel());
+        this.setSparePartsLine(parts.getSparePartsLine());
+        this.setSpareSpecs(parts.getSpareSpecs());
+    }
 }

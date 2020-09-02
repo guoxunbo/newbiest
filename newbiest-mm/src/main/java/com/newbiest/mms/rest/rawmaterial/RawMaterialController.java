@@ -6,6 +6,7 @@ import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.rest.entity.EntityRequest;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.Material;
+import com.newbiest.mms.model.Parts;
 import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.msg.Request;
@@ -42,6 +43,7 @@ public class RawMaterialController extends AbstractRestController {
         RawMaterialRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
         RawMaterial material = requestBody.getMaterial();
+        Parts parts = requestBody.getParts();
 
         if (RawMaterialRequest.ACTION_CREATE.equals(actionType)) {
             //验证下名称是否存在，存在则抛异常
@@ -53,10 +55,20 @@ public class RawMaterialController extends AbstractRestController {
         } else if (EntityRequest.ACTION_UPDATE.equals(actionType)) {
             validateEntity(material);
             material = mmsService.saveRawMaterial(material);
-        } else {
+        } else if(RawMaterialRequest.ACTION_CREATE_PARTS.equals(actionType)){
+            Material oldData = mmsService.getPartsByName(parts.getName());
+            if(oldData != null){
+                throw new ClientParameterException(MmsException.MM_SPARE_ID_IS_EXIST, material.getName());
+            }
+            parts = mmsService.saveParts(parts);
+        } else if(RawMaterialRequest.ACTION_UPDATE_PARTS.equals(actionType)){
+            validateEntity(parts);
+            parts = mmsService.saveParts(parts);
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
         responseBody.setMaterial(material);
+        responseBody.setParts(parts);
         response.setBody(responseBody);
         return response;
     }
