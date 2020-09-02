@@ -3325,17 +3325,7 @@ public class GcServiceImpl implements GcService {
                 MaterialLotAction materialLotAction = new MaterialLotAction();
                 materialLotAction.setTransQty(materialLot.getCurrentQty());
                 materialLotAction.setActionComment(remarks);
-                materialLotAction.setActionReason(holdReason);
                 mmsService.holdMaterialLot(materialLot,materialLotAction);
-
-                //对箱Hold的时候对箱里面的真空包也做HOLD操作
-                List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-                if(CollectionUtils.isNotEmpty(packageDetailLots)){
-                    for(MaterialLot packageLot : packageDetailLots){
-                        materialLotAction.setTransQty(packageLot.getCurrentQty());
-                        mmsService.holdMaterialLot(packageLot,materialLotAction);
-                    }
-                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -3351,17 +3341,7 @@ public class GcServiceImpl implements GcService {
                 MaterialLotAction materialLotAction = new MaterialLotAction();
                 materialLotAction.setTransQty(materialLot.getCurrentQty());
                 materialLotAction.setActionComment(remarks);
-                materialLotAction.setActionReason(ReleaseReason);
                 mmsService.releaseMaterialLot(materialLot,materialLotAction);
-
-                //对箱RELESAE的时候对箱里面的真空包也做RELESAE操作
-                List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-                if(CollectionUtils.isNotEmpty(packageDetailLots)){
-                    for(MaterialLot packageLot : packageDetailLots){
-                        materialLotAction.setTransQty(packageLot.getCurrentQty());
-                        mmsService.releaseMaterialLot(packageLot,materialLotAction);
-                    }
-                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -3659,7 +3639,6 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                    materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());
                     materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLA);
                     materialLotUnit.setReserved50("5");
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_WLA);
@@ -3839,6 +3818,7 @@ public class GcServiceImpl implements GcService {
                 }
                 erpInStockRepository.save(erpInStock);
             }
+
             if (SystemPropertyUtils.getConnectScmFlag()) {
                 // 请求SCM做是否是ENG产品的验证
                 scmService.assignEngFlag(materialLotUnits);

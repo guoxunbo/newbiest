@@ -23,9 +23,6 @@ public interface MmsService {
     Product saveProduct(Product product) throws ClientException;
     Product getProductByName(String name) throws ClientException;
 
-    Parts saveParts(Parts parts) throws ClientException;
-    Parts getPartsByName(String name) throws ClientException;
-
     // MaterialLot
     MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException;
     MaterialLot getMLotByMLotId(String mLotId) throws ClientException;
