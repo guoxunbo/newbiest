@@ -51,12 +51,12 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
 public class ScmServiceImpl implements ScmService {
 
     /**
-     * 连接SCM的超时时间
+     * 连接SCM的超时时间 单位秒
      */
     public static final int SCM_CONNECTION_TIME_OUT = 30;
 
     /**
-     * 读取SCM的超时时间
+     * 读取SCM的超时时间 单位秒
      */
     public static final int SCM_READ_TIME_OUT = 60;
 
@@ -82,8 +82,8 @@ public class ScmServiceImpl implements ScmService {
     public void init() {
         CloseableHttpClient client = createHttpClient().build();
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(client);
-        requestFactory.setConnectTimeout(SCM_CONNECTION_TIME_OUT);
-        requestFactory.setReadTimeout(SCM_READ_TIME_OUT);
+        requestFactory.setConnectTimeout(SCM_CONNECTION_TIME_OUT * 1000);
+        requestFactory.setReadTimeout(SCM_READ_TIME_OUT * 1000);
         restTemplate = new RestTemplate(requestFactory);
     }
 
