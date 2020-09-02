@@ -3325,7 +3325,17 @@ public class GcServiceImpl implements GcService {
                 MaterialLotAction materialLotAction = new MaterialLotAction();
                 materialLotAction.setTransQty(materialLot.getCurrentQty());
                 materialLotAction.setActionComment(remarks);
+                materialLotAction.setActionReason(holdReason);
                 mmsService.holdMaterialLot(materialLot,materialLotAction);
+
+                //对箱Hold的时候对箱里面的真空包也做HOLD操作
+                List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                if(CollectionUtils.isNotEmpty(packageDetailLots)){
+                    for(MaterialLot packageLot : packageDetailLots){
+                        materialLotAction.setTransQty(packageLot.getCurrentQty());
+                        mmsService.holdMaterialLot(packageLot,materialLotAction);
+                    }
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -3341,7 +3351,17 @@ public class GcServiceImpl implements GcService {
                 MaterialLotAction materialLotAction = new MaterialLotAction();
                 materialLotAction.setTransQty(materialLot.getCurrentQty());
                 materialLotAction.setActionComment(remarks);
+                materialLotAction.setActionReason(ReleaseReason);
                 mmsService.releaseMaterialLot(materialLot,materialLotAction);
+
+                //对箱RELESAE的时候对箱里面的真空包也做RELESAE操作
+                List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                if(CollectionUtils.isNotEmpty(packageDetailLots)){
+                    for(MaterialLot packageLot : packageDetailLots){
+                        materialLotAction.setTransQty(packageLot.getCurrentQty());
+                        mmsService.releaseMaterialLot(packageLot,materialLotAction);
+                    }
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
