@@ -253,6 +253,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
                         materialLotUnitRepository.updateMLotUnitByUnitIdAndMLotId(materialLotUnit.getUnitId(), materialLotUnit.getMaterialLotId(), MaterialLotUnit.STATE_CREATE);
                     }
+                    materialLot.setCurrentQty(materialLot.getReceiveQty());
                     materialLot.setStatusCategory(MaterialLotUnit.STATE_CREATE);
                     materialLot.setStatus(MaterialLotUnit.STATE_CREATE);
                     materialLot.setPreStatus("");
