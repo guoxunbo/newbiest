@@ -1,9 +1,7 @@
 package com.newbiest.mms.rest.rawmaterial;
 
-import com.newbiest.mms.model.Parts;
 import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.msg.ResponseBody;
-import com.newbiest.security.model.NBUser;
 import lombok.Data;
 
 /**
@@ -15,7 +13,5 @@ public class RawMaterialResponseBody extends ResponseBody {
 	private static final long serialVersionUID = 1L;
 
 	private RawMaterial material;
-
-	private Parts parts;
 
 }

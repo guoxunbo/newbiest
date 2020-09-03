@@ -3816,10 +3816,14 @@ public class GcServiceImpl implements GcService {
                     throw new ClientParameterException(GcExceptions.WAREHOUSE_CANNOT_EMPTY);
                 }
                 String warehouseName = warehouse.getName();
+
+
+                log.info("receive materialLot and materialLotUnits");
                 List<MaterialLotUnit> units = materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
 
                 materialLotUnits.addAll(units);
 
+                log.info("insert materialLot to mte_in_stock");
                 ErpInStock erpInStock = new ErpInStock();
                 if(StringUtils.isNullOrEmpty(materialLot.getProductType())){
                     erpInStock.setProdCate(MaterialLot.PRODUCT_TYPE_PROD);
@@ -3837,11 +3841,15 @@ public class GcServiceImpl implements GcService {
                     throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouseName);
                 }
                 erpInStockRepository.save(erpInStock);
-            }
 
+                log.info("insert materialLot to  mte_in_stock end");
+            }
             if (SystemPropertyUtils.getConnectScmFlag()) {
                 // 请求SCM做是否是ENG产品的验证
+                log.info("Request  SCM  validation product ENG or Prod");
                 scmService.assignEngFlag(materialLotUnits);
+                log.info("Request  SCM  validation product ENG or Prod  end ");
+
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
