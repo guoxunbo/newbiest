@@ -284,3 +284,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.6.material_lot_inventory.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCMaterialLotListHold.nb_authority.yaml
+      relativeToChangelogFile: true

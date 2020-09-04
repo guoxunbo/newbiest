@@ -191,3 +191,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.2.4.comments.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MaterialLotListHold_nb_table.yaml
+      relativeToChangelogFile: true
