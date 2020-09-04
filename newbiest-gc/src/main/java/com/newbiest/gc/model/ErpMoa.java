@@ -139,6 +139,11 @@ public class ErpMoa implements Serializable {
     @Column(name="UPDATE_TIME")
     private Date updateTime;
 
+    /**
+     * 产品类型
+     */
+    @Column(name="PRODCATE")
+    private String prodCate;
 
     public void setMesPackedLot(MesPackedLot mesPackedLot){
         this.setCGrad(mesPackedLot.getGrade());

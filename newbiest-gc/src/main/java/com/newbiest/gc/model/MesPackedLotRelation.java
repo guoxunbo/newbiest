@@ -104,4 +104,22 @@ public class MesPackedLotRelation implements Serializable {
     @Column(name = "BIN_ID4")
     private String binId4;
 
+    /**
+     * 供应商
+     */
+    @Column(name = "VENDER")
+    private String vender;
+
+    /**
+     * 数量
+     */
+    @Column(name = "GROSS_DIES")
+    private String grossDies;
+
+    /**
+     * 产品类型
+     */
+    @Column(name = "PRODUCT_TYPE")
+    private String productType;
+
 }

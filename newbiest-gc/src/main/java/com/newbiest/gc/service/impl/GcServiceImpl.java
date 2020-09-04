@@ -2286,6 +2286,7 @@ public class GcServiceImpl implements GcService {
                         erpMoa.setMaterialQty(mesPackedLotRelation.getMaterialQty());
                         erpMoa.setMaterialGrade(mesPackedLotRelation.getMaterialGrade());
                         erpMoa.setMaterialVersion(mesPackedLotRelation.getMaterialVersion());
+                        erpMoa.setProdCate(mesPackedLotRelation.getProductType());
 
                         erpMoaList.add(erpMoa);
                     } else if(MesPackedLot.PRODUCT_CATEGORY_CP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLT.equals(productCateGory)){
@@ -2302,6 +2303,7 @@ public class GcServiceImpl implements GcService {
                         erpMoa.setMaterialQty(mesPackedLot.getWaferQty());
                         erpMoa.setMaterialGrade(mesPackedLotRelation.getMaterialGrade());
                         erpMoa.setMaterialVersion(mesPackedLotRelation.getMaterialVersion());
+                        erpMoa.setProdCate(mesPackedLotRelation.getProductType());
 
                         erpMoaList.add(erpMoa);
                     } else if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(productCateGory)){
