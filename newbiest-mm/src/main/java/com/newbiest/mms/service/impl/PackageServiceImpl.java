@@ -370,6 +370,16 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot.buildPackageMaterialLot(packageType);
             packedMaterialLot.setMaterialType(StringUtils.isNullOrEmpty(materialLotPackageType.getTargetMaterialType()) ? packedMaterialLot.getMaterialType() : materialLotPackageType.getTargetMaterialType());
 
+            BigDecimal totalCurrentSubQty = BigDecimal.ZERO;
+            for(MaterialLot materialLot : materialLots){
+                if(materialLot.getCurrentSubQty() != null){
+                    totalCurrentSubQty = totalCurrentSubQty.add(materialLot.getCurrentSubQty());
+                }
+            }
+            if(totalCurrentSubQty.compareTo(BigDecimal.ZERO) > 0){
+                packedMaterialLot.setCurrentSubQty(totalCurrentSubQty);
+            }
+
             //GC要求包装的时候，也要进行包装数量的记录到箱子上以及相应的包装栏位也要有
             if (!StringUtils.isNullOrEmpty(materialLots.get(0).getReserved16())) {
                 BigDecimal totalReservedQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
