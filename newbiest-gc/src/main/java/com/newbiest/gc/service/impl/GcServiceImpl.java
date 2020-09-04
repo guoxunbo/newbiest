@@ -2036,7 +2036,36 @@ public class GcServiceImpl implements GcService {
             }
             if (CollectionUtils.isNotEmpty(ngStockOutCheckList)) {
                 checkResult = StockOutCheck.RESULT_NG;
+            }
 
+            //判定OK时，检验真空包或者箱号上快递单号是否正确
+            if(StockOutCheck.RESULT_OK.equals(checkResult)){
+                if(!StringUtils.isNullOrEmpty(expressNumber)){
+                    for(MaterialLot materialLot : materialLots){
+                        if(StringUtils.isNullOrEmpty(materialLot.getExpressNumber())){
+                            throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, materialLot.getMaterialLotId());
+                        }
+                        if(!materialLot.getExpressNumber().equals(expressNumber)){
+                            throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, materialLot.getMaterialLotId());
+                        }
+                        if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                            for(MaterialLot packageLot : packageDetailLots){
+                                if(StringUtils.isNullOrEmpty(packageLot.getExpressNumber())){
+                                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, packageLot.getMaterialLotId());
+                                } else if(!packageLot.getExpressNumber().equals(expressNumber)){
+                                    throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, packageLot.getMaterialLotId());
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Map<String, List<MaterialLot>> expressNumberMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
+                            .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
+                    if(expressNumberMap != null && expressNumberMap.keySet().size() > 0){
+                        throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT);
+                    }
+                }
             }
             for (MaterialLot materialLot : materialLots) {
                 //20190917 GC要求 如果判了NG。并且装箱检查是PASS的，将PASS改成PASS0
@@ -2053,24 +2082,10 @@ public class GcServiceImpl implements GcService {
                     }
                 } else if(StockOutCheck.RESULT_OK.equals(checkResult) && MaterialLot.STATUS_STOCK.equals(materialLot.getStatusCategory())){
                     materialLot.setReserved9(StockOutCheck.RESULT_PASS );
-                    //判定OK时，检验真空包或者箱号上快递单号是否正确
-                    if(!materialLot.getExpressNumber().equals(expressNumber)){
-                        throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, materialLot.getMaterialLotId());
-                    }
-                    if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                        List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-                        for(MaterialLot packageLot : packageDetailLots){
-                            if(StringUtils.isNullOrEmpty(packageLot.getExpressNumber())){
-                                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, packageLot.getMaterialLotId());
-                            } else if(!packageLot.getExpressNumber().equals(expressNumber)){
-                                throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, packageLot.getMaterialLotId());
-                            }
-                        }
-                    }
-
                 } else if(StockOutCheck.RESULT_NG.equals(checkResult) && MaterialLot.STATUS_STOCK.equals(materialLot.getStatusCategory())){
                     materialLot.setReserved9(StockOutCheck.RESULT_PASS + "0");
                 }
+
                 materialLot = mmsService.changeMaterialLotState(materialLot, EVENT_OQC, checkResult);
 //              GC要求只记录NG的判定历史即可
                 if (CollectionUtils.isNotEmpty(ngStockOutCheckList)) {
