@@ -3679,6 +3679,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLA);
                     materialLotUnit.setReserved50("5");
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_WLA);
+                    materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());
                     Matcher matcher = pattern.matcher(materialLotUnit.getReserved38());
                     if(!matcher.find()){
                         throw new ClientParameterException(GcExceptions.MATERIAL_LOT_FOUR_CODE_ERROR, materialLotUnit.getLotId());
@@ -3709,6 +3710,7 @@ public class GcServiceImpl implements GcService {
                         List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
                         for(MaterialLotUnit materialLotUnit : materialLotUnits){
                             materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
+                            materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());
                             materialLotUnit.setReserved50(waferSource);
                             materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR_CP);
                         }
