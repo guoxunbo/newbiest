@@ -16,6 +16,7 @@ public interface MesPackedLotRepository extends IRepository<MesPackedLot, Long> 
     MesPackedLot findByBoxId(String boxId) throws ClientException;
     MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException;
     List<MesPackedLot> findByParentRrn(Long parentRrn) throws ClientException;
+    List<MesPackedLot> findByCstIdAndWaferIdIsNotNull(@Param("cstId") String cstId) throws ClientException;
 
     @Query("update MesPackedLot p set p.packedStatus=:packedStatus where packedLotRrn in (:packedLotRrn)")
     @Modifying

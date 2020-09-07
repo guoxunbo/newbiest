@@ -36,7 +36,7 @@ public class FinishGoodController {
         FinishGoodRequestBody requestBody = request.getBody();
 
         if(FinishGoodRequest.ACTION_COM_RECEIVE.equals(requestBody.getActionType())){
-            gcService.receiveFinishGood(requestBody.getMesPackedLots(),false);
+            gcService.receiveFinishGood(requestBody.getMesPackedLots());
         } else if(FinishGoodRequest.ACTION_WLT_RECEIVE.equals(requestBody.getActionType())){
             gcService.receiveWltFinishGood(requestBody.getMesPackedLots());
         } else {

@@ -61,7 +61,7 @@ public interface GcService {
 
     MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException;
     List<MesPackedLot> findByParentRrn(Long parentRrn) throws ClientException;
-    void receiveFinishGood(List<MesPackedLot> packedLotList,boolean doWltReceiveFlag) throws ClientException;
+    void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
 
     void bindRelaxBox(List<MaterialLot> materialLots, String relaxBoxId) throws ClientException;
     void unbindRelaxBox(List<MaterialLot> materialLots) throws ClientException;
