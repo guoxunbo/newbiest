@@ -2048,16 +2048,17 @@ public class GcServiceImpl implements GcService {
                         if(!materialLot.getExpressNumber().equals(expressNumber)){
                             throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, materialLot.getMaterialLotId());
                         }
-                        if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-                            for(MaterialLot packageLot : packageDetailLots){
-                                if(StringUtils.isNullOrEmpty(packageLot.getExpressNumber())){
-                                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, packageLot.getMaterialLotId());
-                                } else if(!packageLot.getExpressNumber().equals(expressNumber)){
-                                    throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, packageLot.getMaterialLotId());
-                                }
-                            }
-                        }
+                        //验证箱中真空包的快递单号是否一致
+//                        if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+//                            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+//                            for(MaterialLot packageLot : packageDetailLots){
+//                                if(StringUtils.isNullOrEmpty(packageLot.getExpressNumber())){
+//                                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, packageLot.getMaterialLotId());
+//                                } else if(!packageLot.getExpressNumber().equals(expressNumber)){
+//                                    throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, packageLot.getMaterialLotId());
+//                                }
+//                            }
+//                        }
                     }
                 } else {
                     Map<String, List<MaterialLot>> expressNumberMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
