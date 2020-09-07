@@ -3834,39 +3834,48 @@ public class GcServiceImpl implements GcService {
                 }
                 String warehouseName = warehouse.getName();
 
-
                 log.info("receive materialLot and materialLotUnits");
                 List<MaterialLotUnit> units = materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
-
                 materialLotUnits.addAll(units);
-
-                log.info("insert materialLot to mte_in_stock");
-                ErpInStock erpInStock = new ErpInStock();
-                if(StringUtils.isNullOrEmpty(materialLot.getProductType())){
-                    erpInStock.setProdCate(MaterialLot.PRODUCT_TYPE_PROD);
-                } else {
-                    erpInStock.setProdCate(materialLot.getProductType());
-                }
-                erpInStock.setMaterialLot(materialLot);
-                if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehouseName)){
-                    erpInStock.setWarehouse(ErpInStock.ZJ_STOCK);
-                } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehouseName)){
-                    erpInStock.setWarehouse(ErpInStock.SH_STOCK);
-                } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehouseName)){
-                    erpInStock.setWarehouse(ErpInStock.HK_STOCK);
-                } else {
-                    throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouseName);
-                }
-                erpInStockRepository.save(erpInStock);
-
-                log.info("insert materialLot to  mte_in_stock end");
             }
+
             if (SystemPropertyUtils.getConnectScmFlag()) {
                 // 请求SCM做是否是ENG产品的验证
                 log.info("Request  SCM  validation product ENG or Prod");
                 scmService.assignEngFlag(materialLotUnits);
                 log.info("Request  SCM  validation product ENG or Prod  end ");
+            }
 
+            for(MaterialLot materialLot : materialLots){
+                String prodCate = StringUtils.EMPTY;
+                List<MaterialLotUnit> mLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                Warehouse warehouse  = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                Map<String, List<MaterialLotUnit>> materialLotUnitMap = mLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getProductType));
+                if(materialLotUnitMap.containsKey(MaterialLotUnit.PRODUCT_TYPE_ENG)){
+                    prodCate = MaterialLotUnit.PRODUCT_TYPE_ENG;
+                    materialLot.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                    materialLotRepository.saveAndFlush(materialLot);
+                } else if(!StringUtils.isNullOrEmpty(materialLot.getProductType())){
+                    prodCate = materialLot.getProductType();
+                } else {
+                    prodCate = MaterialLotUnit.PRODUCT_TYPE_PROD;
+                }
+
+                log.info("insert materialLot to mte_in_stock");
+                ErpInStock erpInStock = new ErpInStock();
+                erpInStock.setProdCate(prodCate);
+                erpInStock.setMaterialLot(materialLot);
+                if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehouse.getName())){
+                    erpInStock.setWarehouse(ErpInStock.ZJ_STOCK);
+                } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehouse.getName())){
+                    erpInStock.setWarehouse(ErpInStock.SH_STOCK);
+                } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehouse.getName())){
+                    erpInStock.setWarehouse(ErpInStock.HK_STOCK);
+                } else {
+                    throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouse.getName());
+                }
+                erpInStockRepository.save(erpInStock);
+                log.info("insert materialLot to  mte_in_stock end");
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
