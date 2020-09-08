@@ -2587,30 +2587,22 @@ public class GcServiceImpl implements GcService {
                         material = mmsService.getRawMaterialByName(productId);
                     }
                     if(material != null){
-                        GCProductSubcode productSubcode = gcProductSubcodeSetRepository.findByProductId(productId);
+                        GCProductSubcode productSubcode = gcProductSubcodeSetRepository.findByProductIdAndSubcode(productId, subcode);
                         if(productSubcode == null){
                             productSubcode = new GCProductSubcode();
                             productSubcode.setProductId(productId);
                             productSubcode.setSubcode(subcode);
                             productSubcode = gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
-                            productSubcodes.add(productSubcode);
-                        } else {
-                            GCProductSubcode oldProductSubcode = gcProductSubcodeSetRepository.findByProductIdAndSubcode(productId, subcode);
-                            if(oldProductSubcode == null){
-                                productSubcode.setSubcode(subcode);
-                                productSubcode = gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
-                            }
-                            productSubcodes.add(productSubcode);
-
                         }
+                        productSubcodes.add(productSubcode);
                     }
                 }
 
                 //删除MES中不存在的产品二级代码信息
-                Map<String, GCProductSubcode> productSubcodeMap = productSubcodes.stream().collect(Collectors.toMap(GCProductSubcode :: getProductId, Function.identity()));
                 List<GCProductSubcode> gcProductSubcodes = gcProductSubcodeSetRepository.findAll();
-                for(GCProductSubcode productSubcode : gcProductSubcodes){
-                    if(!productSubcodeMap.containsKey(productSubcode.getProductId())){
+                gcProductSubcodes.removeAll(productSubcodes);
+                if(CollectionUtils.isNotEmpty(gcProductSubcodes)){
+                    for(GCProductSubcode productSubcode : gcProductSubcodes){
                         gcProductSubcodeSetRepository.deleteById(productSubcode.getObjectRrn());
                     }
                 }
