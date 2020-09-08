@@ -237,6 +237,12 @@ public class GcServiceImpl implements GcService {
     @Autowired
     GCProductRelationRepository productRelationRepository;
 
+    @Autowired
+    GCOutSourcePoRepository outSourcePoRepository;
+
+    @Autowired
+    SupplierRepository supplierRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -2196,6 +2202,18 @@ public class GcServiceImpl implements GcService {
                     if(!MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory())){
                         if(mesPackedLotRelation == null){
                             throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
+                        } else {
+                            //获取mm_packend_lot_Relation表中的Vender（供应商）存入GC_SUPPLIER表中
+                            String vender = mesPackedLotRelation.getVender();
+                            if(!StringUtils.isNullOrEmpty(vender)){
+                                Supplier supplier = supplierRepository.getByNameAndType(vender, Supplier.TYPE_VENDER);
+                                if(supplier == null){
+                                    supplier = new Supplier();
+                                    supplier.setName(vender);
+                                    supplier.setType(Supplier.TYPE_VENDER);
+                                    supplierRepository.save(supplier);
+                                }
+                            }
                         }
                     }
 
@@ -2237,6 +2255,9 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
+                    if(mesPackedLotRelation != null){
+                        otherReceiveProps.put("reserved22", mesPackedLotRelation.getVender());
+                    }
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
                     String productCategory = mesPackedLot.getProductCategory();
                     if(!StringUtils.isNullOrEmpty(productCategory)){
@@ -2677,6 +2698,27 @@ public class GcServiceImpl implements GcService {
                         productRelation.setType(GCProductRelation.SUBCODE_TYPE);
                         productRelationRepository.save(productRelation);
                     }
+                }
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 定时同步PO表中的供应商名称
+     * @throws ClientException
+     */
+    public void asyncPoSupplier() throws ClientException{
+        try {
+            List<String> supplierNameList = outSourcePoRepository.getSupplierName();
+            for(String sulipperName : supplierNameList){
+                Supplier supplier = supplierRepository.getByNameAndType(sulipperName, Supplier.TYPE_PO_SUPPLER);
+                if(supplier == null){
+                    supplier = new Supplier();
+                    supplier.setName(sulipperName);
+                    supplier.setType(Supplier.TYPE_PO_SUPPLER);
+                    supplierRepository.save(supplier);
                 }
             }
         } catch (Exception e){
@@ -3153,6 +3195,7 @@ public class GcServiceImpl implements GcService {
                 List<MesPackedLot> mesPackedLotList = packedLotMap.get(cstId);
                 MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mesPackedLot.getBoxId(), ThreadLocalContext.getOrgRrn());
                 Material material = mmsService.getProductByName(materialLot.getMaterialName());
+                MesPackedLotRelation mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
                 for(MesPackedLot packedLot : mesPackedLotList){
                     MaterialLotUnit materialLotUnit = new MaterialLotUnit();
                     materialLotUnit.setUnitId(packedLot.getWaferId());
@@ -3173,6 +3216,9 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved38(packedLot.getWaferMark());
                     materialLotUnit.setReserved50(materialLot.getReserved50());
+                    if(mesPackedLotRelation != null){
+                        materialLotUnit.setReserved22(mesPackedLotRelation.getVender());
+                    }
                     materialLotUnit =  materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);

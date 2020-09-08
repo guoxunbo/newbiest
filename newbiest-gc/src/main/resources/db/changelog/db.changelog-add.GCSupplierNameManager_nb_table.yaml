@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCSupplierNameManager_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCSupplierNameManager to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCSupplierNameManager
+              description: 供应商管理
+              tableName: GC_SUPPLIER
+              modelName: Supplier
+              modelClass: com.newbiest.gc.model.Supplier
+              labelZh: 供应商名称
+              label: SupplierName
