@@ -194,6 +194,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                         materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                         materialLotUnit.setReserved18("0");
+                        materialLotUnit.setReserved6(StringUtils.EMPTY);//来料导入时reserved6不是报税属性，暂时清空
                         materialLotUnit.setReserved7(StringUtils.EMPTY);//晶圆信息不保存产品型号
                         materialLotUnit.setReserved48(importCode);
                         materialLotUnit.setMaterial(material);
