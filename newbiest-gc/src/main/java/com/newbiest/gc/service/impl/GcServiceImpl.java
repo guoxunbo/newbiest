@@ -3763,6 +3763,7 @@ public class GcServiceImpl implements GcService {
                         List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
                         for(MaterialLotUnit materialLotUnit : materialLotUnits){
                             materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
+                            materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());
                             materialLotUnit.setReserved50(waferSource);
                             materialLotUnit.setReserved49(MaterialLot.IMPORT_LCD_CP);
                         }
@@ -3772,6 +3773,7 @@ public class GcServiceImpl implements GcService {
                     || MaterialLotUnit.SENSOR_TPLCC.equals(importType)){
                 for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
                     materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);
+                    materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());
                     materialLotUnit.setReserved50("9");
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR);
                 }
