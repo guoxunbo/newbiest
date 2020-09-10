@@ -241,6 +241,9 @@ public class GcServiceImpl implements GcService {
     GCOutSourcePoRepository outSourcePoRepository;
 
     @Autowired
+    GCOutSourcePoHisRepository outSourcePoHisRepository;
+
+    @Autowired
     SupplierRepository supplierRepository;
 
     /**
@@ -4818,6 +4821,27 @@ public class GcServiceImpl implements GcService {
     public void waferStockOutTagging(List<MaterialLotAction> materialLotActions, String stockTagNote, String customerName, String stockOutType, String poId) throws ClientException {
         try {
             List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            if(!StringUtils.isNullOrEmpty(poId)){
+                BigDecimal totalTaggingQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+                GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoId(poId);
+                if(outSourcePo != null){
+                    if(outSourcePo.getUnHandledQty().subtract(totalTaggingQty).compareTo(BigDecimal.ZERO) < 0){
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_QTY_OVER_PO_QTY);
+                    } else {
+                        BigDecimal unHandledQty = outSourcePo.getUnHandledQty();
+                        BigDecimal handledQty = outSourcePo.getHandledQty();
+                        unHandledQty = unHandledQty.subtract(totalTaggingQty);
+                        handledQty = handledQty.add(totalTaggingQty);
+                        outSourcePo.setUnHandledQty(unHandledQty);
+                        outSourcePo.setHandledQty(handledQty);
+                        outSourcePo = outSourcePoRepository.saveAndFlush(outSourcePo);
+
+                        GCOutSourcePoHis history = (GCOutSourcePoHis) baseService.buildHistoryBean(outSourcePo, GCOutSourcePoHis.TRANS_TYPE_STOCK_OUT_TAG);
+                        outSourcePoHisRepository.save(history);
+                    }
+                }
+            }
+
             for(MaterialLot materialLot : materialLotList){
                 materialLot.setReserved54(stockOutType);
                 materialLot.setReserved55(customerName);
@@ -4842,6 +4866,22 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             for(MaterialLot materialLot : materialLotList){
+                //还原PO标注数量信息
+                String poId = materialLot.getReserved56();
+                if(!StringUtils.isNullOrEmpty(poId)){
+                    GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoId(poId);
+                    if(outSourcePo != null){
+                        BigDecimal poHandleQty = outSourcePo.getHandledQty().subtract(materialLot.getCurrentQty());
+                        BigDecimal poUnHandleQty = outSourcePo.getUnHandledQty().add(materialLot.getCurrentQty());
+                        outSourcePo.setHandledQty(poHandleQty);
+                        outSourcePo.setUnHandledQty(poUnHandleQty);
+                        outSourcePo = outSourcePoRepository.saveAndFlush(outSourcePo);
+
+                        GCOutSourcePoHis history = (GCOutSourcePoHis) baseService.buildHistoryBean(outSourcePo, GCOutSourcePoHis.TRANS_TYPE_UNSTOCK_OUT_TAG);
+                        outSourcePoHisRepository.save(history);
+                    }
+                }
+
                 materialLot.setReserved54(StringUtils.EMPTY);
                 materialLot.setReserved55(StringUtils.EMPTY);
                 materialLot.setReserved56(StringUtils.EMPTY);
@@ -4854,6 +4894,20 @@ public class GcServiceImpl implements GcService {
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
+    }
+
+    /**
+     * 验证物料批次的供应商是否一致
+     * @param materialLotActions
+     * @throws ClientException
+     */
+    public void validationMaterialLotVender(List<MaterialLotAction> materialLotActions) throws ClientException{
+        List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+        Set venderInfo = materialLotList.stream().map(materialLot -> materialLot.getReserved22()).collect(Collectors.toSet());
+        if (venderInfo != null &&  venderInfo.size() > 1) {
+            throw new ClientParameterException(GcExceptions.MATERIALLOT_VENDER_IS_NOT_SAME);
+        }
+
     }
 
 }

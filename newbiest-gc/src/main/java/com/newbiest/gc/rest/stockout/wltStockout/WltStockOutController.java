@@ -55,10 +55,12 @@ public class WltStockOutController {
             List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.queryStockOutTagMLotUnits(requestBody.getMaterialLotActions());
             responseBody.setMaterialLotUnitList(materialLotUnitList);
         } else if(WltStockOutRequest.ACTION_STOCKOUTTAG.equals(actionType)){
-            gcService.waferStockOutTagging(requestBody.getMaterialLotActions(), requestBody.getStockTagNote(), requestBody.getStockOutType(), requestBody.getCustomerName(), requestBody.getPoId());
+            gcService.waferStockOutTagging(requestBody.getMaterialLotActions(), requestBody.getStockTagNote(), requestBody.getCustomerName(), requestBody.getStockOutType(), requestBody.getPoId());
         } else if(WltStockOutRequest.ACTION_UNSTOCKOUTTAG.equals(actionType)){
             gcService.waferUnStockOutTagging(requestBody.getMaterialLotActions());
-        } else {
+        } else if(WltStockOutRequest.ACTION_VALIDATE_VENDER.equals(actionType)){
+            gcService.validationMaterialLotVender(requestBody.getMaterialLotActions());
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
 

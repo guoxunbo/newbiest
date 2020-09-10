@@ -15,6 +15,9 @@ import java.math.BigDecimal;
 @Data
 public class GCOutSourcePoHis extends NBHis {
 
+    public static final String TRANS_TYPE_STOCK_OUT_TAG = "StockOutTag";
+    public static final String TRANS_TYPE_UNSTOCK_OUT_TAG = "UnStockOutTag";
+
     /**
      * PO号
      */
