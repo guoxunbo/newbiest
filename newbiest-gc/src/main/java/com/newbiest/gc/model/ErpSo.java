@@ -171,6 +171,12 @@ public class ErpSo implements Serializable {
     private String other10;
 
     /**
+     * 客户联系电话
+     */
+    @Column(name="OTHER16")
+    private String other16;
+
+    /**
      * 发货地址
      */
     @Column(name="OTHER18")

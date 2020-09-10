@@ -24,6 +24,8 @@ public class MesPackedLot implements Serializable {
     public static final String PRODUCT_CATEGORY_WLT = "WLT";
     public static final String PRODUCT_CATEGORY_CP = "CP";
     public static final String PRODUCT_CATEGORY_COM = "COM";
+    public static final String PRODUCT_CATEGORY_LSP = "LSP";
+    public static final String PRODUCT_CATEGORY_LCP = "LCP";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

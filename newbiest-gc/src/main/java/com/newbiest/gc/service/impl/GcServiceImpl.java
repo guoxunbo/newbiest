@@ -2301,7 +2301,8 @@ public class GcServiceImpl implements GcService {
                         erpMoa.setProdCate(mesPackedLotRelation.getProductType());
 
                         erpMoaList.add(erpMoa);
-                    } else if(MesPackedLot.PRODUCT_CATEGORY_CP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLT.equals(productCateGory)){
+                    } else if(MesPackedLot.PRODUCT_CATEGORY_CP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLT.equals(productCateGory)
+                            || MesPackedLot.PRODUCT_CATEGORY_LSP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_LCP.equals(productCateGory) ){
                         // ERP_MOA插入数据
                         ErpMoa erpMoa = new ErpMoa();
                         erpMoa.setFQty(mesPackedLot.getWaferQty());
@@ -3927,6 +3928,8 @@ public class GcServiceImpl implements GcService {
                     Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                     long documentLineRrn = Long.parseLong(materialLot.getReserved16());
                     DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+                    Long seq = Long.parseLong(documentLine.getReserved1());
+                    ErpSo erpSo = erpSoRepository.findBySeq(seq);
                     String productType = StringUtils.EMPTY;
                     String materialName = materialLot.getMaterialName();
                     String [] materialNameArray = materialName.split(StringUtils.SPLIT_CODE);
@@ -3936,8 +3939,7 @@ public class GcServiceImpl implements GcService {
                         productType = materialName;
                     }
                     parameterMap.put("CUSTOMER", documentLine.getReserved8());
-                    //TODO 物料编码暂时无数据来源  后续补上
-                    parameterMap.put("MLOTCODE", "1111111111111");
+                    parameterMap.put("MLOTCODE", erpSo.getOther16());
                     if(warehouse.getName().equals(WAREHOUSE_HK)){
                         parameterMap.put("SUPPLIER", MLotCodePrint.HK_SUPPLIER);
                     } else {
@@ -3962,6 +3964,10 @@ public class GcServiceImpl implements GcService {
                 }
             } else if (MLotCodePrint.OPHELION_MLOT_LABEL.equals(printType)){
                 for(MaterialLot materialLot : materialLotList){
+                    long documentLineRrn = Long.parseLong(materialLot.getReserved16());
+                    DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+                    Long seq = Long.parseLong(documentLine.getReserved1());
+                    ErpSo erpSo = erpSoRepository.findBySeq(seq);
                     Map<String, String> parameterMap = Maps.newHashMap();
                     String startDate = formatter.format(materialLot.getReceiveDate());
                     calendar.setTime(materialLot.getReceiveDate());
@@ -3971,7 +3977,7 @@ public class GcServiceImpl implements GcService {
 
                     parameterMap.put("SUPPLIERCODE", MLotCodePrint.SUPPLIER_CODE);
                     parameterMap.put("ORDERID", materialLot.getReserved17());
-                    parameterMap.put("MATERIALCODE", "1111111111");
+                    parameterMap.put("MATERIALCODE", erpSo.getOther16());
                     parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
                     parameterMap.put("MLOTID", materialLot.getMaterialLotId());
                     parameterMap.put("STARTDATE", startDate);
