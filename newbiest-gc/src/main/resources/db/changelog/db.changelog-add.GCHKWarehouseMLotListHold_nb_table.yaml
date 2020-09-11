@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCHKWarehouseMLotListHold_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCHKWarehouseMLotListHold to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCHKWarehouseMLotListHold
+              description: 香港仓真空包批量扣留
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓真空包批量扣留
+              label: HongKongWarehouseMLotListHold

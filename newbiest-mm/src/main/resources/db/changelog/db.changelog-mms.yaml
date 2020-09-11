@@ -287,3 +287,21 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCMaterialLotListHold.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseCheck.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseFinishProductImport.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseMLotCodePrint.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseMLotHold.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseMLotListHold.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseMLotRelease.nb_authority.yaml
+      relativeToChangelogFile: true

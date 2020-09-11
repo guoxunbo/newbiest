@@ -200,3 +200,24 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCSupplierNameManager_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCHKWarehouseCheck_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCHKWarehouseFinishProductImport_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCHKWarehouseMLotCodePrint_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCHKWarehouseMLotHold_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCHKWarehouseMLotListHold_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCHKWarehouseMLotRelease_nb_table.yaml
+      relativeToChangelogFile: true

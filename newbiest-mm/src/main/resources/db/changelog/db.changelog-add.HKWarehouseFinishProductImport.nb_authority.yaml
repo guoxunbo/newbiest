@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKFinishProductImportManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKFinishProductImportManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKFinishProductImportManager
+              description: 香港仓成品导入
+              tableName: GCHKWarehouseFinishProductImport
+              url: /HKWarehouse/GCIncomingMaterialImport
+              parentRrn: 2020
+              seqNo: 5
+              image: icon-wuliao
+              labelZh: 香港仓成品导入
+              labelEn: HongKongFinishProductImport
+

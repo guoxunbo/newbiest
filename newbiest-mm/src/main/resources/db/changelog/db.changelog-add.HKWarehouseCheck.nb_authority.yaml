@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseCheckManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKWarehouseCheckManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKWarehouseCheckManager
+              description: 香港仓成品盘点
+              tableName: GCHKWarehouseCheck
+              url: /HKWarehouse/GCWaferCheckManager
+              parentRrn: 2020
+              seqNo: 10
+              image: icon-delivery
+              labelZh: 香港仓成品盘点
+              labelEn: HongKongWarehouseCheck
+

@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseMLotListHoldManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKWarehouseMLotListHoldManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKWarehouseMLotListHoldManager
+              description: 香港仓真空包批量扣留
+              tableName: GCHKWarehouseMLotListHold
+              url: /HKWarehouse/GCMaterialLotListHold
+              parentRrn: 2020
+              seqNo: 30
+              image: icon-wuliao
+              labelZh: 香港仓真空包批量扣留
+              labelEn: HongKongWarehouseMLotListHold
+
