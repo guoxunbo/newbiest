@@ -472,6 +472,28 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 根据物料批次号或者LOT_ID获取可以库位调整的物料批次信息
+     * @param mLotId
+     * @return materialLot
+     */
+    public MaterialLot getWaitStockInStorageMaterialLotByLotIdOrMLotId(String mLotId) throws ClientException{
+        try {
+            MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId,  ThreadLocalContext.getOrgRrn());
+            if(materialLot == null){
+                materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(mLotId, MaterialLot.STATUS_FIN);
+            }
+            if(materialLot == null){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mLotId);
+            } else{
+                materialLot.isFinish();
+            }
+            return materialLot;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 获取到可以入库的批次
      *  当前只验证了物料批次是否是完结
      * @param lotId
@@ -488,8 +510,10 @@ public class GcServiceImpl implements GcService {
             productCategory.add(MaterialLotUnit.PRODUCT_CLASSIFY_WLA);
             productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_WLT);
 
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotInAndReserved7In(lotId, MaterialLot.STATUS_FIN, productCategory);
+//            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotInAndReserved7In(lotId, MaterialLot.STATUS_FIN, productCategory);
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialLot.STATUS_FIN);
             if (materialLot == null) {
+
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
             materialLot.isFinish();

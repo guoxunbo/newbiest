@@ -35,4 +35,6 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     List<String> getSubcodeByMaterialNameAndStatusCategory(@Param("materialName")String materialName, @Param("statusCategory")String statusCategory);
 
     MaterialLot findByLotIdAndStatusCategoryNotInAndReserved7In(@Param("lotId")String lotId, @Param("statusCategory") String statusCategory, @Param("reserved7") List<String> productCateGory) throws Exception;
+
+    MaterialLot findByLotIdAndStatusCategoryNotIn(@Param("lotId")String lotId, @Param("statusCategory") String statusCategory);
 }
