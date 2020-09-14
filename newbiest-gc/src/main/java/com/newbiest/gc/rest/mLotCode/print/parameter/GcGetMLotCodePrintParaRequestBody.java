@@ -16,7 +16,7 @@ public class GcGetMLotCodePrintParaRequestBody extends RequestBody {
 	private static final long serialVersionUID = 1L;
 
 	@ApiModelProperty(value = "物料批次信息")
-	private List<MaterialLot> materialLotList;
+	private MaterialLot materialLot;
 
 	@ApiModelProperty(value = "标签类型")
 	private String printType;

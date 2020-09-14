@@ -22,5 +22,14 @@ public class MLotCodePrint {
     public static final String QC = "HG";
     public static final String DATE_PATTERN = "yyMMdd";
 
+    //百辰物料标签
+    /**
+     * 百辰物料标签打印流水
+     */
+    public static final String GENERATOR_BAICHEN_MLOT_LABEL_PRINT_SEQ_RULE = "GCBaiChenMLotPrintSeq";
+    public static final String BAICHEN_MLOT_LABEL = "BaiChenMLotLabel";
+    public static final String BAICHEN_MLOT_PORTID = "2003";
+    public static final String SHIP_CODE = "#####10293";
+
 
 }

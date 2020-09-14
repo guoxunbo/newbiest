@@ -3912,11 +3912,11 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 获取物料编码标签打印参数
-     * @param materialLotList
+     * @param materialLot
      * @param printType
      * @return
      */
-    public List<Map<String, String>> getMlotCodePrintParameter(List<MaterialLot> materialLotList, String printType) throws ClientException {
+    public List<Map<String, String>> getMlotCodePrintParameter(MaterialLot materialLot, String printType) throws ClientException {
         try {
             ThreadLocalContext.getSessionContext().buildTransInfo();
             List<Map<String, String>> parameterMapList = Lists.newArrayList();
@@ -3926,94 +3926,178 @@ public class GcServiceImpl implements GcService {
             String date = formatter.format(new Date());
 
             if(MLotCodePrint.GENERAL_MLOT_LABEL.equals(printType)){
-                for(MaterialLot materialLot : materialLotList){
-                    Map<String, String> parameterMap = Maps.newHashMap();
-                    Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
-                    long documentLineRrn = Long.parseLong(materialLot.getReserved16());
-                    DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
-                    Long seq = Long.parseLong(documentLine.getReserved1());
-                    ErpSo erpSo = erpSoRepository.findBySeq(seq);
-                    String productType = StringUtils.EMPTY;
-                    String materialName = materialLot.getMaterialName();
-                    String [] materialNameArray = materialName.split(StringUtils.SPLIT_CODE);
-                    if(materialNameArray.length >= 3){
-                        productType = materialName.substring(0, materialName.indexOf(StringUtils.SPLIT_CODE,materialName.indexOf(StringUtils.SPLIT_CODE)+1 ));
-                    } else {
-                        productType = materialName;
-                    }
-                    parameterMap.put("CUSTOMER", documentLine.getReserved8());
-                    parameterMap.put("MLOTCODE", erpSo.getOther16());
-                    if(warehouse.getName().equals(WAREHOUSE_HK)){
-                        parameterMap.put("SUPPLIER", MLotCodePrint.HK_SUPPLIER);
-                    } else {
-                        parameterMap.put("SUPPLIER", MLotCodePrint.SH_SUPPLIER);
-                    }
-                    parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
-                    parameterMap.put("ORDERID", documentLine.getDocId());
-                    parameterMap.put("OUTDATE", date);
-                    parameterMap.put("DELIVERYPLACE", MLotCodePrint.DELIVERY_PLACE);
-                    parameterMap.put("PRODUCTTYPE", productType);
-                    parameterMap.put("MLOTID", materialLot.getMaterialLotId());
-
-                    if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                        parameterMap.put("LABEL", MLotCodePrint.VBOX_LABEL);
-                        parameterMap.put("printCount", "1");
-                    } else {
-                        parameterMap.put("LABEL", MLotCodePrint.BOX_LABEL);
-                        parameterMap.put("printCount", "2");
-                    }
-                    parameterMap.put("portId", MLotCodePrint.GENERAL_MLOT_PORTID);
-                    parameterMapList.add(parameterMap);
+                Map<String, String> parameterMap = Maps.newHashMap();
+                Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                long documentLineRrn = Long.parseLong(materialLot.getReserved16());
+                DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+                Long seq = Long.parseLong(documentLine.getReserved1());
+                ErpSo erpSo = erpSoRepository.findBySeq(seq);
+                String productType = StringUtils.EMPTY;
+                String materialName = materialLot.getMaterialName();
+                String [] materialNameArray = materialName.split(StringUtils.SPLIT_CODE);
+                if(materialNameArray.length >= 3){
+                    productType = materialName.substring(0, materialName.indexOf(StringUtils.SPLIT_CODE,materialName.indexOf(StringUtils.SPLIT_CODE)+1 ));
+                } else {
+                    productType = materialName;
                 }
+                parameterMap.put("CUSTOMER", documentLine.getReserved8());
+                parameterMap.put("MLOTCODE", erpSo.getOther16());
+                if(warehouse.getName().equals(WAREHOUSE_HK)){
+                    parameterMap.put("SUPPLIER", MLotCodePrint.HK_SUPPLIER);
+                } else {
+                    parameterMap.put("SUPPLIER", MLotCodePrint.SH_SUPPLIER);
+                }
+                parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
+                parameterMap.put("ORDERID", documentLine.getDocId());
+                parameterMap.put("OUTDATE", date);
+                parameterMap.put("DELIVERYPLACE", MLotCodePrint.DELIVERY_PLACE);
+                parameterMap.put("PRODUCTTYPE", productType);
+                parameterMap.put("MLOTID", materialLot.getMaterialLotId());
+
+                if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    parameterMap.put("LABEL", MLotCodePrint.VBOX_LABEL);
+                    parameterMap.put("printCount", "1");
+                } else {
+                    parameterMap.put("LABEL", MLotCodePrint.BOX_LABEL);
+                    parameterMap.put("printCount", "2");
+                }
+                parameterMap.put("portId", MLotCodePrint.GENERAL_MLOT_PORTID);
+                parameterMapList.add(parameterMap);
             } else if (MLotCodePrint.OPHELION_MLOT_LABEL.equals(printType)){
-                for(MaterialLot materialLot : materialLotList){
-                    long documentLineRrn = Long.parseLong(materialLot.getReserved16());
-                    DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
-                    Long seq = Long.parseLong(documentLine.getReserved1());
-                    ErpSo erpSo = erpSoRepository.findBySeq(seq);
-                    Map<String, String> parameterMap = Maps.newHashMap();
-                    String startDate = formatter.format(materialLot.getReceiveDate());
-                    calendar.setTime(materialLot.getReceiveDate());
-                    calendar.add(Calendar.YEAR, +1);
-                    String endDate = formatter.format(calendar.getTime());
-                    String [] endDateStrArray = endDate.split(StringUtils.SPLIT_CODE);
+                ErpSo erpSo = getErpSoByReserved16(materialLot.getReserved16());
+                Map<String, String> parameterMap = Maps.newHashMap();
+                String startDate = formatter.format(materialLot.getReceiveDate());
+                calendar.setTime(materialLot.getReceiveDate());
+                calendar.add(Calendar.YEAR, +1);
+                String endDate = formatter.format(calendar.getTime());
+                String [] endDateStrArray = endDate.split(StringUtils.SPLIT_CODE);
 
-                    parameterMap.put("SUPPLIERCODE", MLotCodePrint.SUPPLIER_CODE);
-                    parameterMap.put("ORDERID", materialLot.getReserved17());
-                    parameterMap.put("MATERIALCODE", erpSo.getOther16());
-                    parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
-                    parameterMap.put("MLOTID", materialLot.getMaterialLotId());
-                    parameterMap.put("STARTDATE", startDate);
-                    if(endDateStrArray[1].equals("02") && endDateStrArray[2].equals("29")){
-                        endDate = endDateStrArray[0] + StringUtils.SPLIT_CODE + endDateStrArray[1] + StringUtils.SPLIT_CODE + "28";
-                        parameterMap.put("ENDDATE", endDate);
-                    } else {
-                        parameterMap.put("ENDDATE", endDate);
-                    }
-                    parameterMap.put("PRINTDATE", date);
-                    parameterMap.put("QC", MLotCodePrint.QC);
+                parameterMap.put("SUPPLIERCODE", MLotCodePrint.SUPPLIER_CODE);
+                parameterMap.put("ORDERID", materialLot.getReserved17());
+                parameterMap.put("MATERIALCODE", erpSo.getOther16());
+                parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
+                parameterMap.put("MLOTID", materialLot.getMaterialLotId());
+                parameterMap.put("STARTDATE", startDate);
+                if(endDateStrArray[1].equals("02") && endDateStrArray[2].equals("29")){
+                    endDate = endDateStrArray[0] + StringUtils.SPLIT_CODE + endDateStrArray[1] + StringUtils.SPLIT_CODE + "28";
+                    parameterMap.put("ENDDATE", endDate);
+                } else {
+                    parameterMap.put("ENDDATE", endDate);
+                }
+                parameterMap.put("PRINTDATE", date);
+                parameterMap.put("QC", MLotCodePrint.QC);
 
-                    formatter = new SimpleDateFormat(MLotCodePrint.DATE_PATTERN);
-                    String effectiveDate = formatter.format(materialLot.getReceiveDate());//有效日期
-                    String expirationDate = formatter.format(calendar.getTime());//失效日期
-                    if(expirationDate.endsWith("0229")){
-                        expirationDate = expirationDate.substring(0,2) + "0228";
-                    }
-                    String code = MLotCodePrint.SUPPLIER_CODE + "|"  + "1111" + "|" + materialLot.getMaterialLotId() + "|"
-                            + materialLot.getCurrentSubQty().toString() + "|"  + effectiveDate + "|" + expirationDate;
-                    parameterMap.put("CODE", code);
+                formatter = new SimpleDateFormat(MLotCodePrint.DATE_PATTERN);
+                String effectiveDate = formatter.format(materialLot.getReceiveDate());//有效日期
+                String expirationDate = formatter.format(calendar.getTime());//失效日期
+                if(expirationDate.endsWith("0229")){
+                    expirationDate = expirationDate.substring(0,2) + "0228";
+                }
+                String code = MLotCodePrint.SUPPLIER_CODE + "|"  + "1111" + "|" + materialLot.getMaterialLotId() + "|"
+                        + materialLot.getCurrentSubQty().toString() + "|"  + effectiveDate + "|" + expirationDate;
+                parameterMap.put("CODE", code);
 
-                    if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    parameterMap.put("printCount", "1");
+                } else {
+                    parameterMap.put("printCount", "2");
+                }
+                parameterMap.put("portId", MLotCodePrint.OPHELION_MLOT_PORTID);
+                parameterMapList.add(parameterMap);
+            } else if(MLotCodePrint.BAICHEN_MLOT_LABEL.equals(printType)){
+                List<MaterialLot> packageMLotList = Lists.newArrayList();
+                ErpSo erpSo = getErpSoByReserved16(materialLot.getReserved16());
+                String firstVboxSeq = "";
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    for(MaterialLot packageMLot : packageMLotList){
+                        String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BAICHEN_MLOT_LABEL_PRINT_SEQ_RULE);
+                        vboxSeq = vboxSeq.substring(vboxSeq.length() - 8, vboxSeq.length());
+                        if(StringUtils.isNullOrEmpty(firstVboxSeq)){
+                            firstVboxSeq = vboxSeq;
+                        }
+                        Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, packageMLot, vboxSeq);
+                        parameterMap.put("portId", MLotCodePrint.BAICHEN_MLOT_PORTID);
                         parameterMap.put("printCount", "1");
-                    } else {
-                        parameterMap.put("printCount", "2");
+                        parameterMapList.add(parameterMap);
                     }
-                    parameterMap.put("portId", MLotCodePrint.OPHELION_MLOT_PORTID);
+                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, materialLot, firstVboxSeq);
+                    parameterMap.put("portId", MLotCodePrint.BAICHEN_MLOT_PORTID);
+                    parameterMap.put("printCount", "2");
+                    parameterMapList.add(parameterMap);
+                } else {
+                    String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BAICHEN_MLOT_LABEL_PRINT_SEQ_RULE);
+                    vboxSeq = vboxSeq.substring(vboxSeq.length() - 8, vboxSeq.length());
+                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, materialLot, vboxSeq);
+                    parameterMap.put("portId", MLotCodePrint.BAICHEN_MLOT_PORTID);
+                    parameterMap.put("printCount", "1");
                     parameterMapList.add(parameterMap);
                 }
             }
-
             return parameterMapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 百辰物料标签参数
+     * @param erpSo
+     * @param materialLot
+     * @param vboxSeq
+     * @return
+     * @throws ClientException
+     */
+    private Map<String, String> getBaiChenMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String vboxSeq) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            String poName = erpSo.getOther10();
+            String ponoPrefix = "";
+            if(!StringUtils.isNullOrEmpty(poName)){
+                int poSize = poName.length();
+                if(poSize < 20){
+                    ponoPrefix = StringUtil.leftPad("" , 20 - poSize , "#");
+                }
+            }
+            SimpleDateFormat formatter = new SimpleDateFormat(MLotCodePrint.DATE_PATTERN);
+            parameterMap.put("MATERIALCODE", erpSo.getOther16());
+            parameterMap.put("SHIPCODE", MLotCodePrint.SHIP_CODE);
+            parameterMap.put("DATEDAY", formatter.format(new Date()));
+            parameterMap.put("SERIALCODE", vboxSeq);
+            parameterMap.put("TWODCODE1", erpSo.getOther16() + MLotCodePrint.SHIP_CODE + formatter.format(new Date()) + vboxSeq);
+
+            String packageQty = StringUtil.leftPad(materialLot.getCurrentQty().toString() , 8 , "0");
+            parameterMap.put("PONOPREFIX", ponoPrefix);
+            parameterMap.put("PONO", poName);
+            parameterMap.put("PACKAGEQTY", packageQty);
+            parameterMap.put("TWODCODE2", ponoPrefix + poName + packageQty);
+
+            parameterMap.put("MEMO", erpSo.getOther16());
+            parameterMap.put("TWODCODE3", erpSo.getOther16());
+
+            formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
+            parameterMap.put("DATEMONTH", formatter.format(new Date()));
+            parameterMap.put("TWODCODE4", formatter.format(new Date()));
+            parameterMap.put("BOXID", materialLot.getMaterialLotId());
+
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 通过备货单据rrn获取单据信息
+     * @param reserved16
+     * @return
+     */
+    private ErpSo getErpSoByReserved16(String reserved16) throws ClientException{
+        try {
+            long documentLineRrn = Long.parseLong(reserved16);
+            DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+            Long seq = Long.parseLong(documentLine.getReserved1());
+            ErpSo erpSo = erpSoRepository.findBySeq(seq);
+            return erpSo;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
