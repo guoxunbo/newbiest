@@ -1,5 +1,6 @@
 package com.newbiest.gc.rest.stockout.wltStockout;
 
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.msg.ResponseBody;
 import lombok.Data;
@@ -14,5 +15,7 @@ public class WltStockOutResponseBody extends ResponseBody {
 	private boolean falg;
 
 	private List<MaterialLotUnit> materialLotUnitList;
+
+	private MaterialLot materialLot;
 
 }

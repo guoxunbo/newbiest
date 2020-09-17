@@ -5522,4 +5522,33 @@ public class GcServiceImpl implements GcService {
 
     }
 
+    public MaterialLot getWltMaterialLotToStockOut(Long tableRrn, String queryLotId) throws ClientException {
+        try {
+            MaterialLot materialLot = new MaterialLot();
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String _whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+
+            StringBuffer clauseBuffer = new StringBuffer(_whereClause);
+            clauseBuffer.append(" AND materialLotId = ");
+            clauseBuffer.append("'" + queryLotId + "'");
+            _whereClause = clauseBuffer.toString();
+            List<MaterialLot> materialLotList = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
+            if(CollectionUtils.isEmpty(materialLotList)){
+                clauseBuffer = new StringBuffer(nbTable.getWhereClause());
+                clauseBuffer.append(" AND lotId = ");
+                clauseBuffer.append("'" + queryLotId+ "'");
+                _whereClause = clauseBuffer.toString();
+                materialLotList = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
+            }
+            if(CollectionUtils.isNotEmpty(materialLotList)){
+                materialLot = materialLotList.get(0);
+            }
+            return materialLot;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
 }

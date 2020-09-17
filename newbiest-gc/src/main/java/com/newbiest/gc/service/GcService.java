@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    MaterialLot getWltMaterialLotToStockOut(Long tableRrn, String queryLotId) throws ClientException;
     void validationMaterialLotVender(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferUnStockOutTagging(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferStockOutTagging(List<MaterialLotAction> materialLotActions, String stockTagNote, String customerName, String stockOutType, String poId) throws ClientException;

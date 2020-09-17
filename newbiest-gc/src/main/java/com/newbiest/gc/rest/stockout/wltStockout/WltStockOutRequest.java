@@ -24,6 +24,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_VALIDATE_VENDER = "ValidateVender";
 
+	public static final String ACTION_GETMLOT = "GetMLot";
+
 	private WltStockOutRequestBody body;
 
 }

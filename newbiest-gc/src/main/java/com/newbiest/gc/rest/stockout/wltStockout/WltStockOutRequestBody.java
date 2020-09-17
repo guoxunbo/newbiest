@@ -41,4 +41,10 @@ public class WltStockOutRequestBody extends RequestBody {
 	@ApiModelProperty(value = "PO号")
 	private String poId;
 
+	@ApiModelProperty(value="动态表主键")
+	private Long tableRrn;
+
+	@ApiModelProperty(value = "物料批次号/LOTID")
+	private String queryLotId;
+
 }
