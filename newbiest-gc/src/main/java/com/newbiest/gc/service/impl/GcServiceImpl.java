@@ -80,6 +80,7 @@ public class GcServiceImpl implements GcService {
     public static final String REFERENCE_NAME_WLTSTOCK_OUT_CHECK_ITEM_LIST = "WltStockOutCheckItemList";
     public static final String REFERENCE_NAME_PACK_CASE_CHECK_ITEM_LIST = "PackCaseCheckItemList";
     public static final String REFERENCE_NAME_WLTPACK_CASE_CHECK_ITEM_LIST = "WltPackCaseCheckItemList";
+    public static final String REFERENCE_NAME_PRODUCT_DECS_LIST = "ProductDescList";
 
     public static final String EVENT_OQC = "OQC";
 
@@ -3943,122 +3944,633 @@ public class GcServiceImpl implements GcService {
     public List<Map<String, String>> getMlotCodePrintParameter(MaterialLot materialLot, String printType) throws ClientException {
         try {
             ThreadLocalContext.getSessionContext().buildTransInfo();
+            List<MaterialLot> packageMLotList = Lists.newArrayList();
             List<Map<String, String>> parameterMapList = Lists.newArrayList();
             //获取当前日期，时间格式yyyy-MM-dd
             SimpleDateFormat formatter = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             Calendar calendar = Calendar.getInstance();
             String date = formatter.format(new Date());
+            Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+            ErpSo erpSo = getErpSoByReserved16(materialLot.getReserved16());
+            String productType = getProductType(materialLot.getMaterialName());
 
             if(MLotCodePrint.GENERAL_MLOT_LABEL.equals(printType)){
-                Map<String, String> parameterMap = Maps.newHashMap();
-                Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
-                long documentLineRrn = Long.parseLong(materialLot.getReserved16());
-                DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
-                Long seq = Long.parseLong(documentLine.getReserved1());
-                ErpSo erpSo = erpSoRepository.findBySeq(seq);
-                String productType = StringUtils.EMPTY;
-                String materialName = materialLot.getMaterialName();
-                String [] materialNameArray = materialName.split(StringUtils.SPLIT_CODE);
-                if(materialNameArray.length >= 3){
-                    productType = materialName.substring(0, materialName.indexOf(StringUtils.SPLIT_CODE,materialName.indexOf(StringUtils.SPLIT_CODE)+1 ));
-                } else {
-                    productType = materialName;
-                }
-                parameterMap.put("CUSTOMER", documentLine.getReserved8());
-                parameterMap.put("MLOTCODE", erpSo.getOther16());
-                if(warehouse.getName().equals(WAREHOUSE_HK)){
-                    parameterMap.put("SUPPLIER", MLotCodePrint.HK_SUPPLIER);
-                } else {
-                    parameterMap.put("SUPPLIER", MLotCodePrint.SH_SUPPLIER);
-                }
-                parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
-                parameterMap.put("ORDERID", documentLine.getDocId());
-                parameterMap.put("OUTDATE", date);
-                parameterMap.put("DELIVERYPLACE", MLotCodePrint.DELIVERY_PLACE);
-                parameterMap.put("PRODUCTTYPE", productType);
-                parameterMap.put("MLOTID", materialLot.getMaterialLotId());
-
-                if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                    parameterMap.put("LABEL", MLotCodePrint.VBOX_LABEL);
-                    parameterMap.put("printCount", "1");
-                } else {
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    for(MaterialLot packageMLot : packageMLotList){
+                        Map<String, String> parameterMap = getGeneralMLotPrintParamater(erpSo, packageMLot, warehouse, date, productType);
+                        parameterMap.put("LABEL", MLotCodePrint.VBOX_LABEL);
+                        parameterMap.put("printCount", "1");
+                        parameterMapList.add(parameterMap);
+                    }
+                    Map<String, String> parameterMap = getGeneralMLotPrintParamater(erpSo, materialLot, warehouse, date, productType);
                     parameterMap.put("LABEL", MLotCodePrint.BOX_LABEL);
                     parameterMap.put("printCount", "2");
+                    parameterMapList.add(parameterMap);
+                } else {
+                    Map<String, String> parameterMap = getGeneralMLotPrintParamater(erpSo, materialLot, warehouse, date, productType);
+                    parameterMap.put("LABEL", MLotCodePrint.VBOX_LABEL);
+                    parameterMap.put("printCount", "1");
+                    parameterMapList.add(parameterMap);
                 }
-                parameterMap.put("portId", MLotCodePrint.GENERAL_MLOT_PORTID);
-                parameterMapList.add(parameterMap);
             } else if (MLotCodePrint.OPHELION_MLOT_LABEL.equals(printType)){
-                ErpSo erpSo = getErpSoByReserved16(materialLot.getReserved16());
-                Map<String, String> parameterMap = Maps.newHashMap();
                 String startDate = formatter.format(materialLot.getReceiveDate());
                 calendar.setTime(materialLot.getReceiveDate());
                 calendar.add(Calendar.YEAR, +1);
                 String endDate = formatter.format(calendar.getTime());
                 String [] endDateStrArray = endDate.split(StringUtils.SPLIT_CODE);
-
-                parameterMap.put("SUPPLIERCODE", MLotCodePrint.SUPPLIER_CODE);
-                parameterMap.put("ORDERID", materialLot.getReserved17());
-                parameterMap.put("MATERIALCODE", erpSo.getOther16());
-                parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
-                parameterMap.put("MLOTID", materialLot.getMaterialLotId());
-                parameterMap.put("STARTDATE", startDate);
                 if(endDateStrArray[1].equals("02") && endDateStrArray[2].equals("29")){
                     endDate = endDateStrArray[0] + StringUtils.SPLIT_CODE + endDateStrArray[1] + StringUtils.SPLIT_CODE + "28";
-                    parameterMap.put("ENDDATE", endDate);
-                } else {
-                    parameterMap.put("ENDDATE", endDate);
                 }
-                parameterMap.put("PRINTDATE", date);
-                parameterMap.put("QC", MLotCodePrint.QC);
-
                 formatter = new SimpleDateFormat(MLotCodePrint.DATE_PATTERN);
                 String effectiveDate = formatter.format(materialLot.getReceiveDate());//有效日期
                 String expirationDate = formatter.format(calendar.getTime());//失效日期
-                if(expirationDate.endsWith("0229")){
-                    expirationDate = expirationDate.substring(0,2) + "0228";
-                }
-                String code = MLotCodePrint.SUPPLIER_CODE + "|"  + "1111" + "|" + materialLot.getMaterialLotId() + "|"
-                        + materialLot.getCurrentSubQty().toString() + "|"  + effectiveDate + "|" + expirationDate;
-                parameterMap.put("CODE", code);
-
-                if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                    parameterMap.put("printCount", "1");
-                } else {
-                    parameterMap.put("printCount", "2");
-                }
-                parameterMap.put("portId", MLotCodePrint.OPHELION_MLOT_PORTID);
-                parameterMapList.add(parameterMap);
-            } else if(MLotCodePrint.BAICHEN_MLOT_LABEL.equals(printType)){
-                List<MaterialLot> packageMLotList = Lists.newArrayList();
-                ErpSo erpSo = getErpSoByReserved16(materialLot.getReserved16());
-                String firstVboxSeq = "";
-                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                String printSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_OPHELION_MLOT_LABEL_PRINT_SEQ_RULE).substring(2, 7);
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
                     packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-                    for(MaterialLot packageMLot : packageMLotList){
-                        String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BAICHEN_MLOT_LABEL_PRINT_SEQ_RULE);
-                        vboxSeq = vboxSeq.substring(vboxSeq.length() - 8, vboxSeq.length());
-                        if(StringUtils.isNullOrEmpty(firstVboxSeq)){
-                            firstVboxSeq = vboxSeq;
-                        }
-                        Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, packageMLot, vboxSeq);
-                        parameterMap.put("portId", MLotCodePrint.BAICHEN_MLOT_PORTID);
+                    for(MaterialLot packageMLot : packageMLotList) {
+                        Map<String, String> parameterMap = getOphelionMLotPrintParamater(erpSo, packageMLot, startDate, date, endDate, effectiveDate, expirationDate, printSeq);
                         parameterMap.put("printCount", "1");
                         parameterMapList.add(parameterMap);
                     }
-                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, materialLot, firstVboxSeq);
-                    parameterMap.put("portId", MLotCodePrint.BAICHEN_MLOT_PORTID);
+                    Map<String, String> parameterMap = getOphelionMLotPrintParamater(erpSo, materialLot, startDate, date, endDate, effectiveDate, expirationDate, printSeq);
                     parameterMap.put("printCount", "2");
                     parameterMapList.add(parameterMap);
                 } else {
-                    String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BAICHEN_MLOT_LABEL_PRINT_SEQ_RULE);
-                    vboxSeq = vboxSeq.substring(vboxSeq.length() - 8, vboxSeq.length());
-                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, materialLot, vboxSeq);
-                    parameterMap.put("portId", MLotCodePrint.BAICHEN_MLOT_PORTID);
+                    Map<String, String> parameterMap = getOphelionMLotPrintParamater(erpSo, materialLot, startDate, date, endDate, effectiveDate, expirationDate, printSeq);
                     parameterMap.put("printCount", "1");
                     parameterMapList.add(parameterMap);
                 }
+            } else if(MLotCodePrint.BAICHEN_MLOT_LABEL.equals(printType)){
+                String firstVboxSeq = "";
+                String poName = erpSo.getOther10();
+                String ponoPrefix = "";
+                if(!StringUtils.isNullOrEmpty(poName)){
+                    int poSize = poName.length();
+                    if(poSize < 20){
+                        ponoPrefix = StringUtil.leftPad("" , 20 - poSize , "#");
+                    }
+                }
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    for(MaterialLot packageMLot : packageMLotList){
+                        String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BAICHEN_MLOT_LABEL_PRINT_SEQ_RULE).substring(8, 16);
+                        if(StringUtils.isNullOrEmpty(firstVboxSeq)){
+                            firstVboxSeq = vboxSeq;
+                        }
+                        Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, packageMLot, vboxSeq, ponoPrefix);
+                        parameterMap.put("printCount", "1");
+                        parameterMapList.add(parameterMap);
+                    }
+                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, materialLot, firstVboxSeq, ponoPrefix);
+                    parameterMap.put("printCount", "2");
+                    parameterMapList.add(parameterMap);
+                } else {
+                    String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BAICHEN_MLOT_LABEL_PRINT_SEQ_RULE).substring(8, 16);
+                    vboxSeq = vboxSeq.substring(vboxSeq.length() - 8, vboxSeq.length());
+                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, materialLot, vboxSeq, ponoPrefix);
+                    parameterMap.put("printCount", "1");
+                    parameterMapList.add(parameterMap);
+                }
+            } else if(MLotCodePrint.GUANGBAO_BOX_LABEL.equals(printType)){
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    for(MaterialLot packageMLot : packageMLotList){
+                        Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSo, packageMLot);
+                        parameterMapList.add(parameterMap);
+                    }
+                    Map<String, String> parameterMap = getGeneralMLotPrintParamater(erpSo, materialLot, warehouse, date, productType);
+                    parameterMap.put("LABEL", MLotCodePrint.BOX_LABEL);
+                    parameterMap.put("printCount", "2");
+                    parameterMapList.add(parameterMap);
+                } else {
+                    Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSo, materialLot);
+                    parameterMapList.add(parameterMap);
+                }
+            } else if(MLotCodePrint.GUANGBAO_VBOX_LABEL.equals(printType)){
+                Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSo, materialLot);
+                parameterMapList.add(parameterMap);
+            } else if(MLotCodePrint.COB_GUANGBAO_LABEL.equals(printType)){
+                String materialDesc = StringUtils.EMPTY;
+                List<NBOwnerReferenceList> productDescList = getProductDecsList();
+                if(CollectionUtils.isNotEmpty(productDescList)){
+                    for (NBOwnerReferenceList referenceList : productDescList) {
+                        if(referenceList.getKey().equals(materialLot.getMaterialName())){
+                            materialDesc = referenceList.getValue();
+                        }
+                    }
+                }
+                if(StringUtils.isNullOrEmpty(materialDesc)){
+                    throw new ClientParameterException(GcExceptions.MATERIAL_NAME_DESCRIPTION_IS_NOT_CONFIGURED, materialLot.getMaterialName());
+                }
+                Map<String, String> parameterMap = getCOBGuangBaoMLotPrintParamater(erpSo, materialLot, materialDesc);
+                parameterMapList.add(parameterMap);
+            } else if(MLotCodePrint.HUATIAN_LABEL.equals(printType)){
+                String huaTianPrintSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_HUATIAN_LABEL_PRINT_SEQ_RULE);
+                calendar.setTime(new Date());
+                calendar.add(Calendar.YEAR, +1);
+                String effectiveDate = formatter.format(calendar.getTime());
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    for(MaterialLot packageMLot : packageMLotList){
+                        Map<String, String> parameterMap = getHuaTianMLotPrintParamater(erpSo, packageMLot, warehouse, huaTianPrintSeq, productType, date, effectiveDate);
+                        parameterMapList.add(parameterMap);
+                    }
+                    Map<String, String> parameterMap = getHuaTianMLotPrintParamater(erpSo, materialLot, warehouse, huaTianPrintSeq, productType, date, effectiveDate);
+                    parameterMap.put("printCount", "2");
+                    parameterMapList.add(parameterMap);
+                }
+            } else if(MLotCodePrint.SHENGTAI_BOX_LABEL.equals(printType)){
+                String seq = generatorMLotsTransId(MLotCodePrint.GENERATOR_SHENGTAI_LABEL_PRINT_SEQ_RULE).substring(2, 11);
+                seq = seq.substring(2,6) + seq.substring(8,11);
+                formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
+                String stockOutDate = formatter.format(new Date());
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
+                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    for (MaterialLot packageMLot : packageMLotList) {
+                        Map<String, String> parameterMap = getShengTaiVboxMLotPrintParamater(packageMLot, productType, stockOutDate, seq);
+                        parameterMapList.add(parameterMap);
+                    }
+                    Map<String, String> parameterMap = getGeneralMLotPrintParamater(erpSo, materialLot, warehouse, date, productType);
+                    parameterMap.put("LABEL", MLotCodePrint.BOX_LABEL);
+                    parameterMap.put("printCount", "2");
+                    parameterMapList.add(parameterMap);
+                }
+            } else if(MLotCodePrint.SHENGTAI_VBOX_LABEL.equals(printType)){
+                formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
+                String stockOutDate = formatter.format(new Date());
+                String seq = generatorMLotsTransId(MLotCodePrint.GENERATOR_SHENGTAI_LABEL_PRINT_SEQ_RULE).substring(2, 11);
+                seq = seq.substring(2,6) + seq.substring(8,11);
+                Map<String, String> parameterMap = getShengTaiVboxMLotPrintParamater(materialLot, productType, stockOutDate, seq);
+                parameterMapList.add(parameterMap);
+            } else if (MLotCodePrint.BYD_LABEL.equals(printType)){
+                String strLabel = MLotCodePrint.BYD_ORDER_ID + StringUtils.SEMICOLON_CODE;
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
+                    String boxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BYD_BOX_LABEL_PRINT_SEQ_RULE).substring(6, 10);
+                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    for (MaterialLot packageMLot : packageMLotList) {
+                        Map<String, String> parameterMap = getBYDMLotPrintParamater(erpSo, packageMLot, productType, date);
+                        String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BYD_VBOX_LABEL_PRINT_SEQ_RULE).substring(7, 11);
+                        //截取箱号数字起6位作为标签号
+                        String vboxLabelId = getLabelIdByMLotId(packageMLot.getMaterialLotId());
+                        parameterMap.put("STRLABEL", strLabel + vboxLabelId + vboxSeq);
+                        parameterMap.put("printCount", "1");
+                        parameterMapList.add(parameterMap);
+                    }
+                    Map<String, String> parameterMap = getBYDMLotPrintParamater(erpSo, materialLot, productType, date);
+                    String boxLabelId = getLabelIdByMLotId(materialLot.getMaterialLotId());
+                    parameterMap.put("STRLABEL", strLabel + boxLabelId + boxSeq);
+                    parameterMap.put("printCount", "2");
+                    parameterMapList.add(parameterMap);
+                }
+            } else if(MLotCodePrint.XLGD_BOX_LABEL.equals(printType)){
+                Map<String, String> parameterMap = getXLGDMLotPrintParamater(erpSo, materialLot, productType);
+                parameterMapList.add(parameterMap);
+            } else if(MLotCodePrint.SHUN_YU_LABEL.equals(printType)){
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
+                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    for (MaterialLot packageMLot : packageMLotList) {
+                        Map<String, String> parameterMap = getShunYuMLotPrintParamater(erpSo, packageMLot, productType);
+                        //截取箱号数字起6位作为生产批号
+                        String batchNumber = getLabelIdByMLotId(packageMLot.getMaterialLotId());
+                        parameterMap.put("BATCHNUMBER",  batchNumber );
+                        parameterMap.put("printCount", "1");
+                        parameterMapList.add(parameterMap);
+                    }
+                    Map<String, String> parameterMap = getShunYuMLotPrintParamater(erpSo, materialLot, productType);
+                    String batchNumber = getLabelIdByMLotId(materialLot.getMaterialLotId());
+                    parameterMap.put("BATCHNUMBER", batchNumber);
+                    parameterMap.put("printCount", "2");
+                    parameterMapList.add(parameterMap);
+                }
+            } else if (MLotCodePrint.ZHONG_KONG_LABEL.equals(printType)){
+                Map<String, String> parameterMap = getZhongKongMLotPrintParamater(erpSo, materialLot, date);
+                parameterMapList.add(parameterMap);
+            } else if(MLotCodePrint.XING_ZHI_MLOT_LABEL.equals(printType)){
+                Map<String, String> parameterMap = getXingZhiMLotPrintParamater(erpSo, materialLot, date);
+                parameterMapList.add(parameterMap);
             }
             return parameterMapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Map<String,String> getXingZhiMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String date) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            String printSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_XINZHI_MLOT_LABEL_PRINT_SEQ_RULE).substring(8, 11);
+            SimpleDateFormat formatter = new SimpleDateFormat(MLotCodePrint.SHUNYU_PRINT_DATE_PATTERN);
+            String createDate = formatter.format(materialLot.getCreated());
+            parameterMap.put("STRPONO", erpSo.getCcode());
+            parameterMap.put("STRPL", date + printSeq);
+            parameterMap.put("STRBOXID", materialLot.getMaterialLotId());
+            parameterMap.put("STRWEIGHT", "/");
+            String materialCode = erpSo.getOther16();
+            if(StringUtils.isNullOrEmpty(materialCode)){
+                materialCode = "/";
+            }
+            parameterMap.put("STRPN", materialCode);
+            parameterMap.put("STRDC", createDate);
+            parameterMap.put("STRTOTALQTY", materialLot.getCurrentQty().toString());
+            String qrCode = "";
+            parameterMap.put("STRQRCODE", qrCode);
+            parameterMap.put("portId", MLotCodePrint.XING_ZHI_PORTID);
+            parameterMap.put("printCount", "2");
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 中控智慧标签
+     * @param erpSo
+     * @param materialLot
+     * @param date
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getZhongKongMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String date) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            parameterMap.put("NUMBER", erpSo.getOther16());
+            parameterMap.put("PRODUCTNAME", materialLot.getMaterialName());
+            parameterMap.put("NUM", materialLot.getCurrentQty().toString());
+            parameterMap.put("BOXID", materialLot.getMaterialLotId());
+            parameterMap.put("DATE", date);
+            parameterMap.put("ADDRESS", erpSo.getOther19());
+            String qrCode = ",," + materialLot.getCurrentQty().toString() + ",,,,ICGKW004A," + erpSo.getOther16() + "," + materialLot.getMaterialName() + ",," + date + ",";
+            parameterMap.put("QRCODE", qrCode);
+            parameterMap.put("portId", MLotCodePrint.ZHONG_KONG_PORTID);
+            parameterMap.put("printCount", "2");
+            return parameterMap;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 信利光电标签打印
+     * @param erpSo
+     * @param materialLot
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getShunYuMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String productType) throws ClientException{
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            Map<String, String> parameterMap = Maps.newHashMap();
+            SimpleDateFormat formatter = new SimpleDateFormat(MLotCodePrint.SHUNYU_PRINT_DATE_PATTERN);
+            String createDate = formatter.format(materialLot.getCreated());
+            parameterMap.put("NAME", productType);
+            parameterMap.put("CLIENTNAME", erpSo.getOther16());
+            parameterMap.put("USERID", sc.getUsername());
+            parameterMap.put("DATE", createDate);
+            parameterMap.put("TOTALNUM", materialLot.getCurrentQty().toString());
+            parameterMap.put("BOXID", materialLot.getMaterialLotId());
+            parameterMap.put("portId", MLotCodePrint.SHUNYU_PORTID);
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 信利光电标签打印
+     * @param erpSo
+     * @param materialLot
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getXLGDMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String productType) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            SimpleDateFormat formatter = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(materialLot.getCreated());
+            calendar.add(Calendar.YEAR, +1);
+            calendar.add(Calendar.MONTH, +6);
+            String effectiveDate = formatter.format(calendar.getTime());
+            String createDate = formatter.format(materialLot.getCreated());
+            parameterMap.put("STRORDERNUMBER", erpSo.getCcode());
+            parameterMap.put("STRCODE", erpSo.getOther16());
+            parameterMap.put("STRQUANTITY", materialLot.getCurrentQty().toString());
+            parameterMap.put("STRBATCH", materialLot.getReserved1());
+            parameterMap.put("STRTRADETYPE", MLotCodePrint.XLGD_TRADETYPE);
+            parameterMap.put("STRNAME", MLotCodePrint.XLGD_NAME);
+            parameterMap.put("STRMODEL", productType);
+            parameterMap.put("STRPRODUCTIONDATE", createDate);
+            parameterMap.put("STRPRODUCTIONDATE", effectiveDate);
+            parameterMap.put("STBRAND", MLotCodePrint.XLGD_BRAND);
+            parameterMap.put("STBBOXID", materialLot.getMaterialLotId());
+            String strQrCode = erpSo.getOther16() + StringUtils.SEMICOLON_CODE + materialLot.getCurrentQty().toString() +StringUtils.SEMICOLON_CODE + materialLot.getReserved1() +
+                    StringUtils.SEMICOLON_CODE + createDate + StringUtils.SEMICOLON_CODE + effectiveDate + StringUtils.SEMICOLON_CODE + "GALAXYCORE.INC;" + erpSo.getCcode();
+            parameterMap.put("STBQRCODE", strQrCode);
+            parameterMap.put("portId", MLotCodePrint.XLGD_PORTID);
+            parameterMap.put("printCount", "2");
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 截取物料批次号数字起6位作为标签号
+     * @param materialLotId
+     * @return
+     * @throws ClientException
+     */
+    private String getLabelIdByMLotId(String materialLotId) throws ClientException{
+        try {
+            Pattern pattern = Pattern.compile("([0-9].{5,5})");
+            Matcher isCheck = pattern.matcher(materialLotId);
+            isCheck.find();
+            String labelId = isCheck.group(1);
+            return labelId;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 比亚迪内箱标签
+     * @param erpSo
+     * @param materialLot
+     * @param productType
+     * @param date
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getBYDMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String productType, String date) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            parameterMap.put("STRCODING", productType);
+            parameterMap.put("STRDESCRIPTION", materialLot.getMaterialDesc());
+            parameterMap.put("STRCLIENT", erpSo.getOther16());
+            parameterMap.put("STRDATE", date);
+            parameterMap.put("STRBATCH", materialLot.getMaterialLotId());
+            parameterMap.put("STRNUM", materialLot.getCurrentQty().toString() + "/PCS");
+            parameterMap.put("portId", MLotCodePrint.BYD_PORTID);
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 盛泰真空包打印
+     * @param materialLot
+     * @param productType
+     * @param stockOutDate
+     * @param seq
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getShengTaiVboxMLotPrintParamater(MaterialLot materialLot, String productType, String stockOutDate, String seq) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_SHENGTAI_VBOX_LABEL_PRINT_SEQ_RULE).substring(2,7);
+            String strRno = "R" + MLotCodePrint.STR_SUPPLIER + stockOutDate + vboxSeq;
+            parameterMap.put("STRPN", materialLot.getMaterialName());
+            parameterMap.put("STRPNNAME", productType);
+            parameterMap.put("STRSUPPLIER", MLotCodePrint.STR_SUPPLIER);
+            parameterMap.put("STRCOUNT", materialLot.getCurrentQty().toString());
+            parameterMap.put("STRVID", materialLot.getMaterialLotId());
+            parameterMap.put("STRDATE", stockOutDate);
+            parameterMap.put("STRNUMBER", seq);
+            parameterMap.put("STRRNO", strRno);
+
+            String strQrCode = strRno + "|" + materialLot.getMaterialName() + "|" + seq + "|" + stockOutDate + "|" + MLotCodePrint.STR_SUPPLIER + "|" + materialLot.getCurrentQty().toString();
+            parameterMap.put("STRQRCODE", strQrCode);
+            parameterMap.put("printCount", "1");
+            parameterMap.put("portId", MLotCodePrint.COB_SHENGTAI_VBOX_PORTID);
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据产品号截取产品信息
+     * @param materialName
+     * @return
+     * @throws ClientException
+     */
+    private String getProductType(String materialName) throws ClientException{
+        try {
+            String productType = StringUtils.EMPTY;
+            String [] materialNameArray = materialName.split(StringUtils.SPLIT_CODE);
+            if(materialNameArray.length >= 3){
+                productType = materialName.substring(0, materialName.indexOf(StringUtils.SPLIT_CODE,materialName.indexOf(StringUtils.SPLIT_CODE)+1 ));
+            } else {
+                productType = materialName;
+            }
+            return productType;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 华天标签打印
+     * @param erpSo
+     * @param materialLot
+     * @param warehouse
+     * @param huaTianPrintSeq
+     * @param productType
+     * @param stockOutDate
+     * @param effectiveDate
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getHuaTianMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, Warehouse warehouse, String huaTianPrintSeq,
+                                                            String productType, String stockOutDate, String effectiveDate) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            parameterMap.put("CODE", erpSo.getOther16());
+            if(warehouse.getName().equals(WAREHOUSE_HK)){
+                parameterMap.put("SUPPLIERNAME", MLotCodePrint.HK_SUPPLIER);
+            } else {
+                parameterMap.put("SUPPLIERNAME", MLotCodePrint.SH_SUPPLIER);
+            }
+            parameterMap.put("TYPE", productType);
+            parameterMap.put("ORDER", huaTianPrintSeq);
+            parameterMap.put("DATE2", effectiveDate);
+            parameterMap.put("NUM", materialLot.getCurrentQty().toString());
+            parameterMap.put("DATE", stockOutDate);
+            parameterMap.put("ID", erpSo.getCcode());
+            parameterMap.put("portId", MLotCodePrint.COB_HUATIAN_PORTID);
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * COB光宝标签打印
+     * @param erpSo
+     * @param materialLot
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getCOBGuangBaoMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String materialDesc) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            String seq = generatorMLotsTransId(MLotCodePrint.GENERATOR_GUANGBAO_VBOX_LABEL_PRINT_SEQ_RULE).substring(2, 13);
+            String monthSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_GUANGBAO_VBOX_LABEL_PRINT_MONTH_SEQ_RULE).substring(2, 14);
+            SimpleDateFormat formatter = new SimpleDateFormat(MLotCodePrint.PRINT_DATE_PATTERN);
+            String date = formatter.format(new Date());
+            String reelId = "I50111" + date.substring(2,4);
+            //月份转为16进制
+            String month = Integer.toHexString(Integer.parseInt(date.substring(4,6)));
+            Integer cobMonthSeq = Integer.parseInt(monthSeq.substring(monthSeq.length() - 6, monthSeq.length()));
+            //十进制转36进制
+            reelId = reelId + month + StringUtil.leftPad(tenTo36(cobMonthSeq) , 6 , "0");
+
+            parameterMap.put("PARTNUM", erpSo.getOther16());
+            parameterMap.put("MATERIALDESC", materialDesc);
+            parameterMap.put("DATECODE", date);
+            parameterMap.put("LOTNO", seq);
+            parameterMap.put("QUANTITY", materialLot.getCurrentQty().toString());
+            parameterMap.put("REELID", reelId);
+            parameterMap.put("CODE", "P" + erpSo.getOther16() + StringUtils.SEMICOLON_CODE + "D" + date + StringUtils.SEMICOLON_CODE + "L" + seq + StringUtils.SEMICOLON_CODE
+                    + "VI50111" + "Q" + materialLot.getCurrentQty().toString()+ StringUtils.SEMICOLON_CODE + "R" + reelId + StringUtils.SEMICOLON_CODE + "U000000");
+            parameterMap.put("portId", MLotCodePrint.COB_GUANGBAO_PORTID);
+            parameterMap.put("printCount", "2");
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private List<NBOwnerReferenceList> getProductDecsList() throws ClientException {
+        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(REFERENCE_NAME_PRODUCT_DECS_LIST, NBReferenceList.CATEGORY_OWNER);
+        if (CollectionUtils.isNotEmpty(nbReferenceList)) {
+            return nbReferenceList;
+        }
+        return Lists.newArrayList();
+    }
+
+    /**
+     * 光宝真空包打印参数
+     * @param erpSo
+     * @param materialLot
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getGuangBaoVboxMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_GUANGBAO_VBOX_LABEL_PRINT_SEQ_RULE).substring(2, 13);
+            String vboxMonthSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_GUANGBAO_VBOX_LABEL_PRINT_MONTH_SEQ_RULE).substring(2, 14);
+            SimpleDateFormat formatter = new SimpleDateFormat(MLotCodePrint.PRINT_DATE_PATTERN);
+            String date = formatter.format(new Date());
+            String reelId = "I50111" + date.substring(2,4);
+            String month = Integer.toHexString(Integer.parseInt(date.substring(4,6)));
+            Integer monthSeq = Integer.parseInt(vboxMonthSeq.substring(vboxMonthSeq.length() - 6, vboxMonthSeq.length()));
+            //十进制转36进制
+            reelId = reelId + month + StringUtil.leftPad(tenTo36(monthSeq) , 6 , "0");
+
+            parameterMap.put("PARTNUM", erpSo.getOther16());
+            parameterMap.put("DATECODE", date);
+            parameterMap.put("LOTNO", vboxSeq);
+            parameterMap.put("QUANTITY", materialLot.getCurrentQty().toString());
+            parameterMap.put("REELID", reelId);
+            parameterMap.put("WAFERID", materialLot.getMaterialLotId());
+            parameterMap.put("CODE", "P" + erpSo.getOther16() + StringUtils.SEMICOLON_CODE + "D" + date + StringUtils.SEMICOLON_CODE + "L" + vboxSeq + StringUtils.SEMICOLON_CODE
+                    + "VI50111" + "Q" + materialLot.getCurrentQty().toString()+ StringUtils.SEMICOLON_CODE + "R" + reelId + StringUtils.SEMICOLON_CODE + "U000000");
+            parameterMap.put("portId", MLotCodePrint.GUANGBAO_VBOX_PORTID);
+            parameterMap.put("printCount", "1");
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     *  10进制转36进制
+     * @param num
+     * @return
+     */
+    public static String tenTo36(int num) {
+        StringBuffer sBuffer = new StringBuffer();
+        String[] X36_ARRAY = "0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z".split(",");
+        if(num == 0) {
+            sBuffer.append("0");
+        }
+        while(num > 0) {
+            sBuffer.append(X36_ARRAY[num % 36]);
+            num = num / 36;
+        }
+        return sBuffer.reverse().toString();
+    }
+
+    /**
+     * 欧菲光物料标签
+     * @param erpSo
+     * @param materialLot
+     * @param startDate
+     * @param date
+     * @param printSeq
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getOphelionMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String startDate, String date,String endDate,String effectiveDate,String expirationDate, String printSeq) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            parameterMap.put("SUPPLIERCODE", MLotCodePrint.SUPPLIER_CODE);
+            parameterMap.put("ORDERID", erpSo.getCcode());
+            parameterMap.put("MATERIALCODE", erpSo.getOther16());
+            parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
+            parameterMap.put("MLOTID", materialLot.getMaterialLotId());
+            parameterMap.put("STARTDATE", startDate);
+            parameterMap.put("ENDDATE", endDate);
+            parameterMap.put("PRINTDATE", date);
+            parameterMap.put("QC", MLotCodePrint.QC);
+            if(expirationDate.endsWith("0229")){
+                expirationDate = expirationDate.substring(0,2) + "0228";
+            }
+            String code = MLotCodePrint.SUPPLIER_CODE + "|"  + erpSo.getOther16() + "|" + materialLot.getMaterialLotId() + "|"
+                    + materialLot.getCurrentSubQty().toString() + "|"  + effectiveDate + "|" + expirationDate + "|" + printSeq;
+            parameterMap.put("CODE", code);
+            parameterMap.put("portId", MLotCodePrint.OPHELION_MLOT_PORTID);
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
+    /**
+     * 一般物料标签/光宝箱标签 参数
+     * @param erpSo
+     * @param materialLot
+     * @param warehouse
+     * @param date
+     * @param productType
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getGeneralMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot,Warehouse warehouse, String date, String productType) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            parameterMap.put("CUSTOMER", erpSo.getCusname());
+            parameterMap.put("MLOTCODE", erpSo.getOther16());
+            if(warehouse.getName().equals(WAREHOUSE_HK)){
+                parameterMap.put("SUPPLIER", MLotCodePrint.HK_SUPPLIER);
+            } else {
+                parameterMap.put("SUPPLIER", MLotCodePrint.SH_SUPPLIER);
+            }
+            parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
+            parameterMap.put("ORDERID", erpSo.getCcode());
+            parameterMap.put("OUTDATE", date);
+            parameterMap.put("DELIVERYPLACE", MLotCodePrint.DELIVERY_PLACE);
+            parameterMap.put("PRODUCTTYPE", productType);
+            parameterMap.put("MLOTID", materialLot.getMaterialLotId());
+            parameterMap.put("portId", MLotCodePrint.GENERAL_MLOT_PORTID);
+
+            return parameterMap;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -4072,17 +4584,9 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    private Map<String, String> getBaiChenMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String vboxSeq) throws ClientException{
+    private Map<String, String> getBaiChenMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String vboxSeq,String ponoPrefix) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
-            String poName = erpSo.getOther10();
-            String ponoPrefix = "";
-            if(!StringUtils.isNullOrEmpty(poName)){
-                int poSize = poName.length();
-                if(poSize < 20){
-                    ponoPrefix = StringUtil.leftPad("" , 20 - poSize , "#");
-                }
-            }
             SimpleDateFormat formatter = new SimpleDateFormat(MLotCodePrint.DATE_PATTERN);
             parameterMap.put("MATERIALCODE", erpSo.getOther16());
             parameterMap.put("SHIPCODE", MLotCodePrint.SHIP_CODE);
@@ -4092,9 +4596,9 @@ public class GcServiceImpl implements GcService {
 
             String packageQty = StringUtil.leftPad(materialLot.getCurrentQty().toString() , 8 , "0");
             parameterMap.put("PONOPREFIX", ponoPrefix);
-            parameterMap.put("PONO", poName);
+            parameterMap.put("PONO", erpSo.getOther10());
             parameterMap.put("PACKAGEQTY", packageQty);
-            parameterMap.put("TWODCODE2", ponoPrefix + poName + packageQty);
+            parameterMap.put("TWODCODE2", ponoPrefix + erpSo.getOther10() + packageQty);
 
             parameterMap.put("MEMO", erpSo.getOther16());
             parameterMap.put("TWODCODE3", erpSo.getOther16());
@@ -4103,7 +4607,7 @@ public class GcServiceImpl implements GcService {
             parameterMap.put("DATEMONTH", formatter.format(new Date()));
             parameterMap.put("TWODCODE4", formatter.format(new Date()));
             parameterMap.put("BOXID", materialLot.getMaterialLotId());
-
+            parameterMap.put("portId", MLotCodePrint.BAICHEN_MLOT_PORTID);
             return parameterMap;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
