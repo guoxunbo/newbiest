@@ -2546,6 +2546,43 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }
+
+            asyncMesWarehouseProductType();
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 格科同步MES的产品入库型号
+     */
+    public void asyncMesWarehouseProductType() {
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            Product product = new Product();
+            List<Map> warehouseModelList = findEntityMapListByQueryName(Material.QUERY_WAREHOUSE_PRODUCT_MODEL,null,0,999,"","");
+            if(CollectionUtils.isNotEmpty(warehouseModelList)){
+                for (Map<String, String> m :warehouseModelList)  {
+                    String productId = m.get("IN_STORAGE_MODEL_ID");
+                    product = mmsService.getProductByName(productId);
+                    if(product == null){
+                        product = new Product();
+                        product.setName(productId);
+                        product.setMaterialCategory(Material.TYPE_PRODUCT);
+                        product.setMaterialType(Material.TYPE_PRODUCT);
+                        product = mmsService.saveProduct(product);
+
+                        List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
+                        if (CollectionUtils.isNotEmpty(statusModels)) {
+                            product.setStatusModelRrn(statusModels.get(0).getObjectRrn());
+                        } else {
+                            throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+                        }
+                        productRepository.save(product);
+                    }
+                }
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
