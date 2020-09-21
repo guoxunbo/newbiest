@@ -3804,11 +3804,10 @@ public class GcServiceImpl implements GcService {
                         throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_NOT_SAME, lotId);
                     }
                     for(String materialName : mLotUnitMap.keySet()){
-                        String materialNameQty = materialName.split("-")[1];
                         //通过晶圆型号末尾的数字获取不同的Wafer Source
-                        if(materialNameQty.equals("1") || materialNameQty.equals("2")){
+                        if(materialName.endsWith("-1") || materialName.endsWith("-2")){
                             waferSource = "1";
-                        } else if(materialNameQty.equals("2.1")) {
+                        } else if(materialName.endsWith("-2.1")) {
                             waferSource = "2";
                         } else {
                             throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_ERROR, materialName);
@@ -3830,10 +3829,9 @@ public class GcServiceImpl implements GcService {
                         throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_NOT_SAME, lotId);
                     }
                     for(String materialName : mLotUnitMap.keySet()){
-                        String materialNameQty = materialName.split("-")[1];
-                        if(materialNameQty.equals("1") || materialNameQty.equals("2.5")){
+                        if(materialName.endsWith("-1") || materialName.endsWith("-2.5")){
                             waferSource = "3";
-                        } else if(materialNameQty.equals("2.6")) {
+                        } else if(materialName.endsWith("-2.6")) {
                             waferSource = "4";
                         } else {
                             throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_ERROR, materialName);
