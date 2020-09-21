@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 物料批次的单元数据。比如接收以单元的方式进行。组装个一个materiLot。
@@ -81,6 +82,12 @@ public class MaterialLotUnitHistory extends NBHis {
      */
     @Column(name="WORK_ORDER_ID")
     private String workOrderId;
+
+    /**
+     * 工单计划投入日期
+     */
+    @Column(name="WORK_ORDER_PLANPUT_TIME")
+    private String workOrderPlanputTime;
 
     /**
      * 物料主键

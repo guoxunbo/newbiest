@@ -3471,19 +3471,36 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    public List<MaterialLot> validationAndGetWaitIssueWafer(List<MaterialLotAction> materialLotActions) throws ClientException{
+    /**
+     * 查询已经绑定工单并且计划投入日期小于当前日期的物料批次信息
+     * @param tableRrn
+     * @param whereClause
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> validationAndGetWaitIssueWafer(Long tableRrn,String whereClause) throws ClientException{
         try {
-            List<MaterialLot> materialLotList = new ArrayList<>();
-            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-            for(MaterialLot materialLot: materialLots){
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().filter(materialLotUnit -> !StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderId()))
-                        .collect(Collectors.groupingBy(MaterialLotUnit :: getWorkOrderId));
-                if(materialLotUnitMap != null && materialLotUnitMap.size() > 0){
-                    materialLotList.add(materialLot);
+            //获取当前日期，时间格式yyMMdd
+            SimpleDateFormat formatter = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            String date = formatter.format(new Date());
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String _whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+
+            if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
+                StringBuffer clauseBuffer = new StringBuffer(_whereClause);
+                if(!StringUtils.isNullOrEmpty(whereClause)){
+                    clauseBuffer.append(" AND ");
+                    clauseBuffer.append(whereClause);
                 }
+                clauseBuffer.append(" AND workOrderPlanputTime ");
+                clauseBuffer.append(" <= ");
+                clauseBuffer.append("'" + date + "'");
+                _whereClause = clauseBuffer.toString();
             }
-            return materialLotList;
+
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
+            return materialLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

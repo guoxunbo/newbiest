@@ -23,4 +23,10 @@ public class WaferManagerRequestBody extends RequestBody {
 	@ApiModelProperty(value = "单据")
 	private List<DocumentLine> documentLines;
 
+	@ApiModelProperty(value="动态表主键")
+	private Long tableRrn;
+
+	@ApiModelProperty(value = "查询条件")
+	private String whereClause;
+
 }

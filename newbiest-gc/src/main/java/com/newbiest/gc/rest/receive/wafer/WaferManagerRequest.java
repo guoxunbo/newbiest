@@ -17,10 +17,9 @@ public class WaferManagerRequest extends Request {
 	public static final String ACTION_TYPE_ISSUE = "Issue";
 	/**
 	 * 需要先绑定工单再发料
-	 * 暂时不用
 	 */
 	@Deprecated
-	public static final String ACTION_TYPE_VALIDATION_WAIT_ISSUE = "ValidationWaitIssue";
+	public static final String ACTION_TYPE_VALIDATION_WAIT_ISSUE = "GetWaitIssueMLot";
 
 	/**
 	 * 委外晶圆接收

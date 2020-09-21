@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 物料批次的具体单元数据。由一系列的单元组成一个物料批次。可以针对单元做操作。
@@ -126,6 +127,12 @@ public class MaterialLotUnit extends NBUpdatable {
      */
     @Column(name="WORK_ORDER_ID")
     private String workOrderId;
+
+    /**
+     * 工单计划投入日期
+     */
+    @Column(name="WORK_ORDER_PLANPUT_TIME")
+    private String workOrderPlanputTime;
 
     /**
      * 物料主键

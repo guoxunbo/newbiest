@@ -163,6 +163,12 @@ public class MaterialLotHistory extends NBHis {
     private String workOrderId;
 
     /**
+     * 工单计划投入日期
+     */
+    @Column(name="WORK_ORDER_PLANPUT_TIME")
+    private String workOrderPlanputTime;
+
+    /**
      * 物料主键
      */
     @Column(name="MATERIAL_RRN")

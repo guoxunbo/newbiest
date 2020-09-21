@@ -33,7 +33,7 @@ public interface GcService {
     Map<String, String> getCOBBoxLabelPrintParamater(MaterialLot materialLot) throws ClientException;
     List<Map<String, String>> getBoxQRCodeLabelPrintParamater(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
     String saveLCDCOGDetailList(List<MaterialLot> materialLots, String importType)throws ClientException;
-    List<MaterialLot> validationAndGetWaitIssueWafer(List<MaterialLotAction> materialLotActions) throws ClientException;
+    List<MaterialLot> validationAndGetWaitIssueWafer(Long tableRrn,String whereClause) throws ClientException;
     void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException;
     void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException;
     void updateMaterialLotLocation(List<MaterialLot> materialLotList , String location, String remarks) throws ClientException;
