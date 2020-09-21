@@ -2685,15 +2685,18 @@ public class GcServiceImpl implements GcService {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
-            Product product = new Product();
+            Material material = new Material();
             List<Map> productModelList = findEntityMapListByQueryName(Material.QUERY_PRODUCT_MODEL_CONVERSION,null,0,999,"","");
             List<GCProductModelConversion> productModelConversionList = Lists.newArrayList();
             if(CollectionUtils.isNotEmpty(productModelList)){
                 for(Map<String, String> m : productModelList){
                     String productId = m.get("MODEL_ID");
                     String conversionModelId = m.get("CONVERSION_MODEL_ID");
-                    product = mmsService.getProductByName(productId);
-                    if(product != null){
+                    material = mmsService.getProductByName(productId);
+                    if(material == null){
+                        material = mmsService.getRawMaterialByName(productId);
+                    }
+                    if(material != null){
                         GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductId(productId);
                         if(productModelConversion == null){
                             productModelConversion = new GCProductModelConversion();
