@@ -3187,24 +3187,21 @@ public class GcServiceImpl implements GcService {
         try {
             //按照箱号分组
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
-            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                materialLotUnitRepository.delete(materialLotUnit);
-
-                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_DELETE);
-                history.setTransQty(materialLotUnit.getCurrentQty());
-                history.setActionComment(deleteNote);
-                materialLotUnitHisRepository.save(history);
-            }
-
             for(String materialLotId : materialLotUnitMap.keySet()){
+                materialLotUnitRepository.deleteByMaterialLotId(materialLotId);
                 MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
                 materialLotRepository.delete(materialLot);
 
                 // 记录历史
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
-                history.setTransQty(materialLot.getCurrentQty());
                 history.setActionComment(deleteNote);
                 materialLotHistoryRepository.save(history);
+            }
+
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_DELETE);
+                history.setActionComment(deleteNote);
+                materialLotUnitHisRepository.save(history);
             }
 
         } catch (Exception e) {

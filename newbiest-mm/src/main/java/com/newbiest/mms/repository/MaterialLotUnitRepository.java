@@ -25,4 +25,8 @@ public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, 
     @Query("update MaterialLotUnit m set m.productType = :prodType where m.unitId in (:unitId)")
     void updateProdTypeByUnitIds(@Param("prodType") String prodType, @Param("unitId") List<String> unitId) throws ClientException;
 
+    @Modifying
+    @Query("DELETE FROM MaterialLotUnit m where m.materialLotId = :materialLotId")
+    void deleteByMaterialLotId(@Param("materialLotId") String materialLotId) throws ClientException;
+
 }
