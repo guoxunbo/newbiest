@@ -2609,17 +2609,7 @@ public class GcServiceImpl implements GcService {
                         rawMaterial.setName(productId);
                         rawMaterial.setDescription(productDesc);
                         rawMaterial.setStoreUom(storeUom);
-                        rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
-                        rawMaterial.setMaterialType(Material.TYPE_WAFER);
-                        rawMaterial = mmsService.saveRawMaterial(rawMaterial);
-
-                        List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
-                        if (CollectionUtils.isNotEmpty(statusModels)) {
-                            rawMaterial.setStatusModelRrn(statusModels.get(0).getObjectRrn());
-                        } else {
-                            throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
-                        }
-                        rawMaterialRepository.save(rawMaterial);
+                        mmsService.createRawMaterial(rawMaterial);
                     } else {
                         rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
                         rawMaterial.setMaterialType(Material.TYPE_WAFER);
@@ -3314,17 +3304,33 @@ public class GcServiceImpl implements GcService {
      */
     public GCProductSubcode saveProductSubcode(GCProductSubcode productSubcode) throws ClientException {
         try {
-            RawMaterial rawMaterial = mmsService.getRawMaterialByName(productSubcode.getProductId());
-            if (rawMaterial == null) {
-                throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, productSubcode.getProductId());
-            }
             GCProductSubcode oldProductSubcode = getProductAndSubcodeInfo(productSubcode.getProductId(),productSubcode.getSubcode());
             if(oldProductSubcode != null){
                 throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_EXIST);
             }
+            RawMaterial rawMaterial = mmsService.getRawMaterialByName(productSubcode.getProductId());
+            if(rawMaterial == null){
+                rawMaterial = new RawMaterial();
+                rawMaterial.setName(productSubcode.getProductId());
+                mmsService.createRawMaterial(rawMaterial);
+            }
             productSubcode = gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
             return productSubcode;
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void importProductSubCode(List<GCProductSubcode> productSubcodeList) throws ClientException{
+        try {
+            for(GCProductSubcode productSubcode : productSubcodeList){
+                String materialName = productSubcode.getProductId();
+                if(StringUtils.isNullOrEmpty(materialName)){
+                    throw new ClientParameterException(GcExceptions.PRODUCT_ID_CANNOT_EMPTY, materialName);
+                }
+                saveProductSubcode(productSubcode);
+            }
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

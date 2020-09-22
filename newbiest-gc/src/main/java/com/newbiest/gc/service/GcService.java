@@ -41,6 +41,7 @@ public interface GcService {
     void validateMLotUnitProductAndSubcode(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     String validationAndGetBondedPropertyByFileName(String fileName) throws ClientException;
     GCProductSubcode saveProductSubcode(GCProductSubcode gcProductSubcode) throws ClientException;
+    void importProductSubCode(List<GCProductSubcode> productSubcodeList) throws ClientException;
     void receiveWltFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
     MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException;
     void deleteIncomingMaterialLot(List<MaterialLotUnit> materialLotUnitList, String deleteNote) throws ClientException;

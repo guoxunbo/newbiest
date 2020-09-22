@@ -15,6 +15,7 @@ import java.util.Map;
 public interface MmsService {
 
     // rawMaterial
+    Material createRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial getRawMaterialByName(String name) throws ClientException;
     String generatorMLotId(Material material) throws  ClientException;

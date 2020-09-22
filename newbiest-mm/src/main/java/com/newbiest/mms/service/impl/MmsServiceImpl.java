@@ -208,6 +208,27 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    public Material createRawMaterial(RawMaterial rawMaterial) throws ClientException{
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
+            rawMaterial.setMaterialType(Material.TYPE_WAFER);
+            rawMaterial = this.saveRawMaterial(rawMaterial);
+
+            List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
+            if (CollectionUtils.isNotEmpty(statusModels)) {
+                rawMaterial.setStatusModelRrn(statusModels.get(0).getObjectRrn());
+            } else {
+                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+            }
+            Material material = rawMaterialRepository.save(rawMaterial);
+            return material;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 保存产品信息
      * @param product
