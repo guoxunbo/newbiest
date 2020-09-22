@@ -1259,7 +1259,6 @@ public class GcServiceImpl implements GcService {
             if(!StringUtils.isNullOrEmpty(materialLotUnit.getReserved13())){
                 warehouse = warehouseRepository.getOne(Long.parseLong(materialLotUnit.getReserved13()));
             }
-            waferReceive.setCstId(materialLotUnit.getLotId());
             waferReceive.setStockId(warehouse.getName());
             if(!StringUtils.isNullOrEmpty(waferType)){
                 waferReceive.setWaferType(MesWaferReceive.DEFAULT_WAFER_TYPE);
@@ -3487,7 +3486,7 @@ public class GcServiceImpl implements GcService {
     public List<MaterialLot> validationAndGetWaitIssueWafer(Long tableRrn,String whereClause) throws ClientException{
         try {
             //获取当前日期，时间格式yyMMdd
-            SimpleDateFormat formatter = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
             String date = formatter.format(new Date());
             NBTable nbTable = uiService.getDeepNBTable(tableRrn);
             String _whereClause = nbTable.getWhereClause();
