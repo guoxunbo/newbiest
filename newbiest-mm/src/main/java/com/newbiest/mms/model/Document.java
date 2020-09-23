@@ -31,6 +31,9 @@ public class Document extends NBUpdatable {
 
     public static final String SYNC_USER_ID = "WMS";
 
+    public static final int SEQ_LENGTH = 900;
+    public static final int SEQ_MAX_LENGTH = 1000;
+
     @Column(name="NAME")
     private String name;
 

@@ -800,11 +800,25 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    if(asyncSuccessSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncSuccessSeqGroupList = getSeqListGroupByCount(asyncSuccessSeqList);
+                        for(List seqGroup : asyncSuccessSeqGroupList){
+                            erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, seqGroup);
+                        }
+                    } else {
+                        erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
-                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
-                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    if(asyncDuplicateSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncDuplicateSeqGroupList = getSeqListGroupByCount(asyncDuplicateSeqList);
+                        for(List seqGroup : asyncDuplicateSeqGroupList){
+                            erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
+                                    ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, seqGroup);                        }
+                    } else {
+                        erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
+                                ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -943,11 +957,24 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    if(asyncSuccessSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncSuccessSeqGroupList = getSeqListGroupByCount(asyncSuccessSeqList);
+                        for(List seqGroup : asyncSuccessSeqGroupList){
+                            erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, seqGroup);
+                        }
+                    } else {
+                        erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
-                    erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,
-                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    if(asyncDuplicateSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncDuplicateSeqGroupList = getSeqListGroupByCount(asyncDuplicateSeqList);
+                        for(List seqGroup : asyncDuplicateSeqGroupList){
+                            erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, seqGroup);
+                        }
+                    } else {
+                        erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -1866,13 +1893,49 @@ public class GcServiceImpl implements GcService {
                 }
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    if(asyncSuccessSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> successSeqGroupList = getSeqListGroupByCount(asyncSuccessSeqList);
+                        for(List seqGroupList : successSeqGroupList){
+                            erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, seqGroupList);
+                        }
+                    } else {
+                        erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
-                    erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,
-                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    if(asyncDuplicateSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> duplicateSeqGroupList = getSeqListGroupByCount(asyncDuplicateSeqList);
+                        for(List seqGroupList : duplicateSeqGroupList){
+                            erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, seqGroupList);
+                        }
+                    } else {
+                        erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    }
                 }
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 对同步的seq进行分组，每组小于1000
+     * @param asyncSeqList
+     * @return
+     * @throws ClientException
+     */
+    private List<List<Long>> getSeqListGroupByCount(List<Long> asyncSeqList) throws ClientException{
+        try {
+            List<List<Long>> seqGroupList = Lists.newArrayList();
+            int length = Document.SEQ_LENGTH;
+
+            int size = asyncSeqList.size();
+            int count = (size + length - 1) / length;
+            for (int i = 0; i < count; i++) {
+                List<Long> seqGroup = asyncSeqList.subList(i * length, ((i + 1) * length > size ? size : length * (i + 1)));
+                seqGroupList.add(seqGroup);
+            }
+            return seqGroupList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -2040,11 +2103,24 @@ public class GcServiceImpl implements GcService {
                 }
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    if(asyncSuccessSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncSuccessSeqGroupList = getSeqListGroupByCount(asyncSuccessSeqList);
+                        for(List seqGroup : asyncSuccessSeqGroupList){
+                            erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, seqGroup);
+                        }
+                    } else {
+                        erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
-                    erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,
-                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    if(asyncDuplicateSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncDuplicateSeqGroupList = getSeqListGroupByCount(asyncDuplicateSeqList);
+                        for(List seqGroup : asyncDuplicateSeqGroupList){
+                            erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, seqGroup);
+                        }
+                    } else {
+                        erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -4813,11 +4889,24 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    if(asyncSuccessSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncSuccessSeqGroupList = getSeqListGroupByCount(asyncSuccessSeqList);
+                        for(List seqGroup : asyncSuccessSeqGroupList){
+                            erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, seqGroup);
+                        }
+                    } else {
+                        erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
-                    erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR,
-                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    if(asyncDuplicateSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncDuplicateSeqGroupList = getSeqListGroupByCount(asyncDuplicateSeqList);
+                        for(List seqGroup : asyncDuplicateSeqGroupList){
+                            erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, seqGroup);
+                        }
+                    } else {
+                        erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpMaterialOutaOrder.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -4987,11 +5076,23 @@ public class GcServiceImpl implements GcService {
                 }
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSoa.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    if(asyncSuccessSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncSuccessSeqGroupList = getSeqListGroupByCount(asyncSuccessSeqList);
+                        for(List seqGroup : asyncSuccessSeqGroupList){
+                            erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSoa.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, seqGroup);
+                        }
+                    } else {
+                        erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSoa.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
-                    erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSoa.SYNC_STATUS_SYNC_ERROR,
-                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    if(asyncDuplicateSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncDuplicateSeqGroupList = getSeqListGroupByCount(asyncDuplicateSeqList);
+                        for(List seqGroup : asyncDuplicateSeqGroupList){
+                            erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSoa.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, seqGroup);                        }
+                    } else {
+                        erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSoa.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -5171,11 +5272,24 @@ public class GcServiceImpl implements GcService {
                 }
 
                 if (CollectionUtils.isNotEmpty(asyncSuccessSeqList)) {
-                    erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    if(asyncSuccessSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncSuccessSeqGroupList = getSeqListGroupByCount(asyncSuccessSeqList);
+                        for(List seqGroup : asyncSuccessSeqGroupList){
+                            erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, seqGroup);
+                        }
+                    } else {
+                        erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_SUCCESS, StringUtils.EMPTY, Document.SYNC_USER_ID, asyncSuccessSeqList);
+                    }
                 }
                 if (CollectionUtils.isNotEmpty(asyncDuplicateSeqList)) {
-                    erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR,
-                            ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    if(asyncDuplicateSeqList.size() >= Document.SEQ_MAX_LENGTH){
+                        List<List<Long>> asyncDuplicateSeqGroupList = getSeqListGroupByCount(asyncDuplicateSeqList);
+                        for(List seqGroup : asyncDuplicateSeqGroupList){
+                            erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, seqGroup);                        }
+                    } else {
+                        erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(ErpSo.SYNC_STATUS_SYNC_ERROR, ErpMaterialOutOrder.ERROR_CODE_DUPLICATE_DOC_ID, Document.SYNC_USER_ID, asyncDuplicateSeqList);
+                    }
+
                 }
             }
         } catch (Exception e) {
