@@ -704,6 +704,7 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     WaferIssueOrder waferIssueOrder;
+                    BigDecimal totalQty = BigDecimal.ZERO;
                     if (CollectionUtils.isEmpty(waferIssueOrderList)) {
                         //如果有不同create_seq
                         if(sameCreateSeqOrder.keySet().size() > 1 ){
@@ -718,6 +719,7 @@ public class GcServiceImpl implements GcService {
                         waferIssueOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
                     } else {
                         waferIssueOrder = waferIssueOrderList.get(0);
+                        totalQty = waferIssueOrder.getQty();
                         boolean differentCreateSeq = false;
                         for  (String createSeq : sameCreateSeqOrder.keySet()) {
                             if(!createSeq.equals(waferIssueOrder.getReserved32())){
@@ -733,7 +735,6 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     waferIssueOrder.setName(documentId);
-                    BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
                     for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdMap.get(documentId)) {
@@ -861,6 +862,7 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     ReTestOrder reTestOrder;
+                    BigDecimal totalQty = BigDecimal.ZERO;
                     if (CollectionUtils.isEmpty(reTestOrderList)) {
                         //如果有不同create_seq
                         if(sameCreateSeqOrder.keySet().size() > 1 ){
@@ -875,6 +877,7 @@ public class GcServiceImpl implements GcService {
                         reTestOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
                     } else {
                         reTestOrder = reTestOrderList.get(0);
+                        totalQty = reTestOrder.getQty();
                         boolean differentCreateSeq = false;
                         for  (String createSeq : sameCreateSeqOrder.keySet()) {
                             if(!createSeq.equals(reTestOrder.getReserved32())){
@@ -890,7 +893,6 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     reTestOrder.setName(documentId);
-                    BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
                     for  (ErpMaterialOutOrder erpMaterialOutOrder : documentIdMap.get(documentId)) {
@@ -1556,7 +1558,7 @@ public class GcServiceImpl implements GcService {
                 if(handledQty.compareTo(BigDecimal.ZERO) == 0){
                     break;
                 } else {
-                    documentLine.setHandledQty(handledQty);
+                    documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
                     documentLine.setUnHandledQty(unhandedQty);
                     documentLine = documentLineRepository.saveAndFlush(documentLine);
                     baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_RETEST);
@@ -1780,6 +1782,7 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     ReceiveOrder receiveOrder;
+                    BigDecimal totalQty = BigDecimal.ZERO;
                     if (CollectionUtils.isEmpty(receiveOrderList)) {
                         //如果有不同create_seq
                         if(sameCreateSeqOrder.keySet().size() > 1 ){
@@ -1794,6 +1797,7 @@ public class GcServiceImpl implements GcService {
                         receiveOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
                     } else {
                         receiveOrder = receiveOrderList.get(0);
+                        totalQty = receiveOrder.getQty();
                         boolean differentCreateSeq = false;
                         for  (String createSeq : sameCreateSeqOrder.keySet()) {
                             if(!createSeq.equals(receiveOrder.getReserved32())){
@@ -1808,7 +1812,6 @@ public class GcServiceImpl implements GcService {
                             continue;
                         }
                     }
-                    BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
                     for  (ErpSo erpSo : documentIdMap.get(documentId)) {
@@ -1987,6 +1990,7 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     DeliveryOrder deliveryOrder;
+                    BigDecimal totalQty = BigDecimal.ZERO;
                     if (CollectionUtils.isEmpty(deliveryOrderList)) {
                         //如果有不同create_seq
                         if(sameCreateSeqOrder.keySet().size() > 1 ){
@@ -2001,6 +2005,7 @@ public class GcServiceImpl implements GcService {
                         deliveryOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
                     } else {
                         deliveryOrder = deliveryOrderList.get(0);
+                        totalQty = deliveryOrder.getQty();
                         boolean differentCreateSeq = false;
                         for  (String createSeq : sameCreateSeqOrder.keySet()) {
                             if(!createSeq.equals(deliveryOrder.getReserved32())){
@@ -2015,7 +2020,6 @@ public class GcServiceImpl implements GcService {
                             continue;
                         }
                     }
-                    BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
                     for  (ErpSo erpSo : documentIdMap.get(documentId)) {
@@ -4811,6 +4815,7 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     WaferIssueOrder otherIssueOrder;
+                    BigDecimal totalQty = BigDecimal.ZERO;
                     if (CollectionUtils.isEmpty(otherIssueOrderList)) {
                         //如果有不同create_seq
                         if(sameCreateSeqOrder.keySet().size() > 1 ){
@@ -4825,6 +4830,7 @@ public class GcServiceImpl implements GcService {
                         otherIssueOrder.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
                     } else {
                         otherIssueOrder = otherIssueOrderList.get(0);
+                        totalQty = otherIssueOrder.getQty();
                         boolean differentCreateSeq = false;
                         for  (String createSeq : sameCreateSeqOrder.keySet()) {
                             if(!createSeq.equals(otherIssueOrder.getReserved32())){
@@ -4840,7 +4846,6 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     otherIssueOrder.setName(documentId);
-                    BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
                     for  (ErpMaterialOutaOrder erpMaterialOutaOrder : documentIdMap.get(documentId)) {
@@ -4960,6 +4965,7 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     OtherStockOutOrder otherStockOutOrder;
+                    BigDecimal totalQty = BigDecimal.ZERO;
                     if (CollectionUtils.isEmpty(otherStockOutOrderList)) {
                         //如果有不同create_seq
                         if(sameCreateSeqOrder.keySet().size() > 1 ){
@@ -4974,6 +4980,7 @@ public class GcServiceImpl implements GcService {
                         otherStockOutOrder.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
                     } else {
                         otherStockOutOrder = otherStockOutOrderList.get(0);
+                        totalQty = otherStockOutOrder.getQty();
                         boolean differentCreateSeq = false;
                         for  (String createSeq : sameCreateSeqOrder.keySet()) {
                             if(!createSeq.equals(otherStockOutOrder.getReserved32())){
@@ -4988,7 +4995,6 @@ public class GcServiceImpl implements GcService {
                             continue;
                         }
                     }
-                    BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
                     for  (ErpSoa erpSoa : documentIdMap.get(documentId)) {
@@ -5160,6 +5166,7 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     OtherShipOrder otherShipOrder;
+                    BigDecimal totalQty = BigDecimal.ZERO;
                     if (CollectionUtils.isEmpty(otherShipOrderList)) {
                         //如果有不同create_seq
                         if(sameCreateSeqOrder.keySet().size() > 1 ){
@@ -5174,6 +5181,7 @@ public class GcServiceImpl implements GcService {
                         otherShipOrder.setReserved31(ErpSob.SOURCE_TABLE_NAME);
                     } else {
                         otherShipOrder = otherShipOrderList.get(0);
+                        totalQty = otherShipOrder.getQty();
                         boolean differentCreateSeq = false;
                         for  (String createSeq : sameCreateSeqOrder.keySet()) {
                             if(!createSeq.equals(otherShipOrder.getReserved32())){
@@ -5188,7 +5196,6 @@ public class GcServiceImpl implements GcService {
                             continue;
                         }
                     }
-                    BigDecimal totalQty = BigDecimal.ZERO;
 
                     List<DocumentLine> documentLines = Lists.newArrayList();
                     for  (ErpSob erpSob : documentIdMap.get(documentId)) {
