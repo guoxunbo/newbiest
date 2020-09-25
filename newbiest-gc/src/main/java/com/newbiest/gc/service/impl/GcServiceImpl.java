@@ -3146,12 +3146,12 @@ public class GcServiceImpl implements GcService {
                     List<MaterialLot> materialLots = materialLotMap.get(parentMaterialLotId);
                     //合成一条箱信息
                     MaterialLot parentMaterialLot = new MaterialLot();
-                    Material material = mmsService.getProductByName(materialLots.get(0).getMaterialName());
+                    Material material = mmsService.getRawMaterialByName(materialLots.get(0).getMaterialName());
                     if (material == null) {
-                        throw new ClientParameterException(MM_PRODUCT_ID_IS_NOT_EXIST, parentMaterialLot.getMaterialName());
+                        RawMaterial rawMaterial = new RawMaterial();
+                        rawMaterial.setName(materialLots.get(0).getMaterialName());
+                        material = mmsService.createRawMaterial(rawMaterial);
                     }
-                    StatusModel statusModel = mmsService.getMaterialStatusModel(material);
-
                     parentMaterialLot.setMaterial(material);
                     Long totalMaterialLotQty = materialLotMap.get(parentMaterialLotId).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
                     parentMaterialLot.setMaterialLotId(parentMaterialLotId);
@@ -3159,7 +3159,7 @@ public class GcServiceImpl implements GcService {
                     parentMaterialLot.setCurrentQty(BigDecimal.valueOf(totalMaterialLotQty));
                     parentMaterialLot.setMaterialLot(materialLots.get(0));
                     parentMaterialLot.initialMaterialLot();
-                    parentMaterialLot.setStatusModelRrn(statusModel.getObjectRrn());
+                    parentMaterialLot.setStatusModelRrn(material.getStatusModelRrn());
                     parentMaterialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                     parentMaterialLot.setStatus(MaterialStatus.STATUS_CREATE);
                     parentMaterialLot.setPackageType(MaterialLot.PACKAGE_TYPE);
@@ -3180,7 +3180,7 @@ public class GcServiceImpl implements GcService {
                         }
                         materialLot.setMaterial(material);
                         materialLot.initialMaterialLot();
-                        materialLot.setStatusModelRrn(statusModel.getObjectRrn());
+                        materialLot.setStatusModelRrn(material.getStatusModelRrn());
                         materialLot.setParentMaterialLotRrn(parentMaterialLot.getObjectRrn());
                         materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         materialLot.setStatus(MaterialStatus.STATUS_CREATE);
@@ -5394,9 +5394,7 @@ public class GcServiceImpl implements GcService {
                         if(material == null){
                             RawMaterial rawMaterial = new RawMaterial();
                             rawMaterial.setName(materialName);
-                            rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
-                            rawMaterial.setMaterialType(Material.TYPE_WAFER);
-                            material = mmsService.saveRawMaterial(rawMaterial);
+                            material = mmsService.createRawMaterial(rawMaterial);
                         }
                     } else {
                         material = mmsService.getRawMaterialByName(materialName);
@@ -5416,12 +5414,10 @@ public class GcServiceImpl implements GcService {
                     if(material == null){
                         RawMaterial rawMaterial = new RawMaterial();
                         rawMaterial.setName(materialName);
-                        rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
-                        rawMaterial.setMaterialType(Material.TYPE_WAFER);
-                        material = mmsService.saveRawMaterial(rawMaterial);
+                        mmsService.createRawMaterial(rawMaterial);
                     }
                 }
-                materialLotUnit.setMaterialName(material.getName());
+                materialLotUnit.setMaterialName(materialName);
                 materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
                 materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
                 materialLotUnit.setReserved50("7");

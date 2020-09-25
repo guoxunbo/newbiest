@@ -128,7 +128,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             for (String materialName : materialUnitMap.keySet()) {
                 Material material = mmsService.getRawMaterialByName(materialName);
                 if (material == null) {
-                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
+                    RawMaterial rawMaterial = new RawMaterial();
+                    rawMaterial.setName(materialName);
+                    material = mmsService.createRawMaterial(rawMaterial);
                 }
                 StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
