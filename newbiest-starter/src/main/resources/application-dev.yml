@@ -1,6 +1,7 @@
 gc:
   openSchedule: true
   scmUrl: https://gc-scm-beta.wochacha.cn
+  mesUrl: http://10.181.160.18:7001/mycim2
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense

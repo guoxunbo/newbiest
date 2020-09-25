@@ -1,12 +1,13 @@
 gc:
   openSchedule: false
   scmUrl: https://gc-scm-beta.wochacha.cn
+  mesUrl: http://localhost:7001/mycim2
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
   storePass: newbiest123
-  licensePath: /Users/guoxunbo/Documents/newbiest/keytool/newbiest.lic
-  publicKeysStorePath: /Users/guoxunbo/Documents/newbiest/keytool/nb_public.keystore
+  licensePath: E:/FA/softWare/keytool/newbiest.lic
+  publicKeysStorePath: E:/FA/softWare/keytool/nb_public.keystore
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 spring:
   application:
@@ -20,7 +21,7 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@127.0.0.1:1521:newbiest
+      url: jdbc:oracle:thin:@127.0.0.1:1521:orcl
       username: wmstest
       password: wmstest
       driver-class-name: oracle.jdbc.OracleDriver

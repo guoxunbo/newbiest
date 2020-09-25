@@ -23,6 +23,7 @@ import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.gc.service.MesService;
 import com.newbiest.gc.service.ScmService;
 import com.newbiest.mms.SystemPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
@@ -234,6 +235,9 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     ScmService scmService;
+
+    @Autowired
+    MesService mesService;
 
     @Autowired
     GCProductRelationRepository productRelationRepository;
@@ -1087,6 +1091,17 @@ public class GcServiceImpl implements GcService {
                 }
             } else {
                 waferIssueWithOutDocument(materialLots);
+            }
+
+            String mLotType = materialLots.get(0).getReserved49();
+            boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
+            if(waferIssueToMesPlanLot && !MaterialLot.IMPORT_COB.equals(mLotType)){
+                List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
+                for(MaterialLot materialLot : materialLots){
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotUnits.addAll(materialLotUnitList);
+                }
+                mesService.materialLotUnitPlanLot(materialLotUnits);
             }
 
         } catch (Exception e) {

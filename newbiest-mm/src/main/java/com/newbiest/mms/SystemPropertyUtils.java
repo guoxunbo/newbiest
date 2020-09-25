@@ -13,6 +13,8 @@ public class SystemPropertyUtils {
 
     public static final String SYSTEM_PROPERTY_WAFER_ISSUE_WITH_DOC_FLAG = "gc.wafer_issue_with_doc_flag";
 
+    public static final String SYSTEM_PROPERTY_WAFER_ISSUE_TO_MES_PLAN_LOT_FLAG = "gc.wafer_issue_to_mes_plan_lot_flag";
+
     public static boolean getAutoCreateStorageFlag() {
         Object autoCreateStorageFlag = System.getProperty(SYSTEM_PROPERTY_AUTO_CREATE_STORAGE_FLAG);
         if (autoCreateStorageFlag != null) {
@@ -41,6 +43,14 @@ public class SystemPropertyUtils {
         Object connectScmFlag = System.getProperty(SYSTEM_PROPERTY_WAFER_ISSUE_WITH_DOC_FLAG);
         if (connectScmFlag != null) {
             return Boolean.valueOf(connectScmFlag.toString());
+        }
+        return false;
+    }
+
+    public static boolean getWaferIssueToMesPlanLot() {
+        Object planLotFlag = System.getProperty(SYSTEM_PROPERTY_WAFER_ISSUE_TO_MES_PLAN_LOT_FLAG);
+        if (planLotFlag != null) {
+            return Boolean.valueOf(planLotFlag.toString());
         }
         return false;
     }

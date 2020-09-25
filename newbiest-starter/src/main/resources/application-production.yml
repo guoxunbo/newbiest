@@ -1,5 +1,6 @@
 gc:
   scmUrl: https://gc-scm.wochacha.com
+  mesUrl: http://10.181.160.31:7003/mycim2
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
