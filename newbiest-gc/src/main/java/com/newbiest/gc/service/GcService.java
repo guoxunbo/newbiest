@@ -43,7 +43,7 @@ public interface GcService {
     GCProductSubcode saveProductSubcode(GCProductSubcode gcProductSubcode) throws ClientException;
     void importProductSubCode(List<GCProductSubcode> productSubcodeList) throws ClientException;
     void receiveWltFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
-    MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException;
+    MaterialLot getWaitStockInStorageWaferByLotId(String lotId, Long tableRrn) throws ClientException;
     void deleteIncomingMaterialLot(List<MaterialLotUnit> materialLotUnitList, String deleteNote) throws ClientException;
     String saveIncomingMaterialList(List<MaterialLot> materialLots, String importType)throws ClientException;
     void validationStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions)throws ClientException;

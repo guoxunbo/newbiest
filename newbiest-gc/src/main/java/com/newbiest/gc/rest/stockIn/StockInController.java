@@ -40,7 +40,7 @@ public class StockInController {
             responseBody.setMaterialLot(materialLot);
         } else if (StockInRequest.ACTION_QUERY_WAFER.equals(actionType)) {
             String lotId = requestBody.getLotId();
-            MaterialLot materialLot = gcService.getWaitStockInStorageWaferByLotId(lotId);
+            MaterialLot materialLot = gcService.getWaitStockInStorageWaferByLotId(lotId, requestBody.getTableRrn());
             responseBody.setMaterialLot(materialLot);
         } else if (StockInRequest.ACTION_STOCK_IN.equals(actionType)) {
             gcService.stockIn(requestBody.getStockInModels());

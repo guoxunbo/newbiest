@@ -34,7 +34,5 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     @Query("SELECT distinct(m.reserved1) FROM MaterialLot m where  m.materialName = :materialName and  m.statusCategory not in(:statusCategory) and m.packageType is null")
     List<String> getSubcodeByMaterialNameAndStatusCategory(@Param("materialName")String materialName, @Param("statusCategory")String statusCategory);
 
-    MaterialLot findByLotIdAndStatusCategoryNotInAndReserved7In(@Param("lotId")String lotId, @Param("statusCategory") String statusCategory, @Param("reserved7") List<String> productCateGory) throws Exception;
-
     MaterialLot findByLotIdAndStatusCategoryNotIn(@Param("lotId")String lotId, @Param("statusCategory") String statusCategory);
 }

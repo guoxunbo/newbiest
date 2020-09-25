@@ -504,21 +504,27 @@ public class GcServiceImpl implements GcService {
      * @param lotId
      * @return
      */
-    public MaterialLot getWaitStockInStorageWaferByLotId(String lotId) throws ClientException {
+    public MaterialLot getWaitStockInStorageWaferByLotId(String lotId, Long tableRrn) throws ClientException {
         try {
-            List<String> productCategory = Lists.newArrayList();
-            productCategory.add(MaterialLotUnit.PRODUCT_CLASSIFY_COB);
-            productCategory.add(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
-            productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_CP);
-            productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_LCP);
-            productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_SCP);
-            productCategory.add(MaterialLotUnit.PRODUCT_CLASSIFY_WLA);
-            productCategory.add(MaterialLotUnit.PRODUCT_CATEGORY_WLT);
+            MaterialLot materialLot = new MaterialLot();
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String _whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer();
+            clauseBuffer.append(" lotId = ");
+            clauseBuffer.append("'" + lotId + "'");
 
-//            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotInAndReserved7In(lotId, MaterialLot.STATUS_FIN, productCategory);
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialLot.STATUS_FIN);
-            if (materialLot == null) {
+            if (!StringUtils.isNullOrEmpty(_whereClause)) {
+                clauseBuffer.append(" AND ");
+                clauseBuffer.append(_whereClause);
+            }
+            _whereClause = clauseBuffer.toString();
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
 
+            if(CollectionUtils.isNotEmpty(materialLots)){
+                materialLot = materialLots.get(0);
+            }
+            if (StringUtils.isNullOrEmpty(materialLot.getMaterialLotId())) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
             materialLot.isFinish();
