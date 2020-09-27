@@ -64,6 +64,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String PLAN_ORDER_TYPE_AUTO  = "AutoOrder";
 
+    public static final String MM_PACKED_LOTIN_FLAG  = "1";
+
     public static final String CATEGORY_UNIT = "Unit";
     public static final String CATEGORY_LOT = "Lot";
 
@@ -100,6 +102,38 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String IMPORT_COB = "COB";
     public static final String IMPORT_COG = "COG";
     public static final String IMPORT_SOC = "SOC";
+
+    /**
+     * Wafer Source
+     */
+    public static final String COM_WAFER_SOURCE = "19";
+    public static final String WLT_WAFER_SOURCE = "6";
+    public static final String LCP_WAFER_SOURCE = "4";
+    public static final String SCP_WAFER_SOURCE = "2";
+    public static final String FT_WAFER_SOURCE = "10";
+    public static final String WLFT_WAFER_SOURCE = "8";
+    public static final String WLA_WAFER_SOURCE = "5";
+    public static final String SENSOR_WAFER_SOURCE = "9";
+    public static final String COB_WAFER_SOURCE = "16";
+    public static final String SOC_WAFER_SOURCE = "18";
+    public static final String WLT_PACK_RETURN_WAFER_SOURCE = "7";
+    public static final String WLT_IN_FLAG_WAFER_SOURCE = "5";
+    public static final String LCP_IN_FLAG_WAFER_SOURCE = "3";
+    public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
+
+    /**
+     * 根据产品结尾数字获取WaferSource
+     */
+    public static final String WAFER_SOURCE_END1 = "1";
+    public static final String WAFER_SOURCE_END2 = "2";
+    public static final String WAFER_SOURCE_END3 = "3";
+    public static final String WAFER_SOURCE_END4 = "4";
+
+    /**
+     * Reserved7
+     */
+    public static final String WLT_IN_FLAG_PRODUCTCATEGORY = "WLA0";
+    public static final String CP_IN_FLAG_PRODUCTCATEGORY = "CP0";
 
     /**
      * 物料批次号

@@ -137,4 +137,7 @@ public class MesPackedLot implements Serializable {
     @Column(name="WAFER_MARK")
     private String waferMark;
 
+    @Column(name="IN_FLAG")
+    private String inFlag;
+
 }

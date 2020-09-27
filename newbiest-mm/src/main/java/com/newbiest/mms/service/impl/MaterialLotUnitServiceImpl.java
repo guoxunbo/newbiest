@@ -21,6 +21,7 @@ import com.newbiest.mms.repository.MaterialLotUnitRepository;
 import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.utils.CollectorsUtils;
+import freemarker.template.utility.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -306,9 +307,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     }
                 }
                 String waferId = minWaferId+"";
-                if(waferId.length() < 2){
-                    waferId = "0" + waferId;
-                }
+                waferId = StringUtil.leftPad(waferId , 2 , "0");
                 String lotId = fabLotId.split("\\.")[0] +"."+ waferId;
                 for(MaterialLotUnit materialLotUnit : mLotUnitList){
                     materialLotUnit.setLotId(lotId);
