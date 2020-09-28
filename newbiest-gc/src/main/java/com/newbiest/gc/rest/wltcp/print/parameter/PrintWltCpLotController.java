@@ -56,41 +56,7 @@ public class PrintWltCpLotController extends AbstractRestController {
         Map<String, String> parameterMap = Maps.newHashMap();
         MaterialLot materialLot = requestBody.getMaterialLot();
         if(materialLot != null){
-            parameterMap.put("LOTID", materialLot.getLotId());
-            parameterMap.put("DEVICEID", materialLot.getMaterialName());
-            parameterMap.put("QTY", materialLot.getCurrentQty().toString());
-            parameterMap.put("WAFERGRADE", materialLot.getGrade());
-            parameterMap.put("LOCATION", materialLot.getReserved6());
-            parameterMap.put("SUBCODE", materialLot.getReserved1());
-            List<MaterialLotUnit> materialLotUnitList = mLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
-
-            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
-                Integer waferQty = materialLotUnitList.size();
-                parameterMap.put("WAFERQTY", waferQty.toString());
-                String waferIdList1 = "";
-                String waferIdList2 = "";
-
-                for(int j = 0; j <  materialLotUnitList.size() ; j++){
-                    String[] waferIdList = materialLotUnitList.get(j).getUnitId().split(StringUtils.SPLIT_CODE);
-                    String waferSeq = waferIdList[1] + ",";
-                    if(j < 8){
-                        waferIdList1 = waferIdList1 + waferSeq;
-                    } else {
-                        waferIdList2 = waferIdList2 + waferSeq;
-                    }
-                }
-                if(!StringUtils.isNullOrEmpty(waferIdList1)){
-                    parameterMap.put("WAFERID1", waferIdList1);
-                } else {
-                    parameterMap.put("WAFERID1", StringUtils.EMPTY);
-                }
-                if(!StringUtils.isNullOrEmpty(waferIdList2)){
-                    parameterMap.put("WAFERID2", waferIdList2);
-                } else {
-                    parameterMap.put("WAFERID2", StringUtils.EMPTY);
-                }
-            }
-
+            parameterMap = gcService.getWltCpPrintParameter(materialLot);
         }
         responseBody.setParameterMap(parameterMap);
         response.setBody(responseBody);

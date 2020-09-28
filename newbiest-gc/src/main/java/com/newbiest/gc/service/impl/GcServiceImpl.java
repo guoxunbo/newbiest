@@ -3352,8 +3352,10 @@ public class GcServiceImpl implements GcService {
      * 接收WLT的完成品
      * @param packedLotList
      */
-    public void receiveWltFinishGood(List<MesPackedLot> packedLotList) throws ClientException {
+    public List<Map<String,String>> receiveWltFinishGood(List<MesPackedLot> packedLotList, String printLabel) throws ClientException {
         try {
+            List<Map<String, String>> parameterMapList = Lists.newArrayList();
+            List<MaterialLot> materialLotList = Lists.newArrayList();
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().map(packedLot -> mesPackedLotRepository.findByBoxId(packedLot.getBoxId())).collect(Collectors.groupingBy(MesPackedLot :: getCstId));
             List<MesPackedLot> mesPackedLots = Lists.newArrayList();
             for(String cstId : packedLotMap.keySet()){
@@ -3381,6 +3383,7 @@ public class GcServiceImpl implements GcService {
                 String cstId = mesPackedLot.getCstId();
                 List<MesPackedLot> mesPackedLotList = packedLotMap.get(cstId);
                 MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mesPackedLot.getBoxId(), ThreadLocalContext.getOrgRrn());
+                materialLotList.add(materialLot);
                 Material material = mmsService.getProductByName(materialLot.getMaterialName());
                 MesPackedLotRelation mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
                 for(MesPackedLot packedLot : mesPackedLotList){
@@ -3414,6 +3417,13 @@ public class GcServiceImpl implements GcService {
                 }
             }
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
+            if(!StringUtils.isNullOrEmpty(printLabel)){
+                for(MaterialLot materialLot : materialLotList){
+                    Map<String, String> parameterMap = getWltCpPrintParameter(materialLot);
+                    parameterMapList.add(parameterMap);
+                }
+            }
+            return parameterMapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -5782,6 +5792,54 @@ public class GcServiceImpl implements GcService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
+        }
+    }
+
+    /**
+     * 获取WLT或者CP的标签打印参数
+     * @return
+     * @throws ClientException
+     */
+    public Map<String, String> getWltCpPrintParameter(MaterialLot materialLot) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            parameterMap.put("LOTID", materialLot.getLotId());
+            parameterMap.put("DEVICEID", materialLot.getMaterialName());
+            parameterMap.put("QTY", materialLot.getCurrentQty().toString());
+            parameterMap.put("WAFERGRADE", materialLot.getGrade());
+            parameterMap.put("LOCATION", materialLot.getReserved6());
+            parameterMap.put("SUBCODE", materialLot.getReserved1());
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+
+            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                Integer waferQty = materialLotUnitList.size();
+                parameterMap.put("WAFERQTY", waferQty.toString());
+                String waferIdList1 = "";
+                String waferIdList2 = "";
+
+                for(int j = 0; j <  materialLotUnitList.size() ; j++){
+                    String[] waferIdList = materialLotUnitList.get(j).getUnitId().split(StringUtils.SPLIT_CODE);
+                    String waferSeq = waferIdList[1] + ",";
+                    if(j < 8){
+                        waferIdList1 = waferIdList1 + waferSeq;
+                    } else {
+                        waferIdList2 = waferIdList2 + waferSeq;
+                    }
+                }
+                if(!StringUtils.isNullOrEmpty(waferIdList1)){
+                    parameterMap.put("WAFERID1", waferIdList1);
+                } else {
+                    parameterMap.put("WAFERID1", StringUtils.EMPTY);
+                }
+                if(!StringUtils.isNullOrEmpty(waferIdList2)){
+                    parameterMap.put("WAFERID2", waferIdList2);
+                } else {
+                    parameterMap.put("WAFERID2", StringUtils.EMPTY);
+                }
+            }
+            return parameterMap;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
         }
     }
 
