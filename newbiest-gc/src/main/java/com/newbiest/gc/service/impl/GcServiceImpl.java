@@ -3313,6 +3313,17 @@ public class GcServiceImpl implements GcService {
 
     public void deleteIncomingMaterialLot(List<MaterialLotUnit> materialLotUnitList, String deleteNote) throws ClientException{
         try {
+            //卡控已经排料的晶圆不能删除
+            Map<String, List<MaterialLotUnit>> mLotUnitWorkOrderMap = materialLotUnitList.stream().filter(materialLotUnit -> !StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderId()))
+                    .collect(Collectors.groupingBy(MaterialLotUnit :: getWorkOrderId));
+            if(mLotUnitWorkOrderMap != null && mLotUnitWorkOrderMap.keySet().size() > 0){
+                List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
+                for(String workOrderId : mLotUnitWorkOrderMap.keySet()){
+                    materialLotUnits = mLotUnitWorkOrderMap.get(workOrderId);
+                    break;
+                }
+                throw new ClientParameterException(GcExceptions.UNIT_ID_ALREADY_BONDING_WORKORDER_ID, materialLotUnits.get(0).getLotId());
+            }
             //按照箱号分组
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
             for(String materialLotId : materialLotUnitMap.keySet()){
