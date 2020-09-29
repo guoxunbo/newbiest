@@ -2593,15 +2593,21 @@ public class GcServiceImpl implements GcService {
                 judgeCode = StockOutCheck.RESULT_NG;
             }
 
-            //GC只会全部包装。故此处，直接用ParentMaterialLotId做包装号。
-            Map<String, List<MaterialLot>> packedLotMap = materialLots.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true))
-                    .collect(Collectors.groupingBy(MaterialLot::getParentMaterialLotId));
-            for (String packageMLotId : packedLotMap.keySet())  {
-                MaterialLot parentMLot = mmsService.getMLotByMLotId(packageMLotId, true);
-                judgeMaterialLot(parentMLot, judgeGrade, judgeCode, ngCheckList);
+            //WLT对未装箱的LOT也要做LOT装箱检验，ParentMaterialLotId可能为空(只能出现整箱或者单个LOT)
+            Map<String, List<MaterialLot>> packedLotMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            if(packedLotMap != null && packedLotMap.keySet().size() > 0){
+                for (String packageMLotId : packedLotMap.keySet())  {
+                    MaterialLot parentMLot = mmsService.getMLotByMLotId(packageMLotId, true);
+                    judgeMaterialLot(parentMLot, judgeGrade, judgeCode, ngCheckList);
 
-                for (MaterialLot packagedMLot : packedLotMap.get(packageMLotId)) {
-                    judgeMaterialLot(packagedMLot, judgeGrade, judgeCode, ngCheckList);
+                    for (MaterialLot packagedMLot : packedLotMap.get(packageMLotId)) {
+                        judgeMaterialLot(packagedMLot, judgeGrade, judgeCode, ngCheckList);
+                    }
+                }
+            } else {
+                for (MaterialLot materialLot : materialLots) {
+                    judgeMaterialLot(materialLot, judgeGrade, judgeCode, ngCheckList);
                 }
             }
         } catch (Exception e) {
@@ -5839,6 +5845,38 @@ public class GcServiceImpl implements GcService {
             }
             return parameterMap;
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取装箱检验的物料批次信息
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> getMaterialLotByTableRrnAndMLotId(String mLotId, long tableRrn) throws ClientException{
+        try {
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer(whereClause);
+            clauseBuffer.append(" AND parentMaterialLotId = ");
+            clauseBuffer.append("'" + mLotId + "'");
+            whereClause = clauseBuffer.toString();
+            materialLotList = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+
+            if(CollectionUtils.isEmpty(materialLotList)){
+                clauseBuffer = new StringBuffer(nbTable.getWhereClause());
+                clauseBuffer.append(" AND lotId = ");
+                clauseBuffer.append("'" + mLotId+ "'");
+                clauseBuffer.append(" AND statusCategory = 'Stock' and status = 'In' ");
+                whereClause = clauseBuffer.toString();
+                materialLotList = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+            }
+
+            return materialLotList;
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

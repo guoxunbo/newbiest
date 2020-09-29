@@ -38,6 +38,11 @@ public class GcMaterialLotRequest extends Request {
 	 */
 	public static final String ACTION_GET_WLT_PACK_CASE_CHECK_LIST = "GetWltPackCaseCheckList";
 
+	/**
+	 * 获取物料批次信息
+	 */
+	public static final String ACTION_QUERY_MATERIALLOT = "QueryMLot";
+
 	private GcMaterialLotRequestBody body;
 
 }
