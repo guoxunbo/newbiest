@@ -1070,7 +1070,7 @@ public class GcServiceImpl implements GcService {
         }));
     }
 
-    public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
+    public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc) throws ClientException{
         try {
             List<MaterialLot> materialLots = new ArrayList<>();
             Map<String, List<MaterialLotAction>> materialLotActionMap = materialLotActions.stream().collect(Collectors.groupingBy(MaterialLotAction:: getMaterialLotId));
@@ -1079,8 +1079,7 @@ public class GcServiceImpl implements GcService {
                 materialLots.add(materialLot);
             }
 
-            boolean waferIssueWithDocFlag = SystemPropertyUtils.getWaferIssueWithDocFlag();
-            if (waferIssueWithDocFlag) {
+            if (StringUtils.isNullOrEmpty(issueWithDoc)) {
                 documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
                 Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
                 Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);

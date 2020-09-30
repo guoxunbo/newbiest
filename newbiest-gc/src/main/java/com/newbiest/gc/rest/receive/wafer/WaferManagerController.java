@@ -58,7 +58,7 @@ public class WaferManagerController extends AbstractRestController {
             gcService.validationDocLine(documentLineList, materialLot);
             responseBody.setWorkOrderId(materialLot.getWorkOrderId());
         } else if (WaferManagerRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
-            gcService.validationAndWaferIssue(documentLineList, materialLotActions);
+            gcService.validationAndWaferIssue(documentLineList, materialLotActions, requestBody.getIssueWithDoc());
         } else if(WaferManagerRequest.ACTION_TYPE_VALIDATION_WAIT_ISSUE.equals(actionType)){
             List<MaterialLot> materialLotList = gcService.validationAndGetWaitIssueWafer(requestBody.getTableRrn(), requestBody.getWhereClause());
             responseBody.setMaterialLotList(materialLotList);

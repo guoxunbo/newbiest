@@ -29,4 +29,8 @@ public class WaferManagerRequestBody extends RequestBody {
 	@ApiModelProperty(value = "查询条件")
 	private String whereClause;
 
+
+	@ApiModelProperty(value = "发料绑定单据")
+	private String issueWithDoc;
+
 }
