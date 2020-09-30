@@ -36,6 +36,8 @@ public class GcExceptions {
     public static final String MATERIAL_NAME_DESCRIPTION_IS_NOT_CONFIGURED = "gc.material_name_description_is_not_configured";
     public static final String UNIT_ID_CANNOT_BONDING_WORKORDER_ID = "gc.unitId_cannot_bonding_workorderId";
     public static final String UNIT_ID_ALREADY_BONDING_WORKORDER_ID = "gc.unitId_already_bonding_workorderId";
+    public static final String MATERIAL_LOT_TAG_INFO_IS_NOT_SAME = "gc.material_lot_tag_info_is_not_same";
+
 
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";

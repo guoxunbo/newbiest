@@ -5705,15 +5705,74 @@ public class GcServiceImpl implements GcService {
             }
 
             for(MaterialLot materialLot : materialLotList){
-                materialLot.setReserved54(stockOutType);
-                materialLot.setReserved55(customerName);
-                materialLot.setReserved56(poId);
-                materialLot.setReserved57(stockTagNote);
-                materialLot = materialLotRepository.saveAndFlush(materialLot);
-
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
-                materialLotHistoryRepository.save(history);
+                taggingMaterialLotAndSaveHis(materialLot, stockOutType, customerName, poId, stockTagNote);
             }
+
+            //如果LOT已经装箱，验证箱中所有的LOT是否已经标注，如果全部标注，对箱号进行标注(箱中LOT的标注信息保持一致)
+            Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            if(packedLotMap != null && packedLotMap.keySet().size() > 0){
+                for(String parentMaterialLotId : packedLotMap.keySet()){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(parentMaterialLotId, true);
+                    validateMaterilaLotTaggingInfo(materialLot, stockOutType, customerName, poId, stockTagNote);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 标注物料批次并记录历史
+     * @param materialLot
+     * @param stockOutType
+     * @param customerName
+     * @param poId
+     * @param stockTagNote
+     * @throws ClientException
+     */
+    private void taggingMaterialLotAndSaveHis(MaterialLot materialLot, String stockOutType, String customerName, String poId, String stockTagNote) throws ClientException{
+        try {
+            materialLot.setReserved54(stockOutType);
+            materialLot.setReserved55(customerName);
+            materialLot.setReserved56(poId);
+            materialLot.setReserved57(stockTagNote);
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
+            materialLotHistoryRepository.save(history);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证箱中LOT是否全部标注，且标注信息是否一致，如果一致对箱号标注
+     * @param materialLot
+     * @param stockOutType
+     * @param customerName
+     * @param poId
+     * @param stockTagNote
+     * @throws ClientException
+     */
+    private void validateMaterilaLotTaggingInfo(MaterialLot materialLot, String stockOutType, String customerName, String poId, String stockTagNote) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            boolean tagFlag = true;
+            for(MaterialLot mlLot : materialLots){
+                if(StringUtils.isNullOrEmpty(mlLot.getReserved54())){
+                    tagFlag = false;
+                    break;
+                }
+            }
+            if(tagFlag){
+                Set taggingInfo = materialLots.stream().map(mLot -> mLot.getReserved54() + mLot.getReserved56()).collect(Collectors.toSet());
+                if (taggingInfo != null &&  taggingInfo.size() > 1) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_INFO_IS_NOT_SAME, materialLot.getMaterialLotId());
+                }
+                taggingMaterialLotAndSaveHis(materialLot, stockOutType, customerName, poId, stockTagNote);
+            }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -5744,15 +5803,38 @@ public class GcServiceImpl implements GcService {
                     }
                 }
 
-                materialLot.setReserved54(StringUtils.EMPTY);
-                materialLot.setReserved55(StringUtils.EMPTY);
-                materialLot.setReserved56(StringUtils.EMPTY);
-                materialLot.setReserved57(StringUtils.EMPTY);
-                materialLot = materialLotRepository.saveAndFlush(materialLot);
-
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_STOCK_OUT_TAG);
-                materialLotHistoryRepository.save(history);
+                unTaggingMaterialLot(materialLot);
             }
+
+            //清除箱上的标注信息
+            Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            if(packedLotMap != null && packedLotMap.keySet().size() > 0){
+                for(String parentMaterialLotId : packedLotMap.keySet()){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(parentMaterialLotId, true);
+                    unTaggingMaterialLot(materialLot);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 清除物料批次的标注信息
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void unTaggingMaterialLot(MaterialLot materialLot) throws ClientException{
+        try {
+            materialLot.setReserved54(StringUtils.EMPTY);
+            materialLot.setReserved55(StringUtils.EMPTY);
+            materialLot.setReserved56(StringUtils.EMPTY);
+            materialLot.setReserved57(StringUtils.EMPTY);
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_STOCK_OUT_TAG);
+            materialLotHistoryRepository.save(history);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
