@@ -82,6 +82,7 @@ public class GcServiceImpl implements GcService {
     public static final String REFERENCE_NAME_PACK_CASE_CHECK_ITEM_LIST = "PackCaseCheckItemList";
     public static final String REFERENCE_NAME_WLTPACK_CASE_CHECK_ITEM_LIST = "WltPackCaseCheckItemList";
     public static final String REFERENCE_NAME_PRODUCT_DECS_LIST = "ProductDescList";
+    public static final String REFERENCE_NAME_ENCRYPTION_SUBCODE_LIST = "EncryptionSubcodeList";
 
     public static final String EVENT_OQC = "OQC";
 
@@ -5957,6 +5958,103 @@ public class GcServiceImpl implements GcService {
             }
 
             return materialLotList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取加密之后的二级代码
+     * @param subcode
+     * @return
+     * @throws ClientException
+     */
+    public String getEncryptionSubCode(String grade, String subcode) throws ClientException{
+        try {
+            String targetSubcode = StringUtils.EMPTY;
+            String endString = StringUtils.EMPTY;
+            List<NBOwnerReferenceList> encryptionSubcodeList = getReferenceListByName(REFERENCE_NAME_ENCRYPTION_SUBCODE_LIST);
+            Map<String, List<NBOwnerReferenceList>> subcodeMap = encryptionSubcodeList.stream().collect(Collectors.groupingBy(NBOwnerReferenceList:: getKey));
+            if(subcodeMap.containsKey(grade)){
+                if(MaterialLot.GEADE_NA.equals(grade) || MaterialLot.GEADE_DA.equals(grade) ||  MaterialLot.GEADE_EA.equals(grade) ||  MaterialLot.GEADE_AA.equals(grade)){
+                    NBOwnerReferenceList referenceList = subcodeMap.get(grade).get(0);
+                    targetSubcode = subcode + referenceList.getValue();
+                } else {
+                    NBOwnerReferenceList referenceList = subcodeMap.get(grade).get(0);
+                    targetSubcode = MaterialLot.GRADE_FIRST + subcode + referenceList.getValue();
+                }
+            } else {
+                List<String> randomNumber = getTwoRandomChar();
+                if(MaterialLot.GEADE_TA.equals(grade)){
+                    targetSubcode = getTargetSubCode(MaterialLot.GRADE_FIXED_CHAR_ZERO, subcode, randomNumber);
+                } else if(MaterialLot.GEADE_HA.equals(grade) || MaterialLot.GEADE_HA1.equals(grade)){
+                    targetSubcode = getTargetSubCode(MaterialLot.GRADE_FIXED_CHAR_ONE, subcode, randomNumber);
+                } else if(MaterialLot.GEADE_SA.equals(grade)){
+                    targetSubcode = getTargetSubCode(MaterialLot.GRADE_FIXED_CHAR_TWO, subcode, randomNumber);
+                } else if(MaterialLot.GEADE_MA.equals(grade)){
+                    targetSubcode = getTargetSubCode(MaterialLot.GRADE_FIXED_CHAR_THREE, subcode, randomNumber);
+                } else if(MaterialLot.GEADE_WA.equals(grade)){
+                    targetSubcode = getTargetSubCode(MaterialLot.GRADE_FIXED_CHAR_FOUR, subcode, randomNumber);
+                } else if(MaterialLot.GEADE_HA2.equals(grade)){
+                    for(int i=0; i< randomNumber.size(); i++){
+                        endString += randomNumber.get(i);
+                    }
+                    targetSubcode = MaterialLot.GRADE_FIRST + subcode + endString + MaterialLot.GRADE_FIXED_CHAR_Q;
+                } else if(MaterialLot.GEADE_HA3.equals(grade)){
+                    for(int i=0; i< randomNumber.size(); i++){
+                        endString += randomNumber.get(i);
+                    }
+                    targetSubcode = MaterialLot.GRADE_FIRST + subcode + endString + MaterialLot.GRADE_FIXED_CHAR_Z;
+                } else {
+                    targetSubcode = subcode;
+                }
+            }
+            return targetSubcode;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取加密的等级信息
+     * @param fixedChar
+     * @param subcode
+     * @param randomNumber
+     * @return
+     * @throws ClientException
+     */
+    private String getTargetSubCode(String fixedChar, String subcode, List<String> randomNumber) throws ClientException{
+        try {
+            String targetSubcode = StringUtils.EMPTY;
+            String endString = StringUtils.EMPTY;
+            randomNumber.add(fixedChar);
+            Collections.shuffle(randomNumber);
+            for(int i=0; i< randomNumber.size(); i++){
+                endString += randomNumber.get(i);
+            }
+            targetSubcode = MaterialLot.GRADE_FIRST + subcode + endString;
+            return targetSubcode;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 从5-9、A-Z中随机获取两个字符串
+     * @return
+     * @throws ClientException
+     */
+    private List<String> getTwoRandomChar() throws ClientException{
+        try {
+            List<String> twoRandomCharList = Lists.newArrayList();
+            Random random = new Random();
+            String [] numberStrArray = "5,6,7,8,9".split(",");
+            String [] letterStrArray = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z".split(",");
+            String number = numberStrArray[random.nextInt(numberStrArray.length)];
+            String letter = letterStrArray[random.nextInt(letterStrArray.length)];
+            twoRandomCharList.add(number);
+            twoRandomCharList.add(letter);
+            return twoRandomCharList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

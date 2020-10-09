@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    String getEncryptionSubCode(String grade, String subcode) throws ClientException;
     List<MaterialLot> getMaterialLotByTableRrnAndMLotId(String mLotId, long tableRrn) throws ClientException;
     Map<String, String> getWltCpPrintParameter(MaterialLot materialLot) throws ClientException;
     MaterialLot getWltMaterialLotToStockOut(Long tableRrn, String queryLotId) throws ClientException;

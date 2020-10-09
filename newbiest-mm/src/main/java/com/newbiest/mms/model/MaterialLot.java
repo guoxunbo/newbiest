@@ -136,6 +136,35 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String CP_IN_FLAG_PRODUCTCATEGORY = "CP0";
 
     /**
+     * 加密二级代码
+     */
+    public static final String GEADE_TA = "TA";
+    public static final String GEADE_HA = "HA";
+    public static final String GEADE_HA1 = "HA1";
+    public static final String GEADE_SA = "SA";
+    public static final String GEADE_MA = "MA";
+    public static final String GEADE_WA = "WA";
+    public static final String GEADE_HA2 = "HA2";
+    public static final String GEADE_HA3 = "HA3";
+    public static final String GEADE_NA = "NA";
+    public static final String GEADE_DA = "DA";
+    public static final String GEADE_EA = "EA";
+    public static final String GEADE_AA = "AA";
+
+    /**
+     * 加密等级中的固定字符
+     */
+    public static final String GRADE_FIRST = "A";
+    public static final String GRADE_FIXED_CHAR_ZERO = "0";
+    public static final String GRADE_FIXED_CHAR_ONE = "1";
+    public static final String GRADE_FIXED_CHAR_TWO = "2";
+    public static final String GRADE_FIXED_CHAR_THREE = "3";
+    public static final String GRADE_FIXED_CHAR_FOUR = "4";
+    public static final String GRADE_FIXED_CHAR_Q = "Q";
+    public static final String GRADE_FIXED_CHAR_Z = "Z";
+
+
+    /**
      * 物料批次号
      */
     @Column(name="MATERIAL_LOT_ID")
