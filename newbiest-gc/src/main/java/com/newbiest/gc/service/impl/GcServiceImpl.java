@@ -1082,8 +1082,8 @@ public class GcServiceImpl implements GcService {
 
             if (StringUtils.isNullOrEmpty(issueWithDoc)) {
                 documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-                Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
-                Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
+                Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndBondProp(documentLineList);
+                Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndBondProp(materialLots);
 
                 // 确保所有的物料批次都能匹配上单据, 并且数量足够
                 for (String key : materialLotMap.keySet()) {
@@ -1432,6 +1432,47 @@ public class GcServiceImpl implements GcService {
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
+    }
+
+    /**
+     * 单据按照 物料名称+二级代码+保税属性分类
+     * @param documentLineList
+     * @return
+     */
+    public Map<String, List<DocumentLine>> groupDocLineByMaterialAndSecondCodeAndBondProp(List<DocumentLine> documentLineList) {
+        return documentLineList.stream().collect(Collectors.groupingBy(documentLine -> {
+            StringBuffer key = new StringBuffer();
+            key.append(documentLine.getMaterialName());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(documentLine.getReserved2());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(documentLine.getReserved7());
+            key.append(StringUtils.SPLIT_CODE);
+            return key.toString();
+        }));
+    }
+
+    private Map<String,List<MaterialLot>> groupWaferByMaterialAndSecondCodeAndBondProp(List<MaterialLot> materialLots) {
+        return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
+            StringBuffer key = new StringBuffer();
+            key.append(materialLot.getMaterialName());
+            key.append(StringUtils.SPLIT_CODE);
+
+            String materialSecondCode = StringUtils.EMPTY;
+            if(!StringUtils.isNullOrEmpty(materialLot.getReserved49()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved49())){
+                materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
+            } else {
+                materialSecondCode = materialLot.getReserved1();
+            }
+            key.append(materialSecondCode);
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(materialLot.getReserved6());
+            key.append(StringUtils.SPLIT_CODE);
+            return key.toString();
+        }));
     }
 
     /**
