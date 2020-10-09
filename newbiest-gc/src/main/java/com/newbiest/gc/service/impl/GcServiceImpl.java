@@ -1104,12 +1104,7 @@ public class GcServiceImpl implements GcService {
             String mLotType = materialLots.get(0).getReserved49();
             boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
             if(waferIssueToMesPlanLot && !MaterialLot.IMPORT_COB.equals(mLotType)){
-                List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
-                for(MaterialLot materialLot : materialLots){
-                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
-                    materialLotUnits.addAll(materialLotUnitList);
-                }
-                mesService.materialLotUnitPlanLot(materialLotUnits);
+                mesService.materialLotUnitPlanLot(materialLots);
             }
 
         } catch (Exception e) {

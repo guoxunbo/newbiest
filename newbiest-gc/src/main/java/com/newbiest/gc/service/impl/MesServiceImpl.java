@@ -16,9 +16,11 @@ import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.service.MesService;
 import com.newbiest.gc.service.model.QueryEngResponse;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
+import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.msg.DefaultParser;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +84,9 @@ public class MesServiceImpl implements MesService {
     MaterialLotUnitRepository materialLotUnitRepository;
 
     @Autowired
+    MaterialLotUnitService materialLotUnitService;
+
+    @Autowired
     UIService uiService;
 
     @PostConstruct
@@ -99,16 +104,24 @@ public class MesServiceImpl implements MesService {
 
     /**
      * 发料时将发料的Unit 计划投批
-     * @param materialLotUnits
+     * @param materialLots
      * @throws ClientException
      */
-    public void materialLotUnitPlanLot(List<MaterialLotUnit> materialLotUnits) throws ClientException {
+    public void materialLotUnitPlanLot(List<MaterialLot> materialLots) throws ClientException {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             List<String> unitIdList = Lists.newArrayList();
-            for (MaterialLotUnit materialLotUnit : materialLotUnits) {
-                unitIdList.add(materialLotUnit.getUnitId());
+            for(MaterialLot materialLot : materialLots){
+                if(MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) ){
+                    unitIdList.add(materialLot.getLotId());
+                } else {
+                    List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                    for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                        unitIdList.add(materialLotUnit.getUnitId());
+                    }
+                }
             }
+
             Map<String, Object> requestInfo = Maps.newHashMap();
             requestInfo.put("planLotUnit", unitIdList);
             requestInfo.put("userName", sc.getUsername());
