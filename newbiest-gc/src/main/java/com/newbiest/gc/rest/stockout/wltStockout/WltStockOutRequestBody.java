@@ -21,7 +21,7 @@ public class WltStockOutRequestBody extends RequestBody {
 	private String actionType;
 
 	@ApiModelProperty(value = "单据详情")
-	private DocumentLine documentLine;
+	private List<DocumentLine> documentLines;
 
 	@ApiModelProperty(value = "箱信息")
 	private MaterialLot queryMaterialLot;
