@@ -3679,7 +3679,6 @@ public class GcServiceImpl implements GcService {
         try {
             //获取当前日期，时间格式yyMMdd
             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-            String date = formatter.format(new Date());
             NBTable nbTable = uiService.getDeepNBTable(tableRrn);
             String _whereClause = nbTable.getWhereClause();
             String orderBy = nbTable.getOrderBy();
@@ -3690,14 +3689,19 @@ public class GcServiceImpl implements GcService {
                     clauseBuffer.append(" AND ");
                     clauseBuffer.append(whereClause);
                 }
-                clauseBuffer.append(" AND workOrderPlanputTime ");
-                clauseBuffer.append(" <= ");
-                clauseBuffer.append("'" + date + "'");
                 _whereClause = clauseBuffer.toString();
             }
 
             List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
-            return materialLots;
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            for(MaterialLot materialLot : materialLots){
+                String workOrderPlanTime = materialLot.getWorkOrderPlanputTime();
+                Date workOrderPlanPutTime = formatter.parse(workOrderPlanTime);
+                if(workOrderPlanPutTime.before(new Date())){
+                    materialLotList.add(materialLot);
+                }
+            }
+            return materialLotList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
