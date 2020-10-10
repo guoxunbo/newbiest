@@ -162,6 +162,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String GRADE_FIXED_CHAR_FOUR = "4";
     public static final String GRADE_FIXED_CHAR_Q = "Q";
     public static final String GRADE_FIXED_CHAR_Z = "Z";
+    public static final String GRADE_UNDEFINED = "UNDEFINED";
 
 
     /**

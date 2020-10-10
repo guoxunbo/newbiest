@@ -54,8 +54,13 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
         MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
         parameterMap.put("barcode", materialLot.getMaterialLotId());
         parameterMap.put("device", materialLot.getMaterialName());
-        parameterMap.put("subcode", materialLot.getReserved1() + materialLot.getGrade());
         parameterMap.put("wafernum", materialLot.getCurrentQty().toPlainString());
+        if(MaterialLot.PRODUCT_CATEGORY.equals(materialLot.getReserved7())){
+            parameterMap.put("subcode", materialLot.getReserved1() + materialLot.getGrade());
+        } else {
+            String subcode = gcService.getEncryptionSubCode(materialLot.getGrade(), materialLot.getReserved1());
+            parameterMap.put("subcode", subcode);
+        }
 
         List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(requestBody.getMaterialLotRrn());
         int i = 1;

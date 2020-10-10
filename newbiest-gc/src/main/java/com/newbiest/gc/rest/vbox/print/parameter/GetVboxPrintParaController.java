@@ -58,7 +58,14 @@ public class GetVboxPrintParaController extends AbstractRestController {
             parameterMap.put("BOXID", vBox.getBoxId());
             parameterMap.put("DEVICEID", vBox.getProductId());
             parameterMap.put("GRADE", vBox.getGrade());
-            parameterMap.put("SUBCODE", vBox.getLevelTwoCode());
+
+            if(MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
+                String subCode = gcService.getEncryptionSubCode(vBox.getGrade(), vBox.getLevelTwoCode());
+                parameterMap.put("SUBCODE", subCode);
+            } else {
+                parameterMap.put("SUBCODE", vBox.getLevelTwoCode());
+            }
+
             parameterMap.put("NUMBER", vBox.getQuantity().toString());
             if(StringUtils.isNullOrEmpty(vBox.getProductionNote()) || StringUtils.isNullOrEmpty(vBox.getWorkorderId())){
                 parameterMap.put("PRODUCTNOTE",StringUtils.EMPTY);
