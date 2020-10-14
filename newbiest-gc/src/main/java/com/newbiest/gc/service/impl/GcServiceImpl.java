@@ -6113,6 +6113,9 @@ public class GcServiceImpl implements GcService {
         try {
             String targetSubcode = StringUtils.EMPTY;
             String endString = StringUtils.EMPTY;
+            if(subcode.length() > 4){
+                subcode = subcode.substring(0, 4);
+            }
             List<NBOwnerReferenceList> encryptionSubcodeList = getReferenceListByName(REFERENCE_NAME_ENCRYPTION_SUBCODE_LIST);
             Map<String, List<NBOwnerReferenceList>> subcodeMap = encryptionSubcodeList.stream().collect(Collectors.groupingBy(NBOwnerReferenceList:: getKey));
             if(subcodeMap.containsKey(grade)){
