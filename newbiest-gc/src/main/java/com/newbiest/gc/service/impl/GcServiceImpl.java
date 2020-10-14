@@ -252,6 +252,12 @@ public class GcServiceImpl implements GcService {
     @Autowired
     SupplierRepository supplierRepository;
 
+    @Autowired
+    GCWorkorderRelationRepository workorderRelationRepository;
+
+    @Autowired
+    GCWorkorderRelationHisRepository workorderRelationHisRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -2494,7 +2500,24 @@ public class GcServiceImpl implements GcService {
                         erpMos.add(erpMo);
                     }
                 }
-                mmsService.receiveMLotList2Warehouse(material, materialLotActions);
+                List<MaterialLot> materialLotList = mmsService.receiveMLotList2Warehouse(material, materialLotActions);
+                for(MaterialLot materialLot : materialLotList){
+                    String workOrderId = materialLot.getWorkOrderId();
+                    String grade = materialLot.getGrade();
+                    GCWorkorderRelation workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGrade(workOrderId, grade);
+                    if(workorderRelation == null){
+                        workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNull(workOrderId);
+                    }
+                    if(workorderRelation == null){
+                        workorderRelation = workorderRelationRepository.findByGradeAndWorkOrderIdIsNull(grade);
+                    }
+                    if(workorderRelation != null){
+                        MaterialLotAction materialLotAction = new MaterialLotAction();
+                        materialLotAction.setTransQty(materialLot.getCurrentQty());
+                        materialLotAction.setActionReason(workorderRelation.getHoldReason());
+                        mmsService.holdMaterialLot(materialLot,materialLotAction);
+                    }
+                }
             };
 
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
@@ -6172,6 +6195,31 @@ public class GcServiceImpl implements GcService {
             twoRandomCharList.add(number);
             twoRandomCharList.add(letter);
             return twoRandomCharList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public GCWorkorderRelation saveWorkorderGradeHoldInfo(GCWorkorderRelation workorderRelation, String transType) throws ClientException{
+        try {
+            GCWorkorderRelation oldWorkorderRelation = workorderRelationRepository.findByWorkOrderIdAndGrade(workorderRelation.getWorkOrderId(), workorderRelation.getGrade());
+            if(NBHis.TRANS_TYPE_CREATE.equals(transType)){
+                if(oldWorkorderRelation == null){
+                    workorderRelation = workorderRelationRepository.saveAndFlush(workorderRelation);
+
+                    GCWorkorderRelationHis history = (GCWorkorderRelationHis) baseService.buildHistoryBean(workorderRelation, transType);
+                    workorderRelationHisRepository.save(history);
+                } else {
+                    throw new ClientParameterException(GcExceptions.WORKORDER_GRADE_HOLD_INFO_IS_EXIST);
+                }
+            } else {
+                workorderRelation = workorderRelationRepository.saveAndFlush(workorderRelation);
+
+                GCWorkorderRelationHis history = (GCWorkorderRelationHis) baseService.buildHistoryBean(workorderRelation, transType);
+                workorderRelationHisRepository.save(history);
+            }
+
+            return  workorderRelation;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

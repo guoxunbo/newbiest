@@ -320,3 +320,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HKWarehouseMLotPack.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.VboxHoldSetManger.nb_authority.yaml
+      relativeToChangelogFile: true
