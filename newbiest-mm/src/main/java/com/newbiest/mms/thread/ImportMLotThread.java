@@ -3,7 +3,9 @@ package com.newbiest.mms.thread;
 import com.google.common.collect.Maps;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
@@ -16,6 +18,7 @@ import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.utils.CollectorsUtils;
 import com.newbiest.msg.ResponseHeader;
 import lombok.Data;
+import org.hibernate.Session;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -47,9 +50,12 @@ public class ImportMLotThread implements Callable {
     private MaterialLotRepository materialLotRepository;
     private MaterialLotUnitRepository materialLotUnitRepository;
     private MaterialLotUnitHisRepository materialLotUnitHisRepository;
+    private SessionContext sessionContext;
 
     @Override
     public ImportMLotThreadResult call()  {
+        // 涉及到父子线程进行传递ThreadLocal。但是GC依赖的core为1.0.4故没有实现父子线程之间ThreadLocal的共享。故在线程内部进行再次各自进行put
+        ThreadLocalContext.putSessionContext(sessionContext);
         ImportMLotThreadResult result = new ImportMLotThreadResult();
         try {
             List<MaterialLotUnit> materialLotUnitArrayList = new ArrayList<>();

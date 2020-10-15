@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
@@ -154,9 +155,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 }
                 StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
-
-
                 for (String lotId : materialLotUnitMap.keySet()) {
+
                     MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
                     if(materialLotInfo != null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
@@ -171,6 +171,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     importMLotThread.setBaseService(baseService);
                     importMLotThread.setMaterialLotUnitRepository(materialLotUnitRepository);
                     importMLotThread.setMaterialLotUnitHisRepository(materialLotUnitHisRepository);
+                    importMLotThread.setSessionContext(ThreadLocalContext.getSessionContext());
 
                     importMLotThread.setLotId(lotId);
                     importMLotThread.setImportCode(importCode);
