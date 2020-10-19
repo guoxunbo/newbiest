@@ -128,6 +128,8 @@ public class ImportMLotThread implements Callable {
             result.setMaterialLotUnits(materialLotUnits);
         } catch (Exception e) {
             result.setResult(ResponseHeader.RESULT_FAIL);
+        } finally {
+            ThreadLocalContext.remove();
         }
 
         return result;

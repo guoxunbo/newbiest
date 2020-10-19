@@ -6,7 +6,6 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
-import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
@@ -16,6 +15,7 @@ import com.newbiest.mms.SystemPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
+import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitHisRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
@@ -60,6 +60,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
 
     @Autowired
     MaterialLotRepository materialLotRepository;
+
+    @Autowired
+    MaterialLotHistoryRepository materialLotHistoryRepository;
 
     @Autowired
     BaseService baseService;
@@ -155,13 +158,13 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 }
                 StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
-                for (String lotId : materialLotUnitMap.keySet()) {
-
+                for(String lotId : materialLotUnitMap.keySet()){
                     MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
                     if(materialLotInfo != null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
                     }
-
+                }
+                for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
 
                     // 导入进行多线程处理 进行并行处理
@@ -203,13 +206,33 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         break;
                     } else {
                         // 如果没做好，等待100ms,防止系统将CPU用光
-                        Thread.sleep(100);
+                        Thread.sleep(50);
                         maxWaitCount--;
                         if (maxWaitCount == 0) {
+                            log.info("====================================" + maxWaitCount);
                             break;
                         }
                     }
                 }
+            }
+
+            if(!result){
+                //停止线程
+                for(Future<ImportMLotThreadResult> importCallBack : importCallBackList){
+                    if(!importCallBack.isDone()){
+                        importCallBack.cancel(true);
+                    }
+                }
+                //删除导入数据
+                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitArrayList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
+                for(String materialLotId : materialLotUnitMap.keySet()){
+                    materialLotUnitRepository.deleteByMaterialLotId(materialLotId);
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
+                    materialLotRepository.delete(materialLot);
+                    materialLotUnitHisRepository.deleteByMaterialLotId(materialLotId);
+                    materialLotHistoryRepository.deleteByMaterialLotId(materialLotId);
+                }
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST);
             }
             return materialLotUnitArrayList;
         } catch (Exception e) {

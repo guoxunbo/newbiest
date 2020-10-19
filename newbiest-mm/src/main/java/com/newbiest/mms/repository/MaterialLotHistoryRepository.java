@@ -1,8 +1,12 @@
 package com.newbiest.mms.repository;
 
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotHistory;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -13,4 +17,7 @@ public interface MaterialLotHistoryRepository extends IRepository<MaterialLotHis
 
     MaterialLotHistory findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(String materialLotId, String transType);
 
+    @Modifying
+    @Query("DELETE FROM MaterialLotHistory m where m.materialLotId = :materialLotId")
+    void deleteByMaterialLotId(@Param("materialLotId") String materialLotId) throws ClientException;
 }
