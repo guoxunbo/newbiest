@@ -800,10 +800,12 @@ public class GcServiceImpl implements GcService {
                             erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
                         }
                     }
-                    waferIssueOrder.setQty(totalQty);
-                    waferIssueOrder.setUnHandledQty(waferIssueOrder.getQty().subtract(waferIssueOrder.getHandledQty()));
-                    waferIssueOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
-                    waferIssueOrder = (WaferIssueOrder) baseService.saveEntity(waferIssueOrder);
+                    if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                        waferIssueOrder.setQty(totalQty);
+                        waferIssueOrder.setUnHandledQty(waferIssueOrder.getQty().subtract(waferIssueOrder.getHandledQty()));
+                        waferIssueOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
+                        waferIssueOrder = (WaferIssueOrder) baseService.saveEntity(waferIssueOrder);
+                    }
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(waferIssueOrder);
@@ -958,10 +960,12 @@ public class GcServiceImpl implements GcService {
                             erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
                         }
                     }
-                    reTestOrder.setQty(totalQty);
-                    reTestOrder.setUnHandledQty(reTestOrder.getQty().subtract(reTestOrder.getHandledQty()));
-                    reTestOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
-                    reTestOrder = (ReTestOrder) baseService.saveEntity(reTestOrder);
+                    if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                        reTestOrder.setQty(totalQty);
+                        reTestOrder.setUnHandledQty(reTestOrder.getQty().subtract(reTestOrder.getHandledQty()));
+                        reTestOrder.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
+                        reTestOrder = (ReTestOrder) baseService.saveEntity(reTestOrder);
+                    }
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(reTestOrder);
@@ -1941,10 +1945,12 @@ public class GcServiceImpl implements GcService {
                             erpSoRepository.save(erpSo);
                         }
                     }
-                    receiveOrder.setQty(totalQty);
-                    receiveOrder.setUnHandledQty(receiveOrder.getQty().subtract(receiveOrder.getHandledQty()));
-                    receiveOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
-                    receiveOrder = (ReceiveOrder) baseService.saveEntity(receiveOrder);
+                    if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                        receiveOrder.setQty(totalQty);
+                        receiveOrder.setUnHandledQty(receiveOrder.getQty().subtract(receiveOrder.getHandledQty()));
+                        receiveOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
+                        receiveOrder = (ReceiveOrder) baseService.saveEntity(receiveOrder);
+                    }
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(receiveOrder);
@@ -2149,12 +2155,13 @@ public class GcServiceImpl implements GcService {
                             erpSoRepository.save(erpSo);
                         }
                     }
-                    deliveryOrder.setQty(totalQty);
-                    deliveryOrder.setUnHandledQty(deliveryOrder.getQty().subtract(deliveryOrder.getHandledQty()));
-                    deliveryOrder.setUnReservedQty(totalQty);
-
-                    deliveryOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
-                    deliveryOrder = (DeliveryOrder) baseService.saveEntity(deliveryOrder);
+                    if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                        deliveryOrder.setQty(totalQty);
+                        deliveryOrder.setUnHandledQty(deliveryOrder.getQty().subtract(deliveryOrder.getHandledQty()));
+                        deliveryOrder.setUnReservedQty(deliveryOrder.getQty().subtract(deliveryOrder.getReservedQty()));
+                        deliveryOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
+                        deliveryOrder = (DeliveryOrder) baseService.saveEntity(deliveryOrder);
+                    }
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(deliveryOrder);
@@ -5019,11 +5026,13 @@ public class GcServiceImpl implements GcService {
                             erpMaterialOutAOrderRepository.save(erpMaterialOutaOrder);
                         }
                     }
-                    otherIssueOrder.setQty(totalQty);
-                    otherIssueOrder.setUnHandledQty(otherIssueOrder.getQty().subtract(otherIssueOrder.getHandledQty()));
+                    if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                        otherIssueOrder.setQty(totalQty);
+                        otherIssueOrder.setUnHandledQty(otherIssueOrder.getQty().subtract(otherIssueOrder.getHandledQty()));
 
-                    otherIssueOrder.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
-                    otherIssueOrder = (WaferIssueOrder) baseService.saveEntity(otherIssueOrder);
+                        otherIssueOrder.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
+                        otherIssueOrder = (WaferIssueOrder) baseService.saveEntity(otherIssueOrder);
+                    }
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(otherIssueOrder);
@@ -5201,11 +5210,13 @@ public class GcServiceImpl implements GcService {
                             erpSoaOrderRepository.save(erpSoa);
                         }
                     }
-                    otherStockOutOrder.setQty(totalQty);
-                    otherStockOutOrder.setUnHandledQty(otherStockOutOrder.getQty().subtract(otherStockOutOrder.getHandledQty()));
-                    otherStockOutOrder.setUnReservedQty(totalQty);
-                    otherStockOutOrder.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
-                    otherStockOutOrder = (OtherStockOutOrder) baseService.saveEntity(otherStockOutOrder);
+                    if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                        otherStockOutOrder.setQty(totalQty);
+                        otherStockOutOrder.setUnHandledQty(otherStockOutOrder.getQty().subtract(otherStockOutOrder.getHandledQty()));
+                        otherStockOutOrder.setUnReservedQty(otherStockOutOrder.getQty().subtract(otherStockOutOrder.getReservedQty()));
+                        otherStockOutOrder.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
+                        otherStockOutOrder = (OtherStockOutOrder) baseService.saveEntity(otherStockOutOrder);
+                    }
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(otherStockOutOrder);
@@ -5354,6 +5365,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved5(erpSob.getCmaker());
                                 documentLine.setReserved6(erpSob.getChandler());
                                 documentLine.setReserved7(erpSob.getOther1());
+                                documentLine.setReserved8(erpSob.getOther9());
 
                                 documentLine.setReserved9(OtherShipOrder.CATEGORY_DELIVERYB);
                                 documentLine.setReserved16(erpSob.getOther2());
@@ -5381,6 +5393,7 @@ public class GcServiceImpl implements GcService {
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
+                            otherShipOrder.setSupplierName(erpSob.getOther9());
                             otherShipOrder.setOwner(erpSob.getChandler());
                             otherShipOrder.setReserved32(erpSob.getCreateSeq());
                             if (otherShipOrder.getErpCreated() == null) {
@@ -5399,10 +5412,12 @@ public class GcServiceImpl implements GcService {
                             erpSobOrderRepository.save(erpSob);
                         }
                     }
-                    otherShipOrder.setQty(totalQty);
-                    otherShipOrder.setUnHandledQty(otherShipOrder.getQty().subtract(otherShipOrder.getHandledQty()));
-                    otherShipOrder.setUnReservedQty(totalQty);
-                    otherShipOrder = (OtherShipOrder) baseService.saveEntity(otherShipOrder);
+                    if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                        otherShipOrder.setQty(totalQty);
+                        otherShipOrder.setUnHandledQty(otherShipOrder.getQty().subtract(otherShipOrder.getHandledQty()));
+                        otherShipOrder.setUnReservedQty(otherShipOrder.getQty().subtract(otherShipOrder.getReservedQty()));
+                        otherShipOrder = (OtherShipOrder) baseService.saveEntity(otherShipOrder);
+                    }
 
                     for (DocumentLine documentLine : documentLines) {
                         documentLine.setDoc(otherShipOrder);
