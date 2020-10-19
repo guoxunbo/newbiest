@@ -3468,6 +3468,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setWorkOrderId(packedLot.getWorkorderId());
                     materialLotUnit.setCurrentQty(BigDecimal.valueOf(packedLot.getQuantity()));
                     materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
+                    materialLotUnit.setTreasuryNote(packedLot.getTreasuryNote());
                     materialLotUnit.setReceiveQty(BigDecimal.valueOf(packedLot.getQuantity()));
                     materialLotUnit.setReserved1(packedLot.getLevelTwoCode());
                     materialLotUnit.setReserved3(String.valueOf(mesPackedLotList.size()));

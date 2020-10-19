@@ -213,6 +213,12 @@ public class MaterialLotUnit extends NBUpdatable {
     private String productType = PRODUCT_TYPE_PROD;
 
     /**
+     * 入库备注
+     */
+    @Column(name = "TREASURY_NOTE")
+    private String treasuryNote;
+
+    /**
      * 二级代码
      */
     @Column(name="RESERVED1")

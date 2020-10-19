@@ -168,6 +168,12 @@ public class MaterialLotUnitHistory extends NBHis {
     private String productType = PRODUCT_TYPE;
 
     /**
+     * 入库备注
+     */
+    @Column(name = "TREASURY_NOTE")
+    private String treasuryNote;
+
+    /**
      * 二级代码
      */
     @Column(name="RESERVED1")
