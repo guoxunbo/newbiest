@@ -5275,7 +5275,7 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncOtherShipOrder() throws ClientException {
         try {
-            List<ErpSob> erpSobs = erpSobOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<ErpSob> erpSobs = erpSobOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS, ErpSo.SYNC_STATUS_SYNC_ERROR));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
             List<Long> asyncDuplicateSeqList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(erpSobs)) {
