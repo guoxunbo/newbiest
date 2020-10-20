@@ -227,8 +227,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitArrayList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
                 for(String materialLotId : materialLotUnitMap.keySet()){
                     materialLotUnitRepository.deleteByMaterialLotId(materialLotId);
-                    MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
-                    materialLotRepository.delete(materialLot);
+                    materialLotRepository.deleteByMaterialLotId(materialLotId);
                     materialLotUnitHisRepository.deleteByMaterialLotId(materialLotId);
                     materialLotHistoryRepository.deleteByMaterialLotId(materialLotId);
                 }

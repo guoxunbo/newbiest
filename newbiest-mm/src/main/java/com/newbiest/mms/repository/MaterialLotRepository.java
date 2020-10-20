@@ -1,7 +1,9 @@
 package com.newbiest.mms.repository;
 
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.mms.model.MaterialLot;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -35,4 +37,8 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     List<String> getSubcodeByMaterialNameAndStatusCategory(@Param("materialName")String materialName, @Param("statusCategory")String statusCategory);
 
     MaterialLot findByLotIdAndStatusCategoryNotIn(@Param("lotId")String lotId, @Param("statusCategory") String statusCategory);
+
+    @Modifying
+    @Query("DELETE FROM MaterialLot m where m.materialLotId = :materialLotId")
+    void deleteByMaterialLotId(@Param("materialLotId") String materialLotId) throws ClientException;
 }
