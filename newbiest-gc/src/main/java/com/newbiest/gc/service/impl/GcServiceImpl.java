@@ -5920,8 +5920,21 @@ public class GcServiceImpl implements GcService {
                 }
             }
             if(tagFlag){
-                Set taggingInfo = materialLots.stream().map(mLot -> mLot.getReserved54() + mLot.getReserved56()).collect(Collectors.toSet());
-                if (taggingInfo != null &&  taggingInfo.size() > 1) {
+                Map<String, List<MaterialLot>> mLotMap =  materialLots.stream().collect(Collectors.groupingBy(mLot -> {
+                    StringBuffer key = new StringBuffer();
+                    if(StringUtils.isNullOrEmpty(mLot.getReserved54())){
+                        key.append(StringUtils.EMPTY);
+                    } else {
+                        key.append(mLot.getReserved54());
+                    }
+                    if(StringUtils.isNullOrEmpty(mLot.getReserved56())){
+                        key.append(StringUtils.EMPTY);
+                    } else {
+                        key.append(mLot.getReserved56());
+                    }
+                    return key.toString();
+                }));
+                if (mLotMap != null &&  mLotMap.size() > 1) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_INFO_IS_NOT_SAME, materialLot.getMaterialLotId());
                 }
                 taggingMaterialLotAndSaveHis(materialLot, stockOutType, customerName, poId, stockTagNote);
