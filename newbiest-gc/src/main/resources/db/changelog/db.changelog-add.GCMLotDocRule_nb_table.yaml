@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMLotDocRule_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCMLotDocRule to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMLotDocRule
+              description: 物料单据验证规则
+              tableName: GC_MLOT_DOC_RULE
+              modelName: MLotDocRule
+              modelClass: com.newbiest.gc.model.MLotDocRule
+              labelZh: 物料单据验证规则
+              label: MaterialLotDocRule

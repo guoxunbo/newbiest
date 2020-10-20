@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMLotDocRuleManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCMLotDocRuleManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCMLotDocRuleManager
+              description: 物料单据验证规则
+              tableName: GCMLotDocRule
+              url: /GC/GCMLotDocRuleManager
+              parentRrn: 25
+              seqNo: 15
+              image: message
+              labelZh: 物料单据验证规则
+              labelEn: MLotDocRuleManger

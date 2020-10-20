@@ -56,6 +56,8 @@ public class GcConfiguration {
         ModelFactory.registerModelClassLoader(GCOutSourcePo.class.getName(), GCOutSourcePo.class.getClassLoader());
         ModelFactory.registerModelClassLoader(Supplier.class.getName(), Supplier.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCWorkorderRelation.class.getName(), GCWorkorderRelation.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(MLotDocRule.class.getName(), MLotDocRule.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(MLotDocRuleLine.class.getName(), MLotDocRuleLine.class.getClassLoader());
 
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());
