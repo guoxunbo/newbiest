@@ -256,6 +256,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     GCWorkorderRelationHisRepository workorderRelationHisRepository;
 
+    @Autowired
+    MLotDocRuleRepository mLotDocRuleRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -283,7 +286,7 @@ public class GcServiceImpl implements GcService {
                 if (CollectionUtils.isNotEmpty(materialLots)) {
                     for (MaterialLot materialLot : materialLots) {
                         try {
-                            validationDocLine(documentLine, materialLot);
+                            validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.MLOT_RESERVED_DOC_VALIDATE_RULE_ID);
                             if(nbTable.getName().equals("MMReservedCase")){
                                 List<String> packedLotIdList = new ArrayList<String>();
                                 packedLotIdList.add(materialLot.getMaterialLotId());
@@ -333,7 +336,7 @@ public class GcServiceImpl implements GcService {
                 if (!StringUtils.isNullOrEmpty(materialLot.getReserved16())) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_RESERVED_BY_ANOTHER);
                 }
-                validationDocLine(documentLine, materialLot);
+                validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.MLOT_RESERVED_DOC_VALIDATE_RULE_ID);
                 BigDecimal currentQty = materialLot.getCurrentQty();
                 reservedQty = reservedQty.add(currentQty);
                 if (unReservedQty.compareTo(reservedQty) < 0) {
@@ -1012,14 +1015,14 @@ public class GcServiceImpl implements GcService {
     public void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WAFER_RECEIVE_DOC_VALIDATE_RULE_ID);
             Map<String, List<MaterialLotAction>> materialLotActionMap = materialLotActions.stream().collect(Collectors.groupingBy(MaterialLotAction:: getMaterialLotId));
             List<MaterialLot> materialLots = new ArrayList<>();
             for(String materialLotId : materialLotActionMap.keySet()){
                 MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
                 materialLots.add(materialLot);
             }
-            Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByImportType(materialLots, MaterialLot.WAFER_RECEIVE_DOC_VALIDATE_RULE_ID, MaterialLot.COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
@@ -1033,6 +1036,40 @@ public class GcServiceImpl implements GcService {
                 }
                 receiveWafer(documentLineMap.get(key), materialLotMap.get(key));
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Map<String,List<MaterialLot>> groupMaterialLotByImportType(List<MaterialLot> materialLots, String ruleName, String cobRuleName) throws ClientException{
+        try {
+            Map<String, List<MaterialLot>> materialLotMap = Maps.newHashMap();
+            List<MaterialLot> cobMaterialLotList = Lists.newArrayList();
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            for (MaterialLot materialLot : materialLots){
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved49()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved49())){
+                    cobMaterialLotList.add(materialLot);
+                } else {
+                    materialLotList.add(materialLot);
+                }
+            }
+            if(CollectionUtils.isNotEmpty(materialLotList)){
+                materialLotMap = groupMaterialLotByMLotDocRule(materialLotList, ruleName);
+            }
+            if(CollectionUtils.isNotEmpty(cobMaterialLotList)){
+                Map<String, List<MaterialLot>>  cobMLotMap = groupMaterialLotByMLotDocRule(cobMaterialLotList, cobRuleName);
+                if(cobMLotMap != null && cobMLotMap.keySet().size() > 0){
+                    for(String mLotInfo : cobMLotMap.keySet()){
+                        if(materialLotMap.containsKey(mLotInfo)){
+                            materialLotMap.get(mLotInfo).addAll(cobMLotMap.get(mLotInfo));
+                        } else {
+                            materialLotMap.put(mLotInfo, cobMLotMap.get(mLotInfo));
+                        }
+                    }
+                }
+            }
+
+            return materialLotMap;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -1055,29 +1092,6 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    private Map<String,List<MaterialLot>> groupWaferByMaterialAndSecondCodeAndGradeAndBondProp(List<MaterialLot> materialLots) {
-        return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
-            StringBuffer key = new StringBuffer();
-            key.append(materialLot.getMaterialName());
-            key.append(StringUtils.SPLIT_CODE);
-
-            String materialSecondCode = StringUtils.EMPTY;
-            if(!StringUtils.isNullOrEmpty(materialLot.getReserved49()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved49())){
-                materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
-            } else {
-                materialSecondCode = materialLot.getReserved1();
-            }
-            key.append(materialSecondCode);
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(materialLot.getGrade());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(materialLot.getReserved6());
-            key.append(StringUtils.SPLIT_CODE);
-            return key.toString();
-        }));
-    }
 
     public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc) throws ClientException{
         try {
@@ -1090,8 +1104,8 @@ public class GcServiceImpl implements GcService {
 
             if (StringUtils.isNullOrEmpty(issueWithDoc)) {
                 documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-                Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndBondProp(documentLineList);
-                Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndBondProp(materialLots);
+                Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WAFER_ISSUE_DOC_VALIDATE_RULE_ID);
+                Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByImportType(materialLots, MaterialLot.WAFER_ISSUE_DOC_VALIDATE_RULE_ID, MaterialLot.COB_WAFER_ISSUE_DOC_VALIDATE_RULE_ID);
 
                 // 确保所有的物料批次都能匹配上单据, 并且数量足够
                 for (String key : materialLotMap.keySet()) {
@@ -1438,95 +1452,6 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 单据按照 物料名称+二级代码+保税属性分类
-     * @param documentLineList
-     * @return
-     */
-    public Map<String, List<DocumentLine>> groupDocLineByMaterialAndSecondCodeAndBondProp(List<DocumentLine> documentLineList) {
-        return documentLineList.stream().collect(Collectors.groupingBy(documentLine -> {
-            StringBuffer key = new StringBuffer();
-            key.append(documentLine.getMaterialName());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(documentLine.getReserved2());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(documentLine.getReserved7());
-            key.append(StringUtils.SPLIT_CODE);
-            return key.toString();
-        }));
-    }
-
-    private Map<String,List<MaterialLot>> groupWaferByMaterialAndSecondCodeAndBondProp(List<MaterialLot> materialLots) {
-        return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
-            StringBuffer key = new StringBuffer();
-            key.append(materialLot.getMaterialName());
-            key.append(StringUtils.SPLIT_CODE);
-
-            String materialSecondCode = StringUtils.EMPTY;
-            if(!StringUtils.isNullOrEmpty(materialLot.getReserved49()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved49())){
-                materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
-            } else {
-                materialSecondCode = materialLot.getReserved1();
-            }
-            key.append(materialSecondCode);
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(materialLot.getReserved6());
-            key.append(StringUtils.SPLIT_CODE);
-            return key.toString();
-        }));
-    }
-
-    /**
-     * 单据按照 物料名称+二级代码+等级+保税属性分类
-     * @param documentLineList
-     * @return
-     */
-    public Map<String, List<DocumentLine>> groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(List<DocumentLine> documentLineList) {
-        return documentLineList.stream().collect(Collectors.groupingBy(documentLine -> {
-            StringBuffer key = new StringBuffer();
-            key.append(documentLine.getMaterialName());
-            key.append(StringUtils.SPLIT_CODE);
-            // 二级代码
-            key.append(documentLine.getReserved2());
-            key.append(StringUtils.SPLIT_CODE);
-
-            //等级
-            key.append(documentLine.getReserved3());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(documentLine.getReserved7());
-            key.append(StringUtils.SPLIT_CODE);
-            return key.toString();
-        }));
-    }
-
-    /**
-     * 物料批次按照 物料名称+二级代码+等级+保税属性分类
-     * @param materialLots
-     * @return
-     */
-    public Map<String, List<MaterialLot>> groupMaterialLotByMaterialAndSecondCodeAndGradeAndBondProp(List<MaterialLot> materialLots) {
-        return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
-            StringBuffer key = new StringBuffer();
-            key.append(materialLot.getMaterialName());
-            key.append(StringUtils.SPLIT_CODE);
-
-            String materialSecondCode = materialLot.getReserved1() + materialLot.getGrade();
-            key.append(materialSecondCode);
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(materialLot.getGrade());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(materialLot.getReserved6());
-            key.append(StringUtils.SPLIT_CODE);
-            return key.toString();
-        }));
-    }
-
-    /**
      *
      * @param documentLineList
      * @param materialLotActions
@@ -1536,8 +1461,8 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndGradeAndBondProp(documentLineList);
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMaterialAndSecondCodeAndGradeAndBondProp(materialLots);
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.MLOT_RETEST_DOC_VALIDATE_RULE_ID);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.MLOT_RETEST_DOC_VALIDATE_RULE_ID);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
@@ -1643,7 +1568,7 @@ public class GcServiceImpl implements GcService {
     }
 
     public void validationStockDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException{
-        validationDocLine(documentLine,materialLot);
+        validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.MLOT_SHIP_DOC_VALIDATE_RULE_ID);
         // 出货验证箱中真空包的备货信息和出货单rrn是否一致
         List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
         if (CollectionUtils.isNotEmpty(packageDetailLots)) {
@@ -1674,7 +1599,7 @@ public class GcServiceImpl implements GcService {
         if (CollectionUtils.isEmpty(documentLineList)) {
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
             for (DocumentLine documentLine : documentLineList) {
-                validationDocLine(documentLine, materialLot);
+                validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.WAFER_ISSUE_DOC_VALIDATE_RULE_ID);
             }
         }
     }
@@ -5650,8 +5575,8 @@ public class GcServiceImpl implements GcService {
             }
             
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndBondPropAndCusName(documentLineList);
-            Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndBondPropAndCusName(materialLots);
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WLT_SHIP_DOC_VALIDATE_RULE_ID);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.WLT_SHIP_DOC_VALIDATE_RULE_ID);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
@@ -5762,41 +5687,6 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    private Map<String,List<DocumentLine>> groupDocLineByMaterialAndSecondCodeAndBondPropAndCusName(List<DocumentLine> documentLineList) {
-        return documentLineList.stream().collect(Collectors.groupingBy(documentLine -> {
-            StringBuffer key = new StringBuffer();
-            key.append(documentLine.getMaterialName());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(documentLine.getReserved2());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(documentLine.getReserved7());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(documentLine.getReserved8());
-            key.append(StringUtils.SPLIT_CODE);
-            return key.toString();
-        }));
-    }
-
-    private Map<String, List<MaterialLot>> groupWaferByMaterialAndSecondCodeAndBondPropAndCusName(List<MaterialLot> materialLots) {
-        return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
-            StringBuffer key = new StringBuffer();
-            key.append(materialLot.getMaterialName());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(materialLot.getReserved1());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(materialLot.getReserved6());
-            key.append(StringUtils.SPLIT_CODE);
-
-            key.append(materialLot.getReserved55());
-            key.append(StringUtils.SPLIT_CODE);
-            return key.toString();
-        }));
-    }
     /**
      * 验证Wlt/CP出货单据和物料批次是否吻合
      *  1，物料名称
@@ -6255,4 +6145,53 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    private void validateMLotAndDocLineByRule(DocumentLine documentLine, MaterialLot materialLot, String ruleName) throws ClientException{
+        try {
+            List<MLotDocRule> mLotDocLineRule = mLotDocRuleRepository.findByNameAndOrgRrn(ruleName, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isEmpty(mLotDocLineRule)) {
+                throw new ClientParameterException(GcExceptions.MLOT_DOC_VALIDATE_RULE_IS_NOT_EXIST, ruleName);
+            }
+            MLotDocRuleContext mLotDocRuleContext = new MLotDocRuleContext();
+            mLotDocRuleContext.setSourceObject(materialLot);
+            mLotDocRuleContext.setTargetObject(documentLine);
+            mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
+            mLotDocRuleContext.validation();
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Map<String,List<DocumentLine>> groupDocLineByMLotDocRule(List<DocumentLine> documentLineList, String ruleName) throws ClientException{
+        try {
+            Map<String,List<DocumentLine>> documentLineMap = Maps.newHashMap();
+            List<MLotDocRule> mLotDocLineRule = mLotDocRuleRepository.findByNameAndOrgRrn(ruleName, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isEmpty(mLotDocLineRule)) {
+                throw new ClientParameterException(GcExceptions.MLOT_DOC_VALIDATE_RULE_IS_NOT_EXIST, ruleName);
+            }
+            MLotDocRuleContext mLotDocRuleContext = new MLotDocRuleContext();
+            mLotDocRuleContext.setDocumentLineList(documentLineList);
+            mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
+            documentLineMap = mLotDocRuleContext.validationAndGetDocLine();
+            return documentLineMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Map<String,List<MaterialLot>> groupMaterialLotByMLotDocRule(List<MaterialLot> materialLots, String ruleId) throws ClientException{
+        try {
+            Map<String,List<MaterialLot>> materialLotMap = Maps.newHashMap();
+            List<MLotDocRule> mLotDocLineRule = mLotDocRuleRepository.findByNameAndOrgRrn(ruleId, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isEmpty(mLotDocLineRule)) {
+                throw new ClientParameterException(GcExceptions.MLOT_DOC_VALIDATE_RULE_IS_NOT_EXIST, ruleId);
+            }
+            MLotDocRuleContext mLotDocRuleContext = new MLotDocRuleContext();
+            mLotDocRuleContext.setMaterialLotList(materialLots);
+            mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
+            materialLotMap = mLotDocRuleContext.validateAndGetMLot();
+            return materialLotMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

@@ -56,7 +56,13 @@ public class MLotDocRuleContext implements Serializable {
                         try {
                             String fileName = ruleLine.getTargetFiledName();
                             Object value = PropertyUtils.getProperty(compareValue, fileName);
-                            key.append(value.toString());
+                            if(value == null){
+                                key.append("");
+                                key.append(StringUtils.SPLIT_CODE);
+                            } else {
+                                key.append(value.toString());
+                                key.append(StringUtils.SPLIT_CODE);
+                            }
                         } catch (Exception e) {
                             throw new ClientParameterException(ContextException.MERGE_BASIC_OBJ_GET_PROPERTY_ERROR, ruleLine.getTargetFiledName());
                         }
@@ -64,7 +70,6 @@ public class MLotDocRuleContext implements Serializable {
                     return key.toString();
                 }));
             }
-
             return documentLineMap;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e);
@@ -85,11 +90,22 @@ public class MLotDocRuleContext implements Serializable {
                             if(fileNameArr.length > 1){
                                 for(String fileStr : fileNameArr){
                                     Object value = PropertyUtils.getProperty(compareValue, fileStr);
-                                    key.append(value.toString());
+                                    if(value == null){
+                                        key.append("");
+                                    } else {
+                                        key.append(value.toString());
+                                    }
                                 }
+                                key.append(StringUtils.SPLIT_CODE);
                             } else {
                                 Object value = PropertyUtils.getProperty(compareValue, fileName);
-                                key.append(value.toString());
+                                if(value == null){
+                                    key.append("");
+                                    key.append(StringUtils.SPLIT_CODE);
+                                } else {
+                                    key.append(value.toString());
+                                    key.append(StringUtils.SPLIT_CODE);
+                                }
                             }
                         } catch (Exception e) {
                             throw new ClientParameterException(ContextException.MERGE_BASIC_OBJ_GET_PROPERTY_ERROR, ruleLine.getSourceFiledName());
