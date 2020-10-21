@@ -4107,18 +4107,13 @@ public class GcServiceImpl implements GcService {
             }
 
             for(MaterialLot materialLot : materialLots){
-                String prodCate = StringUtils.EMPTY;
-                List<MaterialLotUnit> mLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                String prodCate = MaterialLotUnit.PRODUCT_TYPE_PROD;
+                materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
                 Warehouse warehouse  = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
-                Map<String, List<MaterialLotUnit>> materialLotUnitMap = mLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getProductType));
-                if(materialLotUnitMap.containsKey(MaterialLotUnit.PRODUCT_TYPE_ENG)){
+                if(MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLot.getProductType())){
                     prodCate = MaterialLotUnit.PRODUCT_TYPE_ENG;
-                    materialLot.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
-                    materialLotRepository.saveAndFlush(materialLot);
                 } else if(!StringUtils.isNullOrEmpty(materialLot.getProductType())){
                     prodCate = materialLot.getProductType();
-                } else {
-                    prodCate = MaterialLotUnit.PRODUCT_TYPE_PROD;
                 }
 
                 log.info("insert materialLot to mte_in_stock");

@@ -16,6 +16,7 @@ import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
+import com.newbiest.mms.service.MmsService;
 import com.newbiest.msg.DefaultParser;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.apache.http.impl.client.HttpClientBuilder.create;
 
@@ -77,6 +79,9 @@ public class ScmServiceImpl implements ScmService {
 
     @Autowired
     UIService uiService;
+
+    @Autowired
+    MmsService mmsService;
 
     @PostConstruct
     public void init() {
@@ -157,6 +162,14 @@ public class ScmServiceImpl implements ScmService {
             if (CollectionUtils.isNotEmpty(engWaferIdList)) {
                 log.debug(String.format("Eng Wafer List is [%s]", engWaferIdList));
                 materialLotUnitRepository.updateProdTypeByUnitIds(MaterialLotUnit.PRODUCT_TYPE_ENG, engWaferIdList);
+                //将eng型号的物料批次标记为ENG
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByUnitIdIn(engWaferIdList);
+                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
+                for(String materialLotId : materialLotUnitMap.keySet()){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
+                    materialLot.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                    materialLotRepository.saveAndFlush(materialLot);
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

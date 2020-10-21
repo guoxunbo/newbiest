@@ -29,4 +29,7 @@ public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, 
     @Query("DELETE FROM MaterialLotUnit m where m.materialLotId = :materialLotId")
     void deleteByMaterialLotId(@Param("materialLotId") String materialLotId) throws ClientException;
 
+    @Query("SELECT m FROM MaterialLotUnit m where  m.unitId in (:unitIdList)")
+    List<MaterialLotUnit> findByUnitIdIn(@Param("unitIdList") List<String> unitIdList) throws ClientException;
+
 }
