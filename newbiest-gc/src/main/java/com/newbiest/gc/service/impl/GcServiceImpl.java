@@ -3997,8 +3997,7 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                 }
-            } else if(MaterialLotUnit.SENSOR_PACK_RETURN_COGO.equals(importType) || MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)
-                    || MaterialLotUnit.SENSOR_TPLCC.equals(importType)){
+            } else if(MaterialLotUnit.SENSOR_PACK_RETURN_COGO.equals(importType)|| MaterialLotUnit.SENSOR_TPLCC.equals(importType)){
                 for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
                     materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);
                     materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());
@@ -6185,6 +6184,50 @@ public class GcServiceImpl implements GcService {
             mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
             materialLotMap = mLotDocRuleContext.validateAndGetMLot();
             return materialLotMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * FT来料导入
+     * @param materialLotUnits
+     * @param importType
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> createFTMaterialLotAndGetImportCode(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException{
+        try {
+            Map<String, List<MaterialLotUnit>> materialUnitIdMap = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getUnitId));
+            for(String unitId : materialUnitIdMap.keySet()){
+                if(materialUnitIdMap.get(unitId).size() > 1){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_ID_REPEATS, unitId);
+                }
+                MaterialLot materialLot = mmsService.getMLotByMLotId(unitId);
+                if(materialLot != null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, unitId);
+                }
+            }
+            for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialLotUnit.getMaterialName(), materialLotUnit.getReserved1());
+                if(gcProductSubcode == null ){
+                    throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST);
+                }
+                materialLotUnit.setLotId(materialLotUnit.getUnitId().toUpperCase());
+                materialLotUnit.setMaterialLotId(materialLotUnit.getUnitId().toUpperCase());
+                materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
+                materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
+                materialLotUnit.setReserved6(StringUtils.EMPTY);//来料导入时reserved6不是报税属性，暂时清空
+                materialLotUnit.setReserved7(StringUtils.EMPTY);//晶圆信息不保存产品型号
+                materialLotUnit.setReserved18("0");
+                materialLotUnit.setReserved30(materialLotUnit.getReserved30().split("\\.")[0]);
+                materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());
+                materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR);
+                materialLotUnit.setReserved50(MaterialLot.SENSOR_WAFER_SOURCE);
+            }
+            materialLotUnits = materialLotUnitService.createFTMLot(materialLotUnits);
+
+            return materialLotUnits;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    List<MaterialLotUnit> createFTMaterialLotAndGetImportCode(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     GCWorkorderRelation saveWorkorderGradeHoldInfo(GCWorkorderRelation workorderRelation, String transType) throws ClientException;
     String getEncryptionSubCode(String grade, String subcode) throws ClientException;
     List<MaterialLot> getMaterialLotByTableRrnAndMLotId(String mLotId, long tableRrn) throws ClientException;

@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -360,6 +362,84 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             }
             return materialLotUnitList;
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 创建FT的物料批次
+     * @param materialLotUnits
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> createFTMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException{
+        try {
+            String importCode = generatorMLotUnitImportCode(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+            Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
+            for(String materialName : materialUnitMap.keySet()){
+                Material material = mmsService.getRawMaterialByName(materialName);
+                StatusModel statusModel = mmsService.getMaterialStatusModel(material);
+                List<MaterialLotUnit> materialLotUnitList = materialUnitMap.get(materialName);
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    Map<String, Object> propsMap = Maps.newHashMap();
+                    propsMap.put("category", MaterialLot.CATEGORY_UNIT);
+                    if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
+                        propsMap.put("durable", materialLotUnit.getDurable().toUpperCase());
+                    }
+                    propsMap.put("supplier", materialLotUnit.getSupplier());
+                    propsMap.put("shipper", materialLotUnit.getShipper());
+                    propsMap.put("grade", materialLotUnit.getGrade());
+                    propsMap.put("lotId", materialLotUnit.getUnitId());
+
+                    propsMap.put("reserved1",materialLotUnit.getReserved1());
+                    propsMap.put("reserved6",materialLotUnit.getReserved4());
+                    propsMap.put("reserved7",MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);
+                    propsMap.put("reserved13",materialLotUnit.getReserved13());
+                    propsMap.put("reserved14",materialLotUnit.getReserved14());
+                    propsMap.put("reserved22",materialLotUnit.getReserved22());
+                    propsMap.put("reserved23",materialLotUnit.getReserved23());
+                    propsMap.put("reserved24",materialLotUnit.getReserved24());
+                    propsMap.put("reserved27",materialLotUnit.getReserved27());
+                    propsMap.put("reserved28",materialLotUnit.getReserved28());
+                    propsMap.put("reserved29",materialLotUnit.getReserved29());
+                    propsMap.put("reserved32",materialLotUnit.getReserved32());
+                    propsMap.put("reserved33",materialLotUnit.getReserved33());
+                    propsMap.put("reserved34",materialLotUnit.getReserved34());
+                    propsMap.put("reserved35",materialLotUnit.getReserved35());
+                    propsMap.put("reserved36",materialLotUnit.getReserved36());
+                    propsMap.put("reserved37",materialLotUnit.getReserved37());
+                    propsMap.put("reserved38",materialLotUnit.getReserved38());
+                    propsMap.put("reserved39",materialLotUnit.getReserved39());
+                    propsMap.put("reserved41",materialLotUnit.getReserved41());
+                    propsMap.put("reserved45",materialLotUnit.getReserved45());
+                    propsMap.put("reserved46",materialLotUnit.getReserved46());
+                    propsMap.put("reserved47",materialLotUnit.getReserved47());
+                    propsMap.put("reserved49",materialLotUnit.getReserved49());
+                    propsMap.put("reserved50",materialLotUnit.getReserved50());
+                    propsMap.put("reserved48",importCode);
+
+                    MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotUnit.getUnitId(), StringUtils.EMPTY, materialLotUnit.getCurrentQty(), propsMap, BigDecimal.ONE);
+
+                    if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
+                        materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
+                    }
+                    materialLotUnit.setLotId(materialLotUnit.getLotId().toUpperCase());
+                    materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
+                    materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
+                    materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotUnit.setLotId(materialLot.getLotId());
+                    materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
+                    materialLotUnit.setReserved48(importCode);
+                    materialLotUnit.setMaterial(material);
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                    MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
+                    history.setTransQty(materialLotUnit.getReceiveQty());
+                    materialLotUnitHisRepository.save(history);
+                }
+            }
+            return materialLotUnits;
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

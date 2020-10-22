@@ -13,6 +13,8 @@ import java.util.List;
  */
 public interface MaterialLotUnitService {
 
+    List<MaterialLotUnit> createFTMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException;
+
     List<MaterialLotUnit> queryStockOutTagMLotUnits(List<MaterialLotAction> materialLotActions)throws ClientException;
 
     List<MaterialLotUnit> getUnitsByMaterialLotId(String materialLotId) throws ClientException;
