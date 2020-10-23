@@ -2,8 +2,7 @@ package com.newbiest.gc.rest.receive.ft;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.gc.rest.receive.wafer.WaferManagerRequest;
-import com.newbiest.gc.rest.receive.wafer.WaferManagerResponseBody;
+import com.newbiest.gc.model.StockInModel;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.service.MmsService;
@@ -45,9 +44,16 @@ public class FTMLotManagerController extends AbstractRestController {
         FTMLotManagerRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
 
-        if (WaferManagerRequest.ACTION_TYPE_RECEIVE.equals(actionType)) {
+        if (FTMLotManagerRequest.ACTION_TYPE_RECEIVE.equals(actionType)) {
             List<MaterialLotUnit> materialLotUnits = requestBody.getMaterialLotUnitList();
             gcService.receiveFTWafer(materialLotUnits);
+        } else if(FTMLotManagerRequest.ACTION_TYPE_QUERY.equals(actionType)){
+            List<MaterialLotUnit> materialLotUnitList = gcService.queryFTMLotByUnitIdAndTableRrn(requestBody.getUnitId(), requestBody.getTableRrn());
+            responseBody.setMaterialLotUnitList(materialLotUnitList);
+        } else if(FTMLotManagerRequest.ACTION_TYPE_STOCK_IN.equals(actionType)){
+            List<MaterialLotUnit> materialLotUnits = requestBody.getMaterialLotUnitList();
+            List<StockInModel> stockInModels = requestBody.getStockInModels();
+            gcService.stockInFTWafer(materialLotUnits, stockInModels);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }

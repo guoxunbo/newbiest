@@ -7,6 +7,7 @@ import lombok.Data;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -261,20 +262,14 @@ public class MaterialLotUnit extends NBUpdatable {
     private String reserved7;
 
     /**
-     * 生产订单
+     * 中转箱号
      */
     @Column(name="RESERVED8")
     private String reserved8;
 
-    /**
-     * 发票
-     */
     @Column(name="RESERVED9")
     private String reserved9;
 
-    /**
-     * 备注
-     */
     @Column(name="RESERVED10")
     private String reserved10;
 
@@ -490,6 +485,12 @@ public class MaterialLotUnit extends NBUpdatable {
      */
     @Column(name="RESERVED50")
     private String reserved50;
+
+    @Transient
+    private String relaxBoxId;
+
+    @Transient
+    private String storageId;
 
     public void setMaterial(Material material) {
         this.setMaterialRrn(material.getObjectRrn());

@@ -216,20 +216,14 @@ public class MaterialLotUnitHistory extends NBHis {
     private String reserved7;
 
     /**
-     * 生产订单
+     * 中转箱号
      */
     @Column(name="RESERVED8")
     private String reserved8;
 
-    /**
-     * 发票
-     */
     @Column(name="RESERVED9")
     private String reserved9;
 
-    /**
-     * 备注
-     */
     @Column(name="RESERVED10")
     private String reserved10;
 

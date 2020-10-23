@@ -14,6 +14,10 @@ public class FTMLotManagerRequest extends Request {
 
 	public static final String ACTION_TYPE_RECEIVE = "Receive";
 
+	public static final String ACTION_TYPE_QUERY = "Query";
+
+	public static final String ACTION_TYPE_STOCK_IN = "StockIn";
+
 	private FTMLotManagerRequestBody body;
 
 }

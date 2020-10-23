@@ -4116,21 +4116,36 @@ public class GcServiceImpl implements GcService {
                 }
 
                 log.info("insert materialLot to mte_in_stock");
-                ErpInStock erpInStock = new ErpInStock();
-                erpInStock.setProdCate(prodCate);
-                erpInStock.setMaterialLot(materialLot);
-                if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehouse.getName())){
-                    erpInStock.setWarehouse(ErpInStock.ZJ_STOCK);
-                } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehouse.getName())){
-                    erpInStock.setWarehouse(ErpInStock.SH_STOCK);
-                } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehouse.getName())){
-                    erpInStock.setWarehouse(ErpInStock.HK_STOCK);
-                } else {
-                    throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouse.getName());
-                }
-                erpInStockRepository.save(erpInStock);
+                saveErpInStock(materialLot, prodCate, warehouse.getName());
                 log.info("insert materialLot to  mte_in_stock end");
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 给中间表保存数据
+     * @param materialLot
+     * @param prodCate
+     * @param warehouseName
+     * @throws ClientException
+     */
+    private void saveErpInStock(MaterialLot materialLot, String prodCate, String warehouseName) throws ClientException{
+        try {
+            ErpInStock erpInStock = new ErpInStock();
+            erpInStock.setProdCate(prodCate);
+            erpInStock.setMaterialLot(materialLot);
+            if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehouseName)){
+                erpInStock.setWarehouse(ErpInStock.ZJ_STOCK);
+            } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehouseName)){
+                erpInStock.setWarehouse(ErpInStock.SH_STOCK);
+            } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehouseName)){
+                erpInStock.setWarehouse(ErpInStock.HK_STOCK);
+            } else {
+                throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouseName);
+            }
+            erpInStockRepository.save(erpInStock);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -6284,6 +6299,58 @@ public class GcServiceImpl implements GcService {
                     throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouse.getName());
                 }
                 erpInStockRepository.save(erpInStock);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取入库位晶圆信息
+     * @param unitId
+     * @param tableRrn
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> queryFTMLotByUnitIdAndTableRrn(String unitId, long tableRrn) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer(whereClause);
+            clauseBuffer.append(" AND unitId = ");
+            clauseBuffer.append("'" + unitId + "'");
+            whereClause = clauseBuffer.toString();
+            materialLotUnitList = materialLotUnitRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+
+            return materialLotUnitList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * FT来料入中转箱
+     * @param materialLotUnits
+     * @param stockInModels
+     * @throws ClientException
+     */
+    public void stockInFTWafer(List<MaterialLotUnit> materialLotUnits, List<StockInModel> stockInModels) throws ClientException {
+        try {
+            stockIn(stockInModels);
+            List<MaterialLot> materialLots = stockInModels.stream().map(model -> mmsService.getMLotByMLotId(model.getMaterialLotId(), true)).collect(Collectors.toList());
+            for(MaterialLot materialLot : materialLots){
+                Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                saveErpInStock(materialLot, materialLot.getProductType(), warehouse.getName());
+            }
+            for (MaterialLotUnit materialLotUnit : materialLotUnits){
+                materialLotUnit.setReserved8(materialLotUnit.getRelaxBoxId());
+                materialLotUnit.setReserved14(materialLotUnit.getStorageId());
+                materialLotUnitRepository.save(materialLotUnit);
+
+                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
