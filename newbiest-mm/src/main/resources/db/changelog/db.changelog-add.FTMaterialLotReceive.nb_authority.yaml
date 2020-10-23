@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFTMaterialLotReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCFTMaterialLotReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCFTMaterialLotReceiveManager
+              description: FT来料接收
+              tableName: GCFTMaterialLotReceiveScan
+              url: /FT/GCFTMateriLotReceive
+              parentRrn: 2000
+              seqNo: 55
+              image: icon-delivery
+              labelZh: FT来料接收
+              labelEn: FTMLotReceive
+

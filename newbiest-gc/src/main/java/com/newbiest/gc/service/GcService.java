@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void receiveFTWafer(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     List<MaterialLotUnit> createFTMaterialLotAndGetImportCode(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     GCWorkorderRelation saveWorkorderGradeHoldInfo(GCWorkorderRelation workorderRelation, String transType) throws ClientException;
     String getEncryptionSubCode(String grade, String subcode) throws ClientException;

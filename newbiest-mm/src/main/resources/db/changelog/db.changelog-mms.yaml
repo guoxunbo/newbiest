@@ -332,3 +332,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCMLotDocRule.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.FTMaterialLotReceive.nb_authority.yaml
+      relativeToChangelogFile: true

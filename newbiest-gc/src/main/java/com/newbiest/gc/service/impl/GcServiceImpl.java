@@ -6232,4 +6232,61 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * FT晶圆接收(unitId与materialLotId一致)
+     * @param materialLotUnits
+     * @throws ClientException
+     */
+    public void receiveFTWafer(List<MaterialLotUnit> materialLotUnits) throws ClientException {
+        try {
+            List<MaterialLot> materialLotList = materialLotUnits.stream().map(materialLotUnit -> mmsService.getMLotByMLotId(materialLotUnit.getMaterialLotId(), true)).collect(Collectors.toList());
+            for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotUnit.getMaterialLotId());
+                Warehouse warehouse = new Warehouse();
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
+                    warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                }
+                if(warehouse == null){
+                    throw new ClientParameterException(GcExceptions.WAREHOUSE_CANNOT_EMPTY);
+                }
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+                materialLotAction.setTransQty(materialLot.getCurrentQty());
+                materialLotAction.setTransCount(materialLot.getCurrentSubQty());
+                mmsService.stockIn(materialLot, materialLotAction);
+
+                materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                history.setTransQty(materialLotUnit.getCurrentQty());
+                materialLotUnitHisRepository.save(history);
+            }
+
+            for(MaterialLot materialLot : materialLotList){
+                String prodCate = MaterialLotUnit.PRODUCT_TYPE_PROD;
+                Warehouse warehouse  = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                if(!StringUtils.isNullOrEmpty(materialLot.getProductType())){
+                    prodCate = materialLot.getProductType();
+                }
+
+                ErpInStock erpInStock = new ErpInStock();
+                erpInStock.setProdCate(prodCate);
+                erpInStock.setMaterialLot(materialLot);
+                if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehouse.getName())){
+                    erpInStock.setWarehouse(ErpInStock.ZJ_STOCK);
+                } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehouse.getName())){
+                    erpInStock.setWarehouse(ErpInStock.SH_STOCK);
+                } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehouse.getName())){
+                    erpInStock.setWarehouse(ErpInStock.HK_STOCK);
+                } else {
+                    throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouse.getName());
+                }
+                erpInStockRepository.save(erpInStock);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
