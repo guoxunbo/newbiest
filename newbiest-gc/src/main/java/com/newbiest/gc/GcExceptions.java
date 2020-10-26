@@ -59,6 +59,7 @@ public class GcExceptions {
     public static final String EXPRESS_NETWORK_ERROR = "gc.express_network_error";
     public static final String PICKUP_ADDRESS_IS_NULL = "gc.pickup_address_is_null";
     public static final String PICKUP_ADDRESS_MORE_THEN_ONE = "gc.pickup_address_more_then_one";
+    public static final String SHIPPER_IS_NOT_SAME = "gc.shipper_is_not_same";
 
 
 }

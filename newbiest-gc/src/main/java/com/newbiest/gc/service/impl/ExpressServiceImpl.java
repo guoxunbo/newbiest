@@ -183,6 +183,11 @@ public class ExpressServiceImpl implements ExpressService {
                 throw new ClientException(GcExceptions.PICKUP_ADDRESS_MORE_THEN_ONE);
             }
 
+            Set<String> shipper = materialLots.stream().map(MaterialLot :: getShipper).collect(Collectors.toSet());
+            if (CollectionUtils.isNotEmpty(shipper)  && shipper.size() != 1) {
+                throw new ClientException(GcExceptions.SHIPPER_IS_NOT_SAME);
+            }
+
             Map<String, Object> requestParameters = Maps.newHashMap();
             requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
             requestParameters.put("platformFlag", expressConfiguration.getPlatformFlag());
