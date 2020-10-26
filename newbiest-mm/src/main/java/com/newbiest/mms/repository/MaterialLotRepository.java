@@ -39,6 +39,6 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     MaterialLot findByLotIdAndStatusCategoryNotIn(@Param("lotId")String lotId, @Param("statusCategory") String statusCategory);
 
     @Modifying
-    @Query("DELETE FROM MaterialLot m where m.materialLotId = :materialLotId")
-    void deleteByMaterialLotId(@Param("materialLotId") String materialLotId) throws ClientException;
+    @Query("DELETE FROM MaterialLot m where m.reserved48 = :importCode")
+    void deleteByImportType(@Param("importCode") String importCode) throws ClientException;
 }

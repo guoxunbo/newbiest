@@ -18,6 +18,6 @@ public interface MaterialLotHistoryRepository extends IRepository<MaterialLotHis
     MaterialLotHistory findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(String materialLotId, String transType);
 
     @Modifying
-    @Query("DELETE FROM MaterialLotHistory m where m.materialLotId = :materialLotId")
-    void deleteByMaterialLotId(@Param("materialLotId") String materialLotId) throws ClientException;
+    @Query("DELETE FROM MaterialLotHistory m where m.reserved48 = :importCode")
+    void deleteByImportCode(@Param("importCode") String importCode) throws ClientException;
 }

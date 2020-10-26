@@ -12,6 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface MaterialLotUnitHisRepository extends IRepository<MaterialLotUnitHistory, Long> {
 
     @Modifying
-    @Query("DELETE FROM MaterialLotUnitHistory m where m.materialLotId = :materialLotId")
-    void deleteByMaterialLotId(@Param("materialLotId") String materialLotId) throws ClientException;
+    @Query("DELETE FROM MaterialLotUnitHistory m where m.reserved48 = :importCode")
+    void deleteByImportCode(@Param("importCode") String importCode) throws ClientException;
 }

@@ -225,14 +225,11 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         importCallBack.cancel(true);
                     }
                 }
-                //删除导入数据
-                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitArrayList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
-                for(String materialLotId : materialLotUnitMap.keySet()){
-                    materialLotUnitRepository.deleteByMaterialLotId(materialLotId);
-                    materialLotRepository.deleteByMaterialLotId(materialLotId);
-                    materialLotUnitHisRepository.deleteByMaterialLotId(materialLotId);
-                    materialLotHistoryRepository.deleteByMaterialLotId(materialLotId);
-                }
+                //根据导入编码删除导入数据
+                materialLotUnitRepository.deleteByImportCode(importCode);
+                materialLotRepository.deleteByImportType(importCode);
+                materialLotUnitHisRepository.deleteByImportCode(importCode);
+                materialLotHistoryRepository.deleteByImportCode(importCode);
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST);
             }
             return materialLotUnitArrayList;

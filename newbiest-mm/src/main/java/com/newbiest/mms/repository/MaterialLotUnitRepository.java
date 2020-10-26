@@ -32,4 +32,8 @@ public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, 
     @Query("SELECT m FROM MaterialLotUnit m where  m.unitId in (:unitIdList)")
     List<MaterialLotUnit> findByUnitIdIn(@Param("unitIdList") List<String> unitIdList) throws ClientException;
 
+    @Modifying
+    @Query("DELETE FROM MaterialLotUnit m where m.reserved48 = :importCode")
+    void deleteByImportCode(@Param("importCode") String importCode) throws ClientException;
+
 }
