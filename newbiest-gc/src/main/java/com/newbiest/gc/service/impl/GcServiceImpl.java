@@ -474,10 +474,26 @@ public class GcServiceImpl implements GcService {
      * @param materialLotId
      * @return
      */
-    public MaterialLot getWaitStockInStorageMaterialLot(String materialLotId) throws ClientException {
+    public MaterialLot getWaitStockInStorageMaterialLot(String materialLotId, long tableRrn) throws ClientException {
         try {
-            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
-            materialLot.isFinish();
+            MaterialLot materialLot = new MaterialLot();
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String _whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer();
+            clauseBuffer.append(" materialLotId = ");
+            clauseBuffer.append("'" + materialLotId + "'");
+            if (!StringUtils.isNullOrEmpty(_whereClause)) {
+                clauseBuffer.append(" AND ");
+                clauseBuffer.append(_whereClause);
+            }
+            _whereClause = clauseBuffer.toString();
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
+            if(CollectionUtils.isEmpty(materialLots)){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+            } else {
+                materialLot = materialLots.get(0);
+            }
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -581,6 +597,7 @@ public class GcServiceImpl implements GcService {
                 action.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
                 action.setTargetStorageId(storageId);
                 action.setTransQty(materialLot.getCurrentQty());
+                action.setTransCount(materialLot.getCurrentSubQty());
 
                 List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
                 // 如果为空就是做入库事件 如果不是空则做转库事件
