@@ -1,6 +1,7 @@
 package com.newbiest.gc;
 
 import com.newbiest.base.factory.ModelFactory;
+import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.gc.model.*;
 import com.newbiest.main.YmlPropertyLoaderFactory;
 import com.newbiest.mms.model.*;
@@ -80,6 +81,9 @@ public class GcConfiguration {
 
         ModelFactory.registerHistoryModelClassLoader(GCWorkorderRelation.class.getName(), GCWorkorderRelationHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(GCWorkorderRelation.class.getName(), GCWorkorderRelationHis.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(NBTable.class.getName(), NBTableHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(NBTable.class.getName(), NBTableHis.class.getName());
 
     }
 }
