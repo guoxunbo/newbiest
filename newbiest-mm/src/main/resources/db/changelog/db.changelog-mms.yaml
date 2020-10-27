@@ -338,3 +338,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.FTMLotTransferBox.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCFTWaferIssueManager.nb_authority.yaml
+      relativeToChangelogFile: true

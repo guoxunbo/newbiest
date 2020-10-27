@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    List<MaterialLotUnit> queryFTWaitIssueMLotUnitList(long tableRrn) throws ClientException;
     void stockInFTWafer(List<MaterialLotUnit> materialLotUnits ,List<StockInModel> stockInModels) throws ClientException;
     List<MaterialLotUnit> queryFTMLotByUnitIdAndTableRrn(String unitId, long tableRrn) throws ClientException;
     void receiveFTWafer(List<MaterialLotUnit> materialLotUnitList) throws ClientException;

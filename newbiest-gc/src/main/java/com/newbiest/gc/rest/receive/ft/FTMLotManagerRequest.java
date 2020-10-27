@@ -18,6 +18,10 @@ public class FTMLotManagerRequest extends Request {
 
 	public static final String ACTION_TYPE_STOCK_IN = "StockIn";
 
+	public static final String ACTION_TYPE_QUERY_WAIT_ISSUE_UNIT = "QueryWaitIssueUnit";
+
+	public static final String ACTION_TYPE_FT_ISSUE = "FtIssue";
+
 	private FTMLotManagerRequestBody body;
 
 }

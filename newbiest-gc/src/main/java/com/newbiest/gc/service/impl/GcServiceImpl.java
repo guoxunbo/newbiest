@@ -1136,16 +1136,17 @@ public class GcServiceImpl implements GcService {
                     }
                     waferIssue(documentLineMap.get(key), materialLotMap.get(key));
                 }
+
+                boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
+                log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
+                if(waferIssueToMesPlanLot){
+                    log.info("wafer issue to mes plan lot start ");
+                    mesService.materialLotUnitPlanLot(materialLots);
+                    log.info("wafer issue to mes plan lot end ");
+                }
             } else {
                 waferIssueWithOutDocument(materialLots);
             }
-
-            String mLotType = materialLots.get(0).getReserved49();
-            boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
-            if(waferIssueToMesPlanLot && !MaterialLot.IMPORT_COB.equals(mLotType)){
-                mesService.materialLotUnitPlanLot(materialLots);
-            }
-
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -3667,12 +3668,50 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLotList = Lists.newArrayList();
             for(MaterialLot materialLot : materialLots){
                 String workOrderPlanTime = materialLot.getWorkOrderPlanputTime();
-                Date workOrderPlanPutTime = formatter.parse(workOrderPlanTime);
-                if(workOrderPlanPutTime.before(new Date())){
-                    materialLotList.add(materialLot);
+                if(StringUtils.isNullOrEmpty(workOrderPlanTime)){
+                    Date workOrderPlanPutTime = formatter.parse(workOrderPlanTime);
+                    if(workOrderPlanPutTime.before(new Date())){
+                        materialLotList.add(materialLot);
+                    }
                 }
             }
             return materialLotList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取FT待发料的晶圆信息（已经绑定工单的晶圆信息）
+     * @param tableRrn
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> queryFTWaitIssueMLotUnitList(long tableRrn) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+            //获取当前日期，时间格式yyMMdd
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String _whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+
+            if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
+                StringBuffer clauseBuffer = new StringBuffer(_whereClause);
+                _whereClause = clauseBuffer.toString();
+            }
+
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
+            for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                String workOrderPlanTime = materialLotUnit.getWorkOrderPlanputTime();
+                if(!StringUtils.isNullOrEmpty(workOrderPlanTime)){
+                    Date workOrderPlanPutTime = formatter.parse(workOrderPlanTime);
+                    if(workOrderPlanPutTime.before(new Date())){
+                        materialLotUnitList.add(materialLotUnit);
+                    }
+                }
+            }
+            return materialLotUnitList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFTWaferIssueManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCFTWaferIssueManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCFTWaferIssueManager
+              description: FT晶圆发料
+              tableName: GCFTWaferIssueOrder
+              url: /FT/GCFTWaferIssue
+              parentRrn: 2000
+              seqNo: 65
+              image: icon-rule
+              labelZh: FT晶圆发料
+              labelEn: FTWaferIssue
