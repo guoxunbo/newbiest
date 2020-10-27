@@ -60,7 +60,7 @@ public class FTMLotManagerController extends AbstractRestController {
             responseBody.setMaterialLotUnitList(materialLotUnitList);
         } else if(FTMLotManagerRequest.ACTION_TYPE_FT_ISSUE.equals(actionType)){
             List<MaterialLotAction> materialLotActions = requestBody.getMaterialLotActions();
-            gcService.validationAndWaferIssue(requestBody.getDocumentLines(), materialLotActions, requestBody.getIssueWithDoc());
+            gcService.validationAndWaferIssue(requestBody.getDocumentLines(), materialLotActions, requestBody.getIssueWithDoc(), requestBody.getUnPlanLot());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }

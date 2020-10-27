@@ -40,5 +40,7 @@ public class FTMLotManagerRequestBody extends RequestBody {
 	@ApiModelProperty(value = "发料绑定单据")
 	private String issueWithDoc;
 
+	@ApiModelProperty(value = "发料计划投批")
+	private String unPlanLot;
 
 }

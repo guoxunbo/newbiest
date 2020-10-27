@@ -1110,7 +1110,7 @@ public class GcServiceImpl implements GcService {
     }
 
 
-    public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc) throws ClientException{
+    public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException{
         try {
             List<MaterialLot> materialLots = new ArrayList<>();
             Map<String, List<MaterialLotAction>> materialLotActionMap = materialLotActions.stream().collect(Collectors.groupingBy(MaterialLotAction:: getMaterialLotId));
@@ -1119,7 +1119,7 @@ public class GcServiceImpl implements GcService {
                 materialLots.add(materialLot);
             }
 
-            if (StringUtils.isNullOrEmpty(issueWithDoc)) {
+            if (!StringUtils.isNullOrEmpty(issueWithDoc)) {
                 documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
                 Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WAFER_ISSUE_DOC_VALIDATE_RULE_ID);
                 Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByImportType(materialLots, MaterialLot.WAFER_ISSUE_DOC_VALIDATE_RULE_ID, MaterialLot.COB_WAFER_ISSUE_DOC_VALIDATE_RULE_ID);
@@ -1137,6 +1137,11 @@ public class GcServiceImpl implements GcService {
                     waferIssue(documentLineMap.get(key), materialLotMap.get(key));
                 }
 
+            } else {
+                waferIssueWithOutDocument(materialLots);
+            }
+
+            if(StringUtils.isNullOrEmpty(unPlanLot)){
                 boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
                 log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
                 if(waferIssueToMesPlanLot){
@@ -1144,9 +1149,8 @@ public class GcServiceImpl implements GcService {
                     mesService.materialLotUnitPlanLot(materialLots);
                     log.info("wafer issue to mes plan lot end ");
                 }
-            } else {
-                waferIssueWithOutDocument(materialLots);
             }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -3668,7 +3672,7 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLotList = Lists.newArrayList();
             for(MaterialLot materialLot : materialLots){
                 String workOrderPlanTime = materialLot.getWorkOrderPlanputTime();
-                if(StringUtils.isNullOrEmpty(workOrderPlanTime)){
+                if(!StringUtils.isNullOrEmpty(workOrderPlanTime)){
                     Date workOrderPlanPutTime = formatter.parse(workOrderPlanTime);
                     if(workOrderPlanPutTime.before(new Date())){
                         materialLotList.add(materialLot);
