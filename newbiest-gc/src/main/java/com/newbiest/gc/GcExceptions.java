@@ -34,11 +34,12 @@ public class GcExceptions {
     public static final String MATERIALLOT_VENDER_IS_NOT_SAME = "gc.material_lot_vender_is_not_same";
     public static final String MATERIAL_LOT_TAG_QTY_OVER_PO_QTY = "gc.material_lot_tag_qty_over_po_qty";
     public static final String MATERIAL_NAME_DESCRIPTION_IS_NOT_CONFIGURED = "gc.material_name_description_is_not_configured";
-    public static final String UNIT_ID_CANNOT_BONDING_WORKORDER_ID = "gc.unitId_cannot_bonding_workorderId";
     public static final String UNIT_ID_ALREADY_BONDING_WORKORDER_ID = "gc.unitId_already_bonding_workorderId";
     public static final String MATERIAL_LOT_TAG_INFO_IS_NOT_SAME = "gc.material_lot_tag_info_is_not_same";
     public static final String WORKORDER_GRADE_HOLD_INFO_IS_EXIST = "gc.workorderId_grade_hold_info_is_exist";
     public static final String MLOT_DOC_VALIDATE_RULE_IS_NOT_EXIST = "gc.mlot_doc_validate_rule_is_not_exist";
+    public static final String MATERIALLOT_MATERIAL_NAME_IS_NOT_SAME = "gc.material_lot_material_name_is_not_same";
+
 
 
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";

@@ -26,6 +26,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_GETMLOT = "GetMLot";
 
+	public static final String ACTION_VALIDATE_MATERIAL_NAME = "ValidateMaterialName";
+
 	private WltStockOutRequestBody body;
 
 }
