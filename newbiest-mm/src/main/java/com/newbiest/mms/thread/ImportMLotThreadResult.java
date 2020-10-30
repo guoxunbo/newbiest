@@ -16,5 +16,7 @@ public class ImportMLotThreadResult implements Serializable {
 
     private String result = ResponseHeader.RESULT_SUCCESS;
 
+    private String resultMessage;
+
     private List<MaterialLotUnit> materialLotUnits;
 }

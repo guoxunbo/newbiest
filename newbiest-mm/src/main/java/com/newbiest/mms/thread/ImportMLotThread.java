@@ -40,6 +40,7 @@ public class ImportMLotThread implements Callable {
      * 可以理解成durable对应的批次号
      */
     private String lotId;
+    private String materialLotId;
     private String importCode;
     private List<MaterialLotUnit> materialLotUnits;
     private Material material;
@@ -59,8 +60,6 @@ public class ImportMLotThread implements Callable {
         ImportMLotThreadResult result = new ImportMLotThreadResult();
         try {
             List<MaterialLotUnit> materialLotUnitArrayList = new ArrayList<>();
-
-            String materialLotId = materialLotUnits.get(0).getMaterialLotId();
 
             BigDecimal totalQty = materialLotUnits.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
             BigDecimal currentSubQty = new BigDecimal(materialLotUnits.size());
@@ -127,6 +126,7 @@ public class ImportMLotThread implements Callable {
             }
             result.setMaterialLotUnits(materialLotUnits);
         } catch (Exception e) {
+            result.setResultMessage(e.getMessage());
             result.setResult(ResponseHeader.RESULT_FAIL);
         } finally {
             ThreadLocalContext.remove();

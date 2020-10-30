@@ -178,6 +178,11 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     importMLotThread.setMaterialLotUnitHisRepository(materialLotUnitHisRepository);
                     importMLotThread.setSessionContext(ThreadLocalContext.getSessionContext());
 
+                    String materialLotId = materialLotUnits.get(0).getMaterialLotId();
+                    if (StringUtils.isNullOrEmpty(materialLotId)) {
+                        materialLotId = mmsService.generatorMLotId(material);
+                    }
+                    importMLotThread.setMaterialLotId(materialLotId);
                     importMLotThread.setLotId(lotId);
                     importMLotThread.setImportCode(importCode);
                     importMLotThread.setMaterial(material);
@@ -189,11 +194,11 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 }
             }
 
-            // 最大等待返回次数
+            // 最大等待返回次数 300*100最长30S
             int maxWaitCount = 300;
-            boolean result = true;
+            String resultMessage = StringUtils.EMPTY;
             for (Future<ImportMLotThreadResult> importCallBack : importCallBackList) {
-                if (!result || maxWaitCount <= 0) {
+                if (!StringUtils.isNullOrEmpty(resultMessage) || maxWaitCount <= 0) {
                     log.warn("There has some import error. please see log get more details.");
                     break;
                 }
@@ -203,22 +208,22 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         if (ResponseHeader.RESULT_SUCCESS.equals(importResult.getResult())) {
                             materialLotUnitArrayList.addAll(importResult.getMaterialLotUnits());
                         } else {
-                            result = false;
+                            resultMessage = importResult.getResultMessage();
                         }
                         break;
                     } else {
                         // 如果没做好，等待100ms,防止系统将CPU用光
-                        Thread.sleep(50);
+                        Thread.sleep(100);
                         maxWaitCount--;
                         if (maxWaitCount == 0) {
-                            log.info("====================================" + maxWaitCount);
+                            resultMessage = MmsException.MM_MATERIAL_LOT_IMPORT_TIME_OUT;
                             break;
                         }
                     }
                 }
             }
 
-            if(!result){
+            if(!StringUtils.isNullOrEmpty(resultMessage)){
                 //停止线程
                 for(Future<ImportMLotThreadResult> importCallBack : importCallBackList){
                     if(!importCallBack.isDone()){
@@ -230,7 +235,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 materialLotRepository.deleteByImportType(importCode);
                 materialLotUnitHisRepository.deleteByImportCode(importCode);
                 materialLotHistoryRepository.deleteByImportCode(importCode);
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST);
+                throw new ClientParameterException(resultMessage, maxWaitCount * 0.1);
             }
             return materialLotUnitArrayList;
         } catch (Exception e) {

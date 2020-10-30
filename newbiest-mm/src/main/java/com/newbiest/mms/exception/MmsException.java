@@ -43,5 +43,6 @@ public class MmsException {
     public static final String MM_IMPORT_FILE_CONTAINS_EMPTY_DATA = "mm.the_import_file_contains_empty_data";
     public static final String MM_MATERIAL_LOT_UNIT_IS_NOT_BIND_WORKORDER = "mm.material_lot_unit_is_not_bind_workorder";
 
+    public static final String MM_MATERIAL_LOT_IMPORT_TIME_OUT = "mm.material_lot_imp_time_out";
 
 }
