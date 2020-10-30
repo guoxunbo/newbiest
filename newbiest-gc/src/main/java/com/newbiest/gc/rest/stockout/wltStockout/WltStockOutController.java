@@ -63,6 +63,8 @@ public class WltStockOutController {
         } else if(WltStockOutRequest.ACTION_GETMLOT.equals(actionType)){
             MaterialLot materialLot = gcService.getWltMaterialLotToStockOut(requestBody.getTableRrn(),requestBody.getQueryLotId());
             responseBody.setMaterialLot(materialLot);
+        } else if(WltStockOutRequest.ACTION_VALIDATE_MATERIAL_NAME.equals(actionType)){
+            gcService.validationMLotMaterialName(requestBody.getMaterialLotActions());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

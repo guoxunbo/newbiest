@@ -5972,12 +5972,32 @@ public class GcServiceImpl implements GcService {
      * @throws ClientException
      */
     public void validationMaterialLotVender(List<MaterialLotAction> materialLotActions) throws ClientException{
-        List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-        Set venderInfo = materialLotList.stream().map(materialLot -> materialLot.getReserved22()).collect(Collectors.toSet());
-        if (venderInfo != null &&  venderInfo.size() > 1) {
-            throw new ClientParameterException(GcExceptions.MATERIALLOT_VENDER_IS_NOT_SAME);
+        try {
+            List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            Set venderInfo = materialLotList.stream().map(materialLot -> materialLot.getReserved22()).collect(Collectors.toSet());
+            if (venderInfo != null &&  venderInfo.size() > 1) {
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_VENDER_IS_NOT_SAME);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
         }
+    }
 
+    /**
+     * 验证物料批次的产品号是否一致
+     * @param materialLotActions
+     * @throws ClientException
+     */
+    public void validationMLotMaterialName(List<MaterialLotAction> materialLotActions) throws ClientException{
+        try {
+            List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            Set productInfo = materialLotList.stream().map(materialLot -> materialLot.getMaterialName()).collect(Collectors.toSet());
+            if (productInfo != null &&  productInfo.size() > 1) {
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_MATERIAL_NAME_IS_NOT_SAME);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     public MaterialLot getWltMaterialLotToStockOut(Long tableRrn, String queryLotId) throws ClientException {
