@@ -5644,8 +5644,8 @@ public class GcServiceImpl implements GcService {
             }
             
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WLT_SHIP_DOC_VALIDATE_RULE_ID);
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.WLT_SHIP_DOC_VALIDATE_RULE_ID);
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndBondPropAndShipper(documentLineList);
+            Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndBondPropAndShipper(materialLots);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
@@ -5663,6 +5663,60 @@ public class GcServiceImpl implements GcService {
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
+    }
+
+    /**
+     * 物料批次（WLT）按照 物料名称+二级代码+保税属性+客户名称分类
+     * CP : 物料名称(去掉最后一个'-' + 标注形态)+二级代码+保税属性+客户名称分类
+     * @param materialLots
+     * @return
+     */
+    private Map<String,List<MaterialLot>> groupWaferByMaterialAndSecondCodeAndBondPropAndShipper(List<MaterialLot> materialLots) {
+        return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
+            StringBuffer key = new StringBuffer();
+            String materialName = StringUtils.EMPTY;
+            if(!StringUtils.isNullOrEmpty(materialLot.getReserved7()) && MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(materialLot.getReserved7())){
+                materialName = materialLot.getMaterialName();
+            } else {
+                materialName = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-")) + materialLot.getReserved54();
+            }
+            key.append(materialName);
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(materialLot.getReserved1());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(materialLot.getReserved6());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(materialLot.getReserved55());
+            key.append(StringUtils.SPLIT_CODE);
+
+            return key.toString();
+        }));
+    }
+
+    /**
+     * 单据按照 物料名称+二级代码+保税属性+客户名称分类
+     * @param documentLineList
+     * @return
+     */
+    public Map<String, List<DocumentLine>> groupDocLineByMaterialAndSecondCodeAndBondPropAndShipper(List<DocumentLine> documentLineList) {
+        return documentLineList.stream().collect(Collectors.groupingBy(documentLine -> {
+            StringBuffer key = new StringBuffer();
+            key.append(documentLine.getMaterialName());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(documentLine.getReserved2());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(documentLine.getReserved7());
+            key.append(StringUtils.SPLIT_CODE);
+
+            key.append(documentLine.getReserved8());
+            key.append(StringUtils.SPLIT_CODE);
+            return key.toString();
+        }));
     }
 
     /**
