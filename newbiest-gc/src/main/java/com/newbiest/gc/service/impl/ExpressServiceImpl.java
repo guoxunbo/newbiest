@@ -152,6 +152,7 @@ public class ExpressServiceImpl implements ExpressService {
      */
     public List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException{
         try {
+            validateMLotAdressAndShipper(materialLots);
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setExpressNumber(expressNumber);
                 materialLot.setPlanOrderType(planOrderType);
@@ -178,15 +179,8 @@ public class ExpressServiceImpl implements ExpressService {
             if (optional.isPresent()) {
                 throw new ClientException(GcExceptions.PICKUP_ADDRESS_IS_NULL);
             }
-            Set<String> pickUpAddresses = materialLots.stream().map(MaterialLot :: getReserved51).collect(Collectors.toSet());
-            if (CollectionUtils.isNotEmpty(pickUpAddresses)  && pickUpAddresses.size() != 1) {
-                throw new ClientException(GcExceptions.PICKUP_ADDRESS_MORE_THEN_ONE);
-            }
 
-            Set<String> shipper = materialLots.stream().map(MaterialLot :: getShipper).collect(Collectors.toSet());
-            if (CollectionUtils.isNotEmpty(shipper)  && shipper.size() != 1) {
-                throw new ClientException(GcExceptions.SHIPPER_IS_NOT_SAME);
-            }
+            validateMLotAdressAndShipper(materialLots);
 
             Map<String, Object> requestParameters = Maps.newHashMap();
             requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
@@ -200,7 +194,7 @@ public class ExpressServiceImpl implements ExpressService {
             WaybillDelivery preWaybillPickup = new WaybillDelivery();
             preWaybillPickup.setPerson(materialLots.get(0).getReserved52());
             preWaybillPickup.setMobile(materialLots.get(0).getReserved53());
-            preWaybillPickup.setAddress(pickUpAddresses.iterator().next());
+            preWaybillPickup.setAddress(materialLots.get(0).getReserved51());
             orderInfo.setPreWaybillPickup(preWaybillPickup);
 
             orderInfo.setServiceMode(serviceMode);
@@ -223,6 +217,27 @@ public class ExpressServiceImpl implements ExpressService {
             }
             recordExpressNumber(materialLots, waybillNumber, MaterialLot.PLAN_ORDER_TYPE_AUTO);
             return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 手工下单或者跨域下单验证客户和地址必须一致
+     * @param materialLots
+     * @throws ClientException
+     */
+    private void validateMLotAdressAndShipper(List<MaterialLot> materialLots) throws ClientException{
+        try {
+            Set<String> pickUpAddresses = materialLots.stream().map(MaterialLot :: getReserved51).collect(Collectors.toSet());
+            if (CollectionUtils.isNotEmpty(pickUpAddresses)  && pickUpAddresses.size() != 1) {
+                throw new ClientException(GcExceptions.PICKUP_ADDRESS_MORE_THEN_ONE);
+            }
+
+            Set<String> shipper = materialLots.stream().map(MaterialLot :: getShipper).collect(Collectors.toSet());
+            if (CollectionUtils.isNotEmpty(shipper)  && shipper.size() != 1) {
+                throw new ClientException(GcExceptions.SHIPPER_IS_NOT_SAME);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
