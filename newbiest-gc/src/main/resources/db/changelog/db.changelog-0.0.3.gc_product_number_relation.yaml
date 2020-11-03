@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: GC_PRODUCT_NUMBER_RELATION add column
+      author: Guozhang Luo
+      comment: GC_PRODUCT_NUMBER_RELATION add column
+      changes:
+        - addColumn:
+            tableName: GC_PRODUCT_NUMBER_RELATION
+            columns:
+              - column:
+                  name: DEFAULT_FLAG
+                  type: varchar(32)
+                  remarks: 是否默认
+  - changeSet:
+      id: add-unique-constraint-for-GC_PRODUCT_NUMBER_RELATION
+      author: Guozhang Luo
+      comment: Apply unique constraint(ORG_RRN, PRODUCT_ID, PACKAGE_QTY, BOX_PACKED_QTY)for GC_PRODUCT_NUMBER_RELATION
+      changes:
+        - addUniqueConstraint:
+            tableName: GC_PRODUCT_NUMBER_RELATION
+            columnNames: ORG_RRN, PRODUCT_ID,PACKAGE_QTY, BOX_PACKED_QTY
+            constraintName: UK_GC_PRODUCT_NUMBER_RELATION

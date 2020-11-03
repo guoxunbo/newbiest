@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-unique-constraint-for-GC_PRODUCT_NUMBER_RELATION-table
+      author: Guozhang Luo
+      comment: drop unique constraint (ORG_RRN, PRODUCT_ID) for GC_PRODUCT_NUMBER_RELATION
+      changes:
+        - dropUniqueConstraint:
+            tableName: GC_PRODUCT_NUMBER_RELATION
+            constraintName: UK_GC_PRODUCT_NUMBER_RELATION

@@ -259,6 +259,8 @@ public class GcServiceImpl implements GcService {
     @Autowired
     MLotDocRuleRepository mLotDocRuleRepository;
 
+    @Autowired
+    GCProductNumberRelationRepository productNumberRelationRepository;
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -6486,6 +6488,40 @@ public class GcServiceImpl implements GcService {
                 MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
                 materialLotUnitHisRepository.save(materialLotUnitHistory);
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 保存产品箱数量绑定关系
+     * @param productNumberRelation
+     * @return
+     * @throws ClientException
+     */
+    public GCProductNumberRelation saveProductNumberRelation(GCProductNumberRelation productNumberRelation, String transType) throws ClientException {
+        try {
+            GCProductNumberRelation oldProductNumberRelation = new GCProductNumberRelation();
+            String productId = productNumberRelation.getProductId();
+            BigDecimal packageQty = productNumberRelation.getPackageQty();
+            BigDecimal boxPackedQty = productNumberRelation.getBoxPackedQty();
+            String defaultFlag = productNumberRelation.getDefaultFlag();
+            if(GCProductNumberRelation.TRANS_TYPE_CREATE.equals(transType)){
+                oldProductNumberRelation = productNumberRelationRepository.findByProductIdAndPackageQtyAndBoxPackedQty(productId, packageQty, boxPackedQty);
+                if(oldProductNumberRelation != null){
+                    throw new ClientParameterException(GcExceptions.PRODUCT_NUMBER_RELATION_IS_EXIST, productId);
+                }
+            }
+            if(StringUtils.YES.equals(defaultFlag)){
+                oldProductNumberRelation = productNumberRelationRepository.findByProductIdAndDefaultFlag(productId, defaultFlag);
+                if(oldProductNumberRelation != null){
+                    oldProductNumberRelation.setDefaultFlag(StringUtils.NO);
+                    productNumberRelationRepository.save(oldProductNumberRelation);
+                }
+            }
+
+            productNumberRelation = productNumberRelationRepository.saveAndFlush(productNumberRelation);
+            return productNumberRelation;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
