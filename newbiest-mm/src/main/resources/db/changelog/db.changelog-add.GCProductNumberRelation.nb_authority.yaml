@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCProductNumberRelation_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCProductNumberRelation to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCProductNumberRelationManager
+              description: 产品数量绑定关系
+              tableName: GCProductNumberRelation
+              url: /GC/GCProductNumberRelationManager
+              parentRrn: 3
+              seqNo: 55
+              image: icon-rule
+              labelZh: 自动挑货配置
+              labelEn: OutSourceManager
+

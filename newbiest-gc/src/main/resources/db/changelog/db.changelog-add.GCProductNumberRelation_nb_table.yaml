@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCProductNumberRelation_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCProductNumberRelation to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCProductNumberRelation
+              description: 产品绑定数量关系
+              tableName: GC_PRODUCT_NUMBER_RELATION
+              modelName: GCProductNumberRelation
+              modelClass: com.newbiest.gc.model.GCProductNumberRelation
+              labelZh: 产品绑定数量关系
+              label: ProductNumberRelation
