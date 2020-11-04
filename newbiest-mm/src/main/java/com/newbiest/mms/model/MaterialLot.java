@@ -772,6 +772,18 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Transient
     private String documentLineUser;
 
+    /**
+     * 理论重量
+     */
+    @Transient
+    private BigDecimal theoryWeight;
+
+    /**
+     * 浮动值
+     */
+    @Transient
+    private BigDecimal floatValue;
+
 
     /**
      * 验证物料批次是否在有效期内

@@ -64,6 +64,6 @@ public class GcExceptions {
 
     //产品相关
     public static final String PRODUCT_NUMBER_RELATION_IS_EXIST = "gc.product_number_relation_is_exist";
-
+    public static final String PRODUCT_WEIGHT_RELATION_IS_NOT_EXIST_OR_ERROR = "gc.product_weight_relation_is_not_exist_or_error";
 
 }

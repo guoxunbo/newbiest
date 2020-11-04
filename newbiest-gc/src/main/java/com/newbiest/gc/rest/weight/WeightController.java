@@ -36,7 +36,7 @@ public class WeightController {
 
         if (WeightRequest.ACTION_QUERY.equals(actionType)) {
             String materialLotId = requestBody.getMaterialLotId();
-            MaterialLot materialLot = gcService.getWaitWeightMaterialLot(materialLotId);
+            MaterialLot materialLot = gcService.getWaitWeightMaterialLot(materialLotId, requestBody.getTableRrn());
             responseBody.setMaterialLot(materialLot);
         } else if (WeightRequest.ACTION_WEIGHT.equals(actionType)) {
             gcService.materialLotWeight(requestBody.getWeightModels());

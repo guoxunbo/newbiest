@@ -284,3 +284,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.2.gc_product_weight_relation.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.3.gc_product_weight_relation.yaml
+      relativeToChangelogFile: true

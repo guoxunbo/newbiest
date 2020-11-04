@@ -63,7 +63,7 @@ public interface GcService {
     void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException;
 
     void materialLotWeight(List<WeightModel> weightModels) throws ClientException;
-    MaterialLot getWaitWeightMaterialLot(String materialLotId) throws ClientException;
+    MaterialLot getWaitWeightMaterialLot(String materialLotId, Long tableRrn) throws ClientException;
 
     List<MaterialLot> getPackedDetailsAndNotReserved(List<String> packedLotRrn) throws ClientException;
     List<MaterialLot> getWaitForReservedMaterialLot(Long documentLineRrn, Long tableRrn)  throws ClientException;

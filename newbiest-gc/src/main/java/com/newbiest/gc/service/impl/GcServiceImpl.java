@@ -261,6 +261,9 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     GCProductNumberRelationRepository productNumberRelationRepository;
+
+    @Autowired
+    GCProductWeightRelationRepository productWeightRelationRepository;
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -2976,15 +2979,100 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    public MaterialLot getWaitWeightMaterialLot(String materialLotId) throws ClientException {
+    public MaterialLot getWaitWeightMaterialLot(String materialLotId, Long tableRrn) throws ClientException {
         try {
-            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
+            MaterialLot materialLot = new MaterialLot();
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer();
+            clauseBuffer.append(" materialLotId = ");
+            clauseBuffer.append("'" + materialLotId + "'");
+            if (!StringUtils.isNullOrEmpty(whereClause)) {
+                clauseBuffer.append(" AND ");
+                clauseBuffer.append(whereClause);
+            }
+
+            whereClause = clauseBuffer.toString();
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+            if(CollectionUtils.isEmpty(materialLots)){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+            } else {
+                //获取物料批次的理论重量
+                materialLot = queryMaterialLotTheoryWeightAndFolatValue(materialLots.get(0));
+            }
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
+    /**
+     * 获取箱号的理论重量及浮点值
+     * @param materialLot
+     * @return
+     * @throws ClientException
+     */
+    private MaterialLot queryMaterialLotTheoryWeightAndFolatValue(MaterialLot materialLot) throws ClientException{
+        try {
+            GCProductWeightRelation productWeightRelation = new GCProductWeightRelation();
+            BigDecimal totalWeight = BigDecimal.ZERO;
+            String materialName = materialLot.getMaterialName();
+            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            if(CollectionUtils.isNotEmpty(packageDetailLots)){
+                BigDecimal vboxQty = BigDecimal.valueOf(packageDetailLots.size());
+                List<GCProductWeightRelation> productWeightRelations = productWeightRelationRepository.findByProductIdAndPackageQty(materialName, vboxQty);
+                if(CollectionUtils.isEmpty(productWeightRelations) || productWeightRelations.size() > 1){
+                    throw new ClientParameterException(GcExceptions.PRODUCT_WEIGHT_RELATION_IS_NOT_EXIST_OR_ERROR, materialName);
+                }
+                productWeightRelation = productWeightRelations.get(0);
+                //获取箱中真空包的总重量
+                BigDecimal vboxTotalWeight = getPackedDetialTotalWeight(productWeightRelation, packageDetailLots);
+                totalWeight = totalWeight.add(vboxTotalWeight);
+            }
+            BigDecimal packageChipWeight = productWeightRelation.getPackageChipWeight();//整包芯片数量
+            BigDecimal packageNumber = productWeightRelation.getPackageQty();//整包颗数
+            BigDecimal floatValue = productWeightRelation.getFloatQty();//整包颗数
+            totalWeight = productWeightRelation.getBoxWeight().add(totalWeight).add(packageChipWeight.divide(packageNumber).multiply(materialLot.getCurrentQty()));
+            materialLot.setTheoryWeight(totalWeight);
+            materialLot.setFloatValue(floatValue);
+            return  materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取箱中真空包的总重量
+     * @param productWeightRelation
+     * @param packageDetailLots
+     * @return
+     * @throws ClientException
+     */
+    private BigDecimal getPackedDetialTotalWeight(GCProductWeightRelation productWeightRelation, List<MaterialLot> packageDetailLots) throws ClientException{
+        try {
+            //每包真空包重量=盘重量*（每包实际颗数/每盘芯片数+1）+盖重量*（每包实际颗数/每盘芯片数/20+1）+管夹重量*（每包实际颗数/每盘芯片数/20）
+            BigDecimal totalWeight = BigDecimal.ZERO;
+            for(MaterialLot materialLot : packageDetailLots){
+                BigDecimal currentQty = materialLot.getCurrentQty();
+                BigDecimal discWeight = productWeightRelation.getDiscWeight();//盘重量
+                BigDecimal coverWeight = productWeightRelation.getCoverWeight();//盖重量
+                BigDecimal clipWeight = productWeightRelation.getClipWeight();//管夹重量
+                BigDecimal chipWeight = currentQty.divide(productWeightRelation.getDiscChipQty());//每包平均芯片重量
+                BigDecimal vboxWeight = discWeight.multiply(chipWeight.add(BigDecimal.ONE)).add(coverWeight.multiply(chipWeight.divide(new BigDecimal((20))).add(BigDecimal.ONE))).add(clipWeight.multiply(chipWeight.divide(new BigDecimal(20))));
+                totalWeight = totalWeight.add(vboxWeight);
+            }
+            return totalWeight;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 物料批次称重
+     * @param weightModels
+     * @throws ClientException
+     */
     public void materialLotWeight(List<WeightModel> weightModels) throws ClientException {
         try {
             ThreadLocalContext.getSessionContext().buildTransInfo();

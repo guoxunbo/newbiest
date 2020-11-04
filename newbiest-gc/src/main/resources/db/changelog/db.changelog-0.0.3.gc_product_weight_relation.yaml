@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: GC_PRODUCT_WEIGHT_RELATION-0.0.3-modifyDataType
+      author: Gouzhang Luo
+      comment: ModifyDataType
+      changes:
+         - modifyDataType:
+             tableName: GC_PRODUCT_WEIGHT_RELATION
+             columnName: BOX_WEIGHT
+             newDataType: double
+         - modifyDataType:
+             tableName: GC_PRODUCT_WEIGHT_RELATION
+             columnName: DISC_WEIGHT
+             newDataType: double
+         - modifyDataType:
+             tableName: GC_PRODUCT_WEIGHT_RELATION
+             columnName: COVER_WEIGHT
+             newDataType: double
+         - modifyDataType:
+             tableName: GC_PRODUCT_WEIGHT_RELATION
+             columnName: CLIP_WEIGHT
+             newDataType: double
+         - modifyDataType:
+             tableName: GC_PRODUCT_WEIGHT_RELATION
+             columnName: PACKAGE_CHIP_WEIGHT
+             newDataType: double
+         - modifyDataType:
+             tableName: GC_PRODUCT_WEIGHT_RELATION
+             columnName: FLOAT_QTY
+             newDataType: double
