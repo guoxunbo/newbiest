@@ -2,6 +2,7 @@ package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
+import com.newbiest.base.ui.model.NBReferenceTable;
 import com.newbiest.gc.model.*;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DeliveryOrder;
@@ -17,6 +18,8 @@ import java.util.Map;
  */
 public interface GcService {
 
+    List<GCProductNumberRelation> getProductNumberRelationByDocRrn(Long documentLineRrn) throws ClientException;
+    List<MaterialLot> getMaterialLotByPackageRuleAndDocLine(Long documentLineRrn, List<MaterialLotAction> materialLotActions, String packageRule) throws ClientException;
     GCProductNumberRelation saveProductNumberRelation(GCProductNumberRelation productNumberRelation, String transType) throws ClientException;
     void validationMLotMaterialName(List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> queryFTWaitIssueMLotUnitList(long tableRrn) throws ClientException;

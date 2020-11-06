@@ -21,6 +21,8 @@ public class ReServedRequestBody extends RequestBody {
 	public static final String ACTION_TYPE_GET_MATERIAL_LOT_AND_USER = "GetMLotAndUser";
 	public static final String ACTION_TYPE_RESERVED = "Reserved";
 	public static final String ACTION_TYPE_UN_RESERVED = "UnReserved";
+	public static final String ACTION_GET_AUTO_PACK_MLOT = "GetAutoPackMLot";
+	public static final String ACTION_GET_PACKED_RULE_LIST = "GetPackedRuleList";
 
 	/**
 	 * 获取包装箱里的批次
@@ -47,4 +49,7 @@ public class ReServedRequestBody extends RequestBody {
 
 	@ApiModelProperty(example = "查询条件")
 	private String whereClause;
+
+	@ApiModelProperty(example = "包装规格")
+	private String packageRule;
 }

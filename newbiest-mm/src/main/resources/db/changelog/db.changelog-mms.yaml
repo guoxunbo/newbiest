@@ -362,3 +362,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCProductWeightRelation.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCComMLotReserved.nb_authority.yaml
+      relativeToChangelogFile: true

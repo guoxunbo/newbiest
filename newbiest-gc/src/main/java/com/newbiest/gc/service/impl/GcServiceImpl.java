@@ -13,6 +13,7 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
+import com.newbiest.base.ui.model.NBReferenceTable;
 import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
@@ -6610,6 +6611,52 @@ public class GcServiceImpl implements GcService {
 
             productNumberRelation = productNumberRelationRepository.saveAndFlush(productNumberRelation);
             return productNumberRelation;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据产品号获取包装规格
+     * @param documentLineRrn
+     * @return
+     * @throws ClientException
+     */
+    public List<GCProductNumberRelation> getProductNumberRelationByDocRrn(Long documentLineRrn) throws ClientException{
+        try {
+            DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+            String productId = documentLine.getMaterialName();
+            List<GCProductNumberRelation> gcProductNumberRelationList = productNumberRelationRepository.findByProductId(productId);
+            if(CollectionUtils.isEmpty(gcProductNumberRelationList)){
+                throw new ClientParameterException(GcExceptions.PRODUCT_NUMBER_RELATION_IS_NOT_EXIST, productId);
+            }
+            return gcProductNumberRelationList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据包装规则和单据挑选满足条件的物料批次
+     * @param documentLineRrn
+     * @param materialLotActions
+     * @param packageRule
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> getMaterialLotByPackageRuleAndDocLine(Long documentLineRrn, List<MaterialLotAction> materialLotActions, String packageRule) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+            String materialNmae = documentLine.getMaterialName();
+            BigDecimal boxPackedQty = new BigDecimal(packageRule);
+            List<GCProductNumberRelation> productNumberRelations = productNumberRelationRepository.findByProductIdAndBoxPackedQty(materialNmae, boxPackedQty);
+            if(CollectionUtils.isNotEmpty(productNumberRelations) && productNumberRelations.size() > 1){
+                throw new ClientParameterException(GcExceptions.PRODUCT_NUMBER_RELATION_IS_ERROR, materialNmae);
+            }
+            GCProductNumberRelation productNumberRelation = productNumberRelations.get(0);
+
+            return materialLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

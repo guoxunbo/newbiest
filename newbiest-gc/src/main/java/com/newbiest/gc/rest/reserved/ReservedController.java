@@ -2,7 +2,10 @@ package com.newbiest.gc.rest.reserved;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.base.ui.model.NBReferenceTable;
 import com.newbiest.base.ui.model.NBTable;
+import com.newbiest.base.utils.StringUtils;
+import com.newbiest.gc.model.GCProductNumberRelation;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Material;
@@ -60,6 +63,17 @@ public class ReservedController extends AbstractRestController {
             List<String> packedLotIdList  = packedLotList.stream().map(MaterialLotAction :: getMaterialLotId).collect(Collectors.toList());
             List<MaterialLot> materialLots = gcService.getPackedDetailsAndNotReserved(packedLotIdList);
             responseBody.setMaterialLotList(materialLots);
+        } else if(ReServedRequestBody.ACTION_GET_AUTO_PACK_MLOT.equals(actionType)){
+            List<MaterialLot> materialLotList = gcService.getMaterialLotByPackageRuleAndDocLine(requestBody.getDocLineRrn(), requestBody.getMaterialLotActions(), requestBody.getPackageRule());
+            responseBody.setMaterialLotList(materialLotList);
+        } else if(ReServedRequestBody.ACTION_GET_PACKED_RULE_LIST.equals(actionType)){
+            List<GCProductNumberRelation> boxPackedQtyList = gcService.getProductNumberRelationByDocRrn(requestBody.getDocLineRrn());
+            for(GCProductNumberRelation productNumberRelation : boxPackedQtyList) {
+                if(StringUtils.YES.equals(productNumberRelation.getDefaultFlag())){
+                    responseBody.setDefaultPackedRule(productNumberRelation);
+                }
+            }
+            responseBody.setBoxPackedQtyList(boxPackedQtyList);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

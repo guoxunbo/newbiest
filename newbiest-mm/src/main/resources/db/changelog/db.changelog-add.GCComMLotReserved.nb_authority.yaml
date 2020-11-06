@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCComMLotReservedManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCComMLotReservedManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCComMLotReservedManager
+              description: COM备货
+              tableName: GCCOMReservedOrder
+              url: /Doc/COMReservedManager
+              parentRrn: 1020
+              seqNo: 1
+              image: icon-rule
+              labelZh: COM备货
+              labelEn: COMReserved
