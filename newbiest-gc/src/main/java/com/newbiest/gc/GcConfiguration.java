@@ -87,5 +87,8 @@ public class GcConfiguration {
         ModelFactory.registerHistoryModelClassLoader(NBTable.class.getName(), NBTableHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(NBTable.class.getName(), NBTableHis.class.getName());
 
+        ModelFactory.registerHistoryModelClassLoader(GCProductWeightRelation.class.getName(), GCProductWeightRelationHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(GCProductWeightRelation.class.getName(), GCProductWeightRelationHis.class.getName());
+
     }
 }
