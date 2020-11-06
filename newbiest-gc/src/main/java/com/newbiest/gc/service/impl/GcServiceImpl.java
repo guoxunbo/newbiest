@@ -5780,7 +5780,11 @@ public class GcServiceImpl implements GcService {
             key.append(materialLot.getReserved6());
             key.append(StringUtils.SPLIT_CODE);
 
-            key.append(materialLot.getReserved55());
+            if(StringUtils.isNullOrEmpty(materialLot.getReserved55())){
+                key.append(materialLot.getReserved55());
+            } else{
+                key.append(materialLot.getReserved55().toUpperCase());
+            }
             key.append(StringUtils.SPLIT_CODE);
 
             return key.toString();
@@ -5804,7 +5808,11 @@ public class GcServiceImpl implements GcService {
             key.append(documentLine.getReserved7());
             key.append(StringUtils.SPLIT_CODE);
 
-            key.append(documentLine.getReserved8());
+            if(StringUtils.isNullOrEmpty(documentLine.getReserved8())){
+                key.append(documentLine.getReserved8());
+            } else {
+                key.append(documentLine.getReserved8().toUpperCase());
+            }
             key.append(StringUtils.SPLIT_CODE);
             return key.toString();
         }));
