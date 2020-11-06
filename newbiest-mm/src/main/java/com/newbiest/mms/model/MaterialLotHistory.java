@@ -330,6 +330,12 @@ public class MaterialLotHistory extends NBHis {
     private Date docDate;
 
     /**
+     * 原产品号
+     */
+    @Column(name="SOURCE_PRODUCT_ID")
+    private String sourceProductId;
+
+    /**
      * GlaxyCore MES完成品的levelTwoCode
      */
     @Column(name="RESERVED1")

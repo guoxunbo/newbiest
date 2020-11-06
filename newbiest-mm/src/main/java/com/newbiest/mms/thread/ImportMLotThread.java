@@ -72,6 +72,7 @@ public class ImportMLotThread implements Callable {
             propsMap.put("shipper", materialLotUnits.get(0).getShipper());
             propsMap.put("grade", materialLotUnits.get(0).getGrade());
             propsMap.put("lotId", lotId.toUpperCase());
+            propsMap.put("sourceProductId", materialLotUnits.get(0).getSourceProductId());
 
             propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
             propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());

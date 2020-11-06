@@ -29,4 +29,10 @@ public class GCProductModelConversion extends NBUpdatable {
     @Column(name="CONVERSION_MODEL_ID")
     private String conversionModelId;
 
+    /**
+     * 产品型号类别
+     */
+    @Column(name="MODEL_CATEGORY")
+    private String modelCategory;
+
 }

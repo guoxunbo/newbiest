@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_product_model_conversion_0.0.2
+      author: Guozhang Luo
+      remarks: GC_PRODUCT_MODEL_CONVERSION add column MODEL_CATEGORY
+      changes:
+        - addColumn:
+            tableName: GC_PRODUCT_MODEL_CONVERSION
+            columns:
+              - column:
+                  name: MODEL_CATEGORY
+                  type: varchar2(64)
+                  remarks: 产品型号类别

@@ -1,5 +1,6 @@
 package com.newbiest.gc.model;
 
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.model.MaterialLot;
 import lombok.Data;
 
@@ -145,7 +146,11 @@ public class ErpInStock implements Serializable {
         this.setCCode(materialLot.getReserved27());
         this.setSubName(materialLot.getReserved22());
         this.setGcVersion(materialLot.getReserved1());
-        this.setCInvCode(materialLot.getMaterialName());
+        if(StringUtils.isNullOrEmpty(materialLot.getSourceProductId())){
+            this.setCInvCode(materialLot.getMaterialName());
+        } else {
+            this.setCInvCode(materialLot.getSourceProductId());
+        }
         this.setWaferQty(materialLot.getCurrentSubQty().intValue());
         this.setDieQty(materialLot.getCurrentQty().intValue());
         this.setCGrad(materialLot.getGrade());

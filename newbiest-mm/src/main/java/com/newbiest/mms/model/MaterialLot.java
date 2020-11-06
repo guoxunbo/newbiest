@@ -114,6 +114,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String IMPORT_COB = "COB";
     public static final String IMPORT_COG = "COG";
     public static final String IMPORT_SOC = "SOC";
+    public static final String IMPORT_FT = "FT";
 
     /**
      * Wafer Source
@@ -400,6 +401,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="PRODUCT_TYPE")
     private String productType = PRODUCT_TYPE_PROD;
+
+    /**
+     * 原产品号
+     */
+    @Column(name="SOURCE_PRODUCT_ID")
+    private String sourceProductId;
 
     /**
      * ERP备货的单据日期

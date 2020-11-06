@@ -2833,6 +2833,7 @@ public class GcServiceImpl implements GcService {
                 for(Map<String, String> m : productModelList){
                     String productId = m.get("MODEL_ID");
                     String conversionModelId = m.get("CONVERSION_MODEL_ID");
+                    String modelCategory = m.get("MODEL_CATEGORY");
                     material = mmsService.getProductByName(productId);
                     if(material == null){
                         material = mmsService.getRawMaterialByName(productId);
@@ -2843,12 +2844,14 @@ public class GcServiceImpl implements GcService {
                             productModelConversion = new GCProductModelConversion();
                             productModelConversion.setProductId(productId);
                             productModelConversion.setConversionModelId(conversionModelId);
+                            productModelConversion.setModelCategory(modelCategory);
                             productModelConversion = gcProductModelConversionRepository.saveAndFlush(productModelConversion);
                             productModelConversionList.add(productModelConversion);
                         } else {
                             GCProductModelConversion oldProductModelConversion = gcProductModelConversionRepository.findByProductIdAndConversionModelId(productId, conversionModelId);
                             if(oldProductModelConversion == null){
                                 oldProductModelConversion.setConversionModelId(conversionModelId);
+                                oldProductModelConversion.setModelCategory(modelCategory);
                                 oldProductModelConversion = gcProductModelConversionRepository.saveAndFlush(oldProductModelConversion);
                             }
                             productModelConversionList.add(oldProductModelConversion);
@@ -6669,4 +6672,63 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 通过导入型号验证是否做产品型号转换，并保存原产品型号（后续接收时需要保存至中间表ETM_IN_STOCK）
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> validateAndChangeMaterialNameByImportType(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException{
+        try {
+            Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
+            if(MaterialLotUnit.SENSOR_CP.equals(importType) || MaterialLotUnit.FAB_SENSOR.equals(importType) || MaterialLotUnit.SENSOR_CP_KLT.equals(importType)
+                    || MaterialLotUnit.SENSOR_UNMEASURED.equals(importType) || MaterialLotUnit.FAB_SENSOR_2UNMEASURED.equals(importType)){
+                changeMaterialNameByModelCategory(materialLotUnitMap, MaterialLot.IMPORT_SENSOR_CP);
+            } else if(MaterialLotUnit.LCD_CP_25UNMEASURED.equals(importType) || MaterialLotUnit.FAB_LCD_PTC.equals(importType) || MaterialLotUnit.FAB_LCD_SILTERRA.equals(importType)
+                    || MaterialLotUnit.LCD_CP.equals(importType)){
+                changeMaterialNameByModelCategory(materialLotUnitMap, MaterialLot.IMPORT_LCD_CP);
+            } else if(MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType) || MaterialLotUnit.SENSOR_PACK_RETURN_COGO.equals(importType) || MaterialLotUnit.SENSOR_TPLCC.equals(importType)){
+                for(String materialName : materialLotUnitMap.keySet()){
+                    GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductIdAndModelCategory(materialName, MaterialLot.IMPORT_FT);
+                    if(productModelConversion != null){
+                        String conversionModelId = productModelConversion.getConversionModelId();
+                        conversionModelId = conversionModelId.substring(conversionModelId.lastIndexOf("-")) + "-3.5";
+                        List<MaterialLotUnit> materialLotUnitList = materialLotUnitMap.get(materialName);
+                        for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                            materialLotUnit.setSourceProductId(materialName);
+                            materialLotUnit.setMaterialName(conversionModelId);
+                        }
+                    }
+                }
+            }
+            return  materialLotUnits;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 通过产品型号转换表修改来料的晶圆型号
+     * @param materialLotUnitMap
+     * @param importSensorCp
+     * @throws ClientException
+     */
+    private void changeMaterialNameByModelCategory(Map<String,List<MaterialLotUnit>> materialLotUnitMap, String importSensorCp) throws ClientException{
+        try {
+            for(String materialName : materialLotUnitMap.keySet()){
+                GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductIdAndModelCategory(materialName, MaterialLot.IMPORT_SENSOR_CP);
+                if(productModelConversion != null){
+                    String conversionModelId = productModelConversion.getConversionModelId();
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitMap.get(materialName);
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        materialLotUnit.setMaterialName(conversionModelId);
+                        materialLotUnit.setSourceProductId(materialName);
+                    }
+                }
+            }
+        }catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 }

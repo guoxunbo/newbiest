@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.1.4
+      author: Guozhang Luo
+      remarks: mms_material_lot_unit add column SOURCE_PRODUCT_ID
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: SOURCE_PRODUCT_ID
+                  type: varchar(64)
+                  remarks: 原产品型号
