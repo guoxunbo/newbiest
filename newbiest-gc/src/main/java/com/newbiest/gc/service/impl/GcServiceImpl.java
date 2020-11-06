@@ -265,6 +265,10 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     GCProductWeightRelationRepository productWeightRelationRepository;
+
+    @Autowired
+    GCProductNumberRelationHisRepository productNumberRelationHisRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -6617,10 +6621,21 @@ public class GcServiceImpl implements GcService {
                 if(oldProductNumberRelation != null){
                     oldProductNumberRelation.setDefaultFlag(StringUtils.NO);
                     productNumberRelationRepository.save(oldProductNumberRelation);
+
+                    GCProductNumberRelationHis productNumberRelationHis = (GCProductNumberRelationHis) baseService.buildHistoryBean(oldProductNumberRelation, GCProductNumberRelation.TRANS_TYPE_UPDATE);
+                    productNumberRelationHisRepository.save(productNumberRelationHis);
                 }
             }
 
             productNumberRelation = productNumberRelationRepository.saveAndFlush(productNumberRelation);
+
+            if(GCProductNumberRelation.TRANS_TYPE_CREATE.equals(transType)){
+                GCProductNumberRelationHis productNumberRelationHis = (GCProductNumberRelationHis) baseService.buildHistoryBean(productNumberRelation, GCProductNumberRelation.TRANS_TYPE_CREATE);
+                productNumberRelationHisRepository.save(productNumberRelationHis);
+            } else {
+                GCProductNumberRelationHis productNumberRelationHis = (GCProductNumberRelationHis) baseService.buildHistoryBean(productNumberRelation, GCProductNumberRelation.TRANS_TYPE_UPDATE);
+                productNumberRelationHisRepository.save(productNumberRelationHis);
+            }
             return productNumberRelation;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
