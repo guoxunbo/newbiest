@@ -6725,13 +6725,13 @@ public class GcServiceImpl implements GcService {
     /**
      * 通过产品型号转换表修改来料的晶圆型号
      * @param materialLotUnitMap
-     * @param importSensorCp
+     * @param modelCategory
      * @throws ClientException
      */
-    private void changeMaterialNameByModelCategory(Map<String,List<MaterialLotUnit>> materialLotUnitMap, String importSensorCp) throws ClientException{
+    private void changeMaterialNameByModelCategory(Map<String,List<MaterialLotUnit>> materialLotUnitMap, String modelCategory) throws ClientException{
         try {
             for(String materialName : materialLotUnitMap.keySet()){
-                GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductIdAndModelCategory(materialName, MaterialLot.IMPORT_SENSOR_CP);
+                GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductIdAndModelCategory(materialName, modelCategory);
                 if(productModelConversion != null){
                     String conversionModelId = productModelConversion.getConversionModelId();
                     List<MaterialLotUnit> materialLotUnitList = materialLotUnitMap.get(materialName);
