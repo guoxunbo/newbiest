@@ -39,6 +39,7 @@ public class GcExceptions {
     public static final String WORKORDER_GRADE_HOLD_INFO_IS_EXIST = "gc.workorderId_grade_hold_info_is_exist";
     public static final String MLOT_DOC_VALIDATE_RULE_IS_NOT_EXIST = "gc.mlot_doc_validate_rule_is_not_exist";
     public static final String MATERIALLOT_MATERIAL_NAME_IS_NOT_SAME = "gc.material_lot_material_name_is_not_same";
+    public static final String MATERIALLOT_PACKAGE_RULE_IS_ERROR = "gc.material_lot_package_rule_is_error";
 
 
 

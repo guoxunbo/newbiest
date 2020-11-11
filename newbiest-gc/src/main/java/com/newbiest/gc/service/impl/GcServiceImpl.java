@@ -6672,6 +6672,7 @@ public class GcServiceImpl implements GcService {
      */
     public List<MaterialLot> getMaterialLotByPackageRuleAndDocLine(Long documentLineRrn, List<MaterialLotAction> materialLotActions, String packageRule) throws ClientException{
         try {
+            List<MaterialLot> materialLotList = Lists.newArrayList();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
             String materialNmae = documentLine.getMaterialName();
@@ -6681,8 +6682,108 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(GcExceptions.PRODUCT_NUMBER_RELATION_IS_ERROR, materialNmae);
             }
             GCProductNumberRelation productNumberRelation = productNumberRelations.get(0);
+            BigDecimal totalQty = documentLine.getUnReservedQty();//单据备货单未备货数量
+            List<MaterialLot> wholeBoxMLots = Lists.newArrayList();//整箱
+            List<MaterialLot> zeroBoxMLots = Lists.newArrayList();//零箱
+            List<MaterialLot> wholeVboxMLots = Lists.newArrayList();//整包
+            List<MaterialLot> zeroVBoxMLots = Lists.newArrayList();//零包
+            BigDecimal totalNumber = productNumberRelation.getTotalNumber();//整箱颗数
+            BigDecimal packageQty = productNumberRelation.getPackageQty();//整包颗数
+            //将物料批次按照箱号做分组
+            Map<String, List<MaterialLot>> packedLotMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            if(packedLotMap != null && packedLotMap.keySet().size() > 0){
+                for(String parentMaterialLotId : packedLotMap.keySet()){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(parentMaterialLotId, true);
+                    if(totalNumber.compareTo(materialLot.getCurrentQty()) == 0){
+                        wholeBoxMLots.add(materialLot);
+                    } else if(totalNumber.compareTo(materialLot.getCurrentQty()) > 0){
+                        zeroBoxMLots.add(materialLot);
+                    } else {
+                        throw new ClientParameterException(GcExceptions.MATERIALLOT_PACKAGE_RULE_IS_ERROR, parentMaterialLotId);
+                    }
+                    materialLots.removeAll(packedLotMap.get(parentMaterialLotId));
+                }
+            }
+            //未装箱的物料批次信息
+            if(CollectionUtils.isNotEmpty(materialLots)){
+                for(MaterialLot materialLot : materialLots){
+                    if(packageQty.compareTo(materialLot.getCurrentQty()) == 0){
+                        wholeVboxMLots.add(materialLot);
+                    } else if(packageQty.compareTo(materialLot.getCurrentQty()) >= 0){
+                        zeroVBoxMLots.add(materialLot);
+                    } else {
+                        throw new ClientParameterException(GcExceptions.MATERIALLOT_PACKAGE_RULE_IS_ERROR, materialLot.getMaterialLotId());
+                    }
+                }
+            }
+            //先挑整箱的
+            Iterator<MaterialLot> iterator = wholeBoxMLots.iterator();
+            while (iterator.hasNext()){
+                MaterialLot materialLot = iterator.next();
+                if(totalQty.compareTo(materialLot.getCurrentQty()) > 0){
+                    materialLotList.addAll(packedLotMap.get(materialLot.getMaterialLotId()));
+                    totalQty = totalQty.subtract(materialLot.getCurrentQty());
+                    iterator.remove();
+                }
+            }
+            //再挑未装箱的真空包（整包）
+            if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                for(MaterialLot materialLot: wholeVboxMLots){
+                    if(totalQty.compareTo(materialLot.getCurrentQty()) > 0){
+                        materialLotList.add(materialLot);
+                        totalQty = totalQty.subtract(materialLot.getCurrentQty());
+                    }
+                }
+            }
+            //已经装箱的零数箱（先装箱的先挑）
+            if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                if(CollectionUtils.isNotEmpty(zeroBoxMLots)){
+                    List<MaterialLot> zeroBoxMLotList = zeroBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                    for (MaterialLot materialLot: zeroBoxMLotList){
+                        if(totalQty.compareTo(materialLot.getCurrentQty()) > 0){
+                            materialLotList.addAll(packedLotMap.get(materialLot.getMaterialLotId()));
+                            totalQty = totalQty.subtract(materialLot.getCurrentQty());
+                        }
+                    }
+                }
+            }
+            //再挑已经装箱的整箱中的真空包（需拆箱，按照装箱的时间拆）
+            if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                if(CollectionUtils.isNotEmpty(wholeBoxMLots)){
+                    List<MaterialLot> wholeBoxMLotList = wholeBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                    for(MaterialLot packagedLot : wholeBoxMLotList){
+                        List<MaterialLot> packedDetials = packedLotMap.get(packagedLot.getMaterialLotId());
+                        List<MaterialLotAction> materialLotActionList = Lists.newArrayList();
+                        for(MaterialLot packedMLot : packedDetials){
+                            if(totalQty.compareTo(packedMLot.getCurrentQty()) > 0){
+                                //箱中待拆箱的真空包
+                                MaterialLotAction materialLotAction = new MaterialLotAction();
+                                materialLotAction.setMaterialLotId(packedMLot.getMaterialLotId());
+                                materialLotAction.setTransQty(packedMLot.getCurrentQty());
+                                materialLotActionList.add(materialLotAction);
+                                materialLotList.add(packedMLot);
+                                totalQty = totalQty.subtract(packedMLot.getCurrentQty());
+                            }
+                        }
+                        if(CollectionUtils.isNotEmpty(materialLotActionList)){
+                            packageService.unPack(materialLotActionList);
+                        }
+                    }
+                }
+            }
 
-            return materialLots;
+            //最后挑选未装箱的真空包（只挑零包）
+            if(totalQty.compareTo(BigDecimal.ZERO) > 0){
+                for(MaterialLot zeroVbox : zeroVBoxMLots){
+                    if(totalQty.compareTo(zeroVbox.getCurrentQty()) > 0){
+                        totalQty = totalQty.subtract(zeroVbox.getCurrentQty());
+                        materialLotList.add(zeroVbox);
+                    }
+                }
+            }
+
+            return materialLotList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
