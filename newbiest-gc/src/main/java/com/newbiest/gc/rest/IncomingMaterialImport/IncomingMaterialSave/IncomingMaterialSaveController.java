@@ -64,7 +64,6 @@ public class IncomingMaterialSaveController {
             importCode = gcService.saveLCDCOGDetailList(materialLotList, importType);
         } else if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
-            materialLotUnitList = materialLotUnitService.getMaterialLotUnitByFabLotAndWaferId(materialLotUnitList, importType);
             materialLotUnitList = gcService.validateImportWltPackReturn(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
         } else if(MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)){

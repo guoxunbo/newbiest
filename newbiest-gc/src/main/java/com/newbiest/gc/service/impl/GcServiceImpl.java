@@ -5602,7 +5602,16 @@ public class GcServiceImpl implements GcService {
      */
     public List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
         try {
-            validateMLotUnitProductAndSubcode(materialLotUnitList);
+            Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
+            for(String materialName : materialUnitMap.keySet()){
+                Map<String, List<MaterialLotUnit>> subcodeMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getReserved1));
+                for(String subcode : subcodeMap.keySet()){
+                    GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialName, subcode);
+                    if(gcProductSubcode == null ){
+                        throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST);
+                    }
+                }
+            }
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 String unitId = materialLotUnit.getUnitId();
                 String materialName = materialLotUnit.getMaterialName();
@@ -5642,11 +5651,12 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 materialLotUnit.setMaterialName(materialName);
+                materialLotUnit.setReserved6(StringUtils.EMPTY);
                 materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
                 materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
                 materialLotUnit.setReserved50("7");
             }
-            materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
+            materialLotUnitList = materialLotUnitService.createFTMLot(materialLotUnitList);
             return materialLotUnitList;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -6473,7 +6483,7 @@ public class GcServiceImpl implements GcService {
                 materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                 materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                 materialLotUnit.setReserved6(StringUtils.EMPTY);//来料导入时reserved6不是报税属性，暂时清空
-                materialLotUnit.setReserved7(StringUtils.EMPTY);//晶圆信息不保存产品型号
+                materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);//晶圆信息不保存产品型号
                 materialLotUnit.setReserved18("0");
                 materialLotUnit.setReserved30(materialLotUnit.getReserved30().split("\\.")[0]);
                 materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());

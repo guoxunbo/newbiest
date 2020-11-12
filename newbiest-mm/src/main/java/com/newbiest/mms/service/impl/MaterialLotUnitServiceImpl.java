@@ -395,7 +395,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
 
                     propsMap.put("reserved1",materialLotUnit.getReserved1());
                     propsMap.put("reserved6",materialLotUnit.getReserved4());
-                    propsMap.put("reserved7",MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);
+                    propsMap.put("reserved7",materialLotUnit.getReserved7());
                     propsMap.put("reserved13",materialLotUnit.getReserved13());
                     propsMap.put("reserved14",materialLotUnit.getReserved14());
                     propsMap.put("reserved22",materialLotUnit.getReserved22());
@@ -425,6 +425,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                         materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                     }
+                    materialLotUnit.setReserved7(StringUtils.EMPTY);
                     materialLotUnit.setLotId(materialLotUnit.getLotId().toUpperCase());
                     materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
                     materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
