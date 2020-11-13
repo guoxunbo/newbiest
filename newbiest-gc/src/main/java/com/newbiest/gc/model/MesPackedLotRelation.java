@@ -122,4 +122,10 @@ public class MesPackedLotRelation implements Serializable {
     @Column(name = "PRODUCT_TYPE")
     private String productType;
 
+    /**
+     * Lot Type
+     */
+    @Column(name="WAFER_PROPERTY")
+    private String waferProperty;
+
 }

@@ -2388,6 +2388,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     if(mesPackedLotRelation != null){
                         otherReceiveProps.put("reserved22", mesPackedLotRelation.getVender());
+                        otherReceiveProps.put("reserved25", mesPackedLotRelation.getWaferProperty());
                     }
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
                     String productCategory = mesPackedLot.getProductCategory();
@@ -3524,6 +3525,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved50(materialLot.getReserved50());
                     if(mesPackedLotRelation != null){
                         materialLotUnit.setReserved22(mesPackedLotRelation.getVender());
+                        materialLotUnit.setReserved25(mesPackedLotRelation.getWaferProperty());
                     }
                     materialLotUnit =  materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
