@@ -6821,7 +6821,7 @@ public class GcServiceImpl implements GcService {
                     GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductIdAndModelCategory(materialName, MaterialLot.IMPORT_FT);
                     if(productModelConversion != null){
                         String conversionModelId = productModelConversion.getConversionModelId();
-                        conversionModelId = conversionModelId.substring(conversionModelId.lastIndexOf("-")) + "-3.5";
+                        conversionModelId = conversionModelId.substring(0, conversionModelId.lastIndexOf("-")) + "-3.5";
                         List<MaterialLotUnit> materialLotUnitList = materialLotUnitMap.get(materialName);
                         for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                             materialLotUnit.setSourceProductId(materialName);
