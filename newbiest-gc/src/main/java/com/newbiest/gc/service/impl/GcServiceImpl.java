@@ -6860,4 +6860,36 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * mes记录物料批次历史
+     * @param materialLots
+     * @param transId
+     * @return
+     * @throws ClientException
+     */
+    public String mesSaveMaterialLotHis(List<MaterialLot> materialLots, String transId) throws ClientException {
+        String errorMessage = "";
+        try {
+            for(MaterialLot materialLot : materialLots){
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+        return errorMessage;
+    }
+
+    public String mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException{
+        String errorMessage = "";
+        try {
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
+            }
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+        return errorMessage;
+    }
 }

@@ -18,6 +18,8 @@ import java.util.Map;
  */
 public interface GcService {
 
+    String mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
+    String mesSaveMaterialLotHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     List<MaterialLotUnit> validateAndChangeMaterialNameByImportType(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     List<GCProductNumberRelation> getProductNumberRelationByDocRrn(Long documentLineRrn) throws ClientException;
     List<MaterialLot> getMaterialLotByPackageRuleAndDocLine(Long documentLineRrn, List<MaterialLotAction> materialLotActions, String packageRule) throws ClientException;
