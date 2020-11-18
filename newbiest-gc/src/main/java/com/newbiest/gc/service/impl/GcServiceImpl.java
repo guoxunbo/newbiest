@@ -3353,23 +3353,24 @@ public class GcServiceImpl implements GcService {
             } else if(importType.equals(MaterialLotUnit.RMA_GOOD_PRODUCT) || importType.equals(MaterialLotUnit.RMA_RETURN)
                     ||importType.equals(MaterialLotUnit.RMA_PURE)){
                 importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
-                Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getMaterialLotId));
-                for(String materialLotId : materialLotMap.keySet()){
-                    List<MaterialLot> materialLots = materialLotMap.get(materialLotId);
-                    Material material = mmsService.getRawMaterialByName(materialLots.get(0).getMaterialName());
-                    if (material == null){
-                        material = mmsService.getProductByName(materialLots.get(0).getMaterialName());
-                    }
+                Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getMaterialName));
+                for(String materialName : materialLotMap.keySet()){
+                    List<MaterialLot> materialLots = materialLotMap.get(materialName);
+                    Material material = mmsService.getRawMaterialByName(materialName);
                     if (material == null) {
-                        throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, materialLots.get(0).getMaterialName());
+                        RawMaterial rawMaterial = new RawMaterial();
+                        rawMaterial.setName(materialName);
+                        material = mmsService.createRawMaterial(rawMaterial);
+                        StatusModel statusModel = mmsService.getMaterialStatusModel(material);
+                        material.setStatusModelRrn(statusModel.getObjectRrn());
                     }
-                    StatusModel statusModel = mmsService.getMaterialStatusModel(material);
-
+                    //删除已经存在的物料批次信息，重新导入
+                    deleteRmaMaterialLotAndUnit(materialLots);
                     for(MaterialLot materialLot : materialLots){
                         materialLot.setMaterial(material);
                         materialLot.setReserved48(importCode);
                         materialLot.initialMaterialLot();
-                        materialLot.setStatusModelRrn(statusModel.getObjectRrn());
+                        materialLot.setStatusModelRrn(material.getStatusModelRrn());
                         materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         materialLot.setStatus(MaterialStatus.STATUS_CREATE);
                         materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_RMA);
@@ -3383,15 +3384,65 @@ public class GcServiceImpl implements GcService {
                             materialLot.setReserved50("15");
                             materialLot.setReserved49(MaterialLot.IMPORT_CRMA);
                         }
+                        MaterialLot oldMLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+                        if(oldMLot != null){
+                            materialLotRepository.delete(oldMLot);
+                        }
                         materialLot = materialLotRepository.saveAndFlush(materialLot);
-
                         MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
                         materialLotHistoryRepository.save(history);
+
+                        MaterialLotUnit materialLotUnit = new MaterialLotUnit();
+                        materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
+                        materialLotUnit.setLotId(materialLot.getMaterialLotId());
+                        materialLotUnit.setState(MaterialStatus.STATUS_CREATE);
+                        materialLotUnit.setMaterial(material);
+                        materialLotUnit.setMaterialLot(materialLot);
+                        materialLotUnit.setRmaMaterialLot(materialLot);
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
+                        materialLotUnitHisRepository.save(materialLotUnitHistory);
                     }
                 }
             }
             return importCode;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 删除RMA已经存在的物料批次及Unit信息，重新导入
+     * @param materialLots
+     * @throws ClientException
+     */
+    private void deleteRmaMaterialLotAndUnit(List<MaterialLot> materialLots) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLots){
+                MaterialLot oldMaterialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+                if(oldMaterialLot != null){
+                    materialLotRepository.deleteById(oldMaterialLot.getObjectRrn());
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(oldMaterialLot, NBHis.TRANS_TYPE_DELETE);
+                    materialLotHistoryRepository.save(history);
+
+                    List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(oldMaterialLot.getObjectRrn());
+                    if(CollectionUtils.isNotEmpty(materialLotInvList)){
+                        materialLotInventoryRepository.deleteByMaterialLotRrn(oldMaterialLot.getObjectRrn());
+                    }
+                }
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        materialLotUnitRepository.deleteById(materialLotUnit.getObjectRrn());
+
+                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_DELETE);
+                        materialLotUnitHisRepository.save(materialLotUnitHistory);
+                    }
+                }
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

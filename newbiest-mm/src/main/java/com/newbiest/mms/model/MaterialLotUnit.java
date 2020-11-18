@@ -1,13 +1,12 @@
 package com.newbiest.mms.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -200,6 +199,14 @@ public class MaterialLotUnit extends NBUpdatable {
      */
     @Column(name="SHIPPER")
     private String shipper;
+
+    /**
+     * 接收日期
+     */
+    @Column(name="RECEIVE_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
+    private Date receiveDate;
 
     /**
      * 载具号aliasId
@@ -523,5 +530,41 @@ public class MaterialLotUnit extends NBUpdatable {
         this.setReserved36(materialLot.getReserved36());
         this.setReserved41(materialLot.getReserved41());
         this.setReserved46(materialLot.getReserved46());
+    }
+
+    public void setRmaMaterialLot(MaterialLot materialLot) {
+        this.setUnitId(materialLot.getMaterialLotId());
+        this.setMaterialLotRrn(materialLot.getObjectRrn());
+        this.setGrade(materialLot.getGrade());
+        this.setReceiveQty(materialLot.getReceiveQty());
+        this.setCurrentSubQty(BigDecimal.ONE);
+        this.setCurrentQty(materialLot.getCurrentQty());
+        this.setWorkOrderId(materialLot.getWorkOrderId());
+        this.setWorkOrderPlanputTime(materialLot.getWorkOrderPlanputTime());
+        this.setReserved4(materialLot.getReserved6());
+        this.setReserved13(materialLot.getReserved13());
+        this.setReserved14(materialLot.getReserved14());
+        this.setReserved18("0");
+        this.setDurable(materialLot.getDurable());
+        this.setReserved25(materialLot.getReserved25());
+        this.setReserved26(materialLot.getReserved26());
+        this.setReserved30(materialLot.getReserved30());
+        this.setReserved31(materialLot.getReserved31());
+        this.setReserved35(materialLot.getReserved35());
+        this.setReserved37(materialLot.getReserved37());
+        this.setReserved38(materialLot.getReserved38());
+        this.setReserved39(materialLot.getReserved39());
+        this.setReserved40(materialLot.getReserved40());
+        this.setReserved42(materialLot.getReserved42());
+        this.setReserved43(materialLot.getReserved43());
+        this.setReserved44(materialLot.getReserved44());
+        this.setReserved45(materialLot.getReserved45());
+        this.setReserved47(materialLot.getReserved47());
+        this.setReserved48(materialLot.getReserved48());
+        this.setReserved49(materialLot.getReserved49());
+        this.setReserved50(materialLot.getReserved50());
+        this.setProductType(materialLot.getProductType());
+        this.setTreasuryNote(materialLot.getReserved4());
+        this.setSourceProductId(materialLot.getSourceProductId());
     }
 }
