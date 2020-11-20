@@ -2855,6 +2855,8 @@ public class GcServiceImpl implements GcService {
                         } else {
                             GCProductModelConversion oldProductModelConversion = gcProductModelConversionRepository.findByProductIdAndConversionModelId(productId, conversionModelId);
                             if(oldProductModelConversion == null){
+                                oldProductModelConversion = new GCProductModelConversion();
+                                oldProductModelConversion.setProductId(productId);
                                 oldProductModelConversion.setConversionModelId(conversionModelId);
                                 oldProductModelConversion.setModelCategory(modelCategory);
                                 oldProductModelConversion = gcProductModelConversionRepository.saveAndFlush(oldProductModelConversion);
@@ -5676,6 +5678,7 @@ public class GcServiceImpl implements GcService {
                     //验证是否存在产品型号转换，存在即将晶圆型号转换成产品型号转换的型号
                     GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductId(materialName);
                     if(productModelConversion != null){
+                        materialLotUnit.setSourceProductId(materialName);
                         materialName = productModelConversion.getConversionModelId();
                         material = mmsService.getRawMaterialByName(materialName);
                         if(material == null){
@@ -5695,6 +5698,7 @@ public class GcServiceImpl implements GcService {
                             Integer.parseInt(mesPackedLotRelation.getBinId4()) < Integer.parseInt(materialLotUnit.getReserved43())){
                         throw new ClientParameterException(GcExceptions.INCOMINGMLOT_QTY_AND_SENTOUT_QTY_DISCREPANCY, materialLotUnit.getUnitId());
                     }
+                    materialLotUnit.setSourceProductId(materialName);
                     String testProductId = mesPackedLotRelation.getTestModelId();
                     materialName = testProductId.split("-")[0] + "-3.5";
                     material = mmsService.getRawMaterialByName(materialName);

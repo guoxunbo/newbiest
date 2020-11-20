@@ -391,7 +391,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("supplier", materialLotUnit.getSupplier());
                     propsMap.put("shipper", materialLotUnit.getShipper());
                     propsMap.put("grade", materialLotUnit.getGrade());
-                    propsMap.put("lotId", materialLotUnit.getUnitId());
+                    propsMap.put("lotId", materialLotUnit.getUnitId().toUpperCase());
                     propsMap.put("sourceProductId", materialLotUnit.getSourceProductId());
 
                     propsMap.put("reserved1",materialLotUnit.getReserved1());
@@ -421,7 +421,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved50",materialLotUnit.getReserved50());
                     propsMap.put("reserved48",importCode);
 
-                    MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotUnit.getUnitId(), StringUtils.EMPTY, materialLotUnit.getCurrentQty(), propsMap, BigDecimal.ONE);
+                    MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotUnit.getUnitId().toUpperCase(), StringUtils.EMPTY, materialLotUnit.getCurrentQty(), propsMap, BigDecimal.ONE);
 
                     if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                         materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
