@@ -88,5 +88,8 @@ public class MLotCodePrint {
     public static final String XING_ZHI_MLOT_LABEL = "XingZhiMLotLabel";
     public static final String GENERATOR_XINZHI_MLOT_LABEL_PRINT_SEQ_RULE = "GCXinZhiMLotPrintSeq";
     public static final String XING_ZHI_PORTID = "2012";
+    public static final String ORIGIN = "China";
+    public static final String END_STR = "@@@@";
+    public static final String VBOX_SEQ = "01";
 
 }

@@ -4603,7 +4603,23 @@ public class GcServiceImpl implements GcService {
             parameterMap.put("STRPN", materialCode);
             parameterMap.put("STRDC", createDate);
             parameterMap.put("STRTOTALQTY", materialLot.getCurrentQty().toString());
-            String qrCode = "";
+            String poNo = StringUtil.rightPad(erpSo.getCcode() , 30 , "@");
+            String strPL = StringUtil.rightPad(date + printSeq , 20 , "@");
+            String strPN = StringUtil.rightPad(materialCode , 25 , "@");
+            String origin = StringUtil.rightPad(MLotCodePrint.ORIGIN , 9 , "@");
+            String totalQty = StringUtil.rightPad(materialLot.getCurrentQty().toString() , 6 , "@");
+            String qrCode = poNo + strPL + strPN;
+            List<MaterialLot> materialLotList = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            Integer seq = 1;
+            for(MaterialLot mLot : materialLotList){
+                qrCode += StringUtil.rightPad(mLot.getMaterialLotId() , 20 , "@");
+                qrCode += StringUtil.rightPad(createDate , 10 , "@");
+                qrCode += StringUtil.leftPad(seq.toString() , 2 , "0");
+                qrCode += StringUtil.rightPad(mLot.getCurrentQty().toString() , 6 , "@");
+                qrCode += MLotCodePrint.VBOX_SEQ;
+                ++seq;
+            }
+            qrCode = qrCode + origin + totalQty + MLotCodePrint.END_STR;
             parameterMap.put("STRQRCODE", qrCode);
             parameterMap.put("portId", MLotCodePrint.XING_ZHI_PORTID);
             parameterMap.put("printCount", "2");
