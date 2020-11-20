@@ -26,6 +26,11 @@ public class WaferManagerRequest extends Request {
 	 */
 	public static final String ACTION_TYPE_PURCHASEOUTSOURE_RECEIVE = "PurchaseOutsoureReceive";
 
+	/**
+	 * 香港仓接收
+	 */
+	public static final String ACTION_TYPE_HK_MLOT_RECEIVE = "HKMLotReceive";
+
 	private WaferManagerRequestBody body;
 
 }

@@ -18,6 +18,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void hongKongMLotReceive(List<MaterialLotAction> materialLotActions) throws ClientException;
     String mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     String mesSaveMaterialLotHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     List<MaterialLotUnit> validateAndChangeMaterialNameByImportType(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;

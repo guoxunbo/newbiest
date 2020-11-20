@@ -6963,4 +6963,29 @@ public class GcServiceImpl implements GcService {
         }
         return errorMessage;
     }
+
+    /**
+     * HongKong仓接收物料批次（暂时只做接收入库，不对晶圆做eng验证，不写入中间表）
+     * @param materialLotActions
+     * @throws ClientException
+     */
+    public void hongKongMLotReceive(List<MaterialLotAction> materialLotActions) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for(MaterialLot materialLot : materialLots){
+                Warehouse warehouse = new Warehouse();
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
+                    warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                }
+                if(warehouse == null){
+                    throw new ClientParameterException(GcExceptions.WAREHOUSE_CANNOT_EMPTY);
+                }
+                String warehouseName = warehouse.getName();
+
+                materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

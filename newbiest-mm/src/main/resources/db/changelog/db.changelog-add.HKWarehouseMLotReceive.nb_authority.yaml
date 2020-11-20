@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseMLotReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKWarehouseMLotReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKWarehouseMLotReceiveManager
+              description: 香港仓在途货物接收
+              tableName: GCHKWarehouseMLotReceive
+              url: /HKWarehouse/GCMaterialLotReceive
+              parentRrn: 2020
+              seqNo: 6
+              image: icon-wuliao
+              labelZh: 香港仓在途货物接收
+              labelEn: HongKongWarehouseMLotReceive
