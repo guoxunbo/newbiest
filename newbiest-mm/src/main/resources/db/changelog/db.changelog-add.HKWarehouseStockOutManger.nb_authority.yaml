@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseStockOutManger_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKWarehouseStockOutManger to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKWarehouseStockOutManger
+              description: 香港仓出货管理
+              tableName: HKWarehouseStockOutOrder
+              url: /HKWarehouse/HKMLotStockOutMager
+              parentRrn: 2020
+              seqNo: 7
+              image: icon-wuliao
+              labelZh: 香港仓其它订单出货
+              labelEn: HKWarehouseStockOut
+

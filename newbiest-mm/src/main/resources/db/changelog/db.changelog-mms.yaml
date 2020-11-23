@@ -380,3 +380,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HKWarehouseMLotReceive.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseStockOutManger.nb_authority.yaml
+      relativeToChangelogFile: true

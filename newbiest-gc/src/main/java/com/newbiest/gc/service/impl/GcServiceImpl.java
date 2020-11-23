@@ -2993,6 +2993,28 @@ public class GcServiceImpl implements GcService {
     public MaterialLot getWaitWeightMaterialLot(String materialLotId, Long tableRrn) throws ClientException {
         try {
             MaterialLot materialLot = new MaterialLot();
+            List<MaterialLot> materialLots = queryMaterialLotByTableRrnAndMaterialLotId(tableRrn, materialLotId);
+            if(CollectionUtils.isEmpty(materialLots)){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+            } else {
+                //获取物料批次的理论重量
+                materialLot = queryMaterialLotTheoryWeightAndFolatValue(materialLot);
+            }
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据物料批次号和tableRrn获取物料信息
+     * @param materialLotId
+     * @param tableRrn
+     * @return
+     * @throws ClientException
+     */
+    private List<MaterialLot> queryMaterialLotByTableRrnAndMaterialLotId(Long tableRrn, String materialLotId) throws ClientException{
+        try {
             NBTable nbTable = uiService.getDeepNBTable(tableRrn);
             String whereClause = nbTable.getWhereClause();
             String orderBy = nbTable.getOrderBy();
@@ -3003,17 +3025,10 @@ public class GcServiceImpl implements GcService {
                 clauseBuffer.append(" AND ");
                 clauseBuffer.append(whereClause);
             }
-
             whereClause = clauseBuffer.toString();
             List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
-            if(CollectionUtils.isEmpty(materialLots)){
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
-            } else {
-                //获取物料批次的理论重量
-                materialLot = queryMaterialLotTheoryWeightAndFolatValue(materialLots.get(0));
-            }
-            return materialLot;
-        } catch (Exception e) {
+            return materialLots;
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -6984,6 +6999,43 @@ public class GcServiceImpl implements GcService {
 
                 materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取香港仓待出货的真空包信息
+     * @param tableRrn
+     * @param materialLotId
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot getHKWarehouseStockOutMLot(Long tableRrn, String materialLotId) throws ClientException{
+        try {
+            MaterialLot materialLot = new MaterialLot();
+            List<MaterialLot> materialLots= queryMaterialLotByTableRrnAndMaterialLotId(tableRrn, materialLotId);
+            if(CollectionUtils.isNotEmpty(materialLots)){
+                materialLot = materialLots.get(0);
+            }
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 香港仓出货验证物料批次基础信息
+     * @param materialLot
+     * @param materialLotActions
+     * @return
+     * @throws ClientException
+     */
+    public boolean validationHKStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException {
+        try {
+            boolean falg = true;
+            falg = validationMaterialLotInfo(materialLot, materialLotActions, falg);
+            return falg;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

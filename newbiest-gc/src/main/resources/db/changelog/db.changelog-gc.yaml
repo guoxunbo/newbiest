@@ -305,3 +305,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCHKWarehouseMLotReceive_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseStockOutOrder_nb_table.yaml
+      relativeToChangelogFile: true
