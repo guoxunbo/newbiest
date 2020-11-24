@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCNBQueryManager_to_NB_TABLE
+      author: Tao Zhou
+      comment: add GCCManager to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCNBQueryManager
+              description: NBQuery管理
+              tableName: NB_Query
+              modelName: NBQuery
+              modelClass:  com.newbiest.base.model.NBQuery
+              labelZh:  NBQuery管理
+              label: NBQueryManager
