@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCNBQueryManager_nb_AUTHORITY
+      author: Tao Zhou
+      comment: add_GCNBQueryManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCNBQueryManager
+              description: NBQuery管理
+              tableName: GCNBQueryManager
+              url: /GC/NbQueryManager
+              parentRrn: 3
+              seqNo: 20
+              image: icon-rule
+              labelZh: NBQuery管理
+              labelEn: GCNBQueryManager
