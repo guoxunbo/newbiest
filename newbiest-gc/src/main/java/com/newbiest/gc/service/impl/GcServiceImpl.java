@@ -3079,15 +3079,16 @@ public class GcServiceImpl implements GcService {
      */
     private BigDecimal getPackedDetialTotalWeight(GCProductWeightRelation productWeightRelation, List<MaterialLot> packageDetailLots) throws ClientException{
         try {
-            //每包真空包重量=盘重量*（每包实际颗数/每盘芯片数+1）+盖重量*（每包实际颗数/每盘芯片数/20+1）+管夹重量*（每包实际颗数/每盘芯片数/20）
+            //每包真空包重量=盘重量*（每包实际颗数/每盘芯片数+1）+盖重量*（每包实际颗数/每盘芯片数/盘数+1）+管夹重量*（每包实际颗数/每盘芯片数/盘数）
             BigDecimal totalWeight = BigDecimal.ZERO;
             for(MaterialLot materialLot : packageDetailLots){
                 BigDecimal currentQty = materialLot.getCurrentQty();
                 BigDecimal discWeight = productWeightRelation.getDiscWeight();//盘重量
                 BigDecimal coverWeight = productWeightRelation.getCoverWeight();//盖重量
                 BigDecimal clipWeight = productWeightRelation.getClipWeight();//管夹重量
+                BigDecimal discQty = productWeightRelation.getDiscQty();//盘数
                 BigDecimal chipWeight = currentQty.divide(productWeightRelation.getDiscChipQty());//每包平均芯片重量
-                BigDecimal vboxWeight = discWeight.multiply(chipWeight.add(BigDecimal.ONE)).add(coverWeight.multiply(chipWeight.divide(new BigDecimal((20))).add(BigDecimal.ONE))).add(clipWeight.multiply(chipWeight.divide(new BigDecimal(20))));
+                BigDecimal vboxWeight = discWeight.multiply(chipWeight.add(BigDecimal.ONE)).add(coverWeight.multiply(chipWeight.divide(discQty).add(BigDecimal.ONE))).add(clipWeight.multiply(chipWeight.divide(discQty)));
                 totalWeight = totalWeight.add(vboxWeight);
             }
             return totalWeight;
