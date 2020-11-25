@@ -386,3 +386,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCNBQueryManager_nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseOrderStockOutManger.nb_authority.yaml
+      relativeToChangelogFile: true

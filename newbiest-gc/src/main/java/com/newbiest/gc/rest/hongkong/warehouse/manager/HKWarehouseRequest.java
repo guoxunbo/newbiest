@@ -18,6 +18,8 @@ public class HKWarehouseRequest extends Request {
 
 	public static final String ACTION_HK_STOCK_OUT = "HKStockOut";
 
+	public static final String ACTION_HK_BYORDER_STOCK_OUT = "HKByOrderStockOut";
+
 	private HKWarehouseRequestBody body;
 
 }
