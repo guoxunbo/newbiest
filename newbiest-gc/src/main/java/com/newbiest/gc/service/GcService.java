@@ -81,7 +81,7 @@ public interface GcService {
     void unReservedMaterialLot(List<MaterialLotAction> materialLotActions) throws ClientException;
 
     MaterialLot getWaitStockInStorageMaterialLotByLotIdOrMLotId(String mLotId) throws ClientException;
-    MaterialLot getWaitStockInStorageMaterialLot(String materialLotId, long tableRrn) throws ClientException;
+    MaterialLot getMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, long tableRrn) throws ClientException;
     void stockIn(List<StockInModel> stockInModels) throws ClientException;
 
     MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException;
@@ -98,7 +98,7 @@ public interface GcService {
     List<NBOwnerReferenceList> getStockOutCheckList() throws ClientException;
     List<NBOwnerReferenceList> getWltStockOutCheckList() throws ClientException;
     List<NBOwnerReferenceList> getReferenceListByName(String reserenceName) throws ClientException;
-    void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> ngStockOutCheckList, String expressNumber) throws ClientException;
+    void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> ngStockOutCheckList) throws ClientException;
 
     void asyncReceiveOrder() throws ClientException;
     void asyncShipOrder() throws ClientException;

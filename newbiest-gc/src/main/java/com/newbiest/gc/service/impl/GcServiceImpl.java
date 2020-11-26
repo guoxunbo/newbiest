@@ -479,12 +479,11 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 获取到可以入库的批次
-     *  当前只验证了物料批次是否是完结
+     * 根据物料批次号及表单主键获取物料批次信息，不存在的抛出异常
      * @param materialLotId
      * @return
      */
-    public MaterialLot getWaitStockInStorageMaterialLot(String materialLotId, long tableRrn) throws ClientException {
+    public MaterialLot getMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, long tableRrn) throws ClientException {
         try {
             MaterialLot materialLot = new MaterialLot();
             NBTable nbTable = uiService.getDeepNBTable(tableRrn);
@@ -2164,9 +2163,8 @@ public class GcServiceImpl implements GcService {
      * @param stockOutCheckList 检查项
      * @return
      */
-    public void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> stockOutCheckList, String expressNumber) throws ClientException {
+    public void stockOutCheck(List<MaterialLot> materialLots, List<StockOutCheck> stockOutCheckList) throws ClientException {
         try {
-
             String checkResult = StockOutCheck.RESULT_OK;
             List<StockOutCheck> ngStockOutCheckList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(stockOutCheckList)) {
@@ -2176,36 +2174,6 @@ public class GcServiceImpl implements GcService {
                 checkResult = StockOutCheck.RESULT_NG;
             }
 
-            //判定OK时，检验真空包或者箱号上快递单号是否正确
-            if(StockOutCheck.RESULT_OK.equals(checkResult)){
-                if(!StringUtils.isNullOrEmpty(expressNumber)){
-                    for(MaterialLot materialLot : materialLots){
-                        if(StringUtils.isNullOrEmpty(materialLot.getExpressNumber())){
-                            throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, materialLot.getMaterialLotId());
-                        }
-                        if(!materialLot.getExpressNumber().equals(expressNumber)){
-                            throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, materialLot.getMaterialLotId());
-                        }
-                        //验证箱中真空包的快递单号是否一致
-//                        if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-//                            List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-//                            for(MaterialLot packageLot : packageDetailLots){
-//                                if(StringUtils.isNullOrEmpty(packageLot.getExpressNumber())){
-//                                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, packageLot.getMaterialLotId());
-//                                } else if(!packageLot.getExpressNumber().equals(expressNumber)){
-//                                    throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT, packageLot.getMaterialLotId());
-//                                }
-//                            }
-//                        }
-                    }
-                } else {
-                    Map<String, List<MaterialLot>> expressNumberMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
-                            .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
-                    if(expressNumberMap != null && expressNumberMap.keySet().size() > 0){
-                        throw new ClientParameterException(GcExceptions.EXPRESS_NUMBER_IS_INCONSISTENT);
-                    }
-                }
-            }
             for (MaterialLot materialLot : materialLots) {
                 //20190917 GC要求 如果判了NG。并且装箱检查是PASS的，将PASS改成PASS0
                 if (StockOutCheck.RESULT_NG.equals(checkResult) && StockOutCheck.RESULT_PASS.equals(materialLot.getReserved9())) {
