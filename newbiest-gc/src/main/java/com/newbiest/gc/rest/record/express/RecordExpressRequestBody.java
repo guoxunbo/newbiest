@@ -4,7 +4,6 @@ import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
@@ -31,6 +30,8 @@ public class RecordExpressRequestBody extends RequestBody {
 	public static final String ACTION_TYPE_OLD_RECORD_ORDER = "OldRecordOrder";
 
 	public static final String ACTION_TYPE_QUERY_PRINTPARAMETER = "QueryPrintParameter";
+
+	public static final String ACTION_TYPE_OBLIQUE_LABEL_PRINT = "ObliqueLabelPrint";
 
 	private String actionType;
 

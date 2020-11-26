@@ -2,7 +2,6 @@ package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.model.DeliveryOrder;
-import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
@@ -15,6 +14,7 @@ import java.util.Map;
  */
 public interface ExpressService {
 
+    void validateReservedOrderId(List<MaterialLot> materialLots) throws ClientException;
     List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException;
     void cancelOrderByMaterialLots(List<MaterialLot> materialLots) throws ClientException;
 

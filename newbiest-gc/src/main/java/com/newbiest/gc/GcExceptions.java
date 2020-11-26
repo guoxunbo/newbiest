@@ -41,8 +41,7 @@ public class GcExceptions {
     public static final String MLOT_DOC_VALIDATE_RULE_IS_NOT_EXIST = "gc.mlot_doc_validate_rule_is_not_exist";
     public static final String MATERIALLOT_MATERIAL_NAME_IS_NOT_SAME = "gc.material_lot_material_name_is_not_same";
     public static final String MATERIALLOT_PACKAGE_RULE_IS_ERROR = "gc.material_lot_package_rule_is_error";
-
-
+    public static final String MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME = "gc.material_lot_reserved_docId_is_not_same";
 
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";
