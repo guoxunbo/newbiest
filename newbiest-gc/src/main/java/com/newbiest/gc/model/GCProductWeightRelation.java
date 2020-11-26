@@ -89,4 +89,10 @@ public class GCProductWeightRelation extends NBUpdatable {
     @Column(name="FLOAT_QTY")
     private BigDecimal floatQty = BigDecimal.ZERO;
 
+    /**
+     * 盘数
+     */
+    @Column(name="DISC_QTY")
+    private BigDecimal discQty = BigDecimal.ZERO;
+
 }

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: table-product_weight_relation_his-add-column-DISC_QTY
+      author: Guozhang Luo
+      comment: GC_PRODUCT_WEIGHT_RELATION_HIS add column DISC_QTY
+      changes:
+        - addColumn:
+            tableName: GC_PRODUCT_WEIGHT_RELATION_HIS
+            columns:
+              - column:
+                  name: DISC_QTY
+                  type: bigint
+                  remarks: 盘数
