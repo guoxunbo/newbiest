@@ -314,6 +314,3 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HKWarehouseStockOutByOrder_nb_table.yaml
       relativeToChangelogFile: true
-  - include:
-      file: db.changelog-add.GCExpressNumberLabelPrints_nb_table.yaml
-      relativeToChangelogFile: true

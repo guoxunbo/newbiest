@@ -367,34 +367,13 @@ public class ExpressServiceImpl implements ExpressService {
                 parameterMap.put("CSNAME", materialLot.getShipper());
                 parameterMap.put("NUMCHANG", seq.toString());
                 parameterMap.put("NUMFIX", numfix.toString());
-                if(StringUtils.isNullOrEmpty(expressNumber)){
-                    parameterMap.put("EXNUM", materialLot.getExpressNumber());
-                }else {
-                    parameterMap.put("EXNUM", expressNumber);
-                }
-
+                parameterMap.put("EXNUM", expressNumber);
                 parameterMapList.add(parameterMap);
                 ++seq;
             }
             return parameterMapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 判断所有的备货单号是否一致
-     * @param materialLots
-     */
-    @Override
-    public void validateReservedOrderId(List<MaterialLot> materialLots) throws ClientException{
-        try {
-            Set reservedDocIdInfo = materialLots.stream().map(materialLot -> materialLot.getReserved17()).collect(Collectors.toSet());
-            if (reservedDocIdInfo != null &&  reservedDocIdInfo.size() > 1) {
-                throw new ClientParameterException(GcExceptions.MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME);
-            }
-        }catch (Exception e) {
-            throw ExceptionManager.handleException(e,log);
         }
     }
 }

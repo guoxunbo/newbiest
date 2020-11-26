@@ -63,12 +63,7 @@ public class RecordExpressController {
         } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_PRINTPARAMETER.equals(actionType)){
             parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(), requestBody.getExpressNumber());
             responseBody.setParameterMapList(parameterMapList);
-        } else if(RecordExpressRequestBody.ACTION_TYPE_OBLIQUE_LABEL_PRINT.equals(actionType)){
-            materialLots = requestBody.getMaterialLots();
-            expressService.validateReservedOrderId(materialLots);
-            parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(),null);
-            responseBody.setParameterMapList(parameterMapList);
-        }else {
+        } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }
         responseBody.setMaterialLots(materialLots);

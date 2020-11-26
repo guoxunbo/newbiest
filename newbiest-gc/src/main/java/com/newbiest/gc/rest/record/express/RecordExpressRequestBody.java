@@ -32,8 +32,6 @@ public class RecordExpressRequestBody extends RequestBody {
 
 	public static final String ACTION_TYPE_QUERY_PRINTPARAMETER = "QueryPrintParameter";
 
-	public static final String ACTION_TYPE_OBLIQUE_LABEL_PRINT = "ObliqueLabelPrint";
-
 	private String actionType;
 
 	private Integer serviceMode;
