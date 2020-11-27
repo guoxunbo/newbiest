@@ -1,6 +1,7 @@
 package com.newbiest.gc.rest.record.express;
 
 import com.google.common.collect.Lists;
+import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.ResponseBody;
@@ -17,6 +18,8 @@ public class RecordExpressResponseBody extends ResponseBody {
 	private List<MaterialLot> materialLots;
 
 	private List<Map<String, String>> parameterMapList = Lists.newArrayList();
+
+	private OrderInfo orderInfo;
 
 	/**
 	 * 老记录快递使用

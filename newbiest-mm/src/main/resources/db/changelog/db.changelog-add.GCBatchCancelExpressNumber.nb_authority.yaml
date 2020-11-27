@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCBatchCancelExpressNUmberManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCBatchCancelExpressNUmberManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCBatchCancelExpressManager
+              description: 批量取消快递单
+              tableName: GCBatchCancelExpressNumber
+              url: /Doc/BatchCancelExpressNumber
+              parentRrn: 1020
+              seqNo: 110
+              image: icon-rule
+              labelZh: 批量取消快递单
+              labelEn: BatchCancelExpressNumber
