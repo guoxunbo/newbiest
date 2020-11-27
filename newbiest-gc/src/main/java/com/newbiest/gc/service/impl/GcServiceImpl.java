@@ -2681,6 +2681,7 @@ public class GcServiceImpl implements GcService {
             }
 
             asyncMesWarehouseProductType();
+            asyncMesProductPrintModelId();
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -2691,8 +2692,6 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncMesWarehouseProductType() {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             Product product = new Product();
             List<Map> warehouseModelList = findEntityMapListByQueryName(Material.QUERY_WAREHOUSE_PRODUCT_MODEL,null,0,999,"","");
             if(CollectionUtils.isNotEmpty(warehouseModelList)){
@@ -2700,22 +2699,58 @@ public class GcServiceImpl implements GcService {
                     String productId = m.get("IN_STORAGE_MODEL_ID");
                     product = mmsService.getProductByName(productId);
                     if(product == null){
-                        product = new Product();
-                        product.setName(productId);
-                        product.setMaterialCategory(Material.TYPE_PRODUCT);
-                        product.setMaterialType(Material.TYPE_PRODUCT);
-                        product = mmsService.saveProduct(product);
-
-                        List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
-                        if (CollectionUtils.isNotEmpty(statusModels)) {
-                            product.setStatusModelRrn(statusModels.get(0).getObjectRrn());
-                        } else {
-                            throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
-                        }
-                        productRepository.save(product);
+                        saveProductAndSetStatusModelRrn(productId);
                     }
                 }
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 格科同步MES的产品打印型号
+     */
+    public void asyncMesProductPrintModelId() {
+        try {
+            Product product = new Product();
+            List<Map> productPrintModelList = findEntityMapListByQueryName(Material.QUERY_PRODUCT_PRINT_MODELID,null,0,999,"","");
+            if(CollectionUtils.isNotEmpty(productPrintModelList)){
+                for (Map<String, String> m :productPrintModelList)  {
+                    String prodcutPrintModelId = m.get("PRINT_PRODUCT_MODEL");
+                    product = mmsService.getProductByName(prodcutPrintModelId);
+                    if(product == null) {
+                        saveProductAndSetStatusModelRrn(prodcutPrintModelId);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 创建产品号
+     * @param name
+     * @throws ClientException
+     */
+    private void saveProductAndSetStatusModelRrn(String name) throws ClientException{
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            Product product = new Product();
+            product.setName(name);
+            product.setMaterialCategory(Material.TYPE_PRODUCT);
+            product.setMaterialType(Material.TYPE_PRODUCT);
+            product = mmsService.saveProduct(product);
+
+            List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
+            if (CollectionUtils.isNotEmpty(statusModels)) {
+                product.setStatusModelRrn(statusModels.get(0).getObjectRrn());
+            } else {
+                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+            }
+            productRepository.save(product);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

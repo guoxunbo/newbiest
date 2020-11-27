@@ -1,6 +1,7 @@
 package com.newbiest.gc;
 
 import com.newbiest.base.factory.ModelFactory;
+import com.newbiest.base.model.NBQuery;
 import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.gc.model.*;
 import com.newbiest.main.YmlPropertyLoaderFactory;
@@ -61,6 +62,7 @@ public class GcConfiguration {
         ModelFactory.registerModelClassLoader(MLotDocRuleLine.class.getName(), MLotDocRuleLine.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCProductNumberRelation.class.getName(), GCProductNumberRelation.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCProductWeightRelation.class.getName(), GCProductWeightRelation.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(NBQuery.class.getName(), NBQuery.class.getClassLoader());
 
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());
