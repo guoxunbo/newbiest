@@ -27,6 +27,8 @@ public class MesPackedLot implements Serializable {
     public static final String PRODUCT_CATEGORY_LSP = "LSP";
     public static final String PRODUCT_CATEGORY_LCP = "LCP";
 
+    public static final String REPLACE_FLAG = "true";
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "PACKED_LOT_RRN")
@@ -139,5 +141,17 @@ public class MesPackedLot implements Serializable {
 
     @Column(name="IN_FLAG")
     private String inFlag;
+
+    /**
+     * 打印型号
+     */
+    @Column(name="PRINT_MODEL_ID")
+    private String printModelId;
+
+    /**
+     * 是否替换
+     */
+    @Column(name="REPLACE_FLAG")
+    private String replaceFlag;
 
 }
