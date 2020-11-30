@@ -6811,7 +6811,7 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLot materialLot : materialLots){
                     if(packageQty.compareTo(materialLot.getCurrentQty()) == 0){
                         wholeVboxMLots.add(materialLot);
-                    } else if(packageQty.compareTo(materialLot.getCurrentQty()) >= 0){
+                    } else if(packageQty.compareTo(materialLot.getCurrentQty()) > 0){
                         zeroVBoxMLots.add(materialLot);
                     } else {
                         throw new ClientParameterException(GcExceptions.MATERIALLOT_PACKAGE_RULE_IS_ERROR, materialLot.getMaterialLotId());
@@ -6822,7 +6822,7 @@ public class GcServiceImpl implements GcService {
             Iterator<MaterialLot> iterator = wholeBoxMLots.iterator();
             while (iterator.hasNext()){
                 MaterialLot materialLot = iterator.next();
-                if(totalQty.compareTo(materialLot.getCurrentQty()) > 0){
+                if(totalQty.compareTo(materialLot.getCurrentQty()) >= 0){
                     materialLotList.addAll(packedLotMap.get(materialLot.getMaterialLotId()));
                     totalQty = totalQty.subtract(materialLot.getCurrentQty());
                     iterator.remove();
@@ -6831,7 +6831,7 @@ public class GcServiceImpl implements GcService {
             //再挑未装箱的真空包（整包）
             if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                 for(MaterialLot materialLot: wholeVboxMLots){
-                    if(totalQty.compareTo(materialLot.getCurrentQty()) > 0){
+                    if(totalQty.compareTo(materialLot.getCurrentQty()) >= 0){
                         materialLotList.add(materialLot);
                         totalQty = totalQty.subtract(materialLot.getCurrentQty());
                     }
@@ -6842,7 +6842,7 @@ public class GcServiceImpl implements GcService {
                 if(CollectionUtils.isNotEmpty(zeroBoxMLots)){
                     List<MaterialLot> zeroBoxMLotList = zeroBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
                     for (MaterialLot materialLot: zeroBoxMLotList){
-                        if(totalQty.compareTo(materialLot.getCurrentQty()) > 0){
+                        if(totalQty.compareTo(materialLot.getCurrentQty()) >= 0){
                             materialLotList.addAll(packedLotMap.get(materialLot.getMaterialLotId()));
                             totalQty = totalQty.subtract(materialLot.getCurrentQty());
                         }
@@ -6857,7 +6857,7 @@ public class GcServiceImpl implements GcService {
                         List<MaterialLot> packedDetials = packedLotMap.get(packagedLot.getMaterialLotId());
                         List<MaterialLotAction> materialLotActionList = Lists.newArrayList();
                         for(MaterialLot packedMLot : packedDetials){
-                            if(totalQty.compareTo(packedMLot.getCurrentQty()) > 0){
+                            if(totalQty.compareTo(packedMLot.getCurrentQty()) >= 0){
                                 //箱中待拆箱的真空包
                                 MaterialLotAction materialLotAction = new MaterialLotAction();
                                 materialLotAction.setMaterialLotId(packedMLot.getMaterialLotId());
@@ -6877,7 +6877,7 @@ public class GcServiceImpl implements GcService {
             //最后挑选未装箱的真空包（只挑零包）
             if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                 for(MaterialLot zeroVbox : zeroVBoxMLots){
-                    if(totalQty.compareTo(zeroVbox.getCurrentQty()) > 0){
+                    if(totalQty.compareTo(zeroVbox.getCurrentQty()) >= 0){
                         totalQty = totalQty.subtract(zeroVbox.getCurrentQty());
                         materialLotList.add(zeroVbox);
                     }
