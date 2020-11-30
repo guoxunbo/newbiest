@@ -6621,6 +6621,10 @@ public class GcServiceImpl implements GcService {
             }
 
             for(MaterialLot materialLot : materialLotList){
+                String importType = materialLot.getReserved49();
+                if(MaterialLot.IMPORT_CRMA.equals(importType) || MaterialLot.IMPORT_RETURN.equals(importType) || MaterialLot.IMPORT_RMA.equals(importType)){
+                    continue;
+                }
                 String prodCate = MaterialLotUnit.PRODUCT_TYPE_PROD;
                 Warehouse warehouse  = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                 if(!StringUtils.isNullOrEmpty(materialLot.getProductType())){
