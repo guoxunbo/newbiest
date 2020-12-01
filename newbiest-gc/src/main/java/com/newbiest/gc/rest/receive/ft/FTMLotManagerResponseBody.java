@@ -16,4 +16,6 @@ public class FTMLotManagerResponseBody extends ResponseBody {
 
 	private List<MaterialLotUnit> materialLotUnitList;
 
+	private boolean falg;
+
 }

@@ -7069,7 +7069,7 @@ public class GcServiceImpl implements GcService {
                 if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
                     throw new ClientException(GcExceptions.OVER_DOC_QTY);
                 }
-                hkStockOut(documentLineMap.get(key), materialLotMap.get(key));
+                hkOrFtStockOut(documentLineMap.get(key), materialLotMap.get(key));
             }
 
         } catch (Exception e) {
@@ -7078,12 +7078,40 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 香港仓出货
+     * FT出货，出货单据（ETM_SOA）
+     * @param materialLotActions
+     * @param documentLineList
+     * @throws ClientException
+     */
+    public void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLineList) throws ClientException{
+        try {
+            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
+            for (String key : materialLotMap.keySet()) {
+                if (!documentLineMap.keySet().contains(key)) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+                }
+                Long totalMaterialLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
+                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
+                }
+                hkOrFtStockOut(documentLineMap.get(key), materialLotMap.get(key));
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 香港仓/FT出货
      * @param documentLines
      * @param materialLots
      * @throws ClientException
      */
-    private void hkStockOut(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
+    private void hkOrFtStockOut(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
             for(DocumentLine documentLine : documentLines){
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
@@ -7167,12 +7195,14 @@ public class GcServiceImpl implements GcService {
             for (MaterialLot packageLot : packageDetailLots){
                 changeMaterialLotStatusAndSaveHistory(packageLot);
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packageLot.getMaterialLotId());
-                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                    materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
-                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
-                    MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
-                    materialLotUnitHisRepository.save(materialLotUnitHistory);
+                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
+                        materialLotUnitHisRepository.save(materialLotUnitHistory);
+                    }
                 }
             }
         } catch (Exception e) {

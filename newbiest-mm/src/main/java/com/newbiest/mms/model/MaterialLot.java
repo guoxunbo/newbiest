@@ -75,6 +75,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "COBWaferReceiveDocLineRule";
     public static final String WAFER_ISSUE_DOC_VALIDATE_RULE_ID = "WaferIssueDocLineRule";
     public static final String COB_WAFER_ISSUE_DOC_VALIDATE_RULE_ID = "COBWaferIssueDocLineRule";
+    public static final String FT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "FTStockOutDocRule";
 
     /**
      * 香港仓依订单出货
