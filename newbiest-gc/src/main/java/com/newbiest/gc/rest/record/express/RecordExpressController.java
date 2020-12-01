@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.record.express;
 
 import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.service.ExpressService;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.DeliveryOrder;
@@ -68,7 +69,12 @@ public class RecordExpressController {
             expressService.validateReservedOrderId(materialLots);
             parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(),null);
             responseBody.setParameterMapList(parameterMapList);
-        } else {
+        } else if(RecordExpressRequestBody.ACTION_TYPE_BATCH_CANCEL_ORDER.equals(actionType)){
+            expressService.batchCancelOrderByWayBillNumber(requestBody.getOrderList());
+        } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_ORDER_INFO.equals(actionType)){
+            OrderInfo orderInfo = expressService.getOrderInfoByWayBillNumber(requestBody.getWayBillNumber());
+            responseBody.setOrderInfo(orderInfo);
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }
         responseBody.setMaterialLots(materialLots);

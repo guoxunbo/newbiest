@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCBatchCancelExpressNumber_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCBatchCancelExpressNumber to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCBatchCancelExpressNumber
+              description: 批量取消快递单号
+              tableName: Trainsient
+              modelName: Trainsient
+              modelClass: Trainsient
+              labelZh: 批量取消快递单号
+              label: BatchCancelExpressNumber

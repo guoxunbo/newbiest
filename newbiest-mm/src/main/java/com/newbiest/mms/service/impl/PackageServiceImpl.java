@@ -1,11 +1,9 @@
 package com.newbiest.mms.service.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
@@ -216,7 +214,7 @@ public class PackageServiceImpl implements PackageService{
                 packedMaterialLot.setReservedQty(packedMaterialLot.getReservedQty().subtract(packedQty));
             }
             if(packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == -1){
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO, packedMaterialLot.getMaterialLotId());
             } else if (packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                 packedMaterialLot.setReservedQty(BigDecimal.ZERO);
                 packedMaterialLot.clearReservedInfo();
@@ -362,7 +360,7 @@ public class PackageServiceImpl implements PackageService{
             MaterialLot packedMaterialLot = (MaterialLot) materialLots.get(0).clone();
             String packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
             if (mmsService.getMLotByMLotId(packedMaterialLotId) != null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_EXIST);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, packedMaterialLotId);
             }
             packedMaterialLot.setMaterialLotId(packedMaterialLotId);
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(materialLotActions));

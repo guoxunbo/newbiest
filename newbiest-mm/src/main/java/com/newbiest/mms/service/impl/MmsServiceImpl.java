@@ -489,7 +489,7 @@ public class MmsServiceImpl implements MmsService {
                         targetStorage.setWarehouseRrn(warehouse.getObjectRrn());
                         targetStorage = storageRepository.saveAndFlush(targetStorage);
                     } else {
-                        throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST);
+                        throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST, materialLotAction.getTargetStorageId());
 
                     }
                 }
@@ -541,7 +541,7 @@ public class MmsServiceImpl implements MmsService {
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), targetWarehouse.getObjectRrn(), targetStorage.getObjectRrn());
             if (materialLotInventory != null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_SUPPORT_MULTI_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_SUPPORT_MULTI_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot.setCurrentSubQty(materialLotAction.getTransCount());
             // 变更物料库存并改变物料批次状态
@@ -583,7 +583,7 @@ public class MmsServiceImpl implements MmsService {
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             // 如果盘点为0 则表示物料批次被用完，则触发出库事件
@@ -634,12 +634,12 @@ public class MmsServiceImpl implements MmsService {
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_STOCK_OUT_ALL);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_MUST_STOCK_OUT_ALL, materialLot.getMaterialLotId());
             }
             // 变更物料库存并改变物料批次状态
             saveMaterialLotInventory(materialLot, fromWarehouse, fromStorage, materialLotAction.getTransQty().negate());
@@ -679,12 +679,12 @@ public class MmsServiceImpl implements MmsService {
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_PICK_ALL);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_MUST_PICK_ALL, materialLot.getMaterialLotId());
             }
             // 变更物料库存并改变物料批次状态
             saveMaterialLotInventory(materialLot, fromWarehouse, fromStorage, materialLotAction.getTransQty().negate());
@@ -729,12 +729,12 @@ public class MmsServiceImpl implements MmsService {
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_TRANSFER_ALL);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_MUST_TRANSFER_ALL, materialLot.getMaterialLotId());
             }
             materialLotInventory.setWarehouse(targetWarehouse).setStorage(targetStorage);
             materialLotInventoryRepository.saveAndFlush(materialLotInventory);
@@ -767,13 +767,13 @@ public class MmsServiceImpl implements MmsService {
 
             BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
             if (currentQty.compareTo(BigDecimal.ZERO) < 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO, materialLot.getMaterialLotId());
             }
 
             // 当批次在库存中，无法进行消耗/反消耗 只能进行盘点
             List<MaterialLotInventory> materialLotInventories = getMaterialLotInv(materialLot.getObjectRrn());
             if (CollectionUtils.isNotEmpty(materialLotInventories)) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
 
             String eventId = MaterialEvent.EVENT_CONSUME;
@@ -851,7 +851,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             materialLotInventory.setStockQty(materialLotInventory.getStockQty().add(transQty));
             if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) < 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_STOCK_QTY_CANOT_LESS_THEN_ZERO);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_STOCK_QTY_CANOT_LESS_THEN_ZERO, materialLotInventory.getMaterialLotId());
             } else if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) == 0) {
                 if (materialLotInventory.getObjectRrn() != null) {
                     materialLotInventoryRepository.delete(materialLotInventory);

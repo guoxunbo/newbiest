@@ -392,3 +392,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCExpressNumberLabelPrints_nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBatchCancelExpressNumber.nb_authority.yaml
+      relativeToChangelogFile: true

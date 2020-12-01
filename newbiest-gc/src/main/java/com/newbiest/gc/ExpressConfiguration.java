@@ -17,6 +17,7 @@ public class ExpressConfiguration {
     public static final String PLAN_ORDER_METHOD = "open.api.openCommon.planOrder";
     public static final String CANCEL_ORDER_METHOD = "open.api.openCommon.cancelOrder";
     public static final String QUERY_ROUTE_METHOD = "open.api.openCommon.queryRoute";
+    public static final String QUERY_ORDER_STATUS_METHOD = "open.api.openCommon.queryCancelOrder";
 
     public static final String PLAN_ORDER_DEFAULT_ORDER_ID = "GC00000001";
 

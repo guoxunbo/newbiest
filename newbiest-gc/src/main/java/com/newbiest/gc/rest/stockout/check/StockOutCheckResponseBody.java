@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.stockout.check;
 
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.StockOutCheck;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.ResponseBody;
 import lombok.Data;
 
@@ -16,5 +17,7 @@ public class StockOutCheckResponseBody extends ResponseBody {
 	private List<NBOwnerReferenceList> stockOutCheckList;
 
 	private List<NBOwnerReferenceList> wltStockOutCheckList;
+
+	private MaterialLot materialLot;
 
 }

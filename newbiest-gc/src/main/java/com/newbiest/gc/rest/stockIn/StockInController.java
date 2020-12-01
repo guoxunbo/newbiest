@@ -36,7 +36,7 @@ public class StockInController {
 
         if (StockInRequest.ACTION_QUERY.equals(actionType)) {
             String materialLotId = requestBody.getMaterialLotId();
-            MaterialLot materialLot = gcService.getWaitStockInStorageMaterialLot(materialLotId, requestBody.getTableRrn());
+            MaterialLot materialLot = gcService.getMaterialLotByMaterialLotIdAndTableRrn(materialLotId, requestBody.getTableRrn());
             responseBody.setMaterialLot(materialLot);
         } else if (StockInRequest.ACTION_QUERY_WAFER.equals(actionType)) {
             String lotId = requestBody.getLotId();

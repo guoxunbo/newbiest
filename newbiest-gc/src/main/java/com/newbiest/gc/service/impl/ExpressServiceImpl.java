@@ -397,4 +397,43 @@ public class ExpressServiceImpl implements ExpressService {
             throw ExceptionManager.handleException(e,log);
         }
     }
+
+    /**
+     * 获取快递单信息
+     * @param wayBillNumber
+     * @return
+     * @throws ClientException
+     */
+    public OrderInfo getOrderInfoByWayBillNumber(String wayBillNumber) throws ClientException{
+        try {
+            Map<String, Object> requestParameters = Maps.newHashMap();
+            requestParameters.put("waybillNumber", wayBillNumber);
+            String responseData = sendRequest(ExpressConfiguration.QUERY_ORDER_STATUS_METHOD, requestParameters);
+            OrderInfo orderInfo  =  DefaultParser.getObjectMapper().readValue(responseData, OrderInfo.class);
+            if(orderInfo != null && !OrderInfo.ORDER_STATUS_UN_DISPATCH.equals(orderInfo.getOrderStatus())){
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME, orderInfo.getWaybillNumber());
+            }
+            return  orderInfo;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 批量取消快递单号
+     * @param orderInfoList
+     * @throws ClientException
+     */
+    public void batchCancelOrderByWayBillNumber(List<OrderInfo> orderInfoList) throws ClientException{
+        try {
+            if(CollectionUtils.isNotEmpty(orderInfoList)){
+                for (OrderInfo orderInfo : orderInfoList){
+                    String wayBillNumber = orderInfo.getWaybillNumber();
+                    cancelOrder(wayBillNumber);
+                }
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

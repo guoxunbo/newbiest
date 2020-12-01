@@ -1,9 +1,9 @@
 package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.MaterialLot;
-
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +14,8 @@ import java.util.Map;
  */
 public interface ExpressService {
 
+    void batchCancelOrderByWayBillNumber(List<OrderInfo> orderInfoList) throws ClientException;
+    OrderInfo getOrderInfoByWayBillNumber(String wayBillNumber) throws ClientException;
     void validateReservedOrderId(List<MaterialLot> materialLots) throws ClientException;
     List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException;
     void cancelOrderByMaterialLots(List<MaterialLot> materialLots) throws ClientException;

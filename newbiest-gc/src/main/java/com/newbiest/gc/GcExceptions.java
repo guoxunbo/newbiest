@@ -55,6 +55,7 @@ public class GcExceptions {
     public static final String MATERIAL_LOT_ALREADY_RECORD_EXPRESS = "gc.material_lot_recorded_express";
     public static final String MATERIAL_LOT_NOT_RECORD_EXPRESS = "gc.material_lot_not_recorded_express";
     public static final String EXPRESS_NUMBER_IS_INCONSISTENT = "gc.express_number_is_inconsistent";
+    public static final String ORDER_STATUS_NOT_ALLOWED_ONLY_MANUALLY_CANCEL = "gc.order_status_is_not_allow_only_munually_cancel";
 
     public static final String GET_EXPRESS_TOKEN_ERROR = "gc.get_express_token_error";
     public static final String SHIPPING_ADDRESS_IS_NULL = "gc.shipping_address_is_null";

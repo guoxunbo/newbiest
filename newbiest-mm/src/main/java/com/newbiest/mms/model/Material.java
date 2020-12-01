@@ -74,6 +74,7 @@ public class Material extends NBVersionControl {
     public static final String QUERY_PRODUCT_SUBCODE = "queryProductSubcode";
     public static final String QUERY_PRODUCT_MODEL_CONVERSION = "queryProductModelConversion";
     public static final String QUERY_WAREHOUSE_PRODUCT_MODEL = "queryWareHouseProductModel";
+    public static final String QUERY_PRODUCT_PRINT_MODELID = "queryProductPrintModelId";
 
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;
