@@ -3649,16 +3649,19 @@ public class GcServiceImpl implements GcService {
      */
     public GCProductSubcode saveProductSubcode(GCProductSubcode productSubcode) throws ClientException {
         try {
-            GCProductSubcode oldProductSubcode = getProductAndSubcodeInfo(productSubcode.getProductId(),productSubcode.getSubcode());
+            String productId = productSubcode.getProductId().trim();
+            GCProductSubcode oldProductSubcode = getProductAndSubcodeInfo(productId ,productSubcode.getSubcode().trim());
             if(oldProductSubcode != null){
                 throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_EXIST);
             }
-            RawMaterial rawMaterial = mmsService.getRawMaterialByName(productSubcode.getProductId());
+            RawMaterial rawMaterial = mmsService.getRawMaterialByName(productId);
             if(rawMaterial == null){
                 rawMaterial = new RawMaterial();
-                rawMaterial.setName(productSubcode.getProductId());
+                rawMaterial.setName(productId);
                 mmsService.createRawMaterial(rawMaterial);
             }
+            productSubcode.setProductId(productId);
+            productSubcode.setSubcode(productSubcode.getSubcode().trim());
             productSubcode = gcProductSubcodeSetRepository.saveAndFlush(productSubcode);
             return productSubcode;
         } catch (Exception e){
