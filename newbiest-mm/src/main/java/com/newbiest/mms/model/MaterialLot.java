@@ -55,6 +55,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE = "GCQRCodePrintSeq";
 
     /**
+     * 箱子称重流水号
+     */
+    public static final String GENERATOR_QRCODE_LABEL_WEIGHT_SEQ_RULE = "BoxWeightSeq";
+
+    /**
      * 手动快递下单
      */
     public static final String PLAN_ORDER_TYPE_MANUAL  = "ManualOrder";
@@ -421,6 +426,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date docDate;
+
+    /**
+     * 箱称重流水号
+     */
+    @Column(name="WEIGHT_SEQ")
+    private String weightSeq;
 
     /**
      * GlaxyCore MES完成品的levelTwoCode

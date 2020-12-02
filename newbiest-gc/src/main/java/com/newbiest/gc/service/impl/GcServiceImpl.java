@@ -2398,7 +2398,8 @@ public class GcServiceImpl implements GcService {
 
                         erpMoaList.add(erpMoa);
                     } else if(MesPackedLot.PRODUCT_CATEGORY_CP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLT.equals(productCateGory)
-                            || MesPackedLot.PRODUCT_CATEGORY_LSP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_LCP.equals(productCateGory) ){
+                            || MesPackedLot.PRODUCT_CATEGORY_LSP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_LCP.equals(productCateGory)
+                            || MesPackedLot.PRODUCT_CATEGORY_SCP.equals(productCateGory)){
                         // ERP_MOA插入数据
                         ErpMoa erpMoa = new ErpMoa();
                         erpMoa.setFQty(mesPackedLot.getWaferQty());
@@ -3127,11 +3128,16 @@ public class GcServiceImpl implements GcService {
             }
             //称重记录
             for (MaterialLot materialLot : materialLots) {
+                String weightSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_WEIGHT_SEQ_RULE);
                 WeightModel weightModel = weightModelMap.get(materialLot.getMaterialLotId());
                 String weight = weightModel.getWeight();
                 materialLot.setReserved19(weight);
                 materialLot.setReserved20(transId);
+                materialLot.setWeightSeq(weightSeq);
                 materialLotRepository.save(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_WEIGHT);
+                materialLotHistoryRepository.save(history);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
