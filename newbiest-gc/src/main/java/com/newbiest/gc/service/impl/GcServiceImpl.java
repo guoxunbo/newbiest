@@ -2053,9 +2053,17 @@ public class GcServiceImpl implements GcService {
         try {
             if (documentLine == null) {
                 documentLine = new DocumentLine();
-                Material material = mmsService.getRawMaterialByName(erpSo.getCinvcode());
-                if (material == null) {
-                    throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
+                Material material = new Material();
+                if(DeliveryOrder.CATEGORY_DELIVERY.equals(docType)){
+                    material = mmsService.getProductByName(erpSo.getCinvcode());
+                    if (material == null) {
+                        throw new ClientParameterException(MM_PRODUCT_ID_IS_NOT_EXIST, erpSo.getCinvcode());
+                    }
+                } else {
+                    material = mmsService.getRawMaterialByName(erpSo.getCinvcode());
+                    if (material == null) {
+                        throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, erpSo.getCinvcode());
+                    }
                 }
                 documentLine.setErpCreated(erpCreatedDate);
                 documentLine.setMaterialRrn(material.getObjectRrn());
