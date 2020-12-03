@@ -72,15 +72,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     /**
      * 物料批次出货、发料、接收、重测与单据的验证规则名称
      */
-    public static final String MLOT_SHIP_DOC_VALIDATE_RULE_ID = "MLotShipDocRule";
-    public static final String WLT_SHIP_DOC_VALIDATE_RULE_ID = "WLTStockOutDocRule";
-    public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "MLotReservedRule";
-    public static final String MLOT_RETEST_DOC_VALIDATE_RULE_ID = "MLotReTestRule";
-    public static final String WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "WaferReceiveDocLineRule";
-    public static final String COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "COBWaferReceiveDocLineRule";
-    public static final String WAFER_ISSUE_DOC_VALIDATE_RULE_ID = "WaferIssueDocLineRule";
-    public static final String COB_WAFER_ISSUE_DOC_VALIDATE_RULE_ID = "COBWaferIssueDocLineRule";
-    public static final String FT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "FTStockOutDocRule";
+    public static final String MLOT_SHIP_DOC_VALIDATE_RULE_ID = "MLotShipDocRule";  //COM出货单据验证规则
+    public static final String WLT_SHIP_DOC_VALIDATE_RULE_ID = "WLTStockOutDocRule";    //WLT出货单据验证
+    public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "MLotReservedRule"; //备货单据验证规则
+    public static final String MLOT_RETEST_DOC_VALIDATE_RULE_ID = "MLotReTestRule"; //物料重测发料单据验证规则
+    public static final String WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "WaferReceiveDocLineRule";  //晶圆接收单据验证规则
+    public static final String COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "COBWaferReceiveDocLineRule"; //COB晶圆接收单据验证规则
+    public static final String WAFER_ISSUE_DOC_VALIDATE_RULE_ID = "WaferIssueDocLineRule";  //晶圆发料验证规则
+    public static final String COB_WAFER_ISSUE_DOC_VALIDATE_RULE_ID = "COBWaferIssueDocLineRule";   //COB晶圆发料单据验证规则
+    public static final String FT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "FTStockOutDocRule"; //FT出货单据验证规则
+    public static final String COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID = "CogMLotReceiveDocRule"; //COG来料接受单据验证规则
 
     /**
      * 香港仓依订单出货

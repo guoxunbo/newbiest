@@ -6149,7 +6149,7 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             if(!StringUtils.isNullOrEmpty(poId)){
-                BigDecimal totalTaggingQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+                BigDecimal totalTaggingQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentSubQty));
                 GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoId(poId);
                 if(outSourcePo != null){
                     if(outSourcePo.getUnHandledQty().subtract(totalTaggingQty).compareTo(BigDecimal.ZERO) < 0){
@@ -6270,8 +6270,8 @@ public class GcServiceImpl implements GcService {
                 if(!StringUtils.isNullOrEmpty(poId)){
                     GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoId(poId);
                     if(outSourcePo != null){
-                        BigDecimal poHandleQty = outSourcePo.getHandledQty().subtract(materialLot.getCurrentQty());
-                        BigDecimal poUnHandleQty = outSourcePo.getUnHandledQty().add(materialLot.getCurrentQty());
+                        BigDecimal poHandleQty = outSourcePo.getHandledQty().subtract(materialLot.getCurrentSubQty());
+                        BigDecimal poUnHandleQty = outSourcePo.getUnHandledQty().add(materialLot.getCurrentSubQty());
                         outSourcePo.setHandledQty(poHandleQty);
                         outSourcePo.setUnHandledQty(poUnHandleQty);
                         outSourcePo = outSourcePoRepository.saveAndFlush(outSourcePo);
@@ -7294,6 +7294,114 @@ public class GcServiceImpl implements GcService {
                         MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
                         materialLotUnitHisRepository.save(materialLotUnitHistory);
                     }
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证并接收COG来料信息
+     * @param documentLineList
+     * @param materialLotActionList
+     * @throws ClientException
+     */
+    public void validateAndReceiveCogMLot(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActionList) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotActionList.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID);
+            for (String key : materialLotMap.keySet()) {
+                if (!documentLineMap.keySet().contains(key)) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+                }
+                Long totalMLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                Long totalDocUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                if (totalMLotQty.compareTo(totalDocUnhandledQty) > 0) {
+                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
+                }
+                receiveCogMLot(documentLineMap.get(key), materialLotMap.get(key));
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 接收COG来料
+     * @param documentLines
+     * @param materialLots
+     * @throws ClientException
+     */
+    private void receiveCogMLot(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
+        try {
+            for (DocumentLine documentLine: documentLines) {
+                BigDecimal unhandedQty = documentLine.getUnHandledQty();
+                Iterator<MaterialLot> iterator = materialLots.iterator();
+
+                Map<String, BigDecimal> mLotQty = Maps.newHashMap();
+                for(MaterialLot materialLot : materialLots) {
+                    mLotQty.put(materialLot.getMaterialLotId(), materialLot.getCurrentQty());
+                }
+
+                while (iterator.hasNext()) {
+                    MaterialLot materialLot = iterator.next();
+                    if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
+                        materialLot.setReserved12(documentLine.getObjectRrn().toString());
+                    } else {
+                        materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
+                    }
+                    BigDecimal currentQty = materialLot.getCurrentQty();
+                    if (unhandedQty.compareTo(currentQty) >= 0) {
+                        unhandedQty = unhandedQty.subtract(currentQty);
+                        currentQty =  BigDecimal.ZERO;
+                    } else {
+                        currentQty = currentQty.subtract(unhandedQty);
+                        unhandedQty = BigDecimal.ZERO;
+                    }
+                    materialLot.setCurrentQty(currentQty);
+                    if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                        //数量进行还原。不能扣减。
+                        materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
+                        materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                        iterator.remove();
+                    }
+                    if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
+                        break;
+                    }
+                }
+                BigDecimal handledQty = documentLine.getUnHandledQty().subtract(unhandedQty);
+                if(handledQty.compareTo(BigDecimal.ZERO) == 0){
+                    break;
+                } else {
+                    documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
+                    documentLine.setUnHandledQty(unhandedQty);
+                    documentLine = documentLineRepository.saveAndFlush(documentLine);
+                    baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RECEIVE);
+
+                    CogReceiveOrder cogReceiveOrder = (CogReceiveOrder) cogReceiveOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                    cogReceiveOrder.setHandledQty(cogReceiveOrder.getHandledQty().add(handledQty));
+                    cogReceiveOrder.setUnHandledQty(cogReceiveOrder.getUnHandledQty().subtract(handledQty));
+                    cogReceiveOrder = cogReceiveOrderRepository.saveAndFlush(cogReceiveOrder);
+                    baseService.saveHistoryEntity(cogReceiveOrder, MaterialLotHistory.TRANS_TYPE_RECEIVE);
+
+                    Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                    if (!erpSoOptional.isPresent()) {
+                        throw new ClientParameterException(GcExceptions.ERP_RECEIVE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                    }
+
+                    ErpSo erpSo = erpSoOptional.get();
+                    erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                    erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
+                    if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
+                        erpSo.setDeliveredNum(handledQty.toPlainString());
+                    } else {
+                        BigDecimal docHandledQty = new BigDecimal(erpSo.getDeliveredNum());
+                        docHandledQty = docHandledQty.add(handledQty);
+                        erpSo.setDeliveredNum(docHandledQty.toPlainString());
+                    }
+                    erpSoRepository.save(erpSo);
                 }
             }
         } catch (Exception e) {

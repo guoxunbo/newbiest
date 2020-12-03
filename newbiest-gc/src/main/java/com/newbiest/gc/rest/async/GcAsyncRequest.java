@@ -22,6 +22,7 @@ public class GcAsyncRequest extends Request {
 	public static final String ACTION_ASYNC_MOUTA_ORDER = "AsyncMoutaOrder"; //同步ETM_MATERIAL_OUTA
 	public static final String ACTION_ASYNC_SOA_ORDER = "AsyncSoaOrder"; //同步ETM_SOA
 	public static final String ACTION_ASYNC_SOB_ORDER = "AsyncSobOrder"; //同步ETM_SOB
+	public static final String ACTION_ASYNC_COG_RECEIVE_ORDER = "AsyncCogReceiveOrder"; //同步ETM_SO  TYPE = 'COG'
 
 	public static final String ACTION_ASYNC_MATERIAL = "AsyncMaterial";
 	public static final String ACTION_ASYNC_PRODUCT = "AsyncProduct";
