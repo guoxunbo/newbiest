@@ -1036,33 +1036,45 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 晶圆根据匹配规则自动匹配单据
+     * F等级的COB晶圆接收不需要匹配单据
      * @param documentLineList
      * @param materialLotActions
      * @throws ClientException
      */
     public void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
-            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WAFER_RECEIVE_DOC_VALIDATE_RULE_ID);
-            Map<String, List<MaterialLotAction>> materialLotActionMap = materialLotActions.stream().collect(Collectors.groupingBy(MaterialLotAction:: getMaterialLotId));
-            List<MaterialLot> materialLots = new ArrayList<>();
-            for(String materialLotId : materialLotActionMap.keySet()){
-                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
-                materialLots.add(materialLot);
+            List<MaterialLot> materialLotList = new ArrayList<>();
+            List<MaterialLot> fGradeMLotList = new ArrayList<>();
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for(MaterialLot materialLot : materialLots){
+                if(MaterialLot.IMPORT_COB.equals(materialLot.getReserved49()) && MaterialLot.GEADE_F.equals(materialLot.getGrade())){
+                    fGradeMLotList.add(materialLot);
+                } else {
+                    materialLotList.add(materialLot);
+                }
             }
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByImportType(materialLots, MaterialLot.WAFER_RECEIVE_DOC_VALIDATE_RULE_ID, MaterialLot.COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID);
+            if(CollectionUtils.isNotEmpty(materialLotList)){
+                Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByImportType(materialLotList, MaterialLot.WAFER_RECEIVE_DOC_VALIDATE_RULE_ID, MaterialLot.COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID);
+                documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+                Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WAFER_RECEIVE_DOC_VALIDATE_RULE_ID);
+                // 确保所有的物料批次都能匹配上单据, 并且数量足够
+                for (String key : materialLotMap.keySet()) {
+                    if (!documentLineMap.keySet().contains(key)) {
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getLotId());
+                    }
+                    Long totalMaterialLotQty = getTotalMaterialLotQtyByMLotUnitImportType(materialLotMap.get(key));
+                    Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                    if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
+                        throw new ClientException(GcExceptions.OVER_DOC_QTY);
+                    }
+                    receiveWafer(documentLineMap.get(key), materialLotMap.get(key));
+                }
+            }
 
-            // 确保所有的物料批次都能匹配上单据, 并且数量足够
-            for (String key : materialLotMap.keySet()) {
-                if (!documentLineMap.keySet().contains(key)) {
-                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getLotId());
+            if(CollectionUtils.isNotEmpty(fGradeMLotList)){
+                for(MaterialLot materialLot : fGradeMLotList){
+                    materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
                 }
-                Long totalMaterialLotQty = getTotalMaterialLotQtyByMLotUnitImportType(materialLotMap.get(key));
-                Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
-                if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
-                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
-                }
-                receiveWafer(documentLineMap.get(key), materialLotMap.get(key));
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

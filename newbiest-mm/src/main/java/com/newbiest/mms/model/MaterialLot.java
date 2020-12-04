@@ -70,6 +70,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String PLAN_ORDER_TYPE_AUTO  = "AutoOrder";
 
     /**
+     * F等级
+     */
+    public static final String GEADE_F = "F";
+
+    /**
      * 物料批次出货、发料、接收、重测与单据的验证规则名称
      */
     public static final String MLOT_SHIP_DOC_VALIDATE_RULE_ID = "MLotShipDocRule";  //COM出货单据验证规则
