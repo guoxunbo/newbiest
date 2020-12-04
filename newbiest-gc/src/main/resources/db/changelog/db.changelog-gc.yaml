@@ -332,3 +332,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCCogMLotReceiveOrder_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.GcMenuManager.yaml
+      relativeToChangelogFile: true

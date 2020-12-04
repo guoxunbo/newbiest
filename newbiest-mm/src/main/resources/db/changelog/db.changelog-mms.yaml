@@ -407,3 +407,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCCogMLotReceive.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCMenuManager.nb_authority.yaml
+      relativeToChangelogFile: true

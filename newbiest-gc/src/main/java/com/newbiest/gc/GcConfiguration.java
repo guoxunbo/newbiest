@@ -6,6 +6,7 @@ import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.gc.model.*;
 import com.newbiest.main.YmlPropertyLoaderFactory;
 import com.newbiest.mms.model.*;
+import com.newbiest.security.model.NBAuthority;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +64,7 @@ public class GcConfiguration {
         ModelFactory.registerModelClassLoader(GCProductNumberRelation.class.getName(), GCProductNumberRelation.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCProductWeightRelation.class.getName(), GCProductWeightRelation.class.getClassLoader());
         ModelFactory.registerModelClassLoader(NBQuery.class.getName(), NBQuery.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(NBAuthority.class.getName(), NBAuthority.class.getClassLoader());
 
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());
