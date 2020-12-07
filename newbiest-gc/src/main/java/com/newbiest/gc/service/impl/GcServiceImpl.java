@@ -4053,6 +4053,10 @@ public class GcServiceImpl implements GcService {
             ThreadLocalContext.getSessionContext().buildTransInfo();
             List<Map<String, String>> parameterMapList = Lists.newArrayList();
 
+            if(StringUtils.isNullOrEmpty(materialLot.getReserved16())){
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_RESERVED_ORDER_IS_NULL, materialLot.getMaterialLotId());
+            }
+
             //获取当前日期，时间格式yyMMdd
             SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
             String date = formatter.format(new Date());
@@ -4060,6 +4064,7 @@ public class GcServiceImpl implements GcService {
             //从产品上获取真空包的标准数量，用于区分真空包属于零包还是散包
             Product product = mmsService.getProductByName(materialLot.getMaterialName());
             BigDecimal packageTotalQty = new BigDecimal(product.getReserved1());
+            ErpSo erpSo = getErpSoByReserved16(materialLot.getReserved16());
 
             String dateAndNumber = StringUtils.EMPTY;
             String twoDCode = StringUtils.EMPTY;
@@ -4069,18 +4074,18 @@ public class GcServiceImpl implements GcService {
 
             if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
                 Map<String, String> parameterMap = Maps.newHashMap();
-                printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE);
+                printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE).substring(8, 14);
                 flow = printSeq + StringUtils.UNDERLINE_CODE  + printSeq;
                 parameterMap.put("VENDER", MaterialLot.GC_CODE);
-                parameterMap.put("MATERIALCODE", "weizhi");
+                parameterMap.put("MATERIALCODE", erpSo.getOther10());
                 dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(materialLot.getCurrentQty().toString() , 6 , "0") + StringUtils.UNDERLINE_CODE;
                 parameterMap.put("DATEANDNUMBER", dateAndNumber);
                 if(packageTotalQty.compareTo(materialLot.getCurrentQty()) > 0 ){
-                    boxSeq = "VL" + materialLot.getMaterialLotId().substring(materialLot.getMaterialLotId().length() - 3);
+                    boxSeq = MLotCodePrint.VBOXSEQ_START_VL + materialLot.getMaterialLotId().substring(materialLot.getMaterialLotId().length() - 3);
                 } else {
-                    boxSeq = "VZ" + materialLot.getMaterialLotId().substring(materialLot.getMaterialLotId().length() - 3);
+                    boxSeq = MLotCodePrint.VBOXSEQ_START_VZ + materialLot.getMaterialLotId().substring(materialLot.getMaterialLotId().length() - 3);
                 }
-                twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + "weizhi" + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+                twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + erpSo.getOther10() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
                 parameterMap.put("FLOW", flow);
                 parameterMap.put("BOXSEQ", boxSeq);
                 parameterMap.put("TWODCODE", twoDCode);
@@ -4089,37 +4094,82 @@ public class GcServiceImpl implements GcService {
                 parameterMapList.add(parameterMap);
             } else {
                 //如果勾选打印箱中真空包标签信息，需要按照整包和零包进行分组，再按照是否打印真空包flag组装Map
-                if(MaterialLot.PRINT_CHECK.equals(printVboxLabelFlag)){
-                    List<MaterialLot> materialLotList = packageService.getPackageDetailLots(materialLot.getObjectRrn());
-                    List<MaterialLot> fullPackageMLotList = new ArrayList<>();
-                    List<MaterialLot> zeroPackageMLotList = new ArrayList<>();
-                    for(MaterialLot mLot : materialLotList){
-                        if(packageTotalQty.compareTo(mLot.getCurrentQty()) > 0){
-                            zeroPackageMLotList.add(mLot);
-                        }else {
-                            fullPackageMLotList.add(mLot);
-                        }
+                List<MaterialLot> materialLotList = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                List<MaterialLot> fullPackageMLotList = new ArrayList<>();
+                List<MaterialLot> zeroPackageMLotList = new ArrayList<>();
+                for(MaterialLot mLot : materialLotList){
+                    if(packageTotalQty.compareTo(mLot.getCurrentQty()) > 0){
+                        zeroPackageMLotList.add(mLot);
+                    }else {
+                        fullPackageMLotList.add(mLot);
                     }
+                }
+                if(MaterialLot.PRINT_CHECK.equals(printVboxLabelFlag)){
                     if( CollectionUtils.isNotEmpty(fullPackageMLotList)){
-                        parameterMapList = getQRCodeLabelPrintParmByVboxStandardQty(parameterMapList ,fullPackageMLotList, date, "VZ");
+                        parameterMapList = getQRCodeLabelPrintParmByVboxStandardQty(parameterMapList ,fullPackageMLotList, erpSo, date, MLotCodePrint.VBOXSEQ_START_VZ);
                     }
                     if( CollectionUtils.isNotEmpty(zeroPackageMLotList)){
-                        parameterMapList = getQRCodeLabelPrintParmByVboxStandardQty(parameterMapList ,zeroPackageMLotList, date, "VL");
+                        parameterMapList = getQRCodeLabelPrintParmByVboxStandardQty(parameterMapList ,zeroPackageMLotList, erpSo, date, MLotCodePrint.VBOXSEQ_START_VL);
                     }
                 } else {
-                    Map<String, String> parameterMap = Maps.newHashMap();
-                    printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE);
-                    flow = printSeq + StringUtils.UNDERLINE_CODE  + printSeq;
-                    dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(materialLot.getCurrentQty().toString() , 6 , "0");
-                    twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + "weizhi" + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
-                    parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
-                    parameterMap.put("MATERIALCODE", "weizhi" + StringUtils.UNDERLINE_CODE);
-                    parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
-                    parameterMap.put("FLOW", flow);
-                    parameterMap.put("BOXSEQ", "BL");
-                    parameterMap.put("TWODCODE", twoDCode);
-                    parameterMapList.add(parameterMap);
+                    //不打印真空包标签也要区分散包零包的箱标签
+                    if( CollectionUtils.isNotEmpty(fullPackageMLotList)){
+                        parameterMapList = getQRCodeBoxLabelPrintParmByVboxStandardQty(parameterMapList, fullPackageMLotList, erpSo, date, MLotCodePrint.BOXSEQ_START_BZ);
+                    }
+                    if( CollectionUtils.isNotEmpty(zeroPackageMLotList)){
+                        parameterMapList = getQRCodeBoxLabelPrintParmByVboxStandardQty(parameterMapList, zeroPackageMLotList, erpSo, date, MLotCodePrint.BOXSEQ_START_BL);
+                    }
                 }
+            }
+            return parameterMapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取区分整包零包之后的箱标签打印参数
+     * @param parameterMapList
+     * @param materialLotList
+     * @param erpSo
+     * @param date
+     * @param boxSeq
+     * @return
+     * @throws ClientException
+     */
+    private List<Map<String,String>> getQRCodeBoxLabelPrintParmByVboxStandardQty(List<Map<String,String>> parameterMapList, List<MaterialLot> materialLotList, ErpSo erpSo, String date, String boxSeq) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            String dateAndNumber = StringUtils.EMPTY;
+            String printSeq = StringUtils.EMPTY;
+            String flow = StringUtils.EMPTY;
+            String twoDCode = StringUtils.EMPTY;
+
+            Long totalQty = materialLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getCurrentQty().longValue()));
+            String  startPrintSeq = "";
+            int vobxQty = materialLotList.size();
+            for(int i=0; i < vobxQty; i++){
+                printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE).substring(8, 14);
+                if(StringUtils.isNullOrEmpty(startPrintSeq)){
+                    startPrintSeq = printSeq;
+                }
+                flow = printSeq + StringUtils.UNDERLINE_CODE + printSeq;
+            }
+            dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(totalQty.toString(), 6 , "0");
+            twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + erpSo.getOther10() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+            parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("MATERIALCODE", erpSo.getOther10() + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("FLOW", flow);
+            parameterMap.put("BOXSEQ", MLotCodePrint.BOXSEQ_START_BL);
+            parameterMap.put("TWODCODE", twoDCode);
+            parameterMap.put("printCount", "2");
+            parameterMapList.add(parameterMap);
+
+            //将箱号二维码信息记录到真空包上
+            for(MaterialLot mLot : materialLotList){
+                mLot.setBoxQrcodeInfo(twoDCode);
+                materialLotRepository.saveAndFlush(mLot);
             }
             return parameterMapList;
         } catch (Exception e) {
@@ -4134,7 +4184,7 @@ public class GcServiceImpl implements GcService {
      * @param materialLotList
      * @return
      */
-    private List<Map<String, String>> getQRCodeLabelPrintParmByVboxStandardQty(List<Map<String, String>> parameterMapList, List<MaterialLot> materialLotList, String date, String boxStart)throws ClientException{
+    private List<Map<String, String>> getQRCodeLabelPrintParmByVboxStandardQty(List<Map<String, String>> parameterMapList, List<MaterialLot> materialLotList, ErpSo erpSo, String date, String boxStart)throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             String dateAndNumber = StringUtils.EMPTY;
@@ -4145,39 +4195,48 @@ public class GcServiceImpl implements GcService {
 
             Long fullPackageTotalQty = materialLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getCurrentQty().longValue()));
             String  startPrintSeq = "";
-            for(MaterialLot fullMlot : materialLotList){
+            for(MaterialLot materialLot : materialLotList){
                 parameterMap = Maps.newHashMap();
-                printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE);
+                printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE).substring(8, 14);
                 if(StringUtils.isNullOrEmpty(startPrintSeq)){
                     startPrintSeq = printSeq;
                 }
                 flow = printSeq + StringUtils.UNDERLINE_CODE + printSeq;
-                dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(fullMlot.getCurrentQty().toString() , 6 , "0");
-                boxSeq = boxStart + fullMlot.getMaterialLotId().substring(fullMlot.getMaterialLotId().length() - 3);
-                twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + "weizhi" + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+                dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(materialLot.getCurrentQty().toString() , 6 , "0");
+                boxSeq = boxStart + materialLot.getMaterialLotId().substring(materialLot.getMaterialLotId().length() - 3);
+                twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + erpSo.getOther10() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
                 parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
-                parameterMap.put("MATERIALCODE", "weizhi" + StringUtils.UNDERLINE_CODE);
+                parameterMap.put("MATERIALCODE", erpSo.getOther10() + StringUtils.UNDERLINE_CODE);
                 parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
                 parameterMap.put("FLOW", flow);
                 parameterMap.put("BOXSEQ", boxSeq);
                 parameterMap.put("TWODCODE", twoDCode);
                 parameterMap.put("printCount", "1");
                 parameterMapList.add(parameterMap);
+
+                //将二维码信息记录到真空包上
+                materialLot.setVboxQrcodeInfo(twoDCode);
+                materialLotRepository.saveAndFlush(materialLot);
             }
             //获取箱标签信息
             parameterMap = Maps.newHashMap();
             dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad( fullPackageTotalQty.toString(), 6 , "0");
             flow = startPrintSeq + StringUtils.UNDERLINE_CODE + printSeq;
-            twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + "weizhi" + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+            twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + erpSo.getOther10() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
             parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
-            parameterMap.put("MATERIALCODE", "weizhi" + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("MATERIALCODE", erpSo.getOther10() + StringUtils.UNDERLINE_CODE);
             parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
             parameterMap.put("FLOW", flow);
-            parameterMap.put("BOXSEQ", "BL");
+            parameterMap.put("BOXSEQ", MLotCodePrint.BOXSEQ_START_BL);
             parameterMap.put("TWODCODE", twoDCode);
             parameterMap.put("printCount", "2");
             parameterMapList.add(parameterMap);
 
+            //将箱号二维码信息记录到真空包上
+            for(MaterialLot materialLot : materialLotList){
+                materialLot.setBoxQrcodeInfo(twoDCode);
+                materialLotRepository.saveAndFlush(materialLot);
+            }
             return parameterMapList;
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -4194,15 +4253,20 @@ public class GcServiceImpl implements GcService {
     public Map<String, String> getCOBBoxLabelPrintParamater(MaterialLot materialLot) throws ClientException {
         try {
             ThreadLocalContext.getSessionContext().buildTransInfo();
+            if(StringUtils.isNullOrEmpty(materialLot.getReserved16())){
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_RESERVED_ORDER_IS_NULL, materialLot.getMaterialLotId());
+            }
             Map<String, String> parameterMap = Maps.newHashMap();
             SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
             String date = formatter.format(new Date());
-            String printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE);
+
+            ErpSo erpSo = getErpSoByReserved16(materialLot.getReserved16());
+            String printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE).substring(8, 14);
             String flow = printSeq + StringUtils.UNDERLINE_CODE  + printSeq;
             String dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(materialLot.getCurrentQty().toString() , 6 , "0");
-            String twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + "weizhi" + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+            String twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + erpSo.getOther10() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
             parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
-            parameterMap.put("MATERIALCODE", "weizhi" + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("MATERIALCODE", erpSo.getOther10() + StringUtils.UNDERLINE_CODE);
             parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
             parameterMap.put("FLOW", flow);
             parameterMap.put("BOXSEQ", "BZ");

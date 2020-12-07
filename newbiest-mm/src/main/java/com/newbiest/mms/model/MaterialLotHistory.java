@@ -344,6 +344,18 @@ public class MaterialLotHistory extends NBHis {
     private String weightSeq;
 
     /**
+     * 真空包二维码信息
+     */
+    @Column(name="VBOX_QRCODE_INFO")
+    private String vboxQrcodeInfo;
+
+    /**
+     * 箱号二维码信息
+     */
+    @Column(name="BOX_QRCODE_INFO")
+    private String boxQrcodeInfo;
+
+    /**
      * GlaxyCore MES完成品的levelTwoCode
      */
     @Column(name="RESERVED1")
