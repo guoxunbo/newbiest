@@ -2836,7 +2836,7 @@ public class GcServiceImpl implements GcService {
      * @param name
      * @throws ClientException
      */
-    private void saveProductAndSetStatusModelRrn(String name) throws ClientException{
+    private Material saveProductAndSetStatusModelRrn(String name) throws ClientException{
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
@@ -2852,7 +2852,8 @@ public class GcServiceImpl implements GcService {
             } else {
                 throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
             }
-            productRepository.save(product);
+            Material material = productRepository.save(product);
+            return material;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -4586,9 +4587,17 @@ public class GcServiceImpl implements GcService {
             ErpSo erpSo = getErpSoByReserved16(materialLot.getReserved16());
             String productType = getProductType(materialLot.getMaterialName());
 
+            //将物料编码记录到真空包上
+            if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                for(MaterialLot packedMLot : packageMLotList){
+                    packedMLot.setMaterialCode(erpSo.getOther10());
+                    materialLotRepository.saveAndFlush(packedMLot);
+                }
+            }
+
             if(MLotCodePrint.GENERAL_MLOT_LABEL.equals(printType)){
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                     for(MaterialLot packageMLot : packageMLotList){
                         Map<String, String> parameterMap = getGeneralMLotPrintParamater(erpSo, packageMLot, warehouse, date, productType);
                         parameterMap.put("LABEL", MLotCodePrint.VBOX_LABEL);
@@ -4619,7 +4628,6 @@ public class GcServiceImpl implements GcService {
                 String expirationDate = formatter.format(calendar.getTime());//失效日期
                 String printSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_OPHELION_MLOT_LABEL_PRINT_SEQ_RULE).substring(2, 7);
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
-                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                     for(MaterialLot packageMLot : packageMLotList) {
                         Map<String, String> parameterMap = getOphelionMLotPrintParamater(erpSo, packageMLot, startDate, date, endDate, effectiveDate, expirationDate, printSeq);
                         parameterMap.put("printCount", "1");
@@ -4644,7 +4652,6 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                     for(MaterialLot packageMLot : packageMLotList){
                         String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BAICHEN_MLOT_LABEL_PRINT_SEQ_RULE).substring(8, 16);
                         if(StringUtils.isNullOrEmpty(firstVboxSeq)){
@@ -4666,7 +4673,6 @@ public class GcServiceImpl implements GcService {
                 }
             } else if(MLotCodePrint.GUANGBAO_BOX_LABEL.equals(printType)){
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                     for(MaterialLot packageMLot : packageMLotList){
                         Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSo, packageMLot);
                         parameterMapList.add(parameterMap);
@@ -4703,7 +4709,6 @@ public class GcServiceImpl implements GcService {
                 calendar.add(Calendar.YEAR, +1);
                 String effectiveDate = formatter.format(calendar.getTime());
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                     for(MaterialLot packageMLot : packageMLotList){
                         Map<String, String> parameterMap = getHuaTianMLotPrintParamater(erpSo, packageMLot, warehouse, huaTianPrintSeq, productType, date, effectiveDate);
                         parameterMapList.add(parameterMap);
@@ -4718,7 +4723,6 @@ public class GcServiceImpl implements GcService {
                 formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
                 String stockOutDate = formatter.format(new Date());
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
-                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                     for (MaterialLot packageMLot : packageMLotList) {
                         Map<String, String> parameterMap = getShengTaiVboxMLotPrintParamater(packageMLot, productType, stockOutDate, seq);
                         parameterMapList.add(parameterMap);
@@ -4739,7 +4743,6 @@ public class GcServiceImpl implements GcService {
                 String strLabel = MLotCodePrint.BYD_ORDER_ID + StringUtils.SEMICOLON_CODE;
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
                     String boxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BYD_BOX_LABEL_PRINT_SEQ_RULE).substring(6, 10);
-                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                     for (MaterialLot packageMLot : packageMLotList) {
                         Map<String, String> parameterMap = getBYDMLotPrintParamater(erpSo, packageMLot, productType, date);
                         String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BYD_VBOX_LABEL_PRINT_SEQ_RULE).substring(7, 11);
@@ -4760,7 +4763,6 @@ public class GcServiceImpl implements GcService {
                 parameterMapList.add(parameterMap);
             } else if(MLotCodePrint.SHUN_YU_LABEL.equals(printType)){
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
-                    packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                     for (MaterialLot packageMLot : packageMLotList) {
                         Map<String, String> parameterMap = getShunYuMLotPrintParamater(erpSo, packageMLot, productType);
                         //截取箱号数字起6位作为生产批号
@@ -5718,7 +5720,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine = new DocumentLine();
                                 Material material = mmsService.getProductByName(erpSob.getCinvcode());
                                 if (material == null) {
-                                    throw new ClientParameterException(MM_PRODUCT_ID_IS_NOT_EXIST, erpSob.getCinvcode());
+                                    material = saveProductAndSetStatusModelRrn(erpSob.getCinvcode());
                                 }
                                 documentLine.setDocId(documentId);
                                 documentLine.setErpCreated(erpCreatedDate);

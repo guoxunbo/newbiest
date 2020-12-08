@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMLotCodePackCheckManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCMLotCodePackCheckManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCMLotCodePackCheckManager
+              description: 物料编码装箱检验
+              tableName: GCMLotCodePackCheckScan
+              url: /Pack/GCMLotCodePackCheck
+              parentRrn: 211
+              seqNo: 45
+              image: icon-rule
+              labelZh: 物料编码装箱检验
+              labelEn: MLotCodePackCaseCheck

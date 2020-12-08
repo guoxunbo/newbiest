@@ -452,6 +452,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String boxQrcodeInfo;
 
     /**
+     * 物料编码
+     */
+    @Column(name="MATERIAL_CODE")
+    private String materialCode;
+
+    /**
      * GlaxyCore MES完成品的levelTwoCode
      */
     @Column(name="RESERVED1")
