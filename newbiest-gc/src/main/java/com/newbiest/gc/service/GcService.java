@@ -2,10 +2,8 @@ package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
-import com.newbiest.base.ui.model.NBReferenceTable;
 import com.newbiest.gc.model.*;
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -18,6 +16,8 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void validateAndReceiveCogMLot(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLines) throws ClientException;
     void hongKongWarehouseByOrderStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
     boolean validationHKStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     MaterialLot getHKWarehouseStockOutMLot(Long tableRrn, String queryLotId) throws ClientException;
@@ -102,6 +102,7 @@ public interface GcService {
 
     void asyncReceiveOrder() throws ClientException;
     void asyncShipOrder() throws ClientException;
+    void asyncCogReceiveOrder() throws ClientException;
 
     void asyncOtherIssueOrder() throws ClientException;
     void asyncOtherStockOutOrder() throws ClientException;

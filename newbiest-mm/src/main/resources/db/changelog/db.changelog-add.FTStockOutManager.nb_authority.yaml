@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFTStockOutManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCFTStockOutManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCFTStockOutManager
+              description: FT出货
+              tableName: GCFTStockOutOrder
+              url: /FT/GCFTStockOutManager
+              parentRrn: 1010
+              seqNo: 55
+              image: icon-rule
+              labelZh: FT出货
+              labelEn: FTStockOut

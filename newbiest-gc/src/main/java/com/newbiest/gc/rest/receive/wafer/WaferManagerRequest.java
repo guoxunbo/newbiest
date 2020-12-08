@@ -31,6 +31,11 @@ public class WaferManagerRequest extends Request {
 	 */
 	public static final String ACTION_TYPE_HK_MLOT_RECEIVE = "HKMLotReceive";
 
+	/**
+	 * COG来料接收
+	 */
+	public static final String ACTION_TYPE_COG_MLOT_RECEIVE = "CogReceive";
+
 	private WaferManagerRequestBody body;
 
 }

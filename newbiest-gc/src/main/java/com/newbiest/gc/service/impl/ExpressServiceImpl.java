@@ -38,10 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -362,7 +359,21 @@ public class ExpressServiceImpl implements ExpressService {
             List<Map<String, String>> parameterMapList =  Lists.newArrayList();
             Integer seq = 1;
             Integer numfix = materialLotList.size();
-            for (MaterialLot materialLot : materialLotList){
+            //按照称重的先后排序打印标签
+            List<MaterialLot> materialLots = Lists.newArrayList();
+            List<MaterialLot> mLotList = Lists.newArrayList();
+            for(MaterialLot materialLot : materialLotList){
+                if(StringUtils.isNullOrEmpty(materialLot.getWeightSeq())){
+                    materialLots.add(materialLot);
+                } else {
+                    mLotList.add(materialLot);
+                }
+            }
+            if(CollectionUtils.isNotEmpty(mLotList)){
+                mLotList = mLotList.stream().sorted(Comparator.comparing(MaterialLot::getWeightSeq)).collect(Collectors.toList());
+                materialLots.addAll(mLotList);
+            }
+            for (MaterialLot materialLot : materialLots){
                 Map<String, String> parameterMap =  Maps.newHashMap();
                 parameterMap.put("CSNAME", materialLot.getShipper());
                 parameterMap.put("NUMCHANG", seq.toString());

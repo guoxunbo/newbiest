@@ -39,6 +39,8 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_RECORD_EXPRESS = "RecordExpress";
     public static final String TRANS_TYPE_CANCEL_EXPRESS = "CancelExpress";
 
+    public static final String TRANS_TYPE_WEIGHT = "Weight";
+
     /**
      * 因为包装产生的批次
      */
@@ -334,6 +336,30 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="SOURCE_PRODUCT_ID")
     private String sourceProductId;
+
+    /**
+     * 箱称重流水号
+     */
+    @Column(name="WEIGHT_SEQ")
+    private String weightSeq;
+
+    /**
+     * 真空包二维码信息
+     */
+    @Column(name="VBOX_QRCODE_INFO")
+    private String vboxQrcodeInfo;
+
+    /**
+     * 箱号二维码信息
+     */
+    @Column(name="BOX_QRCODE_INFO")
+    private String boxQrcodeInfo;
+
+    /**
+     * 物料编码
+     */
+    @Column(name="MATERIAL_CODE")
+    private String materialCode;
 
     /**
      * GlaxyCore MES完成品的levelTwoCode

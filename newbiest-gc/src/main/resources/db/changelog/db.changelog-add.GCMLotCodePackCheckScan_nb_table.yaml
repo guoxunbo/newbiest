@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMLotCodePackCheckScan_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCMLotCodePackCheckScan to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMLotCodePackCheckScan
+              description: 物料编码装箱检验扫描
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 物料编码装箱检验扫描
+              label: MLotCodePackCheckScan

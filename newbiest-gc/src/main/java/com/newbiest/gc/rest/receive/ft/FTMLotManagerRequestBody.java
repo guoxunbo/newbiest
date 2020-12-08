@@ -3,6 +3,7 @@ package com.newbiest.gc.rest.receive.ft;
 import com.newbiest.gc.model.StockInModel;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -43,4 +44,6 @@ public class FTMLotManagerRequestBody extends RequestBody {
 	@ApiModelProperty(value = "发料计划投批")
 	private String unPlanLot;
 
+	@ApiModelProperty(value = "待验证的物料批次号")
+	private MaterialLot queryMaterialLot;
 }

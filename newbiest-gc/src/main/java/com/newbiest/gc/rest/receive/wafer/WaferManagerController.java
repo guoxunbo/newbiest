@@ -66,6 +66,8 @@ public class WaferManagerController extends AbstractRestController {
             gcService.purchaseOutsourceWaferReceive(materialLotActions);
         } else if(WaferManagerRequest.ACTION_TYPE_HK_MLOT_RECEIVE.equals(actionType)){
             gcService.hongKongMLotReceive(materialLotActions);
+        } else if(WaferManagerRequest.ACTION_TYPE_COG_MLOT_RECEIVE.equals(actionType)){
+            gcService.validateAndReceiveCogMLot(documentLineList, materialLotActions);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }

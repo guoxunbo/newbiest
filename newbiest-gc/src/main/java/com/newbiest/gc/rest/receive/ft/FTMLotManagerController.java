@@ -61,6 +61,12 @@ public class FTMLotManagerController extends AbstractRestController {
         } else if(FTMLotManagerRequest.ACTION_TYPE_FT_ISSUE.equals(actionType)){
             List<MaterialLotAction> materialLotActions = requestBody.getMaterialLotActions();
             gcService.validationAndWaferIssue(requestBody.getDocumentLines(), materialLotActions, requestBody.getIssueWithDoc(), requestBody.getUnPlanLot());
+        } else if(FTMLotManagerRequest.ACTION_TYPE_VALIDATE_MLOT.equals(actionType)) {//
+            //暂时同WLT出货物料批次验证
+            boolean falg = gcService.validationWltStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
+            responseBody.setFalg(falg);
+        } else if(FTMLotManagerRequest.ACTION_TYPE_FT_STOCK_OUT.equals(actionType)){
+            gcService.ftStockOut(requestBody.getMaterialLotActions(), requestBody.getDocumentLines());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }

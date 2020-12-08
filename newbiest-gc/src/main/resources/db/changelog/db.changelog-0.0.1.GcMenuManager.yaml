@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMenuManager_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCMenuManager to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMenuManager
+              description: 菜单管理
+              tableName: NB_AUTHORITY
+              modelName: NBAuthority
+              modelClass: com.newbiest.security.model.NBAuthority
+              labelZh: 菜单管理
+              label: BatchCancelExpressNumber

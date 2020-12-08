@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCogMLotReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCCogMLotReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCCogMLotReceiveManager
+              description: COM备货
+              tableName: GCCogMLotReceiveOrder
+              url: /GC/COGReceiveManager
+              parentRrn: 210
+              seqNo: 35
+              image: icon-rule
+              labelZh: COG来料接收
+              labelEn: COGMLotReceive

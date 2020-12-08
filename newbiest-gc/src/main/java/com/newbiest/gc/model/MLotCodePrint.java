@@ -92,4 +92,10 @@ public class MLotCodePrint {
     public static final String END_STR = "@@@@";
     public static final String VBOX_SEQ = "01";
 
+    //二维码标签
+    public static final String VBOXSEQ_START_VL = "VL";
+    public static final String VBOXSEQ_START_VZ = "VZ";
+    public static final String BOXSEQ_START_BZ = "BZ";
+    public static final String BOXSEQ_START_BL = "BL";
+
 }
