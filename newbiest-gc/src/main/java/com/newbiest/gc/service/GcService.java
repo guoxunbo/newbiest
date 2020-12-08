@@ -16,6 +16,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws ClientException;
     void validateAndReceiveCogMLot(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions) throws ClientException;
     void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLines) throws ClientException;
     void hongKongWarehouseByOrderStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;

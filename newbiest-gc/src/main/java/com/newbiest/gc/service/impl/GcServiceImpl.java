@@ -7072,6 +7072,64 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 原料清单导入 保存
+     * @param materialLotList
+     * @param importType
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws  ClientException{
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
+            String importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getMaterialName));
+            for(String materialName : materialLotMap.keySet()){
+                RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
+                if (rawMaterial == null){
+                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
+                }
+                String materialType = rawMaterial.getMaterialType() ;
+                if (!importType.equals(materialType)){
+                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_TYPE_NOT_SAME, importType);
+                }
+                List<MaterialLot> materialLots = materialLotMap.get(materialName);
+                for(MaterialLot materialLot : materialLots){
+                    MaterialLot oldmaterialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+                    if(oldmaterialLot != null){
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLot.getMaterialLotId());
+                    }
+
+                    materialLot.setMaterial(rawMaterial);
+                    materialLot.initialMaterialLot();
+                    materialLot.setReserved48(importCode);
+                    materialLot.setReserved49(importType);
+                    if(!StringUtils.isNullOrEmpty(materialLot.getMfgDateValue())){
+                        String msgDate = formats.format(simpleDateFormat.parse(materialLot.getMfgDateValue()));
+                        materialLot.setMfgDate(formats.parse(msgDate));
+                    }
+                    if(!StringUtils.isNullOrEmpty(materialLot.getExpDateValue())){
+                        String expDate = formats.format(simpleDateFormat.parse(materialLot.getExpDateValue()));
+                        materialLot.setExpDate(formats.parse(expDate));
+                    }
+                    if(!StringUtils.isNullOrEmpty(materialLot.getShippingDateValue())){
+                        String shippingDate = formats.format(simpleDateFormat.parse(materialLot.getShippingDateValue()));
+                        materialLot.setShippingDate(formats.parse(shippingDate));
+                    }
+                    materialLot.setProductType("");
+                    materialLotRepository.save(materialLot);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
+                    materialLotHistoryRepository.save(history);
+                }
+            }
+            return importCode;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 通过导入型号验证是否做产品型号转换，并保存原产品型号（后续接收时需要保存至中间表ETM_IN_STOCK）
      * @return
      * @throws ClientException

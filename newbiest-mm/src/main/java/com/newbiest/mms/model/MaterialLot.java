@@ -458,6 +458,30 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String materialCode;
 
     /**
+     * 原材料生产日期
+     */
+    @Column(name="MFG_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date mfgDate;
+
+    /**
+     * 原材料有效日期
+     */
+    @Column(name="EXP_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date expDate;
+
+    /**
+     * 原材料发货日期
+     */
+    @Column(name="SHIPPING_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date shippingDate;
+
+    /**
      * GlaxyCore MES完成品的levelTwoCode
      */
     @Column(name="RESERVED1")
@@ -832,6 +856,21 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Transient
     private BigDecimal floatValue;
 
+    /**
+     * 原料生产日期 用于页面接收
+     */
+    @Transient
+    private String mfgDateValue;
+    /**
+     * 原料有效日期 用于页面接收
+     */
+    @Transient
+    private String expDateValue;
+    /**
+     * 原料发货日期 用于页面接收
+     */
+    @Transient
+    private String shippingDateValue;
 
     /**
      * 验证物料批次是否在有效期内

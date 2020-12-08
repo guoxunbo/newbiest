@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialImport_to_NB_AUTHORITY
+      author: Tao Zhou
+      comment: add GCRawMaterialImport to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRawMaterialImport
+              description: 原材料导入
+              tableName: GCRawMaterialImport
+              url: /GC/GCRawMaterialImport
+              parentRrn: 210
+              seqNo: 40
+              image: icon-rule
+              labelZh: 原材料导入
+              labelEn: GCRawMaterialImport
+
