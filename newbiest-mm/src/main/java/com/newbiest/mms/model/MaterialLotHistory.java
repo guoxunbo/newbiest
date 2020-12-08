@@ -362,6 +362,30 @@ public class MaterialLotHistory extends NBHis {
     private String materialCode;
 
     /**
+     * 原材料生产日期
+     */
+    @Column(name="MFG_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date mfgDate;
+
+    /**
+     * 原材料有效日期
+     */
+    @Column(name="EXP_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date expDate;
+
+    /**
+     * 原材料发货日期
+     */
+    @Column(name="SHIPPING_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date shippingDate;
+
+    /**
      * GlaxyCore MES完成品的levelTwoCode
      */
     @Column(name="RESERVED1")
