@@ -45,6 +45,8 @@ public class FinishGoodController {
         } else if(FinishGoodRequest.ACTION_WLT_RECEIVE.equals(requestBody.getActionType())){
             parameterMapList = gcService.receiveWltFinishGood(requestBody.getMesPackedLots(), requestBody.getPrintLabel());
             responseBody.setParameterMapList(parameterMapList);
+        } else if(FinishGoodRequest.ACTION_COB_RECEIVE.equals(requestBody.getActionType())){
+            gcService.receiveCOBFinishGood(requestBody.getMesPackedLots());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

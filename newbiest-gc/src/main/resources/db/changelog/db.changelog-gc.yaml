@@ -341,3 +341,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRawMaterialImport_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MesCobPackagedLotShow_nb_table.yaml
+      relativeToChangelogFile: true

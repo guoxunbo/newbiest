@@ -141,6 +141,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String LCP_WAFER_SOURCE = "4";
     public static final String SCP_WAFER_SOURCE = "2";
     public static final String FT_WAFER_SOURCE = "10";
+    public static final String FT_COB_WAFER_SOURCE = "16";
     public static final String WLFT_WAFER_SOURCE = "8";
     public static final String WLA_WAFER_SOURCE = "5";
     public static final String SENSOR_WAFER_SOURCE = "9";
