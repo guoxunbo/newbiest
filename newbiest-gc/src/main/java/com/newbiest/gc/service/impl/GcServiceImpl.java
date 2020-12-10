@@ -1135,12 +1135,7 @@ public class GcServiceImpl implements GcService {
 
     public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException{
         try {
-            List<MaterialLot> materialLots = new ArrayList<>();
-            Map<String, List<MaterialLotAction>> materialLotActionMap = materialLotActions.stream().collect(Collectors.groupingBy(MaterialLotAction:: getMaterialLotId));
-            for(String materialLotId : materialLotActionMap.keySet()){
-                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
-                materialLots.add(materialLot);
-            }
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
 
             if (!StringUtils.isNullOrEmpty(issueWithDoc)) {
                 documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());

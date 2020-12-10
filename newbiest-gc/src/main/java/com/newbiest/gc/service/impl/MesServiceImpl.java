@@ -115,36 +115,47 @@ public class MesServiceImpl implements MesService {
                 if(MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) ){
                     unitIdList.add(materialLot.getLotId());
                 } else {
-                    List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
-                    for (MaterialLotUnit materialLotUnit : materialLotUnits) {
-                        unitIdList.add(materialLotUnit.getUnitId());
+                    if(MaterialLot.IMPORT_COB.equals(materialLot.getReserved49())){
+                        String workOrderId = materialLot.getWorkOrderId();
+                         if(!StringUtils.isNullOrEmpty(workOrderId) && workOrderId.startsWith("T")){
+                             List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                                 unitIdList.add(materialLotUnit.getUnitId());
+                             }
+                         }
+                    } else {
+                        List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                        for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                            unitIdList.add(materialLotUnit.getUnitId());
+                        }
                     }
                 }
             }
+            if(CollectionUtils.isNotEmpty(unitIdList)){
+                Map<String, Object> requestInfo = Maps.newHashMap();
+                requestInfo.put("planLotUnit", unitIdList);
+                requestInfo.put("userName", sc.getUsername());
+                requestInfo.put("messageName", "materialLotUnitManager");
+                requestInfo.put("facilityId", MES_FACILITY_ID);
 
-            Map<String, Object> requestInfo = Maps.newHashMap();
-            requestInfo.put("planLotUnit", unitIdList);
-            requestInfo.put("userName", sc.getUsername());
-            requestInfo.put("messageName", "materialLotUnitManager");
-            requestInfo.put("facilityId", MES_FACILITY_ID);
+                String requestString = DefaultParser.getObjectMapper().writeValueAsString(requestInfo);
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Sending to mes. RequestString is [%s]", requestString));
+                }
 
-            String requestString = DefaultParser.getObjectMapper().writeValueAsString(requestInfo);
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Sending to mes. RequestString is [%s]", requestString));
-            }
+                HttpHeaders headers = new HttpHeaders();
+                headers.put("Content-Type", Lists.newArrayList("application/json"));
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.put("Content-Type", Lists.newArrayList("application/json"));
+                RequestEntity<byte[]> request = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(mesUrl + PLAN_LOT_API));
+                ResponseEntity<byte[]> responseEntity = restTemplate.exchange(request, byte[].class);
+                String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Get response by mes. Response is [%s]", response));
+                }
 
-            RequestEntity<byte[]> request = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(mesUrl + PLAN_LOT_API));
-            ResponseEntity<byte[]> responseEntity = restTemplate.exchange(request, byte[].class);
-            String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Get response by mes. Response is [%s]", response));
-            }
-
-            if(!MESSAGE_INFO.equals(response)){
-                throw new ClientParameterException(response);
+                if(!MESSAGE_INFO.equals(response)){
+                    throw new ClientParameterException(response);
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
