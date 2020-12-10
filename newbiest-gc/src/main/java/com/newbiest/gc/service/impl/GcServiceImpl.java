@@ -2411,7 +2411,7 @@ public class GcServiceImpl implements GcService {
                     } else {
                         mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
                     }
-                    if(!MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory())){
+                    if(!MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) && !(MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory()) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
                         if(mesPackedLotRelation == null){
                             throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
                         } else {
@@ -2483,7 +2483,7 @@ public class GcServiceImpl implements GcService {
 
                     materialLotActions.add(materialLotAction);
 
-                    if(MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory)){
+                    if(MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) && !MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType())){
                         // ERP_MOA插入数据
                         ErpMoa erpMoa = new ErpMoa();
                         erpMoa.setFQty(mesPackedLot.getQuantity());
@@ -2518,7 +2518,7 @@ public class GcServiceImpl implements GcService {
                         erpMoa.setProdCate(mesPackedLotRelation.getProductType());
 
                         erpMoaList.add(erpMoa);
-                    } else if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(productCateGory)){
+                    } else if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(productCateGory) || (MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
                         // ERP MO插入数据
                         ErpMo erpMo = new ErpMo();
                         erpMo.setCCode(mesPackedLot.getShipSerialNumber());
