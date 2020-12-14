@@ -271,6 +271,12 @@ public class GcServiceImpl implements GcService {
     @Autowired
     GCProductNumberRelationHisRepository productNumberRelationHisRepository;
 
+    @Autowired
+    GCUnConfirmWaferSetRepository unConfirmWaferSetRepository;
+
+    @Autowired
+    GCUnConfirmWaferSetHisRepository unConfirmWaferSetHisRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -7616,6 +7622,25 @@ public class GcServiceImpl implements GcService {
                     erpSoRepository.save(erpSo);
                 }
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 保存未确认晶圆追踪设置信息
+     * @param unConfirmWaferSet
+     * @param transType
+     * @return
+     * @throws ClientException
+     */
+    public GcUnConfirmWaferSet saveUnConfirmWaferTrackSetInfo(GcUnConfirmWaferSet unConfirmWaferSet, String transType) throws ClientException{
+        try {
+            unConfirmWaferSet = unConfirmWaferSetRepository.saveAndFlush(unConfirmWaferSet);
+
+            GCUnConfirmWaferSetHis unConfirmWaferSetHis = (GCUnConfirmWaferSetHis) baseService.buildHistoryBean(unConfirmWaferSet, transType);
+            unConfirmWaferSetHisRepository.save(unConfirmWaferSetHis);
+            return unConfirmWaferSet;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
