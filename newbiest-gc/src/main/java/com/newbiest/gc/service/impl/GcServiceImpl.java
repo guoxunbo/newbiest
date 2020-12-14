@@ -7645,4 +7645,42 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 接收RMA物料批次
+     * @param materialLotActionList
+     * @throws ClientException
+     */
+    public List<MaterialLot> receiveRmaMLot(List<MaterialLotAction> materialLotActionList) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotActionList.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for (MaterialLot materialLot : materialLots){
+                Warehouse warehouse = new Warehouse();
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
+                    warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                }
+                if(warehouse == null){
+                    throw new ClientParameterException(GcExceptions.WAREHOUSE_CANNOT_EMPTY);
+                }
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+                materialLotAction.setTransCount(materialLot.getCurrentSubQty());
+                materialLotAction.setTransQty(materialLot.getCurrentQty());
+                mmsService.stockIn(materialLot, materialLotAction);
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                    MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                    materialLotUnitHisRepository.save(history);
+                }
+            }
+            return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
