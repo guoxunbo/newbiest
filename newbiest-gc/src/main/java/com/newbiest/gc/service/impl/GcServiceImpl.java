@@ -3495,11 +3495,11 @@ public class GcServiceImpl implements GcService {
                 Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getMaterialName));
                 for(String materialName : materialLotMap.keySet()){
                     List<MaterialLot> materialLots = materialLotMap.get(materialName);
-                    Material material = mmsService.getRawMaterialByName(materialName);
+                    Material material = mmsService.getProductByName(materialName);
                     if (material == null) {
-                        RawMaterial rawMaterial = new RawMaterial();
-                        rawMaterial.setName(materialName);
-                        material = mmsService.createRawMaterial(rawMaterial);
+                        Product product = new Product();
+                        product.setName(materialName);
+                        material = mmsService.saveProduct(product);
                         StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                         material.setStatusModelRrn(statusModel.getObjectRrn());
                     }
