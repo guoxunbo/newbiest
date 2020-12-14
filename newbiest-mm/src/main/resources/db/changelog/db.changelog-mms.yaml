@@ -437,3 +437,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.COBFinishGoodReceive_nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCUnConfirmWaferSetManager.nb_authority.yaml
+      relativeToChangelogFile: true

@@ -344,3 +344,15 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MesCobPackagedLotShow_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.gc_unConfirmWaferSet.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.gc_UnConfirmWaferSetHis.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBasicConfigManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCUnConfirmWaferTrackSet_nb_table.yaml
+      relativeToChangelogFile: true
