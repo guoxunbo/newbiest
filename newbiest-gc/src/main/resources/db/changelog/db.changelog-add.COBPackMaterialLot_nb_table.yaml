@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_COBPackMaterialLot_to_NB_TABLE
+      author: Tao Zhou
+      comment: add COBPackMaterialLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: COBPackMaterialLot
+              description: COB装箱
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: COB装箱
+              label: COBPackMaterialLot

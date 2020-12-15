@@ -46,5 +46,6 @@ public class MmsException {
     public static final String MM_MATERIAL_LOT_IMPORT_TIME_OUT = "mm.material_lot_imp_time_out";
 
     public static final String MM_RAW_MATERIAL_TYPE_NOT_SAME = "mm.raw_material_type_not_same";
+    public static final String MM_MATERIAL_LOT_UNIT_SIZE_MORE_THAN_THIRTEEN = "mm.material_lot_unit_size_more_than_thirteen";
 
 }
