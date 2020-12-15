@@ -16,6 +16,7 @@ import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
+import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
@@ -27,9 +28,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -70,6 +71,9 @@ public class PackageServiceImpl implements PackageService{
 
     @Autowired
     DeliveryOrderRepository deliveryOrderRepository;
+
+    @Autowired
+    MaterialLotUnitService materialLotUnitService;
 
     public MaterialLotPackageType getMaterialPackageTypeByName(String name) throws ClientException{
         List<MaterialLotPackageType> packageTypes = materialLotPackageTypeRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
@@ -351,6 +355,15 @@ public class PackageServiceImpl implements PackageService{
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
 
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+
+            //COB装箱只允许装一个lot，一个lot不允许超过13片
+            if(MaterialLot.COB_PACKCASE.equals(packageType)){
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLots.get(0).getMaterialLotId());
+                if (materialLotUnitList.size() > MaterialLot.COB_UNIT_SIZE){
+                    throw new  ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_SIZE_MORE_THAN_THIRTEEN, materialLots.get(0).getMaterialLotId());
+                }
+            }
+
             //格科要求装过箱的真空包也可以再次装箱，将等待装箱的真空包按照箱号分组，先进行拆箱操作
             materialLots = getWaitPackMaterialLots(materialLots);
 

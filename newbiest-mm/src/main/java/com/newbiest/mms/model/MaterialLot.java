@@ -75,6 +75,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String GEADE_F = "F";
 
     /**
+     * COB装箱规则
+     */
+    public static final String COB_PACKCASE = "COBPackCase";
+
+    /**
+     * COB一个lot最大片数为13
+     */
+    public static final Integer COB_UNIT_SIZE = 13;
+
+    /**
      * 物料批次出货、发料、接收、重测与单据的验证规则名称
      */
     public static final String MLOT_SHIP_DOC_VALIDATE_RULE_ID = "MLotShipDocRule";  //COM出货单据验证规则
