@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCUnConfirmWaferTrackSet_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCUnConfirmWaferTrackSet to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCUnConfirmWaferTrackSet
+              description: 未确认晶圆追踪设置
+              tableName: GC_UNCONFIRM_WAFER_SET
+              modelName: GcUnConfirmWaferSet
+              modelClass: com.newbiest.gc.model.GcUnConfirmWaferSet
+              labelZh: 未确认晶圆追踪设置
+              label: UnConfirmWaferTrackSet

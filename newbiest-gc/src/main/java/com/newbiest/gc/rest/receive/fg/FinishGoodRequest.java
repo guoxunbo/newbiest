@@ -13,6 +13,7 @@ public class FinishGoodRequest extends Request {
 	public static final String MESSAGE_NAME = "GCFinishGoodManage";
 	public static final String ACTION_COM_RECEIVE = "COMReceive";
 	public static final String ACTION_WLT_RECEIVE = "WLTReceive";
+	public static final String ACTION_COB_RECEIVE = "COBReceive";
 
 	private FinishGoodRequestBody body;
 

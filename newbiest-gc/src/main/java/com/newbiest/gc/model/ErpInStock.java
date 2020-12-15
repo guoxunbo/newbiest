@@ -141,6 +141,12 @@ public class ErpInStock implements Serializable {
     @Column(name="DMODIFYDATE")
     private Date dModifyDate;
 
+    /**
+     * 导入类型
+     */
+    @Column(name="PLTYPE")
+    private String plType;
+
 
     public void setMaterialLot(MaterialLot materialLot){
         this.setCCode(materialLot.getReserved27());
@@ -156,6 +162,7 @@ public class ErpInStock implements Serializable {
         this.setCGrad(materialLot.getGrade());
         this.setBBonded(materialLot.getReserved6());
         this.setCMemo(materialLot.getReserved41());
+        this.setPlType(materialLot.getReserved49());
     }
 
 }
