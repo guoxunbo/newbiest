@@ -51,6 +51,8 @@ public class ExpressConfiguration {
 
     private String customerCode;
 
+    private String zjCustomerCode;
+
     private String platformFlag;
 
     private String appKey;

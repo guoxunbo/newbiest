@@ -64,6 +64,7 @@ public class GcExceptions {
     public static final String PICKUP_ADDRESS_IS_NULL = "gc.pickup_address_is_null";
     public static final String PICKUP_ADDRESS_MORE_THEN_ONE = "gc.pickup_address_more_then_one";
     public static final String SHIPPER_IS_NOT_SAME = "gc.shipper_is_not_same";
+    public static final String DEFAULT_WAREHOUSE_IS_NOT_SAME = "gc.default_wh_is_not_same";
 
     //产品相关
     public static final String PRODUCT_NUMBER_RELATION_IS_EXIST = "gc.product_number_relation_is_exist";

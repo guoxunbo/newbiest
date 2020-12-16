@@ -53,6 +53,8 @@ public class ExpressServiceImpl implements ExpressService {
     public static final String ZJ_SHIPPING_ADDRESS = "ZJShippingAddress";
     public static final String SH_SHIPPING_ADDRESS= "SHShippingAddress";
 
+    public static final String ZJ_DEFAULT_WAREHOUSE = "8143";
+
     @Autowired
     ExpressConfiguration expressConfiguration;
 
@@ -149,7 +151,7 @@ public class ExpressServiceImpl implements ExpressService {
      */
     public List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException{
         try {
-            validateMLotAdressAndShipper(materialLots);
+            validateMLotAddressAndShipper(materialLots);
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setExpressNumber(expressNumber);
                 materialLot.setPlanOrderType(planOrderType);
@@ -177,12 +179,18 @@ public class ExpressServiceImpl implements ExpressService {
                 throw new ClientException(GcExceptions.PICKUP_ADDRESS_IS_NULL);
             }
 
-            validateMLotAdressAndShipper(materialLots);
+            validateMLotAddressAndShipper(materialLots);
+
+            String defaultWarehouse = materialLots.get(0).getReserved13();
+
 
             Map<String, Object> requestParameters = Maps.newHashMap();
             requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
             requestParameters.put("platformFlag", expressConfiguration.getPlatformFlag());
 
+            if (ZJ_DEFAULT_WAREHOUSE.equals(defaultWarehouse)) {
+                requestParameters.put("customerCode", expressConfiguration.getZjCustomerCode());
+            }
             List<OrderInfo> orderInfos = Lists.newArrayList();
             OrderInfo orderInfo = new OrderInfo();
             // 寄件人信息
@@ -199,6 +207,9 @@ public class ExpressServiceImpl implements ExpressService {
 
             orderInfo.setOrderId(ExpressConfiguration.PLAN_ORDER_DEFAULT_ORDER_ID);
             orderInfo.setPaymentCustomer(expressConfiguration.getCustomerCode());
+            if (ZJ_DEFAULT_WAREHOUSE.equals(defaultWarehouse)) {
+                orderInfo.setPaymentCustomer(expressConfiguration.getZjCustomerCode());
+            }
             orderInfos.add(orderInfo);
 
             requestParameters.put("orderInfos", orderInfos);
@@ -224,7 +235,7 @@ public class ExpressServiceImpl implements ExpressService {
      * @param materialLots
      * @throws ClientException
      */
-    private void validateMLotAdressAndShipper(List<MaterialLot> materialLots) throws ClientException{
+    private void validateMLotAddressAndShipper(List<MaterialLot> materialLots) throws ClientException{
         try {
             Set<String> pickUpAddresses = materialLots.stream().map(MaterialLot :: getReserved51).collect(Collectors.toSet());
             if (CollectionUtils.isNotEmpty(pickUpAddresses)  && pickUpAddresses.size() != 1) {
@@ -234,6 +245,11 @@ public class ExpressServiceImpl implements ExpressService {
             Set<String> shipper = materialLots.stream().map(MaterialLot :: getShipper).collect(Collectors.toSet());
             if (CollectionUtils.isNotEmpty(shipper)  && shipper.size() != 1) {
                 throw new ClientException(GcExceptions.SHIPPER_IS_NOT_SAME);
+            }
+
+            Set<String> defaultWarehouse = materialLots.stream().map(MaterialLot :: getReserved13).collect(Collectors.toSet());
+            if (CollectionUtils.isNotEmpty(defaultWarehouse)  && defaultWarehouse.size() != 1) {
+                throw new ClientException(GcExceptions.DEFAULT_WAREHOUSE_IS_NOT_SAME);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
