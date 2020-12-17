@@ -446,3 +446,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.COBPackMaterialLot.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RMAMLotLabelPrint.nb_authority.yaml
+      relativeToChangelogFile: true
