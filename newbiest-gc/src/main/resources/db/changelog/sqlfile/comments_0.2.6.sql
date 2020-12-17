@@ -1,0 +1,7 @@
+/**
+ * MMS_DOCUMENT_LINE字段备注修改
+ */
+comment on column MMS_DOCUMENT_LINE.RESERVED27 is 'ERP OTHER7';
+comment on column MMS_DOCUMENT_LINE.RESERVED28 is 'ERP OTHER4';
+comment on column MMS_DOCUMENT_LINE.RESERVED29 is 'ERP OTHER18';
+comment on column MMS_DOCUMENT_LINE.RESERVED30 is 'ERP OTHER5';

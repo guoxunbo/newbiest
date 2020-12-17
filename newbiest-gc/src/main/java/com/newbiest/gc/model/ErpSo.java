@@ -146,6 +146,12 @@ public class ErpSo implements Serializable {
     private String other4;
 
     /**
+     * ERP发货账套
+     */
+    @Column(name="OTHER5")
+    private String other5;
+
+    /**
      * ODM
      */
     @Column(name="OTHER7")

@@ -244,15 +244,27 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="RESERVED26")
     private String reserved26;
 
+    /**
+     * 关联 ERP OTHER7
+     */
     @Column(name="RESERVED27")
     private String reserved27;
 
+    /**
+     * 关联 ERP OTHER4
+     */
     @Column(name="RESERVED28")
     private String reserved28;
 
+    /**
+     * 关联 ERP OTHER18
+     */
     @Column(name="RESERVED29")
     private String reserved29;
 
+    /**
+     * 关联 ERP OTHER5
+     */
     @Column(name="RESERVED30")
     private String reserved30;
 

@@ -124,6 +124,12 @@ public class ErpSob implements Serializable {
     private String other1;
 
     /**
+     * ERP发货账套
+     */
+    @Column(name="OTHER5")
+    private String other5;
+
+    /**
      * 客户名称
      */
     //@Column(name="CUSNAME")
