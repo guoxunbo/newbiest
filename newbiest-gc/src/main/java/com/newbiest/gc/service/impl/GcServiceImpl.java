@@ -3505,6 +3505,8 @@ public class GcServiceImpl implements GcService {
                     if (material == null) {
                         Product product = new Product();
                         product.setName(materialName);
+                        product.setMaterialCategory(Material.TYPE_PRODUCT);
+                        product.setMaterialType(Material.TYPE_PRODUCT);
                         material = mmsService.saveProduct(product);
                         StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                         material.setStatusModelRrn(statusModel.getObjectRrn());
@@ -3519,6 +3521,9 @@ public class GcServiceImpl implements GcService {
                         materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         materialLot.setStatus(MaterialStatus.STATUS_CREATE);
                         materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_RMA);
+                        if(StringUtils.isNullOrEmpty(materialLot.getReserved35())){
+                            materialLot.setReserved35("0");
+                        }
                         if(MaterialLotUnit.RMA_GOOD_PRODUCT.equals(importType)){
                             materialLot.setReserved50("11");
                             materialLot.setReserved49(MaterialLot.IMPORT_RMA);
