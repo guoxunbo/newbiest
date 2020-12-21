@@ -3907,7 +3907,7 @@ public class GcServiceImpl implements GcService {
                 MaterialLotUnit materialLotUnit = materialLotUnitMap.get(lotId).get(0);
                 GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialLotUnit.getMaterialName(), materialLotUnit.getReserved1());
                 if(gcProductSubcode == null ){
-                    throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST);
+                    throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST, materialLotUnit.getMaterialName() + StringUtils.SPLIT_CODE + materialLotUnit.getReserved1());
                 }
             }
         } catch (Exception e){
@@ -5965,7 +5965,7 @@ public class GcServiceImpl implements GcService {
                 for(String subcode : subcodeMap.keySet()){
                     GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialName, subcode);
                     if(gcProductSubcode == null ){
-                        throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST);
+                        throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST, materialName + StringUtils.SPLIT_CODE + subcode);
                     }
                 }
             }
@@ -6320,7 +6320,7 @@ public class GcServiceImpl implements GcService {
                 GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoId(poId);
                 if(outSourcePo != null){
                     if(outSourcePo.getUnHandledQty().subtract(totalTaggingQty).compareTo(BigDecimal.ZERO) < 0){
-                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_QTY_OVER_PO_QTY);
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_QTY_OVER_PO_QTY, poId);
                     } else {
                         BigDecimal unHandledQty = outSourcePo.getUnHandledQty();
                         BigDecimal handledQty = outSourcePo.getHandledQty();
@@ -6495,7 +6495,7 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Set venderInfo = materialLotList.stream().map(materialLot -> materialLot.getReserved22()).collect(Collectors.toSet());
             if (venderInfo != null &&  venderInfo.size() > 1) {
-                throw new ClientParameterException(GcExceptions.MATERIALLOT_VENDER_IS_NOT_SAME);
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_VENDER_IS_NOT_SAME, materialLotList.get(0).getReserved22());
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -6512,7 +6512,7 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Set productInfo = materialLotList.stream().map(materialLot -> materialLot.getMaterialName()).collect(Collectors.toSet());
             if (productInfo != null &&  productInfo.size() > 1) {
-                throw new ClientParameterException(GcExceptions.MATERIALLOT_MATERIAL_NAME_IS_NOT_SAME);
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_MATERIAL_NAME_IS_NOT_SAME, materialLotList.get(0).getMaterialName());
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -6738,7 +6738,7 @@ public class GcServiceImpl implements GcService {
                     GCWorkorderRelationHis history = (GCWorkorderRelationHis) baseService.buildHistoryBean(workorderRelation, transType);
                     workorderRelationHisRepository.save(history);
                 } else {
-                    throw new ClientParameterException(GcExceptions.WORKORDER_GRADE_HOLD_INFO_IS_EXIST);
+                    throw new ClientParameterException(GcExceptions.WORKORDER_GRADE_HOLD_INFO_IS_EXIST, workorderRelation.getWorkOrderId());
                 }
             } else {
                 workorderRelation = workorderRelationRepository.saveAndFlush(workorderRelation);
