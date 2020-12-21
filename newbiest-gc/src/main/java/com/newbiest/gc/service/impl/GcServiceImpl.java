@@ -7717,4 +7717,55 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * COB装箱箱标签参数获取(一箱只有一包)
+     * @param materialLotId
+     * @return
+     * @throws ClientException
+     */
+    public Map<String, String> getCOBLabelPrintParamater(String materialLotId) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
+            parameterMap.put("BOXID", materialLotId);
+            parameterMap.put("SUBCODE", materialLot.getReserved1());
+            parameterMap.put("LOCATION", materialLot.getReserved6());
+            parameterMap.put("GRADE", materialLot.getGrade());
+            parameterMap.put("CHIPNUM", materialLot.getCurrentQty().toPlainString());
+
+            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            if(CollectionUtils.isNotEmpty(packageDetailLots)){
+                //COB箱号，一箱只装一个真空包
+                MaterialLot packedLot = packageDetailLots.get(0);
+                parameterMap.put("CSTID", packedLot.getLotId());
+                parameterMap.put("FRAMEQTY", packedLot.getCurrentSubQty().toPlainString());
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedLot.getMaterialLotId());
+
+                if(CollectionUtils.isNotEmpty(materialLotUnitList) && materialLotUnitList.size() > 13){
+                    throw new ClientParameterException(GcExceptions.MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN, materialLotId);
+                }
+
+                int i = 1;
+                if (CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        parameterMap.put("FRAMEID" + i, materialLotUnit.getUnitId());
+                        parameterMap.put("CHIPQTY" + i, materialLotUnit.getCurrentQty().toPlainString());
+                        i++;
+                    }
+                }
+
+                for (int j = i; j <= 13; j++) {
+                    parameterMap.put("FRAMEID" + j, StringUtils.EMPTY);
+                    parameterMap.put("CHIPQTY" + j, StringUtils.EMPTY);
+                }
+            } else {
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_PACKED_DETIAL_IS_NULL, materialLotId);
+            }
+            return parameterMap;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

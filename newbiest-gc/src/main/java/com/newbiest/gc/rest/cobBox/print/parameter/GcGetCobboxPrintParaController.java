@@ -52,31 +52,8 @@ public class GcGetCobboxPrintParaController extends AbstractRestController {
 
         Map<String, String> parameterMap = Maps.newHashMap();
 
-        MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLot().getMaterialRrn());
-        parameterMap.put("BOXID", materialLot.getMaterialLotId());
-        parameterMap.put("SUBCODE", materialLot.getReserved1());
-        parameterMap.put("LOCATION", materialLot.getReserved6());
-        parameterMap.put("GRADE", materialLot.getGrade());
-        parameterMap.put("CHIPNUM", materialLot.getCurrentQty().toPlainString());
+        parameterMap = gcService.getCOBLabelPrintParamater(requestBody.getMaterialLot().getMaterialLotId());
 
-        List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getMaterialRrn());
-        MaterialLot packedLot = packageDetailLots.get(0);
-
-        parameterMap.put("CSTID", packedLot.getLotId());
-        parameterMap.put("FRAMEQTY", packedLot.getCurrentSubQty().toPlainString());
-
-        List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedLot.getMaterialLotId());
-
-        int i = 1;
-        if (CollectionUtils.isNotEmpty(materialLotUnitList)){
-            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                String frameId = materialLotUnit.getUnitId();
-                String chipQty = materialLotUnit.getCurrentQty().toPlainString();
-                parameterMap.put("FRAMEID" + i, frameId);
-                parameterMap.put("CHIPQTY" + i, chipQty);
-                i++;
-            }
-        }
         responseBody.setParameters(parameterMap);
         response.setBody(responseBody);
         return response;

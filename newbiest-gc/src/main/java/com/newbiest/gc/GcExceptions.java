@@ -43,6 +43,8 @@ public class GcExceptions {
     public static final String MATERIALLOT_PACKAGE_RULE_IS_ERROR = "gc.material_lot_package_rule_is_error";
     public static final String MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME = "gc.material_lot_reserved_docId_is_not_same";
     public static final String MATERIALLOT_RESERVED_ORDER_IS_NULL = "gc.material_lot_reserved_order_is_null";
+    public static final String MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN = "gc.material_lot_wafer_qty_more_than_thirteen";
+    public static final String MATERIALLOT_PACKED_DETIAL_IS_NULL = "gc.material_lot_packed_detial_is_null";
 
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";
