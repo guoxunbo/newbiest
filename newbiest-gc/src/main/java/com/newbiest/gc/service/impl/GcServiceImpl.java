@@ -3907,7 +3907,7 @@ public class GcServiceImpl implements GcService {
                 MaterialLotUnit materialLotUnit = materialLotUnitMap.get(lotId).get(0);
                 GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialLotUnit.getMaterialName(), materialLotUnit.getReserved1());
                 if(gcProductSubcode == null ){
-                    throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST);
+                    throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST, materialLotUnit.getMaterialName() + StringUtils.SPLIT_CODE + materialLotUnit.getReserved1());
                 }
             }
         } catch (Exception e){
@@ -5965,7 +5965,7 @@ public class GcServiceImpl implements GcService {
                 for(String subcode : subcodeMap.keySet()){
                     GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialName, subcode);
                     if(gcProductSubcode == null ){
-                        throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST);
+                        throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST, materialName + StringUtils.SPLIT_CODE + subcode);
                     }
                 }
             }
@@ -6320,7 +6320,7 @@ public class GcServiceImpl implements GcService {
                 GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoId(poId);
                 if(outSourcePo != null){
                     if(outSourcePo.getUnHandledQty().subtract(totalTaggingQty).compareTo(BigDecimal.ZERO) < 0){
-                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_QTY_OVER_PO_QTY);
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_QTY_OVER_PO_QTY, poId);
                     } else {
                         BigDecimal unHandledQty = outSourcePo.getUnHandledQty();
                         BigDecimal handledQty = outSourcePo.getHandledQty();
@@ -6495,7 +6495,7 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Set venderInfo = materialLotList.stream().map(materialLot -> materialLot.getReserved22()).collect(Collectors.toSet());
             if (venderInfo != null &&  venderInfo.size() > 1) {
-                throw new ClientParameterException(GcExceptions.MATERIALLOT_VENDER_IS_NOT_SAME);
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_VENDER_IS_NOT_SAME, materialLotList.get(0).getReserved22());
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -6512,7 +6512,7 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Set productInfo = materialLotList.stream().map(materialLot -> materialLot.getMaterialName()).collect(Collectors.toSet());
             if (productInfo != null &&  productInfo.size() > 1) {
-                throw new ClientParameterException(GcExceptions.MATERIALLOT_MATERIAL_NAME_IS_NOT_SAME);
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_MATERIAL_NAME_IS_NOT_SAME, materialLotList.get(0).getMaterialName());
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -6738,7 +6738,7 @@ public class GcServiceImpl implements GcService {
                     GCWorkorderRelationHis history = (GCWorkorderRelationHis) baseService.buildHistoryBean(workorderRelation, transType);
                     workorderRelationHisRepository.save(history);
                 } else {
-                    throw new ClientParameterException(GcExceptions.WORKORDER_GRADE_HOLD_INFO_IS_EXIST);
+                    throw new ClientParameterException(GcExceptions.WORKORDER_GRADE_HOLD_INFO_IS_EXIST, workorderRelation.getWorkOrderId());
                 }
             } else {
                 workorderRelation = workorderRelationRepository.saveAndFlush(workorderRelation);
@@ -7687,6 +7687,84 @@ public class GcServiceImpl implements GcService {
             }
             return materialLots;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取RMA真空包打印参数
+     * @param materialLots
+     * @return
+     * @throws ClientException
+     */
+    public List<Map<String, String>> getRmaLabelPrintParameter(List<MaterialLot> materialLots) throws ClientException{
+        try {
+             List<Map<String, String>> parameterMapList = Lists.newArrayList();
+             for(MaterialLot materialLot : materialLots){
+                 Map<String, String> parameterMap = Maps.newHashMap();
+                 parameterMap.put("BOXID", materialLot.getMaterialLotId());
+                 parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+                 parameterMap.put("GRADE", materialLot.getGrade() + StringUtils.PARAMETER_CODE + materialLot.getCurrentQty());
+                 parameterMap.put("LOCATION", materialLot.getReserved6());
+                 parameterMap.put("SUBCODE", materialLot.getReserved1());
+                 parameterMap.put("PASSDIES", materialLot.getReserved34());
+                 parameterMap.put("NGDIES", materialLot.getReserved35());
+
+                 parameterMapList.add(parameterMap);
+             }
+             return parameterMapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * COB装箱箱标签参数获取(一箱只有一包)
+     * @param materialLotId
+     * @return
+     * @throws ClientException
+     */
+    public Map<String, String> getCOBLabelPrintParamater(String materialLotId) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
+            parameterMap.put("BOXID", materialLotId);
+            parameterMap.put("SUBCODE", materialLot.getReserved1());
+            parameterMap.put("LOCATION", materialLot.getReserved6());
+            parameterMap.put("GRADE", materialLot.getGrade());
+            parameterMap.put("CHIPNUM", materialLot.getCurrentQty().toPlainString());
+
+            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            if(CollectionUtils.isNotEmpty(packageDetailLots)){
+                //COB箱号，一箱只装一个真空包
+                MaterialLot packedLot = packageDetailLots.get(0);
+                parameterMap.put("CSTID", packedLot.getLotId());
+                parameterMap.put("FRAMEQTY", packedLot.getCurrentSubQty().toPlainString());
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedLot.getMaterialLotId());
+
+                if(CollectionUtils.isNotEmpty(materialLotUnitList) && materialLotUnitList.size() > 13){
+                    throw new ClientParameterException(GcExceptions.MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN, materialLotId);
+                }
+
+                int i = 1;
+                if (CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        parameterMap.put("FRAMEID" + i, materialLotUnit.getUnitId());
+                        parameterMap.put("CHIPQTY" + i, materialLotUnit.getCurrentQty().toPlainString());
+                        i++;
+                    }
+                }
+
+                for (int j = i; j <= 13; j++) {
+                    parameterMap.put("FRAMEID" + j, StringUtils.EMPTY);
+                    parameterMap.put("CHIPQTY" + j, StringUtils.EMPTY);
+                }
+            } else {
+                throw new ClientParameterException(GcExceptions.MATERIALLOT_PACKED_DETIAL_IS_NULL, materialLotId);
+            }
+            return parameterMap;
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

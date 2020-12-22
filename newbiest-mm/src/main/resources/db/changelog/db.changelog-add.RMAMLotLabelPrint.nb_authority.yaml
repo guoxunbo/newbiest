@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRMAMLotLabelPrintManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCRMAMLotLabelPrintManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRMAMLotLabelPrintManager
+              description: RMA标签补打
+              tableName: GCRMAMLotLabelPrint
+              url: /RMA/GCRMALabelPrintManager
+              parentRrn: 2000
+              seqNo: 57
+              image: icon-delivery
+              labelZh: RMA标签补打
+              labelEn: RMALabelPrint

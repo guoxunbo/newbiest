@@ -55,19 +55,11 @@ public class RMAMLotManagerController extends AbstractRestController {
             List<MaterialLotAction> materialLotActions = requestBody.getMaterialLotActions();
             List<MaterialLot> materialLots = gcService.receiveRmaMLot(materialLotActions);
             if(!StringUtils.isNullOrEmpty(printLabel)){
-                for(MaterialLot materialLot : materialLots){
-                    Map<String, String> parameterMap = Maps.newHashMap();
-                    parameterMap.put("BOXID", materialLot.getMaterialLotId());
-                    parameterMap.put("PRODUCTID", materialLot.getMaterialName());
-                    parameterMap.put("GRADE", materialLot.getGrade() + StringUtils.PARAMETER_CODE + materialLot.getCurrentQty());
-                    parameterMap.put("LOCATION", materialLot.getReserved6());
-                    parameterMap.put("SUBCODE", materialLot.getReserved1());
-                    parameterMap.put("PASSDIES", materialLot.getReserved34());
-                    parameterMap.put("NGDIES", materialLot.getReserved35());
-
-                    parameterMapList.add(parameterMap);
-                }
+                parameterMapList = gcService.getRmaLabelPrintParameter(materialLots);
             }
+            responseBody.setParameterMapList(parameterMapList);
+        } else if(RMAMLotManagerRequest.ACTION_TYPE_PRINT.equals(actionType)) {
+            parameterMapList = gcService.getRmaLabelPrintParameter(requestBody.getMaterialLots());
             responseBody.setParameterMapList(parameterMapList);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());

@@ -16,6 +16,8 @@ import java.util.Map;
  */
 public interface GcService {
 
+    Map<String, String> getCOBLabelPrintParamater(String materialLotId) throws ClientException;
+    List<Map<String, String>> getRmaLabelPrintParameter(List<MaterialLot> materialLots) throws ClientException;
     List<MaterialLot> receiveRmaMLot(List<MaterialLotAction> materialLotActions) throws ClientException;
     GcUnConfirmWaferSet saveUnConfirmWaferTrackSetInfo(GcUnConfirmWaferSet unConfirmWaferSet, String transType) throws ClientException;
     void receiveCOBFinishGood(List<MesPackedLot> packedLotList) throws ClientException;

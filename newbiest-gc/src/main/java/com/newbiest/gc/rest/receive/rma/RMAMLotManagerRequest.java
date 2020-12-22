@@ -14,6 +14,8 @@ public class RMAMLotManagerRequest extends Request {
 
 	public static final String ACTION_TYPE_RECEIVE = "Receive";
 
+	public static final String ACTION_TYPE_PRINT = "Print";
+
 	private RMAMLotManagerRequestBody body;
 
 }
