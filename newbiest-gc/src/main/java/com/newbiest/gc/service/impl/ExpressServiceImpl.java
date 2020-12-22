@@ -184,14 +184,13 @@ public class ExpressServiceImpl implements ExpressService {
 
             String books = validateMLotAddressAndShipper(materialLots);
 
-            String defaultWarehouse = materialLots.get(0).getReserved13();
-
             Map<String, Object> requestParameters = Maps.newHashMap();
-            requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
             requestParameters.put("platformFlag", expressConfiguration.getPlatformFlag());
 
             if (ZJ_BOOK.equals(books)) {
                 requestParameters.put("customerCode", expressConfiguration.getZjCustomerCode());
+            } else {
+                requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
             }
             List<OrderInfo> orderInfos = Lists.newArrayList();
             OrderInfo orderInfo = new OrderInfo();
@@ -209,7 +208,7 @@ public class ExpressServiceImpl implements ExpressService {
 
             orderInfo.setOrderId(ExpressConfiguration.PLAN_ORDER_DEFAULT_ORDER_ID);
             orderInfo.setPaymentCustomer(expressConfiguration.getCustomerCode());
-            if (ZJ_BOOK.equals(defaultWarehouse)) {
+            if (ZJ_BOOK.equals(books)) {
                 orderInfo.setPaymentCustomer(expressConfiguration.getZjCustomerCode());
             }
             if (OrderInfo.RECEIVE_PAY_MODE.equals(payMode)) {
@@ -228,7 +227,16 @@ public class ExpressServiceImpl implements ExpressService {
                 List<String> materialLotIds = materialLots.stream().map(MaterialLot :: getMaterialLotId).collect(Collectors.toList());
                 log.debug(String.format("MaterialLotIds [%s] records express number [%s]", materialLotIds, waybillNumber));
             }
-            recordExpressNumber(materialLots, waybillNumber, MaterialLot.PLAN_ORDER_TYPE_AUTO);
+
+            for (MaterialLot materialLot : materialLots) {
+                materialLot.setExpressNumber(waybillNumber);
+                materialLot.setPlanOrderType(MaterialLot.PLAN_ORDER_TYPE_AUTO);
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECORD_EXPRESS);
+                materialLotHistoryRepository.save(history);
+            }
+
             return materialLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -253,8 +261,8 @@ public class ExpressServiceImpl implements ExpressService {
             if (CollectionUtils.isNotEmpty(shipper)  && shipper.size() != 1) {
                 throw new ClientException(GcExceptions.SHIPPER_IS_NOT_SAME);
             }
-            Set<String> documentLineRrnSet = materialLots.stream().map(MaterialLot :: getReserved12).collect(Collectors.toSet());
-            if (CollectionUtils.isNotEmpty(documentLineRrnSet)  && documentLineRrnSet.size() != 1) {
+            Set<String> documentLineRrnSet = materialLots.stream().map(MaterialLot :: getReserved16).collect(Collectors.toSet());
+            if (CollectionUtils.isNotEmpty(documentLineRrnSet)) {
                 for (String documentLineRrn : documentLineRrnSet) {
                     DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(documentLineRrn));
                     if (StringUtils.isNullOrEmpty(books)) {
