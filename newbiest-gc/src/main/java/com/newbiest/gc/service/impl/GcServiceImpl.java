@@ -1747,6 +1747,7 @@ public class GcServiceImpl implements GcService {
             ErpSo erpSo = erpSoOptional.get();
             erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
             erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
+            erpSo.setOther19(deliveryOrder.getReserved2());
             if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
                 erpSo.setDeliveredNum(handledQty.toPlainString());
             } else {

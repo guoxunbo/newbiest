@@ -382,15 +382,6 @@ public class ExpressServiceImpl implements ExpressService {
             deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
             deliveryOrderList.add(deliveryOrder);
             baseService.saveHistoryEntity(deliveryOrder, "RecordExpress");
-
-            String expressNumber = deliveryOrder.getReserved2();
-            List<ErpSo> erpSoList = erpSoRepository.findByTypeAndCcode(ErpSo.TYPE_SO, deliveryOrder.getName());
-            if(CollectionUtils.isNotEmpty(erpSoList)){
-                for(ErpSo erpSo : erpSoList){
-                    erpSo.setOther19(expressNumber);
-                    erpSoRepository.saveAndFlush(erpSo);
-                }
-            }
         }
         return deliveryOrderList;
     }
