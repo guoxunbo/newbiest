@@ -4798,24 +4798,24 @@ public class GcServiceImpl implements GcService {
                     parameterMapList.add(parameterMap);
                 }
             } else if(MLotCodePrint.SHENGTAI_BOX_LABEL.equals(printType)){
-                String seq = generatorMLotsTransId(MLotCodePrint.GENERATOR_SHENGTAI_LABEL_PRINT_SEQ_RULE).substring(2, 11);
-                seq = seq.substring(2,6) + seq.substring(8,11);
                 formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
                 String stockOutDate = formatter.format(new Date());
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
-                    for (MaterialLot packageMLot : packageMLotList) {
-                        Map<String, String> parameterMap = getShengTaiVboxMLotPrintParamater(packageMLot, productType, stockOutDate, seq);
-                        parameterMapList.add(parameterMap);
-                    }
+                    String seq = generatorMLotsTransId(MLotCodePrint.GENERATOR_SHENGTAI_LABEL_PRINT_SEQ_RULE);
+                    seq = seq.substring(2,6) + seq.substring(8,11);
                     Map<String, String> parameterMap = getGeneralMLotPrintParamater(erpSo, materialLot, warehouse, date, productType);
                     parameterMap.put("LABEL", MLotCodePrint.BOX_LABEL);
                     parameterMap.put("printCount", "2");
                     parameterMapList.add(parameterMap);
+                    for (MaterialLot packageMLot : packageMLotList) {
+                        parameterMap = getShengTaiVboxMLotPrintParamater(packageMLot, productType, stockOutDate, seq);
+                        parameterMapList.add(parameterMap);
+                    }
                 }
             } else if(MLotCodePrint.SHENGTAI_VBOX_LABEL.equals(printType)){
                 formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
                 String stockOutDate = formatter.format(new Date());
-                String seq = generatorMLotsTransId(MLotCodePrint.GENERATOR_SHENGTAI_LABEL_PRINT_SEQ_RULE).substring(2, 11);
+                String seq = generatorMLotsTransId(MLotCodePrint.GENERATOR_SHENGTAI_LABEL_PRINT_SEQ_RULE);
                 seq = seq.substring(2,6) + seq.substring(8,11);
                 Map<String, String> parameterMap = getShengTaiVboxMLotPrintParamater(materialLot, productType, stockOutDate, seq);
                 parameterMapList.add(parameterMap);
