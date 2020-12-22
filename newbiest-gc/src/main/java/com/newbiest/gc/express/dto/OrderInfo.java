@@ -16,6 +16,8 @@ public class OrderInfo implements Serializable {
 
     public static final String ORDER_STATUS_UN_DISPATCH = "未调度";
 
+    public static final String RECEIVE_PAY_MODE = "20";
+
     /**
      * 快递单号 为空的话由跨越速递自动生成
      */

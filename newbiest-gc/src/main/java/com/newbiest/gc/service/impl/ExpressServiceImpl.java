@@ -53,7 +53,10 @@ public class ExpressServiceImpl implements ExpressService {
     public static final String ZJ_SHIPPING_ADDRESS = "ZJShippingAddress";
     public static final String SH_SHIPPING_ADDRESS= "SHShippingAddress";
 
-    public static final String ZJ_DEFAULT_WAREHOUSE = "8143";
+    /**
+     * 浙江账套
+     */
+    public static final String ZJ_BOOK = "601";
 
     @Autowired
     ExpressConfiguration expressConfiguration;
@@ -116,7 +119,7 @@ public class ExpressServiceImpl implements ExpressService {
         }
     }
 
-    private String sendRequest(String methodCode, Object parameter) throws ClientException{
+    private String sendRequest(String methodCode, Object parameter) throws ClientException {
         try {
             if (log.isInfoEnabled()) {
                 log.info("Start to send [" + methodCode + "] to express.");
@@ -179,16 +182,15 @@ public class ExpressServiceImpl implements ExpressService {
                 throw new ClientException(GcExceptions.PICKUP_ADDRESS_IS_NULL);
             }
 
-            validateMLotAddressAndShipper(materialLots);
+            String books = validateMLotAddressAndShipper(materialLots);
 
             String defaultWarehouse = materialLots.get(0).getReserved13();
-
 
             Map<String, Object> requestParameters = Maps.newHashMap();
             requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
             requestParameters.put("platformFlag", expressConfiguration.getPlatformFlag());
 
-            if (ZJ_DEFAULT_WAREHOUSE.equals(defaultWarehouse)) {
+            if (ZJ_BOOK.equals(books)) {
                 requestParameters.put("customerCode", expressConfiguration.getZjCustomerCode());
             }
             List<OrderInfo> orderInfos = Lists.newArrayList();
@@ -207,8 +209,11 @@ public class ExpressServiceImpl implements ExpressService {
 
             orderInfo.setOrderId(ExpressConfiguration.PLAN_ORDER_DEFAULT_ORDER_ID);
             orderInfo.setPaymentCustomer(expressConfiguration.getCustomerCode());
-            if (ZJ_DEFAULT_WAREHOUSE.equals(defaultWarehouse)) {
+            if (ZJ_BOOK.equals(defaultWarehouse)) {
                 orderInfo.setPaymentCustomer(expressConfiguration.getZjCustomerCode());
+            }
+            if (OrderInfo.RECEIVE_PAY_MODE.equals(payMode)) {
+                orderInfo.setPaymentCustomer(StringUtils.EMPTY);
             }
             orderInfos.add(orderInfo);
 
@@ -231,12 +236,14 @@ public class ExpressServiceImpl implements ExpressService {
     }
 
     /**
-     * 手工下单或者跨域下单验证客户和地址必须一致
+     * 手工下单或者跨域下单验证客户和地址以及账套必须一致
      * @param materialLots
+     * @retun 账套
      * @throws ClientException
      */
-    private void validateMLotAddressAndShipper(List<MaterialLot> materialLots) throws ClientException{
+    private String validateMLotAddressAndShipper(List<MaterialLot> materialLots) throws ClientException{
         try {
+            String books = StringUtils.EMPTY;
             Set<String> pickUpAddresses = materialLots.stream().map(MaterialLot :: getReserved51).collect(Collectors.toSet());
             if (CollectionUtils.isNotEmpty(pickUpAddresses)  && pickUpAddresses.size() != 1) {
                 throw new ClientException(GcExceptions.PICKUP_ADDRESS_MORE_THEN_ONE);
@@ -246,11 +253,21 @@ public class ExpressServiceImpl implements ExpressService {
             if (CollectionUtils.isNotEmpty(shipper)  && shipper.size() != 1) {
                 throw new ClientException(GcExceptions.SHIPPER_IS_NOT_SAME);
             }
+            Set<String> documentLineRrnSet = materialLots.stream().map(MaterialLot :: getReserved12).collect(Collectors.toSet());
+            if (CollectionUtils.isNotEmpty(documentLineRrnSet)  && documentLineRrnSet.size() != 1) {
+                for (String documentLineRrn : documentLineRrnSet) {
+                    DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(documentLineRrn));
+                    if (StringUtils.isNullOrEmpty(books)) {
+                        books = documentLine.getReserved30();
+                    } else {
+                        if (!books.equals(documentLine.getReserved30())) {
+                            throw new ClientException(GcExceptions.BOOKS_IS_NOT_SAME);
+                        }
+                    }
 
-            Set<String> defaultWarehouse = materialLots.stream().map(MaterialLot :: getReserved13).collect(Collectors.toSet());
-            if (CollectionUtils.isNotEmpty(defaultWarehouse)  && defaultWarehouse.size() != 1) {
-                throw new ClientException(GcExceptions.DEFAULT_WAREHOUSE_IS_NOT_SAME);
+                }
             }
+            return books;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
