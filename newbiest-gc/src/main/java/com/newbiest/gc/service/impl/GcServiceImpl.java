@@ -7186,7 +7186,11 @@ public class GcServiceImpl implements GcService {
                     }
 
                     materialLot.setMaterial(rawMaterial);
+                    materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                    materialLot.setStatus(MaterialStatus.STATUS_CREATE);
+                    materialLot.setStatusModelRrn(rawMaterial.getStatusModelRrn());
                     materialLot.initialMaterialLot();
+                    materialLot.setProductType(StringUtils.EMPTY);
                     materialLot.setReserved48(importCode);
                     materialLot.setReserved49(importType);
                     if(!StringUtils.isNullOrEmpty(materialLot.getMfgDateValue())){
@@ -7201,7 +7205,6 @@ public class GcServiceImpl implements GcService {
                         String shippingDate = formats.format(simpleDateFormat.parse(materialLot.getShippingDateValue()));
                         materialLot.setShippingDate(formats.parse(shippingDate));
                     }
-                    materialLot.setProductType("");
                     materialLotRepository.save(materialLot);
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
                     materialLotHistoryRepository.save(history);
