@@ -1,0 +1,90 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-mms_mlot_check_sheet_line-table
+      author: Xunbo Guo
+      comment: Create table MMS_MLOT_CHECK_SHEET_LINE
+      changes:
+        - createTable:
+            tableName: MMS_MLOT_CHECK_SHEET_LINE
+            remarks: MLotCheckSheetLine Info
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: varchar(32)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: CREATED
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 创建时间
+              - column:
+                  name: CREATED_BY
+                  type: varchar(32)
+                  remarks: 创建者
+              - column:
+                  name: UPDATED
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 更新时间
+              - column:
+                  name: UPDATED_BY
+                  type: varchar(32)
+                  remarks: 更新者
+              - column:
+                  name: LOCK_VERSION
+                  type: bigint
+                  defaultValueNumeric: 1
+                  remarks: 乐观锁版本 程序自己更新 不可人为改变
+              - column:
+                  name: NAME
+                  type: varchar(64)
+                  remarks: 明细名称
+              - column:
+                  name: DESCRIPTION
+                  type: varchar(64)
+                  remarks: 明细描述
+              - column:
+                  name: MLOT_CHECK_SHEET_RRN
+                  type: varchar(64)
+                  remarks: 物料批次检查清单RRN
+              - column:
+                  name: SHEET_NAME
+                  type: varchar(64)
+                  remarks: 表单名称
+              - column:
+                  name: SHEET_DESC
+                  type: varchar(64)
+                  remarks: 表单描述
+              - column:
+                  name: SHEET_CATEGORY
+                  type: varchar(64)
+                  remarks: 表单类别
+              - column:
+                  name: CHECK_RESULT
+                  type: varchar(64)
+                  remarks: 结果
+              - column:
+                  name: CHECK_TIME
+                  type: datetime
+                  remarks: 检查时间
+              - column:
+                  name: CHECK_OWNER
+                  type: varchar(64)
+                  remarks: 检查人
+              - column:
+                  name: ACTION_COMMENT
+                  type: varchar(128)
+                  remarks: 备注
