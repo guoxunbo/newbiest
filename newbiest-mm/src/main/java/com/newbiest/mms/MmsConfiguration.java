@@ -48,6 +48,11 @@ public class MmsConfiguration {
         ModelFactory.registerModelClassLoader(MaterialLotMergeRule.class.getName(), MaterialLotMergeRule.class.getClassLoader());
         ModelFactory.registerModelClassLoader(DeliveryOrder.class.getName(), DeliveryOrder.class.getClassLoader());
 
+        ModelFactory.registerModelClassLoader(IqcCheckSheet.class.getName(), IqcCheckSheet.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(CheckSheetLine.class.getName(), CheckSheetLine.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(MLotCheckSheet.class.getName(), MLotCheckSheet.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(MLotCheckSheetLine.class.getName(), MLotCheckSheetLine.class.getClassLoader());
+
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(RawMaterial.class.getName(), MaterialHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(RawMaterial.class.getName(), MaterialHistory.class.getName());
