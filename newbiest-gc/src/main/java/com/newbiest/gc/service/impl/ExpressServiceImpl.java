@@ -86,7 +86,7 @@ public class ExpressServiceImpl implements ExpressService {
     private String profiles;
 
     private boolean isProdEnv() {
-        return "prod".equalsIgnoreCase(profiles);
+        return "production".equalsIgnoreCase(profiles);
     }
 
     /**
