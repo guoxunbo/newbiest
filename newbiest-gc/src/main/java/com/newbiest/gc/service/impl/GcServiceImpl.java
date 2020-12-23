@@ -7114,26 +7114,17 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }
-            //再挑已经装箱的整箱中的真空包（需拆箱，按照装箱的时间拆）
+            //再挑已经装箱的整箱中的真空包
             if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                 if(CollectionUtils.isNotEmpty(wholeBoxMLots)){
                     List<MaterialLot> wholeBoxMLotList = wholeBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
                     for(MaterialLot packagedLot : wholeBoxMLotList){
                         List<MaterialLot> packedDetials = packedLotMap.get(packagedLot.getMaterialLotId());
-                        List<MaterialLotAction> materialLotActionList = Lists.newArrayList();
                         for(MaterialLot packedMLot : packedDetials){
                             if(totalQty.compareTo(packedMLot.getCurrentQty()) >= 0){
-                                //箱中待拆箱的真空包
-                                MaterialLotAction materialLotAction = new MaterialLotAction();
-                                materialLotAction.setMaterialLotId(packedMLot.getMaterialLotId());
-                                materialLotAction.setTransQty(packedMLot.getCurrentQty());
-                                materialLotActionList.add(materialLotAction);
                                 materialLotList.add(packedMLot);
                                 totalQty = totalQty.subtract(packedMLot.getCurrentQty());
                             }
-                        }
-                        if(CollectionUtils.isNotEmpty(materialLotActionList)){
-                            packageService.unPack(materialLotActionList);
                         }
                     }
                 }
