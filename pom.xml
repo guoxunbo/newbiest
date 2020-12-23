@@ -23,6 +23,7 @@
         <module>newbiest-gc</module>
         <module>ams</module>
         <module>stdf</module>
+        <module>newbiest-vanchip</module>
         <!--        <module>interfacemonitor</module>-->
     </modules>
     <packaging>pom</packaging>
@@ -39,7 +40,7 @@
         <newbiest.context.version>1.0.1.RELEASE</newbiest.context.version>
         <newbiest.idgenerator.version>1.0.2.RELEASE</newbiest.idgenerator.version>
         <newbiest.statusmachine.version>1.0.2.RELEASE</newbiest.statusmachine.version>
-        <newbiest.framework.version>1.0.5.RELEASE</newbiest.framework.version>
+        <newbiest.framework.version>1.0.6-SNAPSHOT</newbiest.framework.version>
         <newbiest.kms.version>1.0.2-SNAPSHOT</newbiest.kms.version>
         <newbiest.trigger.version>1.0.1.RELEASE</newbiest.trigger.version>
         <platform.version>1.0.5-SNAPSHOT</platform.version>
