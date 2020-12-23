@@ -3518,6 +3518,7 @@ public class GcServiceImpl implements GcService {
                     deleteRmaMaterialLotAndUnit(materialLots);
                     for(MaterialLot materialLot : materialLots){
                         materialLot.setMaterial(material);
+                        materialLot.setLotId(materialLot.getMaterialLotId());
                         materialLot.setReserved48(importCode);
                         materialLot.initialMaterialLot();
                         materialLot.setStatusModelRrn(material.getStatusModelRrn());
