@@ -23,6 +23,7 @@
         <module>newbiest-gc</module>
         <module>ams</module>
         <module>stdf</module>
+        <module>newbiest-vanchip</module>
         <!--        <module>interfacemonitor</module>-->
     </modules>
     <packaging>pom</packaging>
