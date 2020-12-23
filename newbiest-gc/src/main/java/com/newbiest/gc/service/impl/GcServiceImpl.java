@@ -3229,6 +3229,7 @@ public class GcServiceImpl implements GcService {
     public void materialLotWeight(List<WeightModel> weightModels) throws ClientException {
         try {
             ThreadLocalContext.getSessionContext().buildTransInfo();
+            weightModels = weightModels.stream().sorted(Comparator.comparing(WeightModel::getScanSeq)).collect(Collectors.toList());
             Map<String, WeightModel> weightModelMap = weightModels.stream().collect(Collectors.toMap(WeightModel :: getMaterialLotId, Function.identity()));
             List<MaterialLot> materialLots = weightModels.stream().map(model -> mmsService.getMLotByMLotId(model.getMaterialLotId(), true)).collect(Collectors.toList());
 
