@@ -4956,10 +4956,18 @@ public class GcServiceImpl implements GcService {
             Map<String, String> parameterMap = Maps.newHashMap();
             SimpleDateFormat formatter = new SimpleDateFormat(MLotCodePrint.SHUNYU_PRINT_DATE_PATTERN);
             String createDate = formatter.format(materialLot.getCreated());
+            String materialLotId =  materialLot.getMaterialLotId();
+            String batchNumber = StringUtils.EMPTY;
+            if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                batchNumber = materialLotId.substring(materialLotId.length() - 10, materialLotId.length() - 4);
+            } else {
+                batchNumber = materialLotId.substring(materialLotId.length() - 9, materialLotId.length() - 3);
+            }
             parameterMap.put("NAME", productType);
             parameterMap.put("CLIENTNAME", erpSo.getOther16());
             parameterMap.put("USERID", sc.getUsername());
             parameterMap.put("DATE", createDate);
+            parameterMap.put("BATCHNUMBER", batchNumber);
             parameterMap.put("TOTALNUM", materialLot.getCurrentQty().toString());
             parameterMap.put("BOXID", materialLot.getMaterialLotId());
             parameterMap.put("portId", MLotCodePrint.SHUNYU_PORTID);
@@ -4994,12 +5002,12 @@ public class GcServiceImpl implements GcService {
             parameterMap.put("STRNAME", MLotCodePrint.XLGD_NAME);
             parameterMap.put("STRMODEL", productType);
             parameterMap.put("STRPRODUCTIONDATE", createDate);
-            parameterMap.put("STRPRODUCTIONDATE", effectiveDate);
-            parameterMap.put("STBRAND", MLotCodePrint.XLGD_BRAND);
-            parameterMap.put("STBBOXID", materialLot.getMaterialLotId());
+            parameterMap.put("STRDATE", effectiveDate);
+            parameterMap.put("STRBRAND", MLotCodePrint.XLGD_BRAND);
+            parameterMap.put("STRBBOXID", materialLot.getMaterialLotId());
             String strQrCode = erpSo.getOther16() + StringUtils.SEMICOLON_CODE + materialLot.getCurrentQty().toString() +StringUtils.SEMICOLON_CODE + materialLot.getReserved1() +
                     StringUtils.SEMICOLON_CODE + createDate + StringUtils.SEMICOLON_CODE + effectiveDate + StringUtils.SEMICOLON_CODE + "GALAXYCORE.INC;" + erpSo.getCcode();
-            parameterMap.put("STBQRCODE", strQrCode);
+            parameterMap.put("STRQRCODE", strQrCode);
             parameterMap.put("portId", MLotCodePrint.XLGD_PORTID);
             parameterMap.put("printCount", "2");
             return parameterMap;
