@@ -86,6 +86,18 @@ public class MaterialHistory extends NBVersionControlHis {
     @Column(name="DELIVERY_POLICY")
     private String deliveryPolicy;
 
+    /**
+     * IQC 表单
+     */
+    @Column(name="IQC_SHEET_RRN")
+    private String iqcSheetRrn;
+
+    /**
+     * OQC 表单
+     */
+    @Column(name="OQC_SHEET_RRN")
+    private String oqcSheetRrn;
+
     @Column(name="RESERVED1")
     private String reserved1;
 
