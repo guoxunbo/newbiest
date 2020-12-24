@@ -107,3 +107,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.1.mlot_check_sheet_line.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.material.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.material_his.yaml
+      relativeToChangelogFile: true

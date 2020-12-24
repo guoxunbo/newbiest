@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_0.0.2
+      author: Xunbo Guo
+      remarks: mms_material add column IQC_SHEET_RRN,OQC_SHEET_RRN
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL
+            columns:
+              - column:
+                  name: IQC_SHEET_RRN
+                  type: varchar2(64)
+                  remarks: IQC检查清单号
+              - column:
+                  name: OQC_SHEET_RRN
+                  type: varchar2(64)
+                  remarks: OQC检查清单号

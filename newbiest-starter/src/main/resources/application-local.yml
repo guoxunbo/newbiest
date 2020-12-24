@@ -124,3 +124,8 @@ management:
 info:
   groupId: VCIM
   developer: XunboGuo
+
+vcim:
+  snowflake:
+    workCenterId: 2
+    machineId: 3
