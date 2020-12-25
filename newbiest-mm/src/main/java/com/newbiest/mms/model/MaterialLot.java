@@ -100,6 +100,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private BigDecimal currentQty = BigDecimal.ZERO;
 
     /**
+     * 当前数量
+     */
+    @Column(name="CURRENT_SUB_QTY")
+    private BigDecimal currentSubQty = BigDecimal.ZERO;
+
+    /**
      * 预留数量
      */
     @Column(name="RESERVED_QTY")
@@ -210,6 +216,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String effectiveUnit;
 
     /**
+     * 到期时间
+     */
+    @Column(name="EXPIRE_DATE")
+    private Date expireDate;
+
+    /**
      * 最近入库的仓库主键 只具备显示意义，不具备统计意义
      */
     @Column(name="LAST_WAREHOUSE_RRN")
@@ -233,77 +245,178 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="LAST_STORAGE_ID")
     private String lastStorageId;
 
+    /**
+     * 来料单据主键
+     */
+    @Column(name="INCOMING_DOC_RRN")
+    private String incomingDocRrn;
+
+    /**
+     * 来料单据Id
+     */
+    @Column(name="INCOMING_DOC_ID")
+    private String incomingDocId;
+
+    /**
+     * 来料备注
+     */
+    @Column(name="INCOMING_COMMENT")
+    private String incomingComment;
+
+    /**
+     * 来料物料信息
+     */
+    @Column(name="INCOMING_LOG_INFO")
+    private String incomingLogInfo;
+
+    /**
+     * 出货单据主键
+     */
+    @Column(name="SHIP_DOC_RRN")
+    private String shipDocRrn;
+
+    /**
+     * 出货单据Id
+     */
+    @Column(name="SHIP_DOC_ID")
+    private String shipDocId;
+
+    /**
+     * 出货备注
+     */
+    @Column(name="SHIP_COMMENT")
+    private String shipComment;
+
+    /**
+     * 来料物料信息
+     */
+    @Column(name="SHIP_LOG_INFO")
+    private String shipLogInfo;
+
+    /**
+     * 印字信息
+     */
+    @Column(name="LETTERING_INFO")
+    private String letteringInfo;
+
+    /**
+     * PackageSize
+     */
     @Column(name="RESERVED1")
     private String reserved1;
 
+    /**
+     * PartNumber
+     * 不指产品号。只做显示作用
+     */
     @Column(name="RESERVED2")
     private String reserved2;
 
+    /**
+     * ParrVersion
+     * 不指产品版本，只做显示作用
+     */
     @Column(name="RESERVED3")
     private String reserved3;
 
+    /**
+     * ControlLot
+     */
     @Column(name="RESERVED4")
     private String reserved4;
 
+    /**
+     * WaferId
+     */
     @Column(name="RESERVED5")
     private String reserved5;
 
+    /**
+     * 客户订单编码
+     */
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     * 内部订单编码
+     */
     @Column(name="RESERVED7")
     private String reserved7;
 
+    /**
+     * 委外订单号码
+     */
     @Column(name="RESERVED8")
     private String reserved8;
 
+    /**
+     * D/C
+     */
     @Column(name="RESERVED9")
     private String reserved9;
 
+    /**
+     * Carton Size
+     */
     @Column(name="RESERVED10")
     private String reserved10;
 
+    /**
+     * Carton QTY
+     */
     @Column(name="RESERVED11")
     private String reserved11;
 
+    /**
+     * N.W. (kgs)
+     */
     @Column(name="RESERVED12")
     private String reserved12;
 
+    /**
+     * G.W. (kgs)
+     */
     @Column(name="RESERVED13")
     private String reserved13;
 
+    /**
+     * 终端客户
+     */
     @Column(name="RESERVED14")
     private String reserved14;
 
+    /**
+     * wire Type
+     */
     @Column(name="RESERVED15")
     private String reserved15;
 
+    /**
+     * MRB
+     */
     @Column(name="RESERVED16")
     private String reserved16;
 
+    /**
+     * 发货单位
+     */
     @Column(name="RESERVED17")
     private String reserved17;
 
+    /**
+     * 是否保税
+     */
     @Column(name="RESERVED18")
     private String reserved18;
 
+    /**
+     * 保税手册
+     */
     @Column(name="RESERVED19")
     private String reserved19;
 
     @Column(name="RESERVED20")
     private String reserved20;
-
-    /**
-     * 验证物料批次是否在有效期内
-     */
-    public void validationEffective() {
-        if (effectiveLife != null && !StringUtils.isNullOrEmpty(effectiveUnit)) {
-            Date effectiveDate = DateUtils.plus(receiveDate, effectiveLife.intValue(), effectiveUnit);
-            if (!effectiveDate.after(new Date())) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_HAS_EXPIRED);
-            }
-        }
-    }
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
@@ -324,14 +437,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     }
 
     @Override
-    public void setSubStatus(String subState) {
-
-    }
+    public void setSubStatus(String subState) {}
 
     @Override
-    public void setPreSubStatus(String subStatus) {
-
-    }
+    public void setPreSubStatus(String subStatus) {}
 
     /**
      * 恢复前置状态
@@ -374,6 +483,19 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         setPreSubStatus(StringUtils.EMPTY);
         setReceiveQty(this.getCurrentQty());
         setReservedQty(BigDecimal.ZERO);
+    }
+
+    public void setMaterial(Material material) {
+        this.setMaterialRrn(material.getObjectRrn());
+        this.setMaterialName(material.getName());
+        this.setMaterialDesc(material.getDescription());
+        this.setMaterialVersion(material.getVersion());
+        this.setMaterialCategory(material.getMaterialCategory());
+        this.setMaterialType(material.getMaterialType());
+        this.setStoreUom(material.getStoreUom());
+        this.setEffectiveLife(material.getEffectiveLife());
+        this.setEffectiveUnit(material.getEffectiveUnit());
+        this.setWarningLife(material.getWarningLife());
     }
 
 }

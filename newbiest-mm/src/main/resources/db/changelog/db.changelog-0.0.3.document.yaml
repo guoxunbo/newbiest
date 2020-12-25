@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_0.0.3
+      author: Xunbo Guo
+      remarks: mms_document add approve info columns
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT
+            columns:
+              - column:
+                  name: APPROVE_USER
+                  type: varchar(64)
+                  remarks: 审核人
+              - column:
+                  name: APPROVE_TIME
+                  type: datetime
+                  remarks: 审核时间

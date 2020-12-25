@@ -1,0 +1,15 @@
+package com.newbiest.vanchip.service;
+
+import com.newbiest.base.exception.ClientException;
+import com.newbiest.mms.model.MaterialLot;
+
+import java.util.List;
+
+/**
+ * @author guoxunbo
+ * @date 12/24/20 2:22 PM
+ */
+public interface VanChipService {
+
+    void importIncomingOrder(List<MaterialLot> materialLots) throws ClientException;
+}

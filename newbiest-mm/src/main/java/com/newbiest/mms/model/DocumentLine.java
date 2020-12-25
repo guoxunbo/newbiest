@@ -38,10 +38,6 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="UN_HANDLE_QTY")
     private BigDecimal unHandledQty = BigDecimal.ZERO;
 
-    @Column(name="ERP_CREATED", updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date erpCreated;
-
     @Column(name="RESERVED1")
     private String reserved1;
 

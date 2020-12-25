@@ -211,6 +211,12 @@ public class MaterialLotHistory extends NBHis {
     private String effectiveUnit;
 
     /**
+     * 到期时间
+     */
+    @Column(name="EXPIRE_DATE")
+    private Date expireDate;
+
+    /**
      * 操作数量
      */
     @Column(name="TRANS_QTY")
@@ -253,98 +259,184 @@ public class MaterialLotHistory extends NBHis {
     private String targetStorageId;
 
     /**
-     * GlaxyCore MES完成品的levelTwoCode
+     * 最近入库的库位号 只具备显示意义，不具备统计意义
+     */
+    @Column(name="LAST_STORAGE_ID")
+    private String lastStorageId;
+
+    /**
+     * 来料单据主键
+     */
+    @Column(name="INCOMING_DOC_RRN")
+    private String incomingDocRrn;
+
+    /**
+     * 来料单据Id
+     */
+    @Column(name="INCOMING_DOC_ID")
+    private String incomingDocId;
+
+    /**
+     * 来料备注
+     */
+    @Column(name="INCOMING_COMMENT")
+    private String incomingComment;
+
+    /**
+     * 来料物料信息
+     */
+    @Column(name="INCOMING_LOG_INFO")
+    private String incomingLogInfo;
+
+    /**
+     * 出货单据主键
+     */
+    @Column(name="SHIP_DOC_RRN")
+    private String shipDocRrn;
+
+    /**
+     * 出货单据Id
+     */
+    @Column(name="SHIP_DOC_ID")
+    private String shipDocId;
+
+    /**
+     * 出货备注
+     */
+    @Column(name="SHIP_COMMENT")
+    private String shipComment;
+
+    /**
+     * 来料物料信息
+     */
+    @Column(name="SHIP_LOG_INFO")
+    private String shipLogInfo;
+
+    /**
+     * 印字信息
+     */
+    @Column(name="LETTERING_INFO")
+    private String letteringInfo;
+
+    /**
+     * PackageSize
      */
     @Column(name="RESERVED1")
     private String reserved1;
 
     /**
-     * GlaxyCore MES完成品的waferId
+     * PartNumber
+     * 不指产品号。只做显示作用
      */
     @Column(name="RESERVED2")
     private String reserved2;
 
     /**
-     * GlaxyCore MES完成品的salesNote
+     * ParrVersion
+     * 不指产品版本，只做显示作用
      */
     @Column(name="RESERVED3")
     private String reserved3;
 
     /**
-     * GlaxyCore MES完成品的treasuryNote
+     * ControlLot
      */
     @Column(name="RESERVED4")
     private String reserved4;
 
     /**
-     * GlaxyCore MES完成品的productionNote
+     * WaferId
      */
     @Column(name="RESERVED5")
     private String reserved5;
 
     /**
-     * GlaxyCore MES完成品的bondedProperty
+     * 客户订单编码
      */
     @Column(name="RESERVED6")
     private String reserved6;
 
     /**
-     * GlaxyCore MES完成品的productCategory
+     * 内部订单编码
      */
     @Column(name="RESERVED7")
     private String reserved7;
 
     /**
-     * GlaxyCore 中转箱号
+     * 委外订单号码
      */
     @Column(name="RESERVED8")
     private String reserved8;
 
     /**
-     * GlaxyCore 装箱检验判定等级
+     * D/C
      */
     @Column(name="RESERVED9")
     private String reserved9;
 
     /**
-     * GlaxyCore 装箱检验判定码
+     * Carton Size
      */
     @Column(name="RESERVED10")
     private String reserved10;
 
     /**
-     * GlaxyCore 重测之后的工单号
+     * Carton QTY
      */
     @Column(name="RESERVED11")
     private String reserved11;
 
     /**
-     * GlaxyCore 单据号
+     * N.W. (kgs)
      */
     @Column(name="RESERVED12")
     private String reserved12;
 
+    /**
+     * G.W. (kgs)
+     */
     @Column(name="RESERVED13")
     private String reserved13;
 
+    /**
+     * 终端客户
+     */
     @Column(name="RESERVED14")
     private String reserved14;
 
+    /**
+     * wire Type
+     */
     @Column(name="RESERVED15")
     private String reserved15;
 
+    /**
+     * MRB
+     */
     @Column(name="RESERVED16")
     private String reserved16;
 
+    /**
+     * 发货单位
+     */
     @Column(name="RESERVED17")
     private String reserved17;
 
+    /**
+     * 是否保税
+     */
     @Column(name="RESERVED18")
     private String reserved18;
 
+    /**
+     * 保税手册
+     */
     @Column(name="RESERVED19")
     private String reserved19;
 
+    /**
+     * 物流信息
+     */
     @Column(name="RESERVED20")
     private String reserved20;
 

@@ -12,4 +12,11 @@
     <artifactId>newbiest-vanchip</artifactId>
 
 
+    <dependencies>
+        <dependency>
+            <groupId>com.newbiest</groupId>
+            <artifactId>mm</artifactId>
+            <version>1.0.5-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>

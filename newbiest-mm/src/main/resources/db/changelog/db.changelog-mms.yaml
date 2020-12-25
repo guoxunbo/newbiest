@@ -113,3 +113,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.2.material_his.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.3.document.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.5.material_lot.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.5.material_lot_his.yaml
+      relativeToChangelogFile: true
