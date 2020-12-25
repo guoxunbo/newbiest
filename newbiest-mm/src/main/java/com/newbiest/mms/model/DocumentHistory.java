@@ -8,24 +8,12 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-/**
- * 单据
- * Created by guoxunbo on 2019-08-29 17:19
- */
 @Data
 @Entity
-@Table(name="MMS_DOCUMENT")
-@Inheritance(strategy= InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="CATEGORY", discriminatorType = DiscriminatorType.STRING, length = 32)
-public class Document extends NBUpdatable {
+@Table(name="MMS_DOCUMENT_HIS")
+public class DocumentHistory extends NBUpdatable {
 
-    public static final String CATEGORY_DELIVERY = "Delivery";
-    public static final String CATEGORY_INCOMING = "Incoming";
-
-
-    public static final String STATUS_CREATE = "Create";
-    public static final String STATUS_APPROVE = "Approve";
-    public static final String STATUS_Reject = "Reject";
+    public static final String TRANS_TYPE_APPROVE = "Approve";
 
     @Column(name="NAME")
     private String name;
@@ -37,9 +25,9 @@ public class Document extends NBUpdatable {
     private String owner;
 
     @Column(name="STATUS")
-    private String status = STATUS_CREATE;
+    private String status;
 
-    @Column(name="CATEGORY", updatable = false, insertable = false)
+    @Column(name="CATEGORY")
     private String category;
 
     /**
@@ -74,15 +62,6 @@ public class Document extends NBUpdatable {
      */
     @Column(name="DUE_DATE")
     private Date dueDate;
-
-    @Column(name="APPROVE_USER")
-    private String approveUser;
-
-    @Column(name="APPROVE_TIME")
-    private Date approveTime;
-
-    @Transient
-    private List<DocumentLine> documentLines;
 
     @Column(name="RESERVED1")
     private String reserved1;

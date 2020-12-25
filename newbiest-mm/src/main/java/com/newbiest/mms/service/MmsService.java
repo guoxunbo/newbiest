@@ -1,17 +1,22 @@
 package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
+import com.newbiest.mms.state.model.MaterialStatusModel;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by guoxunbo on 2019/2/13.
  */
 public interface MmsService {
 
+    MaterialStatusModel getStatusModelByRrn(String statusModelRrn) throws ClientException;
+    MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, BigDecimal transQty, BigDecimal transSubQty, Map<String, Object> propsMap) throws ClientException;
     // rawMaterial
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial getRawMaterialByName(String name) throws ClientException;

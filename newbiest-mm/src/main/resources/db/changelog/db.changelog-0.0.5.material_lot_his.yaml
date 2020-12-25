@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.0.5
+      author: Xunbo Guo
+      remarks: mms_material_lot_his add column of incomingInfo and shipingInfo
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: CURRENT_SUB_QTY
+                  type: bigint
+                  remarks: 子数量
+              - column:
+                  name: EXPIRE_DATE
+                  type: datetime
+                  remarks: 到期时间
+              - column:
+                  name: INCOMING_DOC_RRN
+                  type: varchar(64)
+                  remarks: 来料单据RRN
+              - column:
+                  name: INCOMING_DOC_ID
+                  type: bigint
+                  remarks: 来料单据号
+              - column:
+                  name: INCOMING_COMMENT
+                  type: varchar(64)
+                  remarks: 来料备注
+              - column:
+                  name: INCOMING_LOG_INFO
+                  type: varchar(64)
+                  remarks: 来料物流信息
+              - column:
+                  name: SHIP_DOC_RRN
+                  type: varchar(64)
+                  remarks: 发料单据RRN
+              - column:
+                  name: SHIP_DOC_ID
+                  type: bigint
+                  remarks: 发料单据号
+              - column:
+                  name: SHIP_COMMENT
+                  type: varchar(64)
+                  remarks: 发料备注
+              - column:
+                  name: SHIP_LOG_INFO
+                  type: varchar(64)
+                  remarks: 发料物流信息
+              - column:
+                  name: LETTERING_INFO
+                  type: varchar(64)
+                  remarks: 印字信息
