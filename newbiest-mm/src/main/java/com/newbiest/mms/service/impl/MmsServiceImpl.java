@@ -14,9 +14,7 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.*;
-import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.commom.sm.model.StatusModel;
-import com.newbiest.commom.sm.repository.StatusModelRepository;
 import com.newbiest.commom.sm.service.StatusMachineService;
 import com.newbiest.common.exception.ContextException;
 import com.newbiest.common.idgenerator.service.GeneratorService;
@@ -753,6 +751,10 @@ public class MmsServiceImpl implements MmsService {
 
             if (propsMap != null && propsMap.size() > 0) {
                 for (String propName : propsMap.keySet()) {
+                    Object propValue = propsMap.get(propName);
+                    if (propValue == null || StringUtils.isNullOrEmpty(propValue.toString())) {
+                        continue;
+                    }
                     PropertyUtils.setProperty(materialLot, propName, propsMap.get(propName));
                 }
             }
