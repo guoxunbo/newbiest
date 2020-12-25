@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,21 +52,23 @@ public class VanchipServiceImpl implements VanChipService {
     @Autowired
     IncomingOrderRepository incomingOrderRepository;
 
-
     /**
      * 来料导入
      * @param materialLots
      */
     public void importIncomingOrder(List<MaterialLot> materialLots) throws ClientException {
         try {
+            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+
             String documentId = generateIncomingDocId();
             IncomingOrder incomingOrder = new IncomingOrder();
             incomingOrder.setName(documentId);
             incomingOrder.setDescription(documentId);
+            incomingOrder.setQty(totalQty);
+            incomingOrder.setUnHandledQty(totalQty);
             incomingOrder = (IncomingOrder) baseService.saveEntity(incomingOrder);
 
             List<MaterialLot> documentMaterialLots = Lists.newArrayList();
-
             Map<String, List<MaterialLot>> materialMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getMaterialName));
             final IncomingOrder _incomingOrder = incomingOrder;
             materialMap.keySet().forEach(materialName -> {
@@ -83,13 +87,8 @@ public class VanchipServiceImpl implements VanChipService {
                     documentMaterialLots.add(mLot);
                 }
             });
-
-
-
-
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
-
         }
     }
 

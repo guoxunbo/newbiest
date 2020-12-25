@@ -29,6 +29,7 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -86,6 +87,18 @@ public class MmsServiceImpl implements MmsService {
 
     @Autowired
     MaterialLotMergeRuleRepository materialLotMergeRuleRepository;
+
+    @Autowired
+    IQCCheckSheetRepository iqcCheckSheetRepository;
+
+    @Autowired
+    CheckSheetLineRepository checkSheetLineRepository;
+
+    @Autowired
+    MLotCheckSheetRepository mLotCheckSheetRepository;
+
+    @Autowired
+    MLotCheckSheetLineRepository mLotCheckSheetLineRepository;
 
     /**
      * 根据名称获取源物料。
@@ -651,6 +664,72 @@ public class MmsServiceImpl implements MmsService {
     public MaterialStatusModel getStatusModelByRrn(String statusModelRrn) throws ClientException {
         try {
             return materialStatusModelRepository.findByObjectRrn(statusModelRrn);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 触发IQC
+     * @param materialLot
+     * @throws ClientException
+     */
+    public void triggerIqc(Material material, MaterialLot materialLot) throws ClientException{
+        try {
+            String iqcSheetRrn = material.getIqcSheetRrn();
+            if (StringUtils.isNullOrEmpty(iqcSheetRrn)) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_IQC_IS_NOT_SET, material.getName());
+            }
+            IqcCheckSheet iqcCheckSheet = iqcCheckSheetRepository.findByObjectRrn(iqcSheetRrn);
+
+            MLotCheckSheet mLotCheckSheet = new MLotCheckSheet();
+            mLotCheckSheet.setMaterialLotId(materialLot.getMaterialLotId());
+            mLotCheckSheet.setSheetName(iqcCheckSheet.getName());
+            mLotCheckSheet.setSheetDesc(iqcCheckSheet.getDescription());
+            mLotCheckSheet.setSheetCategory(iqcCheckSheet.getCategory());
+            mLotCheckSheet = mLotCheckSheetRepository.save(mLotCheckSheet);
+
+            List<CheckSheetLine> checkSheetLines = checkSheetLineRepository.findByCheckSheetRrn(iqcSheetRrn);
+            for (CheckSheetLine checkSheetLine : checkSheetLines) {
+                MLotCheckSheetLine mLotCheckSheetLine = new MLotCheckSheetLine();
+                mLotCheckSheetLine.setMLotCheckSheetRrn(mLotCheckSheet.getObjectRrn());
+                mLotCheckSheetLine.setSheetName(iqcCheckSheet.getName());
+                mLotCheckSheetLine.setSheetDesc(iqcCheckSheet.getDescription());
+
+                mLotCheckSheetLine.setName(checkSheetLine.getName());
+                mLotCheckSheetLine.setDescription(checkSheetLine.getDescription());
+                mLotCheckSheetLineRepository.save(mLotCheckSheetLine);
+            }
+
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException {
+        try {
+            String materialName = material.getName();
+            if (material instanceof RawMaterial) {
+                material = rawMaterialRepository.findOneByName(materialName);
+            }
+            if (material == null) {
+                throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
+            }
+            for (MaterialLot materialLot : materialLotList) {
+                String materialLotId = materialLot.getMaterialLotId();
+                materialLot = getMLotByMLotId(materialLotId);
+                if (materialLot == null) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+                }
+                materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
+                if (MaterialStatusCategory.STATUS_CATEGORY_IQC.equals(materialLot.getStatusCategory())) {
+                    //IQC检查
+                    triggerIqc(material, materialLot);
+                }
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
+                materialLotHistoryRepository.save(history);
+            }
+            return materialLotList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

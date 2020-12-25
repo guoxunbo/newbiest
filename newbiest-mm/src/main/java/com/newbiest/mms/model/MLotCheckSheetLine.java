@@ -30,7 +30,7 @@ public class MLotCheckSheetLine extends NBUpdatable {
      * MLotCheckSheet的主键
      */
     @Column(name="MLOT_CHECK_SHEET_RRN")
-    private Long mLotCheckSheetRrn;
+    private String mLotCheckSheetRrn;
 
     @Column(name="SHEET_NAME")
     private String sheetName;

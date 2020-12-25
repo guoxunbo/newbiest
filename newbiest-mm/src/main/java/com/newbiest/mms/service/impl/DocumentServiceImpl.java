@@ -5,9 +5,9 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
-import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.DateUtils;
+import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.DocumentLineRepository;
 import com.newbiest.mms.repository.DocumentRepository;
@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.newbiest.mms.exception.DocumentException.*;
 
@@ -49,44 +51,39 @@ public class DocumentServiceImpl implements DocumentService {
     IncomingOrderRepository incomingOrderRepository;
 
     /**
-     * 新增单据
-     * @param document
+     * 来料接收
+     *  此时是实物的接收。物料批次在来料导入的时候已经记录
+     *  接收时候要验证是否都是同一个单据的同一个单据的才能一起接收
+     * @param documentId 来料单据号
+     * @param materialLots 接收的物料批次
      * @throws ClientException
      */
-    private Document createDocument(Document document) throws ClientException {
-        try {
-            document = (Document) baseService.saveEntity(document);
-            documentLineRepository.deleteByDocRrn(document.getObjectRrn());
-            if (CollectionUtils.isNotEmpty(document.getDocumentLines())) {
-                for (DocumentLine documentLine : document.getDocumentLines()) {
-                    documentLine.setDocRrn(document.getObjectRrn());
-                    documentLine.setDocId(document.getName());
-                    baseService.saveEntity(documentLine);
-                }
-            }
-            return document;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 创建接收单，以及创建物料批次
-     * @param documentId
-     *
-     * @throws ClientException
-     */
-    public void createIncomingOrder(String documentId, List<MaterialLot> materialLots) throws ClientException {
+    public void receiveIncomingLot(String documentId, List<MaterialLot> materialLots) throws ClientException{
         try {
             IncomingOrder incomingOrder = incomingOrderRepository.findOneByName(documentId);
-            if (incomingOrder != null) {
-                throw new ClientParameterException(DOCUMENT_IS_EXIST);
+            if (incomingOrder  == null) {
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST);
             }
-            incomingOrder = new IncomingOrder();
-            incomingOrder.setName(documentId);
-            incomingOrder.setDescription(documentId);
-            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReceiveQty));
-            incomingOrder.setQty(totalQty);
+            if (!Document.STATUS_APPROVE.equals(incomingOrder.getStatus())) {
+                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW);
+            }
+            Map<String, List<MaterialLot>> docMaterialLots = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getIncomingDocId));
+            if (docMaterialLots.keySet().size() != 1 || !documentId.equals(materialLots.get(0).getIncomingDocId())) {
+                throw new ClientException(DOCUMENT_IS_NOT_SAME);
+            }
+            BigDecimal receiveQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+            if (incomingOrder.getUnHandledQty().compareTo(receiveQty) < 0) {
+                throw new ClientParameterException(DOCUMENT_QTY_NOT_ENOUGH, documentId);
+            }
+
+            Map<String, List<MaterialLot>> materialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getMaterialName));
+            for (String materialName : materialLotMap.keySet()) {
+                RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
+                mmsService.receiveMLot(rawMaterial, materialLotMap.get(materialName));
+            }
+            incomingOrder.setHandledQty(incomingOrder.getHandledQty().add(receiveQty));
+            incomingOrder.setUnHandledQty(incomingOrder.getUnHandledQty().subtract(receiveQty));
+            incomingOrderRepository.save(incomingOrder);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
