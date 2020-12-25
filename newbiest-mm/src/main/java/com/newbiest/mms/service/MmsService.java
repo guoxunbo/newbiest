@@ -3,6 +3,7 @@ package com.newbiest.mms.service;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.dto.MaterialLotJudgeAction;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 
@@ -15,8 +16,12 @@ import java.util.Map;
  */
 public interface MmsService {
 
+
     MaterialStatusModel getStatusModelByRrn(String statusModelRrn) throws ClientException;
     MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, BigDecimal transQty, BigDecimal transSubQty, Map<String, Object> propsMap) throws ClientException;
+    List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException;
+    void iqc(MaterialLotJudgeAction materialLotJudgeAction) throws ClientException;
+
     // rawMaterial
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial getRawMaterialByName(String name) throws ClientException;
@@ -25,7 +30,6 @@ public interface MmsService {
     MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException;
     MaterialLot getMLotByMLotId(String mLotId) throws ClientException;
     MaterialLot getMLotByObjectRrn(String materialLotRrn) throws ClientException;
-    List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException;
 
     MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot stockIn(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;

@@ -24,6 +24,7 @@ import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.context.model.MergeRuleContext;
 import com.newbiest.mms.MmsPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.dto.MaterialLotJudgeAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
@@ -163,8 +164,6 @@ public class MmsServiceImpl implements MmsService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-
-
 
     public List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException {
         try {
@@ -664,6 +663,42 @@ public class MmsServiceImpl implements MmsService {
     public MaterialStatusModel getStatusModelByRrn(String statusModelRrn) throws ClientException {
         try {
             return materialStatusModelRepository.findByObjectRrn(statusModelRrn);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * iqc配置
+     * @param materialLotJudgeAction
+     * @throws ClientException
+     */
+    public void iqc(MaterialLotJudgeAction materialLotJudgeAction) throws ClientException {
+        try {
+            judgeByCheckSheet(materialLotJudgeAction, MaterialEvent.EVENT_IQC);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 判定
+     * @param materialLotJudgeAction
+     * @throws ClientException
+     */
+    public void judgeByCheckSheet(MaterialLotJudgeAction materialLotJudgeAction, String eventId) throws ClientException {
+        try {
+            String materialLotId = materialLotJudgeAction.getMaterialLotId();
+            MaterialLot materialLot = getMLotByMLotId(materialLotId);
+
+            changeMaterialLotState(materialLot, eventId, materialLotJudgeAction.getJudgeResult());
+
+            MLotCheckSheet mLotCheckSheet = mLotCheckSheetRepository.findByMaterialLotId(materialLotId);
+            mLotCheckSheet.setCheckResult(materialLotJudgeAction.getJudgeResult());
+            mLotCheckSheet.setCheckOwner(ThreadLocalContext.getUsername());
+            mLotCheckSheet.setCheckTime(DateUtils.now());
+            mLotCheckSheet.setRemark2(materialLotJudgeAction.getActionComments());
+            mLotCheckSheetRepository.save(mLotCheckSheet);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
