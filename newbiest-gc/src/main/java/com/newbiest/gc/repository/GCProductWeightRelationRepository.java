@@ -13,7 +13,9 @@ import java.util.List;
 @Repository
 public interface GCProductWeightRelationRepository extends IRepository<GCProductWeightRelation, Long> {
 
-    @Query("SELECT p FROM GCProductWeightRelation p where  p.productId = :productId and  p.minPackedQty <= :packedQty and p.maxPackedQty >= :packedQty")
-    List<GCProductWeightRelation> findByProductIdAndPackageQty(@Param("productId")String productId, @Param("packedQty")BigDecimal packedQty) throws ClientException;
+    @Query("SELECT p FROM GCProductWeightRelation p where  p.productId = :productId")
+    List<GCProductWeightRelation> findByProductId(@Param("productId")String productId) throws ClientException;
+
+    GCProductWeightRelation findByProductIdAndPackageQty(@Param("productId")String productId, @Param("packageQty") BigDecimal packageQty) throws ClientException;
 
 }

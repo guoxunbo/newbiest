@@ -42,13 +42,13 @@ public class GCProductWeightRelation extends NBUpdatable {
     private BigDecimal boxPackedQty = BigDecimal.ZERO;
 
     /**
-     * 最小包数
+     * 最小包颗数
      */
     @Column(name="MIN_PACKED_QTY")
     private BigDecimal minPackedQty = BigDecimal.ZERO;
 
     /**
-     * 最大包数
+     * 最大包颗数
      */
     @Column(name="MAX_PACKED_QTY")
     private BigDecimal maxPackedQty = BigDecimal.ZERO;

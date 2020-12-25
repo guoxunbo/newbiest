@@ -368,3 +368,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.RMAMLotLabelPrint_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.5.gc_product_weight_relation.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.6.gc_product_weight_relation.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.2.7.comments.yaml
+      relativeToChangelogFile: true
