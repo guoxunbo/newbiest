@@ -415,9 +415,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED19")
     private String reserved19;
 
-    /**
-     * 物流信息
-     */
     @Column(name="RESERVED20")
     private String reserved20;
 
