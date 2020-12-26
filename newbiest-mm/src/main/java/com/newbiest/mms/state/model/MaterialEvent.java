@@ -14,6 +14,8 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_RECEIVE = "Receive";
 
+    public static final String EVENT_IQC = "IQC";
+
     public static final String EVENT_REJECT = "Reject";
 
     public static final String EVENT_STOCK_IN = "StockIn";

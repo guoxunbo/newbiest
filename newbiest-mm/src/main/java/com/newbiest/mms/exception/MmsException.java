@@ -5,9 +5,11 @@ package com.newbiest.mms.exception;
  */
 public class MmsException {
 
+
     public static final String MM_RAW_MATERIAL_IS_EXIST = "mm.raw_material_is_exist";
     public static final String MM_RAW_MATERIAL_IS_NOT_EXIST = "mm.raw_material_is_not_exist";
     public static final String MM_RAW_MATERIAL_IS_NOT_SAME = "mm.raw_material_is_not_same";
+    public static final String MM_MATERIAL_IQC_IS_NOT_SET = "mm.mateial_iqc_is_not_set";
 
     public static final String MM_MATERIAL_LOT_HAS_EXPIRED = "mm.material_lot_has_expired";
 

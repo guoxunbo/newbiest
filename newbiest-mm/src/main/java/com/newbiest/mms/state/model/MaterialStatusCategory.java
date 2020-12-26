@@ -14,6 +14,8 @@ public class MaterialStatusCategory extends StatusCategory {
 
     public static final String CATEGORY_MATERIAL = "MATERIAL";
 
+    public static final String STATUS_CATEGORY_IQC = "IQC";
+
     public static final String STATUS_CATEGORY_STOCK = "Stock";
 
     public static final String STATUS_CATEGORY_FIN = "Fin";
