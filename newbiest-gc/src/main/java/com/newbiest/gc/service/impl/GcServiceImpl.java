@@ -2397,7 +2397,7 @@ public class GcServiceImpl implements GcService {
                 List<MaterialLotAction> materialLotActions = Lists.newArrayList();
                 for (MesPackedLot mesPackedLot : mesPackedLots) {
                     String productCateGory = mesPackedLot.getProductCategory();
-                    if(MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory)){
+                    if(MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(productCateGory)){
                         if(MesPackedLot.REPLACE_FLAG.equals(mesPackedLot.getReplaceFlag())){
                             if(!StringUtils.isNullOrEmpty(mesPackedLot.getPrintModelId())){
                                 material = mmsService.getProductByName(mesPackedLot.getPrintModelId());
@@ -2486,7 +2486,7 @@ public class GcServiceImpl implements GcService {
 
                     materialLotActions.add(materialLotAction);
 
-                    if(MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) && !MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType())){
+                    if((MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) && !MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))  || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(productCateGory)){
                         // ERP_MOA插入数据
                         ErpMoa erpMoa = new ErpMoa();
                         erpMoa.setFQty(mesPackedLot.getQuantity());
@@ -2521,7 +2521,7 @@ public class GcServiceImpl implements GcService {
                         erpMoa.setProdCate(mesPackedLotRelation.getProductType());
 
                         erpMoaList.add(erpMoa);
-                    } else if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(productCateGory) || (MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
+                    } else if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(productCateGory)){
                         // ERP MO插入数据
                         ErpMo erpMo = new ErpMo();
                         erpMo.setCCode(mesPackedLot.getShipSerialNumber());
