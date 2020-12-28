@@ -1757,6 +1757,10 @@ public class GcServiceImpl implements GcService {
             }
             erpSoRepository.save(erpSo);
 
+            if (SystemPropertyUtils.getConnectScmFlag()) {
+                boolean kuayueExpressFlag = MaterialLot.PLAN_ORDER_TYPE_AUTO.equals(materialLots.get(0).getPlanOrderType()) ? true : false;
+                scmService.addTracking(deliveryOrder.getName(), deliveryOrder.getReserved2(), kuayueExpressFlag);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

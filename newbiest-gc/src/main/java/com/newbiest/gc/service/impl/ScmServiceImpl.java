@@ -1,15 +1,17 @@
 package com.newbiest.gc.service.impl;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.CollectionUtils;
+import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.service.ScmService;
 import com.newbiest.gc.service.model.QueryEngResponse;
 import com.newbiest.mms.model.MaterialLot;
@@ -24,16 +26,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,6 +46,7 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
 /**
  * 请求GC的SCM系统
  * API地址：https://www.showdoc.cc/949149104775520?page_id=4964217376034753 密码123456
+ * mscm地址查看文档
  * @author guoxunbo
  * @date 2020-08-09 10:40
  */
@@ -63,13 +66,25 @@ public class ScmServiceImpl implements ScmService {
     public static final int SCM_READ_TIME_OUT = 60;
 
     public static final String REFERENCE_NAME_FOR_SCM = "SCMImportType";
-
     public static final String QUERY_ENG_API = "/api/wip/sync-eng/query";
+
+    public static final String MSCM_SERVICE_NAME = "interface";
+    public static final String MSCM_TOKEN_API = "/api/?r=Api/Token/AccessToken";
+    public static final String MSCM_ADD_TRACKING_API = "/api/?r=Api/Logistics/AddTracking";
 
     private RestTemplate restTemplate;
 
     @Value("${gc.scmUrl}")
     private String scmUrl;
+
+    @Value("${gc.mScmUrl}")
+    private String mScmUrl;
+
+    @Value("${gc.mScmUsername}")
+    private String mScmUsername;
+
+    @Value("${gc.mScmPassword}")
+    private String mScmPassword;
 
     @Autowired
     MaterialLotRepository materialLotRepository;
@@ -130,19 +145,7 @@ public class ScmServiceImpl implements ScmService {
             Map<String, Object> requestInfo = Maps.newHashMap();
             requestInfo.put("engs", requestWaferList);
 
-            String requestString = DefaultParser.getObjectMapper().writeValueAsString(requestInfo);
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Sending to scm. RequestString is [%s]", requestString));
-            }
-            HttpHeaders headers = new HttpHeaders();
-            headers.put("Content-Type", Lists.newArrayList("application/json"));
-
-            RequestEntity<byte[]> request = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(scmUrl + QUERY_ENG_API));
-            ResponseEntity<byte[]> responseEntity = restTemplate.exchange(request, byte[].class);
-            String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Get response by scm. Response is [%s]", response));
-            }
+            String response = sendHttpRequest(scmUrl + QUERY_ENG_API, requestInfo, Maps.newHashMap());
             QueryEngResponse queryEngResponse = DefaultParser.getObjectMapper().readerFor(QueryEngResponse.class).readValue(response);
             if (!QueryEngResponse.SUCCESS_CODE.equals(queryEngResponse.getCode())) {
                 throw new ClientException(queryEngResponse.getMessage());
@@ -183,4 +186,109 @@ public class ScmServiceImpl implements ScmService {
         }
         return Lists.newArrayList();
     }
+
+    private String sendHttpRequest(String url, Object requestInfo, Map<String, String> httpHeaders) throws ClientException {
+        try {
+            String response = StringUtils.EMPTY;
+            String requestString = DefaultParser.getObjectMapper().writeValueAsString(requestInfo);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Send data. RequestString is [%s]", requestString));
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            String contentType = httpHeaders.get("contentType");
+            if (StringUtils.isNullOrEmpty(contentType)) {
+                contentType = "application/json";
+            }
+            headers.put("Content-Type", Lists.newArrayList(contentType));
+
+            String token = httpHeaders.get("authorization");
+            if (!StringUtils.isNullOrEmpty(token)) {
+                headers.put("authorization", Lists.newArrayList(token));
+            }
+            ResponseEntity<byte[]> responseEntity = null;
+            if ("application/x-www-form-urlencoded".equals(contentType)) {
+                MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
+
+                Map<String, Object> requestMap = (Map<String, Object>) requestInfo;
+                for (String key : requestMap.keySet()) {
+                    postParameters.add(key, requestMap.get(key));
+                }
+                HttpEntity<MultiValueMap> httpEntity = new HttpEntity<>(postParameters, headers);
+                Map responseMap = restTemplate.postForObject(new URI(url), httpEntity, Map.class);
+                response = DefaultParser.writerJson(responseMap);
+            } else {
+                RequestEntity request = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(url));
+                responseEntity = restTemplate.exchange(request, byte[].class);
+                response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
+
+            }
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Get response by scm. Response is [%s]", response));
+            }
+            return response;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private String getReceivingTime() {
+        SimpleDateFormat formatter = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+        formatter.setLenient(false);
+        return formatter.format(DateUtils.now());
+    }
+
+    public void addTracking(String orderId, String expressNumber, boolean isKuayueExprress) throws ClientException{
+        try {
+            String token = getMScmToken();
+            Map httpHeader = Maps.newHashMap();
+            httpHeader.put("authorization", token);
+
+            List<Map> requestInfoList = Lists.newArrayList();
+            Map requestInfo = Maps.newHashMap();
+            requestInfo.put("send_code", orderId);
+            if (isKuayueExprress) {
+                requestInfo.put("logistics_receiving_time", getReceivingTime());
+                requestInfo.put("logistics_company_name", "跨越物流");
+                requestInfo.put("logistics_code", expressNumber);
+            }
+            requestInfoList.add(requestInfo);
+
+            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, httpHeader);
+            Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
+            Integer ret = (Integer) responseData.get("ret");
+            if (200 != ret) {
+                throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public String getMScmToken() throws ClientException{
+        try {
+            Map httpHeader = Maps.newHashMap();
+            httpHeader.put("contentType", "application/x-www-form-urlencoded");
+
+            Map<String, String> requestInfo = Maps.newHashMap();
+            requestInfo.put("app_name", mScmUsername);
+            requestInfo.put("app_secret", mScmPassword);
+            requestInfo.put("service", MSCM_SERVICE_NAME);
+
+            String response = sendHttpRequest(mScmUrl + MSCM_TOKEN_API, requestInfo, httpHeader);
+            Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
+
+            Integer ret = (Integer) responseData.get("ret");
+            if (200 != ret) {
+                throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+            }
+            Map<String, Object> data = (Map<String, Object>) responseData.get("data");
+            String token = (String) data.get("token");
+            return token;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
 }

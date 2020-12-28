@@ -1,6 +1,9 @@
 gc:
   openSchedule: false
   scmUrl: https://gc-scm-beta.wochacha.cn
+  mScmUrl: https://beta-scm.wochacha.cn/
+  mScmUsername: gc_mes
+  mScmPassword: sZ9ia26Gkbb8eoz7ZHo8cEQrTsqEr21t1CWT6Rbi
   mesUrl: http://localhost:7001/mycim2
 license:
   subject: newbiest_product_license
@@ -21,7 +24,7 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@127.0.0.1:1521:orcl
+      url: jdbc:oracle:thin:@127.0.0.1:1521:newbiest
       username: wmstest
       password: wmstest
       driver-class-name: oracle.jdbc.OracleDriver
@@ -97,7 +100,7 @@ server:
 show:
   swagger: true
 logging:
-  path: D:/Design/wmsLog/log
+  path: /Users/guoxunbo/Documents/newbiest/log
 management:
   endpoints:
     web:

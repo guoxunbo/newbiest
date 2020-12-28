@@ -1,6 +1,9 @@
 gc:
   scmUrl: https://gc-scm.wochacha.com
   mesUrl: http://10.181.160.31/mycim2
+  mScmUrl: https://mscm.wochacha.com
+  mScmUsername: gc_mes
+  mScmPassword: 1nLXWnAZGvHbqomGo87TPQs7VxA0aTalHcWvT0wC
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense

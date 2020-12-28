@@ -74,4 +74,6 @@ public class GcExceptions {
     public static final String PRODUCT_NUMBER_RELATION_IS_ERROR = "gc.product_number_relation_is_error";
     public static final String PRODUCT_NUMBER_RELATION_IS_NOT_EXIST = "gc.product_number_relation_is_not_exist";
 
+    //MSCM
+    public static final String MSCM_ERROR = "gc.mscm_error";
 }

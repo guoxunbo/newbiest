@@ -23,10 +23,11 @@ import com.newbiest.gc.ExpressConfiguration;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.express.dto.WaybillDelivery;
-import com.newbiest.gc.model.ErpSo;
-import com.newbiest.gc.repository.ErpSoRepository;
 import com.newbiest.gc.service.ExpressService;
-import com.newbiest.mms.model.*;
+import com.newbiest.mms.model.DeliveryOrder;
+import com.newbiest.mms.model.DocumentLine;
+import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotHistory;
 import com.newbiest.mms.repository.DeliveryOrderRepository;
 import com.newbiest.mms.repository.DocumentLineRepository;
 import com.newbiest.mms.repository.MaterialLotHistoryRepository;
@@ -78,9 +79,6 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Autowired
     DocumentLineRepository documentLineRepository;
-
-    @Autowired
-    ErpSoRepository erpSoRepository;
 
     @Value("${spring.profiles.active}")
     private String profiles;

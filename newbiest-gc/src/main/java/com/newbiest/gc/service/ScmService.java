@@ -13,5 +13,7 @@ import java.util.List;
 public interface ScmService {
 
     void assignEngFlag(List<MaterialLotUnit> materialLotUnits) throws ClientException;
+    String getMScmToken() throws ClientException;
+    void addTracking(String orderId, String expressNumber, boolean isKuayueExprress) throws ClientException;
 
 }
