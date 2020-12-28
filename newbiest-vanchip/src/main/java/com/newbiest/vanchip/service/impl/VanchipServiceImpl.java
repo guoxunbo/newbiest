@@ -1,26 +1,28 @@
 package com.newbiest.vanchip.service.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.CollectorsUtils;
+import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.model.*;
+import com.newbiest.mms.model.Document;
+import com.newbiest.mms.model.IncomingOrder;
+import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.mms.repository.IncomingOrderRepository;
-import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.vanchip.service.VanChipService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.newbiest.vanchip.exception.VanchipExceptions.*;
+import static com.newbiest.vanchip.exception.VanchipExceptions.MLOT_BINDED_WORKORDER;
 
 /**
  * @author guoxunbo
@@ -98,14 +100,19 @@ public class VanchipServiceImpl implements VanChipService {
      */
     public void importIncomingOrder(List<MaterialLot> materialLots) throws ClientException {
         try {
+
             BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
 
+            //来料单创建即审核通过
             String documentId = generateIncomingDocId();
             IncomingOrder incomingOrder = new IncomingOrder();
             incomingOrder.setName(documentId);
             incomingOrder.setDescription(documentId);
             incomingOrder.setQty(totalQty);
             incomingOrder.setUnHandledQty(totalQty);
+            incomingOrder.setStatus(Document.STATUS_APPROVE);
+            incomingOrder.setApproveTime(DateUtils.now());
+            incomingOrder.setApproveUser(ThreadLocalContext.getUsername());
             incomingOrder = (IncomingOrder) baseService.saveEntity(incomingOrder);
 
             List<MaterialLot> documentMaterialLots = Lists.newArrayList();
