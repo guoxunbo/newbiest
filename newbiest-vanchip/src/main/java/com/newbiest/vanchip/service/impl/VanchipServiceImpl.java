@@ -8,11 +8,13 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.PropertyUtils;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.IncomingOrderRepository;
+import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialStatusModel;
@@ -26,7 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.newbiest.vanchip.exception.VanchipExceptions.*;
 
 /**
  * @author guoxunbo
@@ -36,6 +41,9 @@ import java.util.stream.Collectors;
 @Component
 @Transactional
 public class VanchipServiceImpl implements VanChipService {
+
+    public static final String BIND_WO = "BindWo";
+    public static final String UNBIND_WO = "UnbindWo";
 
     @Autowired
     BaseService baseService;
@@ -51,6 +59,38 @@ public class VanchipServiceImpl implements VanChipService {
 
     @Autowired
     IncomingOrderRepository incomingOrderRepository;
+
+    public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> {
+                return mmsService.getMLotByMLotId(materialLotId, true);
+            }).collect(Collectors.toList());
+            Optional<MaterialLot> bindedMLot = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getWorkOrderId())).findFirst();
+            if (bindedMLot.isPresent()) {
+                throw new ClientParameterException(MLOT_BINDED_WORKORDER, bindedMLot.get().getMaterialLotId());
+            }
+            for (MaterialLot materialLot : materialLots) {
+                materialLot.setWorkOrderId(workOrderId);
+                baseService.saveEntity(materialLot, BIND_WO);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void unbindMesOrder(List<String> materialLotIdList) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> {
+                return mmsService.getMLotByMLotId(materialLotId, true);
+            }).collect(Collectors.toList());
+            for (MaterialLot materialLot : materialLots) {
+                materialLot.setWorkOrderId(StringUtils.EMPTY);
+                baseService.saveEntity(materialLot, UNBIND_WO);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     /**
      * 来料导入
