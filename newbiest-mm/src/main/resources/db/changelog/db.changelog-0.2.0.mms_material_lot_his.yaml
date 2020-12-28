@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.2.0
+      author: Guozhang Luo
+      remarks: mms_material_lot_his add column SOURCE_MODEL_ID
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: SOURCE_MODEL_ID
+                  type: varchar(64)
+                  remarks: 记录产品打印型号替换的源产品号

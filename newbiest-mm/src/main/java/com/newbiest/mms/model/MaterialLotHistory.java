@@ -386,6 +386,12 @@ public class MaterialLotHistory extends NBHis {
     private Date shippingDate;
 
     /**
+     * 记录被产品打印型号替换的产品号
+     */
+    @Column(name="SOURCE_MODEL_ID")
+    private String sourceModelId;
+
+    /**
      * GlaxyCore MES完成品的levelTwoCode
      */
     @Column(name="RESERVED1")

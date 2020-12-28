@@ -2440,6 +2440,7 @@ public class GcServiceImpl implements GcService {
                     materialLotAction.setMaterialLotId(mesPackedLot.getBoxId());
                     materialLotAction.setGrade(mesPackedLot.getGrade());
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
+                    materialLotAction.setSourceModelId(mesPackedLot.getProductId());
 
                     // 真空包产地是SH的入SH仓库，是ZJ的入浙江仓库
                     // 20191217 产地是空的话则是ZJ仓库

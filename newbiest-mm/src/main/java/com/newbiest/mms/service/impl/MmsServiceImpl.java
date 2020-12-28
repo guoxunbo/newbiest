@@ -899,6 +899,7 @@ public class MmsServiceImpl implements MmsService {
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
                 history.buildByMaterialLotAction(materialLotAction);
+                history.setSourceModelId(materialLotAction.getSourceModelId());
                 materialLotHistoryRepository.save(history);
                 materialLots.add(materialLot);
             }
