@@ -21,6 +21,7 @@ public class MesPackedLot implements Serializable {
     public static final String PACKED_STATUS_RECEIVED = "RECEIVED";
 
     public static final String PRODUCT_CATEGORY_FT = "FT";
+    public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
     public static final String PRODUCT_CATEGORY_WLT = "WLT";
     public static final String PRODUCT_CATEGORY_CP = "CP";
     public static final String PRODUCT_CATEGORY_COM = "COM";

@@ -10,5 +10,9 @@ public class GCRawMaterialSaveRequest extends Request {
 
     public static final String MESSAGE_NAME = "GCRawMaterialManager";
 
+    public static final String ACTION_TYPE_CREATE = "Create";
+
+    public static final String ACTION_TYPE_RECEIVE = "Receive";
+
     private GCRawMaterialSaveRequestBody body;
 }
