@@ -449,3 +449,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.RMAMLotLabelPrint.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RawMaterialReceive.nb_authority.yaml
+      relativeToChangelogFile: true

@@ -1,7 +1,9 @@
 package com.newbiest.gc.rest.GCRawMaterialImportManager.RawMaterialSave;
 
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.msg.Request;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,7 @@ public class GCRawMaterialSaveController {
     @Autowired
     GcService gcService;
 
-    @ApiOperation(value = "来料导入数据保存", notes = "save")
+    @ApiOperation(value = "原材料处理", notes = "rawMaterialManger")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "GCRawMaterialImportRequest")
     @RequestMapping(value = "/RawMaterialSave", method = RequestMethod.POST)
     public GCRawMaterialSaveResponse excute(@RequestBody GCRawMaterialSaveRequest request)throws Exception {
@@ -30,9 +32,16 @@ public class GCRawMaterialSaveController {
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         GCRawMaterialSaveResponseBody responseBody = new GCRawMaterialSaveResponseBody();
 
+        String actionType = requestBody.getActionType();
         List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
-        String  importCode =gcService.importRawMaterialLotList(materialLotList,requestBody.getImportType());
-        responseBody.setImportCode(importCode);
+        if(GCRawMaterialSaveRequest.ACTION_TYPE_CREATE.equals(actionType)){
+            String  importCode =gcService.importRawMaterialLotList(materialLotList,requestBody.getImportType());
+            responseBody.setImportCode(importCode);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_RECEIVE.equals(actionType)){
+            gcService.receiveRawMaterial(materialLotList);
+        } else {
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+        }
         response.setBody(responseBody);
         return response;
     }

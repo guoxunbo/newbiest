@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCRawMaterialReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRawMaterialReceiveManager
+              description: 原材料接收管理
+              tableName: GCRawMaterialReceive
+              url: /RawMaterial/GCRawMaterialReceive
+              parentRrn: 2030
+              seqNo: 20
+              image: icon-delivery
+              labelZh: 原材料接收
+              labelEn: RawMaterialReceive

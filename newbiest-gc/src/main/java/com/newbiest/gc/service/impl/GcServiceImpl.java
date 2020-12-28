@@ -7206,6 +7206,10 @@ public class GcServiceImpl implements GcService {
     @Override
     public String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws  ClientException{
         try {
+            Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_ZJ);
+            if (warehouse == null) {
+                throw new ClientParameterException(MmsException.MM_WAREHOUSE_IS_NOT_EXIST, WAREHOUSE_ZJ);
+            }
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
             SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
             String importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
@@ -7232,6 +7236,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setStatusModelRrn(rawMaterial.getStatusModelRrn());
                     materialLot.initialMaterialLot();
                     materialLot.setProductType(StringUtils.EMPTY);
+                    materialLot.setReserved13(warehouse.getObjectRrn().toString());
                     materialLot.setReserved48(importCode);
                     materialLot.setReserved49(importType);
                     if(!StringUtils.isNullOrEmpty(materialLot.getMfgDateValue())){
@@ -7812,6 +7817,33 @@ public class GcServiceImpl implements GcService {
             }
             return parameterMap;
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 原材料接收
+     * @param materialLotList
+     * @throws ClientException
+     */
+    public void receiveRawMaterial(List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                Warehouse warehouse = new Warehouse();
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
+                    warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
+                }
+                if(warehouse == null){
+                    throw new ClientParameterException(GcExceptions.WAREHOUSE_CANNOT_EMPTY);
+                }
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+                materialLotAction.setTransQty(materialLot.getCurrentQty());
+                materialLotAction.setTransCount(materialLot.getCurrentSubQty());
+                mmsService.stockIn(materialLot, materialLotAction);
+            }
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

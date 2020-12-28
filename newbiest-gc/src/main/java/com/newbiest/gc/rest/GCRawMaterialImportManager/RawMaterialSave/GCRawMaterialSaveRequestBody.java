@@ -14,6 +14,9 @@ public class GCRawMaterialSaveRequestBody extends RequestBody {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "操作类型")
+    private String actionType;
+
     @ApiModelProperty(value = "来料导入类型")
     private String importType;
 
