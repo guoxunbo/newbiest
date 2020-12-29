@@ -1,5 +1,7 @@
-package com.newbiest.vanchip.rest.IncomingMatLotManager.Receive;
+package com.newbiest.vanchip.rest.incoming.mlot.receive;
 
+import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.msg.Request;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.vanchip.service.VanChipService;
@@ -34,21 +36,20 @@ public class IncomingMaterialImportReceiveController {
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         IncomingMaterialImportReceiveResponseBody responseBody = new IncomingMaterialImportReceiveResponseBody();
 
-        String action = requestBody.getActionType();
-        if(IncomingMaterialImportReceiveRequest.ACTION_TYPE_RECEIVE.equals(action)){
+        String actionType = requestBody.getActionType();
+        String incomingDocId =requestBody.getDocId();
+        if(IncomingMaterialImportReceiveRequest.ACTION_TYPE_RECEIVE.equals(actionType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLots();
-            String docId =requestBody.getDocId();
             //接收业务
-            documentService.receiveIncomingLot(docId, materialLotList);
-        }else if (IncomingMaterialImportReceiveRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(action)){
+            documentService.receiveIncomingLot(incomingDocId, materialLotList);
+        }else if (IncomingMaterialImportReceiveRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
             //获得根据单据号获得materialLot
-            List<MaterialLot> materialLots =  vanChipService.getMaterialLotByDocId(requestBody.getDocId());
+            List<MaterialLot> materialLots =  vanChipService.getMaterialLotByIncomingDocId(incomingDocId);
             responseBody.setMaterialLotList(materialLots);
         }else {
-
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }
         response.setBody(responseBody);
-
         return response;
     }
 }

@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMatLotManager.Import;
+package com.newbiest.vanchip.rest.incoming.mlot.imp;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

@@ -85,10 +85,8 @@ public class VanchipServiceImpl implements VanChipService {
     }
 
     @Override
-    public List<MaterialLot> getMaterialLotByDocId(String docId) {
-        StringBuffer whereClause = new StringBuffer();
-        whereClause.append(" incomingDocId = '" + docId + "'");
-        return materialLotRepository.findAll(whereClause.toString(),"");
+    public List<MaterialLot> getMaterialLotByIncomingDocId(String incomingDocId) {
+        return materialLotRepository.findByIncomingDocId(incomingDocId);
     }
 
     public void unbindMesOrder(List<String> materialLotIdList) throws ClientException{

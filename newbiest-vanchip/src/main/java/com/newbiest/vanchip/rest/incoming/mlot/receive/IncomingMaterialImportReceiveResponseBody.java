@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMatLotManager.Receive;
+package com.newbiest.vanchip.rest.incoming.mlot.receive;
 
 import com.newbiest.base.msg.ResponseBody;
 import com.newbiest.mms.model.MaterialLot;

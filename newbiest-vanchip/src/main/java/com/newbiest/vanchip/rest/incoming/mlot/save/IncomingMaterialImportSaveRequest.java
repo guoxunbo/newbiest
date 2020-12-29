@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMatLotManager.Save;
+package com.newbiest.vanchip.rest.incoming.mlot.save;
 
 import com.newbiest.base.msg.Request;
 import io.swagger.annotations.ApiModel;
