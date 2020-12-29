@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMaterialImportManager.IncomingMaterialImport;
+package com.newbiest.vanchip.rest.IncomingMatLotManager.Import;
 
 import com.newbiest.base.msg.Request;
 import io.swagger.annotations.ApiModel;
