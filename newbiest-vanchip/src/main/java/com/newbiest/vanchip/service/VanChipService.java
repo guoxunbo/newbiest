@@ -12,4 +12,7 @@ import java.util.List;
 public interface VanChipService {
 
     void importIncomingOrder(List<MaterialLot> materialLots) throws ClientException;
+
+    void unbindMesOrder(List<String> materialLotIdList) throws ClientException;
+    void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException;
 }
