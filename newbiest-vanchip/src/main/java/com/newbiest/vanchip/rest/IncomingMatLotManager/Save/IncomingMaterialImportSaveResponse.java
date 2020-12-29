@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMaterialImportManager.IncomingMaterialImportSave;
+package com.newbiest.vanchip.rest.IncomingMatLotManager.Save;
 
 import com.newbiest.base.msg.Response;
 import lombok.Data;

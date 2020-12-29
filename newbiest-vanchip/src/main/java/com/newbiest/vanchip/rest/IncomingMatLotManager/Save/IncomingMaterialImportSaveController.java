@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMaterialImportManager.IncomingMaterialImportSave;
+package com.newbiest.vanchip.rest.IncomingMatLotManager.Save;
 
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.service.VanChipService;
@@ -22,7 +22,7 @@ public class IncomingMaterialImportSaveController {
     VanChipService vanChipService;
 
     @ApiOperation(value = "来料导入数据保存", notes = "save")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "IncomingMaterialImportRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "IncomingMaterialImportSaveRequest")
     @RequestMapping(value = "/IncomingMaterialSave", method = RequestMethod.POST)
     public IncomingMaterialImportSaveResponse excute(@RequestBody IncomingMaterialImportSaveRequest request)throws Exception {
         IncomingMaterialImportSaveRequestBody requestBody = request.getBody();

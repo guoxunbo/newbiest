@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id:  modifyDataType-0.0.1.material_lot_his
+      author:  Tao Zhou
+      remarks: MMS_MATERIAL_LOT_HIS  modifyDataType
+      changes:
+        -  modifyDataType:
+             columnName:  INCOMING_DOC_ID
+             newDataType:  varchar(64)
+             tableName:  MMS_MATERIAL_LOT_HIS
+        -  modifyDataType:
+             columnName:  SHIP_DOC_ID
+             newDataType:  varchar(64)
+             tableName:  MMS_MATERIAL_LOT_HIS

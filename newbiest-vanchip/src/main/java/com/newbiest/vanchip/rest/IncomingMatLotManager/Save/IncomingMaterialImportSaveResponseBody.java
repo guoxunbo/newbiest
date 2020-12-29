@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMaterialImportManager.IncomingMaterialImportSave;
+package com.newbiest.vanchip.rest.IncomingMatLotManager.Save;
 
 import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;
@@ -8,5 +8,4 @@ public class IncomingMaterialImportSaveResponseBody extends ResponseBody {
 
     private static final long serialVersionUID = 1L;
 
-    private String importCode;
 }

@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMaterialImportManager.IncomingMaterialImportSave;
+package com.newbiest.vanchip.rest.IncomingMatLotManager.Save;
 
 import com.newbiest.base.msg.RequestBody;
 import com.newbiest.mms.model.MaterialLot;
@@ -13,9 +13,6 @@ import java.util.List;
 public class IncomingMaterialImportSaveRequestBody extends RequestBody {
 
     private static final long serialVersionUID = 1L;
-
-    @ApiModelProperty(value = "来料导入类型")
-    private String importType;
 
     @ApiModelProperty(value = "来料信息")
     private List<MaterialLot> materialLotList;
