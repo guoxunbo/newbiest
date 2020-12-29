@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.record.express;
 
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.mms.model.DeliveryOrder;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -55,7 +56,7 @@ public class RecordExpressRequestBody extends RequestBody {
 	 * 老版本的记录快递接口使用
 	 */
 	@Deprecated
-	private List<DeliveryOrder> deliveryOrderList;
+	private List<DocumentLine> documentLineList;
 
 	@ApiModelProperty(value = "快递单信息")
 	private List<OrderInfo> orderList;

@@ -370,18 +370,18 @@ public class ExpressServiceImpl implements ExpressService {
     }
 
     /**
-     * 单据上记录快递单号，将快递单号回写至中间表OTHER19字段
+     * 单据上记录快递单号
      * @return
      * @throws ClientException
      */
-    public List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException {
-        List<DeliveryOrder> deliveryOrderList = Lists.newArrayList();
-        for (DeliveryOrder deliveryOrder : deliveryOrders) {
-            deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
-            deliveryOrderList.add(deliveryOrder);
-            baseService.saveHistoryEntity(deliveryOrder, "RecordExpress");
+    public List<DocumentLine> recordExpressNumber(List<DocumentLine> documentLines) throws ClientException {
+        List<DocumentLine> documentLineList = Lists.newArrayList();
+        for (DocumentLine documentLine : documentLines) {
+            documentLine = documentLineRepository.saveAndFlush(documentLine);
+            documentLineList.add(documentLine);
+            baseService.saveHistoryEntity(documentLine, "RecordExpress");
         }
-        return deliveryOrderList;
+        return documentLineList;
     }
 
     public List<Map<String,String>> getPrintLabelParameterList(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{

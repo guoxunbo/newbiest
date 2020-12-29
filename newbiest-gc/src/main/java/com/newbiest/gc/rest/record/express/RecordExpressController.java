@@ -6,6 +6,7 @@ import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.service.ExpressService;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.DeliveryOrder;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
@@ -59,8 +60,8 @@ public class RecordExpressController {
         } else if (RecordExpressRequestBody.ACTION_TYPE_CANCEL_ORDER.equals(actionType)) {
             expressService.cancelOrderByMaterialLots(requestBody.getMaterialLots());
         } else if (RecordExpressRequestBody.ACTION_TYPE_OLD_RECORD_ORDER.equals(actionType)) {
-            List<DeliveryOrder> deliveryOrders = expressService.recordExpressNumber(requestBody.getDeliveryOrderList());
-            responseBody.setDeliveryOrderList(deliveryOrders);
+            List<DocumentLine> deliveryOrders = expressService.recordExpressNumber(requestBody.getDocumentLineList());
+            responseBody.setDocumentLineList(deliveryOrders);
         } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_PRINTPARAMETER.equals(actionType)){
             parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(), requestBody.getExpressNumber());
             responseBody.setParameterMapList(parameterMapList);

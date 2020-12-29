@@ -1703,6 +1703,9 @@ public class GcServiceImpl implements GcService {
                 validationStockDocLine(documentLine, materialLot);
             }
 
+            //获取第一箱的快递单号
+            String expressNumber = materialLots.get(0).getExpressNumber();
+
             BigDecimal handledQty = BigDecimal.ZERO;
             for (MaterialLot materialLot : materialLots) {
                 handledQty = handledQty.add(materialLot.getCurrentQty());
@@ -1729,6 +1732,7 @@ public class GcServiceImpl implements GcService {
             documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
             documentLine.setUnHandledQty(unHandleQty);
+            documentLine.setExpressNumber(expressNumber);
             documentLine = documentLineRepository.saveAndFlush(documentLine);
             baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SHIP);
 
@@ -1747,7 +1751,7 @@ public class GcServiceImpl implements GcService {
             ErpSo erpSo = erpSoOptional.get();
             erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
             erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
-            erpSo.setOther19(deliveryOrder.getReserved2());
+            erpSo.setOther19(documentLine.getExpressNumber());
             if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
                 erpSo.setDeliveredNum(handledQty.toPlainString());
             } else {
@@ -1759,7 +1763,7 @@ public class GcServiceImpl implements GcService {
 
             if (SystemPropertyUtils.getConnectScmFlag()) {
                 boolean kuayueExpressFlag = MaterialLot.PLAN_ORDER_TYPE_AUTO.equals(materialLots.get(0).getPlanOrderType()) ? true : false;
-                scmService.addTracking(deliveryOrder.getName(), deliveryOrder.getReserved2(), kuayueExpressFlag);
+                scmService.addTracking(documentLine.getDocId(), documentLine.getExpressNumber(), kuayueExpressFlag);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

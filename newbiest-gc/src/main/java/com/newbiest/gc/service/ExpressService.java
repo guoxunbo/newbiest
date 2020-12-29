@@ -3,6 +3,7 @@ package com.newbiest.gc.service;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.mms.model.DeliveryOrder;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ public interface ExpressService {
     List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException;
     void cancelOrderByMaterialLots(List<MaterialLot> materialLots) throws ClientException;
 
-    List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException;
+    List<DocumentLine> recordExpressNumber(List<DocumentLine> documentLineList) throws ClientException;
 
     List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException;
 
