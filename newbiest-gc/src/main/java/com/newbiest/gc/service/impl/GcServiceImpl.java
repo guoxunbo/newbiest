@@ -7120,9 +7120,10 @@ public class GcServiceImpl implements GcService {
             if(packedLotMap != null && packedLotMap.keySet().size() > 0){
                 for(String parentMaterialLotId : packedLotMap.keySet()){
                     MaterialLot materialLot = mmsService.getMLotByMLotId(parentMaterialLotId, true);
-                    if(totalNumber.compareTo(materialLot.getCurrentQty()) == 0){
+                    BigDecimal unreservedQty = materialLot.getCurrentQty().subtract(materialLot.getReservedQty());
+                    if(totalNumber.compareTo(unreservedQty) == 0){
                         wholeBoxMLots.add(materialLot);
-                    } else if(totalNumber.compareTo(materialLot.getCurrentQty()) > 0){
+                    } else if(totalNumber.compareTo(unreservedQty) > 0){
                         zeroBoxMLots.add(materialLot);
                     } else {
                         throw new ClientParameterException(GcExceptions.MATERIALLOT_PACKAGE_RULE_IS_ERROR, parentMaterialLotId);
@@ -7166,9 +7167,10 @@ public class GcServiceImpl implements GcService {
                 if(CollectionUtils.isNotEmpty(zeroBoxMLots)){
                     List<MaterialLot> zeroBoxMLotList = zeroBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
                     for (MaterialLot materialLot: zeroBoxMLotList){
-                        if(totalQty.compareTo(materialLot.getCurrentQty()) >= 0){
+                        BigDecimal unreservedQty = materialLot.getCurrentQty().subtract(materialLot.getReservedQty());
+                        if(totalQty.compareTo(unreservedQty) >= 0){
                             materialLotList.addAll(packedLotMap.get(materialLot.getMaterialLotId()));
-                            totalQty = totalQty.subtract(materialLot.getCurrentQty());
+                            totalQty = totalQty.subtract(unreservedQty);
                         }
                     }
                 }
