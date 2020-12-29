@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMatLotManager.Save;
+package com.newbiest.vanchip.rest.IncomingMaterialImportManager.IncomingMaterialImportSave;
 
 import com.newbiest.base.msg.Request;
 import io.swagger.annotations.ApiModel;
@@ -8,7 +8,7 @@ import lombok.Data;
 @ApiModel
 public class IncomingMaterialImportSaveRequest extends Request {
 
-    public static final String MESSAGE_NAME = "IncomingMaterialImportManagers";
+    public static final String MESSAGE_NAME = "GCRawMaterialManager";
 
     private IncomingMaterialImportSaveRequestBody body;
 }

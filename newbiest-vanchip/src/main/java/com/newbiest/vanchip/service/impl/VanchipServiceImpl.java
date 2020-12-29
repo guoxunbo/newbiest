@@ -1,6 +1,7 @@
 package com.newbiest.vanchip.service.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
@@ -10,16 +11,14 @@ import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.model.IncomingOrder;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.RawMaterial;
+import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.IncomingOrderRepository;
-import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.vanchip.service.VanChipService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,9 +51,6 @@ public class VanchipServiceImpl implements VanChipService {
 
     @Autowired
     IncomingOrderRepository incomingOrderRepository;
-
-    @Autowired
-    MaterialLotRepository materialLotRepository;
 
     /**
      * 来料导入
@@ -94,13 +90,6 @@ public class VanchipServiceImpl implements VanChipService {
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
-    }
-
-    @Override
-    public List<MaterialLot> getMaterialLotByDocId(String docId) {
-        StringBuffer whereClause = new StringBuffer();
-        whereClause.append(" incomingDocId = '" + docId + "'");
-        return materialLotRepository.findAll(whereClause.toString(),"");
     }
 
     private String generateIncomingDocId() throws ClientException {

@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMatLotManager.Save;
+package com.newbiest.vanchip.rest.IncomingMaterialImportManager.IncomingMaterialImportSave;
 
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.service.VanChipService;

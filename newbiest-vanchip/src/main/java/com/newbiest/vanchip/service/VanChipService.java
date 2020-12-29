@@ -12,6 +12,4 @@ import java.util.List;
 public interface VanChipService {
 
     void importIncomingOrder(List<MaterialLot> materialLots) throws ClientException;
-
-    List<MaterialLot> getMaterialLotByDocId(String docId);
 }
