@@ -18,6 +18,7 @@ import com.newbiest.mms.model.IncomingOrder;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.mms.repository.IncomingOrderRepository;
+import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialStatusModel;
@@ -62,6 +63,9 @@ public class VanchipServiceImpl implements VanChipService {
     @Autowired
     IncomingOrderRepository incomingOrderRepository;
 
+    @Autowired
+    MaterialLotRepository materialLotRepository;
+
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> {
@@ -78,6 +82,11 @@ public class VanchipServiceImpl implements VanChipService {
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
+    }
+
+    @Override
+    public List<MaterialLot> getMaterialLotByIncomingDocId(String incomingDocId) {
+        return materialLotRepository.findByIncomingDocId(incomingDocId);
     }
 
     public void unbindMesOrder(List<String> materialLotIdList) throws ClientException{

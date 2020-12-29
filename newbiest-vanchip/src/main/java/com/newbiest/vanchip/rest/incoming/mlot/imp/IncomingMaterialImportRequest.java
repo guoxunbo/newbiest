@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.IncomingMaterialImportManager.IncomingMaterialImport;
+package com.newbiest.vanchip.rest.incoming.mlot.imp;
 
 import com.newbiest.base.msg.Request;
 import io.swagger.annotations.ApiModel;
@@ -9,7 +9,7 @@ import lombok.Data;
 public class IncomingMaterialImportRequest extends Request {
 
 
-    public static final String MESSAGE_NAME = "GCRawMaterialManager";
+    public static final String MESSAGE_NAME = "IncomingMaterialImportManager";
 
     public static final String NB_TABLE_NAME = "IncomingMaterialImport";
 
