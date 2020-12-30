@@ -22,5 +22,7 @@ public interface DocumentService {
 
     void createIssueLotOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
     void createIssueMaterialOrder(String documentId, boolean approveFlag, Map<String, BigDecimal> rawMaterialQtyMap) throws ClientException;
+    void issueReservedMLot(String issueLotOrderId, List<String> materialLotIdList) throws ClientException;
 
 }
+

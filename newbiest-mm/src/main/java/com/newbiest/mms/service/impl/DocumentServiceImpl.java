@@ -173,6 +173,8 @@ public class DocumentServiceImpl implements DocumentService {
             }
             List<MaterialLot> materialLots = materialLotRepository.findReservedLotsByDocId(issueLotOrder.getName());
 
+            BigDecimal handleQty = BigDecimal.ZERO;
+
             for (String materialLotId : materialLotIdList) {
                 Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
                 if (!existMaterialLotOptional.isPresent()) {
@@ -183,8 +185,12 @@ public class DocumentServiceImpl implements DocumentService {
                 if (!MaterialStatus.STATUS_RESERVED.equals(materialLot.getStatus())) {
                     throw new ClientParameterException(DOCUMENT_NOT_RESERVED_MLOT, materialLotId);
                 }
-                
+                handleQty = handleQty.add(materialLot.getCurrentQty());
+                mmsService.issue(materialLot);
             }
+            issueLotOrder.setHandledQty(issueLotOrder.getHandledQty().add(handleQty));
+            issueLotOrder.setUnHandledQty(issueLotOrder.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(issueLotOrder, DocumentHistory.TRANS_TYPE_ISSUE);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

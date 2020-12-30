@@ -27,7 +27,7 @@ public class IssueMLotController extends AbstractRestController {
 
     @ApiOperation(value = "发料")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "IssueMLotRequest")
-    @RequestMapping(value = "/issueMaterial", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/issueMLot", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public IssueMLotResponse execute(@RequestBody IssueMLotRequest request) throws Exception {
         IssueMLotResponse response = new IssueMLotResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
