@@ -14,6 +14,7 @@ import java.util.List;
 public class DocumentHistory extends NBUpdatable {
 
     public static final String TRANS_TYPE_APPROVE = "Approve";
+    public static final String TRANS_TYPE_ISSUE = "Issue";
 
     @Column(name="NAME")
     private String name;
