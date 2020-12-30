@@ -16,6 +16,9 @@ public class ReceiveMLotRequestBody extends RequestBody {
 	private static final long serialVersionUID = 1L;
 
 	@ApiModelProperty(value = "单据号")
+	private String actionType;
+
+	@ApiModelProperty(value = "单据号")
 	private String documentId;
 
 	@ApiModelProperty(value = "物料批次")

@@ -1,5 +1,6 @@
 package com.newbiest.vanchip.rest.incoming.mlot.save;
 
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -31,7 +32,7 @@ public class IncomingMaterialImportSaveController {
         IncomingMaterialImportSaveResponseBody responseBody = new IncomingMaterialImportSaveResponseBody();
 
         List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
-        vanChipService.importIncomingOrder(materialLotList);
+        vanChipService.importIncomingOrder(StringUtils.EMPTY, materialLotList);
         response.setBody(responseBody);
         return response;
     }

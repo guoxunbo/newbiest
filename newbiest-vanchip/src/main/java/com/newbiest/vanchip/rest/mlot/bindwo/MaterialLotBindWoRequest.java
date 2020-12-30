@@ -8,7 +8,7 @@ import lombok.Data;
 @ApiModel(value = "MaterialLotBindWoRequest")
 public class MaterialLotBindWoRequest extends Request {
 
-    public static final String MESSAGE_NAME = "GCRawMaterialManager";
+    public static final String MESSAGE_NAME = "MaterialLotBindWo";
 
     public static final String ACTION_TYPE_BIND = "Bind";
     public static final String ACTION_TYPE_UNBIND = "Unbind";

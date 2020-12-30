@@ -940,4 +940,9 @@ public class MmsServiceImpl implements MmsService {
     public Warehouse getWarehouseByName(String name) throws ClientException {
         return warehouseRepository.findOneByName(name);
     }
+
+    public List<MaterialLot> getMLotByIncomingDocId(String incomingDocId) throws ClientException {
+        return materialLotRepository.findByIncomingDocId(incomingDocId);
+    }
+
 }

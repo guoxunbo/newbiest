@@ -1,17 +1,16 @@
 package com.newbiest.vanchip.service.impl;
 
 import com.google.common.collect.Lists;
+import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
-import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.CollectorsUtils;
-import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
-import com.newbiest.common.idgenerator.utils.GeneratorContext;
+import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.Document;
 import com.newbiest.mms.model.IncomingOrder;
@@ -43,6 +42,7 @@ import static com.newbiest.vanchip.exception.VanchipExceptions.MLOT_BINDED_WORKO
 @Slf4j
 @Component
 @Transactional
+@BaseJpaFilter
 public class VanchipServiceImpl implements VanChipService {
 
     public static final String BIND_WO = "BindWo";
@@ -68,9 +68,7 @@ public class VanchipServiceImpl implements VanChipService {
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> {
-                return mmsService.getMLotByMLotId(materialLotId, true);
-            }).collect(Collectors.toList());
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
             Optional<MaterialLot> bindedMLot = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getWorkOrderId())).findFirst();
             if (bindedMLot.isPresent()) {
                 throw new ClientParameterException(MLOT_BINDED_WORKORDER, bindedMLot.get().getMaterialLotId());
@@ -84,16 +82,9 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
-    @Override
-    public List<MaterialLot> getMaterialLotByIncomingDocId(String incomingDocId) {
-        return materialLotRepository.findByIncomingDocId(incomingDocId);
-    }
-
     public void unbindMesOrder(List<String> materialLotIdList) throws ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> {
-                return mmsService.getMLotByMLotId(materialLotId, true);
-            }).collect(Collectors.toList());
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setWorkOrderId(StringUtils.EMPTY);
                 baseService.saveEntity(materialLot, UNBIND_WO);
@@ -107,21 +98,23 @@ public class VanchipServiceImpl implements VanChipService {
      * 来料导入
      * @param materialLots
      */
-    public void importIncomingOrder(List<MaterialLot> materialLots) throws ClientException {
+    public void importIncomingOrder(String incomingDocId, List<MaterialLot> materialLots) throws ClientException {
         try {
-
             BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
 
             //来料单创建即审核通过
-            String documentId = generateIncomingDocId();
-            IncomingOrder incomingOrder = new IncomingOrder();
-            incomingOrder.setName(documentId);
-            incomingOrder.setDescription(documentId);
+            if (StringUtils.isNullOrEmpty(incomingDocId)) {
+                incomingDocId = documentService.generatorDocId(IncomingOrder.GENERATOR_INCOMING_ORDER_ID_RULE);
+            }
+            IncomingOrder incomingOrder = incomingOrderRepository.findOneByName(incomingDocId);
+            if (incomingOrder != null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, incomingDocId);
+            }
+            incomingOrder = new IncomingOrder();
+            incomingOrder.setName(incomingDocId);
             incomingOrder.setQty(totalQty);
             incomingOrder.setUnHandledQty(totalQty);
             incomingOrder.setStatus(Document.STATUS_APPROVE);
-            incomingOrder.setApproveTime(DateUtils.now());
-            incomingOrder.setApproveUser(ThreadLocalContext.getUsername());
             incomingOrder = (IncomingOrder) baseService.saveEntity(incomingOrder);
 
             List<MaterialLot> documentMaterialLots = Lists.newArrayList();
@@ -148,11 +141,7 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
-    private String generateIncomingDocId() throws ClientException {
-        GeneratorContext generatorContext = new GeneratorContext();
-        generatorContext.setRuleName(IncomingOrder.GENERATOR_INCOMING_ORDER_ID_RULE);
-        return generatorService.generatorId(generatorContext);
-    }
+
 
 
 }
