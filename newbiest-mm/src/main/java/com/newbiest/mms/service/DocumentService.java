@@ -2,6 +2,7 @@ package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.model.Document;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 
 import java.math.BigDecimal;
@@ -22,7 +23,8 @@ public interface DocumentService {
 
     void createIssueLotOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
     void createIssueMaterialOrder(String documentId, boolean approveFlag, Map<String, BigDecimal> rawMaterialQtyMap) throws ClientException;
-    void issueReservedMLot(String issueLotOrderId, List<String> materialLotIdList) throws ClientException;
+    void issueMLotByDoc(String issueLotOrderId, List<String> materialLotIdList) throws ClientException;
+    void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
 
 }
 

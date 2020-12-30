@@ -178,6 +178,9 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    public List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException {
+        return materialLotRepository.findReservedLotsByDocId(documentId);
+    }
     /**
      * 发料
      *  此处只能全部发料 不存在发一部分的数量
