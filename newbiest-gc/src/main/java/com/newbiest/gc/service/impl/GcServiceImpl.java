@@ -3177,32 +3177,27 @@ public class GcServiceImpl implements GcService {
             GCProductWeightRelation productWeightRelation = new GCProductWeightRelation();
             BigDecimal totalWeight = BigDecimal.ZERO;
             String materialName = materialLot.getMaterialName();
-            String productCategory = materialLot.getReserved7();
             List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
             if(CollectionUtils.isNotEmpty(packageDetailLots)){
                 List<GCProductWeightRelation> productWeightRelations = productWeightRelationRepository.findByProductId(materialName);
                 if(CollectionUtils.isNotEmpty(productWeightRelations)){
-                    if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(productCategory) && productWeightRelations.size() > 1){
-                        throw new ClientParameterException(GcExceptions.PRODUCT_WEIGHT_RELATION_IS_NOT_EXIST_OR_ERROR, materialName);
-                    }
                     BigDecimal minPackageQty = productWeightRelations.get(0).getMinPackedQty();
                     BigDecimal maxPackageQty = productWeightRelations.get(0).getMaxPackedQty();
                     //获取箱中真空包的总重量
                     BigDecimal vboxTotalWeight = getPackedDetialTotalWeight(minPackageQty, maxPackageQty, packageDetailLots);
-
-                    //获取总重量的配置信息
-                    if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(productCategory)){
-                        productWeightRelation = productWeightRelations.get(0);
-                    } else {
+                    if(vboxTotalWeight.compareTo(BigDecimal.ZERO) > 0){
+                        //获取总重量的配置信息
                         productWeightRelation = validateAndGetProductRelationByPackedLotDetial(packageDetailLots, minPackageQty, maxPackageQty);
+                        if(productWeightRelation != null){
+                            totalWeight = totalWeight.add(vboxTotalWeight);
+                            BigDecimal packageChipWeight = productWeightRelation.getPackageChipWeight();//整包芯片数量
+                            BigDecimal packageNumber = productWeightRelation.getPackageQty();//整包颗数
+                            BigDecimal floatValue = productWeightRelation.getFloatQty();//整包颗数
+                            totalWeight = productWeightRelation.getBoxWeight().add(totalWeight).add(packageChipWeight.divide(packageNumber).multiply(materialLot.getCurrentQty()));
+                            materialLot.setTheoryWeight(totalWeight);
+                            materialLot.setFloatValue(floatValue);
+                        }
                     }
-                    totalWeight = totalWeight.add(vboxTotalWeight);
-                    BigDecimal packageChipWeight = productWeightRelation.getPackageChipWeight();//整包芯片数量
-                    BigDecimal packageNumber = productWeightRelation.getPackageQty();//整包颗数
-                    BigDecimal floatValue = productWeightRelation.getFloatQty();//整包颗数
-                    totalWeight = productWeightRelation.getBoxWeight().add(totalWeight).add(packageChipWeight.divide(packageNumber).multiply(materialLot.getCurrentQty()));
-                    materialLot.setTheoryWeight(totalWeight);
-                    materialLot.setFloatValue(floatValue);
                 }
             }
             return  materialLot;
@@ -3227,9 +3222,6 @@ public class GcServiceImpl implements GcService {
                     break;
                 }
             }
-            if(productWeightRelation == null){
-                throw new ClientParameterException(GcExceptions.PRODUCT_WEIGHT_RELATION_IS_NOT_EXIST_OR_ERROR, materialName);
-            }
             return productWeightRelation;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -3245,6 +3237,7 @@ public class GcServiceImpl implements GcService {
      */
     private BigDecimal getPackedDetialTotalWeight(BigDecimal minPackageQty, BigDecimal maxPackageQty, List<MaterialLot> packageDetailLots) throws ClientException{
         try {
+            boolean flag = false;
             //每包真空包重量=盘重量*（每包实际颗数/每盘芯片数+1）+盖重量*（每包实际颗数/每盘芯片数/盘数+1）+管夹重量*（每包实际颗数/每盘芯片数/盘数）
             BigDecimal totalWeight = BigDecimal.ZERO;
             GCProductWeightRelation relation = new GCProductWeightRelation();
@@ -3256,7 +3249,8 @@ public class GcServiceImpl implements GcService {
                     relation = productWeightRelationRepository.findByProductIdAndPackageQty(materialLot.getMaterialName(), maxPackageQty);
                 }
                 if(relation == null){
-                    throw new ClientParameterException(GcExceptions.PRODUCT_WEIGHT_RELATION_IS_NOT_EXIST_OR_ERROR, materialLot.getMaterialName());
+                    flag = true;
+                    break;
                 }
                 BigDecimal discWeight = relation.getDiscWeight();//盘重量
                 BigDecimal coverWeight = relation.getCoverWeight();//盖重量
@@ -3265,6 +3259,9 @@ public class GcServiceImpl implements GcService {
                 BigDecimal chipWeight = currentQty.divide(relation.getDiscChipQty());//每包平均芯片重量
                 BigDecimal vboxWeight = discWeight.multiply(chipWeight.add(BigDecimal.ONE)).add(coverWeight.multiply(chipWeight.divide(discQty).add(BigDecimal.ONE))).add(clipWeight.multiply(chipWeight.divide(discQty)));
                 totalWeight = totalWeight.add(vboxWeight);
+            }
+            if(flag){
+                totalWeight = BigDecimal.ZERO;
             }
             return totalWeight;
         } catch (Exception e) {
