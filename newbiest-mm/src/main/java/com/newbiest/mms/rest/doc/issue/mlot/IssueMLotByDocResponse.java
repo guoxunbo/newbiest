@@ -4,10 +4,10 @@ import com.newbiest.base.msg.Response;
 import lombok.Data;
 
 @Data
-public class IssueMLotResponse extends Response {
+public class IssueMLotByDocResponse extends Response {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private IssueMLotResponseBody body;
+	private IssueMLotByDocResponseBody body;
 	
 }

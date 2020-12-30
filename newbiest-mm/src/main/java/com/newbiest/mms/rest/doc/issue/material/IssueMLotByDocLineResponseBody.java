@@ -1,10 +1,10 @@
-package com.newbiest.mms.rest.doc.issue.mlot;
+package com.newbiest.mms.rest.doc.issue.material;
 
 import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;
 
 @Data
-public class IssueMLotResponseBody extends ResponseBody {
+public class IssueMLotByDocLineResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 

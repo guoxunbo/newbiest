@@ -9,11 +9,13 @@ import java.util.List;
 
 @Data
 @ApiModel("具体请求操作信息")
-public class IssueMLotRequestBody extends RequestBody {
+public class IssueMLotByDocRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
-	private DocumentLine documentLine;
+	private String actionType;
+
+	private String documentId;
 
 	private List<String> materialLotIdList;
 

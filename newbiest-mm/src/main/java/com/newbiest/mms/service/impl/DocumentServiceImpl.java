@@ -151,8 +151,46 @@ public class DocumentServiceImpl implements DocumentService {
                 documentLine.setDocRrn(issueMaterialOrder.getObjectRrn());
                 documentLine.setMaterial(rawMaterial);
                 documentLine.setQty(rawMaterialQtyMap.get(rawMaterialName));
-                documentLineRepository.save(documentLine);
+                documentLine.setUnHandledQty(rawMaterialQtyMap.get(rawMaterialName));
+                baseService.saveEntity(documentLine);
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 发料
+     *  根据物料清单发料，不卡控物料批次。只验证发料规则
+     * @param documentLine 发料明细单
+     * @param materialLotIdList 发料的物料批次
+     * @throws ClientException
+     */
+    public void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException {
+        try {
+            IssueMaterialOrder issueMaterialOrder = issueMaterialOrderRepository.findByObjectRrn(documentLine.getObjectRrn());
+            if (issueMaterialOrder == null) {
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, documentLine.getDocId());
+            }
+            if (!Document.STATUS_APPROVE.equals(issueMaterialOrder.getStatus())) {
+                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, documentLine.getDocId());
+            }
+            // TODO 维护单据规则，以及验证规则
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
+            BigDecimal handleQty = BigDecimal.ZERO;
+
+            for (MaterialLot materialLot : materialLots) {
+                handleQty = handleQty.add(materialLot.getCurrentQty());
+                mmsService.issue(materialLot);
+            }
+
+            documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
+            documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(documentLine, DocumentHistory.TRANS_TYPE_ISSUE);
+
+            issueMaterialOrder.setHandledQty(issueMaterialOrder.getHandledQty().add(handleQty));
+            issueMaterialOrder.setUnHandledQty(issueMaterialOrder.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(issueMaterialOrder, DocumentHistory.TRANS_TYPE_ISSUE);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -165,22 +203,23 @@ public class DocumentServiceImpl implements DocumentService {
      * @param materialLotIdList 发料的物料批次
      * @throws ClientException
      */
-    public void issueReservedMLot(String issueLotOrderId, List<String> materialLotIdList) throws ClientException {
+    public void issueMLotByDoc(String issueLotOrderId, List<String> materialLotIdList) throws ClientException {
         try {
             IssueLotOrder issueLotOrder = issueLotOrderRepository.findOneByName(issueLotOrderId);
-            if (issueLotOrder != null) {
+            if (issueLotOrder == null) {
                 throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, issueLotOrder);
+            }
+            if (!Document.STATUS_APPROVE.equals(issueLotOrder.getStatus())) {
+                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, issueLotOrder.getName());
             }
             List<MaterialLot> materialLots = materialLotRepository.findReservedLotsByDocId(issueLotOrder.getName());
 
             BigDecimal handleQty = BigDecimal.ZERO;
-
             for (String materialLotId : materialLotIdList) {
                 Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
                 if (!existMaterialLotOptional.isPresent()) {
                     throw new ClientParameterException(DOCUMENT_NOT_RESERVED_MLOT, materialLotId);
                 }
-
                 MaterialLot materialLot = existMaterialLotOptional.get();
                 if (!MaterialStatus.STATUS_RESERVED.equals(materialLot.getStatus())) {
                     throw new ClientParameterException(DOCUMENT_NOT_RESERVED_MLOT, materialLotId);

@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-mms_document_lot-table
+      author: Xunbo Guo
+      comment: Create table MMS_DOCUMENT_MLOT
+      changes:
+        - createTable:
+            tableName: MMS_DOCUMENT_MLOT
+            remarks: Document Material Lot Info
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: varchar(64)
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: varchar(64)
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: DOCUMENT_ID
+                  type: varchar(64)
+                  remarks: 名称
+              - column:
+                  name: MATERIAL_LOT_ID
+                  type: varchar(64)
+                  remarks: 物料批次号

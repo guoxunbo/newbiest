@@ -23,6 +23,9 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="DOC_ID")
     private String docId;
 
+    @Column(name="DOC_CATEGORY")
+    private String docCategory;
+
     @Column(name="MATERIAL_RRN")
     private String materialRrn;
 

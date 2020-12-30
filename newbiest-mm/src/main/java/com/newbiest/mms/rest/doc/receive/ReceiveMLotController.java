@@ -47,10 +47,8 @@ public class ReceiveMLotController extends AbstractRestController {
         String actionType = requestBody.getActionType();
         if(ReceiveMLotRequest.ACTION_TYPE_RECEIVE.equals(actionType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
-            //接收业务
             documentService.receiveIncomingLot(requestBody.getDocumentId(), materialLotList);
         }else if (ReceiveMLotRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
-            //获得根据单据号获得materialLot
             List<MaterialLot> materialLots = mmsService.getMLotByIncomingDocId(requestBody.getDocumentId());
             responseBody.setMaterialLotList(materialLots);
         }else {

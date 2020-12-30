@@ -15,7 +15,7 @@ import javax.persistence.Table;
  */
 @Data
 @Entity
-@Table(name = "MMS_DOCUMENT_LOT")
+@Table(name = "MMS_DOCUMENT_MLOT")
 public class DocumentMLot extends NBBase {
 
     @Column(name="DOCUMENT_ID")

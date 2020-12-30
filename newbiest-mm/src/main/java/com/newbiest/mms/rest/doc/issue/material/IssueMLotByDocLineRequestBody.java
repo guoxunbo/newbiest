@@ -12,9 +12,11 @@ import java.util.Map;
 
 @Data
 @ApiModel("具体请求操作信息")
-public class IssueMaterialRequestBody extends RequestBody {
+public class IssueMLotByDocLineRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
+
+	private String actionType;
 
 	private DocumentLine documentLine;
 
