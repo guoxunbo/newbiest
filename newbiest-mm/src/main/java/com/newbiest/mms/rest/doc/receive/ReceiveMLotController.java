@@ -20,9 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Created by guoxunbo on 2018/7/12.
- */
+import java.util.List;
+
 @RestController
 @RequestMapping("/mms")
 @Slf4j
@@ -44,7 +43,19 @@ public class ReceiveMLotController extends AbstractRestController {
         ReceiveMLotResponseBody responseBody = new ReceiveMLotResponseBody();
 
         ReceiveMLotRequestBody requestBody = request.getBody();
-        documentService.receiveIncomingLot(requestBody.getDocumentId(), requestBody.getMaterialLotList());
+
+        String actionType = requestBody.getActionType();
+        if(ReceiveMLotRequest.ACTION_TYPE_RECEIVE.equals(actionType)){
+            List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
+            //接收业务
+            documentService.receiveIncomingLot(requestBody.getDocumentId(), materialLotList);
+        }else if (ReceiveMLotRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
+            //获得根据单据号获得materialLot
+            List<MaterialLot> materialLots = mmsService.getMLotByIncomingDocId(requestBody.getDocumentId());
+            responseBody.setMaterialLotList(materialLots);
+        }else {
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
+        }
         response.setBody(responseBody);
         return response;
     }

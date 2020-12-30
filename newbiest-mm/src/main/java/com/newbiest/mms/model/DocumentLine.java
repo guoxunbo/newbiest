@@ -67,4 +67,9 @@ public class DocumentLine extends NBUpdatable {
 
     @Column(name="RESERVED10")
     private String reserved10;
+
+    public void setMaterial(Material material) {
+        this.materialRrn = material.getObjectRrn();
+        this.materialName = material.getName();
+    }
 }

@@ -1,6 +1,8 @@
 package com.newbiest.mms.model;
 
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
+import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -21,7 +23,8 @@ public class Document extends NBUpdatable {
 
     public static final String CATEGORY_DELIVERY = "Delivery";
     public static final String CATEGORY_INCOMING = "Incoming";
-
+    public static final String CATEGORY_ISSUE_LOT = "IssueLot";
+    public static final String CATEGORY_ISSUE_MATERIAL = "IssueMaterial";
 
     public static final String STATUS_CREATE = "Create";
     public static final String STATUS_APPROVE = "Approve";
@@ -113,5 +116,14 @@ public class Document extends NBUpdatable {
 
     @Column(name="RESERVED10")
     private String reserved10;
+
+    @PreUpdate
+    protected void preUpdate() {
+        super.preUpdate();
+        if (STATUS_APPROVE.equals(status)) {
+            approveTime = DateUtils.now();
+            approveUser = ThreadLocalContext.getUsername();
+        }
+    }
 
 }
