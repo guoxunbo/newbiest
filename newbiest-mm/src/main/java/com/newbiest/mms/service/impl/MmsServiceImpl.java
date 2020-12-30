@@ -179,6 +179,26 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
+     * 发料
+     *  此处只能全部发料 不存在发一部分的数量
+     * @param materialLot 物料批次
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot issue(MaterialLot materialLot) throws ClientException {
+        try {
+            materialLot.setCurrentQty(BigDecimal.ZERO);
+            materialLot.setCurrentSubQty(BigDecimal.ZERO);
+            materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_ISSUE, StringUtils.EMPTY);
+
+            baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_ISSUE);
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 物料批次入库并执行StockIn事件 只会修改库存数量 并不会修改物料批次的数量
      * @param materialLot 物料批次
      * @param materialLotAction 动作需要包含目标仓库以及数量

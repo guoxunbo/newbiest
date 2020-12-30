@@ -21,6 +21,7 @@ public interface MmsService {
     MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, BigDecimal transQty, BigDecimal transSubQty, Map<String, Object> propsMap) throws ClientException;
     List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException;
     void iqc(MaterialLotJudgeAction materialLotJudgeAction) throws ClientException;
+    MaterialLot issue(MaterialLot materialLot) throws ClientException;
 
     // rawMaterial
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;

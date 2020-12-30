@@ -14,4 +14,6 @@ public class DocumentException {
     public static final String DOCUMENT_QTY_NOT_ENOUGH = "mms.doc_qty_is_not_enough";
     public static final String DOCUMENT_STATUS_IS_NOT_ALLOW= "mms.doc_staatus_is_not_allow";
 
+    public static final String DOCUMENT_NOT_RESERVED_MLOT = "mms.doc_not_reserved_mlot";
+
 }

@@ -1,5 +1,6 @@
 package com.newbiest.mms.repository;
 
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.mms.model.MaterialLot;
 import org.springframework.data.jpa.repository.Query;
@@ -13,10 +14,13 @@ import java.util.List;
 @Repository
 public interface MaterialLotRepository extends IRepository<MaterialLot, String> {
 
-    MaterialLot findByMaterialLotId(String materialLotId);
+    MaterialLot findByMaterialLotId(String materialLotId) throws ClientException;
 
     @Query("SELECT m FROM MaterialLot m, PackagedLotDetail p where p.materialLotRrn = m.objectRrn and p.packagedLotRrn = :packagedLotRrn")
-    List<MaterialLot> getPackageDetailLots(String packagedLotRrn);
+    List<MaterialLot> getPackageDetailLots(String packagedLotRrn) throws ClientException;
 
-    List<MaterialLot> findByIncomingDocId(String incomingDocId);
+    List<MaterialLot> findByIncomingDocId(String incomingDocId) throws ClientException;
+
+    @Query("SELECT m FROM MaterialLot m, DocumentMLot d where d.materialLotId = m.materialLotId and d.documentId = :documentId")
+    List<MaterialLot> findReservedLotsByDocId(String documentId) throws ClientException;
 }
