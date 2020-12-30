@@ -7,13 +7,17 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.DateUtils;
+import com.newbiest.base.utils.StringUtils;
+import com.newbiest.common.idgenerator.service.GeneratorService;
+import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.exception.DocumentException;
+import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
-import com.newbiest.mms.repository.DocumentLineRepository;
-import com.newbiest.mms.repository.DocumentRepository;
-import com.newbiest.mms.repository.IncomingOrderRepository;
+import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.newbiest.mms.exception.DocumentException.*;
@@ -39,6 +44,9 @@ public class DocumentServiceImpl implements DocumentService {
     BaseService baseService;
 
     @Autowired
+    GeneratorService generatorService;
+
+    @Autowired
     DocumentRepository documentRepository;
 
     @Autowired
@@ -49,6 +57,138 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Autowired
     IncomingOrderRepository incomingOrderRepository;
+
+    @Autowired
+    IssueLotOrderRepository issueLotOrderRepository;
+
+    @Autowired
+    IssueMaterialOrderRepository issueMaterialOrderRepository;
+
+    @Autowired
+    DocumentMLotRepository documentMLotRepository;
+
+    @Autowired
+    MaterialLotRepository materialLotRepository;
+
+    /**
+     * 创建发料单
+     *  此种发料单需要指定批次，即发料单直接指定批次一般用于主材使用
+     * @param documentId 单据号 不传，系统会自己生成一个
+     * @param approveFlag 是否创建即approve
+     * @param materialLotIdList 物料批次号
+     * @throws ClientException
+     */
+    public void createIssueLotOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException{
+        try {
+            if (StringUtils.isNullOrEmpty(documentId)) {
+                documentId = generatorDocId(IssueLotOrder.GENERATOR_ISSUE_LOT_ORDER_ID_RULE);
+            }
+            IssueLotOrder issueLotOrder = issueLotOrderRepository.findOneByName(documentId);
+            if (issueLotOrder != null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
+            }
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
+            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+
+            issueLotOrder = new IssueLotOrder();
+            issueLotOrder.setName(documentId);
+            issueLotOrder.setQty(totalQty);
+            issueLotOrder.setUnHandledQty(totalQty);
+            if (approveFlag) {
+                issueLotOrder.setStatus(Document.STATUS_APPROVE);
+            }
+            issueLotOrder = (IssueLotOrder) baseService.saveEntity(issueLotOrder);
+
+            for (MaterialLot materialLot : materialLots) {
+                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_ISSUE_RESERVED, StringUtils.EMPTY);
+                baseService.saveHistoryEntity(materialLot, MaterialEvent.EVENT_ISSUE_RESERVED);
+
+                DocumentMLot documentMLot = new DocumentMLot();
+                documentMLot.setDocumentId(issueLotOrder.getName());
+                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
+                documentMLotRepository.save(documentMLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 创建发料单
+     *  此种发料单不指定批次，只指定型号 一般用于源材料的使用
+     * @param documentId 单据号 不传，系统会自己生成一个
+     * @param approveFlag 是否创建即approve
+     * @param rawMaterialQtyMap 物料对应的数量
+     * @throws ClientException
+     */
+    public void createIssueMaterialOrder(String documentId, boolean approveFlag, Map<String, BigDecimal> rawMaterialQtyMap) throws ClientException{
+        try {
+            if (StringUtils.isNullOrEmpty(documentId)) {
+                documentId = generatorDocId(IssueMaterialOrder.GENERATOR_ISSUE_MATERIAL_ORDER_ID_RULE);
+            }
+            IssueMaterialOrder issueMaterialOrder = issueMaterialOrderRepository.findOneByName(documentId);
+            if (issueMaterialOrder != null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
+            }
+            BigDecimal totalQty = rawMaterialQtyMap.values().stream().reduce(BigDecimal::add).get();
+
+            issueMaterialOrder = new IssueMaterialOrder();
+            issueMaterialOrder.setName(documentId);
+            issueMaterialOrder.setQty(totalQty);
+            issueMaterialOrder.setUnHandledQty(totalQty);
+            if (approveFlag) {
+                issueMaterialOrder.setStatus(Document.STATUS_APPROVE);
+            }
+            issueMaterialOrder = (IssueMaterialOrder) baseService.saveEntity(issueMaterialOrder);
+
+            for (String rawMaterialName : rawMaterialQtyMap.keySet()) {
+                RawMaterial rawMaterial = mmsService.getRawMaterialByName(rawMaterialName);
+                if (rawMaterial == null) {
+                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, rawMaterialName);
+                }
+                DocumentLine documentLine = new DocumentLine();
+                documentLine.setDocId(issueMaterialOrder.getName());
+                documentLine.setDocRrn(issueMaterialOrder.getObjectRrn());
+                documentLine.setMaterial(rawMaterial);
+                documentLine.setQty(rawMaterialQtyMap.get(rawMaterialName));
+                documentLineRepository.save(documentLine);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 发料
+     *  不根据物料发料，单据会事先绑好物料批次进行发料
+     * @param issueLotOrderId 发料单号
+     * @param materialLotIdList 发料的物料批次
+     * @throws ClientException
+     */
+    public void issueReservedMLot(String issueLotOrderId, List<String> materialLotIdList) throws ClientException {
+        try {
+            IssueLotOrder issueLotOrder = issueLotOrderRepository.findOneByName(issueLotOrderId);
+            if (issueLotOrder != null) {
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, issueLotOrder);
+            }
+            List<MaterialLot> materialLots = materialLotRepository.findReservedLotsByDocId(issueLotOrder.getName());
+
+            for (String materialLotId : materialLotIdList) {
+                Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
+                if (!existMaterialLotOptional.isPresent()) {
+                    throw new ClientParameterException(DOCUMENT_NOT_RESERVED_MLOT, materialLotId);
+                }
+
+                MaterialLot materialLot = existMaterialLotOptional.get();
+                if (!MaterialStatus.STATUS_RESERVED.equals(materialLot.getStatus())) {
+                    throw new ClientParameterException(DOCUMENT_NOT_RESERVED_MLOT, materialLotId);
+                }
+                
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     /**
      * 来料接收
@@ -98,17 +238,17 @@ public class DocumentServiceImpl implements DocumentService {
     public void approveDocument(Document document) throws ClientException {
         try {
             document = documentRepository.findByObjectRrn(document.getObjectRrn());
-
             document.setStatus(Document.STATUS_APPROVE);
-            document.setApproveTime(DateUtils.now());
-            document.setApproveUser(ThreadLocalContext.getUsername());
             baseService.saveEntity(document, DocumentHistory.TRANS_TYPE_APPROVE);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
-
-
+    public String generatorDocId(String generatorRule) throws ClientException {
+        GeneratorContext generatorContext = new GeneratorContext();
+        generatorContext.setRuleName(generatorRule);
+        return generatorService.generatorId(generatorContext);
+    }
 
 }
