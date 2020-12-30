@@ -7791,7 +7791,7 @@ public class GcServiceImpl implements GcService {
             parameterMap.put("BOXID", materialLotId);
             parameterMap.put("SUBCODE", materialLot.getReserved1());
             parameterMap.put("LOCATION", materialLot.getReserved6());
-            parameterMap.put("GRADE", materialLot.getGrade());
+            parameterMap.put("DEVICEID", materialLot.getMaterialName());
             parameterMap.put("CHIPNUM", materialLot.getCurrentQty().toPlainString());
 
             List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
