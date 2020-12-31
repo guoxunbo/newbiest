@@ -205,6 +205,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String GRADE_FIXED_CHAR_Z = "Z";
     public static final String GRADE_UNDEFINED = "UNDEFINED";
 
+    /**
+     * 出货形态
+     */
+    public static final String STOCKOUT_TYPE_35 = "-3.5";
+
 
     /**
      * 物料批次号
