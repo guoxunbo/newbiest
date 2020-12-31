@@ -31,6 +31,11 @@ public class MesPackedLot implements Serializable {
 
     public static final String REPLACE_FLAG = "true";
 
+    public static final String IN_FLAG_ONE = "1";
+    public static final String ZJ_SUB_NAME = "GCZJ";
+    public static final String SH_SUB_NAME = "GCSH";
+    public static final String ZH_WAREHOUSE = "8143";
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "PACKED_LOT_RRN")
@@ -156,4 +161,9 @@ public class MesPackedLot implements Serializable {
     @Column(name="REPLACE_FLAG")
     private String replaceFlag;
 
+    /**
+     * 供应商
+     */
+    @Transient
+    private String subName;
 }
