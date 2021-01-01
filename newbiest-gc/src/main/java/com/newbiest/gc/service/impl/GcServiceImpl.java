@@ -3190,13 +3190,13 @@ public class GcServiceImpl implements GcService {
                     if(vboxTotalWeight.compareTo(BigDecimal.ZERO) > 0){
                         //获取总重量的配置信息
                         productWeightRelation = validateAndGetProductRelationByPackedLotDetial(packageDetailLots, minPackageQty, maxPackageQty);
-                        if(productWeightRelation != null){
+                        if(productWeightRelation != null && productWeightRelation.getPackageQty().compareTo(BigDecimal.ZERO) > 0){
                             totalWeight = totalWeight.add(vboxTotalWeight);
                             BigDecimal packageChipWeight = productWeightRelation.getPackageChipWeight();//整包芯片数量
                             BigDecimal packageNumber = productWeightRelation.getPackageQty();//整包颗数
                             BigDecimal floatValue = productWeightRelation.getFloatQty();//整包颗数
-                            totalWeight = productWeightRelation.getBoxWeight().add(totalWeight).add(packageChipWeight.divide(packageNumber).multiply(materialLot.getCurrentQty()));
-                            materialLot.setTheoryWeight(totalWeight);
+                            totalWeight = productWeightRelation.getBoxWeight().add(totalWeight).add(packageChipWeight.divide(packageNumber, 6, BigDecimal.ROUND_HALF_UP).multiply(materialLot.getCurrentQty()));
+                            materialLot.setTheoryWeight(totalWeight.setScale(4, BigDecimal.ROUND_HALF_UP));
                             materialLot.setFloatValue(floatValue);
                         }
                     }
@@ -3253,13 +3253,16 @@ public class GcServiceImpl implements GcService {
                 if(relation == null){
                     flag = true;
                     break;
+                } else if(BigDecimal.ZERO.compareTo(relation.getDiscChipQty()) == 0 || BigDecimal.ZERO.compareTo(relation.getDiscQty()) == 0){
+                    flag = true;
+                    break;
                 }
                 BigDecimal discWeight = relation.getDiscWeight();//盘重量
                 BigDecimal coverWeight = relation.getCoverWeight();//盖重量
                 BigDecimal clipWeight = relation.getClipWeight();//管夹重量
                 BigDecimal discQty = relation.getDiscQty();//盘数
-                BigDecimal chipWeight = currentQty.divide(relation.getDiscChipQty());//每包平均芯片重量
-                BigDecimal vboxWeight = discWeight.multiply(chipWeight.add(BigDecimal.ONE)).add(coverWeight.multiply(chipWeight.divide(discQty).add(BigDecimal.ONE))).add(clipWeight.multiply(chipWeight.divide(discQty)));
+                BigDecimal chipWeight = currentQty.divide(relation.getDiscChipQty(), 6, BigDecimal.ROUND_HALF_UP);//每包平均芯片重量
+                BigDecimal vboxWeight = discWeight.multiply(chipWeight.add(BigDecimal.ONE)).add(coverWeight.multiply(chipWeight.divide(discQty, 6, BigDecimal.ROUND_HALF_UP).add(BigDecimal.ONE))).add(clipWeight.multiply(chipWeight.divide(discQty, 6, BigDecimal.ROUND_HALF_UP)));
                 totalWeight = totalWeight.add(vboxWeight);
             }
             if(flag){
