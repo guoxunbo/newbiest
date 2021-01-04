@@ -7913,4 +7913,23 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * WLT/CP晶圆无订单发料
+     */
+    public void waferOutOrderIssue(List<MaterialLotAction> materialLotActions) throws ClientException {
+        try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            waferIssueWithOutDocument(materialLots);
+
+            boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
+            log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
+            if(waferIssueToMesPlanLot){
+                mesService.materialLotUnitPlanLot(materialLots);
+                log.info("wafer issue to mes plan lot end ");
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

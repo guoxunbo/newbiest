@@ -36,6 +36,11 @@ public class WaferManagerRequest extends Request {
 	 */
 	public static final String ACTION_TYPE_COG_MLOT_RECEIVE = "CogReceive";
 
+	/**
+	 * WLT/CP无订单发料
+	 */
+	public static final String ACTION_TYPE_OUTORDER_ISSUE = "OutOrderIssue";
+
 	private WaferManagerRequestBody body;
 
 }

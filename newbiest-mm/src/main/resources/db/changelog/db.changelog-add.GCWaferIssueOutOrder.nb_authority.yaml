@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCWaferIssueOutOrderManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCWaferIssueOutOrderManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCWaferIssueOutOrderManager
+              description: WLT/CP无订单发料
+              tableName: GCWaferIssueOutOrder
+              url: /Wafer/GCWaferIssueOutOrder
+              parentRrn: 2000
+              seqNo: 45
+              image: icon-rule
+              labelZh: 晶圆发料
+              labelEn: WaferIssue
