@@ -461,3 +461,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCWaferIssueOutOrder.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.FTOutOrderWaferIssue.nb_authority.yaml
+      relativeToChangelogFile: true

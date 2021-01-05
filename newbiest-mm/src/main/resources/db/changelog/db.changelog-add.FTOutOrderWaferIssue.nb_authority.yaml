@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFTOutOrderWaferIssue_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCFTOutOrderWaferIssue to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCFTOutOrderWaferIssue
+              description: FT无订单发料
+              tableName: GCFTOutOrderWaferIssueScan
+              url: /FT/GCFTOutOrderWaferIssue
+              parentRrn: 2000
+              seqNo: 70
+              image: icon-rule
+              labelZh: FT晶圆发料（无单据）
+              labelEn: FTWaferIssue
