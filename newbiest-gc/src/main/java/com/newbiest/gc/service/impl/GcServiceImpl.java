@@ -1170,7 +1170,15 @@ public class GcServiceImpl implements GcService {
                 log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
                 if(waferIssueToMesPlanLot){
                     log.info("wafer issue to mes plan lot start ");
-                    mesService.materialLotUnitPlanLot(materialLots);
+                    List<List<MaterialLot>> mLotList = new ArrayList<List<MaterialLot>>();
+                    int count = 0;
+                    while (count < materialLots.size()) {
+                        mLotList.add(new ArrayList<MaterialLot>(materialLots.subList(count, (count + 10) > materialLots.size() ? materialLots.size() : count + 10)));
+                        count += 10;
+                    }
+                    for(int i = 0; i < mLotList.size(); i++){
+                        mesService.materialLotUnitPlanLot(mLotList.get(i));
+                    }
                     log.info("wafer issue to mes plan lot end ");
                 }
             }
@@ -7925,7 +7933,16 @@ public class GcServiceImpl implements GcService {
             boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
             log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
             if(waferIssueToMesPlanLot){
-                mesService.materialLotUnitPlanLot(materialLots);
+                //将物料批次分组建批，避免大批量数据建批导致响应时间过长，造成多事务
+                List<List<MaterialLot>> mLotList = new ArrayList<List<MaterialLot>>();
+                int count = 0;
+                while (count < materialLots.size()) {
+                    mLotList.add(new ArrayList<MaterialLot>(materialLots.subList(count, (count + 10) > materialLots.size() ? materialLots.size() : count + 10)));
+                    count += 10;
+                }
+                for(int i = 0; i < mLotList.size(); i++){
+                    mesService.materialLotUnitPlanLot(mLotList.get(i));
+                }
                 log.info("wafer issue to mes plan lot end ");
             }
         } catch (Exception e) {
