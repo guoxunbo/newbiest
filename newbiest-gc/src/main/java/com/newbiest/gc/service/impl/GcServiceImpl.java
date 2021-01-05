@@ -3139,9 +3139,11 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLots = queryMaterialLotByTableRrnAndMaterialLotId(tableRrn, materialLotId);
             if(CollectionUtils.isEmpty(materialLots)){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
-            } else {
+            } else if(MaterialLot.PRODUCT_CATEGORY.equals(materialLots.get(0).getReserved7())){
                 //获取物料批次的理论重量
                 materialLot = queryMaterialLotTheoryWeightAndFolatValue(materialLots.get(0));
+            } else {
+                materialLot = materialLots.get(0);
             }
             return materialLot;
         } catch (Exception e) {
