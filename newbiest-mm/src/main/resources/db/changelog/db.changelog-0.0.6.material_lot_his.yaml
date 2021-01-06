@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.0.6
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column of lotNoFlag
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: LOT_NO_FLAG
+                  type: varchar(64)
+                  remarks: 是否创建批次：1表示已创建批次

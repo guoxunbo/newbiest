@@ -3,7 +3,6 @@ package com.newbiest.mms.model;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
-import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.commom.sm.model.StatusLifeCycle;
 import com.newbiest.mms.exception.MmsException;
@@ -300,6 +299,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String letteringInfo;
 
     /**
+     * 是否创建批次号
+     */
+    @Column(name="LOT_NO_FLAG")
+    private String lotNoFlag;
+
+    /**
      * PackageSize
      */
     @Column(name="RESERVED1")
@@ -415,8 +420,145 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED19")
     private String reserved19;
 
+    /**
+     * PO Number
+     */
     @Column(name="RESERVED20")
     private String reserved20;
+
+    /**
+     * 中文名称
+     */
+    @Column(name="RESERVED21")
+    private String reserved21;
+
+    /**
+     *  取件人
+     */
+    @Column(name="RESERVED22")
+    private String reserved22;
+
+    /**
+     * 快递
+     */
+    @Column(name="RESERVED23")
+    private String reserved23;
+
+    /**
+     * 运单号码
+     */
+    @Column(name="RESERVED24")
+    private String reserved24;
+
+    /**
+     * 预计送达时间
+     */
+    @Column(name="RESERVED25")
+    private String reserved25;
+
+    /**
+     * 件数
+     */
+    @Column(name="RESERVED26")
+    private String reserved26;
+
+    /**
+     * 商品编码（HS）
+     */
+    @Column(name="RESERVED27")
+    private String reserved27;
+
+    /**
+     * ECCN
+     */
+    @Column(name="RESERVED28")
+    private String reserved28;
+
+    /**
+     * 关税率%
+     */
+    @Column(name="RESERVED29")
+    private String reserved29;
+
+    /**
+     * 关税RMB
+     */
+    @Column(name="RESERVED30")
+    private String reserved30;
+
+    /**
+     * 增值税RMB
+     */
+    @Column(name="RESERVED31")
+    private String reserved31;
+
+    /**
+     * 进口关单号码
+     */
+    @Column(name="RESERVED32")
+    private String reserved32;
+
+    /**
+     * 物流运费RMB
+     */
+    @Column(name="RESERVED33")
+    private String reserved33;
+
+    /**
+     * 保险费RMB
+     */
+    @Column(name="RESERVED34")
+    private String reserved34;
+
+    /**
+     * 其他费用RMB
+     */
+    @Column(name="RESERVED35")
+    private String reserved35;
+
+    /**
+     * 费用合计RMB
+     */
+    @Column(name="RESERVED36")
+    private String reserved36;
+
+    /**
+     * 贸易国别
+     */
+    @Column(name="RESERVED37")
+    private String reserved37;
+
+    /**
+     * 发票号码
+     */
+    @Column(name="RESERVED38")
+    private String reserved38;
+
+    /**
+     * 箱单号码
+     */
+    @Column(name="RESERVED39")
+    private String reserved39;
+
+    /**
+     * 费用类别
+     */
+    @Column(name="RESERVED40")
+    private String reserved40;
+
+    /**
+     * 成本中心
+     */
+    @Column(name="RESERVED41")
+    private String reserved41;
+
+    /**
+     * 物资类别
+     */
+    @Column(name="RESERVED42")
+    private String reserved42;
+
+
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
