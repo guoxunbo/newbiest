@@ -11,7 +11,5 @@ public class IncomingMaterialImportRequest extends Request {
 
     public static final String MESSAGE_NAME = "IncomingMaterialImportManager";
 
-    public static final String NB_TABLE_NAME = "IncomingMaterialImport";
-
     private IncomingMaterialImportRequestBody body;
 }
