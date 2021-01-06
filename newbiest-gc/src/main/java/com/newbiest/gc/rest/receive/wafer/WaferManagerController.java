@@ -52,7 +52,7 @@ public class WaferManagerController extends AbstractRestController {
 
         List<MaterialLotAction> materialLotActions = request.getBody().getMaterialLotActions();
         if (WaferManagerRequest.ACTION_TYPE_RECEIVE.equals(actionType)) {
-            gcService.validationAndReceiveWafer(documentLineList, materialLotActions);
+            gcService.validationAndReceiveWafer(documentLineList, materialLotActions, requestBody.getReceiveWithDoc());
         } else if (WaferManagerRequest.ACTION_TYPE_VALIDATION_ISSUE.equals(actionType)) {
             MaterialLot materialLot = mmsService.getMLotByMLotIdAndBindWorkOrderId(materialLotActions.get(0).getMaterialLotId(), true);
             gcService.validationDocLine(documentLineList, materialLot);
