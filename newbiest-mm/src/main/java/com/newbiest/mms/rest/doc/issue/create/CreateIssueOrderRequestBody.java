@@ -25,7 +25,7 @@ public class CreateIssueOrderRequestBody extends RequestBody {
 	@ApiModelProperty(value = "物料批次号")
 	private List<String> materialLotIdList;
 
-	@ApiModelProperty(value = "物料批次号")
+	@ApiModelProperty(value = "物料以及数量")
 	Map<String, BigDecimal> rawMaterialQtyMap;
 
 }
