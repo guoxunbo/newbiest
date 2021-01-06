@@ -36,7 +36,9 @@ public class IncomingMaterialImportController {
         response.getHeader().setTransactionId(rawMaterialImportRequest.getHeader().getTransactionId());
         IncomingMaterialImportResponseBody responseBody = new IncomingMaterialImportResponseBody();
 
-        NBTable nbTable = uiService.getTableByName(IncomingMaterialImportRequest.NB_TABLE_NAME);
+        String importTypeNBTable = rawMaterialImportRequest.getBody().getImportTypeNbTable();
+        NBTable nbTable = uiService.getTableByName(importTypeNBTable);
+
         ClassLoader classLoader = ModelFactory.getModelClassLoader(nbTable.getModelClass());
         if (classLoader == null) {
             throw new ClientParameterException(NewbiestException.COMMON_MODEL_CLASS_LOADER_IS_NOT_EXIST, nbTable.getModelClass());
