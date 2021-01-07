@@ -22,11 +22,13 @@
     </properties>
 
     <dependencies>
+        <!--
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>gc</artifactId>
             <version>${platform.version}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc6</artifactId>
