@@ -196,6 +196,10 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    public List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException {
+        return materialLotRepository.findReservedLotsByDocId(documentId);
+    }
+
     /**
      * 发料
      *  不根据物料发料，单据会事先绑好物料批次进行发料
@@ -212,7 +216,7 @@ public class DocumentServiceImpl implements DocumentService {
             if (!Document.STATUS_APPROVE.equals(issueLotOrder.getStatus())) {
                 throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, issueLotOrder.getName());
             }
-            List<MaterialLot> materialLots = materialLotRepository.findReservedLotsByDocId(issueLotOrder.getName());
+            List<MaterialLot> materialLots = getReservedMLotByDocId(issueLotOrder.getName());
 
             BigDecimal handleQty = BigDecimal.ZERO;
             for (String materialLotId : materialLotIdList) {

@@ -32,7 +32,6 @@ public interface MmsService {
     MaterialLot getMLotByMLotId(String mLotId) throws ClientException;
     MaterialLot getMLotByObjectRrn(String materialLotRrn) throws ClientException;
     List<MaterialLot> getMLotByIncomingDocId(String incomingDocId) throws ClientException;
-    List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
 
     MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot stockIn(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
