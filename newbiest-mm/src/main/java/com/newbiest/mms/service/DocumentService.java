@@ -26,5 +26,7 @@ public interface DocumentService {
     void issueMLotByDoc(String issueLotOrderId, List<String> materialLotIdList) throws ClientException;
     void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
 
+    List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
+
 }
 
