@@ -32,7 +32,7 @@ public class DocumentLine extends NBUpdatable {
     private String materialName;
 
     @Column(name="QTY")
-    private BigDecimal qty;
+    private BigDecimal qty = BigDecimal.ZERO;
 
     @Column(name="HANDLED_QTY")
     private BigDecimal handledQty = BigDecimal.ZERO;

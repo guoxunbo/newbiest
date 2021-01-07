@@ -821,9 +821,10 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved9(waferIssueOrder.CATEGORY_WAFER_ISSUE);
                                 documentLine.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
                             }
+
+                            totalQty = totalQty.add(erpMaterialOutOrder.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
-                            documentLine.setUnHandledQty(erpMaterialOutOrder.getLeftNum());
-                            totalQty = totalQty.add(erpMaterialOutOrder.getIquantity());
+                            documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
                             documentLines.add(documentLine);
 
                             waferIssueOrder.setOwner(erpMaterialOutOrder.getChandler());
@@ -981,9 +982,10 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
 
                             }
+
+                            totalQty = totalQty.add(erpMaterialOutOrder.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
-                            documentLine.setUnHandledQty(erpMaterialOutOrder.getLeftNum());
-                            totalQty = totalQty.add(erpMaterialOutOrder.getIquantity());
+                            documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
                             documentLines.add(documentLine);
 
                             reTestOrder.setOwner(erpMaterialOutOrder.getChandler());
@@ -1856,11 +1858,11 @@ public class GcServiceImpl implements GcService {
                             Date erpCreatedDate = DateUtils.parseDate(erpSo.getDdate());
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
                             documentLine = validateAndSetErpSoToDocumentLine(documentLine, erpSo, erpCreatedDate, Document.CATEGORY_RECEIVE);
+
+                            totalQty = totalQty.add(erpSo.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSo.getIquantity());
-                            documentLine.setUnHandledQty(erpSo.getLeftNum());
-                            documentLine.setReservedQty(BigDecimal.ZERO);
-                            documentLine.setUnReservedQty(erpSo.getIquantity());
-                            totalQty = totalQty.add(erpSo.getIquantity());
+                            documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
+                            documentLine.setUnReservedQty(documentLine.getQty().subtract(documentLine.getReservedQty()));
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
@@ -1971,11 +1973,11 @@ public class GcServiceImpl implements GcService {
 
                             Date erpCreatedDate = DateUtils.parseDate(erpSo.getDdate());
                             documentLine = validateAndSetErpSoToDocumentLine(documentLine, erpSo, erpCreatedDate, CogReceiveOrder.CATEGORY_COG_RECEIVE);
+
+                            totalQty = totalQty.add(erpSo.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSo.getIquantity());
-                            documentLine.setUnHandledQty(erpSo.getLeftNum());
-                            documentLine.setUnReservedQty(erpSo.getIquantity());
-                            documentLine.setReservedQty(BigDecimal.ZERO);
-                            totalQty = totalQty.add(erpSo.getIquantity());
+                            documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
+                            documentLine.setUnReservedQty(documentLine.getQty().subtract(documentLine.getReservedQty()));
                             documentLines.add(documentLine);
 
                             cogReceiveOrder.setReserved32(erpSo.getCreateSeq());
@@ -2224,10 +2226,10 @@ public class GcServiceImpl implements GcService {
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
                             documentLine = validateAndSetErpSoToDocumentLine(documentLine, erpSo, erpCreatedDate, DeliveryOrder.CATEGORY_DELIVERY);
 
+                            totalQty = totalQty.add(erpSo.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSo.getIquantity());
-                            documentLine.setUnHandledQty(erpSo.getLeftNum());
-                            documentLine.setUnReservedQty(erpSo.getIquantity());
-                            totalQty = totalQty.add(erpSo.getIquantity());
+                            documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
+                            documentLine.setUnReservedQty(documentLine.getQty().subtract(documentLine.getReservedQty()));
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
@@ -5548,9 +5550,10 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved9(ErpMaterialOutaOrder.CATEGORY_WAFER_ISSUEA);
                                 documentLine.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
                             }
+
+                            totalQty = totalQty.add(erpMaterialOutaOrder.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpMaterialOutaOrder.getIquantity());
-                            documentLine.setUnHandledQty(erpMaterialOutaOrder.getLeftNum());
-                            totalQty = totalQty.add(erpMaterialOutaOrder.getIquantity());
+                            documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
                             documentLines.add(documentLine);
 
                             otherIssueOrder.setOwner(erpMaterialOutaOrder.getChandler());
@@ -5722,10 +5725,11 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved29(erpSoa.getOther18());
                                 documentLine.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
                             }
+
+                            totalQty = totalQty.add(erpSoa.getQuantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSoa.getQuantity());
-                            documentLine.setUnHandledQty(erpSoa.getQuantity());
-                            documentLine.setUnReservedQty(erpSoa.getQuantity());
-                            totalQty = totalQty.add(erpSoa.getQuantity());
+                            documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
+                            documentLine.setUnReservedQty(documentLine.getQty().subtract(documentLine.getReservedQty()));
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
@@ -5925,10 +5929,11 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setWarehouseName(erpSob.getCwhname());
                                 documentLine.setReserved31(ErpSob.SOURCE_TABLE_NAME);
                             }
+
+                            totalQty = totalQty.add(erpSob.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSob.getIquantity());
-                            documentLine.setUnHandledQty(erpSob.getLeftNum());
-                            documentLine.setUnReservedQty(erpSob.getIquantity());
-                            totalQty = totalQty.add(erpSob.getIquantity());
+                            documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
+                            documentLine.setUnReservedQty(documentLine.getQty().subtract(documentLine.getReservedQty()));
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
