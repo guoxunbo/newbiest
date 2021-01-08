@@ -366,7 +366,7 @@ public class GcServiceImpl implements GcService {
                 materialLot.setReserved18(stockNote);
 
                 materialLot.setDocDate(documentLine.getErpCreated());
-                materialLot.setShipper(documentLine.getReserved8());
+                materialLot.setShipper(documentLine.getReserved12());
                 materialLot.setReserved51(documentLine.getReserved15());
                 materialLot.setReserved52(documentLine.getReserved20());
                 materialLot.setReserved53(documentLine.getReserved21());
@@ -389,7 +389,7 @@ public class GcServiceImpl implements GcService {
                 parentMLot.setReserved18(stockNote);
 
                 parentMLot.setDocDate(documentLine.getErpCreated());
-                parentMLot.setShipper(documentLine.getReserved8());
+                parentMLot.setShipper(documentLine.getReserved12());
                 parentMLot.setReserved51(documentLine.getReserved15());
                 parentMLot.setReserved52(documentLine.getReserved20());
                 parentMLot.setReserved53(documentLine.getReserved21());
@@ -2487,7 +2487,13 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
-                    otherReceiveProps.put("reserved22", mesPackedLot.getSubName());
+                    if(mesPackedLotRelation != null && MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
+                        otherReceiveProps.put("reserved22", mesPackedLotRelation.getVender());
+                    } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(mesPackedLot.getProductCategory()) || (MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory()) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
+                        otherReceiveProps.put("reserved22", MesPackedLot.ZJ_SUB_NAME);
+                    } else {
+                        otherReceiveProps.put("reserved22", mesPackedLot.getSubName());
+                    }
                     if(mesPackedLotRelation != null){
                         otherReceiveProps.put("reserved25", mesPackedLotRelation.getWaferProperty());
                     }
@@ -2632,13 +2638,11 @@ public class GcServiceImpl implements GcService {
                 } else {
                     otherReceiveProps.put("reserved50", MaterialLot.FT_WAFER_SOURCE);
                     otherReceiveProps.put("reserved7", productCategory);
-                    otherReceiveProps.put("reserved22", MesPackedLot.ZJ_SUB_NAME);
                 }
 
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(productCategory)){
                 otherReceiveProps.put("reserved50", MaterialLot.WLFT_WAFER_SOURCE);
                 otherReceiveProps.put("reserved7", productCategory);
-                otherReceiveProps.put("reserved22", MesPackedLot.ZJ_SUB_NAME);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -3871,15 +3875,17 @@ public class GcServiceImpl implements GcService {
             MesPackedLot packedLot = new MesPackedLot();
             String subName = StringUtils.EMPTY;
             String inFlag = mesPackedLot.getInFlag();
-            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndState(mesPackedLot.getWaferId(), MaterialLotUnit.STATE_ISSUE);
-            if(CollectionUtils.isNotEmpty(materialLotUnits)){
-                if(MesPackedLot.IN_FLAG_ONE.equals(inFlag)){
-                    subName = materialLotUnits.get(0).getReserved22();
-                } else {
-                    if(MesPackedLot.ZH_WAREHOUSE.equals(materialLotUnits.get(0).getReserved13())){
-                        subName = MesPackedLot.ZJ_SUB_NAME;
+            if(!MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndState(mesPackedLot.getWaferId(), MaterialLotUnit.STATE_ISSUE);
+                if(CollectionUtils.isNotEmpty(materialLotUnits)){
+                    if(MesPackedLot.IN_FLAG_ONE.equals(inFlag)){
+                        subName = materialLotUnits.get(0).getReserved22();
                     } else {
-                        subName = MesPackedLot.SH_SUB_NAME;
+                        if(MesPackedLot.ZH_WAREHOUSE.equals(materialLotUnits.get(0).getReserved13())){
+                            subName = MesPackedLot.ZJ_SUB_NAME;
+                        } else {
+                            subName = MesPackedLot.SH_SUB_NAME;
+                        }
                     }
                 }
             }
