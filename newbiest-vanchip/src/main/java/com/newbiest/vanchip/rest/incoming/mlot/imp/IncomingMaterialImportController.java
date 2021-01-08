@@ -6,12 +6,11 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.base.msg.DefaultParser;
-import com.newbiest.base.ui.service.UIService;
+import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.utils.CsvUtils;
 import com.newbiest.ui.model.NBTable;
 import io.swagger.annotations.ApiImplicitParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,10 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/vc")
 @Slf4j
-public class IncomingMaterialImportController {
-
-    @Autowired
-    UIService uiService;
+public class IncomingMaterialImportController extends AbstractRestController {
 
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "IncomingMaterialImportRequest")
     @RequestMapping(value = "/IncomingMaterialImport", method = RequestMethod.POST)
@@ -36,7 +32,9 @@ public class IncomingMaterialImportController {
         response.getHeader().setTransactionId(rawMaterialImportRequest.getHeader().getTransactionId());
         IncomingMaterialImportResponseBody responseBody = new IncomingMaterialImportResponseBody();
 
-        NBTable nbTable = uiService.getTableByName(IncomingMaterialImportRequest.NB_TABLE_NAME);
+        String importTypeNBTable = rawMaterialImportRequest.getBody().getImportTypeNbTable();
+        NBTable nbTable = uiService.getTableByName(importTypeNBTable);
+
         ClassLoader classLoader = ModelFactory.getModelClassLoader(nbTable.getModelClass());
         if (classLoader == null) {
             throw new ClientParameterException(NewbiestException.COMMON_MODEL_CLASS_LOADER_IS_NOT_EXIST, nbTable.getModelClass());

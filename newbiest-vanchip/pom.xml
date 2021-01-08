@@ -5,18 +5,17 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.newbiest</groupId>
-        <version>1.0.5-SNAPSHOT</version>
+        <version>${platform.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>newbiest-vanchip</artifactId>
 
-
     <dependencies>
         <dependency>
             <groupId>com.newbiest</groupId>
             <artifactId>mm</artifactId>
-            <version>1.0.5-SNAPSHOT</version>
+            <version>${platform.version}</version>
         </dependency>
     </dependencies>
 </project>
