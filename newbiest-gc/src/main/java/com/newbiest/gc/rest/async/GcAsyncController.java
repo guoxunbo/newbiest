@@ -60,6 +60,8 @@ public class GcAsyncController extends AbstractRestController {
             gcService.asyncMesProductModelConversion();
         } else if(GcAsyncRequest.ACTION_ASYNC_COG_RECEIVE_ORDER.equals(actionType)){
             gcService.asyncCogReceiveOrder();
+        } else if(GcAsyncRequest.ACTION_ASYNC_MATERIAL_ISSUE_ORDER.equals(actionType)){
+            gcService.asyncMaterialIssueOrder();
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
