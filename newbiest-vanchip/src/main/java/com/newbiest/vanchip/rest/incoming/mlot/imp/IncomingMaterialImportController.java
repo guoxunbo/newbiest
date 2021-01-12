@@ -2,11 +2,9 @@ package com.newbiest.vanchip.rest.incoming.mlot.imp;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.newbiest.base.exception.ClientParameterException;
-import com.newbiest.base.exception.NewbiestException;
-import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.base.msg.DefaultParser;
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.utils.CsvUtils;
 import com.newbiest.ui.model.NBTable;
 import io.swagger.annotations.ApiImplicitParam;
@@ -35,14 +33,10 @@ public class IncomingMaterialImportController extends AbstractRestController {
         String importTypeNBTable = rawMaterialImportRequest.getBody().getImportTypeNbTable();
         NBTable nbTable = uiService.getTableByName(importTypeNBTable);
 
-        ClassLoader classLoader = ModelFactory.getModelClassLoader(nbTable.getModelClass());
-        if (classLoader == null) {
-            throw new ClientParameterException(NewbiestException.COMMON_MODEL_CLASS_LOADER_IS_NOT_EXIST, nbTable.getModelClass());
-        }
         BiMap<String, String> fieldMap = HashBiMap.create(CsvUtils.buildHeaderByTable(nbTable, rawMaterialImportRequest.getHeader().getLanguage()));
         fieldMap = fieldMap.inverse();
         CsvUtils.validateImportFile(fieldMap, file.getInputStream(), nbTable);
-        List dataList = (List) CsvUtils.importCsv(nbTable, classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), ",");
+        List dataList = (List) CsvUtils.importCsv(nbTable, getClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), StringUtils.SPLIT_COMMA);
         responseBody.setDataList(dataList);
         response.setBody(responseBody);
         return response;
