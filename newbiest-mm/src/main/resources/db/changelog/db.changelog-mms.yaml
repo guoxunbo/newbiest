@@ -464,3 +464,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.FTOutOrderWaferIssue.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RawMaterialIssue.nb_authority.yaml
+      relativeToChangelogFile: true

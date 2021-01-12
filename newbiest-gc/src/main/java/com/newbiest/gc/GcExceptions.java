@@ -7,6 +7,7 @@ public class GcExceptions {
 
     public static final String ERP_RETEST_ORDER_IS_NOT_EXIST = "gc.erp_retest_order_is_not_exist";
     public static final String ERP_WAFER_ISSUE_ORDER_IS_NOT_EXIST = "gc.erp_wafer_issue_order_is_not_exist";
+    public static final String ERP_RAW_MATERIAL_ISSUE_ORDER_IS_NOT_EXIST = "gc.erp_raw_material_issue_order_is_not_exist";
 
     public static final String ERP_RECEIVE_ORDER_IS_NOT_EXIST = "gc.erp_receive_order_is_not_exist";
 

@@ -16,6 +16,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void validateAndRawMaterialIssue(DocumentLine documentLine, List<MaterialLot> materialLots) throws ClientException;
     void waferOutOrderIssue(List<MaterialLotAction> materialLotActions) throws ClientException;
     void receiveRawMaterial(List<MaterialLot> materialLotList) throws ClientException;
     Map<String, String> getCOBLabelPrintParamater(String materialLotId) throws ClientException;

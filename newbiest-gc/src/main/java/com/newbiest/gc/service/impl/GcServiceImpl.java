@@ -8116,4 +8116,79 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 原材料发料
+     * @param documentLine
+     * @param materialLotList
+     * @throws ClientException
+     */
+    public void validateAndRawMaterialIssue(DocumentLine documentLine, List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            for (MaterialLot materialLot : materialLotList) {
+                validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.RAW_MATERIAL_ISSUE_DOC_VALIDATE_RULE_ID);
+            }
+
+            BigDecimal handledQty = BigDecimal.ZERO;
+            for (MaterialLot materialLot : materialLotList) {
+                handledQty = handledQty.add(materialLot.getCurrentQty());
+                materialLot.setCurrentQty(BigDecimal.ZERO);
+                if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
+                    materialLot.setReserved12(documentLine.getObjectRrn().toString());
+                } else {
+                    materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
+                }
+                if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                    mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
+                    materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                } else {
+                    List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
+                    if (CollectionUtils.isNotEmpty(materialLotInvList)) {
+                        MaterialLotInventory materialLotInventory = materialLotInvList.get(0);
+                        materialLotInventory.setStockQty(materialLot.getCurrentQty());
+                        materialLotInventoryRepository.save(materialLotInventory);
+                    }
+                }
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE);
+                materialLotHistoryRepository.save(history);
+            }
+
+            BigDecimal unHandleQty =  documentLine.getUnHandledQty().subtract(handledQty);
+            if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
+                throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
+            }
+
+            documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
+            documentLine.setUnHandledQty(unHandleQty);
+            documentLine = documentLineRepository.saveAndFlush(documentLine);
+            baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_WAFER_ISSUE);
+
+            MaterialIssueOrder materialIssueOrder = (MaterialIssueOrder) materialIssueOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            materialIssueOrder.setHandledQty(materialIssueOrder.getHandledQty().add(handledQty));
+            materialIssueOrder.setUnHandledQty(materialIssueOrder.getUnHandledQty().subtract(handledQty));
+            materialIssueOrderRepository.save(materialIssueOrder);
+            baseService.saveHistoryEntity(materialIssueOrder, GCMaterialEvent.EVENT_WAFER_ISSUE);
+
+            Optional<ErpMaterialOutaOrder> erpMaterialOutAOrderOptional = erpMaterialOutAOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
+            if(erpMaterialOutAOrderOptional.isPresent()) {
+                ErpMaterialOutaOrder erpMOutAOrder = erpMaterialOutAOrderOptional.get();
+                erpMOutAOrder.setLeftNum(erpMOutAOrder.getLeftNum().subtract(handledQty));
+                erpMOutAOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                if (StringUtils.isNullOrEmpty(erpMOutAOrder.getDeliveredNum())) {
+                    erpMOutAOrder.setDeliveredNum(handledQty.toPlainString());
+                } else {
+                    BigDecimal docHandledQty = new BigDecimal(erpMOutAOrder.getDeliveredNum());
+                    docHandledQty = docHandledQty.add(handledQty);
+                    erpMOutAOrder.setDeliveredNum(docHandledQty.toPlainString());
+                }
+                erpMaterialOutAOrderRepository.save(erpMOutAOrder);
+            } else {
+                throw new ClientParameterException(GcExceptions.ERP_RAW_MATERIAL_ISSUE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
