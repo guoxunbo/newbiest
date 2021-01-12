@@ -1,7 +1,5 @@
 package com.newbiest.vanchip.rest.incoming.mlot.save;
 
-import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.msg.Request;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.service.VanChipService;
@@ -34,15 +32,7 @@ public class IncomingMaterialImportSaveController {
         IncomingMaterialImportSaveResponseBody responseBody = new IncomingMaterialImportSaveResponseBody();
 
         List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
-        String actionType = requestBody.getActionType();
-        if (IncomingMaterialImportSaveRequest.MLOT_SAVE.equals(actionType)){
-            vanChipService.importIncomingOrder(StringUtils.EMPTY, materialLotList);
-        }else if (IncomingMaterialImportSaveRequest.MATERIAL_SAVE.equals(actionType)){
-            //辅材导入，可能没有批次号，系统生成
-            vanChipService.importIncomingMaterial(materialLotList);
-        }else {
-            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
-        }
+        vanChipService.importIncomingOrder(StringUtils.EMPTY, materialLotList);
         response.setBody(responseBody);
         return response;
     }

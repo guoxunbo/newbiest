@@ -5,24 +5,22 @@ import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
-import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.model.*;
-import com.newbiest.mms.repository.DocumentRepository;
+import com.newbiest.mms.model.Document;
+import com.newbiest.mms.model.IncomingOrder;
+import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.mms.repository.IncomingOrderRepository;
-import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialStatusModel;
-import com.newbiest.vanchip.rest.incoming.mlot.save.IncomingMaterialImportSaveRequest;
 import com.newbiest.vanchip.service.VanChipService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,12 +65,6 @@ public class VanchipServiceImpl implements VanChipService {
 
     @Autowired
     MaterialLotRepository materialLotRepository;
-
-    @Autowired
-    MaterialLotHistoryRepository materialLotHistoryRepository;
-
-    @Autowired
-    DocumentRepository documentRepository;
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
@@ -148,40 +140,8 @@ public class VanchipServiceImpl implements VanChipService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-    public void deleteIncomingMaterialLot(List<MaterialLot> materialLotList, String deleteNote) {
-        List<MaterialLot>  materialLots = materialLotList.stream().filter(materialLot -> materialLot.getStatus().equals("Create")).collect(Collectors.toList());
-        for (MaterialLot materialLot:materialLots){
-            Document document = documentRepository.findOneByName(materialLot.getIncomingDocId());
-            BigDecimal qty = document.getQty().subtract(materialLot.getCurrentQty());
-            BigDecimal unHandleQty = document.getUnHandledQty().subtract(materialLot.getCurrentQty());
 
-            document.setQty(qty);
-            document.setUnHandledQty(unHandleQty);
-            baseService.saveEntity(document);
-            if (BigDecimal.ZERO == qty){
-                documentRepository.delete(document);
-            }
-            materialLotRepository.delete(materialLot);
 
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
-            history.setActionComment(deleteNote);
-            materialLotHistoryRepository.save(history);
-        }
-    }
 
-    public void importIncomingMaterial(List<MaterialLot> materialLotList){
-        materialLotList.forEach(materialLot -> {
-            if (StringUtils.isNullOrEmpty(materialLot.getMaterialLotId())){
-                materialLot.setMaterialLotId(generatorMaterialLotId(IncomingMaterialImportSaveRequest.GENERATOR_MATERIAL_LOT_ID));
-            }
-        });
-        importIncomingOrder(StringUtils.EMPTY, materialLotList);
-    }
-
-    public String generatorMaterialLotId(String generatorRule) throws ClientException {
-        GeneratorContext generatorContext = new GeneratorContext();
-        generatorContext.setRuleName(generatorRule);
-        return generatorService.generatorId(generatorContext);
-    }
 
 }

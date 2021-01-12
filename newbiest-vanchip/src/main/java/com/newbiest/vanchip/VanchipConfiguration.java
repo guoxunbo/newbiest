@@ -1,14 +1,10 @@
 package com.newbiest.vanchip;
 
-import com.newbiest.base.factory.ModelFactory;
-import com.newbiest.vanchip.model.MLotDocRule;
-import com.newbiest.vanchip.model.MLotDocRuleLine;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 @Slf4j
@@ -26,13 +22,6 @@ public class VanchipConfiguration {
         liquibase.setShouldRun(true);
         liquibase.setDropFirst(false);
         return liquibase;
-    }
-
-    @PostConstruct
-    public void init() {
-        // 注册modelClassLoader
-        ModelFactory.registerModelClassLoader(MLotDocRule.class.getName(), MLotDocRule.class.getClassLoader());
-        ModelFactory.registerModelClassLoader(MLotDocRuleLine.class.getName(), MLotDocRuleLine.class.getClassLoader());
     }
 
 }

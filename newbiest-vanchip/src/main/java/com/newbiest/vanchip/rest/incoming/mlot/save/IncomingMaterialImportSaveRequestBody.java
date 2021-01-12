@@ -14,9 +14,6 @@ public class IncomingMaterialImportSaveRequestBody extends RequestBody {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "类型信息")
-    private String actionType;
-
     @ApiModelProperty(value = "来料信息")
     private List<MaterialLot> materialLotList;
 

@@ -11,8 +11,7 @@ import javax.persistence.Entity;
 @DiscriminatorValue(CheckSheet.CATEGORY_IQC)
 public class IqcCheckSheet extends CheckSheet {
 
-    public static final String CHECK_RESULT_OK = "OK";
-    public static final String CHECK_RESULT_NG = "NG";
+
 
 
 

@@ -31,8 +31,8 @@ public class MmsException {
     public static final String MM_PACKAGE_TYPE_IS_NOT_EXIST = "mm.package_type_is_not_exist";
     public static final String MM_PACKAGE_MATERIAL_TYPE_IS_NOT_THE_SAME = "mm.package_material_type_is_not_the_same";
     public static final String MM_PACKAGE_OVER_MAX_QTY = "mm.package_over_max_qty";
-    public static final String MM_IMPORT_FILE_CONTAINS_EMPTY_DATA = "mm.import_file_contains_empty_data";
-    public static final String MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME = "mm.import_file_and_type_is_not_same";
+    public static final String MM_IMPORT_FILE_CONTAINS_EMPTY_DATA = "";
+    public static final String MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME = "";
 
 
 }
