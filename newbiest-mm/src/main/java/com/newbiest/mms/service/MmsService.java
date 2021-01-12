@@ -54,4 +54,6 @@ public interface MmsService {
 
     Warehouse getWarehouseByName(String name) throws ClientException;
     public Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
+
+    List<MLotCheckSheetLine> getMLotCheckSheetLinesByMLotCheckSheetRrn(String mLotId);
 }

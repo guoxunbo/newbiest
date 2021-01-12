@@ -966,4 +966,7 @@ public class MmsServiceImpl implements MmsService {
         return materialLotRepository.findByIncomingDocId(incomingDocId);
     }
 
+    public List<MLotCheckSheetLine> getMLotCheckSheetLinesByMLotCheckSheetRrn(String mLotCheckSheetRrn) {
+        return mLotCheckSheetLineRepository.findByMLotCheckSheetRrn(mLotCheckSheetRrn);
+    }
 }

@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.incoming.mlot.save;
+package com.newbiest.vanchip.rest.incoming.mlot.delete;
 
 import com.newbiest.base.msg.RequestBody;
 import com.newbiest.mms.model.MaterialLot;
@@ -10,14 +10,14 @@ import java.util.List;
 
 @Data
 @ApiModel("具体请求操作信息")
-public class IncomingMaterialImportSaveRequestBody extends RequestBody {
+public class IncomingMaterialDeleteRequestBody extends RequestBody {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "类型信息")
-    private String actionType;
-
-    @ApiModelProperty(value = "来料信息")
+    @ApiModelProperty(value = "物料信息")
     private List<MaterialLot> materialLotList;
+
+    @ApiModelProperty(value = "删除备注")
+    private String deleteNote;
 
 }
