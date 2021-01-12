@@ -16,4 +16,5 @@ public interface VanChipService {
     void unbindMesOrder(List<String> materialLotIdList) throws ClientException;
     void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException;
 
+    void deleteIncomingMaterialLot(List<MaterialLot> materialLotList, String deleteNote);
 }
