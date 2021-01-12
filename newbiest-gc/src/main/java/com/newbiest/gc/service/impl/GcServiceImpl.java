@@ -3143,15 +3143,12 @@ public class GcServiceImpl implements GcService {
      */
     public MaterialLot getWaitWeightMaterialLot(String materialLotId, Long tableRrn) throws ClientException {
         try {
-            MaterialLot materialLot = new MaterialLot();
-            List<MaterialLot> materialLots = queryMaterialLotByTableRrnAndMaterialLotId(tableRrn, materialLotId);
-            if(CollectionUtils.isEmpty(materialLots)){
+            MaterialLot materialLot = getWltMaterialLotToStockOut(tableRrn, materialLotId);
+            if(materialLot.getObjectRrn() == null){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
-            } else if(MaterialLot.PRODUCT_CATEGORY.equals(materialLots.get(0).getReserved7())){
+            } else if(MaterialLot.PRODUCT_CATEGORY.equals(materialLot.getReserved7()) && !StringUtils.isNullOrEmpty(materialLot.getPackageType())){
                 //获取物料批次的理论重量
-                materialLot = queryMaterialLotTheoryWeightAndFolatValue(materialLots.get(0));
-            } else {
-                materialLot = materialLots.get(0);
+                materialLot = queryMaterialLotTheoryWeightAndFolatValue(materialLot);
             }
             return materialLot;
         } catch (Exception e) {
