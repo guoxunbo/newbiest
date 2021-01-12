@@ -1,18 +1,14 @@
 package com.newbiest.rms;
 
 import com.newbiest.base.core.YmlPropertyLoaderFactory;
-import com.newbiest.base.factory.ModelFactory;
-import com.newbiest.rms.model.*;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 /**

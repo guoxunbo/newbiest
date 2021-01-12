@@ -1,15 +1,11 @@
 package com.newbiest.mms;
 
-import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.base.model.NBHis;
-import com.newbiest.mms.model.*;
-import com.newbiest.mms.state.model.MaterialEvent;
-import com.newbiest.mms.state.model.MaterialStatus;
-import com.newbiest.mms.state.model.MaterialStatusCategory;
-import com.newbiest.mms.state.model.MaterialStatusModel;
+import com.newbiest.mms.model.MaterialHistory;
+import com.newbiest.mms.model.Product;
+import com.newbiest.mms.model.RawMaterial;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
