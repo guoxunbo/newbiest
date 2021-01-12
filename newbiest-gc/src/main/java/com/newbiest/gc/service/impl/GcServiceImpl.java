@@ -7392,6 +7392,9 @@ public class GcServiceImpl implements GcService {
                 }
             }
             //先挑整箱的
+            if(CollectionUtils.isNotEmpty(wholeBoxMLots)){
+                wholeBoxMLots = wholeBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+            }
             Iterator<MaterialLot> iterator = wholeBoxMLots.iterator();
             while (iterator.hasNext()){
                 MaterialLot materialLot = iterator.next();
@@ -7403,10 +7406,13 @@ public class GcServiceImpl implements GcService {
             }
             //再挑未装箱的真空包（整包）
             if(totalQty.compareTo(BigDecimal.ZERO) > 0){
-                for(MaterialLot materialLot: wholeVboxMLots){
-                    if(totalQty.compareTo(materialLot.getCurrentQty()) >= 0){
-                        materialLotList.add(materialLot);
-                        totalQty = totalQty.subtract(materialLot.getCurrentQty());
+                if(CollectionUtils.isNotEmpty(wholeVboxMLots)){
+                    List<MaterialLot> wholeVboxMLotList = wholeVboxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                    for(MaterialLot materialLot: wholeVboxMLotList){
+                        if(totalQty.compareTo(materialLot.getCurrentQty()) >= 0){
+                            materialLotList.add(materialLot);
+                            totalQty = totalQty.subtract(materialLot.getCurrentQty());
+                        }
                     }
                 }
             }
@@ -7439,13 +7445,23 @@ public class GcServiceImpl implements GcService {
                 }
             }
 
-            //最后挑选未装箱的真空包（只挑零包）
+            //最后挑选未装箱的真空包（只挑零包）、零包需先挑选数量多的，数量相同的按照先进先出的原则挑选
             if(totalQty.compareTo(BigDecimal.ZERO) > 0){
-                for(MaterialLot zeroVbox : zeroVBoxMLots){
-                    if(totalQty.compareTo(zeroVbox.getCurrentQty()) >= 0){
-                        totalQty = totalQty.subtract(zeroVbox.getCurrentQty());
-                        materialLotList.add(zeroVbox);
+                if(CollectionUtils.isNotEmpty(zeroVBoxMLots)){
+                    List<MaterialLot> zeroVBoxMLotList = zeroVBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCurrentQty).reversed()).collect(Collectors.toList());
+                    Map<BigDecimal, List<MaterialLot>> mLotMap = zeroVBoxMLotList.stream().collect(Collectors.groupingBy(MaterialLot :: getCurrentQty));
+                    for(BigDecimal qty : mLotMap.keySet()){
+                        List<MaterialLot> zeroMLots = mLotMap.get(qty).stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                        for(MaterialLot zeroVbox : zeroMLots){
+                            if(totalQty.compareTo(zeroVbox.getCurrentQty()) >= 0){
+                                totalQty = totalQty.subtract(zeroVbox.getCurrentQty());
+                                materialLotList.add(zeroVbox);
+                            } else {
+                                break;
+                            }
+                        }
                     }
+
                 }
             }
 
