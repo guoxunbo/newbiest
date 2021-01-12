@@ -27,14 +27,6 @@ public class RmsConfiguration {
 
     private boolean sendNotification;
 
-    @PostConstruct
-    public void init() {
-        // 注册历史
-        ModelFactory.registerHistoryModelClassLoader(RecipeEquipment.class.getName(), RecipeEquipmentHis.class.getClassLoader());
-        ModelFactory.registerHistoryClassName(RecipeEquipment.class.getName(), RecipeEquipmentHis.class.getName());
-
-    }
-
     @Bean(name="rmsLiquibase")
     public SpringLiquibase liquibase(DataSource dataSource) throws Exception{
         if (log.isInfoEnabled()) {
