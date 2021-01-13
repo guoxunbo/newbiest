@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MLotCheckSheetRepository extends IRepository<MLotCheckSheet, String> {
 
-    MLotCheckSheet findByMaterialLotId(String materialLotId) throws ClientException;
+    MLotCheckSheet findByMaterialLotIdAndStatus(String materialLotId, String status) throws ClientException;
 
 }
