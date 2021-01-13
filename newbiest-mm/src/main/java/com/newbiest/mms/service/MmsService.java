@@ -3,7 +3,6 @@ package com.newbiest.mms.service;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.mms.dto.MaterialLotJudgeAction;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 
@@ -20,7 +19,7 @@ public interface MmsService {
     MaterialStatusModel getStatusModelByRrn(String statusModelRrn) throws ClientException;
     MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, BigDecimal transQty, BigDecimal transSubQty, Map<String, Object> propsMap) throws ClientException;
     List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException;
-    void iqc(MaterialLotJudgeAction materialLotJudgeAction) throws ClientException;
+    MLotCheckSheet iqc(MaterialLotAction materialLotJudgeAction) throws ClientException;
     MaterialLot issue(MaterialLot materialLot) throws ClientException;
 
     // rawMaterial

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_mlot_check_sheet_0.0.2
+      author: Xunbo Guo
+      remarks: MMS_MLOT_CHECK_SHEET add column status
+      changes:
+        - addColumn:
+            tableName: MMS_MLOT_CHECK_SHEET
+            columns:
+              - column:
+                  name: STATUS
+                  type: varchar2(64)
+                  remarks: 状态

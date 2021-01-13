@@ -22,12 +22,12 @@ import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.context.model.MergeRuleContext;
 import com.newbiest.mms.MmsPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.mms.dto.MaterialLotJudgeAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.extern.slf4j.Slf4j;
@@ -689,12 +689,12 @@ public class MmsServiceImpl implements MmsService {
 
     /**
      * iqc配置
-     * @param materialLotJudgeAction
+     * @param materialLotAction
      * @throws ClientException
      */
-    public void iqc(MaterialLotJudgeAction materialLotJudgeAction) throws ClientException {
+    public MLotCheckSheet iqc(MaterialLotAction materialLotAction) throws ClientException {
         try {
-            judgeByCheckSheet(materialLotJudgeAction, MaterialEvent.EVENT_IQC);
+            return judgeByCheckSheet(materialLotAction, MaterialEvent.EVENT_IQC);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -702,22 +702,22 @@ public class MmsServiceImpl implements MmsService {
 
     /**
      * 判定
-     * @param materialLotJudgeAction
+     * @param materialLotAction
      * @throws ClientException
      */
-    public void judgeByCheckSheet(MaterialLotJudgeAction materialLotJudgeAction, String eventId) throws ClientException {
+    public MLotCheckSheet judgeByCheckSheet(MaterialLotAction materialLotAction, String eventId) throws ClientException {
         try {
-            String materialLotId = materialLotJudgeAction.getMaterialLotId();
+            String materialLotId = materialLotAction.getMaterialLotId();
             MaterialLot materialLot = getMLotByMLotId(materialLotId);
 
-            changeMaterialLotState(materialLot, eventId, materialLotJudgeAction.getJudgeResult());
+            changeMaterialLotState(materialLot, eventId, materialLotAction.getActionCode());
 
-            MLotCheckSheet mLotCheckSheet = mLotCheckSheetRepository.findByMaterialLotId(materialLotId);
-            mLotCheckSheet.setCheckResult(materialLotJudgeAction.getJudgeResult());
-            mLotCheckSheet.setCheckOwner(ThreadLocalContext.getUsername());
-            mLotCheckSheet.setCheckTime(DateUtils.now());
-            mLotCheckSheet.setRemark2(materialLotJudgeAction.getActionComments());
-            mLotCheckSheetRepository.save(mLotCheckSheet);
+            MLotCheckSheet mLotCheckSheet = mLotCheckSheetRepository.findByMaterialLotIdAndStatus(materialLotId, MLotCheckSheet.STATUS_OPEN);
+            mLotCheckSheet.setCheckResult(materialLotAction.getActionCode());
+            mLotCheckSheet.setStatus(MLotCheckSheet.STATUS_CLOSE);
+            mLotCheckSheet.setRemark2(materialLotAction.getActionComment());
+            mLotCheckSheet = mLotCheckSheetRepository.saveAndFlush(mLotCheckSheet);
+            return mLotCheckSheet;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -730,11 +730,7 @@ public class MmsServiceImpl implements MmsService {
      */
     public void triggerIqc(Material material, MaterialLot materialLot) throws ClientException{
         try {
-            String iqcSheetRrn = material.getIqcSheetRrn();
-            if (StringUtils.isNullOrEmpty(iqcSheetRrn)) {
-                throw new ClientParameterException(MmsException.MM_MATERIAL_IQC_IS_NOT_SET, material.getName());
-            }
-            IqcCheckSheet iqcCheckSheet = iqcCheckSheetRepository.findByObjectRrn(iqcSheetRrn);
+            IqcCheckSheet iqcCheckSheet = iqcCheckSheetRepository.findByObjectRrn(material.getIqcSheetRrn());
 
             MLotCheckSheet mLotCheckSheet = new MLotCheckSheet();
             mLotCheckSheet.setMaterialLotId(materialLot.getMaterialLotId());
@@ -743,7 +739,7 @@ public class MmsServiceImpl implements MmsService {
             mLotCheckSheet.setSheetCategory(iqcCheckSheet.getCategory());
             mLotCheckSheet = mLotCheckSheetRepository.save(mLotCheckSheet);
 
-            List<CheckSheetLine> checkSheetLines = checkSheetLineRepository.findByCheckSheetRrn(iqcSheetRrn);
+            List<CheckSheetLine> checkSheetLines = checkSheetLineRepository.findByCheckSheetRrn(material.getIqcSheetRrn());
             for (CheckSheetLine checkSheetLine : checkSheetLines) {
                 MLotCheckSheetLine mLotCheckSheetLine = new MLotCheckSheetLine();
                 mLotCheckSheetLine.setMLotCheckSheetRrn(mLotCheckSheet.getObjectRrn());
@@ -760,6 +756,14 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    /**
+     * 接收物料批次
+     *  事先会先导入物料批次，此时只是做接收
+     * @param material 物料
+     * @param materialLotList 物料批次
+     * @return
+     * @throws ClientException
+     */
     public List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException {
         try {
             String materialName = material.getName();
@@ -775,11 +779,14 @@ public class MmsServiceImpl implements MmsService {
                 if (materialLot == null) {
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
                 }
-                materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
-                if (MaterialStatusCategory.STATUS_CATEGORY_IQC.equals(materialLot.getStatusCategory())) {
-                    //IQC检查
+                String targetStatus = StringUtils.EMPTY;
+                if (material.getIqcSheetRrn() != null) {
+                    targetStatus = MaterialStatus.STATUS_IQC;
+                    // IQC检查
                     triggerIqc(material, materialLot);
                 }
+                materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, targetStatus);
+
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
                 materialLotHistoryRepository.save(history);
             }
@@ -796,6 +803,7 @@ public class MmsServiceImpl implements MmsService {
      * @param materialLotAction 操作物料批次的动作包括了操作数量以及原因
      * @return
      */
+    @Deprecated
     public MaterialLot receiveMLot(Material material, String mLotId, MaterialLotAction materialLotAction) {
         try {
             MaterialLot materialLot = null;

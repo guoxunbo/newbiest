@@ -33,7 +33,7 @@ public class MaterialLotController extends AbstractRestController {
     MmsService mmsService;
 
     @ApiOperation(value = "对物料批做操作", notes = "接收。消耗。hold/release等")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "IssueMLotByDocRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotRequest")
     @RequestMapping(value = "/materialLotManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public MaterialLotResponse execute(@RequestBody MaterialLotRequest request) throws Exception {
         MaterialLotResponse response = new MaterialLotResponse();
