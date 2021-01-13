@@ -991,6 +991,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public void clearExpressInfo() {
         this.setExpressNumber(StringUtils.EMPTY);
+        this.setExpressCompany(StringUtils.EMPTY);
         this.setPlanOrderType(StringUtils.EMPTY);
     }
 
