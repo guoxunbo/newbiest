@@ -714,8 +714,6 @@ public class MmsServiceImpl implements MmsService {
 
             MLotCheckSheet mLotCheckSheet = mLotCheckSheetRepository.findByMaterialLotIdAndStatus(materialLotId, MLotCheckSheet.STATUS_OPEN);
             mLotCheckSheet.setCheckResult(materialLotAction.getActionCode());
-            mLotCheckSheet.setCheckOwner(ThreadLocalContext.getUsername());
-            mLotCheckSheet.setCheckTime(DateUtils.now());
             mLotCheckSheet.setStatus(MLotCheckSheet.STATUS_CLOSE);
             mLotCheckSheet.setRemark2(materialLotAction.getActionComment());
             mLotCheckSheet = mLotCheckSheetRepository.saveAndFlush(mLotCheckSheet);
