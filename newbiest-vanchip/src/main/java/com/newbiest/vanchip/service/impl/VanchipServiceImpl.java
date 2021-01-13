@@ -5,6 +5,7 @@ import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.PropertyUtils;
@@ -12,11 +13,10 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.model.Document;
-import com.newbiest.mms.model.IncomingOrder;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.RawMaterial;
+import com.newbiest.mms.model.*;
+import com.newbiest.mms.repository.DocumentRepository;
 import com.newbiest.mms.repository.IncomingOrderRepository;
+import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
@@ -65,6 +65,12 @@ public class VanchipServiceImpl implements VanChipService {
 
     @Autowired
     MaterialLotRepository materialLotRepository;
+
+    @Autowired
+    DocumentRepository documentRepository;
+
+    @Autowired
+    MaterialLotHistoryRepository materialLotHistoryRepository;
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
@@ -141,7 +147,25 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
+    public void deleteIncomingMaterialLot(List<MaterialLot> materialLotList, String deleteNote) {
+        List<MaterialLot>  materialLots = materialLotList.stream().filter(materialLot -> materialLot.getStatus().equals("Create")).collect(Collectors.toList());
+        for (MaterialLot materialLot:materialLots){
+            Document document = documentRepository.findOneByName(materialLot.getIncomingDocId());
+            BigDecimal qty = document.getQty().subtract(materialLot.getCurrentQty());
+            BigDecimal unHandleQty = document.getUnHandledQty().subtract(materialLot.getCurrentQty());
 
+            document.setQty(qty);
+            document.setUnHandledQty(unHandleQty);
+            baseService.saveEntity(document);
+            if (BigDecimal.ZERO == qty){
+                documentRepository.delete(document);
+            }
+            materialLotRepository.delete(materialLot);
 
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
+            history.setActionComment(deleteNote);
+            materialLotHistoryRepository.save(history);
+        }
+    }
 
 }
