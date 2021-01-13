@@ -150,11 +150,12 @@ public class ExpressServiceImpl implements ExpressService {
      * @param materialLots
      * @param expressNumber
      */
-    public List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException{
+    public List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String expressCompany, String planOrderType) throws ClientException{
         try {
             validateMLotAddressAndShipper(materialLots);
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setExpressNumber(expressNumber);
+                materialLot.setExpressCompany(expressCompany);
                 materialLot.setPlanOrderType(planOrderType);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
 

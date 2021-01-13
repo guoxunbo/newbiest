@@ -264,6 +264,12 @@ public class MaterialLotHistory extends NBHis {
     private String expressNumber;
 
     /**
+     * 快递公司
+     */
+    @Column(name="EXPRESS_COMPANY")
+    private String expressCompany;
+
+    /**
      * 下单类型
      */
     @Column(name="PLAN_ORDER_TYPE")

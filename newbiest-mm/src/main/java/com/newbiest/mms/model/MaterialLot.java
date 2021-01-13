@@ -211,7 +211,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String STOCKOUT_TYPE_35 = "-3.5";
 
-
     /**
      * 物料批次号
      */
@@ -417,6 +416,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="EXPRESS_NUMBER")
     private String expressNumber;
+
+    /**
+     * 快递公司
+     */
+    @Column(name="EXPRESS_COMPANY")
+    private String expressCompany;
 
     /**
      * 下单类型

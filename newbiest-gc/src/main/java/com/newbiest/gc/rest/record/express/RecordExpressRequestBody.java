@@ -48,6 +48,8 @@ public class RecordExpressRequestBody extends RequestBody {
 
 	public String expressNumber;
 
+	public String expressCompany;
+
 	private List<MaterialLot> materialLots;
 
 	private String wayBillNumber;

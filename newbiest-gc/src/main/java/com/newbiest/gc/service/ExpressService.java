@@ -23,7 +23,7 @@ public interface ExpressService {
 
     List<DocumentLine> recordExpressNumber(List<DocumentLine> documentLineList) throws ClientException;
 
-    List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException;
+    List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String expressCompany, String planOrderType) throws ClientException;
 
     List<Map<String, String>> getPrintLabelParameterList(List<MaterialLot> materialLotList, String expressNumber) throws ClientException;
 }
