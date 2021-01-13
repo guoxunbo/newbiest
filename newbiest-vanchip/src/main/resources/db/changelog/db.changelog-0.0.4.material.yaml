@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_0.0.4
+      author: Ning Li
+      remarks: mms_material add column RESERVED14,RESERVED15,RESERVED16,RESERVED17,RESERVED18,RESERVED19,RESERVED20,RESERVED21,RESERVED22,RESERVED23
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL
+            columns:
+              - column:
+                  name: RESERVED14
+                  type: varchar2(64)
+                  remarks: 客户代码
+              - column:
+                  name: RESERVED15
+                  type: varchar2(64)
+                  remarks: 客户简称
+              - column:
+                  name: RESERVED16
+                  type: varchar2(64)
+                  remarks: 客户全称
+              - column:
+                  name: RESERVED17
+                  type: varchar2(64)
+                  remarks: 预留字段
+              - column:
+                  name: RESERVED18
+                  type: varchar2(64)
+                  remarks: 预留字段
+              - column:
+                  name: RESERVED19
+                  type: varchar2(64)
+                  remarks: 预留字段
+              - column:
+                  name: RESERVED20
+                  type: varchar2(64)
+                  remarks: 预留字段
+              - column:
+                  name: RESERVED21
+                  type: varchar2(64)
+                  remarks: 预留字段
+              - column:
+                  name: RESERVED22
+                  type: varchar2(64)
+                  remarks: 预留字段
+              - column:
+                  name: RESERVED23
+                  type: varchar2(64)
+                  remarks: 预留字段

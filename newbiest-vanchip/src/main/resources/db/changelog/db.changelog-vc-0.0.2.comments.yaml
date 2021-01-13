@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: vanchip_add_reserved_comments_0.0.2
+      author: Ning Li
+      comment: add commments for mms_material and material_his's reserved column
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/comments_0.0.2.sql
