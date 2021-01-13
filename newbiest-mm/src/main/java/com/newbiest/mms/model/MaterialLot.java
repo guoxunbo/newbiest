@@ -211,6 +211,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String STOCKOUT_TYPE_35 = "-3.5";
 
+    public static final String ZJ_STOCK = "601";
+    public static final String SH_STOCK = "400";
+    public static final String HK_STOCK = "300";
+
+    public static final String ZJ_WAREHOUSE = "8143";
+    public static final String SH_WAREHOUSE = "8142";
+    public static final String HK_WAREHOUSE = "8150";
+
+
     /**
      * 物料批次号
      */
