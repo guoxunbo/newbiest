@@ -166,4 +166,10 @@ public class MesPackedLot implements Serializable {
      */
     @Transient
     private String subName;
+
+    /**
+     * FAB_DEVICE
+     */
+    @Transient
+    private String fabDevice;
 }

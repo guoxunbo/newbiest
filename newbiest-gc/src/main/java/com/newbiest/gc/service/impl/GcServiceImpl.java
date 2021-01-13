@@ -2490,6 +2490,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
+                    otherReceiveProps.put("reserved24", mesPackedLot.getFabDevice());
                     if(mesPackedLotRelation != null && MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
                         otherReceiveProps.put("reserved22", mesPackedLotRelation.getVender());
                     } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(mesPackedLot.getProductCategory()) || (MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory()) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
@@ -3874,9 +3875,11 @@ public class GcServiceImpl implements GcService {
         try {
             MesPackedLot packedLot = new MesPackedLot();
             String subName = StringUtils.EMPTY;
+            String fabDevice = StringUtils.EMPTY;
             String inFlag = mesPackedLot.getInFlag();
-            if(!MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
-                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndState(mesPackedLot.getWaferId(), MaterialLotUnit.STATE_ISSUE);
+            String productCategory = mesPackedLot.getProductCategory();
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndState(mesPackedLot.getWaferId(), MaterialLotUnit.STATE_ISSUE);
+            if(!MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
                 if(CollectionUtils.isNotEmpty(materialLotUnits)){
                     if(MesPackedLot.IN_FLAG_ONE.equals(inFlag)){
                         subName = materialLotUnits.get(0).getReserved22();
@@ -3889,6 +3892,12 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }
+            if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_CP.equals(productCategory) ||
+                    MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(productCategory)){
+                if(CollectionUtils.isNotEmpty(materialLotUnits)){
+                    fabDevice = materialLotUnits.get(0).getReserved24();
+                }
+            }
 
             PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
             String mLotId = mmsService.generatorMLotId(material);
@@ -3896,6 +3905,7 @@ public class GcServiceImpl implements GcService {
             packedLot.setPackedLotRrn(null);
             packedLot.setSubName(subName);
             packedLot.setWaferId("");
+            packedLot.setFabDevice(fabDevice);
             packedLot.setQuantity(totalQty.intValue());
             packedLot.setWaferQty(number);
             packedLot = mesPackedLotRepository.saveAndFlush(packedLot);
