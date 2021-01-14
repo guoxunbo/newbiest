@@ -779,7 +779,7 @@ public class MmsServiceImpl implements MmsService {
                 if (materialLot == null) {
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
                 }
-                String targetStatus = StringUtils.EMPTY;
+                String targetStatus = MaterialStatus.STATUS_RECEIVE;
                 if (material.getIqcSheetRrn() != null) {
                     targetStatus = MaterialStatus.STATUS_IQC;
                     // IQC检查
