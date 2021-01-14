@@ -1715,9 +1715,13 @@ public class GcServiceImpl implements GcService {
                 validationStockDocLine(documentLine, materialLot);
             }
 
-            //获取第一箱的快递单号
-            String expressNumber = materialLots.get(0).getExpressNumber();
-
+            //获取发货的物料批次的快递单号
+            String expressNumber = StringUtils.EMPTY;
+            Map<String, List<MaterialLot>> mLotExpressMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
+            for (String expressId : mLotExpressMap.keySet()){
+                expressNumber += expressId + StringUtils.SEMICOLON_CODE;
+            }
             BigDecimal handledQty = BigDecimal.ZERO;
             for (MaterialLot materialLot : materialLots) {
                 handledQty = handledQty.add(materialLot.getCurrentQty());
@@ -1763,7 +1767,6 @@ public class GcServiceImpl implements GcService {
             ErpSo erpSo = erpSoOptional.get();
             erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
             erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
-            erpSo.setOther19(documentLine.getExpressNumber());
             if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
                 erpSo.setDeliveredNum(handledQty.toPlainString());
             } else {
@@ -1774,8 +1777,7 @@ public class GcServiceImpl implements GcService {
             erpSoRepository.save(erpSo);
 
             if (SystemPropertyUtils.getConnectScmFlag()) {
-                boolean kuayueExpressFlag = MaterialLot.PLAN_ORDER_TYPE_AUTO.equals(materialLots.get(0).getPlanOrderType()) ? true : false;
-                scmService.addTracking(documentLine.getDocId(), documentLine.getExpressNumber(), kuayueExpressFlag);
+                scmService.addScmTracking(documentLine.getDocId(), materialLots);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

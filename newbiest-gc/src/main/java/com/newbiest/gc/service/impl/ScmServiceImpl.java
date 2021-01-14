@@ -265,6 +265,67 @@ public class ScmServiceImpl implements ScmService {
         }
     }
 
+    /**
+     * 物料批次分组处理，(手动下单、自动下单、没有记录快递单号)
+     * 一个快递单号访问一次
+     * @param orderId
+     * @param materialLotList
+     * @throws ClientException
+     */
+    public void addScmTracking(String orderId, List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            List<Map> requestInfoList = Lists.newArrayList();
+            List<MaterialLot> autoOrderMLots = materialLotList.stream().filter(materialLot -> MaterialLot.PLAN_ORDER_TYPE_AUTO.equals(materialLot.getPlanOrderType())).collect(Collectors.toList());
+            List<MaterialLot> manualOrderMLots = materialLotList.stream().filter(materialLot -> MaterialLot.PLAN_ORDER_TYPE_MANUAL.equals(materialLot.getPlanOrderType())).collect(Collectors.toList());
+            List<MaterialLot> unOrderMLots = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getExpressNumber())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(autoOrderMLots)){
+                Map<String, List<MaterialLot>> autoOrderMLotMap = autoOrderMLots.stream().collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
+                for(String expressNumber: autoOrderMLotMap.keySet()){
+                    Map requestInfo = Maps.newHashMap();
+                    requestInfo.put("send_code", orderId);
+                    requestInfo.put("logistics_receiving_time", getReceivingTime());
+                    requestInfo.put("logistics_company_name", "跨越物流");
+                    requestInfo.put("logistics_code", expressNumber);
+                    requestInfoList.add(requestInfo);
+                }
+            }
+            if(CollectionUtils.isNotEmpty(manualOrderMLots)){
+                Map<String, List<MaterialLot>> manualOrderMLotMap = manualOrderMLots.stream().collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
+                for(String expressNumber : manualOrderMLotMap.keySet()){
+                    List<MaterialLot> materialLots = manualOrderMLotMap.get(expressNumber);
+                    String expressCompany = materialLots.get(0).getExpressCompany();
+                    Map requestInfo = Maps.newHashMap();
+                    requestInfo.put("send_code", orderId);
+                    requestInfo.put("logistics_receiving_time", getReceivingTime());
+                    requestInfo.put("logistics_company_name", expressCompany);
+                    requestInfo.put("logistics_code", expressNumber);
+                    requestInfoList.add(requestInfo);
+                }
+            }
+            if(CollectionUtils.isNotEmpty(unOrderMLots)){
+                Map requestInfo = Maps.newHashMap();
+                requestInfo.put("send_code", orderId);
+                requestInfo.put("logistics_receiving_time", getReceivingTime());
+                requestInfo.put("logistics_company_name", "");
+                requestInfo.put("logistics_code", "");
+                requestInfoList.add(requestInfo);
+            }
+
+            String token = getMScmToken();
+            Map httpHeader = Maps.newHashMap();
+            httpHeader.put("authorization", token);
+
+            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, httpHeader);
+            Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
+            Integer ret = (Integer) responseData.get("ret");
+            if (200 != ret) {
+                throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     public String getMScmToken() throws ClientException{
         try {
             Map httpHeader = Maps.newHashMap();
