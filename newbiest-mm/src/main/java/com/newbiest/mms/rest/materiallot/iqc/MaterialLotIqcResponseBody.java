@@ -10,6 +10,7 @@ public class MaterialLotIqcResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
-	private MLotCheckSheet mLotCheckSheet;
+	private MLotCheckSheet materialLotCheckSheet;
+
 
 }

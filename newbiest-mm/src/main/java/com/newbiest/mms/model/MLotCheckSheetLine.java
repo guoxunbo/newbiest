@@ -4,6 +4,7 @@ import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.DateUtils;
+import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -50,18 +51,13 @@ public class MLotCheckSheetLine extends NBUpdatable {
     @Column(name="ACTION_COMMENT")
     private String actionComment;
 
-    @PrePersist
-    protected void prePersist() {
-        super.prePersist();
-        checkTime = DateUtils.now();
-        checkOwner = ThreadLocalContext.getUsername();
-    }
-
     @PreUpdate
     protected void preUpdate() {
         super.preUpdate();
-        checkTime = DateUtils.now();
-        checkOwner = ThreadLocalContext.getUsername();
+        if (StringUtils.isNullOrEmpty(checkResult)) {
+            checkTime = DateUtils.now();
+            checkOwner = ThreadLocalContext.getUsername();
+        }
     }
 
 }
