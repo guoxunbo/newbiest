@@ -42,7 +42,7 @@ public class MaterialLotIqcController extends AbstractRestController {
 
         MLotCheckSheet mLotCheckSheet = mmsService.iqc(materialLotAction);
 
-        responseBody.setMLotCheckSheet(mLotCheckSheet);
+        responseBody.setMaterialLotCheckSheet(mLotCheckSheet);
         response.setBody(responseBody);
         return response;
     }
