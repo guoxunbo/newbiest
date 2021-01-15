@@ -16,6 +16,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void wltCpThreeSideShip(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void validateAndRawMaterialIssue(DocumentLine documentLine, List<MaterialLot> materialLots) throws ClientException;
     void waferOutOrderIssue(List<MaterialLotAction> materialLotActions) throws ClientException;
     void receiveRawMaterial(List<MaterialLot> materialLotList) throws ClientException;
@@ -121,6 +122,7 @@ public interface GcService {
     void asyncReTestOrder() throws ClientException;
     void asyncWaferIssueOrder() throws ClientException;
     void asyncWaferIssueOrderAndOtherIssueOrder() throws ClientException;
+    void asyncWltCpShipOrder() throws ClientException;
 
     void asyncMesProduct() throws ClientException;
     void asyncMesWaferType() throws ClientException;

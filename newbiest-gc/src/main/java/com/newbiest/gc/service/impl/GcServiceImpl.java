@@ -88,6 +88,10 @@ public class GcServiceImpl implements GcService {
     public static final String WAREHOUSE_ZJ = "ZJ_STOCK";
     public static final String WAREHOUSE_HK = "HK_STOCK";
 
+    public static final String BONDED_PROPERTITY_SH = "SH";
+    public static final String BONDED_PROPERTITY_ZSH = "ZSH";
+    public static final String BONDED_PROPERTITY_HK = "HK";
+
     @Autowired
     MesPackedLotRepository mesPackedLotRepository;
 
@@ -722,6 +726,15 @@ public class GcServiceImpl implements GcService {
     public void asyncWaferIssueOrderAndOtherIssueOrder() throws ClientException {
         asyncWaferIssueOrder();
         asyncOtherIssueOrder();
+    }
+
+    /**
+     * WLT|CP发货单、三方销售单据
+     * @throws ClientException
+     */
+    public void asyncWltCpShipOrder() throws ClientException {
+        asyncOtherStockOutOrder();
+        asyncOtherShipOrder();
     }
 
     /**
@@ -5902,6 +5915,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved28(erpSoa.getOther19());
                                 documentLine.setReserved29(erpSoa.getOther18());
                                 documentLine.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
+                                documentLine.setThreeSideTransaction(erpSoa.getCuscode());
                             }
 
                             totalQty = totalQty.add(erpSoa.getQuantity().subtract(documentLine.getQty()));
@@ -6370,6 +6384,143 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 三方销售
+     * @param documentLine
+     * @param materialLotActionList
+     * @throws ClientException
+     */
+    public void wltCpThreeSideShip(DocumentLine documentLine, List<MaterialLotAction> materialLotActionList) throws ClientException{
+        try {
+            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            List<MaterialLot> materialLots = materialLotActionList.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+
+            BigDecimal handledQty = BigDecimal.ZERO;
+            for(MaterialLot materialLot : materialLots){
+                if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54())){
+                    handledQty = handledQty.add(materialLot.getCurrentQty());
+                } else {
+                    handledQty = handledQty.add(materialLot.getCurrentSubQty());
+                }
+                validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.MLOT_THREESIDE_DOC_VALIDATE_RULE_ID);
+            }
+
+            BigDecimal unHandleQty =  documentLine.getUnHandledQty().subtract(handledQty);
+            if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
+                throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
+            }
+
+            for (MaterialLot materialLot : materialLots) {
+                materialLot = changeMLotWarehouseByDocumentLineAndSaveHis(materialLot, documentLine);
+                List<MaterialLot> packageLotDetails = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                if(CollectionUtils.isNotEmpty(packageLotDetails)){
+                    for (MaterialLot packageLot : packageLotDetails){
+                        packageLot.setReserved13(materialLot.getReserved13());
+                        packageLot.setReserved6(materialLot.getReserved6());
+                        packageLot.setThreeSideOrder(documentLine.getObjectRrn().toString());
+                        packageLot = materialLotRepository.saveAndFlush(packageLot);
+
+                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packageLot, MaterialLotHistory.TRANS_TYPE_THREE_SIDE);
+                        materialLotHistoryRepository.save(history);
+
+                        saveMaterialLotUnitWarehouseAndSaveHis(packageLot, materialLot.getReserved13(), materialLot.getReserved6());
+                    }
+                } else if(StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                    saveMaterialLotUnitWarehouseAndSaveHis(materialLot, materialLot.getReserved13(), materialLot.getReserved6());
+                }
+            }
+
+            documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
+            documentLine.setUnHandledQty(unHandleQty);
+            documentLine = documentLineRepository.saveAndFlush(documentLine);
+            baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_THREE_SIDE);
+
+            OtherStockOutOrder otherStockOutOrder = (OtherStockOutOrder) otherStockOutOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            otherStockOutOrder.setHandledQty(otherStockOutOrder.getHandledQty().add(handledQty));
+            otherStockOutOrder.setUnHandledQty(otherStockOutOrder.getUnHandledQty().subtract(handledQty));
+            otherStockOutOrder = otherStockOutOrderRepository.saveAndFlush(otherStockOutOrder);
+            baseService.saveHistoryEntity(otherStockOutOrder, MaterialLotHistory.TRANS_TYPE_THREE_SIDE);
+
+            Optional<ErpSoa> erpSoaOptional = erpSoaOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
+            if (!erpSoaOptional.isPresent()) {
+                throw new ClientParameterException(GcExceptions.ERP_SOA_IS_NOT_EXIST, documentLine.getReserved1());
+            }
+
+            ErpSoa erpSoa = erpSoaOptional.get();
+            erpSoa.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+            erpSoa.setLeftNum(erpSoa.getLeftNum().subtract(handledQty));
+            if (StringUtils.isNullOrEmpty(erpSoa.getDeliveredNum())) {
+                erpSoa.setDeliveredNum(handledQty.toPlainString());
+            } else {
+                BigDecimal docHandledQty = new BigDecimal(erpSoa.getDeliveredNum());
+                docHandledQty = docHandledQty.add(handledQty);
+                erpSoa.setDeliveredNum(docHandledQty.toPlainString());
+            }
+            erpSoaOrderRepository.save(erpSoa);
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 修改晶圆的仓库和保税属性
+     * @param materialLot
+     * @param warehouseRrn
+     * @param bondedProperty
+     * @throws ClientException
+     */
+    private void saveMaterialLotUnitWarehouseAndSaveHis(MaterialLot materialLot, String warehouseRrn, String bondedProperty) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                materialLotUnit.setReserved13(warehouseRrn);
+                materialLotUnit.setReserved4(bondedProperty);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_THREE_SIDE);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据单据的三方标记修改物料批次的仓库和保税属性
+     * @param materialLot
+     * @param documentLine
+     * @throws ClientException
+     */
+    private MaterialLot changeMLotWarehouseByDocumentLineAndSaveHis(MaterialLot materialLot, DocumentLine documentLine) throws ClientException{
+        try {
+            String cuscode = documentLine.getThreeSideTransaction();
+            if(DocumentLine.CUSCODE_9006.equals(cuscode) || DocumentLine.CUSCODE_C1001.equals(cuscode)) {
+                List<Warehouse> warehouseList = warehouseRepository.findByNameAndOrgRrn(WAREHOUSE_SH, ThreadLocalContext.getOrgRrn());
+                materialLot.setReserved13(warehouseList.get(0).getObjectRrn().toString());
+                materialLot.setReserved6(BONDED_PROPERTITY_SH);
+            } else if(DocumentLine.CUSCODE_C2837.equals(cuscode) || DocumentLine.CUSCODE_C9009.equals(cuscode)) {
+                List<Warehouse> warehouseList = warehouseRepository.findByNameAndOrgRrn(WAREHOUSE_ZJ, ThreadLocalContext.getOrgRrn());
+                materialLot.setReserved13(warehouseList.get(0).getObjectRrn().toString());
+                materialLot.setReserved6(BONDED_PROPERTITY_ZSH);
+            } else if(DocumentLine.CUSCODE_C001.equals(cuscode)) {
+                List<Warehouse> warehouseList = warehouseRepository.findByNameAndOrgRrn(WAREHOUSE_HK, ThreadLocalContext.getOrgRrn());
+                materialLot.setReserved13(warehouseList.get(0).getObjectRrn().toString());
+                materialLot.setReserved6(BONDED_PROPERTITY_HK);
+            } else {
+                throw new ClientParameterException(GcExceptions.ERP_SOA_CUSCODE_IS_ERROR, cuscode);
+            }
+            materialLot.setThreeSideOrder(documentLine.getObjectRrn().toString());
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_THREE_SIDE);
+            materialLotHistoryRepository.save(history);
+
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * WLT/CP物料批次根据发货单进行发货，更新单据数据以及，更改ERP的中间表数据
      *  documentLine 产品型号 materialName，二级代码 reserved2， 物流 reserved7 一致
      *  materialLot 产品型号 materialName，二级代码 reserved1， 物料 reserved6 一致
@@ -6377,12 +6528,12 @@ public class GcServiceImpl implements GcService {
     public void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-//            Set treasuryNoteInfo = materialLots.stream().map(materialLot -> materialLot.getReserved4()).collect(Collectors.toSet());
-//            if (treasuryNoteInfo != null &&  treasuryNoteInfo.size() > 1) {
-//                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TREASURY_INFO_IS_NOT_SAME);
-//            }
-            
-            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+            List<DocumentLine> shipOrderList = documentLineList.stream().filter(documentLine -> ErpSob.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())).collect(Collectors.toList());
+            if(CollectionUtils.isEmpty(shipOrderList)){
+                throw new ClientParameterException(GcExceptions.CHOOSE_STOCK_OUT_ORDER_PLEASE, ErpSob.SOURCE_TABLE_NAME);
+            }
+            documentLineList = shipOrderList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+
             Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndBondPropAndShipper(documentLineList);
             Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndBondPropAndShipper(materialLots);
 

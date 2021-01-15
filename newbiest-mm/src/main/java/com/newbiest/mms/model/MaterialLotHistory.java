@@ -27,6 +27,7 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_UN_RESERVED = "UnReserved";
     public static final String TRANS_TYPE_STOCK_OUT_TAG = "StockOutTag";
     public static final String TRANS_TYPE_UN_STOCK_OUT_TAG = "UnStockOutTag";
+    public static final String TRANS_TYPE_THREE_SIDE = "ThreeSide";
 
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
@@ -366,6 +367,12 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="MATERIAL_CODE")
     private String materialCode;
+
+    /**
+     * 三方销售单
+     */
+    @Column(name="THREE_SIDE_ORDER")
+    private String threeSideOrder;
 
     /**
      * 原材料生产日期

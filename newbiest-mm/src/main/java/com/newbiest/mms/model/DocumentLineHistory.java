@@ -86,6 +86,18 @@ public class DocumentLineHistory extends NBHis {
     private String warehouseName;
 
     /**
+     * 三方交易
+     */
+    @Column(name="THREE_SIDE_TRANSACTION")
+    private String threeSideTransaction;
+
+    /**
+     * 快递单号
+     */
+    @Column(name="EXPRESSS_NUMBER")
+    private String expressNumber;
+
+    /**
      * 关联ERP LINE的SEQ主键
      */
     @Column(name="RESERVED1")

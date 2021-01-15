@@ -98,6 +98,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String FT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "FTStockOutDocRule"; //FT出货单据验证规则
     public static final String COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID = "CogMLotReceiveDocRule"; //COG来料接受单据验证规则
     public static final String RAW_MATERIAL_ISSUE_DOC_VALIDATE_RULE_ID = "RawMaterialIssueDocRule";  //原材料发料单据验证规则
+    public static final String MLOT_THREESIDE_DOC_VALIDATE_RULE_ID = "MLotThreeSideDocRule";  //三方销售单据验证规则
 
     /**
      * 香港仓依订单出货
@@ -487,6 +488,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="MATERIAL_CODE")
     private String materialCode;
+
+    /**
+     * 三方销售单
+     */
+    @Column(name="THREE_SIDE_ORDER")
+    private String threeSideOrder;
 
     /**
      * 原材料生产日期

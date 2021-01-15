@@ -15,6 +15,8 @@ public class GcExceptions {
     public static final String ERP_SOB_IS_NOT_EXIST = "gc.erp_sob_is_not_exist";
     public static final String RESERVED_OVER_QTY = "gc.reserved_over_qty";
     public static final String ERP_SOA_IS_NOT_EXIST = "gc.erp_soa_is_not_exist";
+    public static final String ERP_SOA_CUSCODE_IS_ERROR = "gc.erp_soa_cuscode_is_error";
+    public static final String CHOOSE_STOCK_OUT_ORDER_PLEASE = "gc.choose_stock_out_order_please";
 
     public static final String MATERIAL_LOT_NOT_MATCH_ORDER = "gc.meterial_lot_not_match_order";
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "gc.meterial_lot_reserved_by_another";

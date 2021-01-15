@@ -110,6 +110,12 @@ public class ErpSoa implements Serializable {
     private String cusname;
 
     /**
+     * 三方交易
+     */
+    @Column(name="CUSCODE")
+    private String cuscode;
+
+    /**
      * 同步状态
      */
     @Column(name="SYN_STATUS")
