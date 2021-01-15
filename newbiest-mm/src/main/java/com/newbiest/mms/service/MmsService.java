@@ -59,5 +59,4 @@ public interface MmsService {
 
     Warehouse getWarehouseByName(String name) throws ClientException;
     Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
-    MaterialLot getMLotByLotId(String lotId) throws ClientException;
 }
