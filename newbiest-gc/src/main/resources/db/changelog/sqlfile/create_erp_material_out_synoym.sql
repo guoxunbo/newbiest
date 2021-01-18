@@ -1,0 +1,1 @@
+create synonym ERP_MATERIAL_OUT for MTE_MATERIAL_OUT@TO_ERP;

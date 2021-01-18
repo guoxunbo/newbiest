@@ -173,18 +173,4 @@ public class ErpMaterialOutOrder implements Serializable {
     @Column(name="CREATE_SEQ")
     private String createSeq;
 
-    public void setMaterialLot(MaterialLot materialLot){
-        this.setCinvcode(materialLot.getMaterialName());
-        this.setGrade(materialLot.getGrade());
-        this.setSecondcode(materialLot.getReserved1());
-        this.setOther1(materialLot.getReserved6());
-        this.setCmaker(DEFAULT_CMAKER);
-        if(MaterialLot.ZJ_WAREHOUSE.equals(materialLot.getReserved13())){
-            this.setCwhName(MaterialLot.ZJ_STOCK);
-        } else if(MaterialLot.SH_WAREHOUSE.equals(materialLot.getReserved13())){
-            this.setCwhName(MaterialLot.SH_STOCK);
-        } else if(MaterialLot.HK_WAREHOUSE.equals(materialLot.getReserved13())){
-            this.setCwhName(MaterialLot.HK_STOCK);
-        }
-    }
 }

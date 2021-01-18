@@ -284,6 +284,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     GCUnConfirmWaferSetHisRepository unConfirmWaferSetHisRepository;
 
+    @Autowired
+    ErpMaterialOutRepository erpMaterialOutRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -8284,7 +8287,6 @@ public class GcServiceImpl implements GcService {
     public void waferOutOrderIssue(List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-            waferIssueWithOutDocument(materialLots);
 
             SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
             String ddate = formats.format(new Date());
@@ -8292,24 +8294,36 @@ public class GcServiceImpl implements GcService {
             for(MaterialLot materialLot: materialLots){
                 String importType = materialLot.getReserved49();
                 if(MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)){
-                    ErpMaterialOutOrder materialOutOrder = new ErpMaterialOutOrder();
-                    materialOutOrder.setCcode(materialLot.getLotId());
-                    materialOutOrder.setIquantity(materialLot.getCurrentQty());
-                    materialOutOrder.setMaterialLot(materialLot);
-                    materialOutOrder.setDdate(ddate);
-                    erpMaterialOutOrderRepository.save(materialOutOrder);
+                    ErpMaterialOut erpMaterialOut = new ErpMaterialOut();
+                    erpMaterialOut.setCmocode(materialLot.getLotId());
+                    erpMaterialOut.setMaterialLot(materialLot);
+                    if(materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) > 0){
+                        erpMaterialOut.setFqty(materialLot.getCurrentSubQty().toString());
+                    }
+                    if(materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) > 0){
+                        erpMaterialOut.setMaterialQty(materialLot.getCurrentQty().toString());
+                    }
+                    erpMaterialOut.setCmaker(ThreadLocalContext.getUsername());
+                    erpMaterialOut.setDmakerdate(ddate);
+                    erpMaterialOutRepository.save(erpMaterialOut);
                 } else if(MaterialLot.IMPORT_FT.equals(importType) || MaterialLot.IMPORT_SENSOR.equals(importType)){
                     List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
                     for(MaterialLotUnit materialLotUnit: materialLotUnitList){
-                        ErpMaterialOutOrder materialOutOrder = new ErpMaterialOutOrder();
-                        materialOutOrder.setMaterialLot(materialLot);
-                        materialOutOrder.setIquantity(materialLotUnit.getCurrentQty());
-                        materialOutOrder.setCcode(materialLotUnit.getUnitId());
-                        materialOutOrder.setDdate(ddate);
-                        erpMaterialOutOrderRepository.save(materialOutOrder);
+                        ErpMaterialOut erpMaterialOut = new ErpMaterialOut();
+                        erpMaterialOut.setMaterialLot(materialLot);
+                        erpMaterialOut.setCmocode(materialLotUnit.getUnitId());
+                        erpMaterialOut.setCmaker(ThreadLocalContext.getUsername());
+                        erpMaterialOut.setFqty(ErpMaterialOut.DEFAULT_FQTY);
+                        if(materialLotUnit.getCurrentQty().compareTo(BigDecimal.ZERO) > 0){
+                            erpMaterialOut.setMaterialQty(materialLotUnit.getCurrentQty().toString());
+                        }
+                        erpMaterialOut.setDmakerdate(ddate);
+                        erpMaterialOutRepository.save(erpMaterialOut);
                     }
                  }
             }
+
+            waferIssueWithOutDocument(materialLots);
 
             boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
             log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
