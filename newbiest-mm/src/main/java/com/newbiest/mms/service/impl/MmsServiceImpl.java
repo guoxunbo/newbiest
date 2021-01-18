@@ -809,6 +809,7 @@ public class MmsServiceImpl implements MmsService {
 
             // 物料批次只会hold一次。多重Hold只会记录历史，并不会产生多重Hold记录
             materialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
+            materialLot.setHoldReason(materialLotAction.getActionReason());
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
@@ -832,6 +833,7 @@ public class MmsServiceImpl implements MmsService {
             sc.buildTransInfo();
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             materialLot.setHoldState(MaterialLot.HOLD_STATE_OFF);
+            materialLot.setHoldReason(StringUtils.EMPTY);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RELEASE);

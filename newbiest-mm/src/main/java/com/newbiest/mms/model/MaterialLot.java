@@ -496,6 +496,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String threeSideOrder;
 
     /**
+     * HOLD原因
+     */
+    @Column(name="HOLD_REASON")
+    private String holdReason;
+
+    /**
      * 原材料生产日期
      */
     @Column(name="MFG_DATE")
