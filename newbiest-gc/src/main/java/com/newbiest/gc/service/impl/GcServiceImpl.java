@@ -4532,7 +4532,7 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MaterialLotUnit>> mLotUnitMap = new HashMap<>();
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getLotId));
             if(MaterialLotUnit.WLA_UNMEASURED.equals(importType)){
-                Pattern pattern = Pattern.compile("^[_][a-zA-Z0-9]{4}$");
+                Pattern pattern = Pattern.compile("^[_].{3,4}$");
                 for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
                     Integer waferCount = materialLotUnits.get(0).getCurrentSubQty().intValue();
@@ -6393,6 +6393,11 @@ public class GcServiceImpl implements GcService {
         try {
             documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             List<MaterialLot> materialLots = materialLotActionList.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+
+            List<MaterialLot> materialLotList = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getThreeSideOrder())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(materialLotList)){
+                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_HAS_BEEN_SOLD_BY_THREE_PARTIES, materialLotList.get(0).getMaterialLotId());
+            }
 
             BigDecimal handledQty = BigDecimal.ZERO;
             for(MaterialLot materialLot : materialLots){
