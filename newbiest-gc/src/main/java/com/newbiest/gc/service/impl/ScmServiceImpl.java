@@ -5,6 +5,8 @@ import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.model.NBHis;
+import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
@@ -14,8 +16,11 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.service.ScmService;
 import com.newbiest.gc.service.model.QueryEngResponse;
+import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotHistory;
 import com.newbiest.mms.model.MaterialLotUnit;
+import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
 import com.newbiest.mms.service.MmsService;
@@ -90,6 +95,10 @@ public class ScmServiceImpl implements ScmService {
     MaterialLotRepository materialLotRepository;
 
     @Autowired
+    MaterialLotHistoryRepository materialLotHistoryRepository;
+
+
+    @Autowired
     MaterialLotUnitRepository materialLotUnitRepository;
 
     @Autowired
@@ -97,6 +106,9 @@ public class ScmServiceImpl implements ScmService {
 
     @Autowired
     MmsService mmsService;
+
+    @Autowired
+    BaseService baseService;
 
     @PostConstruct
     public void init() {
@@ -109,6 +121,50 @@ public class ScmServiceImpl implements ScmService {
 
     protected HttpClientBuilder createHttpClient() {
         return create().useSystemProperties().disableRedirectHandling().disableCookieManagement();
+    }
+
+    public void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotRepository.findByLotId(lotId);
+            if (CollectionUtils.isEmpty(materialLots)) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
+            }
+            for (MaterialLot materialLot : materialLots) {
+                materialLot.setReserved54(materialType);
+                materialLot.setReserved55(vendor);
+                materialLot.setReserved56(poId);
+                materialLot.setReserved57(remarks);
+                materialLotRepository.saveAndFlush(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMAssign");
+                materialLotHistoryRepository.save(history);
+
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void scmUnAssign(String lotId) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotRepository.findByLotId(lotId);
+            if (CollectionUtils.isEmpty(materialLots)) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
+            }
+            for (MaterialLot materialLot : materialLots) {
+                materialLot.setReserved54(StringUtils.EMPTY);
+                materialLot.setReserved55(StringUtils.EMPTY);
+                materialLot.setReserved56(StringUtils.EMPTY);
+                materialLot.setReserved57(StringUtils.EMPTY);
+                materialLotRepository.saveAndFlush(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMUnAssign");
+                materialLotHistoryRepository.save(history);
+
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     /**
@@ -172,6 +228,9 @@ public class ScmServiceImpl implements ScmService {
                     MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
                     materialLot.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
                     materialLotRepository.saveAndFlush(materialLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMEngFlag");
+                    materialLotHistoryRepository.save(history);
                 }
             }
         } catch (Exception e) {

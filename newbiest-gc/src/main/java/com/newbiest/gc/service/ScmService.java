@@ -13,6 +13,9 @@ import java.util.List;
  */
 public interface ScmService {
 
+    void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException;
+    void scmUnAssign(String lotId) throws ClientException;
+
     void assignEngFlag(List<MaterialLotUnit> materialLotUnits) throws ClientException;
     String getMScmToken() throws ClientException;
     void addTracking(String orderId, String expressNumber, boolean isKuayueExprress) throws ClientException;

@@ -979,6 +979,7 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+
     public MaterialLot getMLotByMLotIdAndBindWorkOrderId(String mLotId, boolean throwExceptionFlag) throws ClientException{
         try {
             MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId, ThreadLocalContext.getOrgRrn());
