@@ -6394,6 +6394,11 @@ public class GcServiceImpl implements GcService {
             documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             List<MaterialLot> materialLots = materialLotActionList.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
 
+            List<MaterialLot> materialLotList = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getThreeSideOrder())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(materialLotList)){
+                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_HAS_BEEN_SOLD_BY_THREE_PARTIES, materialLotList.get(0).getMaterialLotId());
+            }
+
             BigDecimal handledQty = BigDecimal.ZERO;
             for(MaterialLot materialLot : materialLots){
                 if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54())){
