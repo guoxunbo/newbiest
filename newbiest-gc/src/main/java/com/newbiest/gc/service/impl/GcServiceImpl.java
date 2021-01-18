@@ -4532,7 +4532,7 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MaterialLotUnit>> mLotUnitMap = new HashMap<>();
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getLotId));
             if(MaterialLotUnit.WLA_UNMEASURED.equals(importType)){
-                Pattern pattern = Pattern.compile("^[_][a-zA-Z0-9]{4}$");
+                Pattern pattern = Pattern.compile("^[_].{3,4}$");
                 for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
                     Integer waferCount = materialLotUnits.get(0).getCurrentSubQty().intValue();
