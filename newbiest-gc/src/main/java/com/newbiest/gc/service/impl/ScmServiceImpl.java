@@ -24,6 +24,7 @@ import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.msg.DefaultParser;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -125,21 +126,19 @@ public class ScmServiceImpl implements ScmService {
 
     public void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotRepository.findByLotId(lotId);
-            if (CollectionUtils.isEmpty(materialLots)) {
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialStatusCategory.STATUS_CATEGORY_FIN);
+            if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
-            for (MaterialLot materialLot : materialLots) {
-                materialLot.setReserved54(materialType);
-                materialLot.setReserved55(vendor);
-                materialLot.setReserved56(poId);
-                materialLot.setReserved57(remarks);
-                materialLotRepository.saveAndFlush(materialLot);
+            materialLot.setReserved54(materialType);
+            materialLot.setReserved55(vendor);
+            materialLot.setReserved56(poId);
+            materialLot.setReserved57(remarks);
+            materialLotRepository.saveAndFlush(materialLot);
 
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMAssign");
-                materialLotHistoryRepository.save(history);
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMAssign");
+            materialLotHistoryRepository.save(history);
 
-            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -147,21 +146,18 @@ public class ScmServiceImpl implements ScmService {
 
     public void scmUnAssign(String lotId) throws ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotRepository.findByLotId(lotId);
-            if (CollectionUtils.isEmpty(materialLots)) {
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialStatusCategory.STATUS_CATEGORY_FIN);
+            if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
-            for (MaterialLot materialLot : materialLots) {
-                materialLot.setReserved54(StringUtils.EMPTY);
-                materialLot.setReserved55(StringUtils.EMPTY);
-                materialLot.setReserved56(StringUtils.EMPTY);
-                materialLot.setReserved57(StringUtils.EMPTY);
-                materialLotRepository.saveAndFlush(materialLot);
+            materialLot.setReserved54(StringUtils.EMPTY);
+            materialLot.setReserved55(StringUtils.EMPTY);
+            materialLot.setReserved56(StringUtils.EMPTY);
+            materialLot.setReserved57(StringUtils.EMPTY);
+            materialLotRepository.saveAndFlush(materialLot);
 
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMUnAssign");
-                materialLotHistoryRepository.save(history);
-
-            }
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMUnAssign");
+            materialLotHistoryRepository.save(history);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
