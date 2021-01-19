@@ -395,3 +395,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.1.erp_material_out.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RawMaterialStockIn_nb_table.yaml
+      relativeToChangelogFile: true
