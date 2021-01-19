@@ -34,5 +34,7 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_UN_PACKAGE = "UnPackage";
 
+    public static final String EVENT_SCRAP = "Scrap";
+
 
 }

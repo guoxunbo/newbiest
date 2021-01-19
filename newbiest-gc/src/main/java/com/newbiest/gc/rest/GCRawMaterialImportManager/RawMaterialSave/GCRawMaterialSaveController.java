@@ -41,6 +41,8 @@ public class GCRawMaterialSaveController {
             gcService.receiveRawMaterial(materialLotList);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
             gcService.validateAndRawMaterialIssue(requestBody.getDocumentLine() ,materialLotList);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SCRAP.equals(actionType)){
+            gcService.scrapRawMaterial(materialLotList, requestBody.getReason(), requestBody.getRemarks());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

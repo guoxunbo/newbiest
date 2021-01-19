@@ -398,3 +398,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.RawMaterialStockIn_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RawMaterialScrap_nb_table.yaml
+      relativeToChangelogFile: true

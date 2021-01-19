@@ -16,5 +16,7 @@ public class GCRawMaterialSaveRequest extends Request {
 
     public static final String ACTION_TYPE_ISSUE = "RawIssue";
 
+    public static final String ACTION_TYPE_SCRAP = "Scrap";
+
     private GCRawMaterialSaveRequestBody body;
 }

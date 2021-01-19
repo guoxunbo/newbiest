@@ -27,4 +27,10 @@ public class GCRawMaterialSaveRequestBody extends RequestBody {
     @ApiModelProperty(value = "发料单据")
     private DocumentLine documentLine;
 
+    @ApiModelProperty(value = "报废原因")
+    private String reason;
+
+    @ApiModelProperty(value = "备注")
+    private String remarks;
+
 }

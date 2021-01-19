@@ -8282,6 +8282,28 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 原材料报废操作
+     * @param materialLotList
+     * @param reason
+     * @param remarks
+     * @throws ClientException
+     */
+    public void scrapRawMaterial(List<MaterialLot> materialLotList, String reason, String remarks) throws ClientException{
+        try {
+            for(MaterialLot materialLot: materialLotList){
+                mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_SCRAP, StringUtils.EMPTY);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RAW_SCRAP);
+                history.setActionReason(reason);
+                history.setActionComment(remarks);
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * WLT/CP晶圆无订单发料
      */
     public void waferOutOrderIssue(List<MaterialLotAction> materialLotActions) throws ClientException {
