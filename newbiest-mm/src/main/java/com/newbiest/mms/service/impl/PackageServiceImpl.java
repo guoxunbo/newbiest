@@ -55,6 +55,12 @@ public class PackageServiceImpl implements PackageService{
     MaterialLotRepository materialLotRepository;
 
     @Autowired
+    MaterialLotUnitRepository materialLotUnitRepository;
+
+    @Autowired
+    MaterialLotUnitHisRepository materialLotUnitHisRepository;
+
+    @Autowired
     GeneratorService generatorService;
 
     @Autowired
@@ -288,6 +294,17 @@ public class PackageServiceImpl implements PackageService{
                     materialLotHistoryRepository.save(history);
 
                 }
+                //拆包时将晶圆的状态恢复至In状态
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(waitToUnPackageMLot.getMaterialLotId());
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for(MaterialLotUnit materialLotUnit: materialLotUnitList){
+                        materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                        MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
+                        materialLotUnitHisRepository.save(unitHistory);
+                    }
+                }
             }
             return packedMaterialLot;
         } catch (Exception e) {
@@ -512,6 +529,17 @@ public class PackageServiceImpl implements PackageService{
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
             materialLotHistoryRepository.save(history);
+
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                for (MaterialLotUnit materialLotUnit: materialLotUnitList){
+                    materialLotUnit.setState(MaterialLotUnit.STATE_PACKAGE);
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                    MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_PACKAGE);
+                    materialLotUnitHisRepository.save(unitHistory);
+                }
+            }
         }
 
     }
