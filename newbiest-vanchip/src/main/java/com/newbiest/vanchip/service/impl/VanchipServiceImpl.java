@@ -14,13 +14,14 @@ import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
-import com.newbiest.mms.repository.DocumentRepository;
-import com.newbiest.mms.repository.IncomingOrderRepository;
-import com.newbiest.mms.repository.MaterialLotHistoryRepository;
-import com.newbiest.mms.repository.MaterialLotRepository;
+import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialStatusModel;
+import com.newbiest.vanchip.exception.VanchipExceptions;
+import com.newbiest.vanchip.repository.MLotDocRuleLineRepository;
+import com.newbiest.vanchip.repository.MLotDocRuleRepository;
+import com.newbiest.vanchip.service.MesService;
 import com.newbiest.vanchip.service.VanChipService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,19 @@ public class VanchipServiceImpl implements VanChipService {
 
     @Autowired
     MaterialLotHistoryRepository materialLotHistoryRepository;
+
+    @Autowired
+    MLotDocRuleLineRepository mLotDocRuleLineRepository;
+
+    @Autowired
+    MLotDocRuleRepository mLotDocRuleRepository;
+
+    @Autowired
+    MesService mesService;
+
+    @Autowired
+    DocumentMLotRepository documentMLotRepository;
+
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
@@ -147,25 +161,57 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
-    public void deleteIncomingMaterialLot(List<MaterialLot> materialLotList, String deleteNote) {
-        List<MaterialLot>  materialLots = materialLotList.stream().filter(materialLot -> materialLot.getStatus().equals("Create")).collect(Collectors.toList());
-        for (MaterialLot materialLot:materialLots){
-            Document document = documentRepository.findOneByName(materialLot.getIncomingDocId());
-            BigDecimal qty = document.getQty().subtract(materialLot.getCurrentQty());
-            BigDecimal unHandleQty = document.getUnHandledQty().subtract(materialLot.getCurrentQty());
+    public void deleteIncomingMaterialLot(List<MaterialLot> materialLotList, String deleteNote) throws ClientException{
+        try {
+            List<MaterialLot>  materialLots = materialLotList.stream().filter(materialLot -> materialLot.getStatus().equals("Create")).collect(Collectors.toList());
+            for (MaterialLot materialLot:materialLots){
+                if (!StringUtils.isNullOrEmpty(materialLot.getWorkOrderId())){
+                    throw new ClientParameterException(VanchipExceptions.UNIT_ID_ALREADY_BONDING_WORKORDER_ID, materialLot);
+                }
+                Document document = documentRepository.findOneByName(materialLot.getIncomingDocId());
+                BigDecimal qty = document.getQty().subtract(materialLot.getCurrentQty());
+                BigDecimal unHandleQty = document.getUnHandledQty().subtract(materialLot.getCurrentQty());
 
-            document.setQty(qty);
-            document.setUnHandledQty(unHandleQty);
-            baseService.saveEntity(document);
-            if (BigDecimal.ZERO == qty){
-                documentRepository.delete(document);
+                document.setQty(qty);
+                document.setUnHandledQty(unHandleQty);
+                baseService.saveEntity(document);
+                if (BigDecimal.ZERO == qty){
+                    documentRepository.delete(document);
+                }
+                materialLotRepository.delete(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
+                history.setActionComment(deleteNote);
+                materialLotHistoryRepository.save(history);
             }
-            materialLotRepository.delete(materialLot);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
 
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
-            history.setActionComment(deleteNote);
-            materialLotHistoryRepository.save(history);
+    }
+
+    public void issueMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId)).collect(Collectors.toList());
+            mesService.issueMLotByDocRequestMes(materialLots);
+
+            documentService.issueMLotByDoc(documentId, materialLotIdList);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
         }
     }
+
+    public void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws  ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId)).collect(Collectors.toList());
+            mesService.issueMLotByDocLineRequestMes(materialLots);
+
+            documentService.issueMLotByDocLine(documentLine, materialLotIdList);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
 
 }
