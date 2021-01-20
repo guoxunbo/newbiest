@@ -4,9 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
-import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.CollectorsUtils;
-import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
@@ -16,8 +14,6 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
-import com.newbiest.mms.state.model.MaterialEvent;
-import com.newbiest.mms.state.model.MaterialStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -100,8 +96,8 @@ public class DocumentServiceImpl implements DocumentService {
             issueLotOrder = (IssueLotOrder) baseService.saveEntity(issueLotOrder);
 
             for (MaterialLot materialLot : materialLots) {
-                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_ISSUE_RESERVED, StringUtils.EMPTY);
-                baseService.saveHistoryEntity(materialLot, MaterialEvent.EVENT_ISSUE_RESERVED);
+//                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_ISSUE_RESERVED, StringUtils.EMPTY);
+//                baseService.saveHistoryEntity(materialLot, MaterialEvent.EVENT_ISSUE_RESERVED);
 
                 DocumentMLot documentMLot = new DocumentMLot();
                 documentMLot.setDocumentId(issueLotOrder.getName());
@@ -152,6 +148,7 @@ public class DocumentServiceImpl implements DocumentService {
                 documentLine.setMaterial(rawMaterial);
                 documentLine.setQty(rawMaterialQtyMap.get(rawMaterialName));
                 documentLine.setUnHandledQty(rawMaterialQtyMap.get(rawMaterialName));
+                documentLine.setDocCategory(Document.CATEGORY_ISSUE_MATERIAL);
                 baseService.saveEntity(documentLine);
             }
         } catch (Exception e) {
@@ -168,7 +165,7 @@ public class DocumentServiceImpl implements DocumentService {
      */
     public void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException {
         try {
-            IssueMaterialOrder issueMaterialOrder = issueMaterialOrderRepository.findByObjectRrn(documentLine.getObjectRrn());
+            IssueMaterialOrder issueMaterialOrder = issueMaterialOrderRepository.findOneByName(documentLine.getDocId());
             if (issueMaterialOrder == null) {
                 throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, documentLine.getDocId());
             }
@@ -222,12 +219,12 @@ public class DocumentServiceImpl implements DocumentService {
             for (String materialLotId : materialLotIdList) {
                 Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
                 if (!existMaterialLotOptional.isPresent()) {
-                    throw new ClientParameterException(DOCUMENT_NOT_RESERVED_MLOT, materialLotId);
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);
                 }
                 MaterialLot materialLot = existMaterialLotOptional.get();
-                if (!MaterialStatus.STATUS_RESERVED.equals(materialLot.getStatus())) {
-                    throw new ClientParameterException(DOCUMENT_NOT_RESERVED_MLOT, materialLotId);
-                }
+//                if (!MaterialStatus.STATUS_RESERVED.equals(materialLot.getStatus())) {
+//                    throw new ClientParameterException(DOCUMENT_NOT_RESERVED_MLOT, materialLotId);
+//                }
                 handleQty = handleQty.add(materialLot.getCurrentQty());
                 mmsService.issue(materialLot);
             }
@@ -298,6 +295,10 @@ public class DocumentServiceImpl implements DocumentService {
         GeneratorContext generatorContext = new GeneratorContext();
         generatorContext.setRuleName(generatorRule);
         return generatorService.generatorId(generatorContext);
+    }
+
+    public List<MaterialLot> getMLotByDocLine(DocumentLine documentLine) throws ClientException{
+        return  materialLotRepository.findMLotsByDocId(documentLine.getDocId());
     }
 
 }

@@ -1,11 +1,12 @@
-package com.newbiest.mms.rest.doc.issue.material;
+package com.newbiest.vanchip.rest.doc.issue.material;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.model.DocumentLine;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
-import com.newbiest.mms.service.MmsService;
+import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/mms")
 @Slf4j
@@ -23,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IssueMLotByDocLineController extends AbstractRestController {
 
     @Autowired
-    MmsService mmsService;
+    VanChipService vanChipService;
 
     @Autowired
     DocumentService documentService;
@@ -39,13 +42,17 @@ public class IssueMLotByDocLineController extends AbstractRestController {
 
         String actionType = requestBody.getActionType();
         DocumentLine documentLine = requestBody.getDocumentLine();
+        List<String>  materialLotIdList = requestBody.getMaterialLotIdList();
 
         if (IssueMLotByDocLineRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
 
-
+            vanChipService.issueMLotByDocLine(requestBody.getDocumentLine(), materialLotIdList);
         } else if (IssueMLotByDocLineRequest.ACTION_TYPE_VALIDATION.equals(actionType)){
 
 
+        }else if (IssueMLotByDocLineRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
+            List<MaterialLot> materialLotList = documentService.getMLotByDocLine(documentLine);
+            responseBody.setMaterialLotList(materialLotList);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }

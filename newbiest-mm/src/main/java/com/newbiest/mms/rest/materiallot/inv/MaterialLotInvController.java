@@ -54,7 +54,8 @@ public class MaterialLotInvController extends AbstractRestController {
         }
 
         if (MaterialLotInvRequest.ACTION_STOCK_OUT.equals(actionType)) {
-            mmsService.stockOut(materialLot, materialLotAction);
+            //mmsService.stockOut(materialLot, materialLotAction);
+            mmsService.pick(materialLot, materialLotAction);
         } else if (MaterialLotInvRequest.ACTION_TRANSFER.equals(actionType)) {
             materialLotInventory = mmsService.transfer(materialLot, materialLotAction);
         } else if (MaterialLotInvRequest.ACTION_PICK.equals(actionType)) {
