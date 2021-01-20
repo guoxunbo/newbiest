@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.0.8
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: RESERVED43
+                  type: varchar(64)
+                  remarks: 描述\型号
+              - column:
+                  name: RETURN_MLOT_REASON
+                  type: varchar(64)
+                  remarks: 退料原因
+              - column:
+                  name: PRODUCTED_DATE
+                  type: datetime
+                  remarks: 生产日期

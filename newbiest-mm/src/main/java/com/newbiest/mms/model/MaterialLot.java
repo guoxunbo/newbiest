@@ -305,6 +305,18 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String lotNoFlag;
 
     /**
+     * 退料原因
+     */
+    @Column(name="RETURN_MLOT_REASON")
+    private String returnMlotReason;
+
+    /**
+     * 生产日期
+     */
+    @Column(name="PRODUCTED_DATE")
+    private Date productedDate;
+
+    /**
      * PackageSize
      */
     @Column(name="RESERVED1")
@@ -557,6 +569,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="RESERVED42")
     private String reserved42;
+
+    /**
+     * 描述\型号
+     */
+    @Column(name="RESERVED43")
+    private String reserved43;
 
 
 

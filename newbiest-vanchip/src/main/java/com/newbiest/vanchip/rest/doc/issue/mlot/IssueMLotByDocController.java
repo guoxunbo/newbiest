@@ -1,4 +1,4 @@
-package com.newbiest.mms.rest.doc.issue.mlot;
+package com.newbiest.vanchip.rest.doc.issue.mlot;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
@@ -6,6 +6,7 @@ import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +30,9 @@ public class IssueMLotByDocController extends AbstractRestController {
 
     @Autowired
     DocumentService documentService;
+    
+    @Autowired
+    VanChipService vanChipService;
 
     @ApiOperation(value = "发料")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "IssueMLotByDocRequest")
@@ -41,7 +45,7 @@ public class IssueMLotByDocController extends AbstractRestController {
         String actionType = requestBody.getActionType();
 
         if(IssueMLotByDocRequest.ACTION_TYPE_ISSUE.equals(actionType)){
-            documentService.issueMLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
+            vanChipService.issueMLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
         } else if (IssueMLotByDocRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
             List<MaterialLot> materialLots = documentService.getReservedMLotByDocId(requestBody.getDocumentId());
             responseBody.setMaterialLotList(materialLots);

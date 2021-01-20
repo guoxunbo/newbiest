@@ -1,4 +1,4 @@
-package com.newbiest.mms.rest.doc.issue.material;
+package com.newbiest.vanchip.rest.doc.issue.material;
 
 import com.newbiest.base.msg.Response;
 import lombok.Data;

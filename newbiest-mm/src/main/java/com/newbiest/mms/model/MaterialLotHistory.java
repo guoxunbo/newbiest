@@ -22,6 +22,7 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_STOCK_OUT = "StockOut";
     public static final String TRANS_TYPE_SHIP = "Ship";
     public static final String TRANS_TYPE_ISSUE = "Issue";
+    public static final String TRANS_TYPE_RETURN_MLOT = "ReturnMLot";
 
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
@@ -326,6 +327,18 @@ public class MaterialLotHistory extends NBHis {
     private String lotNoFlag;
 
     /**
+     * 退料原因
+     */
+    @Column(name="RETURN_MLOT_REASON")
+    private String returnMlotReason;
+
+    /**
+     * 生产日期
+     */
+    @Column(name="PRODUCTED_DATE")
+    private Date productedDate;
+
+    /**
      * PackageSize
      */
     @Column(name="RESERVED1")
@@ -579,6 +592,11 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED42")
     private String reserved42;
 
+    /**
+     * 描述\型号
+     */
+    @Column(name="RESERVED43")
+    private String reserved43;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

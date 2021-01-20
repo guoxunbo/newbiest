@@ -28,7 +28,6 @@ import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
-import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -886,10 +885,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setStatusModelRrn(statusModel.getObjectRrn());
             materialLot.setStatusCategory(statusModel.getInitialStateCategory());
             materialLot.setStatus(statusModel.getInitialState());
-            materialLot.setReceiveQty(transQty);
             materialLot.setReceiveDate(new Date());
-            materialLot.setCurrentQty(transQty);
-            materialLot.setCurrentSubQty(transSubQty);
             materialLot.setMaterial(material);
 
             if (propsMap != null && propsMap.size() > 0) {
@@ -901,6 +897,10 @@ public class MmsServiceImpl implements MmsService {
                     PropertyUtils.setProperty(materialLot, propName, propsMap.get(propName));
                 }
             }
+            materialLot.setReceiveQty(transQty);
+            materialLot.setCurrentQty(transQty);
+            materialLot.setCurrentSubQty(transSubQty);
+
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             // 记录历史
