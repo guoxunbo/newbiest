@@ -388,6 +388,15 @@ public class ExpressServiceImpl implements ExpressService {
     public List<Map<String,String>> getPrintLabelParameterList(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{
         try {
             List<Map<String, String>> parameterMapList =  Lists.newArrayList();
+            List<MaterialLot> expressNumberInfoList = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getExpressNumber())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(expressNumberInfoList)){
+                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, expressNumberInfoList.get(0).getMaterialLotId());
+            }
+            Set shipOrderInfo = materialLotList.stream().map(materialLot -> materialLot.getReserved17()).collect(Collectors.toSet());
+            if (shipOrderInfo != null &&  shipOrderInfo.size() > 1) {
+                throw new ClientParameterException(GcExceptions.SHIP_ORDER_IS_NOT_SAME);
+            }
+
             Integer seq = 1;
             Integer numfix = materialLotList.size();
             //按照称重的先后排序打印标签

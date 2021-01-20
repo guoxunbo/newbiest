@@ -63,7 +63,7 @@ public class RecordExpressController {
             List<DocumentLine> deliveryOrders = expressService.recordExpressNumber(requestBody.getDocumentLineList());
             responseBody.setDocumentLineList(deliveryOrders);
         } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_PRINTPARAMETER.equals(actionType)){
-            parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(), requestBody.getExpressNumber());
+            parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(), null);
             responseBody.setParameterMapList(parameterMapList);
         }else if(RecordExpressRequestBody.ACTION_TYPE_OBLIQUE_LABEL_PRINT.equals(actionType)){
             materialLots = requestBody.getMaterialLots();
