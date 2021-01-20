@@ -83,9 +83,6 @@ public class VanchipServiceImpl implements VanChipService {
     MesService mesService;
 
     @Autowired
-    ReturnMLotOrderRepository returnMLotOrderRepository;
-
-    @Autowired
     DocumentMLotRepository documentMLotRepository;
 
 
