@@ -17,6 +17,4 @@ public class IssueMLotByDocLineRequestBody extends RequestBody {
 
 	private List<String> materialLotIdList;
 
-	private String materialLotId;
-
 }
