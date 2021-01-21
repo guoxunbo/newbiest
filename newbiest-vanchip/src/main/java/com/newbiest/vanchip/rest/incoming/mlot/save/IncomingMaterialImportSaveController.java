@@ -3,6 +3,7 @@ package com.newbiest.vanchip.rest.incoming.mlot.save;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.service.VanChipService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/vc")
 @Slf4j
+@Api(value="/vc", tags="Vanchip客制化")
 public class IncomingMaterialImportSaveController {
 
     @Autowired

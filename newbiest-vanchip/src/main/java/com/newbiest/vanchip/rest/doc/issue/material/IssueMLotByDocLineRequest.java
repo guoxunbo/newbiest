@@ -12,6 +12,9 @@ public class IssueMLotByDocLineRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "GCIssueMLotByDocLine";
 
+	public static final String ACTION_TYPE_ISSUE = "Issue";
+	public static final String ACTION_TYPE_VALIDATION = "Validation";
+
 	private IssueMLotByDocLineRequestBody body;
 
 }

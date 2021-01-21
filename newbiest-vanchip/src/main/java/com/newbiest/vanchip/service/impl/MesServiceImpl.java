@@ -5,7 +5,6 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.msg.DefaultParser;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.dto.mes.MesRequest;
 import com.newbiest.vanchip.dto.mes.MesResponse;
 import com.newbiest.vanchip.dto.mes.MesResponseHeader;
@@ -32,7 +31,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 连接MES的服务相关

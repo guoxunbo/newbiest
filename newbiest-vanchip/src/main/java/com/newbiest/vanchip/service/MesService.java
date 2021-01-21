@@ -1,7 +1,6 @@
 package com.newbiest.vanchip.service;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
 
