@@ -13,5 +13,4 @@ public class IssueMLotByDocLineResponseBody extends ResponseBody {
 
 	List<MaterialLot> materialLotList ;
 
-	MaterialLot materialLot ;
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @ApiModel
-public class ReturnMLotByDocRequest extends Request {
+public class ReturnByDocRequest extends Request {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -15,6 +15,6 @@ public class ReturnMLotByDocRequest extends Request {
 	public static final String ACTION_TYPE_RETURN_MLOT = "ReturnMLot";
 	public static final String ACTION_TYPE_GET_MATERIAL_LOT = "GetMaterialLot";
 
-	private ReturnMLotByDocRequestBody body;
+	private ReturnByDocRequestBody body;
 
 }

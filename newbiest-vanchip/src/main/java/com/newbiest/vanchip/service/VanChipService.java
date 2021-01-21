@@ -24,11 +24,9 @@ public interface VanChipService {
 
     void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
 
-    void createReturnMLotOrder(String documentId, boolean approveFlag, List<Map<String, String>> materialLotAndQtyList) throws ClientException;
-
-    List<MaterialLot> getMLotByDocId(String documentId) throws ClientException;
+    void createReturnOrder(String documentId, boolean approveFlag, List<Map<String, String>> materialLotAndQtyList) throws ClientException;
 
     void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
 
-    MaterialLot validationDocLineAndMaterialLot(DocumentLine documentLine, String materialLotId);
+    MaterialLot validationDocLineAndMaterialLot(DocumentLine documentLine, List<String> materialLotIdList);
 }

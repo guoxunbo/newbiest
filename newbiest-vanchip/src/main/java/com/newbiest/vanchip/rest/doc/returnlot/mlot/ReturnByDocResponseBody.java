@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ReturnMLotByDocResponseBody extends ResponseBody {
+public class ReturnByDocResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 

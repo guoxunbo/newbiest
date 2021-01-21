@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @ApiModel("具体请求操作信息")
-public class ReturnMLotByDocRequestBody extends RequestBody {
+public class ReturnByDocRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
