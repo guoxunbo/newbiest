@@ -69,15 +69,14 @@ public class MesServiceImpl implements MesService {
         restTemplate = new RestTemplate();
     }
 
-    public void returnMLot(List<MaterialLot> materialLots) throws ClientException{
+    public void returnMLot(List<String> materialLotIdList) throws ClientException{
         try {
             ReturnMLotRequestHeader requestHeader = new ReturnMLotRequestHeader();
 
             ReturnMLotRequest request = new ReturnMLotRequest();
             ReturnMLotRequestBody requestBody = new ReturnMLotRequestBody();
 
-            List<String> materialLotIds = materialLots.stream().map(MaterialLot :: getMaterialLotId).collect(Collectors.toList());
-            requestBody.setMaterialLotIds(materialLotIds);
+            requestBody.setMaterialLotIds(materialLotIdList);
             request.setBody(requestBody);
             request.setHeader(requestHeader);
 
@@ -87,15 +86,14 @@ public class MesServiceImpl implements MesService {
         }
     }
 
-    public void issueMLot(List<MaterialLot> materialLots) throws ClientException{
+    public void issueMLot(List<String> materialLotIdList) throws ClientException{
         try {
             IssueMLotRequestHeader requestHeader = new IssueMLotRequestHeader();
 
             IssueMLotRequest request = new IssueMLotRequest();
             IssueMLotRequestBody requestBody = new IssueMLotRequestBody();
-            List<String> materialLotIds = materialLots.stream().map(MaterialLot :: getMaterialLotId).collect(Collectors.toList());
 
-            requestBody.setMaterialLotIds(materialLotIds);
+            requestBody.setMaterialLotIds(materialLotIdList);
             request.setBody(requestBody);
             request.setHeader(requestHeader);
 

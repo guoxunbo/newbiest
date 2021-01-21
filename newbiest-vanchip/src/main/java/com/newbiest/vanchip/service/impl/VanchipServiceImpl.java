@@ -191,10 +191,9 @@ public class VanchipServiceImpl implements VanChipService {
 
     public void issueMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId)).collect(Collectors.toList());
             documentService.issueMLotByDoc(documentId, materialLotIdList);
 
-            mesService.issueMLot(materialLots, false);
+            mesService.issueMLot(materialLotIdList);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -202,10 +201,9 @@ public class VanchipServiceImpl implements VanChipService {
 
     public void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws  ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId)).collect(Collectors.toList());
             documentService.issueMLotByDocLine(documentLine, materialLotIdList);
 
-            mesService.issueMLot(materialLots, true);
+            mesService.issueMLot(materialLotIdList);
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }

@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface MesService {
 
-    void issueMLot(List<MaterialLot> materialLots) throws ClientException;
-    void returnMLot(List<MaterialLot> materialLots) throws ClientException;
+    void issueMLot(List<String> materialLotIdList) throws ClientException;
+    void returnMLot(List<String> materialLotIdList) throws ClientException;
 
 }
