@@ -8,7 +8,7 @@ import javax.persistence.Entity;
  */
 
 @Entity
-@DiscriminatorValue(Document.CATEGORY_RETURN_MLOT)
+@DiscriminatorValue(Document.CATEGORY_RETURN)
 public class ReturnMLotOrder extends Document {
 
     public static final String GENERATOR_RETURN_MLOT_ORDER_ID_RULE = "CreateReturnMLotOrder";
