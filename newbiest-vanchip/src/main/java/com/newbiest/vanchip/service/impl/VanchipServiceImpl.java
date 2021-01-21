@@ -85,7 +85,6 @@ public class VanchipServiceImpl implements VanChipService {
     @Autowired
     DocumentMLotRepository documentMLotRepository;
 
-
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
@@ -184,7 +183,7 @@ public class VanchipServiceImpl implements VanChipService {
                 history.setActionComment(deleteNote);
                 materialLotHistoryRepository.save(history);
             }
-        }catch (Exception e){
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
 
@@ -193,9 +192,9 @@ public class VanchipServiceImpl implements VanChipService {
     public void issueMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId)).collect(Collectors.toList());
-            mesService.issueMLotByDocRequestMes(materialLots);
-
             documentService.issueMLotByDoc(documentId, materialLotIdList);
+
+            mesService.issueMLot(materialLots, false);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -204,10 +203,10 @@ public class VanchipServiceImpl implements VanChipService {
     public void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws  ClientException{
         try {
             List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId)).collect(Collectors.toList());
-            mesService.issueMLotByDocLineRequestMes(materialLots);
-
             documentService.issueMLotByDocLine(documentLine, materialLotIdList);
-        }catch (Exception e){
+
+            mesService.issueMLot(materialLots, true);
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

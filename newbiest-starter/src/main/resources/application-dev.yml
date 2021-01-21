@@ -1,3 +1,5 @@
+vc:
+  mesUrl: http://192.168.28.61:7001/mycim2
 #设置server的基本信息
 server:
   servlet:
@@ -24,7 +26,7 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@192.168.28.60 :1521:orcl
+      url: jdbc:oracle:thin:@192.168.28.60:1521:orcl
       username: wmstest
       password: wmstest
       driver-class-name: oracle.jdbc.OracleDriver

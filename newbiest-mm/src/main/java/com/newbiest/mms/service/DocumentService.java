@@ -28,7 +28,5 @@ public interface DocumentService {
 
     List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
 
-    List<MaterialLot> getMLotByDocLine(DocumentLine documentLine) throws ClientException;
-
 }
 

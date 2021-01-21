@@ -6,14 +6,24 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.msg.DefaultParser;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.vanchip.dto.issue.*;
-import com.newbiest.vanchip.dto.returnlot.*;
+import com.newbiest.vanchip.dto.mes.MesRequest;
+import com.newbiest.vanchip.dto.mes.MesResponse;
+import com.newbiest.vanchip.dto.mes.MesResponseHeader;
+import com.newbiest.vanchip.dto.mes.issue.IssueMLotRequest;
+import com.newbiest.vanchip.dto.mes.issue.IssueMLotRequestBody;
+import com.newbiest.vanchip.dto.mes.issue.IssueMLotRequestHeader;
+import com.newbiest.vanchip.dto.mes.issue.IssueMLotResponseHeader;
+import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequest;
+import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequestBody;
+import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequestHeader;
 import com.newbiest.vanchip.service.MesService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +32,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 连接MES的服务相关
@@ -41,9 +52,9 @@ public class MesServiceImpl implements MesService {
      * 读取MES的超时时间 单位秒
      */
     public static final int MES_READ_TIME_OUT = 60;
-    
-    //private String mesUrl ="http://192.168.28.61:7001/mycim2";
-    private String mesUrl ="http://192.168.28.161:7001/mycim2";
+
+    @Value("${vc.mesUrl}")
+    private String mesUrl;
 
     public static final String ISSUE_URL = "/wms/wmsIssue.spring";
     public static final String RETURN_MLOT_URL = "/wms/wmsReturn.spring";
@@ -52,75 +63,72 @@ public class MesServiceImpl implements MesService {
 
     @PostConstruct
     public void init() {
-//        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-//        requestFactory.setConnectTimeout(MES_CONNECTION_TIME_OUT * 1000);
-//        requestFactory.setReadTimeout(MES_READ_TIME_OUT * 1000);
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(MES_CONNECTION_TIME_OUT * 1000);
+        requestFactory.setReadTimeout(MES_READ_TIME_OUT * 1000);
         restTemplate = new RestTemplate();
     }
 
-    public void issueMLotByDocRequestMes(List<MaterialLot> materialLots) throws ClientException {
+    public void returnMLot(List<MaterialLot> materialLots) throws ClientException{
         try {
-            IssueMLotRequest request = new IssueMLotRequest();
-            IssueMLotRequestBody requestBody = new IssueMLotRequestBody();
-            IssueMLotRequestHeader requestHeader = IssueMLotRequestHeader.buildDefaultRequestHeader(IssueMLotRequestHeader.ISSUE_MLOT_MESSAGE_NAME);
+            ReturnMLotRequestHeader requestHeader = new ReturnMLotRequestHeader();
 
-            requestBody.setActionType(IssueMLotRequestBody.ACTION_TYPE_ISSUE_MLOT);
-            requestBody.setWmsMaterialLots(materialLots);
+            ReturnMLotRequest request = new ReturnMLotRequest();
+            ReturnMLotRequestBody requestBody = new ReturnMLotRequestBody();
+
+            List<String> materialLotIds = materialLots.stream().map(MaterialLot :: getMaterialLotId).collect(Collectors.toList());
+            requestBody.setMaterialLotIds(materialLotIds);
             request.setBody(requestBody);
             request.setHeader(requestHeader);
 
-            String requestString = DefaultParser.getObjectMapper().writeValueAsString(request);
-            HttpHeaders headers = new HttpHeaders();
-            headers.put("Content-Type", Lists.newArrayList("application/json"));
-
-            RequestEntity<byte[]> requestEntity = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(mesUrl + ISSUE_URL));
-            ResponseEntity<byte[]> responseEntity = restTemplate.exchange(requestEntity, byte[].class);
-
-            String responseString = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Get response by mes. Response is [%s]", responseString));
-            }
-
-            IssueMLotResponse response = DefaultParser.getObjectMapper().readValue(responseString, IssueMLotResponse.class);
-            IssueMLotResponseHeader responseHeader = response.getHeader();
-            if (IssueMLotResponseHeader.RESULT_FAIL.equals(responseHeader.getResult())){
-                throw new ClientException(responseHeader.getResultCode());
-            }
+            sendMesRequest(request, ISSUE_URL, null);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
 
-    public void issueMLotByDocLineRequestMes(List<MaterialLot> materialLots) throws ClientException{
+    public void issueMLot(List<MaterialLot> materialLots) throws ClientException{
         try {
-            IssueMLotRequest issueMLotRequest = new IssueMLotRequest();
-            IssueMLotRequestBody issueMLotRequestBody = new IssueMLotRequestBody();
-            IssueMLotRequestHeader header = IssueMLotRequestHeader.buildDefaultRequestHeader(IssueMLotRequestHeader.ISSUE_MATERIAL_MESSAGE_NAME);
+            IssueMLotRequestHeader requestHeader = new IssueMLotRequestHeader();
 
-            issueMLotRequestBody.setActionType(IssueMLotRequestBody.ACTION_TYPE_ISSUE_MATERIAL);
-            issueMLotRequestBody.setWmsMaterialLots(materialLots);
-            issueMLotRequest.setBody(issueMLotRequestBody);
-            issueMLotRequest.setHeader(header);
+            IssueMLotRequest request = new IssueMLotRequest();
+            IssueMLotRequestBody requestBody = new IssueMLotRequestBody();
+            List<String> materialLotIds = materialLots.stream().map(MaterialLot :: getMaterialLotId).collect(Collectors.toList());
 
-            String requestString = DefaultParser.getObjectMapper().writeValueAsString(issueMLotRequest);
-            HttpHeaders headers = new HttpHeaders();
-            headers.put("Content-Type", Lists.newArrayList("application/json"));
+            requestBody.setMaterialLotIds(materialLotIds);
+            request.setBody(requestBody);
+            request.setHeader(requestHeader);
 
-            RequestEntity<byte[]> request = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(mesUrl + ISSUE_URL));
-            ResponseEntity<byte[]> responseEntity = restTemplate.exchange(request, byte[].class);
+            sendMesRequest(request, ISSUE_URL, null);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
-            String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
+    public void sendMesRequest(MesRequest mesRequest, String apiUrl, Class responseClass) throws ClientException{
+        try {
+            String requestString = DefaultParser.getObjectMapper().writeValueAsString(mesRequest);
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Get response by mes. Response is [%s]", response));
+                log.debug(String.format("Send data. RequestString is [%s]", requestString));
             }
+            HttpHeaders headers = new HttpHeaders();
+            headers.put(HttpHeaders.CONTENT_TYPE, Lists.newArrayList("application/json"));
+            RequestEntity<byte[]> requestEntity = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(mesUrl + apiUrl));
 
-            IssueMLotResponse issueMLotResponse = DefaultParser.getObjectMapper().readValue(response, IssueMLotResponse.class);
-            IssueMLotResponseHeader responseHeader = issueMLotResponse.getHeader();
+            ResponseEntity<byte[]> responseEntity = restTemplate.exchange(requestEntity, byte[].class);
+            String responseString = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Get response by mes. Response is [%s]", responseString));
+            }
+            if (responseClass == null) {
+                responseClass = MesResponse.class;
+            }
+            MesResponse response = (MesResponse) DefaultParser.getObjectMapper().readValue(responseString, responseClass);
+            MesResponseHeader responseHeader = response.getHeader();
             if (IssueMLotResponseHeader.RESULT_FAIL.equals(responseHeader.getResult())){
                 throw new ClientException(responseHeader.getResultCode());
             }
-
-        }catch (Exception e){
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
