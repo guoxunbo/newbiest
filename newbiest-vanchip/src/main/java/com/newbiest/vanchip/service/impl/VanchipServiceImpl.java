@@ -19,12 +19,8 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
-import com.newbiest.mms.state.model.MaterialEvent;
-import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.vanchip.exception.VanchipExceptions;
-import com.newbiest.vanchip.model.MLotDocRule;
-import com.newbiest.vanchip.model.MLotDocRuleContext;
 import com.newbiest.vanchip.repository.MLotDocRuleLineRepository;
 import com.newbiest.vanchip.repository.MLotDocRuleRepository;
 import com.newbiest.vanchip.service.MesService;
@@ -90,10 +86,6 @@ public class VanchipServiceImpl implements VanChipService {
 
     @Autowired
     DocumentMLotRepository documentMLotRepository;
-
-    @Autowired
-    DocumentLineRepository documentLineRepository;
-
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
@@ -220,5 +212,5 @@ public class VanchipServiceImpl implements VanChipService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-    
+
 }
