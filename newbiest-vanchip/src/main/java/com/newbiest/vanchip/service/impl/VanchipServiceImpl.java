@@ -1,12 +1,14 @@
 package com.newbiest.vanchip.service.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.StringUtils;
@@ -17,8 +19,12 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.vanchip.exception.VanchipExceptions;
+import com.newbiest.vanchip.model.MLotDocRule;
+import com.newbiest.vanchip.model.MLotDocRuleContext;
 import com.newbiest.vanchip.repository.MLotDocRuleLineRepository;
 import com.newbiest.vanchip.repository.MLotDocRuleRepository;
 import com.newbiest.vanchip.service.MesService;
@@ -85,6 +91,11 @@ public class VanchipServiceImpl implements VanChipService {
     @Autowired
     DocumentMLotRepository documentMLotRepository;
 
+    @Autowired
+    DocumentLineRepository documentLineRepository;
+
+    @Autowired
+    ReturnMLotOrderRepository returnMLotOrderRepository;
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
@@ -212,6 +223,185 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
+    /**
+     * 创建退料单
+     * @param documentId
+     * @param approveFlag
+     * @param materialLotIdAndQtyAndReasonMapList
+     * @throws ClientException
+     */
+    public void createReturnMLotOrder(String documentId, boolean approveFlag, List<Map<String, String>> materialLotIdAndQtyAndReasonMapList) throws ClientException{
+        try {
+            if (StringUtils.isNullOrEmpty(documentId)){
+                documentId = documentService.generatorDocId(ReturnMLotOrder.GENERATOR_RETURN_MLOT_ORDER_ID_RULE);
+            }
+            ReturnMLotOrder returnMLotOrder = returnMLotOrderRepository.findOneByName(documentId);
+            if (returnMLotOrder != null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
+            }
 
+            if (materialLotIdAndQtyAndReasonMapList.isEmpty()){
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
+            }
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            for (Map<String, String> mLotId : materialLotIdAndQtyAndReasonMapList){
+                MaterialLot materialLot = new MaterialLot();
+                for (String map : mLotId.keySet()){
+                    PropertyUtils.setProperty(materialLot, map, mLotId.get(map));
+                }
+                materialLotList.add(materialLot);
+            }
+            BigDecimal totalQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
 
+            returnMLotOrder = new ReturnMLotOrder();
+            returnMLotOrder.setName(documentId);
+            returnMLotOrder.setQty(totalQty);
+            returnMLotOrder.setUnHandledQty(totalQty);
+            if (approveFlag) {
+                returnMLotOrder.setStatus(Document.STATUS_APPROVE);
+            }
+            returnMLotOrder = (ReturnMLotOrder) baseService.saveEntity(returnMLotOrder);
+
+            for (MaterialLot materialLot : materialLotList) {
+                MaterialLot mlot =mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+                if (mlot == null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mlot);
+                }
+
+                DocumentMLot documentMLot = new DocumentMLot();
+                documentMLot.setDocumentId(returnMLotOrder.getName());
+                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
+                documentMLotRepository.save(documentMLot);
+                mlot.setReturnMlotReason(materialLot.getReturnMlotReason());
+                baseService.saveEntity(mlot);
+                baseService.saveHistoryEntity(mlot, MaterialLotHistory.TRANS_TYPE_RETURN_MLOT);
+            }
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 退料
+     * @param documentId
+     * @param materialLotIdList
+     * @throws ClientException
+     */
+    public void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException {
+        try {
+            List<MaterialLot> materialLotList = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId)).collect(Collectors.toList());
+            String materialName = materialLotList.get(0).getMaterialName();
+
+            mesService.returnMLotRequestMes(materialLotIdList, materialName);
+
+            ReturnMLotOrder returnMLotOrder = returnMLotOrderRepository.findOneByName(documentId);
+            if (returnMLotOrder == null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_NOT_EXIST, returnMLotOrder);
+            }
+            if (!Document.STATUS_APPROVE.equals(returnMLotOrder.getStatus())) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_STATUS_IS_NOT_ALLOW, returnMLotOrder.getName());
+            }
+            List<MaterialLot> materialLots = materialLotRepository.findReservedLotsByDocId(documentId);
+
+            BigDecimal handleQty = BigDecimal.ZERO;
+            for (String materialLotId : materialLotIdList) {
+                Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
+                if (!existMaterialLotOptional.isPresent()) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);
+                }
+                MaterialLot materialLot = existMaterialLotOptional.get();
+                handleQty = handleQty.add(materialLot.getCurrentQty());
+
+                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, MaterialStatus.STATUS_IQC);
+                baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_RETURN_MLOT);
+            }
+            returnMLotOrder.setHandledQty(returnMLotOrder.getHandledQty().add(handleQty));
+            returnMLotOrder.setUnHandledQty(returnMLotOrder.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(returnMLotOrder, DocumentHistory.TRANS_TYPE_RETURN_MLOT);
+
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public List<MaterialLot> getMLotByDocId(String documentId) throws ClientException {
+        try {
+            List<MaterialLot> MaterialLots = materialLotRepository.findReservedLotsByDocId(documentId);
+            return MaterialLots;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 辅材单据验证
+     * @param documentLine
+     * @param materialLotId
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot validationDocLineAndMaterialLot(DocumentLine documentLine, String materialLotId) throws ClientException{
+        try {
+            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
+            if (materialLot == null){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST,materialLotId);
+            }
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            materialLotList.add(materialLot);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLotList, "DocLineAndMaterialLot");
+
+            documentLine = documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            List<DocumentLine> documentLineList = Lists.newArrayList();
+            documentLineList.add(documentLine);
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, "DocLineAndMaterialLot");
+
+            for (String key : materialLotMap.keySet()) {
+                if (!documentLineMap.keySet().contains(key)) {
+                    throw new ClientParameterException(VanchipExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+                }
+                BigDecimal mLotCurrentQty = materialLotMap.get(key).get(0).getCurrentQty();
+                BigDecimal docLineUnHandledQty = documentLineMap.get(key).get(0).getUnHandledQty();
+                if (mLotCurrentQty.compareTo(docLineUnHandledQty) > 0) {
+                    throw new ClientException(VanchipExceptions.MLOT_QTY_GREATER_THAN_DOCLINE_UNHANDLEQTY);
+                }
+            }
+            return materialLot;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Map<String,List<MaterialLot>> groupMaterialLotByMLotDocRule(List<MaterialLot> materialLots, String ruleId) throws ClientException{
+        try {
+            Map<String,List<MaterialLot>> materialLotMap = Maps.newHashMap();
+            List<MLotDocRule> mLotDocLineRule = mLotDocRuleRepository.findByName(ruleId);
+            if (CollectionUtils.isEmpty(mLotDocLineRule)) {
+                throw new ClientParameterException(VanchipExceptions.MLOT_DOC_VALIDATE_RULE_IS_NOT_EXIST, ruleId);
+            }
+            MLotDocRuleContext mLotDocRuleContext = new MLotDocRuleContext();
+            mLotDocRuleContext.setMaterialLotList(materialLots);
+            mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
+            materialLotMap = mLotDocRuleContext.validateAndGetMLot();
+            return materialLotMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Map<String,List<DocumentLine>> groupDocLineByMLotDocRule(List<DocumentLine> documentLineList, String ruleName) throws ClientException{
+        try {
+            Map<String,List<DocumentLine>> documentLineMap = Maps.newHashMap();
+            List<MLotDocRule> mLotDocLineRule = mLotDocRuleRepository.findByName(ruleName);
+            if (CollectionUtils.isEmpty(mLotDocLineRule)) {
+                throw new ClientParameterException(VanchipExceptions.MLOT_DOC_VALIDATE_RULE_IS_NOT_EXIST, ruleName);
+            }
+            MLotDocRuleContext mLotDocRuleContext = new MLotDocRuleContext();
+            mLotDocRuleContext.setDocumentLineList(documentLineList);
+            mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
+            documentLineMap = mLotDocRuleContext.validationAndGetDocLine();
+            return documentLineMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

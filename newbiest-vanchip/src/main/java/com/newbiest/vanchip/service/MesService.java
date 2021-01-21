@@ -14,4 +14,6 @@ public interface MesService {
 
     void issueMLotByDocLineRequestMes(List<MaterialLot> materialLots) throws ClientException;
 
+    void returnMLotRequestMes(List<String> materialLots, String materialName) throws ClientException;
+
 }

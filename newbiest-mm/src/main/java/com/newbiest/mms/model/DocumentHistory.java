@@ -3,10 +3,11 @@ package com.newbiest.mms.model;
 import com.newbiest.base.model.NBUpdatable;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Entity
@@ -15,6 +16,7 @@ public class DocumentHistory extends NBUpdatable {
 
     public static final String TRANS_TYPE_APPROVE = "Approve";
     public static final String TRANS_TYPE_ISSUE = "Issue";
+    public static final String TRANS_TYPE_RETURN_MLOT = "ReturnMLot";
 
     @Column(name="NAME")
     private String name;

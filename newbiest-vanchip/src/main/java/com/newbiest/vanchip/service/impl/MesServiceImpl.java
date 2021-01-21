@@ -125,4 +125,46 @@ public class MesServiceImpl implements MesService {
         }
     }
 
+    /**
+     * 退料
+     * @param materialLotIds
+     * @throws ClientException
+     */
+    public void returnMLotRequestMes(List<String> materialLotIds, String materialName) throws ClientException {
+        try {
+            ReturnMLotRequest request = new ReturnMLotRequest();
+            ReturnMLotRequestBody requestBody = new ReturnMLotRequestBody();
+            ReturnMLotRequestHeader requestHeader = ReturnMLotRequestHeader.buildDefaultRequestHeader(ReturnMLotRequestHeader.RETURN_MLOT_MESSAGE_NAME);
+
+            String actionType = ReturnMLotRequestBody.ACTION_TYPE_RETURN_MLOT;
+            if (ReturnMLotRequestBody.MATERIAL_NAME.equals(materialName)){
+                actionType = ReturnMLotRequestBody.ACTION_TYPE_RETURN_MATERIAL;
+            }
+
+            requestBody.setActionType(actionType);
+            requestBody.setMaterialLotIds(materialLotIds);
+            request.setBody(requestBody);
+            request.setHeader(requestHeader);
+
+            String requestString = DefaultParser.getObjectMapper().writeValueAsString(request);
+            HttpHeaders headers = new HttpHeaders();
+            headers.put("Content-Type", Lists.newArrayList("application/json"));
+
+            RequestEntity<byte[]> requestEntity = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(mesUrl + RETURN_MLOT_URL));
+            ResponseEntity<byte[]> responseEntity = restTemplate.exchange(requestEntity, byte[].class);
+
+            String responseString = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Get response by mes. Response is [%s]", responseString));
+            }
+
+            ReturnMLotResponse response = DefaultParser.getObjectMapper().readValue(responseString, ReturnMLotResponse.class);
+            ReturnMLotResponseHeader responseHeader = response.getHeader();
+            if (ReturnMLotResponseHeader.RESULT_FAIL.equals(responseHeader.getResult())){
+                throw new ClientException(responseHeader.getResultCode());
+            }
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
