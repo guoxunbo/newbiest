@@ -1,10 +1,9 @@
-package com.newbiest.vanchip.rest.doc.issue.material;
+package com.newbiest.mms.rest.doc.issue.material;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.service.DocumentService;
-import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -18,13 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/vc")
+@RequestMapping("/mms")
 @Slf4j
-@Api(value="/vc", tags="Vanchip客制化")
+@Api(value="/mms", tags="MaterialManagerSystem", description = "物料管理相关")
 public class IssueMLotByDocLineController extends AbstractRestController {
-
-    @Autowired
-    VanChipService vanChipService;
 
     @Autowired
     DocumentService documentService;
@@ -38,8 +34,16 @@ public class IssueMLotByDocLineController extends AbstractRestController {
         IssueMLotByDocLineResponseBody responseBody = new IssueMLotByDocLineResponseBody();
         IssueMLotByDocLineRequestBody requestBody = request.getBody();
 
+        String actionType = requestBody.getActionType();
         List<String> materialLotIdList = requestBody.getMaterialLotIdList();
-        vanChipService.issueMLotByDocLine(requestBody.getDocumentLine(), materialLotIdList);
+
+        if (IssueMLotByDocLineRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
+            documentService.issueMLotByDocLine(requestBody.getDocumentLine(), materialLotIdList);
+        } else if (IssueMLotByDocLineRequest.ACTION_TYPE_VALIDATION.equals(actionType)){
+
+        } else {
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
+        }
 
         response.setBody(responseBody);
         return response;

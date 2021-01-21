@@ -10,9 +10,8 @@ import java.util.List;
  */
 public interface MesService {
 
-    void issueMLotByDocRequestMes(List<MaterialLot> materialLots) throws ClientException;
-
-    void issueMLotByDocLineRequestMes(List<MaterialLot> materialLots) throws ClientException;
+    void issueMLot(List<String> materialLotIdList) throws ClientException;
+    void returnMLot(List<String> materialLotIdList) throws ClientException;
 
     void returnMLotRequestMes(List<String> materialLots, String materialName) throws ClientException;
 

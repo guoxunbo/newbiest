@@ -185,7 +185,7 @@ public class VanchipServiceImpl implements VanChipService {
                 history.setActionComment(deleteNote);
                 materialLotHistoryRepository.save(history);
             }
-        }catch (Exception e){
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
 
@@ -193,10 +193,9 @@ public class VanchipServiceImpl implements VanChipService {
 
     public void issueMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId)).collect(Collectors.toList());
-            mesService.issueMLotByDocRequestMes(materialLots);
-
             documentService.issueMLotByDoc(documentId, materialLotIdList);
+
+            mesService.issueMLot(materialLotIdList);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -204,11 +203,10 @@ public class VanchipServiceImpl implements VanChipService {
 
     public void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws  ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId)).collect(Collectors.toList());
-            mesService.issueMLotByDocLineRequestMes(materialLots);
-
             documentService.issueMLotByDocLine(documentLine, materialLotIdList);
-        }catch (Exception e){
+
+            mesService.issueMLot(materialLotIdList);
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

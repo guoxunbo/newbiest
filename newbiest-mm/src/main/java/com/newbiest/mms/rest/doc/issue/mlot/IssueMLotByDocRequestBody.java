@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.doc.issue.mlot;
+package com.newbiest.mms.rest.doc.issue.mlot;
 
 import com.newbiest.base.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -11,6 +11,8 @@ import java.util.List;
 public class IssueMLotByDocRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
+
+	private String actionType;
 
 	private String documentId;
 

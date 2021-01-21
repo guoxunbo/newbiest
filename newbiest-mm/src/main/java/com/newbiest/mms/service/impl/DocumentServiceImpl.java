@@ -148,7 +148,7 @@ public class DocumentServiceImpl implements DocumentService {
                 documentLine.setMaterial(rawMaterial);
                 documentLine.setQty(rawMaterialQtyMap.get(rawMaterialName));
                 documentLine.setUnHandledQty(rawMaterialQtyMap.get(rawMaterialName));
-                documentLine.setDocCategory(Document.CATEGORY_ISSUE_MATERIAL);
+                documentLine.setDocCategory(issueMaterialOrder.getCategory());
                 baseService.saveEntity(documentLine);
             }
         } catch (Exception e) {
@@ -295,10 +295,6 @@ public class DocumentServiceImpl implements DocumentService {
         GeneratorContext generatorContext = new GeneratorContext();
         generatorContext.setRuleName(generatorRule);
         return generatorService.generatorId(generatorContext);
-    }
-
-    public List<MaterialLot> getMLotByDocLine(DocumentLine documentLine) throws ClientException{
-        return  materialLotRepository.findMLotsByDocId(documentLine.getDocId());
     }
 
 }
