@@ -94,8 +94,6 @@ public class VanchipServiceImpl implements VanChipService {
     @Autowired
     DocumentLineRepository documentLineRepository;
 
-    @Autowired
-    ReturnMLotOrderRepository returnMLotOrderRepository;
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {

@@ -48,8 +48,8 @@ public class IssueMLotByDocLineController extends AbstractRestController {
 
             vanChipService.issueMLotByDocLine(requestBody.getDocumentLine(), materialLotIdList);
         } else if (IssueMLotByDocLineRequest.ACTION_TYPE_VALIDATION.equals(actionType)){
-            MaterialLot materialLot = vanChipService.validationDocLineAndMaterialLot(documentLine, requestBody.getMaterialLotId());
-            responseBody.setMaterialLot(materialLot);
+
+
         }else if (IssueMLotByDocLineRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
             List<MaterialLot> materialLotList = documentService.getMLotByDocLine(documentLine);
             responseBody.setMaterialLotList(materialLotList);
