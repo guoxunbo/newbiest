@@ -119,6 +119,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public static final String STATUS_FIN = "Fin";
 
+    public static final String STATUS_OQC = "OQC";
+    public static final String STATUS_IN = "In";
+    public static final String STATUS_OK = "OK";
+
     public static final String CATEGORY_PACKAGE = "Package";
 
     public static final String PACKAGE_TYPE = "PackCase";

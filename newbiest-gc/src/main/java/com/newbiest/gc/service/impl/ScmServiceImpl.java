@@ -126,7 +126,9 @@ public class ScmServiceImpl implements ScmService {
 
     public void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException{
         try {
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialStatusCategory.STATUS_CATEGORY_FIN);
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC),
+                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK));
+
             if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
