@@ -11,6 +11,8 @@ public class SystemPropertyUtils {
 
     private static final String SYSTEM_PROPERTY_CONNECT_SCM_FLAG = "gc.connect_scm_flag";
 
+    private static final String SYSTEM_PROPERTY_STOCK_OUT_SCM_CHECK_ORDER_FLAG = "gc.stock_out_scm_check_order_flag";
+
     private static final String SYSTEM_PROPERTY_WAFER_ISSUE_WITH_DOC_FLAG = "gc.wafer_issue_with_doc_flag";
 
     private static final String SYSTEM_PROPERTY_WAFER_ISSUE_TO_MES_PLAN_LOT_FLAG = "gc.wafer_issue_to_mes_plan_lot_flag";
@@ -62,6 +64,14 @@ public class SystemPropertyUtils {
         Object planLotFlag = System.getProperty(SYSTEM_PROPERTY_WAFER_ISSUE_TO_MES_PLAN_LOT_FLAG);
         if (planLotFlag != null) {
             return Boolean.valueOf(planLotFlag.toString());
+        }
+        return false;
+    }
+
+    public static boolean getStockOutScmCheckOrderFlag() {
+        Object scmCheckOrderFlag = System.getProperty(SYSTEM_PROPERTY_STOCK_OUT_SCM_CHECK_ORDER_FLAG);
+        if (scmCheckOrderFlag != null) {
+            return Boolean.valueOf(scmCheckOrderFlag.toString());
         }
         return false;
     }
