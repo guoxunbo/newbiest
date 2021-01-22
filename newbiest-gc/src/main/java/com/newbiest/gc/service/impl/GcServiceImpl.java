@@ -1792,7 +1792,7 @@ public class GcServiceImpl implements GcService {
             }
             erpSoRepository.save(erpSo);
 
-            if (SystemPropertyUtils.getStockOutScmCheckOrderFlag()) {
+            if (SystemPropertyUtils.getConnectMscmFlag()) {
                 scmService.addScmTracking(documentLine.getDocId(), materialLots);
             }
         } catch (Exception e) {

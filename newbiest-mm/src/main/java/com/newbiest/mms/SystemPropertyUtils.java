@@ -11,7 +11,7 @@ public class SystemPropertyUtils {
 
     private static final String SYSTEM_PROPERTY_CONNECT_SCM_FLAG = "gc.connect_scm_flag";
 
-    private static final String SYSTEM_PROPERTY_STOCK_OUT_SCM_CHECK_ORDER_FLAG = "gc.stock_out_scm_check_order_flag";
+    private static final String SYSTEM_PROPERTY_CONNECT_MSCM_FLAG = "gc.connect_mscm_flag";
 
     private static final String SYSTEM_PROPERTY_WAFER_ISSUE_WITH_DOC_FLAG = "gc.wafer_issue_with_doc_flag";
 
@@ -68,10 +68,10 @@ public class SystemPropertyUtils {
         return false;
     }
 
-    public static boolean getStockOutScmCheckOrderFlag() {
-        Object scmCheckOrderFlag = System.getProperty(SYSTEM_PROPERTY_STOCK_OUT_SCM_CHECK_ORDER_FLAG);
-        if (scmCheckOrderFlag != null) {
-            return Boolean.valueOf(scmCheckOrderFlag.toString());
+    public static boolean getConnectMscmFlag() {
+        Object connectMscmFlag = System.getProperty(SYSTEM_PROPERTY_CONNECT_MSCM_FLAG);
+        if (connectMscmFlag != null) {
+            return Boolean.valueOf(connectMscmFlag.toString());
         }
         return false;
     }
