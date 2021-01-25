@@ -3514,6 +3514,7 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLot materialLot: materialLotList){
                     materialLot.setReserved48(importCode);
                     List<MaterialLotUnit> materialLotUnitList = getMaterialLotUnitList(materialLot);
+                    materialLotUnitList = materialLotUnitAssignEng(materialLotUnitList);
                     materialLotUnitService.createMLot(materialLotUnitList);
                 }
             } else if (importType.equals(MaterialLotUnit.LCD_COG_FINISH_PRODUCT)){
@@ -4528,6 +4529,26 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 验证晶圆是否是ENG
+     * @param materialLotUnitList
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> materialLotUnitAssignEng(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
+        try {
+            if (SystemPropertyUtils.getConnectScmFlag()) {
+                // 请求SCM做是否是ENG产品的验证
+                log.info("Request  SCM  validation product ENG or Prod");
+                materialLotUnitList = scmService.assignEngFlag(materialLotUnitList);
+                log.info("Request  SCM  validation product ENG or Prod  end ");
+            }
+            return materialLotUnitList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     public List<MaterialLotUnit> validateAndSetWaferSource(String importType, String checkFourCodeFlag, List<MaterialLotUnit> materialLotUnitList) throws ClientException{
         try {
             //按照载具号分组，相同载具号的产品型号、晶圆数量必须一致(暂时只对WLA未测（-2.5）模板做特殊验证处理)
@@ -4697,8 +4718,8 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            Warehouse warehouse = new Warehouse();
             for(MaterialLot materialLot : materialLots){
-                Warehouse warehouse = new Warehouse();
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
                     warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                 }
@@ -4712,25 +4733,10 @@ public class GcServiceImpl implements GcService {
                 materialLotUnits.addAll(units);
             }
 
-            if (SystemPropertyUtils.getConnectScmFlag()) {
-                // 请求SCM做是否是ENG产品的验证
-                log.info("Request  SCM  validation product ENG or Prod");
-                scmService.assignEngFlag(materialLotUnits);
-                log.info("Request  SCM  validation product ENG or Prod  end ");
-            }
-
             for(MaterialLot materialLot : materialLots){
-                String prodCate = MaterialLotUnit.PRODUCT_TYPE_PROD;
-                materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
-                Warehouse warehouse  = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
-                if(MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLot.getProductType())){
-                    prodCate = MaterialLotUnit.PRODUCT_TYPE_ENG;
-                } else if(!StringUtils.isNullOrEmpty(materialLot.getProductType())){
-                    prodCate = materialLot.getProductType();
-                }
-
+                warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                 log.info("insert materialLot to mte_in_stock");
-                saveErpInStock(materialLot, prodCate, warehouse.getName());
+                saveErpInStock(materialLot, materialLot.getProductType(), warehouse.getName());
                 log.info("insert materialLot to  mte_in_stock end");
             }
         } catch (Exception e) {

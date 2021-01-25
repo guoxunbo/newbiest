@@ -42,6 +42,7 @@ public class ImportMLotThread implements Callable {
     private String lotId;
     private String materialLotId;
     private String importCode;
+    private String productType;
     private List<MaterialLotUnit> materialLotUnits;
     private Material material;
     private StatusModel statusModel;
@@ -100,6 +101,7 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved49",materialLotUnits.get(0).getReserved49());
             propsMap.put("reserved50",materialLotUnits.get(0).getReserved50());
             propsMap.put("reserved48",importCode);
+            propsMap.put("productType",productType);
 
             MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap, currentSubQty);
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {

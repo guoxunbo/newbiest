@@ -170,12 +170,12 @@ public class ScmServiceImpl implements ScmService {
      * @param materialLotUnits
      * @throws ClientException
      */
-    public void assignEngFlag(List<MaterialLotUnit> materialLotUnits) throws ClientException {
+    public List<MaterialLotUnit> assignEngFlag(List<MaterialLotUnit> materialLotUnits) throws ClientException {
         try {
             List<NBOwnerReferenceList> connectScmImportTypeList = getImportTypeForScm();
             if (CollectionUtils.isEmpty(connectScmImportTypeList)) {
                 log.warn("OwnerRefList SCMImportType is not config. so does not connect to scm");
-                return;
+                return materialLotUnits;
             }
             List<Map> requestWaferList = Lists.newArrayList();
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
@@ -212,25 +212,20 @@ public class ScmServiceImpl implements ScmService {
                     String waferId = (String) responseData.get("wafer_id");
                     boolean engFlag = (boolean) responseData.get("is_eng");
                     if (engFlag) {
+                        String unitId = lotId + StringUtils.SPLIT_CODE + waferId;
+                        for(MaterialLotUnit materialLotUnit: materialLotUnits){
+                            if(unitId.equals(materialLotUnit.getUnitId())){
+                                materialLotUnit.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                            }
+                        }
                         engWaferIdList.add(lotId + StringUtils.SPLIT_CODE + waferId);
                     }
                 }
             }
             if (CollectionUtils.isNotEmpty(engWaferIdList)) {
                 log.debug(String.format("Eng Wafer List is [%s]", engWaferIdList));
-                materialLotUnitRepository.updateProdTypeByUnitIds(MaterialLotUnit.PRODUCT_TYPE_ENG, engWaferIdList);
-                //将eng型号的物料批次标记为ENG
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByUnitIdIn(engWaferIdList);
-                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
-                for(String materialLotId : materialLotUnitMap.keySet()){
-                    MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
-                    materialLot.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
-                    materialLotRepository.saveAndFlush(materialLot);
-
-                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMEngFlag");
-                    materialLotHistoryRepository.save(history);
-                }
             }
+            return materialLotUnits;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

@@ -16,7 +16,7 @@ public interface ScmService {
     void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException;
     void scmUnAssign(String lotId) throws ClientException;
 
-    void assignEngFlag(List<MaterialLotUnit> materialLotUnits) throws ClientException;
+    List<MaterialLotUnit> assignEngFlag(List<MaterialLotUnit> materialLotUnits) throws ClientException;
     String getMScmToken() throws ClientException;
     void addTracking(String orderId, String expressNumber, boolean isKuayueExprress) throws ClientException;
     void addScmTracking(String orderId, List<MaterialLot> materialLotList) throws ClientException;

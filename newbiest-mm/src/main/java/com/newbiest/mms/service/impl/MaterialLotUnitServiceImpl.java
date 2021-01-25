@@ -7,6 +7,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
@@ -169,6 +170,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
 
+                    //验证晶圆是否存在Eng晶圆
+                    String productType = MaterialLotUnit.PRODUCT_TYPE_PROD;
+                    List<MaterialLotUnit> engUnitList = materialLotUnits.stream().filter(materialLotUnit -> MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())).collect(Collectors.toList());
+                    if(CollectionUtils.isNotEmpty(engUnitList)){
+                        productType = MaterialLotUnit.PRODUCT_TYPE_ENG;
+                    }
                     // 导入进行多线程处理 进行并行处理
                     ImportMLotThread importMLotThread = new ImportMLotThread();
                     importMLotThread.setMaterialLotRepository(materialLotRepository);
@@ -188,6 +195,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     importMLotThread.setMaterial(material);
                     importMLotThread.setStatusModel(statusModel);
                     importMLotThread.setMaterialLotUnits(materialLotUnits);
+                    importMLotThread.setProductType(productType);
 
                     Future<ImportMLotThreadResult> importCallBack = executorService.submit(importMLotThread);
                     importCallBackList.add(importCallBack);
@@ -387,6 +395,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("category", MaterialLot.CATEGORY_UNIT);
                     if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                         propsMap.put("durable", materialLotUnit.getDurable().toUpperCase());
+                    }
+                    if(MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())){
+                        propsMap.put("productType", MaterialLotUnit.PRODUCT_TYPE_ENG);
                     }
                     propsMap.put("supplier", materialLotUnit.getSupplier());
                     propsMap.put("shipper", materialLotUnit.getShipper());
