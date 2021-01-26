@@ -11,7 +11,6 @@ import com.newbiest.vanchip.dto.mes.MesResponseHeader;
 import com.newbiest.vanchip.dto.mes.issue.IssueMLotRequest;
 import com.newbiest.vanchip.dto.mes.issue.IssueMLotRequestBody;
 import com.newbiest.vanchip.dto.mes.issue.IssueMLotRequestHeader;
-import com.newbiest.vanchip.dto.mes.issue.IssueMLotResponseHeader;
 import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequest;
 import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequestBody;
 import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequestHeader;
@@ -22,7 +21,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,8 +52,8 @@ public class MesServiceImpl implements MesService {
     @Value("${vc.mesUrl}")
     private String mesUrl;
 
-    public static final String ISSUE_URL = "/wms/wmsIssue.spring";
-    public static final String RETURN_MLOT_URL = "/wms/wmsReturn.spring";
+    public static final String ISSUE_URL = "/wms/issueMLot.spring";
+    public static final String RETURN_URL = "/wms/returnMLot.spring";
 
     private RestTemplate restTemplate;
 
@@ -78,7 +76,7 @@ public class MesServiceImpl implements MesService {
             request.setBody(requestBody);
             request.setHeader(requestHeader);
 
-            sendMesRequest(request, ISSUE_URL, null);
+            sendMesRequest(request, RETURN_URL, null);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -121,7 +119,7 @@ public class MesServiceImpl implements MesService {
             }
             MesResponse response = (MesResponse) DefaultParser.getObjectMapper().readValue(responseString, responseClass);
             MesResponseHeader responseHeader = response.getHeader();
-            if (IssueMLotResponseHeader.RESULT_FAIL.equals(responseHeader.getResult())){
+            if (MesResponseHeader.RESULT_FAIL.equals(responseHeader.getResult())){
                 throw new ClientException(responseHeader.getResultCode());
             }
         } catch (Exception e) {
