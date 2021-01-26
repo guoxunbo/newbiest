@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
@@ -24,7 +23,7 @@ import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
 import com.newbiest.mms.service.MmsService;
-import com.newbiest.mms.state.model.MaterialStatusCategory;
+import com.newbiest.mms.service.PackageService;
 import com.newbiest.msg.DefaultParser;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -111,6 +110,9 @@ public class ScmServiceImpl implements ScmService {
     @Autowired
     BaseService baseService;
 
+    @Autowired
+    PackageService packageService;
+
     @PostConstruct
     public void init() {
         CloseableHttpClient client = createHttpClient().build();
@@ -132,6 +134,70 @@ public class ScmServiceImpl implements ScmService {
             if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
+
+            scmAssignAndSaveHis(materialLot, materialType, vendor, poId, remarks);
+
+            //如果LOT已经装箱，验证箱中所有的LOT是否已经标注，如果全部标注，对箱号进行标注(箱中LOT的标注信息保持一致)
+            if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                MaterialLot parentMaterialLot = mmsService.getMLotByMLotId(materialLot.getParentMaterialLotId(), true);
+                validateParentMLotScmAssign(parentMaterialLot, materialType, vendor, poId, remarks);
+            }
+
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证箱中Lot是否全部标注，标注信息是否一致
+     * @param parentMaterialLot
+     * @param materialType
+     * @param vendor
+     * @param poId
+     * @param remarks
+     * @throws ClientException
+     */
+    private void validateParentMLotScmAssign(MaterialLot parentMaterialLot, String materialType, String vendor, String poId, String remarks) throws ClientException{
+        try {
+            List<MaterialLot> materialLotList = packageService.getPackageDetailLots(parentMaterialLot.getObjectRrn());
+            List<MaterialLot> unTagMaterialLotList = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved54())).collect(Collectors.toList());
+
+            if(CollectionUtils.isEmpty(unTagMaterialLotList)){
+                Map<String, List<MaterialLot>> mLotAssignMap =  materialLotList.stream().collect(Collectors.groupingBy(mLot -> {
+                    StringBuffer key = new StringBuffer();
+                    if(StringUtils.isNullOrEmpty(mLot.getReserved56())){
+                        key.append(StringUtils.EMPTY);
+                    } else {
+                        key.append(mLot.getReserved56());
+                    }
+                    if(StringUtils.isNullOrEmpty(mLot.getReserved54())){
+                        key.append(StringUtils.EMPTY);
+                    } else {
+                        key.append(mLot.getReserved54());
+                    }
+                    return key.toString();
+                }));
+                if (mLotAssignMap != null &&  mLotAssignMap.size() > 1) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_INFO_IS_NOT_SAME, parentMaterialLot.getMaterialLotId());
+                }
+                scmAssignAndSaveHis(parentMaterialLot, materialType, vendor, poId, remarks);
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * scm跨域标注，记录标注信息，并保存历史
+     * @param materialLot
+     * @param materialType
+     * @param vendor
+     * @param poId
+     * @param remarks
+     * @throws ClientException
+     */
+    private void scmAssignAndSaveHis(MaterialLot materialLot, String materialType, String vendor, String poId, String remarks) throws ClientException{
+        try {
             materialLot.setReserved54(materialType);
             materialLot.setReserved55(vendor);
             materialLot.setReserved56(poId);
@@ -140,7 +206,6 @@ public class ScmServiceImpl implements ScmService {
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMAssign");
             materialLotHistoryRepository.save(history);
-
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -148,10 +213,29 @@ public class ScmServiceImpl implements ScmService {
 
     public void scmUnAssign(String lotId) throws ClientException{
         try {
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialStatusCategory.STATUS_CATEGORY_FIN);
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC),
+                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK));
             if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
+            scmUnAssignMaterialLot(materialLot);
+
+            if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                MaterialLot parentMLot = mmsService.getMLotByMLotId(materialLot.getParentMaterialLotId(), true);
+                scmUnAssignMaterialLot(parentMLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * SAM取消晶圆标注
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void scmUnAssignMaterialLot(MaterialLot materialLot) throws ClientException{
+        try {
             materialLot.setReserved54(StringUtils.EMPTY);
             materialLot.setReserved55(StringUtils.EMPTY);
             materialLot.setReserved56(StringUtils.EMPTY);
