@@ -7801,7 +7801,7 @@ public class GcServiceImpl implements GcService {
         }
         return errorMessage;
     }
-
+    
     /**
      * HongKong仓接收物料批次（暂时只做接收入库，不对晶圆做eng验证，不写入中间表）
      * @param materialLotActions
@@ -8435,6 +8435,27 @@ public class GcServiceImpl implements GcService {
             } else {
                 throw new ClientParameterException(GcExceptions.ERP_RAW_MATERIAL_ISSUE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据物料合批规则验证物料批次信息是否一致
+     * @param materialLot
+     * @param materialLotActions
+     * @return
+     * @throws ClientException
+     */
+    public boolean validateMLotByPackageRule(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException{
+        try {
+            boolean flag = true;
+            if (CollectionUtils.isNotEmpty(materialLotActions)) {
+                List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+                materialLotList.add(materialLot);
+                flag = mmsService.validationMLotByMergeRule(MaterialLot.WLT_SHIP_MLOT_MERGE_RULE, materialLotList);
+            }
+            return flag;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

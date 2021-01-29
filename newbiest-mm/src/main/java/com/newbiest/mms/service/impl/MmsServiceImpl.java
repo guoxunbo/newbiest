@@ -1136,4 +1136,23 @@ public class MmsServiceImpl implements MmsService {
         return null;
     }
 
+
+    /**
+     * 验证物料批次规则信息是否一致，不一致返回false
+     */
+    public boolean validationMLotByMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException{
+        try {
+            List<MaterialLotMergeRule> mLotValidateRule = materialLotMergeRuleRepository.findByNameAndOrgRrn(ruleName, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isEmpty(mLotValidateRule)) {
+                throw new ClientParameterException(ContextException.MLOT_VALIDATE_RULE_IS_NOT_EXIST, ruleName);
+            }
+            MergeRuleContext mergeRuleContext = new MergeRuleContext();
+            mergeRuleContext.setBaseObject(materialLots.get(0));
+            mergeRuleContext.setCompareObjects(materialLots);
+            mergeRuleContext.setMergeRuleLines(mLotValidateRule.get(0).getLines());
+            return  mergeRuleContext.validateMLot();
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

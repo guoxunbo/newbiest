@@ -80,6 +80,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String COB_PACKCASE = "COBPackCase";
 
     /**
+     * WLT/CP出货物料批次验证规则
+     */
+    public static final String WLT_SHIP_MLOT_MERGE_RULE = "WltCPShipCase";
+
+    /**
      * COB一个lot最大片数为13
      */
     public static final Integer COB_UNIT_SIZE = 13;
