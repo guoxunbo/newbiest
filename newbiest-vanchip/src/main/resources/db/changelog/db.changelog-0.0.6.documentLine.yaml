@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_0.0.6
+      author: Tao Zhou
+      remarks: mms_document_line add column doc_category
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT_LINE
+            columns:
+              - column:
+                  name: RESERVED11
+                  type: varchar(128)
+                  remarks: 客户名称
+              - column:
+                  name: RESERVED12
+                  type: varchar(128)
+                  remarks: Sold-to
+              - column:
+                  name: RESERVED13
+                  type: varchar(128)
+                  remarks: Sold-Add
+              - column:
+                  name: RESERVED14
+                  type: varchar(64)
+                  remarks: Contact&Tel
+              - column:
+                  name: RESERVED15
+                  type: varchar(128)
+                  remarks: Ship-to
+              - column:
+                  name: RESERVED16
+                  type: varchar(128)
+                  remarks: Ship-Add
+              - column:
+                  name: RESERVED17
+                  type: varchar(64)
+                  remarks: Contact
+              - column:
+                  name: RESERVED18
+                  type: varchar(64)
+                  remarks: Tel
+              - column:
+                  name: RESERVED19
+                  type: varchar(128)
+                  remarks: SO No
+              - column:
+                  name: RESERVED20
+                  type: varchar(64)
+                  remarks: Customer PO
+              - column:
+                  name: RESERVED21
+                  type: varchar(64)
+                  remarks: INV NO
+              - column:
+                  name: RESERVED22
+                  type: varchar(64)
+                  remarks: 子单号
+              - column:
+                  name: SHIPPING_DATE
+                  type: datetime
+                  remarks: shipping date
+

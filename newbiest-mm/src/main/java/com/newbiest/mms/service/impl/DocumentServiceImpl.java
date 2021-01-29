@@ -1,5 +1,6 @@
 package com.newbiest.mms.service.impl;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
@@ -295,6 +296,39 @@ public class DocumentServiceImpl implements DocumentService {
         GeneratorContext generatorContext = new GeneratorContext();
         generatorContext.setRuleName(generatorRule);
         return generatorService.generatorId(generatorContext);
+    }
+
+    public List<DocumentLine> shipmentOrderSave(List<DocumentLine> documentLineList) throws ClientException{
+        try {
+            String documentId = generatorDocId(DeliveryOrder.GENERATOR_DELIVERY_ORDER_ID_RULE);
+            BigDecimal totalQty  = documentLineList.stream().collect(CollectorsUtils.summingBigDecimal(DocumentLine::getQty));
+
+            DeliveryOrder deliveryOrder = new DeliveryOrder();
+            deliveryOrder.setName(documentId);
+            deliveryOrder.setQty(totalQty);
+            deliveryOrder.setUnHandledQty(totalQty);
+            baseService.saveEntity(deliveryOrder);
+
+            List<DocumentLine> documentLines = Lists.newArrayList();
+            Integer number = 1;
+            for (DocumentLine documentLine : documentLineList) {
+                StringBuffer subDocumentId = new StringBuffer(documentId);
+                subDocumentId.append(StringUtils.SPLIT_CODE);
+                if(number < 10){
+                    subDocumentId.append(BigDecimal.ZERO.toPlainString());
+                }
+                subDocumentId.append(number++);
+
+                documentLine.setDocId(documentId);
+                documentLine.setReserved22(subDocumentId.toString());
+                documentLine.setDocCategory(Document.CATEGORY_DELIVERY);
+                baseService.saveEntity(documentLine);
+                documentLines.add(documentLine);
+            }
+            return documentLines;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e,log);
+        }
     }
 
 }

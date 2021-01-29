@@ -28,5 +28,6 @@ public interface DocumentService {
 
     List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
 
+    List<DocumentLine> shipmentOrderSave(List<DocumentLine> documentLineList);
 }
 

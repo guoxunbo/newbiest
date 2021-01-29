@@ -1,8 +1,9 @@
 package com.newbiest.mms.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
-import lombok.Getter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -41,35 +42,145 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="UN_HANDLE_QTY")
     private BigDecimal unHandledQty = BigDecimal.ZERO;
 
+    /**
+     *shipping Date
+     */
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    @Column(name = "SHIPPING_DATE")
+    private Date shippingDate;
+
+    /**
+     *PID
+     */
     @Column(name="RESERVED1")
     private String reserved1;
 
+    /**
+     *客户产品
+     */
     @Column(name="RESERVED2")
     private String reserved2;
 
+    /**
+     *版本
+     */
     @Column(name="RESERVED3")
     private String reserved3;
 
+    /**
+     *等级
+     */
     @Column(name="RESERVED4")
     private String reserved4;
 
+    /**
+     *MRB
+     */
     @Column(name="RESERVED5")
     private String reserved5;
 
+    /**
+     *remark
+     */
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     *承运人
+     */
     @Column(name="RESERVED7")
     private String reserved7;
 
+    /**
+     *物流信息
+     */
     @Column(name="RESERVED8")
     private String reserved8;
 
+    /**
+     *关务手册号
+     */
     @Column(name="RESERVED9")
     private String reserved9;
 
+    /**
+     *是否保税
+     */
     @Column(name="RESERVED10")
     private String reserved10;
+
+    /**
+     *客户名称
+     */
+    @Column(name="RESERVED11")
+    private String reserved11;
+
+    /**
+     *Sold-to
+     */
+    @Column(name="RESERVED12")
+    private String reserved12;
+
+    /**
+     *Sold-Add
+     */
+    @Column(name="RESERVED13")
+    private String reserved13;
+
+    /**
+     *Contact&Tel
+     */
+    @Column(name="RESERVED14")
+    private String reserved14;
+
+    /**
+     *Ship-to
+     */
+    @Column(name="RESERVED15")
+    private String reserved15;
+
+    /**
+     *Ship-Add
+     */
+    @Column(name="RESERVED16")
+    private String reserved16;
+
+    /**
+     *Contact
+     */
+    @Column(name="RESERVED17")
+    private String reserved17;
+
+    /**
+     *Tel
+     */
+    @Column(name="RESERVED18")
+    private String reserved18;
+
+    /**
+     *SO No
+     */
+    @Column(name="RESERVED19")
+    private String reserved19;
+
+    /**
+     *Customer PO
+     */
+    @Column(name="RESERVED20")
+    private String reserved20;
+
+    /**
+     *INV NO
+     */
+    @Column(name="RESERVED21")
+    private String reserved21;
+
+    /**
+     *子单号
+     */
+    @Column(name="RESERVED22")
+    private String reserved22;
 
     public void setMaterial(Material material) {
         this.materialRrn = material.getObjectRrn();
