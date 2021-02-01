@@ -36,5 +36,7 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_SCRAP = "Scrap";
 
+    public static final String EVENT_MES_RECEIVE = "MesReceive";
+
 
 }

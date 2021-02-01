@@ -23,6 +23,11 @@ public class MesSaveMLotHisRequest extends Request {
 	 */
 	public static final String ACTION_SAVE_MLOTUNIT_HIS = "SaveMLotUnitHis";
 
+	/**
+	 * MES接收原材料
+	 */
+	public static final String ACTION_RECEIVE_RAW_MATERIAL = "RawMaterialReceive";
+
 	private MesSaveMLotHisRequestBody body;
 
 }

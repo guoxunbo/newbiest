@@ -7801,7 +7801,23 @@ public class GcServiceImpl implements GcService {
         }
         return errorMessage;
     }
-    
+
+    public String mesReceiveRawMaterialAndSaveHis(List<MaterialLot> materialLotList, String transType) throws ClientException{
+        String errorMessage = "";
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+                materialLot = mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_MES_RECEIVE, StringUtils.EMPTY);
+
+                MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transType);
+                materialLotHistoryRepository.save(materialLotHistory);
+            }
+        } catch (Exception e){
+            errorMessage = e.getMessage();
+        }
+        return errorMessage;
+    }
+
     /**
      * HongKong仓接收物料批次（暂时只做接收入库，不对晶圆做eng验证，不写入中间表）
      * @param materialLotActions

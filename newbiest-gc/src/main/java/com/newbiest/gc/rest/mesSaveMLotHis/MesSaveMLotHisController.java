@@ -49,6 +49,10 @@ public class MesSaveMLotHisController extends AbstractRestController {
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnits();
             String message = gcService.mesSaveMaterialLotUnitHis(materialLotUnitList, transId);
             response.setMessage(message);
+        } else if(MesSaveMLotHisRequest.ACTION_RECEIVE_RAW_MATERIAL.equals(actionType)){
+            List<MaterialLot> materialLotList = requestBody.getMaterialLots();
+            String message = gcService.mesReceiveRawMaterialAndSaveHis(materialLotList, transId);
+            response.setMessage(message);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
