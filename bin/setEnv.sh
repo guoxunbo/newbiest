@@ -14,6 +14,10 @@ if [ "${LOG_PATH}" = "" ] ; then
 	LOG_PATH="../logs"
 fi
 
+if [ "${LICENSE_PATH}" = "" ] ; then
+	LICENSE_PATH="../license"
+fi
+
 if [ "${DEBUG_PORT}" = "" ] ; then
 	DEBUG_PORT="8787"
 fi

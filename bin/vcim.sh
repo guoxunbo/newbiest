@@ -10,7 +10,9 @@ SBA_MONITOR_FLAG="true"
 
 JAVA_HOME=$JAVA_DIR
 
-SPRING_OPTIONS="--spring.profiles.active=${RUN_MODE} --logging.path=${LOG_PATH} --server.port=${APPLICATION_PORT} ${SPRING_ADMIN_CLIENT_OPTIONS}"
+LICENSE_OPTIONS="--license.licensePath=${LICENSE_PATH}/newbiest.lic --license.publicKeysStorePath=${LICENSE_PATH}/nb_public.keystore "
+
+SPRING_OPTIONS="--spring.profiles.active=${RUN_MODE} --logging.path=${LOG_PATH} --server.port=${APPLICATION_PORT} ${LICENSE_OPTIONS} ${SPRING_ADMIN_CLIENT_OPTIONS}"
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 APP_PATH=$(find $ROOT -name starter*.jar)
