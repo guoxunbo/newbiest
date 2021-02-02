@@ -1,6 +1,7 @@
-package com.newbiest.vanchip.rest.doc.returnlot.create;
+package com.newbiest.mms.rest.doc.back.create;
 
 import com.newbiest.base.msg.RequestBody;
+import com.newbiest.mms.dto.MaterialLotAction;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class CreateReturnOrderRequestBody extends RequestBody {
 	@ApiModelProperty(value = "单据号")
 	private String documentId;
 
-	@ApiModelProperty(value = "物料批次号以及数量以及退料原因")
-	private List<Map<String, String>> materialLotIdAndQtyAndReasonMapList ;
+	@ApiModelProperty(value="具体的物料动作")
+	private List<MaterialLotAction> materialLotActions;
 
 }

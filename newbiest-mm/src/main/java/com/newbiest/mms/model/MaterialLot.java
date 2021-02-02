@@ -263,7 +263,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String incomingComment;
 
     /**
-     * 来料物料信息
+     * 来料物流信息
      */
     @Column(name="INCOMING_LOG_INFO")
     private String incomingLogInfo;
@@ -287,7 +287,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String shipComment;
 
     /**
-     * 来料物料信息
+     * 出货物流信息
      */
     @Column(name="SHIP_LOG_INFO")
     private String shipLogInfo;
@@ -298,17 +298,17 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="LETTERING_INFO")
     private String letteringInfo;
 
-    /**
-     * 是否创建批次号
-     */
-    @Column(name="LOT_NO_FLAG")
-    private String lotNoFlag;
+//    /**
+//     * 是否创建批次号
+//     */
+//    @Column(name="LOT_NO_FLAG")
+//    private String lotNoFlag;
 
     /**
-     * 退料原因
+     * 退回原因
      */
-    @Column(name="RETURN_MLOT_REASON")
-    private String returnMlotReason;
+    @Column(name="RETURN_REASON")
+    private String returnReason;
 
     /**
      * 生产日期

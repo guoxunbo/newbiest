@@ -1,6 +1,6 @@
-package com.newbiest.mms.rest.doc.shippingOrder.save;
+package com.newbiest.mms.rest.doc.delivery.create;
 
-import com.newbiest.base.msg.ResponseBody;
+import com.newbiest.base.msg.RequestBody;
 import com.newbiest.mms.model.DocumentLine;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -8,10 +8,12 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ShipmentOrderSaveResponseBody extends ResponseBody {
+public class CreateDeliveryOrderRequestBody extends RequestBody {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "保存之后数据返回")
+    private String documentId;
+
     private List<DocumentLine> documentLineList;
+
 }

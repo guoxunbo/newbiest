@@ -11,7 +11,6 @@ import javax.persistence.Table;
  * 单据绑定的物料批次
  *  单据指定物料批次进行绑定/预留
  * @author guoxunbo
- * @date 12/29/20 7:09 PM
  */
 @Data
 @Entity

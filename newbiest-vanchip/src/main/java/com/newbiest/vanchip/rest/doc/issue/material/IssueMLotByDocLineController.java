@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
+@RestController("VCIssueMLotByDocLineController")
 @RequestMapping("/vc")
 @Slf4j
 @Api(value="/vc", tags="Vanchip客制化")

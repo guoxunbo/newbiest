@@ -22,6 +22,8 @@ public interface MmsService {
     MLotCheckSheet iqc(MaterialLotAction materialLotJudgeAction) throws ClientException;
     MaterialLot issue(MaterialLot materialLot) throws ClientException;
 
+    MaterialLot returnMLot(MaterialLot materialLot, boolean holdFlag) throws ClientException;
+
     // rawMaterial
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial getRawMaterialByName(String name) throws ClientException;

@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.List;
 
 /**
- * 物料批次单据验证
+ * 单据验证规则
  */
 @Entity
 @Data
