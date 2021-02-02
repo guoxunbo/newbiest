@@ -1,5 +1,6 @@
 package com.newbiest.mms.service.impl;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
@@ -105,9 +106,7 @@ public class DocumentServiceImpl implements DocumentService {
             deliveryOrder = (DeliveryOrder) baseService.saveEntity(deliveryOrder);
 
             for (DocumentLine documentLine : documentLineList) {
-                StringBuffer subDocumentId = new StringBuffer(documentId);
-                subDocumentId.append(StringUtils.SPLIT_CODE);
-                String subLineId = generatorDocId(DeliveryOrder.GENERATOR_DELIVERY_ORDER_LINE_ID_RULE);
+                String subLineId = generatorDocId(DeliveryOrder.GENERATOR_DELIVERY_ORDER_LINE_ID_RULE, deliveryOrder);
                 documentLine.setDocument(deliveryOrder);
                 documentLine.setLineId(subLineId);
                 baseService.saveEntity(documentLine);
@@ -178,16 +177,10 @@ public class DocumentServiceImpl implements DocumentService {
             if (!Document.STATUS_APPROVE.equals(returnOrder.getStatus())) {
                 throw new ClientParameterException(DocumentException.DOCUMENT_STATUS_IS_NOT_ALLOW, returnOrder.getName());
             }
-            List<MaterialLot> materialLots = materialLotRepository.findReservedLotsByDocId(documentId);
-            BigDecimal handleQty = BigDecimal.ZERO;
-            for (String materialLotId : materialLotIdList) {
-                Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
-                if (!existMaterialLotOptional.isPresent()) {
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
-                }
-                MaterialLot materialLot = existMaterialLotOptional.get();
-                handleQty = handleQty.add(materialLot.getCurrentQty());
+            List<MaterialLot> materialLots = validationDocReservedMLot(documentId, materialLotIdList);
 
+            BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+            for (MaterialLot materialLot : materialLots) {
                 //TODO HoldMLot
                 boolean holdFlag = false;
                 mmsService.returnMLot(materialLot, holdFlag);
@@ -199,7 +192,23 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
+    }
 
+    private List<MaterialLot> validationDocReservedMLot(String documentId, List<String> validationMLotIdList) throws ClientException {
+        try {
+            List<MaterialLot> materialLots = Lists.newArrayList();
+            List<MaterialLot> reservedMaterialLots = getReservedMLotByDocId(documentId);
+            for (String materialLotId : validationMLotIdList) {
+                Optional<MaterialLot> existMaterialLotOptional = reservedMaterialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
+                if (!existMaterialLotOptional.isPresent()) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+                }
+                materialLots.add(existMaterialLotOptional.get());
+            }
+            return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
 
@@ -345,16 +354,10 @@ public class DocumentServiceImpl implements DocumentService {
             if (!Document.STATUS_APPROVE.equals(issueLotOrder.getStatus())) {
                 throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, issueLotOrder.getName());
             }
-            List<MaterialLot> materialLots = getReservedMLotByDocId(issueLotOrder.getName());
+            List<MaterialLot> materialLots = validationDocReservedMLot(issueLotOrderId, materialLotIdList);
 
-            BigDecimal handleQty = BigDecimal.ZERO;
-            for (String materialLotId : materialLotIdList) {
-                Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
-                if (!existMaterialLotOptional.isPresent()) {
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
-                }
-                MaterialLot materialLot = existMaterialLotOptional.get();
-                handleQty = handleQty.add(materialLot.getCurrentQty());
+            BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+            for (MaterialLot materialLot : materialLots) {
                 mmsService.issue(materialLot);
             }
             issueLotOrder.setHandledQty(issueLotOrder.getHandledQty().add(handleQty));
