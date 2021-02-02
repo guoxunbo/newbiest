@@ -1,4 +1,4 @@
-package com.newbiest.mms.rest.doc.shippingOrder.save;
+package com.newbiest.mms.rest.doc.delivery.create;
 
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.service.DocumentService;
@@ -18,22 +18,21 @@ import java.util.List;
 @RequestMapping("/mms")
 @Slf4j
 @Api(value="/mms", tags="MaterialManagerSystem", description = "物料管理相关")
-public class ShipmentOrderSaveController {
+public class CreateDeliveryOrderController {
 
     @Autowired
     DocumentService documentService;
 
-    @ApiOperation(value = "发货通知单保存")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "ShipmentOrderSaveRequest")
-    @RequestMapping(value = "/shipmentOrderSave", method = RequestMethod.POST)
-    public ShipmentOrderSaveResponse excute(@RequestBody ShipmentOrderSaveRequest request){
-        ShipmentOrderSaveRequestBody requestBody = request.getBody();
-        ShipmentOrderSaveResponse response = new ShipmentOrderSaveResponse();
+    @ApiOperation(value = "发货单保存")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "CreateDeliveryOrderRequest")
+    @RequestMapping(value = "/createDeliveryOrder", method = RequestMethod.POST)
+    public CreateDeliveryOrderResponse excute(@RequestBody CreateDeliveryOrderRequest request){
+        CreateDeliveryOrderRequestBody requestBody = request.getBody();
+        CreateDeliveryOrderResponse response = new CreateDeliveryOrderResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
-        ShipmentOrderSaveResponseBody responseBody = new ShipmentOrderSaveResponseBody();
+        CreateDeliveryOrderResponseBody responseBody = new CreateDeliveryOrderResponseBody();
 
-        List<DocumentLine> documentLine = documentService.shipmentOrderSave(requestBody.getDocumentLineList());
-        responseBody.setDocumentLineList(documentLine);
+        documentService.createDeliveryOrder(requestBody.getDocumentId(), true, requestBody.getDocumentLineList());
         response.setBody(responseBody);
         return response;
     }

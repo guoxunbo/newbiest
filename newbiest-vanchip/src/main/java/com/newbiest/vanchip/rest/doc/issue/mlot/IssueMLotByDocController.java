@@ -36,6 +36,4 @@ public class IssueMLotByDocController extends AbstractRestController {
         return response;
     }
 
-
-
 }

@@ -27,11 +27,11 @@ public interface DocumentService {
     void issueMLotByDoc(String issueLotOrderId, List<String> materialLotIdList) throws ClientException;
     void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
 
+    void createReturnOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException;
     void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
 
-    void createReturnOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
 
-    List<DocumentLine> shipmentOrderSave(List<DocumentLine> documentLineList);
+    void createDeliveryOrder(String documentId, boolean approveFlag, List<DocumentLine> documentLineList) throws ClientException;
 }
 

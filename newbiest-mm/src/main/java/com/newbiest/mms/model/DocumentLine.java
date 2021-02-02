@@ -24,6 +24,9 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="DOC_ID")
     private String docId;
 
+    @Column(name="LINE_ID")
+    private String lineId;
+
     @Column(name="DOC_CATEGORY")
     private String docCategory;
 
@@ -176,14 +179,17 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="RESERVED21")
     private String reserved21;
 
-    /**
-     *子单号
-     */
     @Column(name="RESERVED22")
     private String reserved22;
 
     public void setMaterial(Material material) {
         this.materialRrn = material.getObjectRrn();
         this.materialName = material.getName();
+    }
+
+    public void setDocument(Document document) {
+        this.docRrn = document.getObjectRrn();
+        this.docId = document.getName();
+        this.docCategory = document.getCategory();
     }
 }

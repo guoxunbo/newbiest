@@ -1,6 +1,5 @@
 package com.newbiest.mms.service.impl;
 
-import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
@@ -17,7 +16,6 @@ import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
-import com.newbiest.mms.state.model.MaterialStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -76,6 +74,48 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Autowired
     ReturnOrderRepository returnOrderRepository;
+
+    @Autowired
+    DeliveryOrderRepository deliveryOrderRepository;
+
+    /**
+     * 创建发货单
+     * @param documentId         单据号 不传，系统会自己生成一个
+     * @param approveFlag        是否创建即approve
+     * @throws ClientException
+     */
+    public void createDeliveryOrder(String documentId, boolean approveFlag, List<DocumentLine> documentLineList) throws ClientException {
+        try {
+            if (StringUtils.isNullOrEmpty(documentId)) {
+                documentId = generatorDocId(DeliveryOrder.GENERATOR_DELIVERY_ORDER_ID_RULE);
+            }
+            DeliveryOrder deliveryOrder = deliveryOrderRepository.findOneByName(documentId);
+            if (deliveryOrder != null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
+            }
+            BigDecimal totalQty  = documentLineList.stream().collect(CollectorsUtils.summingBigDecimal(DocumentLine::getQty));
+
+            deliveryOrder = new DeliveryOrder();
+            deliveryOrder.setName(documentId);
+            deliveryOrder.setQty(totalQty);
+            deliveryOrder.setUnHandledQty(totalQty);
+            if (approveFlag) {
+                deliveryOrder.setStatus(Document.STATUS_APPROVE);
+            }
+            deliveryOrder = (DeliveryOrder) baseService.saveEntity(deliveryOrder);
+
+            for (DocumentLine documentLine : documentLineList) {
+                StringBuffer subDocumentId = new StringBuffer(documentId);
+                subDocumentId.append(StringUtils.SPLIT_CODE);
+                String subLineId = generatorDocId(DeliveryOrder.GENERATOR_DELIVERY_ORDER_LINE_ID_RULE);
+                documentLine.setDocument(deliveryOrder);
+                documentLine.setLineId(subLineId);
+                baseService.saveEntity(documentLine);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     /**
      * 创建退料单
@@ -237,12 +277,10 @@ public class DocumentServiceImpl implements DocumentService {
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, rawMaterialName);
                 }
                 DocumentLine documentLine = new DocumentLine();
-                documentLine.setDocId(issueMaterialOrder.getName());
-                documentLine.setDocRrn(issueMaterialOrder.getObjectRrn());
+                documentLine.setDocument(issueMaterialOrder);
                 documentLine.setMaterial(rawMaterial);
                 documentLine.setQty(rawMaterialQtyMap.get(rawMaterialName));
                 documentLine.setUnHandledQty(rawMaterialQtyMap.get(rawMaterialName));
-                documentLine.setDocCategory(issueMaterialOrder.getCategory());
                 baseService.saveEntity(documentLine);
             }
         } catch (Exception e) {
@@ -383,42 +421,14 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     public String generatorDocId(String generatorRule) throws ClientException {
-        GeneratorContext generatorContext = new GeneratorContext();
-        generatorContext.setRuleName(generatorRule);
-        return generatorService.generatorId(generatorContext);
+        return generatorDocId(generatorRule, null);
     }
 
-    public List<DocumentLine> shipmentOrderSave(List<DocumentLine> documentLineList) throws ClientException{
-        try {
-            String documentId = generatorDocId(DeliveryOrder.GENERATOR_DELIVERY_ORDER_ID_RULE);
-            BigDecimal totalQty  = documentLineList.stream().collect(CollectorsUtils.summingBigDecimal(DocumentLine::getQty));
-
-            DeliveryOrder deliveryOrder = new DeliveryOrder();
-            deliveryOrder.setName(documentId);
-            deliveryOrder.setQty(totalQty);
-            deliveryOrder.setUnHandledQty(totalQty);
-            baseService.saveEntity(deliveryOrder);
-
-            List<DocumentLine> documentLines = Lists.newArrayList();
-            Integer number = 1;
-            for (DocumentLine documentLine : documentLineList) {
-                StringBuffer subDocumentId = new StringBuffer(documentId);
-                subDocumentId.append(StringUtils.SPLIT_CODE);
-                if(number < 10){
-                    subDocumentId.append(BigDecimal.ZERO.toPlainString());
-                }
-                subDocumentId.append(number++);
-
-                documentLine.setDocId(documentId);
-                documentLine.setReserved22(subDocumentId.toString());
-                documentLine.setDocCategory(Document.CATEGORY_DELIVERY);
-                baseService.saveEntity(documentLine);
-                documentLines.add(documentLine);
-            }
-            return documentLines;
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e,log);
-        }
+    public String generatorDocId(String generatorRule, Document document) throws ClientException {
+        GeneratorContext generatorContext = new GeneratorContext();
+        generatorContext.setObject(document);
+        generatorContext.setRuleName(generatorRule);
+        return generatorService.generatorId(generatorContext);
     }
 
 }
