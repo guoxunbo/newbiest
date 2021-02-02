@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.doc.returnlot.create;
+package com.newbiest.mms.rest.doc.back.create;
 
 import com.newbiest.base.msg.ResponseBody;
 import lombok.Data;

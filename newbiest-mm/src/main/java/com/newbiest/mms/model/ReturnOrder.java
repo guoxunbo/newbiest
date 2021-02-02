@@ -6,7 +6,6 @@ import javax.persistence.Entity;
 /**
  * 退料单
  */
-
 @Entity
 @DiscriminatorValue(Document.CATEGORY_RETURN)
 public class ReturnOrder extends Document {

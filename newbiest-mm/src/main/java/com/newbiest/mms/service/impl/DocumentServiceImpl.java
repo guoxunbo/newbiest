@@ -9,12 +9,15 @@ import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.newbiest.mms.exception.DocumentException.*;
@@ -67,6 +71,98 @@ public class DocumentServiceImpl implements DocumentService {
     @Autowired
     MaterialLotRepository materialLotRepository;
 
+    @Autowired
+    MaterialLotHistoryRepository materialLotHistoryRepository;
+
+    @Autowired
+    ReturnOrderRepository returnOrderRepository;
+
+    /**
+     * 创建退料单
+     * 这个退料单指产线退回仓库。而非指仓库退料到ERP
+     *
+     * @param documentId         单据号 不传，系统会自己生成一个
+     * @param approveFlag        是否创建即approve
+     * @param materialLotActions 物料批次动作
+     * @throws ClientException
+     */
+    public void createReturnOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException {
+        try {
+            if (StringUtils.isNullOrEmpty(documentId)) {
+                documentId = generatorDocId(ReturnOrder.GENERATOR_RETURN_ORDER_RULE);
+            }
+            ReturnOrder returnOrder = returnOrderRepository.findOneByName(documentId);
+            if (returnOrder != null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
+            }
+
+            List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId(), true)).collect(Collectors.toList());
+            Map<String, MaterialLotAction> materialLotActionMap = materialLotActions.stream().collect(Collectors.toMap(MaterialLotAction::getMaterialLotId, Function.identity()));
+
+            BigDecimal totalQty = materialLotActions.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotAction::getTransQty));
+            returnOrder = new ReturnOrder();
+            returnOrder.setName(documentId);
+            returnOrder.setQty(totalQty);
+            returnOrder.setUnHandledQty(totalQty);
+            if (approveFlag) {
+                returnOrder.setStatus(Document.STATUS_APPROVE);
+            }
+            returnOrder = (ReturnOrder) baseService.saveEntity(returnOrder);
+
+            for (MaterialLot materialLot : materialLots) {
+                MaterialLotAction materialLotAction = materialLotActionMap.get(materialLot.getMaterialLotId());
+                materialLot.setCurrentQty(materialLotAction.getTransQty());
+                materialLot.setReturnReason(materialLotAction.getActionReason());
+                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_WAIT_RETURN, StringUtils.EMPTY);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialEvent.EVENT_WAIT_RETURN);
+                history.buildByMaterialLotAction(materialLotAction);
+                materialLotHistoryRepository.save(history);
+
+                DocumentMLot documentMLot = new DocumentMLot();
+                documentMLot.setDocumentId(returnOrder.getName());
+                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
+                documentMLotRepository.save(documentMLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException {
+        try {
+            ReturnOrder returnOrder = returnOrderRepository.findOneByName(documentId);
+            if (returnOrder == null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_NOT_EXIST, returnOrder.getName());
+            }
+            if (!Document.STATUS_APPROVE.equals(returnOrder.getStatus())) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_STATUS_IS_NOT_ALLOW, returnOrder.getName());
+            }
+            List<MaterialLot> materialLots = materialLotRepository.findReservedLotsByDocId(documentId);
+            BigDecimal handleQty = BigDecimal.ZERO;
+            for (String materialLotId : materialLotIdList) {
+                Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
+                if (!existMaterialLotOptional.isPresent()) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+                }
+                MaterialLot materialLot = existMaterialLotOptional.get();
+                handleQty = handleQty.add(materialLot.getCurrentQty());
+
+                //TODO HoldMLot
+                boolean holdFlag = false;
+                mmsService.returnMLot(materialLot, holdFlag);
+            }
+
+            returnOrder.setHandledQty(returnOrder.getHandledQty().add(handleQty));
+            returnOrder.setUnHandledQty(returnOrder.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(returnOrder, DocumentHistory.TRANS_TYPE_RETURN);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+
+    }
+
+
     /**
      * 创建发料单
      *  此种发料单需要指定批次，即发料单直接指定批次一般用于主材使用
@@ -97,9 +193,6 @@ public class DocumentServiceImpl implements DocumentService {
             issueLotOrder = (IssueLotOrder) baseService.saveEntity(issueLotOrder);
 
             for (MaterialLot materialLot : materialLots) {
-//                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_ISSUE_RESERVED, StringUtils.EMPTY);
-//                baseService.saveHistoryEntity(materialLot, MaterialEvent.EVENT_ISSUE_RESERVED);
-
                 DocumentMLot documentMLot = new DocumentMLot();
                 documentMLot.setDocumentId(issueLotOrder.getName());
                 documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
@@ -209,7 +302,7 @@ public class DocumentServiceImpl implements DocumentService {
         try {
             IssueLotOrder issueLotOrder = issueLotOrderRepository.findOneByName(issueLotOrderId);
             if (issueLotOrder == null) {
-                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, issueLotOrder);
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, issueLotOrder.getName());
             }
             if (!Document.STATUS_APPROVE.equals(issueLotOrder.getStatus())) {
                 throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, issueLotOrder.getName());
@@ -220,12 +313,9 @@ public class DocumentServiceImpl implements DocumentService {
             for (String materialLotId : materialLotIdList) {
                 Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
                 if (!existMaterialLotOptional.isPresent()) {
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
                 }
                 MaterialLot materialLot = existMaterialLotOptional.get();
-//                if (!MaterialStatus.STATUS_RESERVED.equals(materialLot.getStatus())) {
-//                    throw new ClientParameterException(DOCUMENT_NOT_RESERVED_MLOT, materialLotId);
-//                }
                 handleQty = handleQty.add(materialLot.getCurrentQty());
                 mmsService.issue(materialLot);
             }

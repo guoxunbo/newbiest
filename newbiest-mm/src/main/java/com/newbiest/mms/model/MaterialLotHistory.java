@@ -23,7 +23,7 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_SHIP = "Ship";
     public static final String TRANS_TYPE_ISSUE = "Issue";
     public static final String TRANS_TYPE_RETURN = "Return";
-    public static final String TRANS_TYPE_CREATE_RETURN_ORDER = "createReturnOrder";
+    public static final String TRANS_TYPE_CREATE_RETURN_ORDER = "CreateReturnOrder";
 
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
@@ -310,7 +310,7 @@ public class MaterialLotHistory extends NBHis {
     private String shipComment;
 
     /**
-     * 来料物料信息
+     * 出货物流信息
      */
     @Column(name="SHIP_LOG_INFO")
     private String shipLogInfo;
@@ -321,17 +321,17 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="LETTERING_INFO")
     private String letteringInfo;
 
-    /**
-     * 是否创建批次号
-     */
-    @Column(name="LOT_NO_FLAG")
-    private String lotNoFlag;
-
-    /**
-     * 退料原因
-     */
-    @Column(name="RETURN_MLOT_REASON")
-    private String returnMlotReason;
+//    /**
+//     * 是否创建批次号
+//     */
+//    @Column(name="LOT_NO_FLAG")
+//    private String lotNoFlag;
+//
+//    /**
+//     * 退料原因
+//     */
+//    @Column(name="RETURN_MLOT_REASON")
+//    private String returnMlotReason;
 
     /**
      * 生产日期

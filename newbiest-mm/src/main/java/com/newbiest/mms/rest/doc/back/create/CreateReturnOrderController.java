@@ -1,7 +1,7 @@
-package com.newbiest.vanchip.rest.doc.returnlot.create;
+package com.newbiest.mms.rest.doc.back.create;
 
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.vanchip.service.VanChipService;
+import com.newbiest.mms.service.DocumentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/vc")
+@RequestMapping("/mms")
 @Slf4j
-@Api(value="/vc", tags="MaterialManagerSystem", description = "物料管理相关")
+@Api(value="/mms", tags="MaterialManagerSystem", description = "物料管理相关")
 public class CreateReturnOrderController extends AbstractRestController {
 
     @Autowired
-    VanChipService vanChipService;
+    DocumentService documentService;
 
     @ApiOperation(value = "创建退料单")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "CreateReturnMLotOrder")
@@ -30,7 +30,7 @@ public class CreateReturnOrderController extends AbstractRestController {
         CreateReturnOrderResponseBody responseBody = new CreateReturnOrderResponseBody();
         CreateReturnOrderRequestBody requestBody = request.getBody();
 
-        vanChipService.createReturnOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdAndQtyAndReasonMapList());
+        documentService.createReturnOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotActions());
         response.setBody(responseBody);
         return response;
     }

@@ -177,7 +177,6 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
-
     /**
      * 发料
      *  此处只能全部发料 不存在发一部分的数量
@@ -192,6 +191,24 @@ public class MmsServiceImpl implements MmsService {
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_ISSUE, StringUtils.EMPTY);
 
             baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_ISSUE);
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 退料
+     *  此处只能全部发料 不存在发一部分的数量
+     * @param materialLot 物料批次
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot returnMLot(MaterialLot materialLot, boolean holdFlag) throws ClientException {
+        try {
+            materialLot.setReturnReason(StringUtils.EMPTY);
+            materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, MaterialStatus.STATUS_RECEIVE);
+            baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_RETURN);
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

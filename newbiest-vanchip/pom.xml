@@ -17,5 +17,10 @@
             <artifactId>mm</artifactId>
             <version>${platform.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
     </dependencies>
 </project>

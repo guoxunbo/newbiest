@@ -38,9 +38,10 @@ public class MaterialEvent extends Event {
     public static final String EVENT_STOCK_OUT = "StockOut";
 
     /**
-     * 发料预留
+     * 等待退库
+     *  一般指创建了退料单进行退料的事件
      */
-    public static final String EVENT_ISSUE_RESERVED = "IssueReserved";
+    public static final String EVENT_WAIT_RETURN = "WaitReturn";
 
     /**
      * 发料

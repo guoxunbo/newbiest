@@ -100,9 +100,9 @@ public class VanchipServiceImpl implements VanChipService {
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
-            Optional<MaterialLot> bindedMLot = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getWorkOrderId())).findFirst();
-            if (bindedMLot.isPresent()) {
-                throw new ClientParameterException(MLOT_BINDED_WORKORDER, bindedMLot.get().getMaterialLotId());
+            Optional<MaterialLot> bindMLot = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getWorkOrderId())).findFirst();
+            if (bindMLot.isPresent()) {
+                throw new ClientParameterException(MLOT_BINDED_WORKORDER, bindMLot.get().getMaterialLotId());
             }
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setWorkOrderId(workOrderId);
@@ -214,64 +214,8 @@ public class VanchipServiceImpl implements VanChipService {
     public void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws  ClientException{
         try {
             documentService.issueMLotByDocLine(documentLine, materialLotIdList);
-
             mesService.issueMLot(materialLotIdList);
         } catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 创建退料单
-     * @param documentId
-     * @param approveFlag
-     * @param materialLotIdAndQtyAndReasonMapList
-     * @throws ClientException
-     */
-    public void createReturnOrder(String documentId, boolean approveFlag, List<Map<String, String>> materialLotIdAndQtyAndReasonMapList) throws ClientException{
-        try {
-            if (StringUtils.isNullOrEmpty(documentId)){
-                documentId = documentService.generatorDocId(ReturnOrder.GENERATOR_RETURN_ORDER_RULE);
-            }
-            ReturnOrder returnOrder = returnOrderRepository.findOneByName(documentId);
-            if (returnOrder != null) {
-                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
-            }
-
-            List<MaterialLot> materialLotList = Lists.newArrayList();
-            for (Map<String, String> mLotId : materialLotIdAndQtyAndReasonMapList){
-                MaterialLot materialLot = new MaterialLot();
-                for (String map : mLotId.keySet()){
-                    PropertyUtils.setProperty(materialLot, map, mLotId.get(map));
-                }
-                materialLotList.add(materialLot);
-            }
-            BigDecimal totalQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
-
-            returnOrder = new ReturnOrder();
-            returnOrder.setName(documentId);
-            returnOrder.setQty(totalQty);
-            returnOrder.setUnHandledQty(totalQty);
-            if (approveFlag) {
-                returnOrder.setStatus(Document.STATUS_APPROVE);
-            }
-            returnOrder = (ReturnOrder) baseService.saveEntity(returnOrder);
-
-            for (MaterialLot materialLot : materialLotList) {
-                MaterialLot mlot =mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
-                if (mlot == null){
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mlot);
-                }
-                DocumentMLot documentMLot = new DocumentMLot();
-                documentMLot.setDocumentId(returnOrder.getName());
-                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
-                documentMLotRepository.save(documentMLot);
-
-                mlot.setReturnMlotReason(materialLot.getReturnMlotReason());
-                baseService.saveEntity(mlot);
-                baseService.saveHistoryEntity(mlot, MaterialLotHistory.TRANS_TYPE_CREATE_RETURN_ORDER);
-            }
-        }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -284,38 +228,12 @@ public class VanchipServiceImpl implements VanChipService {
      */
     public void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException {
         try {
-            ReturnOrder returnOrder = returnOrderRepository.findOneByName(documentId);
-            if (returnOrder == null) {
-                throw new ClientParameterException(DocumentException.DOCUMENT_IS_NOT_EXIST, returnOrder);
-            }
-            if (!Document.STATUS_APPROVE.equals(returnOrder.getStatus())) {
-                throw new ClientParameterException(DocumentException.DOCUMENT_STATUS_IS_NOT_ALLOW, returnOrder.getName());
-            }
-            List<MaterialLot> materialLots = materialLotRepository.findReservedLotsByDocId(documentId);
-
-            BigDecimal handleQty = BigDecimal.ZERO;
-            for (String materialLotId : materialLotIdList) {
-                Optional<MaterialLot> existMaterialLotOptional = materialLots.stream().filter(materialLot -> materialLot.getMaterialLotId().equals(materialLotId)).findFirst();
-                if (!existMaterialLotOptional.isPresent()) {
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);
-                }
-                MaterialLot materialLot = existMaterialLotOptional.get();
-                handleQty = handleQty.add(materialLot.getCurrentQty());
-
-                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, MaterialStatus.STATUS_IQC);
-                baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_RETURN);
-            }
-            returnOrder.setHandledQty(returnOrder.getHandledQty().add(handleQty));
-            returnOrder.setUnHandledQty(returnOrder.getUnHandledQty().subtract(handleQty));
-            baseService.saveEntity(returnOrder, DocumentHistory.TRANS_TYPE_RETURN);
-
+            documentService.returnMLotByDoc(documentId, materialLotIdList);
             mesService.returnMLot(materialLotIdList);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
-
-
 
     /**
      * 辅材单据验证

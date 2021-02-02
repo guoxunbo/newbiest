@@ -1,6 +1,7 @@
 package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Document;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
@@ -26,6 +27,9 @@ public interface DocumentService {
     void issueMLotByDoc(String issueLotOrderId, List<String> materialLotIdList) throws ClientException;
     void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
 
+    void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
+
+    void createReturnOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
 
     List<DocumentLine> shipmentOrderSave(List<DocumentLine> documentLineList);
