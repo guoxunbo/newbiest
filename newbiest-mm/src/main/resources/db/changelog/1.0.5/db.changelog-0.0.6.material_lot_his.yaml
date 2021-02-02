@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.0.6
+      author: Xunbo Guo
+      remarks: mms_material_lot_his drop some colums
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: PRODUCTION_DATE
+                  type: datetime
+                  remarks: 生产日期
+        - dropColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columnName: LOT_NO_FLAG
+        - dropColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columnName: PRODUCTED_DATE
+        - dropColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columnName: RETURN_MLOT_REASON
