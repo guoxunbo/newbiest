@@ -494,3 +494,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.RawMaterialScrap.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCUpdateMLotInfo.nb_authority.yaml
+      relativeToChangelogFile: true

@@ -29,6 +29,7 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_UN_STOCK_OUT_TAG = "UnStockOutTag";
     public static final String TRANS_TYPE_THREE_SIDE = "ThreeSide";
     public static final String TRANS_TYPE_RAW_SCRAP = "Scrap";
+    public static final String TRANS_TYPE_UPDATE = "Update";
 
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";

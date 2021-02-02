@@ -8476,4 +8476,34 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 修改Lot信息
+     * @param materialLot
+     * @throws ClientException
+     */
+    public void updateMaterialLotInfo(MaterialLot materialLot) throws ClientException{
+        try {
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+            MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UPDATE);
+            materialLotHistoryRepository.save(materialLotHistory);
+
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setReserved4(materialLot.getReserved6());
+                    materialLotUnit.setReserved22(materialLot.getReserved22());
+                    materialLotUnit.setReserved1(materialLot.getReserved1());
+                    materialLotUnit.setGrade(materialLot.getGrade());
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                    MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_UPDATE);
+                    materialLotUnitHisRepository.save(materialLotUnitHistory);
+                }
+            }
+
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
