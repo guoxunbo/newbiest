@@ -321,23 +321,11 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="LETTERING_INFO")
     private String letteringInfo;
 
-//    /**
-//     * 是否创建批次号
-//     */
-//    @Column(name="LOT_NO_FLAG")
-//    private String lotNoFlag;
-//
-//    /**
-//     * 退料原因
-//     */
-//    @Column(name="RETURN_MLOT_REASON")
-//    private String returnMlotReason;
-
     /**
      * 生产日期
      */
-    @Column(name="PRODUCTED_DATE")
-    private Date productedDate;
+    @Column(name="PRODUCTION_DATE")
+    private Date productionDate;
 
     /**
      * PackageSize

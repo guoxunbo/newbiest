@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.0.6
+      author: Xunbo Guo
+      remarks: mms_material_lot add column RETURN_REASON drop some colums
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: RETURN_REASON
+                  type: varchar(128)
+                  remarks: 退回原因
+              - column:
+                  name: PRODUCTION_DATE
+                  type: datetime
+                  remarks: 生产日期
+        - dropColumn:
+            tableName: MMS_MATERIAL_LOT
+            columnName: LOT_NO_FLAG
+        - dropColumn:
+            tableName: MMS_MATERIAL_LOT
+            columnName: PRODUCTED_DATE
+        - dropColumn:
+            tableName: MMS_MATERIAL_LOT
+            columnName: RETURN_MLOT_REASON
