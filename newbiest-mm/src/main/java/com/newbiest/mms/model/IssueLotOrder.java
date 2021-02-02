@@ -15,4 +15,8 @@ public class IssueLotOrder extends Document {
 
     public static final String GENERATOR_ISSUE_LOT_ORDER_ID_RULE = "CreateIssueLotOrder";
 
+    @Override
+    public String getCategory(){
+        return Document.CATEGORY_ISSUE_LOT;
+    }
 }

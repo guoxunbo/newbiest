@@ -14,4 +14,8 @@ public class IssueMaterialOrder extends Document {
 
     public static final String GENERATOR_ISSUE_MATERIAL_ORDER_ID_RULE = "CreateIssueMaterialOrder";
 
+    @Override
+    public String getCategory(){
+        return Document.CATEGORY_ISSUE_MATERIAL;
+    }
 }

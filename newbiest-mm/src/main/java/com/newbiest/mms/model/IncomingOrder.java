@@ -15,4 +15,8 @@ public class IncomingOrder extends Document {
 
     public static final String GENERATOR_INCOMING_ORDER_ID_RULE = "CreateIncomingOrder";
 
+    @Override
+    public String getCategory(){
+        return Document.CATEGORY_INCOMING;
+    }
 }

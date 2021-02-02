@@ -12,4 +12,8 @@ public class ReturnOrder extends Document {
 
     public static final String GENERATOR_RETURN_ORDER_RULE = "CreateReturnOrder";
 
+    @Override
+    public String getCategory(){
+        return Document.CATEGORY_RETURN;
+    }
 }
