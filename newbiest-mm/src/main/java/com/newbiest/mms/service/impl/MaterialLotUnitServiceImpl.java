@@ -413,6 +413,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved22",materialLotUnit.getReserved22());
                     propsMap.put("reserved23",materialLotUnit.getReserved23());
                     propsMap.put("reserved24",materialLotUnit.getReserved24());
+                    propsMap.put("reserved25",materialLotUnit.getReserved25());
+                    propsMap.put("reserved26",materialLotUnit.getReserved26());
                     propsMap.put("reserved27",materialLotUnit.getReserved27());
                     propsMap.put("reserved28",materialLotUnit.getReserved28());
                     propsMap.put("reserved29",materialLotUnit.getReserved29());
@@ -424,6 +426,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved37",materialLotUnit.getReserved37());
                     propsMap.put("reserved38",materialLotUnit.getReserved38());
                     propsMap.put("reserved39",materialLotUnit.getReserved39());
+                    propsMap.put("reserved40",materialLotUnit.getReserved40());
                     propsMap.put("reserved41",materialLotUnit.getReserved41());
                     propsMap.put("reserved45",materialLotUnit.getReserved45());
                     propsMap.put("reserved46",materialLotUnit.getReserved46());
