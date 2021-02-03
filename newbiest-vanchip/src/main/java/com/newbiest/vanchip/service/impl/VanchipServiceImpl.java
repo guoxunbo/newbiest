@@ -13,6 +13,7 @@ import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
+import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
@@ -113,7 +114,14 @@ public class VanchipServiceImpl implements VanChipService {
     DocumentLineRepository documentLineRepository;
 
     @Autowired
+    FinishGoodOrderRepository finishGoodOrderRepository;
+
+    @Autowired
+    ProductRepository productRepository;
+
+    @Autowired
     DeliveryOrderRepository deliveryOrderRepository;
+
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
@@ -360,39 +368,18 @@ public class VanchipServiceImpl implements VanChipService {
     /**
      * 接收前进行分批 一次分一个
      * @param materialLotId 物料批次号
-     * @param newBatchesQty 生成新批次的数量
+     * @param batchesQty 生成新批次的数量
      * @return
      * @throws ClientException
      */
-    public MaterialLot receiveBatches(String materialLotId, String newBatchesQty) throws ClientException{
+    public MaterialLot receiveBatches(String materialLotId, BigDecimal batchesQty) throws ClientException{
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
-            if (!StringUtils.isNullOrEmpty(materialLot.getReserved44())){
+            if (!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
                 throw new ClientParameterException(VanchipExceptions.ALREADY_BATCHES, materialLotId);
-            }
-            BigDecimal batchesQty = BigDecimal.ZERO;
-            try {
-                batchesQty = new BigDecimal(newBatchesQty);
-            }catch (Exception e){
-                throw new ClientParameterException(VanchipExceptions.ERROR_IN_QUANTITY, newBatchesQty);
             }
             if (materialLot.getCurrentQty().compareTo(batchesQty) <= 0){
                 throw new ClientParameterException(VanchipExceptions.BATCHES_QTY_GREATER_THAN_MLOT_QTY, batchesQty);
-            }
-
-            List<MaterialLot> materialLots = materialLotRepository.findByReserved44(materialLotId);
-            Integer number = materialLots.size();
-            StringBuffer mlotId = new StringBuffer(materialLotId);
-            mlotId.append(StringUtils.SPLIT_CODE);
-            if(number < 10){
-                mlotId.append(BigDecimal.ZERO.toPlainString());
-            }
-            number++;
-            mlotId.append(number);
-
-            RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialLot.getMaterialName());
-            if (rawMaterial == null) {
-                throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialLot.getMaterialName());
             }
 
             materialLot.setCurrentQty(materialLot.getCurrentQty().subtract(batchesQty));
@@ -400,7 +387,8 @@ public class VanchipServiceImpl implements VanChipService {
             baseService.saveEntity(materialLot, TRANS_TYPE_RECEIVE_BATCHES);
 
             MaterialLot newMaterialLot = (MaterialLot) materialLot.clone();
-            newMaterialLot.setMaterialLotId(mlotId.toString());
+            String subMLotId = generatorSubMLotId(MaterialLot.GENERATOR_SUB_MATERIAL_LOT_ID_RULE, materialLot);
+            newMaterialLot.setMaterialLotId(subMLotId);
             newMaterialLot.setCurrentQty(batchesQty);
             newMaterialLot.setReceiveQty(batchesQty);
             newMaterialLot.setReserved44(materialLotId);
@@ -410,7 +398,6 @@ public class VanchipServiceImpl implements VanChipService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-
 
 
     /**
@@ -423,7 +410,7 @@ public class VanchipServiceImpl implements VanChipService {
         List<MaterialLot> materialLots = Lists.newArrayList();
 
         //根据产品号,等级,未备货,未装箱
-        materialLots = materialLotRepository.findByMaterialNameAndGradeAndReserved45IsNullAndParentMaterialLotIdIsNull(docLine.getReserved2(), docLine.getReserved4());
+        materialLots = materialLotRepository.findByMaterialNameAndGradeAndReserved45IsNullAndParentBoxMaterialLotIdIsNull(docLine.getReserved2(), docLine.getReserved4());
 
         materialLots.forEach(materialLot -> validateMLotAndDocLineByRule(docLine, materialLot, MLOT_RESERVED_DOC_VALIDATE_RULE_ID));
 
@@ -455,8 +442,9 @@ public class VanchipServiceImpl implements VanChipService {
                 throw new ClientParameterException(VanchipExceptions.RESERVED_OVER_QTY,materialLot.getMaterialLotId());
             }
             //将发货单据绑定到批次上
-            materialLot.setReserved45(deliveryDocLine.getObjectRrn());
-            materialLot.setReserved46(deliveryDocLine.getLineId());
+            materialLot.setReceiveQty(materialLot.getCurrentQty());
+            materialLot.setReserved44(deliveryDocLine.getObjectRrn());
+            materialLot.setReserved45(deliveryDocLine.getLineId());
 
             materialLot = materialLotRepository.saveAndFlush(materialLot);
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_RESERVED);
@@ -483,15 +471,16 @@ public class VanchipServiceImpl implements VanChipService {
             String unReservedRemake = materialLotActions.get(0).getActionComment();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             //根据docLineRrn 分类处理
-            Map<String, List<MaterialLot>> docLineReservedMaterialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved45));
+            Map<String, List<MaterialLot>> docLineReservedMaterialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved44));
 
             for (String docLineObjRrn :docLineReservedMaterialLotMap.keySet()){
                 DocumentLine docLine = documentLineRepository.findByObjectRrn(docLineObjRrn);
                 Document doc = documentRepository.findByObjectRrn(docLine.getDocRrn());
                 List<MaterialLot> materialLotList = docLineReservedMaterialLotMap.get(docLineObjRrn);
                 materialLotList.forEach(materialLot -> {
-                    materialLot.setReserved45("");
-                    materialLot.setReserved46("");
+                    materialLot.setReceiveQty(materialLot.getReservedQty().subtract(materialLot.getReservedQty()));
+                    materialLot.setReserved44(StringUtils.EMPTY);
+                    materialLot.setReserved45(StringUtils.EMPTY);
 
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UNRESERVED);
@@ -526,6 +515,20 @@ public class VanchipServiceImpl implements VanChipService {
             return materialLotList;
         }catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public String generatorSubMLotId(String ruleName, MaterialLot materialLot) throws ClientException{
+        try {
+            GeneratorContext generatorContext = new GeneratorContext();
+            generatorContext.setObject(materialLot);
+            generatorContext.setRuleName(ruleName);
+            String id = generatorService.generatorId(generatorContext);
+            return id;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
 
 }

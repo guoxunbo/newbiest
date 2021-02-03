@@ -5,6 +5,7 @@ import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -27,8 +28,6 @@ public interface VanChipService {
 
     MaterialLot validationDocLineAndMaterialLot(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
 
-    MaterialLot receiveBatches(String materialLotId, String batchesQty) throws ClientException;
-
     List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine);
 
     void reservedMaterialLot(DocumentLine documentLine, List<MaterialLotAction> materialLotActionList) throws ClientException;
@@ -36,4 +35,6 @@ public interface VanChipService {
     void unReservedMaterialLot(List<MaterialLotAction> materialLotActionList) throws ClientException;
 
     List<MaterialLot> printReservedOrder(DocumentLine documentLine) throws ClientException;
+
+    MaterialLot receiveBatches(String materialLotId, BigDecimal batchesQty);
 }

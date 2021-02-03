@@ -10,12 +10,16 @@ databaseChangeLog:
               - column:
                   name: RESERVED44
                   type: varchar(64)
-                  remarks: 接收分批时保存mlotId
+                  remarks: 记录备货的出货单LineRrn
               - column:
                   name: RESERVED45
                   type: varchar(64)
-                  remarks: 记录备货的出货单LineRrn
+                  remarks: 记录备货的出货单LineId
               - column:
-                  name: RESERVED46
+                  name: BOX_MATERIAL_LOT_ID
                   type: varchar(64)
-                  remarks: 记录备货的出货单Line 子单号
+                  remarks: 对应的母箱的批号
+              - column:
+                  name: BOX_MATERIAL_LOT_RRN
+                  type: varchar(64)
+                  remarks: 对应的母箱的主键

@@ -311,6 +311,18 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private Date productionDate;
 
     /**
+     * 对应的母箱的批号
+     */
+    @Column(name="PARENT_BOX_MATERIAL_LOT_ID")
+    private String parentBoxMaterialLotId;
+
+    /**
+     *  对应的母箱的主键
+     */
+    @Column(name="PARENT_BOX_MATERIAL_LOT_RRN")
+    private String parentBoxMaterialLotRrn;
+
+    /**
      * PackageSize
      */
     @Column(name="RESERVED1")
@@ -571,22 +583,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved43;
 
     /**
-     * 接收分批时，保存母批mLotId
+     * 记录备货的出货单LineRrn
      */
     @Column(name="RESERVED44")
     private String reserved44;
 
     /**
-     * 记录备货的出货单LineRrn
+     * 记录备货的出货单Line_id 子单号
      */
     @Column(name="RESERVED45")
     private String reserved45;
-
-    /**
-     * 记录备货的出货单Line_id 子单号
-     */
-    @Column(name="RESERVED46")
-    private String reserved46;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

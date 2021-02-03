@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @ApiModel("具体请求操作信息")
@@ -22,6 +21,6 @@ public class CreateReturnOrderRequestBody extends RequestBody {
 	private String documentId;
 
 	@ApiModelProperty(value="具体的物料动作")
-	private List<MaterialLotAction> materialLotActions;
+	private List<MaterialLotAction> materialLotActionList;
 
 }
