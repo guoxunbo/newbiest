@@ -13,6 +13,7 @@ import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -52,8 +53,18 @@ import static com.newbiest.vanchip.exception.VanchipExceptions.MLOT_BINDED_WORKO
 @BaseJpaFilter
 public class VanchipServiceImpl implements VanChipService {
 
-    public static final String BIND_WO = "BindWo";
-    public static final String UNBIND_WO = "UnbindWo";
+    public static final String TRANS_TYPE_BIND_WO = "BindWo";
+    public static final String TRANS_TYPE_UNBIND_WO = "UnbindWo";
+
+    /**
+     * 退料原因里是否需要Hold的关键
+     */
+    public static final String RETURN_HOLD_REASON = "质量问题";
+
+    /**
+     * 退料默认的HoldCode
+     */
+    public static final String RETURN_HOLD_CODE = "TL_HOLD";
 
     @Autowired
     BaseService baseService;
@@ -106,7 +117,7 @@ public class VanchipServiceImpl implements VanChipService {
             }
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setWorkOrderId(workOrderId);
-                baseService.saveEntity(materialLot, BIND_WO);
+                baseService.saveEntity(materialLot, TRANS_TYPE_BIND_WO);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -118,7 +129,7 @@ public class VanchipServiceImpl implements VanChipService {
             List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setWorkOrderId(StringUtils.EMPTY);
-                baseService.saveEntity(materialLot, UNBIND_WO);
+                baseService.saveEntity(materialLot, TRANS_TYPE_UNBIND_WO);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -229,6 +240,22 @@ public class VanchipServiceImpl implements VanChipService {
     public void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException {
         try {
             documentService.returnMLotByDoc(documentId, materialLotIdList);
+
+            // 如果是质量问题导致的退料需要进行HOLD处理
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
+            List<MaterialLotAction> materialLotActions = Lists.newArrayList();
+            for (MaterialLot materialLot : materialLots) {
+                if (materialLot.getReturnReason().contains(RETURN_HOLD_REASON)) {
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotAction.setActionCode(RETURN_HOLD_CODE);
+                    materialLotAction.setActionReason(materialLot.getReturnReason());
+                    materialLotActions.add(materialLotAction);
+                }
+            }
+            if (CollectionUtils.isNotEmpty(materialLotActions)) {
+                mmsService.holdMaterialLot(materialLotActions);
+            }
             mesService.returnMLot(materialLotIdList);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);

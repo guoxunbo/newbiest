@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-mms_material-lot-hold-table
+      author: Xunbo Guo
+      comment: Create table MMS_MATERIAL_LOT_HOLD
+      changes:
+        - createTable:
+            tableName: MMS_MATERIAL_LOT_HOLD
+            remarks: Material Lot Hold Info
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: varchar(64)
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: MATERIAL_LOT_RRN
+                  type: varchar(64)
+                  remarks: 物料批次主键
+              - column:
+                  name: MATERIAL_NAME
+                  type: varchar(64)
+                  remarks: 物料名称
+              - column:
+                  name: MATERIAL_VERSION
+                  type: bigint
+                  remarks: 物料版本
+              - column:
+                  name: MATERIAL_DESC
+                  type: varchar(64)
+                  remarks: 物料描述
+              - column:
+                  name: MATERIAL_CATEGORY
+                  type: varchar(64)
+                  remarks: 物料类别
+              - column:
+                  name: MATERIAL_TYPE
+                  type: varchar(64)
+                  remarks: 物料类型
+              - column:
+                  name: ACTION_SEQ
+                  type: varchar(64)
+                  remarks: 动作序列号
+              - column:
+                  name: ACTION_OWNER
+                  type: varchar(64)
+                  remarks: 动作人
+              - column:
+                  name: ACTION_TIME
+                  type: datetime
+                  remarks: 操作时间
+              - column:
+                  name: ACTION_PASSWORD
+                  type: varchar(64)
+                  remarks: 动作密码
+              - column:
+                  name: ACTION_CODE
+                  type: varchar(64)
+                  remarks: 动作码
+              - column:
+                  name: ACTION_REASON
+                  type: varchar(64)
+                  remarks: 原因
+              - column:
+                  name: ACTION_COMMENT
+                  type: varchar(64)
+                  remarks: 备注

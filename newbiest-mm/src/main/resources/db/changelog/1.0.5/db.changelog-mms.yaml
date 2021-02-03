@@ -8,3 +8,8 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.6.document_line.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.material_lot_hold.yaml
+      relativeToChangelogFile: true
+
+
