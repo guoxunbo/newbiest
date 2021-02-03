@@ -181,9 +181,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
             for (MaterialLot materialLot : materialLots) {
-                //TODO HoldMLot
-                boolean holdFlag = false;
-                mmsService.returnMLot(materialLot, holdFlag);
+                mmsService.returnMLot(materialLot);
             }
 
             returnOrder.setHandledQty(returnOrder.getHandledQty().add(handleQty));

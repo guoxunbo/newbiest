@@ -32,7 +32,7 @@ public class MaterialLotController extends AbstractRestController {
     @Autowired
     MmsService mmsService;
 
-    @ApiOperation(value = "对物料批做操作", notes = "接收。消耗。hold/release等")
+    @ApiOperation(value = "对物料批做操作", notes = "接收。消耗等")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotRequest")
     @RequestMapping(value = "/materialLotManage", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public MaterialLotResponse execute(@RequestBody MaterialLotRequest request) throws Exception {
@@ -51,12 +51,6 @@ public class MaterialLotController extends AbstractRestController {
                 throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialLot.getMaterialName());
             }
             materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, materialLot.getMaterialLotId(), materialLotAction);
-        } else if (MaterialLotRequest.ACTION_HOLD.equals(actionType)) {
-            materialLot = validationMaterialLot(materialLot);
-            materialLot = mmsService.holdMaterialLot(materialLot, materialLotAction);
-        } else if (MaterialLotRequest.ACTION_RELEASE.equals(actionType)) {
-            materialLot = validationMaterialLot(materialLot);
-            materialLot = mmsService.releaseMaterialLot(materialLot, materialLotAction);
         } else if (MaterialLotRequest.ACTION_CONSUME.equals(actionType)) {
             materialLot = validationMaterialLot(materialLot);
             materialLot = mmsService.consumeMLot(materialLot, materialLotAction);
