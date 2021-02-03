@@ -237,10 +237,6 @@ public class PackageServiceImpl implements PackageService{
                 packedMaterialLot.setReserved10(StringUtils.EMPTY);
             }
 
-            packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
-            MaterialLotHistory unPackagedHistory = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
-            materialLotHistoryRepository.save(unPackagedHistory);
-
             // 扣减库存 箱批次只会存在一个位置上
             List<MaterialLotInventory> materialLotInventories = mmsService.getMaterialLotInv(packedMaterialLot.getObjectRrn());
             if (CollectionUtils.isNotEmpty(materialLotInventories)) {
@@ -306,6 +302,19 @@ public class PackageServiceImpl implements PackageService{
                     }
                 }
             }
+
+            //拆箱结束，如果没有全部拆完，修改箱号上的备货标记
+            List<MaterialLot> packedMaterialLots = materialLotRepository.getPackageDetailLots(packedMaterialLot.getObjectRrn());
+            if(CollectionUtils.isNotEmpty(packedMaterialLots)){
+                packedMaterialLot.setReserved16(packedMaterialLots.get(0).getReserved16());
+                packedMaterialLot.setReserved17(packedMaterialLots.get(0).getReserved17());
+                packedMaterialLot.setReserved18(packedMaterialLots.get(0).getReserved18());
+            }
+
+            packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
+            MaterialLotHistory unPackagedHistory = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
+            materialLotHistoryRepository.save(unPackagedHistory);
+
             return packedMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
