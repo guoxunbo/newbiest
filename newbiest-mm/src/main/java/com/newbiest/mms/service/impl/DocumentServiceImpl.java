@@ -109,6 +109,7 @@ public class DocumentServiceImpl implements DocumentService {
                 String subLineId = generatorDocId(DeliveryOrder.GENERATOR_DELIVERY_ORDER_LINE_ID_RULE, deliveryOrder);
                 documentLine.setDocument(deliveryOrder);
                 documentLine.setLineId(subLineId);
+                documentLine.setUnHandledQty(totalQty);
                 baseService.saveEntity(documentLine);
             }
         } catch (Exception e) {

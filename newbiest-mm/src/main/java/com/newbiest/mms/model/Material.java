@@ -168,4 +168,33 @@ public class Material extends NBVersionControl {
     @Column(name="RESERVED13")
     private String reserved13;
 
+    @Column(name="RESERVED14")
+    private String reserved14;
+
+    @Column(name="RESERVED15")
+    private String reserved15;
+
+    @Column(name="RESERVED16")
+    private String reserved16;
+
+    @Column(name="RESERVED17")
+    private String reserved17;
+
+    @Column(name="RESERVED18")
+    private String reserved18;
+
+    @Column(name="RESERVED19")
+    private String reserved19;
+
+    @Column(name="RESERVED20")
+    private String reserved20;
+
+    @Column(name="RESERVED21")
+    private String reserved21;
+
+    @Column(name="RESERVED22")
+    private String reserved22;
+
+    @Column(name="RESERVED23")
+    private String reserved23;
 }

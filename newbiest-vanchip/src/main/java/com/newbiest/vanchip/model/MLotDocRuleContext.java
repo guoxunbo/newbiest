@@ -31,12 +31,12 @@ public class MLotDocRuleContext implements Serializable {
     /**
      * 原始对象
      */
-    private String sourceObject;
+    private Object sourceObject;
 
     /**
      * 目标对象
      */
-    private String targetObject;
+    private Object targetObject;
 
     private List<MaterialLot> materialLotList;
 

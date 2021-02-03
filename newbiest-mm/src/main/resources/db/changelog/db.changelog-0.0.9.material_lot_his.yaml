@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.0.9
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: RESERVED44
+                  type: varchar(64)
+                  remarks: 接收分批时保存mlotId
+              - column:
+                  name: RESERVED45
+                  type: varchar(64)
+                  remarks: 记录备货的出货单LineRrn
+              - column:
+                  name: RESERVED46
+                  type: varchar(64)
+                  remarks: 记录备货的出货单Line 子单号
