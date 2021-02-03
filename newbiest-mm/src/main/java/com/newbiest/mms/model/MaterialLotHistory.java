@@ -328,6 +328,18 @@ public class MaterialLotHistory extends NBHis {
     private Date productionDate;
 
     /**
+     * 对应的母箱的批号
+     */
+    @Column(name="BOX_MATERIAL_LOT_ID")
+    private String boxMaterialLotId;
+
+    /**
+     *  对应的母箱的主键
+     */
+    @Column(name="BOX_MATERIAL_LOT_RRN")
+    private String boxMaterialLotIdRrn;
+
+    /**
      * PackageSize
      */
     @Column(name="RESERVED1")
@@ -586,6 +598,18 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="RESERVED43")
     private String reserved43;
+
+    /**
+     * 记录备货的出货单LineRrn
+     */
+    @Column(name="RESERVED44")
+    private String reserved44;
+
+    /**
+     * 记录备货的出货单Line_id 子单号
+     */
+    @Column(name="RESERVED45")
+    private String reserved45;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

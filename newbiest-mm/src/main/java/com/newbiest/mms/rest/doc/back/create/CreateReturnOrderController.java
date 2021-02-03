@@ -30,7 +30,7 @@ public class CreateReturnOrderController extends AbstractRestController {
         CreateReturnOrderResponseBody responseBody = new CreateReturnOrderResponseBody();
         CreateReturnOrderRequestBody requestBody = request.getBody();
 
-        documentService.createReturnOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotActions());
+        documentService.createReturnOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotActionList());
         response.setBody(responseBody);
         return response;
     }

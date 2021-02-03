@@ -129,43 +129,120 @@ public class Material extends NBVersionControl {
     @Column(name="OQC_SHEET_RRN")
     private String oqcSheetRrn;
 
+    /**
+     * 分类
+     */
     @Column(name="RESERVED1")
     private String reserved1;
 
+    /**
+     * 产品类别
+     */
     @Column(name="RESERVED2")
     private String reserved2;
 
+    /**
+     * 物料类别
+     */
     @Column(name="RESERVED3")
     private String reserved3;
 
+    /**
+     * 客户产品
+     */
     @Column(name="RESERVED4")
     private String reserved4;
 
+    /**
+     *客户版本1
+     */
     @Column(name="RESERVED5")
     private String reserved5;
 
+    /**
+     *规格型号
+     */
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     *产品系列
+     */
     @Column(name="RESERVED7")
     private String reserved7;
 
+    /**
+     *品牌
+     */
     @Column(name="RESERVED8")
     private String reserved8;
 
+    /**
+     *有效期
+     */
     @Column(name="RESERVED9")
     private String reserved9;
 
+    /**
+     *是否保税
+     */
     @Column(name="RESERVED10")
     private String reserved10;
 
+    /**
+     *二级分类
+     */
     @Column(name="RESERVED11")
     private String reserved11;
 
+    /**
+     *供应商代码
+     */
     @Column(name="RESERVED12")
     private String reserved12;
 
+    /**
+     *产品尺寸
+     */
     @Column(name="RESERVED13")
     private String reserved13;
 
+    /**
+     *客户代码
+     */
+    @Column(name="RESERVED14")
+    private String reserved14;
+
+    /**
+     *客户简称
+     */
+    @Column(name="RESERVED15")
+    private String reserved15;
+
+    /**
+     *客户全称
+     */
+    @Column(name="RESERVED16")
+    private String reserved16;
+
+    @Column(name="RESERVED17")
+    private String reserved17;
+
+    @Column(name="RESERVED18")
+    private String reserved18;
+
+    @Column(name="RESERVED19")
+    private String reserved19;
+
+    @Column(name="RESERVED20")
+    private String reserved20;
+
+    @Column(name="RESERVED21")
+    private String reserved21;
+
+    @Column(name="RESERVED22")
+    private String reserved22;
+
+    @Column(name="RESERVED23")
+    private String reserved23;
 }
