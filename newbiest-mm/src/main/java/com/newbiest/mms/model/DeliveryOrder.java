@@ -13,4 +13,8 @@ public class DeliveryOrder extends Document {
     public static  final String GENERATOR_DELIVERY_ORDER_ID_RULE = "createDeliveryOrderId" ;
     public static  final String GENERATOR_DELIVERY_ORDER_LINE_ID_RULE = "createDeliveryOrderLineId" ;
 
+    @Override
+    public String getCategory(){
+        return Document.CATEGORY_DELIVERY;
+    }
 }
