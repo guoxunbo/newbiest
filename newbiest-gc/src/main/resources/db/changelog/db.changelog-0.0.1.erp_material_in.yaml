@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_ERP_MATEERIAL_IN
+      author: Guozhnag Luo
+      comment: crete erp_material_in synonym
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/create_erp_material_in_synoym.sql

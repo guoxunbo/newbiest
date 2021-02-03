@@ -1,0 +1,1 @@
+create synonym ERP_MATERIAL_IN for MTE_MATERIAL_IN@TO_ERP;

@@ -287,6 +287,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     ErpMaterialOutRepository erpMaterialOutRepository;
 
+    @Autowired
+    ErpMaterialInRepository erpMaterialInRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -8278,11 +8281,14 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 原材料接收
+     * 写入中间表MTE_MATERIAL_IN
      * @param materialLotList
      * @throws ClientException
      */
     public void receiveRawMaterial(List<MaterialLot> materialLotList) throws ClientException{
         try {
+            SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
+            String ddate = formats.format(new Date());
             for(MaterialLot materialLot : materialLotList){
                 Warehouse warehouse = new Warehouse();
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
@@ -8297,6 +8303,10 @@ public class GcServiceImpl implements GcService {
                 materialLotAction.setTransQty(materialLot.getCurrentQty());
                 materialLotAction.setTransCount(materialLot.getCurrentSubQty());
                 mmsService.stockIn(materialLot, materialLotAction);
+
+                ErpMaterialIn erpMaterialIn = new ErpMaterialIn();
+                erpMaterialIn.setMaterialLot(materialLot);
+                erpMaterialInRepository.save(erpMaterialIn);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
