@@ -661,6 +661,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         setReservedQty(BigDecimal.ZERO);
     }
 
+    public void setParentMaterialLot(MaterialLot parentMaterialLot) {
+        this.parentMaterialLotId = parentMaterialLot.getMaterialLotId();
+        this.parentMaterialLotRrn = parentMaterialLot.getObjectRrn();
+    }
+
     public void setMaterial(Material material) {
         this.setMaterialRrn(material.getObjectRrn());
         this.setMaterialName(material.getName());

@@ -47,9 +47,6 @@ public class PackageServiceImpl implements PackageService{
     MaterialLotPackageTypeRepository materialLotPackageTypeRepository;
 
     @Autowired
-    MaterialLotHistoryRepository materialLotHistoryRepository;
-
-    @Autowired
     PackagedLotDetailRepository packagedLotDetailRepository;
 
     @Autowired
@@ -141,12 +138,8 @@ public class PackageServiceImpl implements PackageService{
 
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(allMaterialAction));
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
-//            // 记录创建历史
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_ADDITIONAL_PACKAGE);
-            history.buildByMaterialLotAction(firstMaterialAction);
-            history.setActionCode(firstMaterialAction.getActionCode());
-            history.setActionReason(firstMaterialAction.getActionReason());
-            materialLotHistoryRepository.save(history);
+
+            baseService.saveHistoryEntity(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_ADDITIONAL_PACKAGE, firstMaterialAction);
 
             packageMaterialLots(packedMaterialLot, waitToAddPackingMLots, materialLotActions, false, true);
             return packedMaterialLot;
@@ -204,8 +197,7 @@ public class PackageServiceImpl implements PackageService{
             }
 
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
-            MaterialLotHistory unPackagedHistory = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
-            materialLotHistoryRepository.save(unPackagedHistory);
+            baseService.saveHistoryEntity(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
 
             // 扣减库存 箱批次只会存在一个位置上
             List<MaterialLotInventory> materialLotInventories = mmsService.getMaterialLotInv(packedMaterialLot.getObjectRrn());
@@ -252,25 +244,23 @@ public class PackageServiceImpl implements PackageService{
                     waitToUnPackageMLot.restoreStatus();
                     materialLotRepository.save(waitToUnPackageMLot);
 
-                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(waitToUnPackageMLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
-                    history.buildByMaterialLotAction(materialLotAction);
+//                    if (MaterialStatusCategory.STATUS_CATEGORY_STOCK.equals(waitToUnPackageMLot.getStatusCategory()) && MaterialStatus.STATUS_IN.equals(waitToUnPackageMLot.getStatus())) {
+//                        // 找到最后一笔包装数据
+//                        MaterialLotHistory materialLotHistory = materialLotHistoryRepository.findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(waitToUnPackageMLot.getMaterialLotId(), MaterialLotHistory.TRANS_TYPE_PACKAGE);
+//                        if (materialLotHistory != null) {
+//                            Warehouse warehouse = mmsService.getWarehouseByName(materialLotHistory.getTransWarehouseId());
+//                            Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, materialLotHistory.getTransStorageId());
+//                            // 恢复库存数据
+//                            MaterialLotInventory materialLotInventory = new MaterialLotInventory();
+//                            materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
+//                            mmsService.saveMaterialLotInventory(materialLotInventory, waitToUnPackageMLot.getCurrentQty());
+//
+//                            history.setTargetWarehouseId(warehouse.getName());
+//                            history.setTransStorageId(storage.getName());
+//                        }
+//                    }
+                    baseService.saveHistoryEntity(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE, materialLotAction);
 
-                    if (MaterialStatusCategory.STATUS_CATEGORY_STOCK.equals(waitToUnPackageMLot.getStatusCategory()) && MaterialStatus.STATUS_IN.equals(waitToUnPackageMLot.getStatus())) {
-                        // 找到最后一笔包装数据
-                        MaterialLotHistory materialLotHistory = materialLotHistoryRepository.findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(waitToUnPackageMLot.getMaterialLotId(), MaterialLotHistory.TRANS_TYPE_PACKAGE);
-                        if (materialLotHistory != null) {
-                            Warehouse warehouse = mmsService.getWarehouseByName(materialLotHistory.getTransWarehouseId());
-                            Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, materialLotHistory.getTransStorageId());
-                            // 恢复库存数据
-                            MaterialLotInventory materialLotInventory = new MaterialLotInventory();
-                            materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
-                            mmsService.saveMaterialLotInventory(materialLotInventory, waitToUnPackageMLot.getCurrentQty());
-
-                            history.setTargetWarehouseId(warehouse.getName());
-                            history.setTransStorageId(storage.getName());
-                        }
-                    }
-                    materialLotHistoryRepository.save(history);
 
                 }
             }
@@ -332,10 +322,7 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot.setMaterialType(StringUtils.isNullOrEmpty(materialLotPackageType.getTargetMaterialType()) ? packedMaterialLot.getMaterialType() : materialLotPackageType.getTargetMaterialType());
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 
-            // 记录创建历史
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE);
-            history.buildByMaterialLotAction(firstMaterialAction);
-            materialLotHistoryRepository.save(history);
+            baseService.saveHistoryEntity(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE, firstMaterialAction);
 
             packageMaterialLots(packedMaterialLot, materialLots, materialLotActions, false, true);
             return packedMaterialLot;
@@ -376,9 +363,6 @@ public class PackageServiceImpl implements PackageService{
                 }
                 materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, MaterialStatus.STATUS_PACKED);
             }
-            // 记录历史
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_PACKAGE);
-
             // 如果批次在库存中，则直接消耗库存数量 支持一个批次在多个仓库中 故这里直接取第一个库存位置消耗
             // 不考虑subtractQtyFlag因素，都消耗库存
             List<MaterialLotInventory> materialLotInventories = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
@@ -386,15 +370,12 @@ public class PackageServiceImpl implements PackageService{
                 MaterialLotInventory materialLotInventory = materialLotInventories.get(0);
                 mmsService.saveMaterialLotInventory(materialLotInventory, materialLotAction.getTransQty().negate());
 
-                history.setTransWarehouseId(materialLotInventory.getWarehouseId());
-                history.setTransStorageId(materialLotInventory.getStorageId());
-                history.setTransStorageType(materialLotInventory.getStorageType());
+                materialLotAction.setFromWarehouseId(materialLotInventory.getWarehouseId());
+                materialLotAction.setFromWarehouseId(materialLotInventory.getStorageId());
+                materialLotAction.setFromWarehouseId(materialLotInventory.getStorageType());
             }
 
-            history.setActionCode(materialLotAction.getActionCode());
-            history.setActionReason(materialLotAction.getActionReason());
-            history.setActionComment(materialLotAction.getActionComment());
-            materialLotHistoryRepository.save(history);
+            baseService.saveHistoryEntity(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_PACKAGE, materialLotAction);
 
             // 记录包装详情
             PackagedLotDetail packagedLotDetail = packagedLotDetailRepository.findByPackagedLotRrnAndMaterialLotRrn(packedMaterialLot.getObjectRrn(), materialLot.getObjectRrn());

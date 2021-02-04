@@ -71,9 +71,6 @@ public class DocumentServiceImpl implements DocumentService {
     MaterialLotRepository materialLotRepository;
 
     @Autowired
-    MaterialLotHistoryRepository materialLotHistoryRepository;
-
-    @Autowired
     ReturnOrderRepository returnOrderRepository;
 
     @Autowired
@@ -154,10 +151,7 @@ public class DocumentServiceImpl implements DocumentService {
                 materialLot.setCurrentQty(materialLotAction.getTransQty());
                 materialLot.setReturnReason(materialLotAction.getActionReason());
                 materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_WAIT_RETURN, StringUtils.EMPTY);
-
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialEvent.EVENT_WAIT_RETURN);
-                history.buildByMaterialLotAction(materialLotAction);
-                materialLotHistoryRepository.save(history);
+                baseService.saveHistoryEntity(materialLot, MaterialEvent.EVENT_WAIT_RETURN, materialLotAction);
 
                 DocumentMLot documentMLot = new DocumentMLot();
                 documentMLot.setDocumentId(returnOrder.getName());

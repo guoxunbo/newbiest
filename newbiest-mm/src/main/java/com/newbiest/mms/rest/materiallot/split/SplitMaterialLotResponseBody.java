@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.doc.receive.batches;
+package com.newbiest.mms.rest.materiallot.split;
 
 import com.newbiest.base.msg.ResponseBody;
 import com.newbiest.mms.model.MaterialLot;
@@ -8,11 +8,10 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ReceiveBatchesResponseBody extends ResponseBody {
+public class SplitMaterialLotResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
-	@ApiModelProperty(value = "materialLotList")
-	private List<MaterialLot> materialLotList ;
+	private MaterialLot materialLot;
 
 }

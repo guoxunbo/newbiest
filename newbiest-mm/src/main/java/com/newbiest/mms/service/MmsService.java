@@ -30,6 +30,8 @@ public interface MmsService {
     void releaseMaterialLot(List<MaterialLotHold>  materialLotHolds, MaterialLotAction releaseLotAction) throws ClientException;
     void releaseMaterialLot(String materialLotId, List<MaterialLotHold>  materialLotHolds, MaterialLotAction releaseLotAction) throws ClientException;
 
+    MaterialLot splitMLot(String parentMaterialLotId, MaterialLotAction materialLotAction) throws ClientException;
+
     // rawMaterial
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial getRawMaterialByName(String name) throws ClientException;

@@ -38,37 +38,37 @@ public class AmsServiceImpl implements AmsService {
 
     public void triggerAlarm(AlarmMessage alarmMessage) throws ClientException {
         try {
-            List<AlarmJob> matchJobs = matchJobs(alarmMessage.getCategory(), alarmMessage.getType(), alarmMessage.getObjectId(), alarmMessage.getName());
-            if (CollectionUtils.isNotEmpty(matchJobs)) {
-                if (log.isInfoEnabled()) {
-                    log.info("Alarm message matched jobs. [" + StringUtils.join(matchJobs.stream().map(AlarmJob :: getName).collect(Collectors.toList()), StringUtils.SEMICOLON_CODE)+ "]");
-                }
-                if (alarmMessage.getTriggerTime() == null) {
-                    alarmMessage.setTriggerTime(DateUtils.now());
-                }
-
-                for (AlarmJob job : matchJobs) {
-                    AlarmData alarmData = new AlarmData();
-                    alarmMessage.transfer2Object(alarmData);
-
-                    alarmData.setJobRrn(job.getObjectRrn());
-                    alarmData.setJobId(job.getName());
-                    alarmData.setJobDesc(job.getDescription());
-                    alarmData.setStatus(AlarmData.STATUS_OPEN);
-                    if (alarmData.getPriority() == null) {
-                        alarmData.setPriority(job.getPriority());
-                    }
-                    if (StringUtils.isNullOrEmpty(alarmData.getSeverityLevel())) {
-                        alarmData.setSeverityLevel(job.getSeverityLevel());
-                    }
-                    alarmDataRepository.save(alarmData);
-                    //TODO 处理layer action
-                }
-            } else {
-                if (log.isWarnEnabled()) {
-                    log.warn("Alarm message [" + alarmMessage.toString() + "] not matched jobs");
-                }
-            }
+//            List<AlarmJob> matchJobs = matchJobs(alarmMessage.getCategory(), alarmMessage.getType(), alarmMessage.getObjectId(), alarmMessage.getName());
+//            if (CollectionUtils.isNotEmpty(matchJobs)) {
+//                if (log.isInfoEnabled()) {
+//                    log.info("Alarm message matched jobs. [" + StringUtils.join(matchJobs.stream().map(AlarmJob :: getName).collect(Collectors.toList()), StringUtils.SEMICOLON_CODE)+ "]");
+//                }
+//                if (alarmMessage.getTriggerTime() == null) {
+//                    alarmMessage.setTriggerTime(DateUtils.now());
+//                }
+//
+//                for (AlarmJob job : matchJobs) {
+//                    AlarmData alarmData = new AlarmData();
+//                    alarmMessage.transfer2Object(alarmData);
+//
+//                    alarmData.setJobRrn(job.getObjectRrn());
+//                    alarmData.setJobId(job.getName());
+//                    alarmData.setJobDesc(job.getDescription());
+//                    alarmData.setStatus(AlarmData.STATUS_OPEN);
+//                    if (alarmData.getPriority() == null) {
+//                        alarmData.setPriority(job.getPriority());
+//                    }
+//                    if (StringUtils.isNullOrEmpty(alarmData.getSeverityLevel())) {
+//                        alarmData.setSeverityLevel(job.getSeverityLevel());
+//                    }
+//                    alarmDataRepository.save(alarmData);
+//                    //TODO 处理layer action
+//                }
+//            } else {
+//                if (log.isWarnEnabled()) {
+//                    log.warn("Alarm message [" + alarmMessage.toString() + "] not matched jobs");
+//                }
+//            }
 
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
