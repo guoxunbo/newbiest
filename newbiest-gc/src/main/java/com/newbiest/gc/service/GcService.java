@@ -141,6 +141,8 @@ public interface GcService {
     void asyncMesProductModelConversion() throws ClientException;
     void asyncProductGradeAndSubcode() throws ClientException;
     void asyncPoSupplier() throws ClientException;
+    void asyncMesMaterialModel() throws ClientException;
+    void asyncMesGlueType() throws ClientException;
 
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 

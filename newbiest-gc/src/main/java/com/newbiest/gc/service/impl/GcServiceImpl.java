@@ -2869,6 +2869,72 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 格科同步MES金线、IRA型号
+     */
+    public void asyncMesMaterialModel() throws ClientException{
+        try {
+            RawMaterial material = new RawMaterial();
+            List<Map> materialModelList = findEntityMapListByQueryName(Material.QUERY_MATERIAL_MODEL,null,0,999,"","");
+            if(CollectionUtils.isNotEmpty(materialModelList)){
+                for(Map<String, String>  map : materialModelList){
+                    String materialId = map.get("INSTANCE_ID");
+                    String materialType = map.get("OBJECT");
+                    String materialDesc = map.get("INSTANCE_DESC");
+                    String storeuUom = map.get("STORE_UOM");
+
+                    material = mmsService.getRawMaterialByName(materialId);
+                    if(material == null){
+                        material = new RawMaterial();
+                        material.setName(materialId);
+                        material.setDescription(materialDesc);
+                        material.setStoreUom(storeuUom);
+                        material.setMaterialCategory(Material.TYPE_MATERIAL);
+                        if(Material.MATERIAL_TYPE_IR.equals(materialType)){
+                            material.setMaterialType(Material.MATERIAL_TYPE_IRA);
+                        } else if(Material.MATERIAL_TYPE_WIRE.equals(materialType)){
+                            material.setMaterialType(Material.MATERIAL_TYPE_GOLD);
+                        }
+
+                        mmsService.createRawMaterial(material);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 同步MES胶水型号
+     */
+    public void asyncMesGlueType() throws ClientException{
+        try {
+            RawMaterial material = new RawMaterial();
+            List<Map> glueTypeList = findEntityMapListByQueryName(Material.QUERY_GLUE_TYPE,null,0,999,"","");
+            if(CollectionUtils.isNotEmpty(glueTypeList)){
+                for(Map<String, String>  map : glueTypeList) {
+                    String glueTypeName = map.get("NAME");
+                    String glueTypeDesc = map.get("DESCRIPTION");
+
+                    material = mmsService.getRawMaterialByName(glueTypeName);
+                    if(material == null){
+                        material = new RawMaterial();
+                        material.setName(glueTypeName);
+                        material.setDescription(glueTypeDesc);
+                        material.setMaterialCategory(Material.TYPE_MATERIAL);
+                        material.setMaterialType(Material.MATERIAL_TYPE_GLUE);
+
+                        mmsService.createRawMaterial(material);
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 格科同步MES的产品打印型号
      */
     public void asyncMesProductPrintModelId() {
@@ -2946,6 +3012,8 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }
+            asyncMesMaterialModel();
+            asyncMesGlueType();
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

@@ -68,6 +68,15 @@ public class Material extends NBVersionControl {
      */
     public static final String TYPE_PRODUCT = "Product";
     public static final String TYPE_WAFER = "Wafer";
+    public static final String TYPE_MATERIAL = "Material";
+
+    public static final String MATERIAL_TYPE = "Wafer";
+    public static final String MATERIAL_TYPE_WIRE = "WIRE";
+    public static final String MATERIAL_TYPE_IR = "IR";
+
+    public static final String MATERIAL_TYPE_IRA = "IRA";
+    public static final String MATERIAL_TYPE_GOLD = "金线";
+    public static final String MATERIAL_TYPE_GLUE = "胶水";
 
     public static final String QUERY_WAFERTYPEINFO = "queryWaferType";
     public static final String QUERY_PRODUCTINFO = "GETPRODUCTINFO";
@@ -75,6 +84,8 @@ public class Material extends NBVersionControl {
     public static final String QUERY_PRODUCT_MODEL_CONVERSION = "queryProductModelConversion";
     public static final String QUERY_WAREHOUSE_PRODUCT_MODEL = "queryWareHouseProductModel";
     public static final String QUERY_PRODUCT_PRINT_MODELID = "queryProductPrintModelId";
+    public static final String QUERY_MATERIAL_MODEL = "queryMaterialModelId";
+    public static final String QUERY_GLUE_TYPE = "queryGlueType";
 
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;

@@ -212,8 +212,12 @@ public class MmsServiceImpl implements MmsService {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
-            rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
-            rawMaterial.setMaterialType(Material.TYPE_WAFER);
+            if(StringUtils.isNullOrEmpty(rawMaterial.getMaterialCategory())){
+                rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
+            }
+            if(StringUtils.isNullOrEmpty(rawMaterial.getMaterialType())){
+                rawMaterial.setMaterialType(Material.TYPE_WAFER);
+            }
             rawMaterial = this.saveRawMaterial(rawMaterial);
 
             List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
