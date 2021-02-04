@@ -36,5 +36,4 @@ public interface VanChipService {
 
     List<MaterialLot> printReservedOrder(DocumentLine documentLine) throws ClientException;
 
-    MaterialLot receiveBatches(String materialLotId, BigDecimal batchesQty);
 }

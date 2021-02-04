@@ -1,6 +1,5 @@
 package com.newbiest.ams.dto;
 
-import com.newbiest.base.dto.BaseDto;
 import lombok.Data;
 
 import java.util.Date;
@@ -11,7 +10,7 @@ import java.util.Date;
  * Created by guoxunbo on 2019-11-19 16:51
  */
 @Data
-public class AlarmMessage extends BaseDto {
+public class AlarmMessage  {
 
     private String objectId;
 

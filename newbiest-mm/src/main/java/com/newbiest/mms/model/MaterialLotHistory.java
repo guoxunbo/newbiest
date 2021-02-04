@@ -1,5 +1,6 @@
 package com.newbiest.mms.model;
 
+import com.newbiest.base.dto.Action;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
@@ -32,6 +33,9 @@ public class MaterialLotHistory extends NBHis {
 
     public static final String TRANS_TYPE_PACKAGE = "Package";
     public static final String TRANS_TYPE_UN_PACKAGE = "UnPackage";
+
+    public static final String TRANS_TYPE_SPLIT = "Split";
+    public static final String TRANS_TYPE_SPLIT_CREATE = "SplitCreate";
 
     /**
      * 因为包装产生的批次
@@ -619,10 +623,18 @@ public class MaterialLotHistory extends NBHis {
         return StringUtils.YES.equalsIgnoreCase(this.subMaterialLotFlag);
     }
 
-    public void buildByMaterialLotAction(MaterialLotAction materialLotAction) {
+    @Override
+    public void setAction(Action action) {
+        MaterialLotAction materialLotAction = (MaterialLotAction) action;
+        super.setAction(materialLotAction);
         this.setTransQty(materialLotAction.getTransQty());
-        this.setActionCode(materialLotAction.getActionCode());
-        this.setActionReason(materialLotAction.getActionReason());
-        this.setActionComment(materialLotAction.getActionComment());
+
+        this.setTransWarehouseId(materialLotAction.getFromWarehouseId());
+        this.setTransStorageId(materialLotAction.getFromStorageId());
+        this.setTargetWarehouseId(materialLotAction.getTargetWarehouseId());
+        this.setTargetStorageId(materialLotAction.getTargetStorageId());
+
     }
+
+
 }

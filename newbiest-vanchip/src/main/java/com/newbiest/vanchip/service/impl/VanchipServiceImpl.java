@@ -56,7 +56,6 @@ public class VanchipServiceImpl implements VanChipService {
 
     public static final String TRANS_TYPE_BIND_WO = "BindWo";
     public static final String TRANS_TYPE_UNBIND_WO = "UnbindWo";
-    public static final String TRANS_TYPE_RECEIVE_BATCHES = "receiveBatches";
     public static final String TRANS_TYPE_RESERVED = "RESERVED";
     public static final String TRANS_TYPE_UNRESERVED = "UNRESERVED";
     public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "ValidateReservedRule";
@@ -93,9 +92,6 @@ public class VanchipServiceImpl implements VanChipService {
     DocumentRepository documentRepository;
 
     @Autowired
-    MaterialLotHistoryRepository materialLotHistoryRepository;
-
-    @Autowired
     MLotDocRuleLineRepository mLotDocRuleLineRepository;
 
     @Autowired
@@ -113,8 +109,8 @@ public class VanchipServiceImpl implements VanChipService {
     @Autowired
     DocumentLineRepository documentLineRepository;
 
-    @Autowired
-    FinishGoodOrderRepository finishGoodOrderRepository;
+//    @Autowired
+//    FinishGoodOrderRepository finishGoodOrderRepository;
 
     @Autowired
     ProductRepository productRepository;
@@ -216,9 +212,9 @@ public class VanchipServiceImpl implements VanChipService {
                 }
                 materialLotRepository.delete(materialLot);
 
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
-                history.setActionComment(deleteNote);
-                materialLotHistoryRepository.save(history);
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setActionComment(deleteNote);
+                baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_DELETE);
             }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -366,41 +362,6 @@ public class VanchipServiceImpl implements VanChipService {
     }
 
     /**
-     * 接收前进行分批 一次分一个
-     * @param materialLotId 物料批次号
-     * @param batchesQty 生成新批次的数量
-     * @return
-     * @throws ClientException
-     */
-    public MaterialLot receiveBatches(String materialLotId, BigDecimal batchesQty) throws ClientException{
-        try {
-            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
-            if (!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
-                throw new ClientParameterException(VanchipExceptions.ALREADY_BATCHES, materialLotId);
-            }
-            if (materialLot.getCurrentQty().compareTo(batchesQty) <= 0){
-                throw new ClientParameterException(VanchipExceptions.BATCHES_QTY_GREATER_THAN_MLOT_QTY, batchesQty);
-            }
-
-            materialLot.setCurrentQty(materialLot.getCurrentQty().subtract(batchesQty));
-            materialLot.setReceiveQty(materialLot.getReceiveQty().subtract(batchesQty));
-            baseService.saveEntity(materialLot, TRANS_TYPE_RECEIVE_BATCHES);
-
-            MaterialLot newMaterialLot = (MaterialLot) materialLot.clone();
-            String subMLotId = generatorSubMLotId(MaterialLot.GENERATOR_SUB_MATERIAL_LOT_ID_RULE, materialLot);
-            newMaterialLot.setMaterialLotId(subMLotId);
-            newMaterialLot.setCurrentQty(batchesQty);
-            newMaterialLot.setReceiveQty(batchesQty);
-            newMaterialLot.setReserved44(materialLotId);
-            newMaterialLot = (MaterialLot) baseService.saveEntity(newMaterialLot);
-            return newMaterialLot;
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-
-    /**
      *根据备货单信息 获得相应的mlot
      * @param documentLine
      * @return
@@ -447,9 +408,10 @@ public class VanchipServiceImpl implements VanChipService {
             materialLot.setReserved45(deliveryDocLine.getLineId());
 
             materialLot = materialLotRepository.saveAndFlush(materialLot);
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_RESERVED);
-            history.setActionComment(reservedRemake);
-            materialLotHistoryRepository.save(history);
+
+            MaterialLotAction materialLotAction = new MaterialLotAction();
+            materialLotAction.setActionComment(reservedRemake);
+            baseService.saveHistoryEntity(materialLot, TRANS_TYPE_RESERVED, materialLotAction);
         }
         deliveryDocLine.setUnHandledQty(deliveryDocLine.getUnHandledQty().subtract(handledQty));
         deliveryDocLine.setHandledQty(deliveryDocLine.getHandledQty().add(handledQty));
@@ -483,9 +445,11 @@ public class VanchipServiceImpl implements VanChipService {
                     materialLot.setReserved45(StringUtils.EMPTY);
 
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
-                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UNRESERVED);
-                    history.setActionComment(unReservedRemake);
-                    materialLotHistoryRepository.save(history);
+
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setActionComment(unReservedRemake);
+                    baseService.saveHistoryEntity(materialLot, TRANS_TYPE_UNRESERVED, materialLotAction);
+
                 });
                 BigDecimal totalNumber = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
                 doc.setHandledQty(doc.getHandledQty().subtract(totalNumber));
@@ -514,18 +478,6 @@ public class VanchipServiceImpl implements VanChipService {
             List<MaterialLot> materialLotList = getMLotByLineObjectRrn(docLineObjRrn);
             return materialLotList;
         }catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    public String generatorSubMLotId(String ruleName, MaterialLot materialLot) throws ClientException{
-        try {
-            GeneratorContext generatorContext = new GeneratorContext();
-            generatorContext.setObject(materialLot);
-            generatorContext.setRuleName(ruleName);
-            String id = generatorService.generatorId(generatorContext);
-            return id;
-        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
