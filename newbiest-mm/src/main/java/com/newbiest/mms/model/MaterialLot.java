@@ -313,14 +313,14 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     /**
      * 对应的母箱的批号
      */
-    @Column(name="PARENT_BOX_MATERIAL_LOT_ID")
-    private String parentBoxMaterialLotId;
+    @Column(name="BOX_MATERIAL_LOT_ID")
+    private String boxMaterialLotId;
 
     /**
      *  对应的母箱的主键
      */
-    @Column(name="PARENT_BOX_MATERIAL_LOT_RRN")
-    private String parentBoxMaterialLotRrn;
+    @Column(name="BOX_MATERIAL_LOT_RRN")
+    private String boxMaterialLotRrn;
 
     /**
      * PackageSize

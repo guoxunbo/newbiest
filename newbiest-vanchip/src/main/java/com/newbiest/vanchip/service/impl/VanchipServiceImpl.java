@@ -410,7 +410,7 @@ public class VanchipServiceImpl implements VanChipService {
         List<MaterialLot> materialLots = Lists.newArrayList();
 
         //根据产品号,等级,未备货,未装箱
-        materialLots = materialLotRepository.findByMaterialNameAndGradeAndReserved45IsNullAndParentBoxMaterialLotIdIsNull(docLine.getReserved2(), docLine.getReserved4());
+        materialLots = materialLotRepository.findByMaterialNameAndGradeAndReserved44IsNullAndBoxMaterialLotIdIsNull(docLine.getReserved2(), docLine.getReserved4());
 
         materialLots.forEach(materialLot -> validateMLotAndDocLineByRule(docLine, materialLot, MLOT_RESERVED_DOC_VALIDATE_RULE_ID));
 
@@ -511,7 +511,7 @@ public class VanchipServiceImpl implements VanChipService {
     public List<MaterialLot> printReservedOrder(DocumentLine documentLine) throws ClientException{
         try {
             String docLineObjRrn = documentLine.getObjectRrn();
-            List<MaterialLot> materialLotList = getMLoByLineObjRrn(docLineObjRrn);
+            List<MaterialLot> materialLotList = getMLotByLineObjectRrn(docLineObjRrn);
             return materialLotList;
         }catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -526,6 +526,14 @@ public class VanchipServiceImpl implements VanChipService {
             String id = generatorService.generatorId(generatorContext);
             return id;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public List<MaterialLot> getMLotByLineObjectRrn(String docLineObjectRrn) throws ClientException{
+        try {
+            return materialLotRepository.findByReserved44(docLineObjectRrn);
+        }catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
