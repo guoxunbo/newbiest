@@ -14,6 +14,7 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.*;
+import com.newbiest.commom.sm.model.StatusCategory;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.commom.sm.service.StatusMachineService;
 import com.newbiest.common.exception.ContextException;
@@ -28,6 +29,7 @@ import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -212,6 +214,10 @@ public class MmsServiceImpl implements MmsService {
             }
             materialLot.setCurrentQty(materialLot.getCurrentQty().subtract(splitQty));
             materialLot.setReceiveQty(materialLot.getReceiveQty().subtract(splitQty));
+            if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                materialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_FIN);
+                materialLot.setStatus(MaterialStatus.STATUS_SPLIT);
+            }
             baseService.saveEntity(materialLot, MaterialLotHistory.TRANS_TYPE_SPLIT, materialLotAction);
 
             String subMLotId = generatorSubMLotId(MaterialLot.GENERATOR_SUB_MATERIAL_LOT_ID_RULE, materialLot);

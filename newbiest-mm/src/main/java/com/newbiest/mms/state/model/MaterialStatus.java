@@ -15,10 +15,13 @@ public class MaterialStatus extends Status{
     public static final String STATUS_IQC = "IQC";
     public static final String STATUS_RECEIVE = "Receive";
 
-
     public static final String STATUS_PACKED = "Packed";
     public static final String STATUS_WAIT = "Wait";
     public static final String STATUS_IN = "In";
     public static final String STATUS_RESERVED = "Reserved";
+
+    public static final String STATUS_SPLIT = "SPLIT";
+    public static final String STATUS_MERGED = "MERGED";
+
 
 }
