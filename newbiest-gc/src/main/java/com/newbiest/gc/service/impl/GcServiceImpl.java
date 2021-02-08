@@ -5973,6 +5973,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved4(erpSoa.getFree3());
                                 documentLine.setReserved5(erpSoa.getShipMaker());
                                 documentLine.setReserved6(erpSoa.getShipVerifier());
+                                documentLine.setReserved7(erpSoa.getOther1());
 
                                 documentLine.setReserved8(erpSoa.getCusname());
                                 documentLine.setReserved9(OtherStockOutOrder.CATEGORY_DELIVERYA);
@@ -6481,7 +6482,8 @@ public class GcServiceImpl implements GcService {
 
             BigDecimal handledQty = BigDecimal.ZERO;
             for(MaterialLot materialLot : materialLots){
-                if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54())){
+                String materialName = materialLot.getMaterialName();
+                if(materialName.endsWith(MaterialLot.STOCKOUT_TYPE_35) || materialName.endsWith(MaterialLot.STOCKOUT_TYPE_4)){
                     handledQty = handledQty.add(materialLot.getCurrentQty());
                 } else {
                     handledQty = handledQty.add(materialLot.getCurrentSubQty());
@@ -8571,6 +8573,7 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                     materialLotUnit.setReserved4(materialLot.getReserved6());
                     materialLotUnit.setReserved22(materialLot.getReserved22());
+                    materialLotUnit.setReserved25(materialLot.getReserved25());
                     materialLotUnit.setReserved1(materialLot.getReserved1());
                     materialLotUnit.setGrade(materialLot.getGrade());
                     materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);

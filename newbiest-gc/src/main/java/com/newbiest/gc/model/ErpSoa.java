@@ -133,6 +133,12 @@ public class ErpSoa implements Serializable {
     @Column(name="DELIVERED_NUM")
     private String deliveredNum;
 
+    /**
+     * 保税属性
+     */
+    @Column(name="OTHER1")
+    private String other1;
+
     @Column(name="OTHER16")
     private String other16;
 
