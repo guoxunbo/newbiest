@@ -2450,7 +2450,7 @@ public class GcServiceImpl implements GcService {
                     }
                     //WLT产线接收时验证MM_PACKEND_LOT_RELATION表中有没有记录物料编码信息
                     if(!StringUtils.isNullOrEmpty(mesPackedLot.getCstId())){
-                        List<MesPackedLot> mesPackedLotUnits = mesPackedLotRepository.findByCstIdAndPackedStatusAndWaferIdIsNotNull(MesPackedLot.PACKED_STATUS_IN, mesPackedLot.getCstId());
+                        List<MesPackedLot> mesPackedLotUnits = mesPackedLotRepository.findByCstIdAndPackedStatusAndWaferIdIsNotNull(mesPackedLot.getCstId(), MesPackedLot.PACKED_STATUS_IN);
                         mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotUnits.get(0).getPackedLotRrn());
                     } else {
                         mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
