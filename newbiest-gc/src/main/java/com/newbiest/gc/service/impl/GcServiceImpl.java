@@ -2455,7 +2455,9 @@ public class GcServiceImpl implements GcService {
                     } else {
                         mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
                     }
-                    if(!MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) && !(MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory()) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
+                    if(!MesPackedLot.PRODUCT_CATEGORY_COB.equals(mesPackedLot.getProductCategory()) &&
+                            !MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) &&
+                            !(MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory()) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
                         if(mesPackedLotRelation == null){
                             throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
                         } else {
@@ -2667,6 +2669,9 @@ public class GcServiceImpl implements GcService {
 
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(productCategory)){
                 otherReceiveProps.put("reserved50", MaterialLot.WLFT_WAFER_SOURCE);
+                otherReceiveProps.put("reserved7", productCategory);
+            } else if(MaterialLotUnit.PRODUCT_CATEGORY_FT_COB.equals(productCategory)){
+                otherReceiveProps.put("reserved50", MaterialLot.COB_WAFER_SOURCE);
                 otherReceiveProps.put("reserved7", productCategory);
             }
         } catch (Exception e) {
