@@ -2965,7 +2965,7 @@ public class GcServiceImpl implements GcService {
      * @param name
      * @throws ClientException
      */
-    private Material saveProductAndSetStatusModelRrn(String name) throws ClientException{
+    public Material saveProductAndSetStatusModelRrn(String name) throws ClientException{
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();

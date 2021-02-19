@@ -5,6 +5,7 @@ import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.gc.model.*;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
+import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 
@@ -15,6 +16,8 @@ import java.util.Map;
  * Created by guoxunbo on 2019-08-21 12:41
  */
 public interface GcService {
+
+    Material saveProductAndSetStatusModelRrn(String name) throws ClientException;
 
     boolean validateMLotByPackageRule(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> materialLotUnitAssignEng(List<MaterialLotUnit> materialLotUnitList) throws ClientException;

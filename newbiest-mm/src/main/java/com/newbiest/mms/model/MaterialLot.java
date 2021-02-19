@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusLifeCycle;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.state.model.MaterialStatus;
@@ -966,6 +967,17 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     }
 
+    @PrePersist
+    protected void prePersist() {
+        super.prePersist();
+        if (this.created == null) {
+            created = new Date();
+        }
+        updated = new Date();
+        createdBy = ThreadLocalContext.getUsername();
+        updatedBy = ThreadLocalContext.getUsername();
+    }
+
     /**
      * 恢复前置状态
      *  将前置状态当成当前状态，当前状态变成前置状态
@@ -1090,5 +1102,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setReserved41(materialLot.getReserved41());
         this.setReserved46(materialLot.getReserved46());
         this.setReserved47(materialLot.getReserved47());
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

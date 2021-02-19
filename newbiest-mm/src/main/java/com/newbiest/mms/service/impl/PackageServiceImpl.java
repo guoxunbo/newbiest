@@ -369,11 +369,15 @@ public class PackageServiceImpl implements PackageService{
         }
     }
 
+    public MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException{
+        return packageMLots(materialLotActions, StringUtils.EMPTY, packageType);
+    }
+
     /**
      * 对物料批次进行包装
      * @return
      */
-    public MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException{
+    public MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packedMaterialLotId, String packageType) throws ClientException{
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
@@ -397,7 +401,9 @@ public class PackageServiceImpl implements PackageService{
             validationPackageRule(materialLots, materialLotPackageType);
 
             MaterialLot packedMaterialLot = (MaterialLot) materialLots.get(0).clone();
-            String packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
+            if (StringUtils.isNullOrEmpty(packedMaterialLotId)) {
+                packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
+            }
             if (mmsService.getMLotByMLotId(packedMaterialLotId) != null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, packedMaterialLotId);
             }
