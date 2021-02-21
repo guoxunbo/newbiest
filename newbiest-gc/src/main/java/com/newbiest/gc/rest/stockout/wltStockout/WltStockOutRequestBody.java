@@ -47,4 +47,7 @@ public class WltStockOutRequestBody extends RequestBody {
 	@ApiModelProperty(value = "物料批次号/LOTID")
 	private String queryLotId;
 
+	@ApiModelProperty(value = "检验二级代码")
+	private String checkSubCode;
+
 }

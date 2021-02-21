@@ -47,7 +47,7 @@ public class WltStockOutController {
         String actionType = requestBody.getActionType();
 
         if (WltStockOutRequest.ACTION_WLTSTOCKOUT.equals(actionType)) {
-            gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
+            gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode());
         } else if(WltStockOutRequest.ACTION_VALIDATION_WLTMLOT.equals(actionType)){
             boolean falg = gcService.validationWltStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
