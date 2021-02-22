@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialIssueManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCRawMaterialIssueManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRawMaterialIssueManager
+              description: 原材料发料管理
+              tableName: GCRawMaterialIssueOrder
+              url: /RawMaterial/GCRawMaterialIssue
+              parentRrn: 2030
+              seqNo: 30
+              image: icon-delivery
+              labelZh: 原材料发料
+              labelEn: RawMaterialIssue

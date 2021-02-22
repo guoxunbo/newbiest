@@ -28,6 +28,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_VALIDATE_MATERIAL_NAME = "ValidateMaterialName";
 
+	public static final String ACTION_THREESIDE_SHIP = "ThreeSideShip";
+
 	private WltStockOutRequestBody body;
 
 }

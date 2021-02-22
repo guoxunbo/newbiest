@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialScrapManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCRawMaterialScrapManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRawMaterialScrapManager
+              description: 原材料入库位管理
+              tableName: GCRawMaterialScrap
+              url: /RawMaterial/GCRawMaterialScrap
+              parentRrn: 2030
+              seqNo: 50
+              image: icon-delivery
+              labelZh: 原材料报废
+              labelEn: RawMaterialScrap

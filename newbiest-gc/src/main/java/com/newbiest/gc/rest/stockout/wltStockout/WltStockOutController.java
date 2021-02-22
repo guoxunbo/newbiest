@@ -49,7 +49,7 @@ public class WltStockOutController {
         if (WltStockOutRequest.ACTION_WLTSTOCKOUT.equals(actionType)) {
             gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode());
         } else if(WltStockOutRequest.ACTION_VALIDATION_WLTMLOT.equals(actionType)){
-            boolean falg = gcService.validationWltStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
+            boolean falg = gcService.validateMLotByPackageRule(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
         } else if(WltStockOutRequest.ACTION_QUERY_STOCKOUTTAG_MLOTUNIT.equals(actionType)){
             List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.queryStockOutTagMLotUnits(requestBody.getMaterialLotActions());
@@ -65,6 +65,8 @@ public class WltStockOutController {
             responseBody.setMaterialLot(materialLot);
         } else if(WltStockOutRequest.ACTION_VALIDATE_MATERIAL_NAME.equals(actionType)){
             gcService.validationMLotMaterialName(requestBody.getMaterialLotActions());
+        } else if(WltStockOutRequest.ACTION_THREESIDE_SHIP.equals(actionType)){
+            gcService.wltCpThreeSideShip(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

@@ -19,6 +19,14 @@ import java.util.Date;
 @Entity
 public class DocumentLine extends NBUpdatable {
 
+    //三方标记
+    public static final String CUSCODE_9006 = "9006";
+    public static final String CUSCODE_C1001 = "C1001";
+    public static final String CUSCODE_C2837 = "C2837";
+    public static final String CUSCODE_C9009 = "C9009";
+    public static final String CUSCODE_C001 = "C001";
+
+
     @Column(name="DOC_RRN")
     private Long docRrn;
 
@@ -93,6 +101,12 @@ public class DocumentLine extends NBUpdatable {
      */
     @Column(name="EXPRESSS_NUMBER")
     private String expressNumber;
+
+    /**
+     * 三方交易
+     */
+    @Column(name="THREE_SIDE_TRANSACTION")
+    private String threeSideTransaction;
 
     /**
      * 关联ERP LINE的SEQ主键

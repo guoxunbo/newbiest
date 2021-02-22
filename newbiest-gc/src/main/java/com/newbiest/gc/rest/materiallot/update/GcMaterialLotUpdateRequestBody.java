@@ -38,4 +38,7 @@ public class GcMaterialLotUpdateRequestBody extends RequestBody {
 
 	@ApiModelProperty("系统参数名称")
 	private String referenceName;
+
+	@ApiModelProperty("物料批次")
+	private MaterialLot materialLot;
 }

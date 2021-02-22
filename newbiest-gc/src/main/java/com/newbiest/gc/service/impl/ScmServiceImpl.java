@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
@@ -14,11 +15,15 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.service.ScmService;
 import com.newbiest.gc.service.model.QueryEngResponse;
+import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotHistory;
 import com.newbiest.mms.model.MaterialLotUnit;
+import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.service.PackageService;
 import com.newbiest.msg.DefaultParser;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -90,6 +95,10 @@ public class ScmServiceImpl implements ScmService {
     MaterialLotRepository materialLotRepository;
 
     @Autowired
+    MaterialLotHistoryRepository materialLotHistoryRepository;
+
+
+    @Autowired
     MaterialLotUnitRepository materialLotUnitRepository;
 
     @Autowired
@@ -97,6 +106,12 @@ public class ScmServiceImpl implements ScmService {
 
     @Autowired
     MmsService mmsService;
+
+    @Autowired
+    BaseService baseService;
+
+    @Autowired
+    PackageService packageService;
 
     @PostConstruct
     public void init() {
@@ -111,17 +126,140 @@ public class ScmServiceImpl implements ScmService {
         return create().useSystemProperties().disableRedirectHandling().disableCookieManagement();
     }
 
+    public void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException{
+        try {
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC),
+                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK));
+
+            if (materialLot == null) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
+            }
+
+            scmAssignAndSaveHis(materialLot, materialType, vendor, poId, remarks);
+
+            //如果LOT已经装箱，验证箱中所有的LOT是否已经标注，如果全部标注，对箱号进行标注(箱中LOT的标注信息保持一致)
+            if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                MaterialLot parentMaterialLot = mmsService.getMLotByMLotId(materialLot.getParentMaterialLotId(), true);
+                validateParentMLotScmAssign(parentMaterialLot, materialType, vendor, poId, remarks);
+            }
+
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证箱中Lot是否全部标注，标注信息是否一致
+     * @param parentMaterialLot
+     * @param materialType
+     * @param vendor
+     * @param poId
+     * @param remarks
+     * @throws ClientException
+     */
+    private void validateParentMLotScmAssign(MaterialLot parentMaterialLot, String materialType, String vendor, String poId, String remarks) throws ClientException{
+        try {
+            List<MaterialLot> materialLotList = packageService.getPackageDetailLots(parentMaterialLot.getObjectRrn());
+            List<MaterialLot> unTagMaterialLotList = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved54())).collect(Collectors.toList());
+
+            if(CollectionUtils.isEmpty(unTagMaterialLotList)){
+                Map<String, List<MaterialLot>> mLotAssignMap =  materialLotList.stream().collect(Collectors.groupingBy(mLot -> {
+                    StringBuffer key = new StringBuffer();
+                    if(StringUtils.isNullOrEmpty(mLot.getReserved56())){
+                        key.append(StringUtils.EMPTY);
+                    } else {
+                        key.append(mLot.getReserved56());
+                    }
+                    if(StringUtils.isNullOrEmpty(mLot.getReserved54())){
+                        key.append(StringUtils.EMPTY);
+                    } else {
+                        key.append(mLot.getReserved54());
+                    }
+                    return key.toString();
+                }));
+                if (mLotAssignMap != null &&  mLotAssignMap.size() > 1) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_INFO_IS_NOT_SAME, parentMaterialLot.getMaterialLotId());
+                }
+                scmAssignAndSaveHis(parentMaterialLot, materialType, vendor, poId, remarks);
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * scm跨域标注，记录标注信息，并保存历史
+     * @param materialLot
+     * @param materialType
+     * @param vendor
+     * @param poId
+     * @param remarks
+     * @throws ClientException
+     */
+    private void scmAssignAndSaveHis(MaterialLot materialLot, String materialType, String vendor, String poId, String remarks) throws ClientException{
+        try {
+            materialLot.setReserved54(materialType);
+            materialLot.setReserved55(vendor);
+            materialLot.setReserved56(poId);
+            materialLot.setReserved57(remarks);
+            materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMAssign");
+            materialLotHistoryRepository.save(history);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void scmUnAssign(String lotId) throws ClientException{
+        try {
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC),
+                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK));
+            if (materialLot == null) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
+            }
+            scmUnAssignMaterialLot(materialLot);
+
+            if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                MaterialLot parentMLot = mmsService.getMLotByMLotId(materialLot.getParentMaterialLotId(), true);
+                scmUnAssignMaterialLot(parentMLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * SAM取消晶圆标注
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void scmUnAssignMaterialLot(MaterialLot materialLot) throws ClientException{
+        try {
+            materialLot.setReserved54(StringUtils.EMPTY);
+            materialLot.setReserved55(StringUtils.EMPTY);
+            materialLot.setReserved56(StringUtils.EMPTY);
+            materialLot.setReserved57(StringUtils.EMPTY);
+            materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMUnAssign");
+            materialLotHistoryRepository.save(history);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 根据标记调用SCM系统进行判断是否是ENG产品
      * @param materialLotUnits
      * @throws ClientException
      */
-    public void assignEngFlag(List<MaterialLotUnit> materialLotUnits) throws ClientException {
+    public List<MaterialLotUnit> assignEngFlag(List<MaterialLotUnit> materialLotUnits) throws ClientException {
         try {
             List<NBOwnerReferenceList> connectScmImportTypeList = getImportTypeForScm();
             if (CollectionUtils.isEmpty(connectScmImportTypeList)) {
                 log.warn("OwnerRefList SCMImportType is not config. so does not connect to scm");
-                return;
+                return materialLotUnits;
             }
             List<Map> requestWaferList = Lists.newArrayList();
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
@@ -158,22 +296,20 @@ public class ScmServiceImpl implements ScmService {
                     String waferId = (String) responseData.get("wafer_id");
                     boolean engFlag = (boolean) responseData.get("is_eng");
                     if (engFlag) {
+                        String unitId = lotId + StringUtils.SPLIT_CODE + waferId;
+                        for(MaterialLotUnit materialLotUnit: materialLotUnits){
+                            if(unitId.equals(materialLotUnit.getUnitId())){
+                                materialLotUnit.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                            }
+                        }
                         engWaferIdList.add(lotId + StringUtils.SPLIT_CODE + waferId);
                     }
                 }
             }
             if (CollectionUtils.isNotEmpty(engWaferIdList)) {
                 log.debug(String.format("Eng Wafer List is [%s]", engWaferIdList));
-                materialLotUnitRepository.updateProdTypeByUnitIds(MaterialLotUnit.PRODUCT_TYPE_ENG, engWaferIdList);
-                //将eng型号的物料批次标记为ENG
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByUnitIdIn(engWaferIdList);
-                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
-                for(String materialLotId : materialLotUnitMap.keySet()){
-                    MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
-                    materialLot.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
-                    materialLotRepository.saveAndFlush(materialLot);
-                }
             }
+            return materialLotUnits;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -261,6 +397,67 @@ public class ScmServiceImpl implements ScmService {
                 throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 物料批次分组处理，(手动下单、自动下单、没有记录快递单号)
+     * 一个快递单号访问一次
+     * @param orderId
+     * @param materialLotList
+     * @throws ClientException
+     */
+    public void addScmTracking(String orderId, List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            List<Map> requestInfoList = Lists.newArrayList();
+            List<MaterialLot> autoOrderMLots = materialLotList.stream().filter(materialLot -> MaterialLot.PLAN_ORDER_TYPE_AUTO.equals(materialLot.getPlanOrderType())).collect(Collectors.toList());
+            List<MaterialLot> manualOrderMLots = materialLotList.stream().filter(materialLot -> MaterialLot.PLAN_ORDER_TYPE_MANUAL.equals(materialLot.getPlanOrderType())).collect(Collectors.toList());
+            List<MaterialLot> unOrderMLots = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getExpressNumber())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(autoOrderMLots)){
+                Map<String, List<MaterialLot>> autoOrderMLotMap = autoOrderMLots.stream().collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
+                for(String expressNumber: autoOrderMLotMap.keySet()){
+                    Map requestInfo = Maps.newHashMap();
+                    requestInfo.put("send_code", orderId);
+                    requestInfo.put("logistics_receiving_time", getReceivingTime());
+                    requestInfo.put("logistics_company_name", "跨越物流");
+                    requestInfo.put("logistics_code", expressNumber);
+                    requestInfoList.add(requestInfo);
+                }
+            }
+            if(CollectionUtils.isNotEmpty(manualOrderMLots)){
+                Map<String, List<MaterialLot>> manualOrderMLotMap = manualOrderMLots.stream().collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
+                for(String expressNumber : manualOrderMLotMap.keySet()){
+                    List<MaterialLot> materialLots = manualOrderMLotMap.get(expressNumber);
+                    String expressCompany = materialLots.get(0).getExpressCompany();
+                    Map requestInfo = Maps.newHashMap();
+                    requestInfo.put("send_code", orderId);
+                    requestInfo.put("logistics_receiving_time", getReceivingTime());
+                    requestInfo.put("logistics_company_name", expressCompany);
+                    requestInfo.put("logistics_code", expressNumber);
+                    requestInfoList.add(requestInfo);
+                }
+            }
+            if(CollectionUtils.isNotEmpty(unOrderMLots)){
+                Map requestInfo = Maps.newHashMap();
+                requestInfo.put("send_code", orderId);
+                requestInfo.put("logistics_receiving_time", getReceivingTime());
+                requestInfo.put("logistics_company_name", "");
+                requestInfo.put("logistics_code", "");
+                requestInfoList.add(requestInfo);
+            }
+
+            String token = getMScmToken();
+            Map httpHeader = Maps.newHashMap();
+            httpHeader.put("authorization", token);
+
+            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, httpHeader);
+            Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
+            Integer ret = (Integer) responseData.get("ret");
+            if (200 != ret) {
+                throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCUpdateMLotInfo_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCUpdateMLotInfo to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCUpdateMLotInfo
+              description: 修改LOT信息
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 修改LOT信息
+              label: UpdateLotInfo

@@ -19,6 +19,7 @@ import java.util.Date;
 public class MesPackedLot implements Serializable {
 
     public static final String PACKED_STATUS_RECEIVED = "RECEIVED";
+    public static final String PACKED_STATUS_IN = "IN";
 
     public static final String PRODUCT_CATEGORY_FT = "FT";
     public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
@@ -28,6 +29,7 @@ public class MesPackedLot implements Serializable {
     public static final String PRODUCT_CATEGORY_LSP = "LSP";
     public static final String PRODUCT_CATEGORY_LCP = "LCP";
     public static final String PRODUCT_CATEGORY_SCP = "SCP";
+    public static final String PRODUCT_CATEGORY_COB = "COB";
 
     public static final String REPLACE_FLAG = "true";
 
@@ -166,4 +168,10 @@ public class MesPackedLot implements Serializable {
      */
     @Transient
     private String subName;
+
+    /**
+     * FAB_DEVICE
+     */
+    @Transient
+    private String fabDevice;
 }

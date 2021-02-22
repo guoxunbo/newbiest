@@ -42,6 +42,7 @@ public class ImportMLotThread implements Callable {
     private String lotId;
     private String materialLotId;
     private String importCode;
+    private String productType;
     private List<MaterialLotUnit> materialLotUnits;
     private Material material;
     private StatusModel statusModel;
@@ -82,6 +83,8 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved22",materialLotUnits.get(0).getReserved22());
             propsMap.put("reserved23",materialLotUnits.get(0).getReserved23());
             propsMap.put("reserved24",materialLotUnits.get(0).getReserved24());
+            propsMap.put("reserved25",materialLotUnits.get(0).getReserved25());
+            propsMap.put("reserved26",materialLotUnits.get(0).getReserved26());
             propsMap.put("reserved27",materialLotUnits.get(0).getReserved27());
             propsMap.put("reserved28",materialLotUnits.get(0).getReserved28());
             propsMap.put("reserved29",materialLotUnits.get(0).getReserved29());
@@ -93,6 +96,7 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved37",materialLotUnits.get(0).getReserved37());
             propsMap.put("reserved38",materialLotUnits.get(0).getReserved38());
             propsMap.put("reserved39",materialLotUnits.get(0).getReserved39());
+            propsMap.put("reserved40",materialLotUnits.get(0).getReserved40());
             propsMap.put("reserved41",materialLotUnits.get(0).getReserved41());
             propsMap.put("reserved45",materialLotUnits.get(0).getReserved45());
             propsMap.put("reserved46",materialLotUnits.get(0).getReserved46());
@@ -100,6 +104,7 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved49",materialLotUnits.get(0).getReserved49());
             propsMap.put("reserved50",materialLotUnits.get(0).getReserved50());
             propsMap.put("reserved48",importCode);
+            propsMap.put("productType",productType);
 
             MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap, currentSubQty);
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {

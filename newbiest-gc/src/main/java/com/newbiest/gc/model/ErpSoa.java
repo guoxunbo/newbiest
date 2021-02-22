@@ -110,6 +110,12 @@ public class ErpSoa implements Serializable {
     private String cusname;
 
     /**
+     * 三方交易
+     */
+    @Column(name="CUSCODE")
+    private String cuscode;
+
+    /**
      * 同步状态
      */
     @Column(name="SYN_STATUS")
@@ -126,6 +132,12 @@ public class ErpSoa implements Serializable {
      */
     @Column(name="DELIVERED_NUM")
     private String deliveredNum;
+
+    /**
+     * 保税属性
+     */
+    @Column(name="OTHER1")
+    private String other1;
 
     @Column(name="OTHER16")
     private String other16;

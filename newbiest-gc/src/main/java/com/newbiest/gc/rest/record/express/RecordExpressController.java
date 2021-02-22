@@ -56,14 +56,14 @@ public class RecordExpressController {
             parameterMapList = expressService.getPrintLabelParameterList(materialLots, materialLots.get(0).getExpressNumber());
             responseBody.setParameterMapList(parameterMapList);
         } else if (RecordExpressRequestBody.ACTION_TYPE_MANUAL_ORDER.equals(actionType)) {
-            materialLots = expressService.recordExpressNumber(requestBody.getMaterialLots(), requestBody.getExpressNumber(), MaterialLot.PLAN_ORDER_TYPE_MANUAL);
+            materialLots = expressService.recordExpressNumber(requestBody.getMaterialLots(), requestBody.getExpressNumber(), requestBody.getExpressCompany(), MaterialLot.PLAN_ORDER_TYPE_MANUAL);
         } else if (RecordExpressRequestBody.ACTION_TYPE_CANCEL_ORDER.equals(actionType)) {
             expressService.cancelOrderByMaterialLots(requestBody.getMaterialLots());
         } else if (RecordExpressRequestBody.ACTION_TYPE_OLD_RECORD_ORDER.equals(actionType)) {
             List<DocumentLine> deliveryOrders = expressService.recordExpressNumber(requestBody.getDocumentLineList());
             responseBody.setDocumentLineList(deliveryOrders);
         } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_PRINTPARAMETER.equals(actionType)){
-            parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(), requestBody.getExpressNumber());
+            parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(), null);
             responseBody.setParameterMapList(parameterMapList);
         }else if(RecordExpressRequestBody.ACTION_TYPE_OBLIQUE_LABEL_PRINT.equals(actionType)){
             materialLots = requestBody.getMaterialLots();

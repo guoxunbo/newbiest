@@ -7,6 +7,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
@@ -161,7 +162,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
                 for(String lotId : materialLotUnitMap.keySet()){
-                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
+                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialLot.STATUS_FIN);
                     if(materialLotInfo != null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
                     }
@@ -169,6 +170,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
 
+                    //验证晶圆是否存在Eng晶圆
+                    String productType = MaterialLotUnit.PRODUCT_TYPE_PROD;
+                    List<MaterialLotUnit> engUnitList = materialLotUnits.stream().filter(materialLotUnit -> MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())).collect(Collectors.toList());
+                    if(CollectionUtils.isNotEmpty(engUnitList)){
+                        productType = MaterialLotUnit.PRODUCT_TYPE_ENG;
+                    }
                     // 导入进行多线程处理 进行并行处理
                     ImportMLotThread importMLotThread = new ImportMLotThread();
                     importMLotThread.setMaterialLotRepository(materialLotRepository);
@@ -188,6 +195,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     importMLotThread.setMaterial(material);
                     importMLotThread.setStatusModel(statusModel);
                     importMLotThread.setMaterialLotUnits(materialLotUnits);
+                    importMLotThread.setProductType(productType);
 
                     Future<ImportMLotThreadResult> importCallBack = executorService.submit(importMLotThread);
                     importCallBackList.add(importCallBack);
@@ -391,6 +399,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                         propsMap.put("durable", materialLotUnit.getDurable().toUpperCase());
                     }
+                    if(MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())){
+                        propsMap.put("productType", MaterialLotUnit.PRODUCT_TYPE_ENG);
+                    }
                     propsMap.put("supplier", materialLotUnit.getSupplier());
                     propsMap.put("shipper", materialLotUnit.getShipper());
                     propsMap.put("grade", materialLotUnit.getGrade());
@@ -405,6 +416,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved22",materialLotUnit.getReserved22());
                     propsMap.put("reserved23",materialLotUnit.getReserved23());
                     propsMap.put("reserved24",materialLotUnit.getReserved24());
+                    propsMap.put("reserved25",materialLotUnit.getReserved25());
+                    propsMap.put("reserved26",materialLotUnit.getReserved26());
                     propsMap.put("reserved27",materialLotUnit.getReserved27());
                     propsMap.put("reserved28",materialLotUnit.getReserved28());
                     propsMap.put("reserved29",materialLotUnit.getReserved29());
@@ -416,6 +429,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved37",materialLotUnit.getReserved37());
                     propsMap.put("reserved38",materialLotUnit.getReserved38());
                     propsMap.put("reserved39",materialLotUnit.getReserved39());
+                    propsMap.put("reserved40",materialLotUnit.getReserved40());
                     propsMap.put("reserved41",materialLotUnit.getReserved41());
                     propsMap.put("reserved45",materialLotUnit.getReserved45());
                     propsMap.put("reserved46",materialLotUnit.getReserved46());

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.2.0
+      author: Guozhang Lou
+      remarks: mms_material add column EXPRESS_COMPANY
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: EXPRESS_COMPANY
+                  type: varchar(64)
+                  remarks: 快递公司

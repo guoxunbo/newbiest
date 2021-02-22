@@ -3,6 +3,7 @@ package com.newbiest.gc.rest.scm.assign;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.gc.service.ScmService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AssignController {
 
     @Autowired
-    GcService gcService;
+    ScmService scmService;
 
     @ApiOperation(value = "SCMReserved", notes = "SCM预留")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "AssignRequest")
@@ -34,11 +35,10 @@ public class AssignController {
         AssignRequestBody requestBody = request.getBody();
 
         String actionType = requestBody.getActionType();
-        String unitId = requestBody.getLotId() + StringUtils.SPLIT_CODE + requestBody.getWaferId();
         if (AssignRequest.ACTION_TYPE_ASSIGN.equals(actionType)) {
-            //TODO 处理SCM标记逻辑
-        } else if(AssignRequest.ACTION_TYPE_UN_ASSIGN.equals(actionType)){
-            //TODO 处理SCM取消标记逻辑
+            scmService.scmAssign(requestBody.getLotId(), requestBody.getVendor(), requestBody.getPoId(), requestBody.getMaterialType(), requestBody.getRemarks());
+        } else if(AssignRequest.ACTION_TYPE_UN_ASSIGN.equals(actionType)) {
+            scmService.scmUnAssign(requestBody.getLotId());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

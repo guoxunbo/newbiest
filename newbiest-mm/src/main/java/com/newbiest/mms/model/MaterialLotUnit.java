@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -29,6 +30,7 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String STATE_ISSUE = "Issue";
     public static final String STATE_SCRAP = "Scrap";
     public static final String STATE_OUT = "Out";
+    public static final String STATE_PACKAGE = "Package";
 
     public static final String PRODUCT_TYPE_PROD = "PROD";
     public static final String PRODUCT_TYPE_ENG = "ENG";
@@ -570,4 +572,20 @@ public class MaterialLotUnit extends NBUpdatable {
         this.setTreasuryNote(materialLot.getReserved4());
         this.setSourceProductId(materialLot.getSourceProductId());
     }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    @PrePersist
+    protected void prePersist() {
+        super.prePersist();
+        if (this.created == null) {
+            created = new Date();
+        }
+        updated = new Date();
+        createdBy = ThreadLocalContext.getUsername();
+        updatedBy = ThreadLocalContext.getUsername();
+    }
+
 }

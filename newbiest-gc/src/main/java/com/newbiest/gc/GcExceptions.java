@@ -7,6 +7,7 @@ public class GcExceptions {
 
     public static final String ERP_RETEST_ORDER_IS_NOT_EXIST = "gc.erp_retest_order_is_not_exist";
     public static final String ERP_WAFER_ISSUE_ORDER_IS_NOT_EXIST = "gc.erp_wafer_issue_order_is_not_exist";
+    public static final String ERP_RAW_MATERIAL_ISSUE_ORDER_IS_NOT_EXIST = "gc.erp_raw_material_issue_order_is_not_exist";
 
     public static final String ERP_RECEIVE_ORDER_IS_NOT_EXIST = "gc.erp_receive_order_is_not_exist";
 
@@ -14,6 +15,9 @@ public class GcExceptions {
     public static final String ERP_SOB_IS_NOT_EXIST = "gc.erp_sob_is_not_exist";
     public static final String RESERVED_OVER_QTY = "gc.reserved_over_qty";
     public static final String ERP_SOA_IS_NOT_EXIST = "gc.erp_soa_is_not_exist";
+    public static final String ERP_SOA_CUSCODE_IS_ERROR = "gc.erp_soa_cuscode_is_error";
+    public static final String CHOOSE_STOCK_OUT_ORDER_PLEASE = "gc.choose_stock_out_order_please";
+    public static final String MATERIAL_LOT_HAS_BEEN_SOLD_BY_THREE_PARTIES = "gc.the_materialLot_has_been_sold_by_three_parties";
 
     public static final String MATERIAL_LOT_NOT_MATCH_ORDER = "gc.meterial_lot_not_match_order";
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "gc.meterial_lot_reserved_by_another";
@@ -59,6 +63,7 @@ public class GcExceptions {
     public static final String MATERIAL_LOT_NOT_RECORD_EXPRESS = "gc.material_lot_not_recorded_express";
     public static final String EXPRESS_NUMBER_IS_INCONSISTENT = "gc.express_number_is_inconsistent";
     public static final String ORDER_STATUS_NOT_ALLOWED_ONLY_MANUALLY_CANCEL = "gc.order_status_is_not_allow_only_munually_cancel";
+    public static final String SHIP_ORDER_IS_NOT_SAME = "gc.ship_order_is_not_same";
 
     public static final String GET_EXPRESS_TOKEN_ERROR = "gc.get_express_token_error";
     public static final String SHIPPING_ADDRESS_IS_NULL = "gc.shipping_address_is_null";

@@ -212,8 +212,12 @@ public class MmsServiceImpl implements MmsService {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
-            rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
-            rawMaterial.setMaterialType(Material.TYPE_WAFER);
+            if(StringUtils.isNullOrEmpty(rawMaterial.getMaterialCategory())){
+                rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
+            }
+            if(StringUtils.isNullOrEmpty(rawMaterial.getMaterialType())){
+                rawMaterial.setMaterialType(Material.TYPE_WAFER);
+            }
             rawMaterial = this.saveRawMaterial(rawMaterial);
 
             List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
@@ -809,6 +813,7 @@ public class MmsServiceImpl implements MmsService {
 
             // 物料批次只会hold一次。多重Hold只会记录历史，并不会产生多重Hold记录
             materialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
+            materialLot.setHoldReason(materialLotAction.getActionReason());
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
@@ -832,6 +837,7 @@ public class MmsServiceImpl implements MmsService {
             sc.buildTransInfo();
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             materialLot.setHoldState(MaterialLot.HOLD_STATE_OFF);
+            materialLot.setHoldReason(StringUtils.EMPTY);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RELEASE);
@@ -978,6 +984,7 @@ public class MmsServiceImpl implements MmsService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
 
     public MaterialLot getMLotByMLotIdAndBindWorkOrderId(String mLotId, boolean throwExceptionFlag) throws ClientException{
         try {
@@ -1133,12 +1140,23 @@ public class MmsServiceImpl implements MmsService {
         return null;
     }
 
-    public MaterialLot getMLotByLotId(String lotId) throws ClientException {
+
+    /**
+     * 验证物料批次规则信息是否一致，不一致返回false
+     */
+    public boolean validationMLotByMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException{
         try {
-            return materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLot.IMPORT_WLA);
+            List<MaterialLotMergeRule> mLotValidateRule = materialLotMergeRuleRepository.findByNameAndOrgRrn(ruleName, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isEmpty(mLotValidateRule)) {
+                throw new ClientParameterException(ContextException.MLOT_VALIDATE_RULE_IS_NOT_EXIST, ruleName);
+            }
+            MergeRuleContext mergeRuleContext = new MergeRuleContext();
+            mergeRuleContext.setBaseObject(materialLots.get(0));
+            mergeRuleContext.setCompareObjects(materialLots);
+            mergeRuleContext.setMergeRuleLines(mLotValidateRule.get(0).getLines());
+            return  mergeRuleContext.validateMLot();
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
-
 }

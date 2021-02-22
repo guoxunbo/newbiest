@@ -1,5 +1,6 @@
 package com.newbiest.gc.model;
 
+import com.newbiest.mms.model.MaterialLot;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -19,6 +20,8 @@ import java.util.Date;
 public class ErpMaterialOutOrder implements Serializable {
 
     public static final String SOURCE_TABLE_NAME = "ERP_MATERIAL_OUT_ORDER";
+
+    public static final String DEFAULT_CMAKER = "MES";
 
     public static final String ERROR_CODE_DUPLICATE_DOC_ID = "duplicate_document_number";
 
@@ -58,6 +61,7 @@ public class ErpMaterialOutOrder implements Serializable {
     public static final String SYNC_STATUS_CHANGED = "4";
 
     @Column(name="SEQ")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     private Long seq;
 
@@ -108,6 +112,12 @@ public class ErpMaterialOutOrder implements Serializable {
      */
     @Column(name="CMAKER")
     private String cmaker;
+
+    /**
+     * 仓库
+     */
+    @Column(name="CWHNAME")
+    private String cwhName;
 
     /**
      * 创建人
@@ -162,4 +172,5 @@ public class ErpMaterialOutOrder implements Serializable {
 
     @Column(name="CREATE_SEQ")
     private String createSeq;
+
 }

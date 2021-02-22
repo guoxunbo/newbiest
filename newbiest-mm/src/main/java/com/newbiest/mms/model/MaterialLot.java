@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusLifeCycle;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.state.model.MaterialStatus;
@@ -80,6 +81,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String COB_PACKCASE = "COBPackCase";
 
     /**
+     * WLT/CP出货物料批次验证规则
+     */
+    public static final String WLT_SHIP_MLOT_MERGE_RULE = "WltCPShipCase";
+
+    /**
      * COB一个lot最大片数为13
      */
     public static final Integer COB_UNIT_SIZE = 13;
@@ -97,6 +103,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String COB_WAFER_ISSUE_DOC_VALIDATE_RULE_ID = "COBWaferIssueDocLineRule";   //COB晶圆发料单据验证规则
     public static final String FT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "FTStockOutDocRule"; //FT出货单据验证规则
     public static final String COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID = "CogMLotReceiveDocRule"; //COG来料接受单据验证规则
+    public static final String RAW_MATERIAL_ISSUE_DOC_VALIDATE_RULE_ID = "RawMaterialIssueDocRule";  //原材料发料单据验证规则
+    public static final String MLOT_THREESIDE_DOC_VALIDATE_RULE_ID = "MLotThreeSideDocRule";  //三方销售单据验证规则
 
     /**
      * 香港仓依订单出货
@@ -116,6 +124,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String STATUS_HOLD = "Hold";
 
     public static final String STATUS_FIN = "Fin";
+
+    public static final String STATUS_OQC = "OQC";
+    public static final String STATUS_IN = "In";
+    public static final String STATUS_OK = "OK";
 
     public static final String CATEGORY_PACKAGE = "Package";
 
@@ -209,6 +221,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 出货形态
      */
     public static final String STOCKOUT_TYPE_35 = "-3.5";
+    public static final String STOCKOUT_TYPE_4 = "-4";
+
+    public static final String ZJ_STOCK = "601";
+    public static final String SH_STOCK = "400";
+    public static final String HK_STOCK = "300";
+
+    public static final String ZJ_WAREHOUSE = "8143";
+    public static final String SH_WAREHOUSE = "8142";
+    public static final String HK_WAREHOUSE = "8150";
 
 
     /**
@@ -418,6 +439,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String expressNumber;
 
     /**
+     * 快递公司
+     */
+    @Column(name="EXPRESS_COMPANY")
+    private String expressCompany;
+
+    /**
      * 下单类型
      */
     @Column(name="PLAN_ORDER_TYPE")
@@ -472,6 +499,18 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="MATERIAL_CODE")
     private String materialCode;
+
+    /**
+     * 三方销售单
+     */
+    @Column(name="THREE_SIDE_ORDER")
+    private String threeSideOrder;
+
+    /**
+     * HOLD原因
+     */
+    @Column(name="HOLD_REASON")
+    private String holdReason;
 
     /**
      * 原材料生产日期
@@ -928,6 +967,17 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     }
 
+    @PrePersist
+    protected void prePersist() {
+        super.prePersist();
+        if (this.created == null) {
+            created = new Date();
+        }
+        updated = new Date();
+        createdBy = ThreadLocalContext.getUsername();
+        updatedBy = ThreadLocalContext.getUsername();
+    }
+
     /**
      * 恢复前置状态
      *  将前置状态当成当前状态，当前状态变成前置状态
@@ -976,6 +1026,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public void clearExpressInfo() {
         this.setExpressNumber(StringUtils.EMPTY);
+        this.setExpressCompany(StringUtils.EMPTY);
         this.setPlanOrderType(StringUtils.EMPTY);
     }
 
@@ -1051,5 +1102,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setReserved41(materialLot.getReserved41());
         this.setReserved46(materialLot.getReserved46());
         this.setReserved47(materialLot.getReserved47());
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

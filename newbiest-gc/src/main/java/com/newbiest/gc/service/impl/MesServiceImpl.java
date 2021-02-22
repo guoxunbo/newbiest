@@ -68,7 +68,7 @@ public class MesServiceImpl implements MesService {
     /**
      * 读取MES的超时时间 单位秒
      */
-    public static final int MES_READ_TIME_OUT = 60;
+    public static final int MES_READ_TIME_OUT = 120;
 
     public static final String PLAN_LOT_API = "/wms/planLot.spring";
 

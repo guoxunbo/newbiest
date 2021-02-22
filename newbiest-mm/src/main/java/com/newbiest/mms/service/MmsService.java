@@ -49,6 +49,8 @@ public interface MmsService {
     void validationMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException;
     void saveMaterialLotInventory(MaterialLotInventory materialLotInventory, BigDecimal transQty) throws ClientException;
 
+    boolean validationMLotByMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException;
+
     MaterialLot holdMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot releaseMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
 
@@ -59,5 +61,4 @@ public interface MmsService {
 
     Warehouse getWarehouseByName(String name) throws ClientException;
     Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
-    MaterialLot getMLotByLotId(String lotId) throws ClientException;
 }

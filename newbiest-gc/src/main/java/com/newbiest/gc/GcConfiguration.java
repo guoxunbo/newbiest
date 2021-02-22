@@ -74,6 +74,9 @@ public class GcConfiguration {
         ModelFactory.registerHistoryModelClassLoader(WaferIssueOrder.class.getName(), DocumentHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(WaferIssueOrder.class.getName(), DocumentHistory.class.getName());
 
+        ModelFactory.registerHistoryModelClassLoader(MaterialIssueOrder.class.getName(), DocumentHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(MaterialIssueOrder.class.getName(), DocumentHistory.class.getName());
+
         ModelFactory.registerHistoryModelClassLoader(OtherShipOrder.class.getName(), DocumentHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(OtherShipOrder.class.getName(), DocumentHistory.class.getName());
 
