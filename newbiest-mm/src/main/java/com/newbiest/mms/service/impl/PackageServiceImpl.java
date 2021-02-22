@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -430,9 +431,20 @@ public class PackageServiceImpl implements PackageService{
             }
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 
+            //装箱之后对箱号做入库操作
+            if(!StringUtils.isNullOrEmpty(packedMaterialLot.getReserved14())){
+                MaterialLotAction action = new MaterialLotAction();
+                action.setTargetWarehouseRrn(Long.parseLong(packedMaterialLot.getReserved13()));
+                action.setTargetStorageId(packedMaterialLot.getReserved14());
+                action.setTransQty(packedMaterialLot.getCurrentQty());
+                mmsService.stockIn(packedMaterialLot, action);
+            }
+
             // 记录创建历史
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE);
             history.buildByMaterialLotAction(firstMaterialAction);
+            history.setCreated(packedMaterialLot.getCreated());
+            history.setReceiveDate(packedMaterialLot.getReceiveDate());
             materialLotHistoryRepository.save(history);
 
             packageMaterialLots(packedMaterialLot, materialLots, materialLotActions, false, true);
@@ -552,6 +564,7 @@ public class PackageServiceImpl implements PackageService{
                     materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_PACKAGE);
+                    unitHistory.setCreated(materialLotUnit.getCreated());
                     materialLotUnitHisRepository.save(unitHistory);
                 }
             }

@@ -11,6 +11,6 @@ import java.util.List;
  */
 public interface TempService {
 
-    void transferCpData(List<TempCpModel> tempCpModelList) throws ClientException;
+    void transferCpData(List<TempCpModel> tempCpModelList, String fileName) throws ClientException;
 
 }

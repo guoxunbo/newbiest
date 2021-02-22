@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.model.NBHis;
+import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.scm.dto.TempCpModel;
 import com.newbiest.gc.service.TempService;
@@ -62,11 +64,14 @@ public class TempServiceImpl implements TempService {
     @Autowired
     PackageService packageService;
 
+    @Autowired
+    BaseService baseService;
+
     /**
      * 转换老系统的CP数据
      * @throws ClientException
      */
-    public void transferCpData(List<TempCpModel> tempCpModelList) throws ClientException {
+    public void transferCpData(List<TempCpModel> tempCpModelList, String fileName) throws ClientException {
         try {
             String testLotIdPrefix = "GuoT";
 
@@ -84,9 +89,9 @@ public class TempServiceImpl implements TempService {
                     }
                     materialMap.put(materialName, rawMaterial);
                 } else {
-                    Product product = mmsService.getProductByName(materialName);
+                    Material product = mmsService.getProductByName(materialName);
                     if (product == null) {
-                        gcService.saveProductAndSetStatusModelRrn(materialName);
+                        product = gcService.saveProductAndSetStatusModelRrn(materialName);
                     }
                     materialMap.put(materialName, product);
                 }
@@ -100,8 +105,9 @@ public class TempServiceImpl implements TempService {
                 Material material = materialMap.get(firstTempCpModel.getDataValue18());
 
                 MaterialLot materialLot = new MaterialLot();
+                Long totalMLotQty = lotTempCpModels.stream().collect(Collectors.summingLong(tempCpModel -> Long.parseLong(tempCpModel.getDataValue7())));
 
-                BigDecimal qty = new BigDecimal(firstTempCpModel.getDataValue7());
+                BigDecimal qty = new BigDecimal(totalMLotQty);
                 BigDecimal subQty = new BigDecimal(firstTempCpModel.getCstWaferQty());
 
                 MaterialLotAction materialLotAction = new MaterialLotAction();
@@ -119,23 +125,33 @@ public class TempServiceImpl implements TempService {
                 }
 
                 Map<String, Object> propMap = Maps.newConcurrentMap();
-                propMap.put("reserved13", firstTempCpModel.getStockId());
-                propMap.put("reserved14", firstTempCpModel.getPointId());
+                getImportTypeAndWaferSourceByMaterialName(propMap, material.getName());
+                if(MaterialLot.WAREHOUSE_SH.equals(firstTempCpModel.getStockId())){
+                    propMap.put("reserved13", MaterialLot.SH_WAREHOUSE);
+                } else if(MaterialLot.WAREHOUSE_ZJ.equals(firstTempCpModel.getStockId())){
+                    propMap.put("reserved13", MaterialLot.ZJ_WAREHOUSE);
+                } else {
+                    propMap.put("reserved13", MaterialLot.HK_WAREHOUSE);
+                }
+                propMap.put("reserved14", firstTempCpModel.getPointId().trim());
 
                 propMap.put("created", firstTempCpModel.getInTime());
-                propMap.put("reserved1", firstTempCpModel.getSecondCode());
-                propMap.put("reserved6", firstTempCpModel.getLocation());
-                propMap.put("reserved22", firstTempCpModel.getVendor());
-                propMap.put("reserved27", firstTempCpModel.getPoNo());
-                propMap.put("reserved46", firstTempCpModel.getWoId());
-                propMap.put("reserved24", firstTempCpModel.getFabDevice());
-                propMap.put("reserved39", firstTempCpModel.getCartonNo());
-                propMap.put("reserved29", firstTempCpModel.getInvoiceId());
-                propMap.put("reserved25", firstTempCpModel.getDataValue5());
-                propMap.put("reserved4", firstTempCpModel.getProdRemarkDesc());
+                propMap.put("receiveDate", firstTempCpModel.getInTime());
+                propMap.put("reserved1", firstTempCpModel.getSecondCode().trim());
+                propMap.put("reserved6", firstTempCpModel.getLocation().trim());
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CLASSIFY_CP);//CP0
+                propMap.put("reserved22", firstTempCpModel.getVendor().trim());
+                propMap.put("reserved27", firstTempCpModel.getPoNo().trim());
+                propMap.put("reserved46", firstTempCpModel.getWoId().trim());
+                propMap.put("reserved24", firstTempCpModel.getFabDevice().trim());
+                propMap.put("reserved39", firstTempCpModel.getCartonNo().trim());
+                propMap.put("reserved29", firstTempCpModel.getInvoiceId().trim());
+                propMap.put("reserved25", firstTempCpModel.getDataValue5().trim());
+                propMap.put("reserved4", firstTempCpModel.getProdRemarkDesc().trim());
+                propMap.put("reserved47", fileName);
 
-                String holdReason = firstTempCpModel.getDataValue6();
-                if (!StringUtils.isNullOrEmpty(holdReason)) {
+                String holdReason = firstTempCpModel.getDataValue6().trim();
+                if (firstTempCpModel.getDataValue8().equals("1")) {
                     propMap.put("holdState", MaterialLot.HOLD_STATE_ON);
                     propMap.put("holdReason", holdReason);
                 }
@@ -150,12 +166,17 @@ public class TempServiceImpl implements TempService {
                     materialLotUnit.setMaterial(material);
                     materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                     materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
-                    materialLotUnit.setReserved13(tempCpModel.getStockId());
+                    materialLotUnit.setLotId(materialLot.getMaterialLotId());
+                    materialLotUnit.setCurrentQty(new BigDecimal(tempCpModel.getDataValue7()));
+                    materialLotUnit.setReceiveQty(new BigDecimal(tempCpModel.getDataValue7()));
+                    materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
+                    materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved14(tempCpModel.getPointId());
                     materialLotUnit.setCreated(tempCpModel.getInTime());
+                    materialLotUnit.setReceiveDate(tempCpModel.getInTime());
                     materialLotUnit.setReserved1(tempCpModel.getSecondCode());
 
-                    materialLotUnit.setReserved6(tempCpModel.getLocation());
+                    materialLotUnit.setReserved4(tempCpModel.getLocation());
                     materialLotUnit.setReserved22(tempCpModel.getVendor());
                     materialLotUnit.setReserved27(tempCpModel.getPoNo());
                     materialLotUnit.setReserved46(tempCpModel.getWoId());
@@ -164,29 +185,86 @@ public class TempServiceImpl implements TempService {
                     materialLotUnit.setReserved39(tempCpModel.getCartonNo());
                     materialLotUnit.setReserved29(tempCpModel.getInvoiceId());
                     materialLotUnit.setReserved25(tempCpModel.getDataValue5());
+                    materialLotUnit.setReserved47(fileName);
+                    materialLotUnit.setReserved49(materialLot.getReserved49());
+                    materialLotUnit.setReserved50(materialLot.getReserved50());
                     materialLotUnitRepository.save(materialLotUnit);
-                    //TODO 记录接收历史
+
+                    //晶圆创建历史
+                    MaterialLotUnitHistory unitCreateHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
+                    unitCreateHistory.setCreated(materialLotUnit.getCreated());
+                    materialLotUnitHisRepository.save(unitCreateHistory);
+
+                    //晶圆接收历史
+                    MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                    unitHistory.setCreated(materialLotUnit.getCreated());
+                    unitHistory.setState(MaterialLotUnit.STATE_IN);
+                    materialLotUnitHisRepository.save(unitHistory);
                 }
 
             }
 
             // 处理包装
-            Map<String, List<TempCpModel>> boxedTempCpModelMap = tempCpModelList.stream().filter(tempCpModel -> !StringUtils.isNullOrEmpty(tempCpModel.getBoxId())).collect(Collectors.groupingBy(TempCpModel::getBoxId));
+            Map<String, List<TempCpModel>> boxedTempCpModelMap = tempCpModelList.stream().filter(tempCpModel -> !StringUtils.isNullOrEmpty(tempCpModel.getBoxId().trim())).collect(Collectors.groupingBy(TempCpModel::getBoxId));
 
             for (String boxId : boxedTempCpModelMap.keySet()) {
                 List<TempCpModel> boxDetails = boxedTempCpModelMap.get(boxId);
 
-                Set<String> boxedLotIds = boxDetails.stream().map(TempCpModel::getBoxId).collect(Collectors.toSet());
+                Set<String> boxedLotIds = boxDetails.stream().map(TempCpModel::getLotId).collect(Collectors.toSet());
                 List<MaterialLotAction> materialLotActions = Lists.newArrayList();
                 for (String boxedLotId : boxedLotIds) {
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(testLotIdPrefix + boxedLotId);
                     MaterialLotAction materialLotAction = new MaterialLotAction();
-                    materialLotAction.setMaterialLotId(testLotIdPrefix + boxedLotId);
+                    materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotAction.setTransQty(materialLot.getCurrentQty());
                     materialLotActions.add(materialLotAction);
                 }
                 packageService.packageMLots(materialLotActions, boxId, "WltPackCase");
 
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据产品型号获取导入型号和waferSource
+     * @param propMap
+     * @param materialName
+     * @throws ClientException
+     */
+    private void getImportTypeAndWaferSourceByMaterialName(Map<String,Object> propMap, String materialName) throws ClientException{
+        try {
+            if(materialName.endsWith("-2.5")){
+                propMap.put("reserved49", MaterialLot.IMPORT_LCD_CP);//LCD_CP
+                propMap.put("reserved50", MaterialLot.LCP_IN_FLAG_WAFER_SOURCE);//3
+            } else if(materialName.endsWith("-2.6")) {
+                propMap.put("reserved49", MaterialLot.IMPORT_LCD_CP);//LCD_CP
+                propMap.put("reserved50", MaterialLot.LCP_WAFER_SOURCE);//4
+            } else if(materialName.endsWith("-2") || materialName.endsWith("-3")){
+                propMap.put("reserved49", MaterialLot.IMPORT_SENSOR_CP);//SENSOR_CP
+                propMap.put("reserved50", MaterialLot.SCP_IN_FLAG_WAFER_SOURCE);//1
+            } else if(materialName.endsWith("-2.1")){
+                propMap.put("reserved49", MaterialLot.IMPORT_SENSOR_CP);//SENSOR_CP
+                propMap.put("reserved50", MaterialLot.SCP_WAFER_SOURCE);//2
+            } else if(materialName.endsWith("-1")){
+                if(materialName.startsWith("GC7") || materialName.startsWith("GC9")){
+                    propMap.put("reserved49", MaterialLot.IMPORT_LCD_CP);//LCD_CP
+                    propMap.put("reserved50", MaterialLot.LCP_IN_FLAG_WAFER_SOURCE);//3
+                } else {
+                    propMap.put("reserved49", MaterialLot.IMPORT_SENSOR_CP);//SENSOR_CP
+                    propMap.put("reserved50", MaterialLot.SCP_IN_FLAG_WAFER_SOURCE);//1
+                }
+            } else if(materialName.endsWith("-1.1")){
+                if(materialName.startsWith("GC7") || materialName.startsWith("GC9")){
+                    propMap.put("reserved49", MaterialLot.IMPORT_LCD_CP);//LCD_CP
+                    propMap.put("reserved50", MaterialLot.LCP_WAFER_SOURCE);//4
+                } else {
+                    propMap.put("reserved49", MaterialLot.IMPORT_SENSOR_CP);//SENSOR_CP
+                    propMap.put("reserved50", MaterialLot.SCP_WAFER_SOURCE);//2
+                }
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

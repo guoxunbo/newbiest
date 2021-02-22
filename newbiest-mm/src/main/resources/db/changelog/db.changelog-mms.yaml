@@ -497,3 +497,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCUpdateMLotInfo.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.2.3.mms_material_lot.yaml
+      relativeToChangelogFile: true

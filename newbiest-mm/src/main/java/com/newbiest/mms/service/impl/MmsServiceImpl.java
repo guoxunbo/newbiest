@@ -1072,6 +1072,7 @@ public class MmsServiceImpl implements MmsService {
             // 记录历史
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
             history.setTransQty(materialLot.getCurrentQty());
+            history.setCreated(materialLot.getCreated());
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {

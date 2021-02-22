@@ -48,6 +48,8 @@ public class TempCpModel implements Serializable {
 
     private String dataValue7;
 
+    private String dataValue8;
+
     private String dataValue18;
 
     private String cstWaferQty;
