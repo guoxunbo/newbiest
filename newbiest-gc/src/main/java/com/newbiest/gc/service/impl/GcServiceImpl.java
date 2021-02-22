@@ -6617,7 +6617,7 @@ public class GcServiceImpl implements GcService {
      *  documentLine 产品型号 materialName，二级代码 reserved2， 物流 reserved7 一致
      *  materialLot 产品型号 materialName，二级代码 reserved1， 物料 reserved6 一致
      */
-    public void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
+    public void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             List<DocumentLine> shipOrderList = documentLineList.stream().filter(documentLine -> ErpSob.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())).collect(Collectors.toList());
@@ -6626,8 +6626,8 @@ public class GcServiceImpl implements GcService {
             }
             documentLineList = shipOrderList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
 
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndBondPropAndShipper(documentLineList);
-            Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndBondPropAndShipper(materialLots);
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndBondPropAndShipper(documentLineList, checkSubCode);
+            Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndBondPropAndShipper(materialLots, checkSubCode);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
@@ -6662,7 +6662,7 @@ public class GcServiceImpl implements GcService {
      * @param materialLots
      * @return
      */
-    private Map<String,List<MaterialLot>> groupWaferByMaterialAndSecondCodeAndBondPropAndShipper(List<MaterialLot> materialLots) {
+    private Map<String,List<MaterialLot>> groupWaferByMaterialAndSecondCodeAndBondPropAndShipper(List<MaterialLot> materialLots, String checkSubCode) {
         return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
             StringBuffer key = new StringBuffer();
             String materialName = StringUtils.EMPTY;
@@ -6674,8 +6674,10 @@ public class GcServiceImpl implements GcService {
             key.append(materialName);
             key.append(StringUtils.SPLIT_CODE);
 
-            key.append(materialLot.getReserved1());
-            key.append(StringUtils.SPLIT_CODE);
+            if(!StringUtils.isNullOrEmpty(checkSubCode)){
+                key.append(materialLot.getReserved1());
+                key.append(StringUtils.SPLIT_CODE);
+            }
 
             key.append(materialLot.getReserved6());
             key.append(StringUtils.SPLIT_CODE);
@@ -6696,14 +6698,16 @@ public class GcServiceImpl implements GcService {
      * @param documentLineList
      * @return
      */
-    public Map<String, List<DocumentLine>> groupDocLineByMaterialAndSecondCodeAndBondPropAndShipper(List<DocumentLine> documentLineList) {
+    public Map<String, List<DocumentLine>> groupDocLineByMaterialAndSecondCodeAndBondPropAndShipper(List<DocumentLine> documentLineList, String checkSubCode) {
         return documentLineList.stream().collect(Collectors.groupingBy(documentLine -> {
             StringBuffer key = new StringBuffer();
             key.append(documentLine.getMaterialName());
             key.append(StringUtils.SPLIT_CODE);
 
-            key.append(documentLine.getReserved2());
-            key.append(StringUtils.SPLIT_CODE);
+            if(!StringUtils.isNullOrEmpty(checkSubCode)){
+                key.append(documentLine.getReserved2());
+                key.append(StringUtils.SPLIT_CODE);
+            }
 
             key.append(documentLine.getReserved7());
             key.append(StringUtils.SPLIT_CODE);
