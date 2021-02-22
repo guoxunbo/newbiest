@@ -335,8 +335,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             }
             for(String fabLotId : materialLotUnitMap.keySet()){
                 List<MaterialLotUnit> mLotUnitList = materialLotUnitMap.get(fabLotId);
-                if (mLotUnitList.size() >13){
-                    throw new ClientParameterException(MmsException.MM_THERE_ARE_MORE_THAN_THIRTEEN_LOTS_IN_THE_PAKINGLIST, fabLotId);
+                if (mLotUnitList.size() > MaterialLotUnit.THIRTEEN && importType.equals(MaterialLotUnit.WLA_UNMEASURED)){
+                    throw new ClientParameterException(MmsException.MM_WLA_IMPORT_MATERIAL_LOT_UNIT_SIZE_IS_OVER_THIRTEEN, fabLotId);
                 }
                 Integer minWaferId = 0;
                 for (MaterialLotUnit materialLotUnit : mLotUnitList) {
