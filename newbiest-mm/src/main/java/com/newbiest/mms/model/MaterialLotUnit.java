@@ -80,6 +80,8 @@ public class MaterialLotUnit extends NBUpdatable {
 
     public static final String BOX_TYPE = "COB";
 
+    public static final Integer THIRTEEN = 13;
+
 
 
     @Column(name="UNIT_ID")

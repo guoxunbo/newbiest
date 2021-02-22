@@ -48,6 +48,6 @@ public class MmsException {
     public static final String MM_RAW_MATERIAL_TYPE_NOT_SAME = "mm.raw_material_type_not_same";
     public static final String MM_MATERIAL_LOT_UNIT_SIZE_MORE_THAN_THIRTEEN = "mm.material_lot_unit_size_more_than_thirteen";
 
-    public static final String MM_THERE_ARE_MORE_THAN_THIRTEEN_LOTS_IN_THE_PAKINGLIST = "mm.there_are_more_than_thirteen_lots_in_the_pakinglist";
+    public static final String MM_WLA_IMPORT_MATERIAL_LOT_UNIT_SIZE_IS_OVER_THIRTEEN = "mm.wla_import_material_lot_unit_size_is_over_thirteen";
 
 }
