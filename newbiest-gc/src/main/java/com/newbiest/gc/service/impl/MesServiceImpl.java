@@ -59,7 +59,7 @@ public class MesServiceImpl implements MesService {
     /**
      * 连接Mes的超时时间 单位秒
      */
-    public static final int MES_CONNECTION_TIME_OUT = 30;
+    public static final int MES_CONNECTION_TIME_OUT = 300;
 
     public static final String MES_FACILITY_ID = "GC";
 
@@ -112,7 +112,8 @@ public class MesServiceImpl implements MesService {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             List<String> unitIdList = Lists.newArrayList();
             for(MaterialLot materialLot : materialLots){
-                if(MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) ){
+                if(MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) ||
+                        MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7())){
                     unitIdList.add(materialLot.getLotId());
                 } else {
                     if(MaterialLot.IMPORT_COB.equals(materialLot.getReserved49())){
