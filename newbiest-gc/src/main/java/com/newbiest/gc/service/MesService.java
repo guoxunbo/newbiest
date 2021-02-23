@@ -2,6 +2,7 @@ package com.newbiest.gc.service;
 
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.utils.SessionContext;
 import com.newbiest.mms.model.MaterialLot;
 import java.util.List;
 
@@ -12,6 +13,6 @@ import java.util.List;
  */
 public interface MesService {
 
-    void materialLotUnitPlanLot(List<MaterialLot> materialLots) throws ClientException;
+    void materialLotUnitPlanLot(List<MaterialLot> materialLots, SessionContext sc) throws ClientException;
 
 }

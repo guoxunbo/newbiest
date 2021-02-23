@@ -1,25 +1,17 @@
 package com.newbiest.gc.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.ui.model.NBOwnerReferenceList;
-import com.newbiest.base.ui.model.NBReferenceList;
-import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
-import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.service.MesService;
-import com.newbiest.gc.service.model.QueryEngResponse;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
-import com.newbiest.mms.repository.MaterialLotRepository;
-import com.newbiest.mms.repository.MaterialLotUnitRepository;
 import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.msg.DefaultParser;
 import lombok.Data;
@@ -28,12 +20,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.init.Jackson2ResourceReader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -41,9 +34,7 @@ import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static com.newbiest.mms.exception.MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST;
 import static org.apache.http.impl.client.HttpClientBuilder.create;
 
 /**
@@ -54,6 +45,7 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
 @Service
 @Slf4j
 @Data
+@EnableAsync
 public class MesServiceImpl implements MesService {
 
     /**
@@ -78,16 +70,7 @@ public class MesServiceImpl implements MesService {
     private String mesUrl;
 
     @Autowired
-    MaterialLotRepository materialLotRepository;
-
-    @Autowired
-    MaterialLotUnitRepository materialLotUnitRepository;
-
-    @Autowired
     MaterialLotUnitService materialLotUnitService;
-
-    @Autowired
-    UIService uiService;
 
     @PostConstruct
     public void init() {
@@ -107,9 +90,9 @@ public class MesServiceImpl implements MesService {
      * @param materialLots
      * @throws ClientException
      */
-    public void materialLotUnitPlanLot(List<MaterialLot> materialLots) throws ClientException {
+    @Async
+    public void materialLotUnitPlanLot(List<MaterialLot> materialLots, SessionContext sc) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
             List<String> unitIdList = Lists.newArrayList();
             for(MaterialLot materialLot : materialLots){
                 if(MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) ||

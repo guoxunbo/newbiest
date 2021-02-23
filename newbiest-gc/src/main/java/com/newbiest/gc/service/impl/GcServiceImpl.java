@@ -1201,7 +1201,7 @@ public class GcServiceImpl implements GcService {
                 log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
                 if(waferIssueToMesPlanLot){
                     log.info("wafer issue to mes plan lot start ");
-                    mesService.materialLotUnitPlanLot(materialLots);
+                    mesService.materialLotUnitPlanLot(materialLots, ThreadLocalContext.getSessionContext());
                     log.info("wafer issue to mes plan lot end ");
                 }
             }
@@ -8462,7 +8462,7 @@ public class GcServiceImpl implements GcService {
             log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
             if(waferIssueToMesPlanLot){
                 log.info("wafer issue to mes plan lot start ");
-                mesService.materialLotUnitPlanLot(materialLots);
+                mesService.materialLotUnitPlanLot(materialLots, ThreadLocalContext.getSessionContext());
                 log.info("wafer issue to mes plan lot end ");
             }
         } catch (Exception e) {
