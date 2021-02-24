@@ -126,9 +126,7 @@ public class VanchipServiceImpl implements VanChipService {
     DeliveryOrderRepository deliveryOrderRepository;
 
     @Autowired
-    WarehouseRepository warehouseRepository;
-
-
+    WarehouseRepository warehouseRepository;S
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
