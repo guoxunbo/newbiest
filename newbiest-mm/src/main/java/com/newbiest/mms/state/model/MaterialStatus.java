@@ -23,5 +23,8 @@ public class MaterialStatus extends Status{
     public static final String STATUS_SPLIT = "SPLIT";
     public static final String STATUS_MERGED = "MERGED";
 
+    public static final String STATUS_OK = "OK";
+    public static final String STATUS_NG = "NG";
+
 
 }

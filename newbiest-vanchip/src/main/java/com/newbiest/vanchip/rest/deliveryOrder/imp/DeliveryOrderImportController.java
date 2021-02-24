@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.shipmentOrder.imp;
+package com.newbiest.vanchip.rest.deliveryOrder.imp;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -25,20 +25,20 @@ import java.util.List;
 @RequestMapping("/vc")
 @Slf4j
 @Api(value="/vc", tags="Vanchip", description = "Vanchip客制化接口")
-public class ShipmentOrderImportController extends AbstractRestController {
+public class DeliveryOrderImportController extends AbstractRestController {
 
     @Autowired
     VanChipService vanChipService;
 
     @ApiOperation(value = "发货通知单导入")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "ShipmentOrderImportRequest")
-    @RequestMapping(value = "/shipmentOrderImport", method = RequestMethod.POST)
-    public ShipmentOrderImportResponse excute(@RequestParam MultipartFile file, @RequestParam String request) throws Exception {
-        ShipmentOrderImportRequest shipmentOrderImportRequest = DefaultParser.getObjectMapper().readerFor(ShipmentOrderImportRequest.class).readValue(request);
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "DeliveryOrderImportRequest")
+    @RequestMapping(value = "/deliveryOrderImport", method = RequestMethod.POST)
+    public DeliveryOrderImportResponse excute(@RequestParam MultipartFile file, @RequestParam String request) throws Exception {
+        DeliveryOrderImportRequest shipmentOrderImportRequest = DefaultParser.getObjectMapper().readerFor(DeliveryOrderImportRequest.class).readValue(request);
 
-        ShipmentOrderImportResponse response = new ShipmentOrderImportResponse();
+        DeliveryOrderImportResponse response = new DeliveryOrderImportResponse();
         response.getHeader().setTransactionId(shipmentOrderImportRequest.getHeader().getTransactionId());
-        ShipmentOrderImportResponseBody responseBody = new ShipmentOrderImportResponseBody();
+        DeliveryOrderImportResponseBody responseBody = new DeliveryOrderImportResponseBody();
 
         String importTypeNBTable = shipmentOrderImportRequest.getBody().getImportTypeNbTable();
         NBTable nbTable = uiService.getTableByName(importTypeNBTable);

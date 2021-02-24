@@ -21,6 +21,7 @@ public interface MmsService {
     MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, BigDecimal transQty, BigDecimal transSubQty, Map<String, Object> propsMap) throws ClientException;
     List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException;
     MLotCheckSheet iqc(MaterialLotAction materialLotJudgeAction) throws ClientException;
+    MLotCheckSheet oqc(MaterialLotAction materialLotJudgeAction) throws ClientException;
     MaterialLot issue(MaterialLot materialLot) throws ClientException;
     MaterialLot returnMLot(MaterialLot materialLot) throws ClientException;
 
@@ -60,4 +61,10 @@ public interface MmsService {
 
     Warehouse getWarehouseByName(String name) throws ClientException;
     public Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
+
+    MaterialLot holdByIqcNG(MaterialLot materialLot);
+
+    //productMaterial
+    Product createProductMaterial(Product product) throws ClientException;
+    Product saveProductMaterial(Product product) throws ClientException;
 }

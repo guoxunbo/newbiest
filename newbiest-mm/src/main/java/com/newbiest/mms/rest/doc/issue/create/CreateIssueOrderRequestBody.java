@@ -1,7 +1,6 @@
 package com.newbiest.mms.rest.doc.issue.create;
 
 import com.newbiest.base.msg.RequestBody;
-import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

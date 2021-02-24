@@ -6,15 +6,13 @@ import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBVersionControl;
 import com.newbiest.base.model.NBVersionControlHis;
-import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.*;
-import com.newbiest.commom.sm.model.StatusCategory;
+import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.commom.sm.service.StatusMachineService;
 import com.newbiest.common.exception.ContextException;
@@ -100,6 +98,9 @@ public class MmsServiceImpl implements MmsService {
 
     @Autowired
     MaterialLotHoldRepository materialLotHoldRepository;
+
+    @Autowired
+    ProductRepository productRepository;
 
     /**
      * 根据名称获取源物料。
@@ -226,7 +227,7 @@ public class MmsServiceImpl implements MmsService {
             subMaterialLot.setCurrentQty(splitQty);
             subMaterialLot.setReceiveQty(splitQty);
             subMaterialLot.setParentMaterialLot(materialLot);
-            baseService.saveEntity(materialLot, MaterialLotHistory.TRANS_TYPE_SPLIT_CREATE, materialLotAction);
+            baseService.saveEntity(subMaterialLot, MaterialLotHistory.TRANS_TYPE_SPLIT_CREATE, materialLotAction);
             return subMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -784,6 +785,20 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
+     * oqc
+     * @param materialLotAction
+     * @return
+     * @throws ClientException
+     */
+    public MLotCheckSheet oqc(MaterialLotAction materialLotAction) throws ClientException {
+        try {
+            return judgeByCheckSheet(materialLotAction, MaterialEvent.EVENT_OQC);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 判定
      * @param materialLotAction
      * @throws ClientException
@@ -1066,6 +1081,75 @@ public class MmsServiceImpl implements MmsService {
 
     public List<MaterialLot> getMLotByIncomingDocId(String incomingDocId) throws ClientException {
         return materialLotRepository.findByIncomingDocId(incomingDocId);
+    }
+
+    /**
+     * 保存成品型号
+     * @param product
+     * @return
+     * @throws ClientException
+     */
+    public Product saveProductMaterial(Product product) throws ClientException {
+        try {
+            if (product.getObjectRrn() == null ){
+                product.setActiveTime(new Date());
+                product.setActiveUser(ThreadLocalContext.getUsername());
+                product.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
+                Long version = versionControlService.getNextVersion(product);
+                product.setVersion(version);
+
+                baseService.saveEntity(product, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
+            }else {
+                NBVersionControl oldData = productRepository.findByObjectRrn(product.getObjectRrn());
+                product.setStatus(oldData.getStatus());
+
+                baseService.saveEntity(product);
+            }
+            return product;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 创建成品型号
+     * @param product
+     * @throws ClientException
+     */
+    public Product createProductMaterial(Product product) throws ClientException {
+        try {
+            product.setMaterialCategory(Material.CATEGORY_PRODUCT);
+            product.setMaterialType(Material.TYPE_PRODUCT);
+            product.setOqcSheetRrn(Product.OQC_SHEET_RRN);
+            product = this.saveProductMaterial(product);
+
+            List<MaterialStatusModel> materialStatusModels = materialStatusModelRepository.findByName(Material.DEFAULT_STATUS_MODEL);
+            if (CollectionUtils.isEmpty(materialStatusModels)){
+                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+            }
+            product.setStatusModelRrn(materialStatusModels.get(0).getObjectRrn());
+            product = productRepository.saveAndFlush(product);
+            return product;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * IQC NG Hold
+     * @param materialLot
+     */
+    public MaterialLot holdByIqcNG(MaterialLot materialLot) throws ClientException{
+        //先入库再hold 只能判断前置状态
+        if (MaterialStatus.STATUS_NG.equals(materialLot.getPreStatus()) && MaterialStatusCategory.STATUS_CATEGORY_IQC.equals(materialLot.getPreStatusCategory())){
+            List<MaterialLotAction> materialLotActionList = Lists.newArrayList();
+            MaterialLotAction materialLotAction = new MaterialLotAction();
+
+            materialLotAction.setActionCode(MaterialLotHold.IQC_NG_HOLD);
+            materialLotActionList.add(materialLotAction);
+            materialLot = this.holdMaterialLot(materialLot.getMaterialLotId(), materialLotActionList);
+        }
+        return materialLot;
     }
 
 }

@@ -181,13 +181,14 @@ public class DocumentServiceImpl implements DocumentService {
 
             returnOrder.setHandledQty(returnOrder.getHandledQty().add(handleQty));
             returnOrder.setUnHandledQty(returnOrder.getUnHandledQty().subtract(handleQty));
-            baseService.saveEntity(returnOrder, DocumentHistory.TRANS_TYPE_RETURN);
+            //baseService.saveEntity(returnOrder, DocumentHistory.TRANS_TYPE_RETURN);
+            baseService.saveEntity(returnOrder);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
-    private List<MaterialLot> validationDocReservedMLot(String documentId, List<String> validationMLotIdList) throws ClientException {
+    public List<MaterialLot> validationDocReservedMLot(String documentId, List<String> validationMLotIdList) throws ClientException {
         try {
             List<MaterialLot> materialLots = Lists.newArrayList();
             List<MaterialLot> reservedMaterialLots = getReservedMLotByDocId(documentId);

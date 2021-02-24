@@ -23,6 +23,11 @@ public class MaterialEvent extends Event {
     public static final String EVENT_IQC = "IQC";
 
     /**
+     * 出货质量检查
+     */
+    public static final String EVENT_OQC = "OQC";
+
+    /**
      * 拒绝
      */
     public static final String EVENT_REJECT = "Reject";

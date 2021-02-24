@@ -18,6 +18,8 @@ public class Warehouse extends NBUpdatable{
 
     private static final long serialVersionUID = -4573637477819603368L;
 
+    public static final String HOLD_WAREHOUSE_DESCRIPTION = "Hold仓";
+
     @Column(name="NAME")
     private String name;
 

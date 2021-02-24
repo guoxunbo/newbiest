@@ -18,6 +18,23 @@ import javax.persistence.Table;
 @Table(name="MMS_MATERIAL_LOT_HOLD")
 public class MaterialLotHold extends NBAction {
 
+    //IQC NG Hold code
+    public static final String IQC_NG_HOLD = "IQC_NG_Hold";
+
+    //Hold code
+    public static final String PRE_HOLD = "Pre_Hold";
+    public static final String S_HOLD = "S_Hold";
+    public static final String P_HOLD = "P_Hold";
+    public static final String Q_HOLD = "Q_Hold";
+    public static final String N_HOLD = "N_Hold";
+    public static final String O_MRB_HOLD = "O_MRB_Hold";
+
+    //根据字符 进行不同的hold
+    public static final String S = "S";
+    public static final String P = "P";
+    public static final String Q = "Q";
+    public static final String N = "N";
+
     @Column(name="MATERIAL_LOT_RRN")
     private String materialLotRrn;
 

@@ -33,5 +33,7 @@ public interface DocumentService {
     List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
 
     void createDeliveryOrder(String documentId, boolean approveFlag, List<DocumentLine> documentLineList) throws ClientException;
+
+    List<MaterialLot> validationDocReservedMLot(String documentId, List<String> validationMLotIdList) throws ClientException;
 }
 

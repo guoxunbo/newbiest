@@ -1,13 +1,15 @@
 package com.newbiest.mms.model;
 
-import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -54,7 +56,7 @@ public class MLotCheckSheetLine extends NBUpdatable {
     @PreUpdate
     protected void preUpdate() {
         super.preUpdate();
-        if (StringUtils.isNullOrEmpty(checkResult)) {
+        if (!StringUtils.isNullOrEmpty(checkResult)) {
             checkTime = DateUtils.now();
             checkOwner = ThreadLocalContext.getUsername();
         }
