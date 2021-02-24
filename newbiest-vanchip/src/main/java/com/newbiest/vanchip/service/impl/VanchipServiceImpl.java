@@ -12,7 +12,6 @@ import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
-import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
@@ -20,27 +19,18 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
-import com.newbiest.mms.service.PackageService;
-import com.newbiest.mms.state.model.MaterialEvent;
-import com.newbiest.mms.state.model.MaterialStatus;
-import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.vanchip.exception.VanchipExceptions;
 import com.newbiest.vanchip.model.MLotDocRule;
 import com.newbiest.vanchip.model.MLotDocRuleContext;
-import com.newbiest.vanchip.model.MesPackedLot;
-import com.newbiest.vanchip.model.MesPackedLotDetail;
 import com.newbiest.vanchip.repository.MLotDocRuleLineRepository;
 import com.newbiest.vanchip.repository.MLotDocRuleRepository;
-import com.newbiest.vanchip.repository.MesPackedLotDetailRepository;
-import com.newbiest.vanchip.repository.MesPackedLotRepository;
 import com.newbiest.vanchip.service.MesService;
 import com.newbiest.vanchip.service.VanChipService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +38,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.newbiest.vanchip.exception.VanchipExceptions.MLOT_BINDED_WORKORDER;
-import static jdk.nashorn.internal.objects.NativeString.substring;
 
 /**
  * @author guoxunbo
