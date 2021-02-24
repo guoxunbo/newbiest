@@ -128,23 +128,7 @@ public class VanchipServiceImpl implements VanChipService {
     @Autowired
     WarehouseRepository warehouseRepository;
 
-    @Autowired
-    PackageService packageService;
 
-    @Autowired
-    FinishGoodOrderRepository finishGoodOrderRepository;
-
-    @Autowired
-    MesPackedLotRepository mesPackedLotRepository;
-
-    @Autowired
-    MesPackedLotDetailRepository mesPackedLotDetailRepository;
-
-    @Autowired
-    RawMaterialRepository rawMaterialRepository;
-
-    @Autowired
-    MaterialLotUnitRepository materialLotUnitRepository;
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
@@ -648,6 +632,6 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
-   
+
 
 }
