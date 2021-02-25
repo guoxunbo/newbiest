@@ -6,7 +6,6 @@ import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author guoxunbo
@@ -36,5 +35,6 @@ public interface VanChipService {
 
     List<MaterialLot> printReservedOrder(DocumentLine documentLine) throws ClientException;
 
-    List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
+    List<MaterialLot> stockInFinishGood(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
+
 }

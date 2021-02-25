@@ -8,7 +8,7 @@ import java.util.List;
 
 
 @Data
-public class StockInResponseBody extends ResponseBody {
+public class StockInFinishGoodResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 

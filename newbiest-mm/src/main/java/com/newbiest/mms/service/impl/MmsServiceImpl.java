@@ -12,7 +12,6 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.*;
-import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.commom.sm.service.StatusMachineService;
 import com.newbiest.common.exception.ContextException;
@@ -1089,7 +1088,7 @@ public class MmsServiceImpl implements MmsService {
      * @return
      * @throws ClientException
      */
-    public Product saveProductMaterial(Product product) throws ClientException {
+    public Product saveProduct(Product product) throws ClientException {
         try {
             if (product.getObjectRrn() == null ){
                 product.setActiveTime(new Date());
@@ -1098,39 +1097,15 @@ public class MmsServiceImpl implements MmsService {
                 Long version = versionControlService.getNextVersion(product);
                 product.setVersion(version);
 
-                baseService.saveEntity(product, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
+                product = (Product) baseService.saveEntity(product, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
             }else {
                 NBVersionControl oldData = productRepository.findByObjectRrn(product.getObjectRrn());
                 product.setStatus(oldData.getStatus());
 
-                baseService.saveEntity(product);
+                product = (Product)baseService.saveEntity(product);
             }
             return product;
         } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 创建成品型号
-     * @param product
-     * @throws ClientException
-     */
-    public Product createProductMaterial(Product product) throws ClientException {
-        try {
-            product.setMaterialCategory(Material.CATEGORY_PRODUCT);
-            product.setMaterialType(Material.TYPE_PRODUCT);
-            product.setOqcSheetRrn(Product.OQC_SHEET_RRN);
-            product = this.saveProductMaterial(product);
-
-            List<MaterialStatusModel> materialStatusModels = materialStatusModelRepository.findByName(Material.DEFAULT_STATUS_MODEL);
-            if (CollectionUtils.isEmpty(materialStatusModels)){
-                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
-            }
-            product.setStatusModelRrn(materialStatusModels.get(0).getObjectRrn());
-            product = productRepository.saveAndFlush(product);
-            return product;
-        }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

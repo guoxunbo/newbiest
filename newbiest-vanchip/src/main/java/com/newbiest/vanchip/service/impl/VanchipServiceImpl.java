@@ -56,7 +56,21 @@ public class VanchipServiceImpl implements VanChipService {
     public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "ValidateReservedRule";
 
     public static final String GENERATOR_PACKAGE_BOX_QTY = "CreatePackageBoxQty" ;
-    public static final String GENERATOR_Package_Box_Lot_Id = "CreatePackageBoxLotId" ;
+    public static final String GENERATOR_PACKAGE_BOX_LOT_ID = "CreatePackageBoxLotId" ;
+
+    //Hold code
+    public static final String PRE_HOLD = "Pre_Hold";
+    public static final String S_HOLD = "S_Hold";
+    public static final String P_HOLD = "P_Hold";
+    public static final String Q_HOLD = "Q_Hold";
+    public static final String N_HOLD = "N_Hold";
+    public static final String O_MRB_HOLD = "O_MRB_Hold";
+
+    //根据字符 进行不同的hold
+    public static final String CUSTORDERID_S = "S";
+    public static final String CUSTORDERID_P = "P";
+    public static final String CUSTORDERID_Q = "Q";
+    public static final String CUSTORDERID_N = "N";
 
 
     /**
@@ -491,7 +505,7 @@ public class VanchipServiceImpl implements VanChipService {
 
 
     /**
-     * 入库
+     * mes 产品入库
      * 入库后根据条件Hold
      * 验证hold物料入hold仓
      * @param materialLots
@@ -499,14 +513,14 @@ public class VanchipServiceImpl implements VanChipService {
      * @return
      * @throws ClientException
      */
-    public List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException {
+    public List<MaterialLot> stockInFinishGood(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException {
         try {
             List<MaterialLot> materialLotList = Lists.newArrayList();
             materialLots.forEach(materialLot -> {
                 MaterialLotAction materialLotAction = materialLotActionList.stream().filter(action -> action.getMaterialLotId().equals(materialLot.getMaterialLotId())).findFirst().get();
                 MaterialLot stockInMaterialLot = mmsService.stockIn(materialLot, materialLotAction);
 
-                autoHoldByCondition(materialLot);
+                autoHoldFinishGood(materialLot);
 
                 validateHoldMLotMatchedHoldWarehouse(materialLot, materialLotAction);
 
@@ -519,19 +533,16 @@ public class VanchipServiceImpl implements VanChipService {
     }
 
     /**
-     * 根据条件自动hold
-     * 1.IQC NG hold
-     * 2.成品全部hold,根据客户订单号是否再次hold
-     * 3.TODO 外来产品，根据MRB 是否Hold
+     * 成品全部hold,根据客户订单号是否再次hold
      * @param materialLot
      */
-    public MaterialLot autoHoldByCondition(MaterialLot materialLot) throws ClientException{
+    public void autoHoldFinishGood(MaterialLot materialLot) throws ClientException{
         try {
-            materialLot = mmsService.holdByIqcNG(materialLot);
-
-            materialLot = holdFinishGood(materialLot);
-
-            return materialLot;
+            List<MaterialLotAction> materialLotActionList = getHoldFinishGoodAction(materialLot);
+            if (CollectionUtils.isNotEmpty(materialLotActionList)){
+                return;
+            }
+            mmsService.holdMaterialLot(materialLotActionList);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -541,62 +552,60 @@ public class VanchipServiceImpl implements VanChipService {
      * Hold成品，根据客户订单号是否再次Hold
      * @param materialLot
      */
-    public MaterialLot holdFinishGood(MaterialLot materialLot) throws ClientException{
+    public List<MaterialLotAction>  getHoldFinishGoodAction(MaterialLot materialLot) throws ClientException{
+        List<MaterialLotAction> materialLotActions = Lists.newArrayList();
+
         Material material = productRepository.findOneByName(materialLot.getMaterialName());
         if (material == null){
-            return materialLot;
+            return  materialLotActions;
         }
 
-        List<MaterialLotAction> materialLotActionList = Lists.newArrayList();
         MaterialLotAction materialLotAction = new MaterialLotAction();
-        materialLotAction.setActionCode(MaterialLotHold.PRE_HOLD);
-        materialLotActionList.add(materialLotAction);
-        materialLot = mmsService.holdMaterialLot(materialLot.getMaterialLotId(), materialLotActionList);
+        materialLotAction.setActionCode(PRE_HOLD);
+        materialLotActions.add(materialLotAction);
 
-        materialLot = holdByCustomerOrderId(materialLot);
-        return materialLot;
+        materialLotActions = getHoldByCustomerOrderIdAction(materialLotActions, materialLot);
+        return materialLotActions;
     }
 
     /**
      * 根据客户订单号hold
      * @param materialLot
      */
-    public MaterialLot holdByCustomerOrderId(MaterialLot materialLot) throws ClientException{
+    public List<MaterialLotAction> getHoldByCustomerOrderIdAction(List<MaterialLotAction> materialLotActions ,MaterialLot materialLot) throws ClientException{
         String customerOrderId = materialLot.getReserved6();
         if (StringUtils.isNullOrEmpty(customerOrderId)){
-            return materialLot;
+            return materialLotActions;
         }
 
         String firstCustOrderId = customerOrderId.substring(0, 1);
         String secondCustOrderId = customerOrderId.substring(1, 2);
 
-        List<MaterialLotAction> materialLotActionList = Lists.newArrayList();
         MaterialLotAction mLotAction = new MaterialLotAction();
         //根据客户订单第一位hold
         switch (firstCustOrderId){
-            case MaterialLotHold.N :
-                mLotAction.setActionCode(MaterialLotHold.N_HOLD);
-                materialLotActionList.add(mLotAction);
+            case CUSTORDERID_N :
+                mLotAction.setActionCode(N_HOLD);
+                materialLotActions.add(mLotAction);
                 break;
-            case MaterialLotHold.P :
-                mLotAction.setActionCode(MaterialLotHold.P_HOLD);
-                materialLotActionList.add(mLotAction);
+            case CUSTORDERID_P :
+                mLotAction.setActionCode(P_HOLD);
+                materialLotActions.add(mLotAction);
                 break;
-            case MaterialLotHold.Q :
-                mLotAction.setActionCode(MaterialLotHold.Q_HOLD);
-                materialLotActionList.add(mLotAction);
+            case CUSTORDERID_Q :
+                mLotAction.setActionCode(Q_HOLD);
+                materialLotActions.add(mLotAction);
                 break;
             default : break;
         }
 
         //根据客户订单第二位hold
-        if (MaterialLotHold.S.equals(secondCustOrderId)){
+        if (CUSTORDERID_S.equals(secondCustOrderId)){
             MaterialLotAction action = new MaterialLotAction();
-            action.setActionCode(MaterialLotHold.S_HOLD);
-            materialLotActionList.add(action);
+            action.setActionCode(S_HOLD);
+            materialLotActions.add(action);
         }
-        materialLot = mmsService.holdMaterialLot(materialLot.getMaterialLotId(), materialLotActionList);
-        return materialLot;
+        return materialLotActions;
     }
 
     /**
@@ -610,7 +619,7 @@ public class VanchipServiceImpl implements VanChipService {
             Warehouse warehouse = warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
             materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
             if (MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
-                if (!Warehouse.HOLD_WAREHOUSE_DESCRIPTION.contains(warehouse.getDescription())){
+                if (!Warehouse.HOLD_WAREHOUSE_TYPE.contains(warehouse.getWarehouseType())){
                     throw new ClientParameterException(MmsException.MM_WAREHOUSE_IS_NOT_HOLD_WAREHOUSE, warehouse.getName());
                 }
             }

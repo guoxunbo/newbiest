@@ -181,8 +181,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             returnOrder.setHandledQty(returnOrder.getHandledQty().add(handleQty));
             returnOrder.setUnHandledQty(returnOrder.getUnHandledQty().subtract(handleQty));
-            //baseService.saveEntity(returnOrder, DocumentHistory.TRANS_TYPE_RETURN);
-            baseService.saveEntity(returnOrder);
+            baseService.saveEntity(returnOrder, DocumentHistory.TRANS_TYPE_RETURN);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

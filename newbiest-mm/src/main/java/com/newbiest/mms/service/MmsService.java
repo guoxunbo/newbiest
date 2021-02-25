@@ -64,7 +64,6 @@ public interface MmsService {
 
     MaterialLot holdByIqcNG(MaterialLot materialLot);
 
-    //productMaterial
-    Product createProductMaterial(Product product) throws ClientException;
-    Product saveProductMaterial(Product product) throws ClientException;
+    //product
+    Product saveProduct(Product product) throws ClientException;
 }

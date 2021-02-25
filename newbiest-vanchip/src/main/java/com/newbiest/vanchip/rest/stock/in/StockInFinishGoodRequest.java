@@ -6,12 +6,12 @@ import lombok.Data;
 
 @Data
 @ApiModel
-public class StockInRequest extends Request {
+public class StockInFinishGoodRequest extends Request {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String MESSAGE_NAME = "MaterialLotStockIn";
+	public static final String MESSAGE_NAME = "StockInFinishGood";
 
-	private StockInRequestBody body;
+	private StockInFinishGoodRequestBody body;
 
 }

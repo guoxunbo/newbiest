@@ -5,10 +5,10 @@ import lombok.Data;
 
 
 @Data
-public class StockInResponse extends Response {
+public class StockInFinishGoodResponse extends Response {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private StockInResponseBody body;
+	private StockInFinishGoodResponseBody body;
 	
 }
