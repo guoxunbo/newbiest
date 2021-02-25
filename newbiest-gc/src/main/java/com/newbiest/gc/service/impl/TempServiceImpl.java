@@ -133,24 +133,24 @@ public class TempServiceImpl implements TempService {
                 } else {
                     propMap.put("reserved13", MaterialLot.HK_WAREHOUSE);
                 }
-                propMap.put("reserved14", firstTempCpModel.getPointId().trim());
+                propMap.put("reserved14", firstTempCpModel.getPointId() == null ? "": firstTempCpModel.getPointId().trim());
 
                 propMap.put("created", firstTempCpModel.getInTime());
                 propMap.put("receiveDate", firstTempCpModel.getInTime());
-                propMap.put("reserved1", firstTempCpModel.getSecondCode().trim());
-                propMap.put("reserved6", firstTempCpModel.getLocation().trim());
+                propMap.put("reserved1", firstTempCpModel.getSecondCode() == null ? "": firstTempCpModel.getSecondCode().trim());
+                propMap.put("reserved6", firstTempCpModel.getLocation() == null ? "" : firstTempCpModel.getLocation().trim());
                 propMap.put("reserved7", MaterialLotUnit.PRODUCT_CLASSIFY_CP);//CP0
-                propMap.put("reserved22", firstTempCpModel.getVendor().trim());
-                propMap.put("reserved27", firstTempCpModel.getPoNo().trim());
-                propMap.put("reserved46", firstTempCpModel.getWoId().trim());
-                propMap.put("reserved24", firstTempCpModel.getFabDevice().trim());
-                propMap.put("reserved39", firstTempCpModel.getCartonNo().trim());
-                propMap.put("reserved29", firstTempCpModel.getInvoiceId().trim());
-                propMap.put("reserved25", firstTempCpModel.getDataValue5().trim());
-                propMap.put("reserved4", firstTempCpModel.getProdRemarkDesc().trim());
+                propMap.put("reserved22", firstTempCpModel.getVendor() == null ? "": firstTempCpModel.getVendor().trim());
+                propMap.put("reserved27", firstTempCpModel.getPoNo() == null ? "": firstTempCpModel.getPoNo().trim());
+                propMap.put("reserved46", firstTempCpModel.getWoId() == null ? "": firstTempCpModel.getWoId().trim());
+                propMap.put("reserved24", firstTempCpModel.getFabDevice() == null ? "": firstTempCpModel.getFabDevice().trim());
+                propMap.put("reserved39", firstTempCpModel.getCartonNo() == null ? "": firstTempCpModel.getCartonNo().trim());
+                propMap.put("reserved29", firstTempCpModel.getInvoiceId() == null ? "": firstTempCpModel.getInvoiceId().trim());
+                propMap.put("reserved25", firstTempCpModel.getDataValue5() == null ? "": firstTempCpModel.getDataValue5().trim());
+                propMap.put("reserved4", firstTempCpModel.getProdRemarkDesc() == null ? "": firstTempCpModel.getProdRemarkDesc().trim());
                 propMap.put("reserved47", fileName);
 
-                String holdReason = firstTempCpModel.getDataValue6().trim();
+                String holdReason = firstTempCpModel.getDataValue6() == null ? "": firstTempCpModel.getDataValue6().trim();
                 if (firstTempCpModel.getDataValue8().equals("1")) {
                     propMap.put("holdState", MaterialLot.HOLD_STATE_ON);
                     propMap.put("holdReason", holdReason);
