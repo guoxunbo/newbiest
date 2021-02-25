@@ -80,7 +80,7 @@ public class TempServiceImpl implements TempService {
             Set<String> materialNameSet = tempCpModelList.stream().map(TempCpModel :: getDataValue18).collect(Collectors.toSet());
             for (String materialName : materialNameSet) {
                 // 如果是-2则是rawMaterial.其他都是产品
-                if (materialName.endsWith("-2")) {
+                if (materialName.endsWith("-2") || materialName.endsWith("-2.5") || materialName.endsWith("-3")) {
                     RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
                     if (rawMaterial == null) {
                         rawMaterial = new RawMaterial();
@@ -167,6 +167,7 @@ public class TempServiceImpl implements TempService {
                     materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                     materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                     materialLotUnit.setLotId(materialLot.getMaterialLotId());
+                    materialLotUnit.setState(MaterialLotUnit.STATE_IN);
                     materialLotUnit.setCurrentQty(new BigDecimal(tempCpModel.getDataValue7()));
                     materialLotUnit.setReceiveQty(new BigDecimal(tempCpModel.getDataValue7()));
                     materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
