@@ -40,7 +40,4 @@ public class MmsException {
     public static final String MM_PRODUCT_IS_EXIST = "mm.product_is_exist";
     public static final String MM_PRODUCT_IS_NOT_EXIST = "mm.product_is_not_exist";
 
-    public static final String MM_WAREHOUSE_AND_STORAGE_IS_NOT_SAME = "mm.warehouse_and_storage_is_not_same";
-    public static final String MM_WAREHOUSE_IS_NOT_HOLD_WAREHOUSE = "mm.warehouse_is_not_hold_warehouse";
-
 }

@@ -12,6 +12,7 @@ import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.PropertyUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
+import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
@@ -19,18 +20,27 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.service.PackageService;
+import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatus;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.vanchip.exception.VanchipExceptions;
 import com.newbiest.vanchip.model.MLotDocRule;
 import com.newbiest.vanchip.model.MLotDocRuleContext;
+import com.newbiest.vanchip.model.MesPackedLot;
+import com.newbiest.vanchip.model.MesPackedLotDetail;
 import com.newbiest.vanchip.repository.MLotDocRuleLineRepository;
 import com.newbiest.vanchip.repository.MLotDocRuleRepository;
+import com.newbiest.vanchip.repository.MesPackedLotDetailRepository;
+import com.newbiest.vanchip.repository.MesPackedLotRepository;
 import com.newbiest.vanchip.service.MesService;
 import com.newbiest.vanchip.service.VanChipService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +65,7 @@ public class VanchipServiceImpl implements VanChipService {
     public static final String TRANS_TYPE_UNRESERVED = "UNRESERVED";
     public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "ValidateReservedRule";
 
+    //VanChip 外箱ID生成规则
     public static final String GENERATOR_PACKAGE_BOX_QTY = "CreatePackageBoxQty" ;
     public static final String GENERATOR_PACKAGE_BOX_LOT_ID = "CreatePackageBoxLotId" ;
 
@@ -556,7 +567,7 @@ public class VanchipServiceImpl implements VanChipService {
         List<MaterialLotAction> materialLotActions = Lists.newArrayList();
 
         Material material = productRepository.findOneByName(materialLot.getMaterialName());
-        if (material == null){
+        if (!Material.CLASS_PRODUCT.equals(material.getClazz())){
             return  materialLotActions;
         }
 
@@ -620,7 +631,7 @@ public class VanchipServiceImpl implements VanChipService {
             materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
             if (MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
                 if (!Warehouse.HOLD_WAREHOUSE_TYPE.contains(warehouse.getWarehouseType())){
-                    throw new ClientParameterException(MmsException.MM_WAREHOUSE_IS_NOT_HOLD_WAREHOUSE, warehouse.getName());
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, warehouse.getName());
                 }
             }
         }catch (Exception e){

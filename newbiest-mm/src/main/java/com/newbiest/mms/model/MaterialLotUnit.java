@@ -82,9 +82,6 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name="STORE_UOM")
     private String storeUom;
 
-    @Column(name = "LEVEL_TWO_CODE")
-    private String levelTwoCode;
-
     @Column(name = "GRADE")
     private String grade;
 

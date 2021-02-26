@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.mlot.release;
+package com.newbiest.mms.rest.materiallot.release;
 
 import com.newbiest.base.msg.Request;
 import io.swagger.annotations.ApiModel;

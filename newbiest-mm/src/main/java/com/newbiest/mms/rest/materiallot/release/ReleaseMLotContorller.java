@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.mlot.release;
+package com.newbiest.mms.rest.materiallot.release;
 
 import com.newbiest.mms.service.MmsService;
 import io.swagger.annotations.Api;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
-@RequestMapping("vc")
-@Api(value="/vc", tags="Vanchip", description = "Vanchip客制化接口")
+@RequestMapping("/mms")
+@Api(value="/mms", tags="Vanchip", description = "Vanchip客制化接口")
 public class ReleaseMLotContorller {
 
     @Autowired

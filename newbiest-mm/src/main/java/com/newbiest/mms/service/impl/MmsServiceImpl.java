@@ -12,6 +12,7 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.*;
+import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.commom.sm.service.StatusMachineService;
 import com.newbiest.common.exception.ContextException;
@@ -1096,6 +1097,13 @@ public class MmsServiceImpl implements MmsService {
                 product.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
                 Long version = versionControlService.getNextVersion(product);
                 product.setVersion(version);
+
+                MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
+                if (statusModel == null) {
+                    throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+
+                }
+                product.setStatusModelRrn(statusModel.getObjectRrn());
 
                 product = (Product) baseService.saveEntity(product, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
             }else {

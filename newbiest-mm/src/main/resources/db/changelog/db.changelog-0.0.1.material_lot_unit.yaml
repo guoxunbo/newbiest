@@ -10,7 +10,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: OBJECT_RRN
-                  type: bigint
+                  type: varchar(32)
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -97,10 +97,6 @@ databaseChangeLog:
                   name: STORE_UOM
                   type: varchar(64)
                   remarks: 库存单位
-              - column:
-                  name: LEVEL_TWO_CODE
-                  type: varchar(64)
-                  remarks: 二级代码
               - column:
                   name: GRADE
                   type: varchar(64)
