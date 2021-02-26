@@ -437,6 +437,7 @@ public class PackageServiceImpl implements PackageService{
                 action.setTargetWarehouseRrn(Long.parseLong(packedMaterialLot.getReserved13()));
                 action.setTargetStorageId(packedMaterialLot.getReserved14());
                 action.setTransQty(packedMaterialLot.getCurrentQty());
+                action.setTransCount(packedMaterialLot.getCurrentSubQty());
                 mmsService.stockIn(packedMaterialLot, action);
             }
 

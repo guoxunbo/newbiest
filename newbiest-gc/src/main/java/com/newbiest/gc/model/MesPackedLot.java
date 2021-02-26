@@ -174,4 +174,16 @@ public class MesPackedLot implements Serializable {
      */
     @Transient
     private String fabDevice;
+
+    /**
+     * PRODUCT_TYPE
+     */
+    @Transient
+    private String productType;
+
+    /**
+     * IMPORT_TYPE
+     */
+    @Transient
+    private String importType;
 }

@@ -2512,6 +2512,8 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved6", mesPackedLot.getBondedProperty());
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
+                    otherReceiveProps.put("productType", mesPackedLot.getProductType());
+                    otherReceiveProps.put("reserved49", mesPackedLot.getImportType());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     otherReceiveProps.put("reserved24", mesPackedLot.getFabDevice());
                     if(mesPackedLotRelation != null && MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
@@ -3971,6 +3973,8 @@ public class GcServiceImpl implements GcService {
             MesPackedLot packedLot = new MesPackedLot();
             String subName = StringUtils.EMPTY;
             String fabDevice = StringUtils.EMPTY;
+            String productType = StringUtils.EMPTY;
+            String importType = StringUtils.EMPTY;
             String inFlag = mesPackedLot.getInFlag();
             String productCategory = mesPackedLot.getProductCategory();
             List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndState(mesPackedLot.getWaferId(), MaterialLotUnit.STATE_ISSUE);
@@ -3993,12 +3997,25 @@ public class GcServiceImpl implements GcService {
                     fabDevice = materialLotUnits.get(0).getReserved24();
                 }
             }
+            String productClassify = StringUtils.EMPTY;
+            if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
+                productClassify = MaterialLotUnit.PRODUCT_CLASSIFY_WLT;
+            } else if(MaterialLotUnit.PRODUCT_CATEGORY_CP.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(productCategory)){
+                productClassify = MaterialLotUnit.PRODUCT_CLASSIFY_CP;
+            }
+            List<MaterialLot> materialLotList = materialLotRepository.findByLotIdAndReserved7AndStatusCategoryAndStatus(mesPackedLot.getCstId(), productClassify, MaterialLot.STATUS_FIN, MaterialLotUnit.STATE_ISSUE);
+            if(CollectionUtils.isNotEmpty(materialLotList)){
+                productType = materialLotList.get(0).getProductType();
+                importType = materialLotList.get(0).getReserved49();
+            }
 
             PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
             String mLotId = mmsService.generatorMLotId(material);
             packedLot.setBoxId(mLotId);
             packedLot.setPackedLotRrn(null);
             packedLot.setSubName(subName);
+            packedLot.setProductType(productType);
+            packedLot.setImportType(importType);
             packedLot.setWaferId("");
             packedLot.setFabDevice(fabDevice);
             packedLot.setQuantity(totalQty.intValue());
