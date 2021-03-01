@@ -3806,7 +3806,8 @@ public class GcServiceImpl implements GcService {
                 materialLotUnit.setReserved47(materialLot.getReserved47());
                 materialLotUnit.setReserved48(materialLot.getReserved48());
                 materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR_CP);
-                materialLotUnit.setReserved50("1");
+                String waferSource = valiateMaterialNameAndGetWaferSource(materialLot.getMaterialName());
+                materialLotUnit.setReserved50(waferSource);
                 materialLotUnit.setUnitId(unitIdArray[i]);
                 materialLotUnitList.add(materialLotUnit);
             }
@@ -4736,13 +4737,8 @@ public class GcServiceImpl implements GcService {
                     }
                     for(String materialName : mLotUnitMap.keySet()){
                         //通过晶圆型号末尾的数字获取不同的Wafer Source
-                        if(materialName.endsWith("-1") || materialName.endsWith("-2")){
-                            waferSource = MaterialLot.WAFER_SOURCE_END1;
-                        } else if(materialName.endsWith("-2.1")) {
-                            waferSource = MaterialLot.WAFER_SOURCE_END2;
-                        } else {
-                            throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_ERROR, materialName);
-                        }
+                        waferSource = valiateMaterialNameAndGetWaferSource(materialName);
+
                         List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
                         for(MaterialLotUnit materialLotUnit : materialLotUnits){
                             materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
@@ -4802,6 +4798,28 @@ public class GcServiceImpl implements GcService {
             }
             return materialLotUnitList;
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * SensorCp型号的晶圆型号验证并获取WaferSource
+     * @param materialName
+     * @return
+     * @throws ClientException
+     */
+    private String valiateMaterialNameAndGetWaferSource(String materialName) throws ClientException{
+        try {
+            String waferSource = StringUtils.EMPTY;
+            if(materialName.endsWith("-1") || materialName.endsWith("-2") || materialName.endsWith("-1.3")){
+                waferSource = MaterialLot.WAFER_SOURCE_END1;
+            } else if(materialName.endsWith("-2.1") || materialName.endsWith("-1.1") || materialName.endsWith("-1.4")) {
+                waferSource = MaterialLot.WAFER_SOURCE_END2;
+            } else {
+                throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_ERROR, materialName);
+            }
+            return waferSource;
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
