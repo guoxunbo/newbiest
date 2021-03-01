@@ -4238,6 +4238,25 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }
+
+            //对已经装箱的真空包Release的时候，所有的真空包都release之后，清除箱号hold标记
+            Map<String, List<MaterialLot>> packedMLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            for(String packedMLotId : packedMLotMap.keySet()){
+                List<MaterialLot> packedMLotDetials = materialLotRepository.getByParentMaterialLotId(packedMLotId);
+                List<MaterialLot> holdMLotList = packedMLotDetials.stream().filter(materialLot -> MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())).collect(Collectors.toList());
+                if(CollectionUtils.isEmpty(holdMLotList)){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(packedMLotId);
+                    materialLot.setHoldState(MaterialLot.HOLD_STATE_OFF);
+                    materialLot.setHoldReason(StringUtils.EMPTY);
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RELEASE);
+                    history.setActionComment(remarks);
+                    history.setActionReason(ReleaseReason);
+                    materialLotHistoryRepository.save(history);
+                }
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
