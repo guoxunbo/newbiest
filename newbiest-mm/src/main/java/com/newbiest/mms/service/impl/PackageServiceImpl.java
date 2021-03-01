@@ -440,16 +440,6 @@ public class PackageServiceImpl implements PackageService{
             }
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 
-            //装箱之后对箱号做入库操作
-            if(!StringUtils.isNullOrEmpty(packedMaterialLot.getReserved14())){
-                MaterialLotAction action = new MaterialLotAction();
-                action.setTargetWarehouseRrn(Long.parseLong(packedMaterialLot.getReserved13()));
-                action.setTargetStorageId(packedMaterialLot.getReserved14());
-                action.setTransQty(packedMaterialLot.getCurrentQty());
-                action.setTransCount(packedMaterialLot.getCurrentSubQty());
-                mmsService.stockIn(packedMaterialLot, action);
-            }
-
             // 记录创建历史
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE);
             history.buildByMaterialLotAction(firstMaterialAction);

@@ -1072,7 +1072,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         //TODO 此处为GC客制化
         // 清除中转箱号以及库位号 清空场外LOTID号
         this.setReserved8(StringUtils.EMPTY);
-//        this.setReserved14(StringUtils.EMPTY);
+        this.setReserved14(StringUtils.EMPTY);
         this.setLotId(StringUtils.EMPTY);
 
         // 清空备货相关信息
