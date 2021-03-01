@@ -642,6 +642,23 @@ public class GcServiceImpl implements GcService {
                 }
                 materialLot.setReserved14(storageId);
                 materialLotRepository.save(materialLot);
+
+                //如果箱号入库位，将箱中所有真空包或Lot的库位号更新
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    List<MaterialLot> packDetials = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                    if(CollectionUtils.isNotEmpty(packDetials)){
+                        for(MaterialLot packedLot: packDetials){
+                            packedLot.setReserved14(storageId);
+                            if(StringUtils.isNullOrEmpty(materialLot.getReserved8())){
+                                packedLot.setReserved8(materialLot.getReserved8());
+                            }
+                            packedLot = materialLotRepository.saveAndFlush(packedLot);
+
+                            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_TRANSFER_PARENT);
+                            materialLotHistoryRepository.save(history);
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
