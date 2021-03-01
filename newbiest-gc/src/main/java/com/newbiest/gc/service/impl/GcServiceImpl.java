@@ -7676,7 +7676,9 @@ public class GcServiceImpl implements GcService {
                 for(String parentMaterialLotId : packedLotMap.keySet()){
                     MaterialLot materialLot = mmsService.getMLotByMLotId(parentMaterialLotId, true);
                     BigDecimal unreservedQty = materialLot.getCurrentQty().subtract(materialLot.getReservedQty());
-                    if(totalNumber.compareTo(unreservedQty) == 0){
+                    if(MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
+                        zeroBoxMLots.add(materialLot);
+                    } else if(totalNumber.compareTo(unreservedQty) == 0){
                         wholeBoxMLots.add(materialLot);
                     } else if(totalNumber.compareTo(unreservedQty) > 0){
                         zeroBoxMLots.add(materialLot);
@@ -7728,7 +7730,14 @@ public class GcServiceImpl implements GcService {
                 if(CollectionUtils.isNotEmpty(zeroBoxMLots)){
                     List<MaterialLot> zeroBoxMLotList = zeroBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
                     for (MaterialLot materialLot: zeroBoxMLotList){
-                        BigDecimal unreservedQty = materialLot.getCurrentQty().subtract(materialLot.getReservedQty());
+                        BigDecimal unreservedQty = BigDecimal.ZERO;
+                        if(MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
+                            List<MaterialLot> mLotDetials = packedLotMap.get(materialLot.getMaterialLotId());
+                            Long totalUnhandledQty = mLotDetials.stream().collect(Collectors.summingLong(mLot -> mLot.getCurrentQty().longValue()));
+                            unreservedQty = new BigDecimal(totalUnhandledQty);
+                        } else {
+                            unreservedQty = materialLot.getCurrentQty().subtract(materialLot.getReservedQty());
+                        }
                         if(totalQty.compareTo(unreservedQty) >= 0){
                             materialLotList.addAll(packedLotMap.get(materialLot.getMaterialLotId()));
                             totalQty = totalQty.subtract(unreservedQty);
