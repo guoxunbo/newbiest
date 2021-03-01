@@ -117,7 +117,7 @@ public class PackageServiceImpl implements PackageService{
 
             packedMaterialLot = mmsService.getMLotByMLotId(packedMaterialLot.getMaterialLotId(), true);
             packedMaterialLot.isFinish();
-            packedMaterialLot.validateMLotHold();
+
             // 取第一个的materialAction作为所有者的actionCode
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
             List<MaterialLot> allMaterialLot = Lists.newArrayList();
@@ -310,6 +310,15 @@ public class PackageServiceImpl implements PackageService{
                 packedMaterialLot.setReserved16(packedMaterialLots.get(0).getReserved16());
                 packedMaterialLot.setReserved17(packedMaterialLots.get(0).getReserved17());
                 packedMaterialLot.setReserved18(packedMaterialLots.get(0).getReserved18());
+
+                //如果箱号被Hold,箱中被Hold的真空包全部被拆除，Release箱号
+                if(MaterialLot.HOLD_STATE_ON.equals(packedMaterialLot.getHoldState())){
+                    List<MaterialLot> holdMLotList = packedMaterialLots.stream().filter(materialLot -> MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())).collect(Collectors.toList());
+                    if(CollectionUtils.isEmpty(holdMLotList)){
+                        packedMaterialLot.setHoldState(MaterialLot.HOLD_STATE_OFF);
+                        packedMaterialLot.setHoldReason(StringUtils.EMPTY);
+                    }
+                }
             }
 
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
