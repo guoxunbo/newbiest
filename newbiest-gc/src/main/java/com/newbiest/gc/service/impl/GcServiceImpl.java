@@ -4197,6 +4197,21 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }
+
+            //对已经装箱的真空包HOLD时，对箱号也做Hold标记
+            Map<String, List<MaterialLot>> packedMLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            for (String parentMaterialLotId : packedMLotMap.keySet()){
+                MaterialLot materialLot = mmsService.getMLotByMLotId(parentMaterialLotId);
+                materialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
+                history.setActionComment(remarks);
+                history.setActionReason(holdReason);
+                materialLotHistoryRepository.save(history);
+            }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
