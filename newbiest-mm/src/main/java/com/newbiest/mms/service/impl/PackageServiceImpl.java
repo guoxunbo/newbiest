@@ -506,7 +506,7 @@ public class PackageServiceImpl implements PackageService{
                                         boolean subtractQtyFlag, boolean updateParentMLotFlag) throws ClientException {
         // 对物料批次做package事件处理 扣减物料批次数量
         for (MaterialLot materialLot : waitToPackingLot) {
-            materialLot.clearPackedMaterialLot();
+//            materialLot.clearPackedMaterialLot();
 
             String materialLotId = materialLot.getMaterialLotId();
             MaterialLotAction materialLotAction = materialLotActions.stream().filter(action -> materialLotId.equals(action.getMaterialLotId())).findFirst().get();
