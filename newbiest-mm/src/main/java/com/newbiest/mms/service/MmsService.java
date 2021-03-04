@@ -66,4 +66,5 @@ public interface MmsService {
 
     //product
     Product saveProduct(Product product) throws ClientException;
+    Product getProductByName(String name) throws ClientException;
 }

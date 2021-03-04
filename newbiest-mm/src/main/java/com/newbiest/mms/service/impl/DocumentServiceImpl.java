@@ -76,6 +76,9 @@ public class DocumentServiceImpl implements DocumentService {
     @Autowired
     DeliveryOrderRepository deliveryOrderRepository;
 
+    @Autowired
+    ReTestOrderRepository reTestOrderRepository;
+
     /**
      * 创建发货单
      * @param documentId         单据号 不传，系统会自己生成一个
@@ -426,5 +429,75 @@ public class DocumentServiceImpl implements DocumentService {
         generatorContext.setRuleName(generatorRule);
         return generatorService.generatorId(generatorContext);
     }
+
+    /**
+     * 创建重测发料单
+     * @param documentId
+     * @param approveFlag
+     * @param materialLotIdList
+     */
+    public void createReTestOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException{
+        try {
+            if (StringUtils.isNullOrEmpty(documentId)) {
+                documentId = generatorDocId(ReTestOrder.GENERATOR_RETEST_ORDER_ID_RULE);
+            }
+            ReTestOrder reTestOrder = reTestOrderRepository.findOneByName(documentId);
+            if (reTestOrder != null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
+            }
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
+            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+
+            reTestOrder = new ReTestOrder();
+            reTestOrder.setName(documentId);
+            reTestOrder.setQty(totalQty);
+            reTestOrder.setUnHandledQty(totalQty);
+            if (approveFlag) {
+                reTestOrder.setStatus(Document.STATUS_APPROVE);
+            }
+            reTestOrder = (ReTestOrder) baseService.saveEntity(reTestOrder);
+
+            for (MaterialLot materialLot : materialLots) {
+                DocumentMLot documentMLot = new DocumentMLot();
+                documentMLot.setDocumentId(reTestOrder.getName());
+                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
+                documentMLotRepository.save(documentMLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 重测发料
+     */
+    public void reTestMLotByDoc(String reTestOrderId, List<String> materialLotIdList) throws ClientException{
+        try {
+            ReTestOrder reTestOrder = reTestOrderRepository.findOneByName(reTestOrderId);
+            if (reTestOrder == null) {
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, reTestOrder.getName());
+            }
+            if (!Document.STATUS_APPROVE.equals(reTestOrder.getStatus())) {
+                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, reTestOrder.getName());
+            }
+            List<MaterialLot> materialLots = validationDocReservedMLot(reTestOrderId, materialLotIdList);
+
+            BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+            for (MaterialLot materialLot : materialLots) {
+                materialLot.setCurrentQty(BigDecimal.ZERO);
+                materialLot.setCurrentSubQty(BigDecimal.ZERO);
+                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_RETEST, StringUtils.EMPTY);
+
+                baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_RETEST);
+            }
+            reTestOrder.setHandledQty(reTestOrder.getHandledQty().add(handleQty));
+            reTestOrder.setUnHandledQty(reTestOrder.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(reTestOrder, DocumentHistory.TRANS_TYPE_RETEST);
+
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 
 }

@@ -1118,6 +1118,14 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    public Product getProductByName(String name) throws ClientException {
+        try {
+            return productRepository.findOneByName(name);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * IQC NG Hold
      * @param materialLot

@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: create-mms_material_lot_unit-table
+      id: create_mms_material_lot_unit_table
       author: Tao Zhou
       comment: Create table mms_material_lot_unit
       changes:
@@ -11,7 +11,6 @@ databaseChangeLog:
               - column:
                   name: OBJECT_RRN
                   type: varchar(32)
-                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false

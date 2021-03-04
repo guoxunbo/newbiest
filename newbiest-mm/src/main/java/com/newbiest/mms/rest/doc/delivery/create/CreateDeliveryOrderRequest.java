@@ -8,7 +8,10 @@ import lombok.Data;
 @ApiModel
 public class CreateDeliveryOrderRequest extends Request {
 
-    public static final String MESSAGE_NAME = "ShipmentOrder";
+    public static final String MESSAGE_NAME = "DeliveryOrder";
+
+    public static final String ACTION_TYPE_CREATE = "createDelivery";
+    public static final String ACTION_TYPE_APPROVE = "approveDelivery";
 
     private CreateDeliveryOrderRequestBody body;
 }

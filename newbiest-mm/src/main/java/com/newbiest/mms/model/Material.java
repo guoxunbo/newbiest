@@ -50,6 +50,8 @@ public class Material extends NBVersionControl {
 
     public static final String OQC_SHEET_NAME = "OQC出货检验记录";
 
+    public static final String TYPE_PRODUCT = "Product";
+
 
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;
