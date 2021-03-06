@@ -2,9 +2,9 @@ JAVA_DIR=""
 APPLICATION_PORT=""
 RUN_MODE=""
 LOG_PATH=""
-DEBUG_FLAG="true"
-OPEN_GC_LOG="true"
-SBA_MONITOR_FLAG="true"
+DEBUG_FLAG="false"
+OPEN_GC_LOG="false"
+SBA_MONITOR_FLAG="false"
 
 . ./setEnv.sh
 
