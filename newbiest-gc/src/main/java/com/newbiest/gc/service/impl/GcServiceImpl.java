@@ -1223,6 +1223,9 @@ public class GcServiceImpl implements GcService {
                 waferIssueWithOutDocument(materialLots);
             }
 
+            //将晶圆信息保存至Mes backendWaferReceive表中
+            mesService.saveBackendWaferReceive(materialLots);
+
             if(StringUtils.isNullOrEmpty(unPlanLot)){
                 boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
                 log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
@@ -1402,10 +1405,6 @@ public class GcServiceImpl implements GcService {
     private void changeMLotUnitStateAndSaveMesWaferBackendWaferReceive(MaterialLot materialLot) throws ClientException{
         try {
             List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
-            String waferType = null;
-            if(MaterialLot.IMPORT_WLT.equals(materialLot.getReserved7())){
-                waferType = MesWaferReceive.DEFAULT_WAFER_TYPE;
-            }
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
                 materialLotUnit.setState(MaterialLotUnit.STATE_ISSUE);
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
@@ -1413,36 +1412,7 @@ public class GcServiceImpl implements GcService {
                 MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, GCMaterialEvent.EVENT_WAFER_ISSUE);
                 history.setTransQty(materialLotUnit.getCurrentQty());
                 materialLotUnitHisRepository.save(history);
-
-                //发料成功，将晶圆信息保存到MES的BACKEND_WAFER_RECEIVE表中
-                saveMesBackendWaferReceive(materialLotUnit,waferType);
             }
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    private void saveMesBackendWaferReceive(MaterialLotUnit materialLotUnit,String waferType) throws ClientException{
-        try {
-            MesWaferReceive waferReceive = new MesWaferReceive();
-            waferReceive.setMaterialLotUnit(materialLotUnit);
-            Warehouse warehouse = new Warehouse();
-            if(!StringUtils.isNullOrEmpty(materialLotUnit.getReserved13())){
-                warehouse = warehouseRepository.getOne(Long.parseLong(materialLotUnit.getReserved13()));
-            }
-            waferReceive.setStockId(warehouse.getName());
-            if(!StringUtils.isNullOrEmpty(waferType)){
-                waferReceive.setWaferType(MesWaferReceive.DEFAULT_WAFER_TYPE);
-            }
-            waferReceive = mesWaferReceiveRepository.saveAndFlush(waferReceive);
-
-            //mes的晶圆历史表中记录晶圆发料历史
-            MesWaferReceiveHis mesWaferReceiveHis = new MesWaferReceiveHis();
-            mesWaferReceiveHis.setTransType(MesWaferReceiveHis.TRNAS_TYPE_ISSUE);
-            PropertyUtils.copyProperties(waferReceive, mesWaferReceiveHis, new HistoryBeanConverter());
-            mesWaferReceiveHis.setObjectRrn(null);
-            mesWaferReceiveHisRepository.save(mesWaferReceiveHis);
-
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -8584,6 +8554,9 @@ public class GcServiceImpl implements GcService {
             }
 
             waferIssueWithOutDocument(materialLots);
+
+            //将晶圆信息保存至Mes backendWaferReceive表中
+            mesService.saveBackendWaferReceive(materialLots);
 
             boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
             log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
