@@ -1,5 +1,12 @@
 vc:
-  mesUrl: http://110.39.0.53/mycim2
+  mesUrl: http://10.39.0.49/mycim2
+#设置server的基本信息
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+  port: 8080
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
@@ -7,7 +14,7 @@ license:
 publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
 spring:
   application:
-    name: starter
+    name: vcim
   jpa:
     show-sql: true
     properties:
@@ -17,14 +24,14 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 10.39.0.61)(PORT = 1521))(ADDRESS = (PROTOCOL = TCP)(HOST = 10.39.0.63)(PORT = 1521))(LOAD_BALANCE = yes)(FAILOVER = yes)(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = vcdb)(FAILOVER_MODE=(TYPE = SELECT)(METHOD = BASIC)(RETIRES = 180)(DELAY = 15))))
-      username: wmsprod
-      password: wmsprod
+      url: jdbc:oracle:thin:@10.39.0.49:1521:orcl
+      username: wmstest
+      password: wmstest
       driver-class-name: oracle.jdbc.OracleDriver
       # 初始化连接池 最小 最大数量
-      initial-size: 30
-      min-idle: 30
-      max-active: 150
+      initial-size: 20
+      min-idle: 20
+      max-active: 50
       # 获取连接最大等待时间
       max-wait: 60000
       # 间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
@@ -35,10 +42,10 @@ spring:
       validation-query: select 'x' from dual
       # 检查连接的场景
       test-on-return: false
-      test-on-borrow: true
+      test-on-borrow: false
       test-while-idle: true
       # 打开PSCache，并且指定每个连接上PSCache的大小 Oracle建议打开。Mysql建议关闭
-      pool-prepared-statements: false
+      pool-prepared-statements: true
       max-pool-prepared-statement-per-connection-size: 20
       # 监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙(检测SQL注入)
       filters: stat,slf4j,config
@@ -49,14 +56,12 @@ spring:
       stat-view-servlet:
         enabled: true
         reset-enable: true
-        allow: 127.0.0.1
-        deny: 192.168.1.73
       filter:
         # 慢SQL监控
         stat:
           log-slow-sql: true
           slow-sql-millis: 3000
-          merge-sql: true
+          merge-sql: false
         # 数据库密码加密
         config:
           enabled: true
@@ -74,22 +79,53 @@ spring:
           starttls:
             enable: true
             required: true
-#设置server的基本信息
-server:
+  boot:
+    admin:
+      client:
+        url: http://localhost:8081
+        username: admin
+        password: admin123
+        instance:
+          management-base-url: http://localhost:${server.port}
+          prefer-ip: true
+          service-base-url: http://localhost:${server.port}
   servlet:
-    session:
-      cookie:
-        http-only: true
+    multipart:
+      max-request-size: 40MB
+      max-file-size: 40MB
+      enabled: true
 # actuator配置
 show:
-  swagger: false
+  swagger: true
+gateway:
+  enable: true
+logging:
+  path: /Users/guoxunbo/Documents/newbiest/log
 management:
+  server:
+    servlet:
+      context-path: /
+    ssl:
+      enabled: false
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
         include: "*"
-  endpoint:
-    health:
-      show-details: always
-    shutdown:
-      enabled: true
+  health:
+    redis:
+      enabled: false
+    mail:
+      enabled: false
+info:
+  groupId: VCIM
+  developer: XunboGuo
+
+vcim:
+  snowflake:
+    workCenterId: 2
+    machineId: 3
