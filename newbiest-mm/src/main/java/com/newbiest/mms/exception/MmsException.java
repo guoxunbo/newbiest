@@ -37,5 +37,7 @@ public class MmsException {
     public static final String MM_IMPORT_FILE_CONTAINS_EMPTY_DATA = "mm.import_file_contains_empty_data";
     public static final String MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME = "mm.import_file_and_type_is_not_same";
 
+    public static final String MM_PRODUCT_IS_EXIST = "mm.product_is_exist";
+    public static final String MM_PRODUCT_IS_NOT_EXIST = "mm.product_is_not_exist";
 
 }

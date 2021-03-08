@@ -98,6 +98,9 @@ public class MmsServiceImpl implements MmsService {
     @Autowired
     MaterialLotHoldRepository materialLotHoldRepository;
 
+    @Autowired
+    ProductRepository productRepository;
+
     /**
      * 根据名称获取源物料。
      *  源物料不区分版本。故此处只会有1个
@@ -223,7 +226,7 @@ public class MmsServiceImpl implements MmsService {
             subMaterialLot.setCurrentQty(splitQty);
             subMaterialLot.setReceiveQty(splitQty);
             subMaterialLot.setParentMaterialLot(materialLot);
-            baseService.saveEntity(materialLot, MaterialLotHistory.TRANS_TYPE_SPLIT_CREATE, materialLotAction);
+            baseService.saveEntity(subMaterialLot, MaterialLotHistory.TRANS_TYPE_SPLIT_CREATE, materialLotAction);
             return subMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -781,6 +784,20 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
+     * oqc
+     * @param materialLotAction
+     * @return
+     * @throws ClientException
+     */
+    public MLotCheckSheet oqc(MaterialLotAction materialLotAction) throws ClientException {
+        try {
+            return judgeByCheckSheet(materialLotAction, MaterialEvent.EVENT_OQC);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 判定
      * @param materialLotAction
      * @throws ClientException
@@ -1063,6 +1080,66 @@ public class MmsServiceImpl implements MmsService {
 
     public List<MaterialLot> getMLotByIncomingDocId(String incomingDocId) throws ClientException {
         return materialLotRepository.findByIncomingDocId(incomingDocId);
+    }
+
+    /**
+     * 保存成品型号
+     * @param product
+     * @return
+     * @throws ClientException
+     */
+    public Product saveProduct(Product product) throws ClientException {
+        try {
+            if (product.getObjectRrn() == null ){
+                product.setActiveTime(new Date());
+                product.setActiveUser(ThreadLocalContext.getUsername());
+                product.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
+                Long version = versionControlService.getNextVersion(product);
+                product.setVersion(version);
+
+                MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
+                if (statusModel == null) {
+                    throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+
+                }
+                product.setStatusModelRrn(statusModel.getObjectRrn());
+
+                product = (Product) baseService.saveEntity(product, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
+            }else {
+                NBVersionControl oldData = productRepository.findByObjectRrn(product.getObjectRrn());
+                product.setStatus(oldData.getStatus());
+
+                product = (Product)baseService.saveEntity(product);
+            }
+            return product;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public Product getProductByName(String name) throws ClientException {
+        try {
+            return productRepository.findOneByName(name);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * IQC NG Hold
+     * @param materialLot
+     */
+    public MaterialLot holdByIqcNG(MaterialLot materialLot) throws ClientException{
+        //先入库再hold 只能判断前置状态
+        if (MaterialStatus.STATUS_NG.equals(materialLot.getPreStatus()) && MaterialStatusCategory.STATUS_CATEGORY_IQC.equals(materialLot.getPreStatusCategory())){
+            List<MaterialLotAction> materialLotActionList = Lists.newArrayList();
+            MaterialLotAction materialLotAction = new MaterialLotAction();
+
+            materialLotAction.setActionCode(MaterialLotHold.IQC_NG_HOLD);
+            materialLotActionList.add(materialLotAction);
+            materialLot = this.holdMaterialLot(materialLot.getMaterialLotId(), materialLotActionList);
+        }
+        return materialLot;
     }
 
 }

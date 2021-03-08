@@ -26,7 +26,7 @@ public class Material extends NBVersionControl {
     /**
      * 产品型号
      */
-    public static final String CLASS_PRODUCT = "Product";
+    public static final String CLASS_PRODUCT = "PRODUCT";
 
     /**
      * 默认状态模型
@@ -47,6 +47,11 @@ public class Material extends NBVersionControl {
      * RESIDUAL = 余量优先
      */
     public static final String DELIVERY_POLICY_RESIDUAL = "RESIDUAL";
+
+    public static final String OQC_SHEET_NAME = "OQC出货检验记录";
+
+    public static final String TYPE_PRODUCT = "Product";
+
 
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;

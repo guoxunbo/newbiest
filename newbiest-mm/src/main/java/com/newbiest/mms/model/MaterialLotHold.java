@@ -18,6 +18,9 @@ import javax.persistence.Table;
 @Table(name="MMS_MATERIAL_LOT_HOLD")
 public class MaterialLotHold extends NBAction {
 
+    //IQC NG Hold code
+    public static final String IQC_NG_HOLD = "IQC_NG_Hold";
+
     @Column(name="MATERIAL_LOT_RRN")
     private String materialLotRrn;
 

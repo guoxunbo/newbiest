@@ -6,7 +6,6 @@ import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.CollectorsUtils;
@@ -21,14 +20,14 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.vanchip.exception.VanchipExceptions;
-import com.newbiest.vanchip.model.MLotDocRule;
-import com.newbiest.vanchip.model.MLotDocRuleContext;
-import com.newbiest.vanchip.repository.MLotDocRuleLineRepository;
-import com.newbiest.vanchip.repository.MLotDocRuleRepository;
+import com.newbiest.vanchip.model.*;
+import com.newbiest.vanchip.repository.*;
 import com.newbiest.vanchip.service.MesService;
 import com.newbiest.vanchip.service.VanChipService;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +58,25 @@ public class VanchipServiceImpl implements VanChipService {
     public static final String TRANS_TYPE_RESERVED = "RESERVED";
     public static final String TRANS_TYPE_UNRESERVED = "UNRESERVED";
     public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "ValidateReservedRule";
+
+    //VanChip 外箱ID生成规则
+    public static final String GENERATOR_PACKAGE_BOX_QTY = "CreatePackageBoxQty" ;
+    public static final String GENERATOR_PACKAGE_BOX_LOT_ID = "CreatePackageBoxLotId" ;
+
+    //Hold code
+    public static final String PRE_HOLD = "Pre_Hold";
+    public static final String S_HOLD = "S_Hold";
+    public static final String P_HOLD = "P_Hold";
+    public static final String Q_HOLD = "Q_Hold";
+    public static final String N_HOLD = "N_Hold";
+    public static final String O_MRB_HOLD = "O_MRB_Hold";
+
+    //根据字符 进行不同的hold
+    public static final String CUSTORDERID_S = "S";
+    public static final String CUSTORDERID_P = "P";
+    public static final String CUSTORDERID_Q = "Q";
+    public static final String CUSTORDERID_N = "N";
+
 
     /**
      * 退料原因里是否需要Hold的关键
@@ -109,14 +127,14 @@ public class VanchipServiceImpl implements VanChipService {
     @Autowired
     DocumentLineRepository documentLineRepository;
 
-//    @Autowired
-//    FinishGoodOrderRepository finishGoodOrderRepository;
-
     @Autowired
     ProductRepository productRepository;
 
     @Autowired
     DeliveryOrderRepository deliveryOrderRepository;
+
+    @Autowired
+    WarehouseRepository warehouseRepository;
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
@@ -366,16 +384,20 @@ public class VanchipServiceImpl implements VanChipService {
      * @param documentLine
      * @return
      */
-    public List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine) {
-        DocumentLine docLine = documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
-        List<MaterialLot> materialLots = Lists.newArrayList();
+    public List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine) throws ClientException{
+        try {
+            DocumentLine docLine = documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            List<MaterialLot> materialLots = Lists.newArrayList();
 
-        //根据产品号,等级,未备货,未装箱
-        materialLots = materialLotRepository.findByMaterialNameAndGradeAndReserved44IsNullAndBoxMaterialLotIdIsNull(docLine.getReserved2(), docLine.getReserved4());
+            //根据产品号,未备货,未装箱
+            materialLots = materialLotRepository.findByMaterialNameAndReserved45IsNullAndBoxMaterialLotIdIsNull(docLine.getMaterialName());
 
-        materialLots.forEach(materialLot -> validateMLotAndDocLineByRule(docLine, materialLot, MLOT_RESERVED_DOC_VALIDATE_RULE_ID));
+            materialLots.forEach(materialLot -> validateMLotAndDocLineByRule(docLine, materialLot, MLOT_RESERVED_DOC_VALIDATE_RULE_ID));
 
-        return materialLots;
+            return materialLots;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     /**
@@ -383,43 +405,50 @@ public class VanchipServiceImpl implements VanChipService {
      * @param documentLine 发货通知单信息
      * @param materialLotActions
      */
-    public void reservedMaterialLot(DocumentLine documentLine, List<MaterialLotAction> materialLotActions){
-        String reservedRemake = materialLotActions.get(0).getActionComment();
-        String docLineObjRrn = documentLine.getObjectRrn();
-        DocumentLine deliveryDocLine = documentLineRepository.findByObjectRrn(docLineObjRrn);
-        if (deliveryDocLine == null){
-            throw new ClientParameterException(DocumentException.DOCUMENT_IS_NOT_EXIST, deliveryDocLine.getDocId());
-        }
-        DeliveryOrder deliveryOrder = deliveryOrderRepository.findOneByName(deliveryDocLine.getDocId());
-        BigDecimal unHandledQty = deliveryDocLine.getUnHandledQty();
-        BigDecimal handledQty = BigDecimal.ZERO;
-        List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-        for (MaterialLot materialLot : materialLots) {
-            materialLot.validateMLotHold();
-            validateMLotAndDocLineByRule(deliveryDocLine, materialLot, MLOT_RESERVED_DOC_VALIDATE_RULE_ID);
-            BigDecimal currentQty = materialLot.getCurrentQty();
-            handledQty = handledQty.add(currentQty);
-            if (unHandledQty.compareTo(handledQty) < 0) {
-                throw new ClientParameterException(VanchipExceptions.RESERVED_OVER_QTY,materialLot.getMaterialLotId());
+    public void reservedMaterialLot(DocumentLine documentLine, List<MaterialLotAction> materialLotActions)throws ClientException{
+        try {
+            String reservedRemake = materialLotActions.get(0).getActionComment();
+            String docLineObjRrn = documentLine.getObjectRrn();
+            DocumentLine deliveryDocLine = documentLineRepository.findByObjectRrn(docLineObjRrn);
+            if (deliveryDocLine == null){
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_NOT_EXIST, deliveryDocLine.getDocId());
             }
-            //将发货单据绑定到批次上
-            materialLot.setReceiveQty(materialLot.getCurrentQty());
-            materialLot.setReserved44(deliveryDocLine.getObjectRrn());
-            materialLot.setReserved45(deliveryDocLine.getLineId());
+            DeliveryOrder deliveryOrder = deliveryOrderRepository.findOneByName(deliveryDocLine.getDocId());
+            // 单据是否审核
+            if (!Document.STATUS_APPROVE.equals(deliveryOrder.getStatus())){
+                throw new ClientParameterException(DocumentException.DOCUMENT_STATUS_IS_NOT_ALLOW, deliveryOrder.getName());
+            }
 
-            materialLot = materialLotRepository.saveAndFlush(materialLot);
+            BigDecimal unReservedQty = deliveryDocLine.getUnReservedQty();
+            BigDecimal transQty = BigDecimal.ZERO;
 
-            MaterialLotAction materialLotAction = new MaterialLotAction();
-            materialLotAction.setActionComment(reservedRemake);
-            baseService.saveHistoryEntity(materialLot, TRANS_TYPE_RESERVED, materialLotAction);
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for (MaterialLot materialLot : materialLots) {
+                materialLot.validateMLotHold();
+                validateMLotAndDocLineByRule(deliveryDocLine, materialLot, MLOT_RESERVED_DOC_VALIDATE_RULE_ID);
+                BigDecimal currentQty = materialLot.getCurrentQty();
+                transQty = transQty.add(currentQty);
+                if (unReservedQty.compareTo(transQty) < 0) {
+                    throw new ClientParameterException(VanchipExceptions.RESERVED_OVER_QTY,materialLot.getMaterialLotId());
+                }
+                //将发货单据绑定到批次上
+                materialLot.setReservedQty(materialLot.getCurrentQty());
+                materialLot.setReserved44(deliveryDocLine.getObjectRrn());
+                materialLot.setReserved45(deliveryDocLine.getLineId());
+
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setActionComment(reservedRemake);
+                baseService.saveHistoryEntity(materialLot, TRANS_TYPE_RESERVED, materialLotAction);
+            }
+
+            deliveryDocLine.setUnReservedQty(deliveryDocLine.getUnReservedQty().subtract(transQty));
+            deliveryDocLine.setReservedQty(deliveryDocLine.getReservedQty().add(transQty));
+            documentLineRepository.save(deliveryDocLine);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
         }
-        deliveryDocLine.setUnHandledQty(deliveryDocLine.getUnHandledQty().subtract(handledQty));
-        deliveryDocLine.setHandledQty(deliveryDocLine.getHandledQty().add(handledQty));
-        documentLineRepository.save(deliveryDocLine);
-
-        deliveryOrder.setUnHandledQty(deliveryOrder.getUnHandledQty().subtract(handledQty));
-        deliveryOrder.setHandledQty(deliveryOrder.getHandledQty().add(handledQty));
-        deliveryOrderRepository.save(deliveryOrder);
     }
 
     /**
@@ -437,10 +466,9 @@ public class VanchipServiceImpl implements VanChipService {
 
             for (String docLineObjRrn :docLineReservedMaterialLotMap.keySet()){
                 DocumentLine docLine = documentLineRepository.findByObjectRrn(docLineObjRrn);
-                Document doc = documentRepository.findByObjectRrn(docLine.getDocRrn());
                 List<MaterialLot> materialLotList = docLineReservedMaterialLotMap.get(docLineObjRrn);
                 materialLotList.forEach(materialLot -> {
-                    materialLot.setReceiveQty(materialLot.getReservedQty().subtract(materialLot.getReservedQty()));
+                    materialLot.setReservedQty(materialLot.getReservedQty().subtract(materialLot.getReservedQty()));
                     materialLot.setReserved44(StringUtils.EMPTY);
                     materialLot.setReserved45(StringUtils.EMPTY);
 
@@ -452,12 +480,9 @@ public class VanchipServiceImpl implements VanChipService {
 
                 });
                 BigDecimal totalNumber = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
-                doc.setHandledQty(doc.getHandledQty().subtract(totalNumber));
-                doc.setUnHandledQty(doc.getUnHandledQty().add(totalNumber));
-                baseService.saveEntity(doc);
 
-                docLine.setHandledQty(docLine.getHandledQty().subtract(totalNumber));
-                docLine.setUnHandledQty(docLine.getUnHandledQty().add(totalNumber));
+                docLine.setReservedQty(docLine.getReservedQty().subtract(totalNumber));
+                docLine.setUnReservedQty(docLine.getUnReservedQty().add(totalNumber));
                 baseService.saveEntity(docLine);
             }
         }catch (Exception e){
@@ -489,6 +514,144 @@ public class VanchipServiceImpl implements VanChipService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    public List<MaterialLot> getMLotByDocLineObjectRrnAndBoxMaterialLotIsNull(String docLineObjectRrn) throws ClientException{
+        try {
+            return materialLotRepository.findByReserved44AndBoxMaterialLotIdIsNull(docLineObjectRrn);
+        }catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
+
+    /**
+     * mes 产品入库
+     * 入库后根据条件Hold
+     * 验证hold物料入hold仓
+     * @param materialLots
+     * @param materialLotActionList
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> stockInFinishGood(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException {
+        try {
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            materialLots.forEach(materialLot -> {
+                MaterialLotAction materialLotAction = materialLotActionList.stream().filter(action -> action.getMaterialLotId().equals(materialLot.getMaterialLotId())).findFirst().get();
+                MaterialLot stockInMaterialLot = mmsService.stockIn(materialLot, materialLotAction);
+
+                autoHoldFinishGood(materialLot);
+
+                materialLotList.add(stockInMaterialLot);
+            });
+            return materialLotList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 成品全部hold,根据客户订单号是否再次hold
+     * @param materialLot
+     */
+    public void autoHoldFinishGood(MaterialLot materialLot) throws ClientException{
+        try {
+            List<MaterialLotAction> materialLotActionList = getHoldFinishGoodAction(materialLot);
+            if (CollectionUtils.isEmpty(materialLotActionList)){
+                return;
+            }
+            mmsService.holdMaterialLot(materialLotActionList);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * Hold成品，根据客户订单号是否再次Hold
+     * @param materialLot
+     */
+    public List<MaterialLotAction>  getHoldFinishGoodAction(MaterialLot materialLot) throws ClientException{
+        List<MaterialLotAction> materialLotActions = Lists.newArrayList();
+
+        Material material = productRepository.findOneByName(materialLot.getMaterialName());
+        if (!Material.CLASS_PRODUCT.equals(material.getClazz())){
+            return  materialLotActions;
+        }
+
+        MaterialLotAction materialLotAction = new MaterialLotAction();
+        materialLotAction.setActionCode(PRE_HOLD);
+        materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+        materialLotActions.add(materialLotAction);
+
+        materialLotActions = getHoldByCustomerOrderIdAction(materialLotActions, materialLot);
+        return materialLotActions;
+    }
+
+    /**
+     * 根据客户订单号hold
+     * @param materialLot
+     */
+    public List<MaterialLotAction> getHoldByCustomerOrderIdAction(List<MaterialLotAction> materialLotActions ,MaterialLot materialLot) throws ClientException{
+        String customerOrderId = materialLot.getReserved6();
+        if (StringUtils.isNullOrEmpty(customerOrderId)){
+            return materialLotActions;
+        }
+
+        String firstCustOrderId = customerOrderId.substring(0, 1);
+        String secondCustOrderId = customerOrderId.substring(1, 2);
+
+        MaterialLotAction mLotAction = new MaterialLotAction();
+        //根据客户订单第一位hold
+        switch (firstCustOrderId){
+            case CUSTORDERID_N :
+                mLotAction.setActionCode(N_HOLD);
+                mLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                materialLotActions.add(mLotAction);
+                break;
+            case CUSTORDERID_P :
+                mLotAction.setActionCode(P_HOLD);
+                mLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                materialLotActions.add(mLotAction);
+                break;
+            case CUSTORDERID_Q :
+                mLotAction.setActionCode(Q_HOLD);
+                mLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                materialLotActions.add(mLotAction);
+                break;
+            default : break;
+        }
+
+        //根据客户订单第二位hold
+        if (CUSTORDERID_S.equals(secondCustOrderId)){
+            MaterialLotAction action = new MaterialLotAction();
+            action.setActionCode(S_HOLD);
+            action.setMaterialLotId(materialLot.getMaterialLotId());
+            materialLotActions.add(action);
+        }
+        return materialLotActions;
+    }
+
+    /**
+     * hold的物料只能入Hold仓库
+     * @param materialLot
+     * @param materialLotAction 需包含TargetWarehouseRrn
+     * @throws ClientException
+     */
+    public void validateHoldMLotMatchedHoldWarehouse(MaterialLot materialLot, MaterialLotAction materialLotAction)throws ClientException{
+        try {
+            Warehouse warehouse = warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
+            materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+            if (MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
+                if (!Warehouse.HOLD_WAREHOUSE_TYPE.contains(warehouse.getWarehouseType())){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, warehouse.getName());
+                }
+            }
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 
 
 }

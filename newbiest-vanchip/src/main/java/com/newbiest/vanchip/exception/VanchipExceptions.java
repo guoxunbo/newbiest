@@ -16,7 +16,6 @@ public class VanchipExceptions {
 
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "vc.material_lot_reserved_by_another";
     public static final String ERROR_IN_QUANTITY = "vc.error_in_quantity";
-    public static final String MM_PRODUCT_MATERIAL_IS_NOT_EXIST = "vc.mm_product_material_is_not_exist";
     public static final String RESERVED_OVER_QTY = "vc.reserved_over_qty";
 
 

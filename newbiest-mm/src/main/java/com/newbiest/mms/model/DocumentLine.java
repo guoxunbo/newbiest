@@ -1,8 +1,6 @@
 package com.newbiest.mms.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
-import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -45,11 +43,15 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="UN_HANDLE_QTY")
     private BigDecimal unHandledQty = BigDecimal.ZERO;
 
+    @Column(name="RESERVED_QTY")
+    private BigDecimal reservedQty = BigDecimal.ZERO;
+
+    @Column(name="UN_RESERVED_QTY")
+    private BigDecimal unReservedQty = BigDecimal.ZERO;
     /**
      *shipping Date
      */
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(pattern = DateUtils.DEFAULT_DATE_PATTERN)
     @Column(name = "SHIPPING_DATE")
     private Date shippingDate;
 
@@ -60,7 +62,7 @@ public class DocumentLine extends NBUpdatable {
     private String reserved1;
 
     /**
-     *客户产品
+     * 客户代码
      */
     @Column(name="RESERVED2")
     private String reserved2;
@@ -179,6 +181,9 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="RESERVED21")
     private String reserved21;
 
+    /**
+     * 预留栏位22
+     */
     @Column(name="RESERVED22")
     private String reserved22;
 

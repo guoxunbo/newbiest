@@ -1,7 +1,6 @@
 package com.newbiest.mms.rest.doc.receive;
 
 import com.newbiest.base.msg.RequestBody;
-import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

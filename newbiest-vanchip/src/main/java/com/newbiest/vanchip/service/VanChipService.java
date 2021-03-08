@@ -5,7 +5,6 @@ import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -35,5 +34,7 @@ public interface VanChipService {
     void unReservedMaterialLot(List<MaterialLotAction> materialLotActionList) throws ClientException;
 
     List<MaterialLot> printReservedOrder(DocumentLine documentLine) throws ClientException;
+
+    List<MaterialLot> stockInFinishGood(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
 
 }

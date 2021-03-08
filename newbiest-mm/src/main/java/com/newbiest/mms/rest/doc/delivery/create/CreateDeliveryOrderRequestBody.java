@@ -12,6 +12,9 @@ public class CreateDeliveryOrderRequestBody extends RequestBody {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "操作类型", example = "create/approve等")
+    private String actionType;
+
     private String documentId;
 
     private List<DocumentLine> documentLineList;

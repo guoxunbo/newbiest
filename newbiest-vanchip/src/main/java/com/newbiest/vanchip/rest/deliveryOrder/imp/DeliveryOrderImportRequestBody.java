@@ -1,11 +1,11 @@
-package com.newbiest.vanchip.rest.shipmentOrder.imp;
+package com.newbiest.vanchip.rest.deliveryOrder.imp;
 
 import com.newbiest.base.msg.RequestBody;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-public class ShipmentOrderImportRequestBody extends RequestBody {
+public class DeliveryOrderImportRequestBody extends RequestBody {
 
     private static final long serialVersionUID = 1L;
 
