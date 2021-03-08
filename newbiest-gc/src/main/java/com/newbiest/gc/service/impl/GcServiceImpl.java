@@ -290,6 +290,12 @@ public class GcServiceImpl implements GcService {
     @Autowired
     ErpMaterialInRepository erpMaterialInRepository;
 
+    @Autowired
+    MaterialNameInfoRepository materialNameInfoRepository;
+
+    @Autowired
+    MaterialRepository materialRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -2867,7 +2873,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }
-
+            asyncMaterialName();
             asyncMesWarehouseProductType();
             asyncMesProductPrintModelId();
         } catch (Exception e) {
@@ -3006,6 +3012,28 @@ public class GcServiceImpl implements GcService {
             }
             Material material = productRepository.save(product);
             return material;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 同步产品号或者晶圆型号至GC_PRODUCT_NAME表中
+     * @throws ClientException
+     */
+    public void asyncMaterialName() throws ClientException{
+        try {
+            List<String> materialNameList = materialRepository.findNameByMaterialCategory(Lists.newArrayList(Material.TYPE_PRODUCT, Material.MATERIAL_TYPE));
+            for(String materialName : materialNameList){
+                if(!StringUtils.isNullOrEmpty(materialName)) {
+                    List<MaterialNameInfo> materialNameInfoList = materialNameInfoRepository.findByNameAndOrgRrn(materialName, ThreadLocalContext.getOrgRrn());
+                    if (CollectionUtils.isEmpty(materialNameInfoList)) {
+                        MaterialNameInfo materialNameInfo = new MaterialNameInfo();
+                        materialNameInfo.setName(materialName);
+                        materialNameInfoRepository.saveAndFlush(materialNameInfo);
+                    }
+                }
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
