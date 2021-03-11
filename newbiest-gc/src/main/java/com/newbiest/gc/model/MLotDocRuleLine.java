@@ -17,6 +17,8 @@ public class MLotDocRuleLine extends NBBase  {
 
     public static final String COMPARISON_OPERATORS_EQUALS = "Equals";
 
+    public static final String COMPARISON_OPERATORS_NULL_OR_EQUALS = "NullOrEquals";
+
     @Column(name="RULE_RRN")
     private Long ruleRrn;
 

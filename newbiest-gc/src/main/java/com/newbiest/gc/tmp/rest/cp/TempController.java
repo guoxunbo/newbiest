@@ -3,7 +3,6 @@ package com.newbiest.gc.tmp.rest.cp;
 import com.google.common.collect.Maps;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.ExcelUtils;
-import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.scm.dto.TempCpModel;
 import com.newbiest.gc.service.TempService;
 import com.newbiest.msg.DefaultParser;
@@ -35,7 +34,6 @@ public class TempController extends AbstractRestController {
         TempRequest tempRequest = DefaultParser.getObjectMapper().readerFor(TempRequest.class).readValue(request);
 
         TempResponse response = new TempResponse();
-
         Map<String, String> fieldMap = Maps.newHashMap();
         fieldMap.put("WAFER_ID", "waferId");
         fieldMap.put("BOX_ID", "boxId");
@@ -55,13 +53,14 @@ public class TempController extends AbstractRestController {
         fieldMap.put("DATA_VAL5", "dataValue5");
         fieldMap.put("DATA_VAL6", "dataValue6");
         fieldMap.put("DATA_VAL7", "dataValue7");
+        fieldMap.put("DATA_VAL8", "dataValue8");
         fieldMap.put("DATA_VAL18", "dataValue18");
         fieldMap.put("CST_WAFERQTY", "cstWaferQty");
         fieldMap.put("PRODREMARK_DESC", "prodRemarkDesc");
 
-        List<TempCpModel> datas = (List) ExcelUtils.importExcel(TempCpModel.class, fieldMap, file.getInputStream(), StringUtils.EMPTY);
+        List<TempCpModel> datas = (List) ExcelUtils.importExcel(TempCpModel.class, fieldMap, file.getInputStream(), TempRequest.DEFAULT_DATE_PATTERN);
 
-        tempService.transferCpData(datas);
+        tempService.transferCpData(datas, file.getOriginalFilename());
         response.getHeader().setTransactionId(tempRequest.getHeader().getTransactionId());
 
         return response;

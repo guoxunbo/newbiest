@@ -231,6 +231,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String SH_WAREHOUSE = "8142";
     public static final String HK_WAREHOUSE = "8150";
 
+    public static final String WAREHOUSE_SH = "SH_STOCK";
+    public static final String WAREHOUSE_ZJ = "ZJ_STOCK";
+    public static final String WAREHOUSE_HK = "HK_STOCK";
+
 
     /**
      * 物料批次号
@@ -926,6 +930,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Transient
     private String shippingDateValue;
+
+    @Transient
+    private String scanSeq;
+
+    @Transient
+    private String boxsScanSeq;
 
     /**
      * 验证物料批次是否在有效期内

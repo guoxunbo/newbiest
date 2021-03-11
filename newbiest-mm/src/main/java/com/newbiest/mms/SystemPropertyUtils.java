@@ -19,10 +19,20 @@ public class SystemPropertyUtils {
 
     private static final String SYSTEM_PROPERTY_IMPORT_MLOT_POOL_SIZE = "gc.import_mlot_pool_size";
 
+    private static final String SYSTEM_PROPERTY_READ_MES_TIME_OUT_TIME = "gc.read_mes_time_out_time";
+
     public static Integer getImportMLotPoolSize() {
         Object importMLotPoolSize = System.getProperty(SYSTEM_PROPERTY_IMPORT_MLOT_POOL_SIZE);
         if (importMLotPoolSize != null) {
             return Integer.parseInt(importMLotPoolSize.toString());
+        }
+        return null;
+    }
+
+    public static Integer getReadMesTimeOutTime() {
+        Object time = System.getProperty(SYSTEM_PROPERTY_READ_MES_TIME_OUT_TIME);
+        if (time != null) {
+            return Integer.parseInt(time.toString());
         }
         return null;
     }

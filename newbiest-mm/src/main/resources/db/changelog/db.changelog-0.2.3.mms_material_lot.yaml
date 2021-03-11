@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.0.23
+      author: Guozhang Luo
+      remarks: mms_material_lot HOLD_REASON length change
+      changes:
+        - modifyDataType:
+            tableName: MMS_MATERIAL_LOT
+            columnName: HOLD_REASON
+            newDataType: VARCHAR2(256)

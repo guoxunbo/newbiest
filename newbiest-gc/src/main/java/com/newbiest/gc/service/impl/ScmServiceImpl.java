@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -58,6 +60,7 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
 @Service
 @Slf4j
 @Data
+@EnableAsync
 public class ScmServiceImpl implements ScmService {
 
     /**
@@ -408,6 +411,7 @@ public class ScmServiceImpl implements ScmService {
      * @param materialLotList
      * @throws ClientException
      */
+    @Async
     public void addScmTracking(String orderId, List<MaterialLot> materialLotList) throws ClientException{
         try {
             List<Map> requestInfoList = Lists.newArrayList();

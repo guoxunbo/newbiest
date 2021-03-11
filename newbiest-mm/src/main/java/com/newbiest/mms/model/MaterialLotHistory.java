@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import lombok.Data;
 
@@ -33,6 +34,7 @@ public class MaterialLotHistory extends NBHis {
 
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
+    public static final String TRANS_TYPE_TRANSFER_PARENT = "TransferParent";
     public static final String TRANS_TYPE_CHECK = "Check";
     public static final String TRANS_TYPE_CONSUME = "Consume";
 
@@ -771,4 +773,9 @@ public class MaterialLotHistory extends NBHis {
         this.setActionReason(materialLotAction.getActionReason());
         this.setActionComment(materialLotAction.getActionComment());
     }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
 }

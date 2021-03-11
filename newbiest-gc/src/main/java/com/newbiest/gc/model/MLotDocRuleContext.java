@@ -167,6 +167,16 @@ public class MLotDocRuleContext implements Serializable {
                     } catch (AssertionError e) {
                         throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, ruleLine.getTargetFiledName(), compareValue, targetValue);
                     }
+                } else if(MLotDocRuleLine.COMPARISON_OPERATORS_NULL_OR_EQUALS.equals(ruleLine.getComparisonOperators())){
+                    if(StringUtils.isNullOrEmpty(targetValue)){
+                        continue;
+                    } else {
+                        try {
+                            Assert.assertEquals(compareValue, targetValue);
+                        } catch (AssertionError e) {
+                            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, ruleLine.getTargetFiledName(), compareValue, targetValue);
+                        }
+                    }
                 } else {
                     throw new ClientParameterException(ContextException.MERGE_UN_SUPPORT_COMPARISON, ruleLine.getComparisonOperators());
                 }
