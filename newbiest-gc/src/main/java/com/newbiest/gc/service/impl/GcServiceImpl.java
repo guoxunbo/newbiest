@@ -3412,24 +3412,35 @@ public class GcServiceImpl implements GcService {
      */
     public void materialLotWeight(List<WeightModel> weightModels) throws ClientException {
         try {
-            ThreadLocalContext.getSessionContext().buildTransInfo();
-            weightModels = weightModels.stream().sorted(Comparator.comparing(WeightModel::getScanSeq)).collect(Collectors.toList());
-            Map<String, WeightModel> weightModelMap = weightModels.stream().collect(Collectors.toMap(WeightModel :: getMaterialLotId, Function.identity()));
-            List<MaterialLot> materialLots = weightModels.stream().map(model -> mmsService.getMLotByMLotId(model.getMaterialLotId(), true)).collect(Collectors.toList());
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            //将单箱称重与多箱称重区分开
+            List<WeightModel> boxsWeightList = weightModels.stream().filter(weightModel -> !StringUtils.isNullOrEmpty(weightModel.getBoxsWeightFlag())).collect(Collectors.toList());
+            List<WeightModel> boxWeightList = weightModels.stream().filter(weightModel -> StringUtils.isNullOrEmpty(weightModel.getBoxsWeightFlag())).collect(Collectors.toList());
 
-            //验证物料批次是否是多箱称重
-            String transId = "";
-            WeightModel boxsWeightModel = weightModelMap.get(materialLots.get(0).getMaterialLotId());
-            if(!StringUtils.isNullOrEmpty(boxsWeightModel.getBoxsWeightFlag())){
-                transId = generatorMLotsTransId(MaterialLot.GENERATOR_MATERIAL_LOT_WEIGHT_RULE);
+            if(CollectionUtils.isNotEmpty(boxsWeightList)){
+                String transId = generatorMLotsTransId(MaterialLot.GENERATOR_MATERIAL_LOT_WEIGHT_RULE);
+                for(WeightModel weightModel : boxsWeightList){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(weightModel.getMaterialLotId());
+                    materialLot.setReserved19(weightModel.getWeight());
+                    materialLot.setReserved20(transId);
+                    materialLot.setScanSeq(weightModel.getScanSeq());
+                    materialLotList.add(materialLot);
+                }
             }
+            if(CollectionUtils.isNotEmpty(boxWeightList)){
+                for(WeightModel weightModel : boxWeightList){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(weightModel.getMaterialLotId());
+                    materialLot.setScanSeq(weightModel.getScanSeq());
+                    materialLot.setReserved19(weightModel.getWeight());
+                    materialLotList.add(materialLot);
+                }
+            }
+
+            materialLotList = materialLotList.stream().sorted(Comparator.comparing(MaterialLot::getScanSeq)).collect(Collectors.toList());
+
             //称重记录
-            for (MaterialLot materialLot : materialLots) {
+            for (MaterialLot materialLot : materialLotList) {
                 String weightSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_WEIGHT_SEQ_RULE);
-                WeightModel weightModel = weightModelMap.get(materialLot.getMaterialLotId());
-                String weight = weightModel.getWeight();
-                materialLot.setReserved19(weight);
-                materialLot.setReserved20(transId);
                 materialLot.setWeightSeq(weightSeq);
                 materialLotRepository.save(materialLot);
 
