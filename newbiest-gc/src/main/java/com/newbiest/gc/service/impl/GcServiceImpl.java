@@ -3418,13 +3418,19 @@ public class GcServiceImpl implements GcService {
             List<WeightModel> boxWeightList = weightModels.stream().filter(weightModel -> StringUtils.isNullOrEmpty(weightModel.getBoxsWeightFlag())).collect(Collectors.toList());
 
             if(CollectionUtils.isNotEmpty(boxsWeightList)){
-                String transId = generatorMLotsTransId(MaterialLot.GENERATOR_MATERIAL_LOT_WEIGHT_RULE);
-                for(WeightModel weightModel : boxsWeightList){
-                    MaterialLot materialLot = mmsService.getMLotByMLotId(weightModel.getMaterialLotId());
-                    materialLot.setReserved19(weightModel.getWeight());
-                    materialLot.setReserved20(transId);
-                    materialLot.setScanSeq(weightModel.getScanSeq());
-                    materialLotList.add(materialLot);
+                //多箱称重需要按照多箱扫描序号赋值多箱称重事务号
+                boxsWeightList = boxsWeightList.stream().sorted(Comparator.comparing(WeightModel::getBoxsScanSeq)).collect(Collectors.toList());
+                Map<Long, List<WeightModel>> weightModelMap =  boxsWeightList.stream().collect(Collectors.groupingBy(WeightModel :: getBoxsScanSeq));
+                for(Long boxsScanSeq : weightModelMap.keySet()){
+                    String transId = generatorMLotsTransId(MaterialLot.GENERATOR_MATERIAL_LOT_WEIGHT_RULE);
+                    List<WeightModel>  boxsWeightModelList = weightModelMap.get(boxsScanSeq);
+                    for(WeightModel weightModel : boxsWeightModelList){
+                        MaterialLot materialLot = mmsService.getMLotByMLotId(weightModel.getMaterialLotId());
+                        materialLot.setReserved19(weightModel.getWeight());
+                        materialLot.setReserved20(transId);
+                        materialLot.setScanSeq(weightModel.getScanSeq());
+                        materialLotList.add(materialLot);
+                    }
                 }
             }
             if(CollectionUtils.isNotEmpty(boxWeightList)){
