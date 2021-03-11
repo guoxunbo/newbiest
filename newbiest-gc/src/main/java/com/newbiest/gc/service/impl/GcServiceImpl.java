@@ -296,6 +296,10 @@ public class GcServiceImpl implements GcService {
     @Autowired
     MaterialRepository materialRepository;
 
+    @Autowired
+    GCFutureHoldConfigRepository futureHoldConfigRepository;
+
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -2599,7 +2603,9 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLot materialLot : materialLotList){
                     String workOrderId = materialLot.getWorkOrderId();
                     String grade = materialLot.getGrade();
+                    String lotId = materialLot.getLotId();
                     GCWorkorderRelation workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGrade(workOrderId, grade);
+                    GCFutureHoldConfig futureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
                     if(workorderRelation == null){
                         workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNull(workOrderId);
                     }
@@ -2610,6 +2616,12 @@ public class GcServiceImpl implements GcService {
                         MaterialLotAction materialLotAction = new MaterialLotAction();
                         materialLotAction.setTransQty(materialLot.getCurrentQty());
                         materialLotAction.setActionReason(workorderRelation.getHoldReason());
+                        mmsService.holdMaterialLot(materialLot,materialLotAction);
+                    }
+                    if (futureHoldConfig != null){
+                        MaterialLotAction materialLotAction = new MaterialLotAction();
+                        materialLotAction.setTransQty(materialLot.getCurrentQty());
+                        materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
                         mmsService.holdMaterialLot(materialLot,materialLotAction);
                     }
                 }
