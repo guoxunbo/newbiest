@@ -2421,7 +2421,7 @@ public class GcServiceImpl implements GcService {
      */
     public void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException {
         try {
-            Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().map(packedLot -> mesPackedLotRepository.findByBoxId(packedLot.getBoxId())).collect(Collectors.groupingBy(MesPackedLot :: getProductId));
+            Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getProductId));
             Map<String, Warehouse> warehouseMap = Maps.newHashMap();
 
             List<ErpMo> erpMos = Lists.newArrayList();
@@ -2604,8 +2604,11 @@ public class GcServiceImpl implements GcService {
                     String workOrderId = materialLot.getWorkOrderId();
                     String grade = materialLot.getGrade();
                     String lotId = materialLot.getLotId();
+                    GCFutureHoldConfig futureHoldConfig = new GCFutureHoldConfig();
                     GCWorkorderRelation workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGrade(workOrderId, grade);
-                    GCFutureHoldConfig futureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
+                    if(!StringUtils.isNullOrEmpty(materialLot.getLotId())){
+                        futureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
+                    }
                     if(workorderRelation == null){
                         workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNull(workOrderId);
                     }
@@ -2614,20 +2617,21 @@ public class GcServiceImpl implements GcService {
                     }
                     if(workorderRelation != null){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
-                        materialLotAction.setTransQty(materialLot.getCurrentQty());
                         materialLotAction.setActionReason(workorderRelation.getHoldReason());
-                        mmsService.holdMaterialLot(materialLot,materialLotAction);
+                        mmsService.holdMaterialLot(materialLot, materialLotAction);
                     }
                     if (futureHoldConfig != null){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
-                        materialLotAction.setTransQty(materialLot.getCurrentQty());
                         materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
-                        mmsService.holdMaterialLot(materialLot,materialLotAction);
+                        mmsService.holdMaterialLot(materialLot, materialLotAction);
                     }
                 }
             };
 
-            mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
+            packedLotList = packedLotList.stream().filter(packedLot -> packedLot.getPackedLotRrn() != null).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(packedLotList)){
+                mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
+            }
             //TODO 如果后续有ERP dblink问题。此处需要考虑批量插入。JPA提供的saveAll本质也是for循环调用save。
             if(CollectionUtils.isNotEmpty(erpMos)){
                 erpMoRepository.saveAll(erpMos);
@@ -4019,11 +4023,12 @@ public class GcServiceImpl implements GcService {
             String fabDevice = StringUtils.EMPTY;
             String productType = StringUtils.EMPTY;
             String importType = StringUtils.EMPTY;
+            String location = StringUtils.EMPTY;
             String inFlag = mesPackedLot.getInFlag();
             String productCategory = mesPackedLot.getProductCategory();
             List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndState(mesPackedLot.getWaferId(), MaterialLotUnit.STATE_ISSUE);
-            if(!MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
-                if(CollectionUtils.isNotEmpty(materialLotUnits)){
+            if(CollectionUtils.isNotEmpty(materialLotUnits)){
+                if(!MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
                     if(MesPackedLot.IN_FLAG_ONE.equals(inFlag)){
                         subName = materialLotUnits.get(0).getReserved22();
                     } else {
@@ -4034,13 +4039,17 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                 }
-            }
-            if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_CP.equals(productCategory) ||
-                    MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(productCategory)){
-                if(CollectionUtils.isNotEmpty(materialLotUnits)){
+
+                if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_CP.equals(productCategory) ||
+                        MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(productCategory)){
                     fabDevice = materialLotUnits.get(0).getReserved24();
                 }
+
+                if(!StringUtils.isNullOrEmpty(materialLotUnits.get(0).getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLotUnits.get(0).getReserved13())){
+                    location = MaterialLot.LOCATION_SH;
+                }
             }
+
             String productClassify = StringUtils.EMPTY;
             if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
                 productClassify = MaterialLotUnit.PRODUCT_CLASSIFY_WLT;
@@ -4061,10 +4070,11 @@ public class GcServiceImpl implements GcService {
             packedLot.setProductType(productType);
             packedLot.setImportType(importType);
             packedLot.setWaferId("");
+            packedLot.setLocation(location);
             packedLot.setFabDevice(fabDevice);
             packedLot.setQuantity(totalQty.intValue());
             packedLot.setWaferQty(number);
-            packedLot = mesPackedLotRepository.saveAndFlush(packedLot);
+//            packedLot = mesPackedLotRepository.saveAndFlush(packedLot);
 
             return packedLot;
         } catch (Exception e) {

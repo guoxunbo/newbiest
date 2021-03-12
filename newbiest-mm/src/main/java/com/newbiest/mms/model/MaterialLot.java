@@ -128,6 +128,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String STATUS_OQC = "OQC";
     public static final String STATUS_IN = "In";
     public static final String STATUS_OK = "OK";
+    public static final String STATUS_CREATE = "Create";
 
     public static final String CATEGORY_PACKAGE = "Package";
 
@@ -235,6 +236,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WAREHOUSE_ZJ = "ZJ_STOCK";
     public static final String WAREHOUSE_HK = "HK_STOCK";
 
+    public static final String LOCATION_SH = "SH";
 
     /**
      * 物料批次号
