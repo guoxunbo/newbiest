@@ -2620,7 +2620,7 @@ public class GcServiceImpl implements GcService {
                         materialLotAction.setActionReason(workorderRelation.getHoldReason());
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
                     }
-                    if (futureHoldConfig != null){
+                    if (futureHoldConfig != null && !StringUtils.isNullOrEmpty(futureHoldConfig.getLotId())){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
                         materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
@@ -3892,7 +3892,7 @@ public class GcServiceImpl implements GcService {
         try {
             List<Map<String, String>> parameterMapList = Lists.newArrayList();
             List<MaterialLot> materialLotList = Lists.newArrayList();
-            Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().map(packedLot -> mesPackedLotRepository.findByBoxId(packedLot.getBoxId())).collect(Collectors.groupingBy(MesPackedLot :: getCstId));
+            Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getCstId));
             List<MesPackedLot> mesPackedLots = Lists.newArrayList();
             for(String cstId : packedLotMap.keySet()){
                 List<MesPackedLot> mesPackedLotList = packedLotMap.get(cstId);
@@ -3910,7 +3910,9 @@ public class GcServiceImpl implements GcService {
 
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
             if(!StringUtils.isNullOrEmpty(printLabel)){
-                for(MaterialLot materialLot : materialLotList){
+                mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
+                for(MesPackedLot mesPackedLot : mesPackedLots){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(mesPackedLot.getBoxId());
                     Map<String, String> parameterMap = getWltCpPrintParameter(materialLot);
                     parameterMapList.add(parameterMap);
                 }
