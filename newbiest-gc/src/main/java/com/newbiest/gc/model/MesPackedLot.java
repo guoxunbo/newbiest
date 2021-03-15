@@ -186,4 +186,10 @@ public class MesPackedLot implements Serializable {
      */
     @Transient
     private String importType;
+
+    /**
+     * 扫描序号
+     */
+    @Transient
+    private String scanSeq;
 }

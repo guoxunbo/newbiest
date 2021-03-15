@@ -73,7 +73,7 @@ public class TempServiceImpl implements TempService {
      */
     public void transferCpData(List<TempCpModel> tempCpModelList, String fileName) throws ClientException {
         try {
-            String testLotIdPrefix = "GuoT";
+            String testLotIdPrefix = "";
 
             Map<String, Material> materialMap = Maps.newHashMap();
 
@@ -168,6 +168,7 @@ public class TempServiceImpl implements TempService {
                     materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                     materialLotUnit.setLotId(materialLot.getMaterialLotId());
                     materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                    materialLotUnit.setGrade(materialLot.getGrade());
                     materialLotUnit.setCurrentQty(new BigDecimal(tempCpModel.getDataValue7()));
                     materialLotUnit.setReceiveQty(new BigDecimal(tempCpModel.getDataValue7()));
                     materialLotUnit.setCurrentSubQty(BigDecimal.ONE);

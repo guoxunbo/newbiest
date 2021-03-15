@@ -100,6 +100,9 @@ public class MmsServiceImpl implements MmsService {
     @Autowired
     PartsRepository partsRepository;
 
+    @Autowired
+    MaterialNameInfoRepository materialNameInfoRepository;
+
 
     /**
      * 根据名称获取源物料。
@@ -190,6 +193,7 @@ public class MmsServiceImpl implements MmsService {
                     nbHis.setNbBase(rawMaterial);
                     historyRepository.save(nbHis);
                 }
+                saveMaterialName(rawMaterial.getName());
             } else {
                 NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(rawMaterial.getObjectRrn());
                 // 不可改变状态
@@ -227,6 +231,7 @@ public class MmsServiceImpl implements MmsService {
                 throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
             }
             Material material = rawMaterialRepository.save(rawMaterial);
+            saveMaterialName(rawMaterial.getName());
             return material;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -264,6 +269,7 @@ public class MmsServiceImpl implements MmsService {
                     nbHis.setNbBase(product);
                     historyRepository.save(nbHis);
                 }
+                saveMaterialName(product.getName());
             } else {
                 NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(product.getObjectRrn());
                 // 不可改变状态
@@ -326,6 +332,20 @@ public class MmsServiceImpl implements MmsService {
                 }
             }
             return parts;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public MaterialNameInfo saveMaterialName(String materialName) throws ClientException{
+        try {
+            MaterialNameInfo materialNameInfo = new MaterialNameInfo();
+            List<MaterialNameInfo> materialNameInfoList = materialNameInfoRepository.findByNameAndOrgRrn(materialName, ThreadLocalContext.getOrgRrn());
+            if(CollectionUtils.isEmpty(materialNameInfoList)){
+                materialNameInfo.setName(materialName);
+                materialNameInfo = materialNameInfoRepository.saveAndFlush(materialNameInfo);
+            }
+            return materialNameInfo;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

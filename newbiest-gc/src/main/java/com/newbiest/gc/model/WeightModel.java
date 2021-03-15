@@ -15,4 +15,6 @@ public class WeightModel implements Serializable  {
 
     private  String scanSeq;
 
+    private  Long boxsScanSeq;
+
 }

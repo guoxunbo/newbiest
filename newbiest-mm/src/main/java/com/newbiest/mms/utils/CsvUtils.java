@@ -133,7 +133,7 @@ public class CsvUtils {
                 for(String headerName : nbFieldNameList){
                     for(NBField nbField :nbTable.getFields() ){
                         if(nbField.getLabelZh().equals(headerName) && nbField.getRequiredFlag()){
-                            throw new ClientParameterException(MmsException.MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME);
+                            throw new ClientParameterException(MmsException.MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME, headerName);
                         }
                     }
                 }

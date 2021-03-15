@@ -9,6 +9,7 @@ import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
+import com.newbiest.gc.model.MesWaferReceive;
 import com.newbiest.gc.service.MesService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -63,6 +64,8 @@ public class MesServiceImpl implements MesService {
     public static final int MES_READ_TIME_OUT = 120;
 
     public static final String PLAN_LOT_API = "/wms/planLot.spring";
+
+    public static final String SAVE_BACKEND_WAFER_RECEIVE_API = "/wms/saveWaferReceive.spring";
 
     private RestTemplate restTemplate;
 
@@ -131,6 +134,48 @@ public class MesServiceImpl implements MesService {
                 headers.put("Content-Type", Lists.newArrayList("application/json"));
 
                 RequestEntity<byte[]> request = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(mesUrl + PLAN_LOT_API));
+                ResponseEntity<byte[]> responseEntity = restTemplate.exchange(request, byte[].class);
+                String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Get response by mes. Response is [%s]", response));
+                }
+
+                if(!MESSAGE_INFO.equals(response)){
+                    throw new ClientParameterException(response);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 将晶圆信息记录到Mes的BackendWaferReceive及历史表中
+     * @param materialLots
+     * @throws ClientException
+     */
+    public void saveBackendWaferReceive(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            List<String> mLotIdList = Lists.newArrayList();
+            if(CollectionUtils.isNotEmpty(materialLots)){
+                for(MaterialLot materialLot: materialLots){
+                    mLotIdList.add(materialLot.getMaterialLotId());
+                }
+                Map<String, Object> requestInfo = Maps.newHashMap();
+                requestInfo.put("mLotIdList", mLotIdList);
+                requestInfo.put("userName", ThreadLocalContext.getUsername());
+                requestInfo.put("messageName", "materialLotUnitManager");
+                requestInfo.put("facilityId", MES_FACILITY_ID);
+
+                String requestString = DefaultParser.getObjectMapper().writeValueAsString(requestInfo);
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Sending to mes. RequestString is [%s]", requestString));
+                }
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.put("Content-Type", Lists.newArrayList("application/json"));
+
+                RequestEntity<byte[]> request = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(mesUrl + SAVE_BACKEND_WAFER_RECEIVE_API));
                 ResponseEntity<byte[]> responseEntity = restTemplate.exchange(request, byte[].class);
                 String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
                 if (log.isDebugEnabled()) {

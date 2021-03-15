@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -58,6 +60,7 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
 @Service
 @Slf4j
 @Data
+@EnableAsync
 public class ScmServiceImpl implements ScmService {
 
     /**
@@ -128,8 +131,8 @@ public class ScmServiceImpl implements ScmService {
 
     public void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException{
         try {
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC),
-                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK));
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC, MaterialLot.STATUS_CREATE),
+                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK, MaterialLot.STATUS_CREATE));
 
             if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
@@ -213,8 +216,8 @@ public class ScmServiceImpl implements ScmService {
 
     public void scmUnAssign(String lotId) throws ClientException{
         try {
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC),
-                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK));
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC, MaterialLot.STATUS_CREATE),
+                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK, MaterialLot.STATUS_CREATE));
             if (materialLot == null) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
@@ -408,6 +411,7 @@ public class ScmServiceImpl implements ScmService {
      * @param materialLotList
      * @throws ClientException
      */
+    @Async
     public void addScmTracking(String orderId, List<MaterialLot> materialLotList) throws ClientException{
         try {
             List<Map> requestInfoList = Lists.newArrayList();

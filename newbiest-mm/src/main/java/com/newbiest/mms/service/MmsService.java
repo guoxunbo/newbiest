@@ -23,6 +23,7 @@ public interface MmsService {
     //product
     Product saveProduct(Product product) throws ClientException;
     Product getProductByName(String name) throws ClientException;
+    MaterialNameInfo saveMaterialName(String materialName) throws ClientException;
 
     Parts saveParts(Parts parts) throws ClientException;
     Parts getPartsByName(String name) throws ClientException;
