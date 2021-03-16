@@ -2604,11 +2604,7 @@ public class GcServiceImpl implements GcService {
                     String workOrderId = materialLot.getWorkOrderId();
                     String grade = materialLot.getGrade();
                     String lotId = materialLot.getLotId();
-                    GCFutureHoldConfig futureHoldConfig = new GCFutureHoldConfig();
                     GCWorkorderRelation workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGrade(workOrderId, grade);
-                    if(!StringUtils.isNullOrEmpty(materialLot.getLotId())){
-                        futureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
-                    }
                     if(workorderRelation == null){
                         workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNull(workOrderId);
                     }
@@ -2620,7 +2616,8 @@ public class GcServiceImpl implements GcService {
                         materialLotAction.setActionReason(workorderRelation.getHoldReason());
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
                     }
-                    if (futureHoldConfig != null && !StringUtils.isNullOrEmpty(futureHoldConfig.getLotId())){
+                    GCFutureHoldConfig futureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
+                    if (futureHoldConfig != null){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
                         materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
