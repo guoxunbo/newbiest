@@ -1506,24 +1506,7 @@ public class GcServiceImpl implements GcService {
                     receiveOrder = receiveOrderRepository.saveAndFlush(receiveOrder);
                     baseService.saveHistoryEntity(receiveOrder, MaterialLotHistory.TRANS_TYPE_RECEIVE);
 
-                    if(StringUtils.isNullOrEmpty(documentLine.getMergeDoc())){
-                        Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
-                        if (!erpSoOptional.isPresent()) {
-                            throw new ClientParameterException(GcExceptions.ERP_RECEIVE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
-                        }
-
-                        ErpSo erpSo = erpSoOptional.get();
-                        erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-                        erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
-                        if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
-                            erpSo.setDeliveredNum(handledQty.toPlainString());
-                        } else {
-                            BigDecimal docHandledQty = new BigDecimal(erpSo.getDeliveredNum());
-                            docHandledQty = docHandledQty.add(handledQty);
-                            erpSo.setDeliveredNum(docHandledQty.toPlainString());
-                        }
-                        erpSoRepository.save(erpSo);
-                    }
+                    validateDocAndUpdateErpSo(documentLine, handledQty);
                 }
             }
 
@@ -1782,24 +1765,7 @@ public class GcServiceImpl implements GcService {
             deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
             baseService.saveHistoryEntity(deliveryOrder, MaterialLotHistory.TRANS_TYPE_SHIP);
 
-            if(StringUtils.isNullOrEmpty(documentLine.getMergeDoc())){
-                Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
-                if (!erpSoOptional.isPresent()) {
-                    throw new ClientParameterException(GcExceptions.ERP_SO_IS_NOT_EXIST, documentLine.getReserved1());
-                }
-
-                ErpSo erpSo = erpSoOptional.get();
-                erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-                erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
-                if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
-                    erpSo.setDeliveredNum(handledQty.toPlainString());
-                } else {
-                    BigDecimal docHandledQty = new BigDecimal(erpSo.getDeliveredNum());
-                    docHandledQty = docHandledQty.add(handledQty);
-                    erpSo.setDeliveredNum(docHandledQty.toPlainString());
-                }
-                erpSoRepository.save(erpSo);
-            }
+            validateDocAndUpdateErpSo(documentLine, handledQty);
 
             if (SystemPropertyUtils.getConnectMscmFlag()) {
                 scmService.addScmTracking(documentLine.getDocId(), materialLots);
@@ -6658,6 +6624,19 @@ public class GcServiceImpl implements GcService {
             otherStockOutOrder = otherStockOutOrderRepository.saveAndFlush(otherStockOutOrder);
             baseService.saveHistoryEntity(otherStockOutOrder, MaterialLotHistory.TRANS_TYPE_THREE_SIDE);
 
+            validateAndUpdateErpSoa(documentLine, handledQty);
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证单据是否合单，并更新中间表ERP_SOA的数量信息
+     * @param documentLine
+     * @param handledQty
+     */
+    private void validateAndUpdateErpSoa(DocumentLine documentLine, BigDecimal handledQty) throws ClientException {
+        try{
             if(StringUtils.isNullOrEmpty(documentLine.getMergeDoc())){
                 Optional<ErpSoa> erpSoaOptional = erpSoaOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
                 if (!erpSoaOptional.isPresent()) {
@@ -6676,7 +6655,7 @@ public class GcServiceImpl implements GcService {
                 }
                 erpSoaOrderRepository.save(erpSoa);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -8206,24 +8185,7 @@ public class GcServiceImpl implements GcService {
                     otherStockOutOrder = otherStockOutOrderRepository.saveAndFlush(otherStockOutOrder);
                     baseService.saveHistoryEntity(otherStockOutOrder, MaterialLotHistory.TRANS_TYPE_SHIP);
 
-                    if(StringUtils.isNullOrEmpty(documentLine.getMergeDoc())){
-                        Optional<ErpSoa> erpSoaOptional = erpSoaOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
-                        if (!erpSoaOptional.isPresent()) {
-                            throw new ClientParameterException(GcExceptions.ERP_SOA_IS_NOT_EXIST, documentLine.getReserved1());
-                        }
-
-                        ErpSoa erpSoa = erpSoaOptional.get();
-                        erpSoa.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-                        erpSoa.setLeftNum(erpSoa.getLeftNum().subtract(handledQty));
-                        if (StringUtils.isNullOrEmpty(erpSoa.getDeliveredNum())) {
-                            erpSoa.setDeliveredNum(handledQty.toPlainString());
-                        } else {
-                            BigDecimal docHandledQty = new BigDecimal(erpSoa.getDeliveredNum());
-                            docHandledQty = docHandledQty.add(handledQty);
-                            erpSoa.setDeliveredNum(docHandledQty.toPlainString());
-                        }
-                        erpSoaOrderRepository.save(erpSoa);
-                    }
+                    validateAndUpdateErpSoa(documentLine, handledQty);
                 }
             }
         } catch (Exception e) {
@@ -8341,27 +8303,40 @@ public class GcServiceImpl implements GcService {
                     cogReceiveOrder = cogReceiveOrderRepository.saveAndFlush(cogReceiveOrder);
                     baseService.saveHistoryEntity(cogReceiveOrder, MaterialLotHistory.TRANS_TYPE_RECEIVE);
 
-                    if(StringUtils.isNullOrEmpty(documentLine.getMergeDoc())){
-                        Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
-                        if (!erpSoOptional.isPresent()) {
-                            throw new ClientParameterException(GcExceptions.ERP_RECEIVE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
-                        }
-
-                        ErpSo erpSo = erpSoOptional.get();
-                        erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-                        erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
-                        if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
-                            erpSo.setDeliveredNum(handledQty.toPlainString());
-                        } else {
-                            BigDecimal docHandledQty = new BigDecimal(erpSo.getDeliveredNum());
-                            docHandledQty = docHandledQty.add(handledQty);
-                            erpSo.setDeliveredNum(docHandledQty.toPlainString());
-                        }
-                        erpSoRepository.save(erpSo);
-                    }
+                    validateDocAndUpdateErpSo(documentLine, handledQty);
                 }
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证单据是否时合单单据，并更新中间表单据数量信息
+     * @param documentLine
+     * @param handledQty
+     */
+    private void validateDocAndUpdateErpSo(DocumentLine documentLine, BigDecimal handledQty) throws ClientException{
+        try {
+            if(StringUtils.isNullOrEmpty(documentLine.getMergeDoc())){
+                Optional<ErpSo> erpSoOptional = erpSoRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                if (!erpSoOptional.isPresent()) {
+                    throw new ClientParameterException(GcExceptions.ERP_RECEIVE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                }
+
+                ErpSo erpSo = erpSoOptional.get();
+                erpSo.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                erpSo.setLeftNum(erpSo.getLeftNum().subtract(handledQty));
+                if (StringUtils.isNullOrEmpty(erpSo.getDeliveredNum())) {
+                    erpSo.setDeliveredNum(handledQty.toPlainString());
+                } else {
+                    BigDecimal docHandledQty = new BigDecimal(erpSo.getDeliveredNum());
+                    docHandledQty = docHandledQty.add(handledQty);
+                    erpSo.setDeliveredNum(docHandledQty.toPlainString());
+                }
+                erpSoRepository.save(erpSo);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
