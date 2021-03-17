@@ -19,6 +19,7 @@ import com.newbiest.base.utils.*;
 import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.common.exception.ContextException;
+import com.newbiest.context.model.MergeRuleContext;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
@@ -8726,6 +8727,74 @@ public class GcServiceImpl implements GcService {
             }
 
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 单据合并
+     * @param documentLines
+     * @throws ClientException
+     */
+    public void valaidateAndMergeErpDocLine(List<DocumentLine> documentLines) throws ClientException {
+        try {
+            List<Long> seqList = Lists.newArrayList();
+            //根据单据验证规则验证单据信息是否满足合批条件
+            validationDocMergeRule(MLotDocRuleContext.MERGE_DOC_VALIDATE_RULE_ID, documentLines);
+
+            //将所有的单据合并成一条documentLine单据
+            Long totalDocQty = documentLines.stream().collect(Collectors.summingLong(documentLine -> documentLine.getQty().longValue()));
+            DocumentLine documentLine = new DocumentLine();
+            documentLine.setDocumentLine(documentLines.get(0));
+            documentLine.setQty(new BigDecimal(totalDocQty));
+            documentLine.setUnHandledQty(documentLine.getQty());
+            documentLine.setUnReservedQty(documentLine.getQty());
+            documentLine = documentLineRepository.saveAndFlush(documentLine);
+
+            baseService.saveHistoryEntity(documentLine, DocumentLineHistory.TRANS_TYPE_MERGE_DOC);
+
+            for(DocumentLine docLine : documentLines){
+                if(StringUtils.isNullOrEmpty(docLine.getReserved1())){
+                    throw new ClientParameterException(GcExceptions.ERP_ORDER_CANNOT_EMPTY, documentLine.getDocId(), "seq" + documentLine.getReserved1());
+                }
+                seqList.add(Long.parseLong(docLine.getReserved1()));
+
+                documentLineRepository.deleteById(docLine.getObjectRrn());
+                baseService.saveHistoryEntity(documentLine, DocumentLineHistory.TRANS_TYPE_DELETE);
+            }
+
+            //根据单据的类型更新中间表单据的状态
+            String docType = documentLines.get(0).getReserved31();
+            if(ErpSo.SOURCE_TABLE_NAME.equals(docType)){
+                erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
+            } else if(ErpSoa.SOURCE_TABLE_NAME.equals(docType)){
+                erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
+            } else if(ErpSob.SOURCE_TABLE_NAME.equals(docType)){
+                erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 合单规则验证
+     * @param ruleName
+     * @param documentLines
+     * @throws ClientException
+     */
+    public void validationDocMergeRule(String ruleName, List<DocumentLine> documentLines) throws ClientException{
+        try {
+            List<MLotDocRule> mLotDocLineRule = mLotDocRuleRepository.findByNameAndOrgRrn(ruleName, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isEmpty(mLotDocLineRule)) {
+                throw new ClientParameterException(GcExceptions.DOCUMENT_LINE_MERGE_RULE_IS_NOE_EXIST, ruleName);
+            }
+            MLotDocRuleContext mLotDocRuleContext = new MLotDocRuleContext();
+            mLotDocRuleContext.setSourceObject(documentLines.get(0));
+            mLotDocRuleContext.setDocumentLineList(documentLines);
+            mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
+            mLotDocRuleContext.validationDocMerge();
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

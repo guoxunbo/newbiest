@@ -416,3 +416,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.LotFutureHoldSet_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.ErpDocLineMerge_nb_table.yaml
+      relativeToChangelogFile: true

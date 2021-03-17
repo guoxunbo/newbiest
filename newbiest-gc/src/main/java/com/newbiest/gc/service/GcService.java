@@ -148,6 +148,8 @@ public interface GcService {
     void asyncMesGlueType() throws ClientException;
     void asyncMaterialName() throws ClientException;
 
+    void valaidateAndMergeErpDocLine(List<DocumentLine> documentLineList) throws ClientException;
+    
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 
     void validationDocLine(List<DocumentLine> documentLineList, MaterialLot materialLot) throws ClientException;

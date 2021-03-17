@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCErpDocLineMergeManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCErpDocLineMergeManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCErpDocLineMergeManager
+              description: ERP单据合并
+              tableName: GCErpDocLineMerge
+              url: /GC/GCErpDocLineMergeManager
+              parentRrn: 1010
+              seqNo: 60
+              image: icon-rule
+              labelZh: ERP单据合并
+              labelEn: ErpDocLineMerge
