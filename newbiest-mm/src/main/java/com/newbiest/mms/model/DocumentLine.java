@@ -34,6 +34,8 @@ public class DocumentLine extends NBUpdatable {
 
     public static final String ERROR_MEMO = "MergeDoc";
 
+    public static final String DOC_MERGE = "Merge";
+
     @Column(name="DOC_RRN")
     private Long docRrn;
 
@@ -114,6 +116,12 @@ public class DocumentLine extends NBUpdatable {
      */
     @Column(name="THREE_SIDE_TRANSACTION")
     private String threeSideTransaction;
+
+    /**
+     * 合单标记
+     */
+    @Column(name="MERGE_DOC")
+    private String mergeDoc = DOC_MERGE;
 
     /**
      * 关联ERP LINE的SEQ主键

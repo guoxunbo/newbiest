@@ -98,6 +98,12 @@ public class DocumentLineHistory extends NBHis {
     private String threeSideTransaction;
 
     /**
+     * 合单标记
+     */
+    @Column(name="MERGE_DOC")
+    private String mergeDoc;
+
+    /**
      * 快递单号
      */
     @Column(name="EXPRESSS_NUMBER")
