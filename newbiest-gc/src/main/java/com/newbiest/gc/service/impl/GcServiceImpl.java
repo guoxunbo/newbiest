@@ -1822,7 +1822,7 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncReceiveOrder() throws ClientException {
         try {
-            List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_TV, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_TV, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS, ErpSo.SYNC_STATUS_MERGE));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
             List<Long> asyncDuplicateSeqList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(erpSos)) {
@@ -1940,7 +1940,7 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncCogReceiveOrder() throws ClientException {
         try {
-            List<ErpSo> erpSoList = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_COG, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<ErpSo> erpSoList = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_COG, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS, ErpSo.SYNC_STATUS_MERGE));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
             List<Long> asyncDuplicateSeqList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(erpSoList)) {
@@ -2189,7 +2189,7 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncShipOrder() throws ClientException {
         try {
-            List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_SO, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS));
+            List<ErpSo> erpSos = erpSoRepository.findByTypeAndSynStatusNotIn(ErpSo.TYPE_SO, Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_ERROR, ErpSo.SYNC_STATUS_SYNC_SUCCESS, ErpSo.SYNC_STATUS_MERGE));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
             List<Long> asyncDuplicateSeqList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(erpSos)) {
@@ -6010,7 +6010,7 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncOtherStockOutOrder() throws ClientException {
         try {
-            List<ErpSoa> erpSos = erpSoaOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSoa.SYNC_STATUS_OPERATION, ErpSoa.SYNC_STATUS_SYNC_SUCCESS));
+            List<ErpSoa> erpSos = erpSoaOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSoa.SYNC_STATUS_OPERATION, ErpSoa.SYNC_STATUS_SYNC_SUCCESS, ErpSoa.SYNC_STATUS_MERGE));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
             List<Long> asyncDuplicateSeqList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(erpSos)) {
@@ -6216,7 +6216,7 @@ public class GcServiceImpl implements GcService {
      */
     public void asyncOtherShipOrder() throws ClientException {
         try {
-            List<ErpSob> erpSobs = erpSobOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSo.SYNC_STATUS_OPERATION, ErpSo.SYNC_STATUS_SYNC_SUCCESS, ErpSo.SYNC_STATUS_SYNC_ERROR));
+            List<ErpSob> erpSobs = erpSobOrderRepository.findBySynStatusNotIn(Lists.newArrayList(ErpSob.SYNC_STATUS_OPERATION, ErpSob.SYNC_STATUS_SYNC_SUCCESS, ErpSob.SYNC_STATUS_MERGE));
             List<Long> asyncSuccessSeqList = Lists.newArrayList();
             List<Long> asyncDuplicateSeqList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(erpSobs)) {
