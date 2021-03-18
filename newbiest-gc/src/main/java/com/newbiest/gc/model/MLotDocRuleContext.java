@@ -34,6 +34,8 @@ public class MLotDocRuleContext implements Serializable {
      */
     private Object sourceObject;
 
+    public static final String MERGE_DOC_VALIDATE_RULE_ID = "MergeDocRule";  //单据合并验证规则
+
     /**
      * 目标对象
      */
@@ -179,6 +181,46 @@ public class MLotDocRuleContext implements Serializable {
                     }
                 } else {
                     throw new ClientParameterException(ContextException.MERGE_UN_SUPPORT_COMPARISON, ruleLine.getComparisonOperators());
+                }
+            }
+        }
+    }
+
+    /**
+     * 单据合并信息验证
+     * @throws ClientException
+     */
+    public void validationDocMerge() throws ClientException{
+        if (CollectionUtils.isNotEmpty(mLotDocRuleLines)) {
+            for (MLotDocRuleLine ruleLine : mLotDocRuleLines) {
+                Object sourceValue;
+                Object targetValue;
+                try {
+                    sourceValue = PropertyUtils.getProperty(sourceObject, ruleLine.getSourceFiledName());
+                } catch (Exception e) {
+                    throw new ClientParameterException(ContextException.MERGE_BASIC_OBJ_GET_PROPERTY_ERROR, ruleLine.getSourceFiledName());
+                }
+                for (Object compareObject : documentLineList) {
+                    try {
+                        targetValue = PropertyUtils.getProperty(compareObject, ruleLine.getSourceFiledName());
+                    } catch (Exception e) {
+                        throw new ClientParameterException(ContextException.MERGE_CHECK_OBJ_GET_PROPERTY_ERROR, ruleLine.getSourceFiledName());
+                    }
+                    if (MergeRuleLine.COMPARISON_OPERATORS_EQUALS.equals(ruleLine.getComparisonOperators())) {
+                        try {
+                            if(targetValue == null){
+                                targetValue = "";
+                            }
+                            if (sourceValue == null) {
+                                sourceValue = "";
+                            }
+                            Assert.assertEquals(sourceValue, targetValue);
+                        } catch (AssertionError e) {
+                            throw new ClientParameterException(ContextException.MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE, ruleLine.getSourceFiledName(), sourceValue, targetValue);
+                        }
+                    } else {
+                        throw new ClientParameterException(ContextException.MERGE_UN_SUPPORT_COMPARISON, ruleLine.getComparisonOperators());
+                    }
                 }
             }
         }

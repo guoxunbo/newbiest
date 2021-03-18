@@ -27,6 +27,15 @@ public class DocumentLine extends NBUpdatable {
     public static final String CUSCODE_C001 = "C001";
 
 
+    /**
+     * 合单之后
+     */
+    public static final String SYNC_STATUS_MERGE = "9";
+
+    public static final String ERROR_MEMO = "MergeDoc";
+
+    public static final String DOC_MERGE = "Merge";
+
     @Column(name="DOC_RRN")
     private Long docRrn;
 
@@ -107,6 +116,12 @@ public class DocumentLine extends NBUpdatable {
      */
     @Column(name="THREE_SIDE_TRANSACTION")
     private String threeSideTransaction;
+
+    /**
+     * 合单标记
+     */
+    @Column(name="MERGE_DOC")
+    private String mergeDoc = DOC_MERGE;
 
     /**
      * 关联ERP LINE的SEQ主键
@@ -296,5 +311,49 @@ public class DocumentLine extends NBUpdatable {
         this.setDocId(document.getName());
     }
 
+    public void setDocumentLine(DocumentLine documentLine) {
+        this.setDocRrn(documentLine.getDocRrn());
+        this.setDocId(documentLine.getDocId());
+        this.setMaterialRrn(documentLine.getMaterialRrn());
+        this.setMaterialName(documentLine.getMaterialName());
+        this.setDocType(documentLine.getDocType());
+        this.setDocName(documentLine.getDocName());
+        this.setErpCreated(documentLine.getErpCreated());
+        this.setDocBusType(documentLine.getDocBusType());
+        this.setDocSource(documentLine.getDocSource());
+        this.setWarehouseName(documentLine.getWarehouseName());
+        this.setWarehouseCode(documentLine.getWarehouseCode());
+        this.setThreeSideTransaction(documentLine.getThreeSideTransaction());
+        this.setReserved2(documentLine.getReserved2());
+        this.setReserved3(documentLine.getReserved3());
+        this.setReserved4(documentLine.getReserved4());
+        this.setReserved5(documentLine.getReserved5());
+        this.setReserved6(documentLine.getReserved6());
+        this.setReserved7(documentLine.getReserved7());
+        this.setReserved8(documentLine.getReserved8());
+        this.setReserved9(documentLine.getReserved9());
+        this.setReserved10(documentLine.getReserved10());
+        this.setReserved11(documentLine.getReserved11());
+        this.setReserved12(documentLine.getReserved12());
+        this.setReserved13(documentLine.getReserved13());
+        this.setReserved14(documentLine.getReserved14());
+        this.setReserved15(documentLine.getReserved15());
+        this.setReserved16(documentLine.getReserved16());
+        this.setReserved17(documentLine.getReserved17());
+        this.setReserved18(documentLine.getReserved18());
+        this.setReserved19(documentLine.getReserved19());
+        this.setReserved20(documentLine.getReserved20());
+        this.setReserved21(documentLine.getReserved21());
+        this.setReserved22(documentLine.getReserved22());
+        this.setReserved23(documentLine.getReserved23());
+        this.setReserved24(documentLine.getReserved24());
+        this.setReserved25(documentLine.getReserved25());
+        this.setReserved26(documentLine.getReserved26());
+        this.setReserved27(documentLine.getReserved27());
+        this.setReserved28(documentLine.getReserved28());
+        this.setReserved29(documentLine.getReserved29());
+        this.setReserved30(documentLine.getReserved30());
+        this.setReserved31(documentLine.getReserved31());
+    }
 
 }

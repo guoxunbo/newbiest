@@ -45,6 +45,11 @@ public class ErpSoa implements Serializable {
      */
     public static final String SYNC_STATUS_CHANGED = "4";
 
+    /**
+     * WMS合单之后
+     */
+    public static final String SYNC_STATUS_MERGE = "9";
+
     @Column(name="SEQ")
     @Id
     private Long seq;

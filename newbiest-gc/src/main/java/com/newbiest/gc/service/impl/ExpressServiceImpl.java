@@ -15,6 +15,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.CollectionUtils;
@@ -39,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +56,8 @@ public class ExpressServiceImpl implements ExpressService {
 
     public static final String ZJ_SHIPPING_ADDRESS = "ZJShippingAddress";
     public static final String SH_SHIPPING_ADDRESS= "SHShippingAddress";
+
+    public static final String EXPRESS_ORDER_TIME= "ExpressOrderTime";
 
     /**
      * 浙江账套
@@ -174,8 +179,9 @@ public class ExpressServiceImpl implements ExpressService {
      * @param serviceMode 服务模式 次日达等等
      * @param payMode 支付方式
      */
-    public List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException {
+    public List<Map<String, String>> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException {
         try {
+            List<Map<String, String>> parameterMapList = Lists.newArrayList();
             Optional optional = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved51())).findFirst();
             if (optional.isPresent()) {
                 throw new ClientException(GcExceptions.PICKUP_ADDRESS_IS_NULL);
@@ -204,6 +210,12 @@ public class ExpressServiceImpl implements ExpressService {
 
             orderInfo.setServiceMode(serviceMode);
             orderInfo.setPayMode(payMode);
+
+            //获取下单时间，存在配置，选用配置时间，没有配置，获取默认设置时间
+            String orderTime = getExpressOrderTime();
+            if(!StringUtils.isNullOrEmpty(orderTime)){
+                orderInfo.setOrderTime(orderTime);
+            }
 
             orderInfo.setOrderId(ExpressConfiguration.PLAN_ORDER_DEFAULT_ORDER_ID);
             orderInfo.setPaymentCustomer(expressConfiguration.getCustomerCode());
@@ -236,7 +248,9 @@ public class ExpressServiceImpl implements ExpressService {
                 materialLotHistoryRepository.save(history);
             }
 
-            return materialLots;
+            parameterMapList = getPrintLabelParameterList(materialLots, waybillNumber);
+
+            return parameterMapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -486,5 +500,19 @@ public class ExpressServiceImpl implements ExpressService {
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
+    }
+
+    public String getExpressOrderTime() throws ClientException {
+        String orderTime = StringUtils.EMPTY;
+        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(EXPRESS_ORDER_TIME, NBReferenceList.CATEGORY_OWNER);
+        if (CollectionUtils.isNotEmpty(nbReferenceList)) {
+            String time = nbReferenceList.get(0).getKey();
+            String [] timeArray = time.split(":");
+            LocalDateTime ldt = LocalDateTime.now();
+            ldt = ldt.withHour(Integer.parseInt(timeArray[0]));
+            ldt = ldt.withMinute(Integer.parseInt(timeArray[1]));
+            orderTime = ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        }
+        return orderTime;
     }
 }
