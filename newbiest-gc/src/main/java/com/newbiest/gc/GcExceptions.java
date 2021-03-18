@@ -18,6 +18,7 @@ public class GcExceptions {
     public static final String ERP_SOA_CUSCODE_IS_ERROR = "gc.erp_soa_cuscode_is_error";
     public static final String CHOOSE_STOCK_OUT_ORDER_PLEASE = "gc.choose_stock_out_order_please";
     public static final String MATERIAL_LOT_HAS_BEEN_SOLD_BY_THREE_PARTIES = "gc.the_materialLot_has_been_sold_by_three_parties";
+    public static final String ERP_ORDER_CANNOT_EMPTY = "gc.erp_order_seq_cannot_empty";
 
     public static final String MATERIAL_LOT_NOT_MATCH_ORDER = "gc.meterial_lot_not_match_order";
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "gc.meterial_lot_reserved_by_another";
@@ -49,6 +50,8 @@ public class GcExceptions {
     public static final String MATERIALLOT_RESERVED_ORDER_IS_NULL = "gc.material_lot_reserved_order_is_null";
     public static final String MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN = "gc.material_lot_wafer_qty_more_than_thirteen";
     public static final String MATERIALLOT_PACKED_DETIAL_IS_NULL = "gc.material_lot_packed_detial_is_null";
+
+    public static final String DOCUMENT_LINE_MERGE_RULE_IS_NOE_EXIST = "gc.document_line_merge_rule_is_not_exist";
 
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";
