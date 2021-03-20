@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by guoxunbo on 2019-08-21 13:15
@@ -58,7 +59,8 @@ public class WaferManagerController extends AbstractRestController {
             gcService.validationDocLine(documentLineList, materialLot);
             responseBody.setWorkOrderId(materialLot.getWorkOrderId());
         } else if (WaferManagerRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
-            gcService.validationAndWaferIssue(documentLineList, materialLotActions, requestBody.getIssueWithDoc(), requestBody.getUnPlanLot());
+            List<Map<String,String>> parameterMapList= gcService.validationAndWaferIssue(documentLineList, materialLotActions, requestBody.getIssueWithDoc(), requestBody.getUnPlanLot());
+            responseBody.setParameterMapList(parameterMapList);
         } else if(WaferManagerRequest.ACTION_TYPE_VALIDATION_WAIT_ISSUE.equals(actionType)){
             List<MaterialLot> materialLotList = gcService.validationAndGetWaitIssueWafer(requestBody.getTableRrn(), requestBody.getWhereClause());
             responseBody.setMaterialLotList(materialLotList);

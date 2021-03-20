@@ -240,6 +240,18 @@ public class MaterialLotUnit extends NBUpdatable {
     private String sourceProductId;
 
     /**
+     * RW生成的内批号
+     */
+    @Column(name="INNER_LOT_ID")
+    private String innerLotId;
+
+    /**
+     * RW产线入库时的LotId
+     */
+    @Column(name="LOT_CST")
+    private String lotCst;
+
+    /**
      * 二级代码
      */
     @Column(name="RESERVED1")

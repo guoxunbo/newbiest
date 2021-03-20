@@ -6,6 +6,9 @@ package com.newbiest.gc.model;
  */
 public class MLotCodePrint {
 
+    public static final String PRINT_GALAXYCORE = "GALAXYCORE";
+    public static final String COMPANY_INITIALS_G = "G";
+
     //一般物料标签
     public static final String GENERAL_MLOT_LABEL = "GeneralMLotLabel";
     public static final String GENERAL_MLOT_PORTID = "2001";
