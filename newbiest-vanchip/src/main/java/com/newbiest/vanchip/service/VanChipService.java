@@ -37,4 +37,5 @@ public interface VanChipService {
 
     List<MaterialLot> stockInFinishGood(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
 
+    void issueFinishGoodByDoc(String documentId, List<String> materialLotIds) throws ClientException;
 }

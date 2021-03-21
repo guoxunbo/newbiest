@@ -77,12 +77,12 @@ public class DocumentServiceImpl implements DocumentService {
     DeliveryOrderRepository deliveryOrderRepository;
 
     @Autowired
-    ReTestOrderRepository reTestOrderRepository;
+    IssueFinishGoodOrderRepository issueFinishGoodOrderRepository;
 
     /**
      * 创建发货单
      * @param documentId         单据号 不传，系统会自己生成一个
-     * @param approveFlag        是否创建即approve
+     * @param approveFlag        是否创建即审核
      * @throws ClientException
      */
     public void createDeliveryOrder(String documentId, boolean approveFlag, List<DocumentLine> documentLineList) throws ClientException {
@@ -100,6 +100,8 @@ public class DocumentServiceImpl implements DocumentService {
             deliveryOrder.setName(documentId);
             deliveryOrder.setQty(totalQty);
             deliveryOrder.setUnHandledQty(totalQty);
+
+            deliveryOrder.setStatus(Document.STATUS_CREATE);
             if (approveFlag) {
                 deliveryOrder.setStatus(Document.STATUS_APPROVE);
             }
@@ -110,6 +112,9 @@ public class DocumentServiceImpl implements DocumentService {
                 documentLine.setDocument(deliveryOrder);
                 documentLine.setLineId(subLineId);
                 documentLine.setUnHandledQty(documentLine.getQty());
+
+                documentLine.setReservedQty(BigDecimal.ZERO);
+                documentLine.setUnReservedQty(documentLine.getQty());
                 baseService.saveEntity(documentLine);
             }
         } catch (Exception e) {
@@ -317,7 +322,9 @@ public class DocumentServiceImpl implements DocumentService {
                 handleQty = handleQty.add(materialLot.getCurrentQty());
                 mmsService.issue(materialLot);
             }
-
+            if (documentLine.getUnHandledQty().compareTo(handleQty) < 0){
+                throw new ClientParameterException(MLOT_TOTAL_QTY_GREATER_THAN_DOCLINE_UNHANDLED_QTY);
+            }
             documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
             documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(handleQty));
             baseService.saveEntity(documentLine, DocumentHistory.TRANS_TYPE_ISSUE);
@@ -431,35 +438,35 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     * 创建重测发料单
+     * 创建成品发料单
      * @param documentId
      * @param approveFlag
      * @param materialLotIdList
      */
-    public void createReTestOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException{
+    public void createIssueFinishGoodOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException{
         try {
             if (StringUtils.isNullOrEmpty(documentId)) {
-                documentId = generatorDocId(ReTestOrder.GENERATOR_RETEST_ORDER_ID_RULE);
+                documentId = generatorDocId(IssueFinishGoodOrder.GENERATOR_ISSUE_FINISH_GOOD_ORDER_ID_RULE);
             }
-            ReTestOrder reTestOrder = reTestOrderRepository.findOneByName(documentId);
-            if (reTestOrder != null) {
+            IssueFinishGoodOrder issueFinishGoodLotOrder = issueFinishGoodOrderRepository.findOneByName(documentId);
+            if (issueFinishGoodLotOrder != null) {
                 throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
             }
             List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
             BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
 
-            reTestOrder = new ReTestOrder();
-            reTestOrder.setName(documentId);
-            reTestOrder.setQty(totalQty);
-            reTestOrder.setUnHandledQty(totalQty);
+            issueFinishGoodLotOrder = new IssueFinishGoodOrder();
+            issueFinishGoodLotOrder.setName(documentId);
+            issueFinishGoodLotOrder.setQty(totalQty);
+            issueFinishGoodLotOrder.setUnHandledQty(totalQty);
             if (approveFlag) {
-                reTestOrder.setStatus(Document.STATUS_APPROVE);
+                issueFinishGoodLotOrder.setStatus(Document.STATUS_APPROVE);
             }
-            reTestOrder = (ReTestOrder) baseService.saveEntity(reTestOrder);
+            issueFinishGoodLotOrder = (IssueFinishGoodOrder) baseService.saveEntity(issueFinishGoodLotOrder);
 
             for (MaterialLot materialLot : materialLots) {
                 DocumentMLot documentMLot = new DocumentMLot();
-                documentMLot.setDocumentId(reTestOrder.getName());
+                documentMLot.setDocumentId(issueFinishGoodLotOrder.getName());
                 documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
                 documentMLotRepository.save(documentMLot);
             }
@@ -469,30 +476,28 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     * 重测发料
+     * 成品发料
      */
-    public void reTestMLotByDoc(String reTestOrderId, List<String> materialLotIdList) throws ClientException{
+    public void issueFinishGoodByDoc(String issueFinishGoodLotOrderId, List<String> materialLotIdList) throws ClientException{
         try {
-            ReTestOrder reTestOrder = reTestOrderRepository.findOneByName(reTestOrderId);
-            if (reTestOrder == null) {
-                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, reTestOrder.getName());
+            IssueFinishGoodOrder issueFinishGoodLotOrder = issueFinishGoodOrderRepository.findOneByName(issueFinishGoodLotOrderId);
+            if (issueFinishGoodLotOrder == null) {
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, issueFinishGoodLotOrderId);
             }
-            if (!Document.STATUS_APPROVE.equals(reTestOrder.getStatus())) {
-                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, reTestOrder.getName());
+            if (!Document.STATUS_APPROVE.equals(issueFinishGoodLotOrder.getStatus())) {
+                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, issueFinishGoodLotOrder.getName());
             }
-            List<MaterialLot> materialLots = validationDocReservedMLot(reTestOrderId, materialLotIdList);
+            List<MaterialLot> materialLots = validationDocReservedMLot(issueFinishGoodLotOrderId, materialLotIdList);
 
             BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setCurrentQty(BigDecimal.ZERO);
-                materialLot.setCurrentSubQty(BigDecimal.ZERO);
-                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_RETEST, StringUtils.EMPTY);
-
-                baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_RETEST);
+                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_ISSUE, StringUtils.EMPTY);
+                baseService.saveEntity(materialLot, MaterialLotHistory.TRANS_TYPE_ISSUE);
             }
-            reTestOrder.setHandledQty(reTestOrder.getHandledQty().add(handleQty));
-            reTestOrder.setUnHandledQty(reTestOrder.getUnHandledQty().subtract(handleQty));
-            baseService.saveEntity(reTestOrder, DocumentHistory.TRANS_TYPE_RETEST);
+            issueFinishGoodLotOrder.setHandledQty(issueFinishGoodLotOrder.getHandledQty().add(handleQty));
+            issueFinishGoodLotOrder.setUnHandledQty(issueFinishGoodLotOrder.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(issueFinishGoodLotOrder, DocumentHistory.TRANS_TYPE_ISSUE);
 
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);

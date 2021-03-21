@@ -36,7 +36,7 @@ public interface DocumentService {
 
     List<MaterialLot> validationDocReservedMLot(String documentId, List<String> validationMLotIdList) throws ClientException;
 
-    void createReTestOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
-    void reTestMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
+    void createIssueFinishGoodOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
+    void issueFinishGoodByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
 }
 
