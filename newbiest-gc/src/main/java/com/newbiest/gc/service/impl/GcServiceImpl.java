@@ -717,25 +717,12 @@ public class GcServiceImpl implements GcService {
                             checkHistory.setObjectRrn(null);
                             checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
                             checkHistoryRepository.save(checkHistory);
+
+                            this.saveUnitCheckHis(packageDetailLot.getMaterialLotId());
                         }
                     }
 
-                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-                    if (CollectionUtils.isNotEmpty(materialLotUnitList)) {
-                        for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
-                            MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_CHECK);
-                            materialLotUnitHistory.setTransQty(materialLotUnit.getCurrentQty());
-                            materialLotUnitHisRepository.save(materialLotUnitHistory);
-
-                            checkHistory = new CheckHistory();
-                            checkHistory.setMaterialLotUnit(materialLotUnit);
-                            checkHistory.setTransQty(materialLotUnit.getCurrentQty());
-                            checkHistory.setTransType(MaterialLotHistory.TRANS_TYPE_CHECK);
-                            checkHistory.setObjectRrn(null);
-                            checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
-                            checkHistoryRepository.save(checkHistory);
-                        }
-                    }
+                    this.saveUnitCheckHis(materialLot.getMaterialLotId());
                 }
             }
 
@@ -756,6 +743,30 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 保存unit的盘点历史
+     * @param materialLotId
+     */
+    private void saveUnitCheckHis(String materialLotId) {
+        List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLotId);
+        if (CollectionUtils.isNotEmpty(materialLotUnitList)) {
+            for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
+                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_CHECK);
+                materialLotUnitHistory.setTransQty(materialLotUnit.getCurrentQty());
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
+
+                CheckHistory checkHistory = new CheckHistory();
+                checkHistory.setMaterialLotUnit(materialLotUnit);
+                checkHistory.setTransQty(materialLotUnit.getCurrentQty());
+                checkHistory.setTransType(MaterialLotHistory.TRANS_TYPE_CHECK);
+                checkHistory.setObjectRrn(null);
+                checkHistory.setHisSeq(ThreadLocalContext.getTransRrn());
+                checkHistoryRepository.save(checkHistory);
+            }
+        }
+    }
+
 
     /**
      * Wafer发料时同时同步wafer发料单和其他发料单
