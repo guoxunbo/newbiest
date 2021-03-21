@@ -519,6 +519,18 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String holdReason;
 
     /**
+     * RW生成的内批号
+     */
+    @Column(name="INNER_LOT_ID")
+    private String innerLotId;
+
+    /**
+     * RW产线入库时的LotId
+     */
+    @Column(name="LOT_CST")
+    private String lotCst;
+
+    /**
      * 原材料生产日期
      */
     @Column(name="MFG_DATE")
