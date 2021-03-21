@@ -636,6 +636,13 @@ public class VanchipServiceImpl implements VanChipService {
      * hold的物料只能入Hold仓库
      * @param materialLot
      * @param materialLotAction 需包含TargetWarehouseRrn
+
+    /**
+     * 成品发料
+     * @param documentId
+     * @param materialLotIds
+     * @throws ClientException
+     */
     public void issueFinishGoodByDoc(String documentId, List<String> materialLotIds) throws ClientException{
         try {
             documentService.issueFinishGoodByDoc(documentId, materialLotIds);
