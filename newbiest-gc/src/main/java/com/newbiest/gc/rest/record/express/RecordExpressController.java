@@ -52,7 +52,7 @@ public class RecordExpressController {
         String actionType = requestBody.getActionType();
         List<MaterialLot> materialLots = Lists.newArrayList();
         if (RecordExpressRequestBody.ACTION_TYPE_AUTO_ORDER.equals(actionType)) {
-            parameterMapList = expressService.planOrder(requestBody.getMaterialLots(), requestBody.getServiceMode(), requestBody.getPayMode());
+            parameterMapList = expressService.planOrder(requestBody.getMaterialLots(), requestBody.getServiceMode(), requestBody.getPayMode(), requestBody.getOrderTime());
             responseBody.setParameterMapList(parameterMapList);
         } else if (RecordExpressRequestBody.ACTION_TYPE_MANUAL_ORDER.equals(actionType)) {
             materialLots = expressService.recordExpressNumber(requestBody.getMaterialLots(), requestBody.getExpressNumber(), requestBody.getExpressCompany(), MaterialLot.PLAN_ORDER_TYPE_MANUAL);
