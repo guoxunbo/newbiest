@@ -946,7 +946,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String shippingDateValue;
 
     @Transient
-    private String scanSeq;
+    private Integer scanSeq;
 
     @Transient
     private String boxsScanSeq;
