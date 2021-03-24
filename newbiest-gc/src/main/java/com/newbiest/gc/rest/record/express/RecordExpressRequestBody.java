@@ -54,6 +54,9 @@ public class RecordExpressRequestBody extends RequestBody {
 
 	private String wayBillNumber;
 
+	@ApiModelProperty(value = "下单时间")
+	private String orderTime;
+
 	/**
 	 * 老版本的记录快递接口使用
 	 */
