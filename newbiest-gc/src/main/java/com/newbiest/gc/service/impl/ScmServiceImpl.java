@@ -76,7 +76,7 @@ public class ScmServiceImpl implements ScmService {
     public static final String REFERENCE_NAME_FOR_SCM = "SCMImportType";
     public static final String QUERY_ENG_API = "/api/wip/sync-eng/query";
 
-    public static final String MATERIAL_LOT_STATE_REPORT = "/api/wip/wipdata/update_stage";
+    public static final String MATERIAL_LOT_STATE_REPORT = "/api/wip/wipdata/update_stage?system_id=1";
 
     public static final String MSCM_SERVICE_NAME = "interface";
     public static final String MSCM_TOKEN_API = "/api/?r=Api/Token/AccessToken";
@@ -329,16 +329,14 @@ public class ScmServiceImpl implements ScmService {
     }
 
     @Async
-    public void sendMaterialStateReport(List<MaterialLot> materialLots, String action) throws ClientException {
+    public void sendMaterialStateReport(List<MaterialLot> materialLots, String action,  SessionContext sc) throws ClientException {
         try {
-            SessionContext sc = ThreadLocalContext.getSessionContext();
-            sc.buildTransInfo();
             MaterialLotStateReportRequest request = new MaterialLotStateReportRequest();
             RequestHeader requestHeader = new RequestHeader();
-            requestHeader.setOrgName(ThreadLocalContext.getOrgName());
-            requestHeader.setOrgRrn(ThreadLocalContext.getOrgRrn());
-            requestHeader.setUsername(ThreadLocalContext.getUsername());
-            requestHeader.setTransactionId(ThreadLocalContext.getTransRrn());
+            requestHeader.setOrgName(sc.getOrgName());
+            requestHeader.setOrgRrn(sc.getOrgRrn());
+            requestHeader.setUsername(sc.getUsername());
+            requestHeader.setTransactionId(sc.getTransRrn());
             request.setHeader(requestHeader);
 
             MaterialLotStateReportRequestBody requestBody = new MaterialLotStateReportRequestBody();

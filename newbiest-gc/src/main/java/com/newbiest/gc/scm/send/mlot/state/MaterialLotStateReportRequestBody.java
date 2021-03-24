@@ -17,8 +17,8 @@ public class MaterialLotStateReportRequestBody extends RequestBody {
 	public static final String ACTION_TYPE_PLAN = "Plan";
 	public static final String ACTION_TYPE_UN_PLAN = "UnPlan";
 
-
 	private String actionType;
 
 	private List<Map<String, String>> materialLotList;
+
 }
