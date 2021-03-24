@@ -9,10 +9,7 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
-import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.utils.DateUtils;
-import com.newbiest.base.utils.StringUtils;
-import com.newbiest.base.utils.ThreadLocalContext;
+import com.newbiest.base.utils.*;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequest;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
@@ -334,6 +331,8 @@ public class ScmServiceImpl implements ScmService {
     @Async
     public void sendMaterialStateReport(List<MaterialLot> materialLots, String action) throws ClientException {
         try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
             MaterialLotStateReportRequest request = new MaterialLotStateReportRequest();
             RequestHeader requestHeader = new RequestHeader();
             requestHeader.setOrgName(ThreadLocalContext.getOrgName());

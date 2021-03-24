@@ -70,6 +70,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String PLAN_ORDER_TYPE_AUTO  = "AutoOrder";
 
+    public static final String TRANSTYPE_BIND_WORKORDER = "bindWorkorder";
+
+    public static final String TRANSTYPE_UN_BIND_WORKORDER = "unbindWorkorder";
+
     /**
      * F等级
      */
