@@ -2518,7 +2518,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
                     String productCategory = mesPackedLot.getProductCategory();
                     if(!StringUtils.isNullOrEmpty(productCategory)){
-                        mLotSetWaferSourceAndReserved7(otherReceiveProps, productCategory, mesPackedLot.getInFlag(), mesPackedLot.getType());
+                        mLotSetWaferSourceAndReserved7(otherReceiveProps, productCategory, mesPackedLot);
                     }
                     if(mesPackedLot.getWaferQty() != null){
                         BigDecimal waferQty = new BigDecimal(mesPackedLot.getWaferQty().toString());
@@ -2629,34 +2629,53 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    private void mLotSetWaferSourceAndReserved7(Map<String,Object> otherReceiveProps, String productCategory, String inFlag, String type) throws ClientException{
+    private void mLotSetWaferSourceAndReserved7(Map<String,Object> otherReceiveProps, String productCategory, MesPackedLot mesPackedLot) throws ClientException{
         try {
+            String inFlag = mesPackedLot.getInFlag();
+            String type = mesPackedLot.getType();
+            String productId = mesPackedLot.getProductId();
+
             if(MaterialLot.PRODUCT_CATEGORY.equals(productCategory)){
                 otherReceiveProps.put("reserved50", MaterialLot.COM_WAFER_SOURCE);
                 otherReceiveProps.put("reserved7", productCategory);
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
                 if(MaterialLot.MM_PACKED_LOTIN_FLAG.equals(inFlag)){
-                    otherReceiveProps.put("reserved50", MaterialLot.WLT_IN_FLAG_WAFER_SOURCE);
                     otherReceiveProps.put("reserved7", MaterialLot.WLT_IN_FLAG_PRODUCTCATEGORY);
                 } else {
-                    otherReceiveProps.put("reserved50", MaterialLot.WLT_WAFER_SOURCE);
                     otherReceiveProps.put("reserved7", productCategory);
+                }
+                if(productId.endsWith("-2.5")){
+                    otherReceiveProps.put("reserved50", MaterialLot.WLT_IN_FLAG_WAFER_SOURCE);
+                } else if(productId.endsWith("-2.6")){
+                    otherReceiveProps.put("reserved50", MaterialLot.WLT_WAFER_SOURCE);
+                } else {
+                    otherReceiveProps.put("reserved50", MaterialLot.ERROR_WAFER_SOUCE);
                 }
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(productCategory)){
                 if(MaterialLot.MM_PACKED_LOTIN_FLAG.equals(inFlag)){
-                    otherReceiveProps.put("reserved50", MaterialLot.LCP_IN_FLAG_WAFER_SOURCE);
                     otherReceiveProps.put("reserved7", MaterialLot.CP_IN_FLAG_PRODUCTCATEGORY);
                 } else {
-                    otherReceiveProps.put("reserved50", MaterialLot.LCP_WAFER_SOURCE);
                     otherReceiveProps.put("reserved7", productCategory);
+                }
+                if(productId.endsWith("-1") || productId.endsWith("-2.5")){
+                    otherReceiveProps.put("reserved50", MaterialLot.LCP_IN_FLAG_WAFER_SOURCE);
+                } else if(productId.endsWith("-2.6")){
+                    otherReceiveProps.put("reserved50", MaterialLot.LCP_WAFER_SOURCE);
+                } else {
+                    otherReceiveProps.put("reserved50", MaterialLot.ERROR_WAFER_SOUCE);
                 }
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(productCategory)){
                 if(MaterialLot.MM_PACKED_LOTIN_FLAG.equals(inFlag)){
-                    otherReceiveProps.put("reserved50", MaterialLot.SCP_IN_FLAG_WAFER_SOURCE);
                     otherReceiveProps.put("reserved7", MaterialLot.CP_IN_FLAG_PRODUCTCATEGORY);
                 } else {
-                    otherReceiveProps.put("reserved50", MaterialLot.SCP_WAFER_SOURCE);
                     otherReceiveProps.put("reserved7", productCategory);
+                }
+                if(productId.endsWith("-0") || productId.endsWith("-1") || productId.endsWith("-1.3") || productId.endsWith("-1.5") || productId.endsWith("-1.6") || productId.endsWith("-2")){
+                    otherReceiveProps.put("reserved50", MaterialLot.SCP_IN_FLAG_WAFER_SOURCE);
+                } else if(productId.endsWith("-1.1") || productId.endsWith("-1.4") || productId.endsWith("-2.1")){
+                    otherReceiveProps.put("reserved50", MaterialLot.SCP_WAFER_SOURCE);
+                } else {
+                    otherReceiveProps.put("reserved50", MaterialLot.ERROR_WAFER_SOUCE);
                 }
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(productCategory)){
                 if(MaterialLotUnit.BOX_TYPE.equals(type)){
@@ -4013,7 +4032,7 @@ public class GcServiceImpl implements GcService {
             String location = StringUtils.EMPTY;
             String inFlag = mesPackedLot.getInFlag();
             String productCategory = mesPackedLot.getProductCategory();
-            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndState(mesPackedLot.getWaferId(), MaterialLotUnit.STATE_ISSUE);
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndWorkOrderIdAndState(mesPackedLot.getWaferId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
             if(CollectionUtils.isNotEmpty(materialLotUnits)){
                 if(!MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
                     if(MesPackedLot.IN_FLAG_ONE.equals(inFlag)){
@@ -4035,6 +4054,7 @@ public class GcServiceImpl implements GcService {
                 if(!StringUtils.isNullOrEmpty(materialLotUnits.get(0).getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLotUnits.get(0).getReserved13())){
                     location = MaterialLot.LOCATION_SH;
                 }
+                importType = materialLotUnits.get(0).getReserved49();
             }
 
             String productClassify = StringUtils.EMPTY;
@@ -4044,9 +4064,13 @@ public class GcServiceImpl implements GcService {
                 productClassify = MaterialLotUnit.PRODUCT_CLASSIFY_CP;
             }
             List<MaterialLot> materialLotList = materialLotRepository.findByLotIdAndReserved7AndStatusCategoryAndStatus(mesPackedLot.getCstId(), productClassify, MaterialLot.STATUS_FIN, MaterialLotUnit.STATE_ISSUE);
+            if(CollectionUtils.isEmpty(materialLotList)){
+                if(!mesPackedLot.getCstId().endsWith(".01")){
+                    materialLotList = materialLotRepository.findByLotIdAndReserved7AndStatusCategoryAndStatus(mesPackedLot.getLotId(), productClassify, MaterialLot.STATUS_FIN, MaterialLotUnit.STATE_ISSUE);
+                }
+            }
             if(CollectionUtils.isNotEmpty(materialLotList)){
                 productType = materialLotList.get(0).getProductType();
-                importType = materialLotList.get(0).getReserved49();
             }
 
             PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());

@@ -164,6 +164,12 @@ public class MesPackedLot implements Serializable {
     private String replaceFlag;
 
     /**
+     * 载具号
+     */
+    @Column(name="LOT_ID")
+    private String lotId;
+
+    /**
      * 供应商
      */
     @Transient
