@@ -5074,14 +5074,14 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }  else if(MaterialLotUnit.FAB_LCD_PTC.equals(importType) || MaterialLotUnit.FAB_LCD_SILTERRA.equals(importType)
-                    || MaterialLotUnit.LCD_CP_25UNMEASURED.equals(importType) || MaterialLotUnit.LCD_CP_25UNMEASURED.equals(importType)){
+                    || MaterialLotUnit.LCD_CP_25UNMEASURED.equals(importType)){
                 for (String lotId : materialLotUnitMap.keySet()) {
                     mLotUnitMap = materialLotUnitMap.get(lotId).stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
                     if(mLotUnitMap.size() > 1){
                         throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_NOT_SAME, lotId);
                     }
                     for(String materialName : mLotUnitMap.keySet()){
-                        if(materialName.endsWith("-1") || materialName.endsWith("-2.5")){
+                        if(materialName.endsWith("-1") || materialName.endsWith("-2.5") || materialName.endsWith("-2.55")){
                             waferSource = MaterialLot.WAFER_SOURCE_END3;
                         } else if(materialName.endsWith("-2.6")) {
                             waferSource = MaterialLot.WAFER_SOURCE_END4;
