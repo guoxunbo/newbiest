@@ -4116,6 +4116,7 @@ public class GcServiceImpl implements GcService {
                     Map<String, Object> otherReceiveProps = Maps.newHashMap();
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
                     otherReceiveProps.put("lotCst", mesPackedLot.getLotId());
+                    otherReceiveProps.put("pcode", mesPackedLot.getPcode());
                     otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
                     otherReceiveProps.put("productType", mesPackedLot.getProductType());
                     otherReceiveProps.put("reserved1", mesPackedLot.getLevelTwoCode());
