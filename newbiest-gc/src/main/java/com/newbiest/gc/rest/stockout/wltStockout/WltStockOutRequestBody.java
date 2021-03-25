@@ -52,5 +52,8 @@ public class WltStockOutRequestBody extends RequestBody {
   
   @ApiModelProperty(value = "检验二级代码")
 	private String checkSubCode;
+
+	@ApiModelProperty(value = "供应商地址")
+	private String address;
   
 }

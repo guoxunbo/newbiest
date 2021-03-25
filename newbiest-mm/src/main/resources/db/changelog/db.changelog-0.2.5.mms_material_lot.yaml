@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.2.5
+      author: Jason Zhou
+      remarks: mms_material_lot add columns VENDER_ADDRESS
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: VENDER_ADDRESS
+                  type: varchar(256)
+                  remarks: 标注出货地址

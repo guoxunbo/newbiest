@@ -67,6 +67,7 @@ public class GcConfiguration {
         ModelFactory.registerModelClassLoader(NBAuthority.class.getName(), NBAuthority.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GcUnConfirmWaferSet.class.getName(), GcUnConfirmWaferSet.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCFutureHoldConfig.class.getName(), GCFutureHoldConfig.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(GCVenderAddressRelation.class.getName(),GCVenderAddressRelation.class.getClassLoader());
 
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());
