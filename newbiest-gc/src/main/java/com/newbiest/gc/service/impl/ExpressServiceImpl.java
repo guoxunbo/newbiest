@@ -179,7 +179,7 @@ public class ExpressServiceImpl implements ExpressService {
      * @param serviceMode 服务模式 次日达等等
      * @param payMode 支付方式
      */
-    public List<Map<String, String>> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException {
+    public List<Map<String, String>> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException {
         try {
             List<Map<String, String>> parameterMapList = Lists.newArrayList();
             Optional optional = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved51())).findFirst();
@@ -211,8 +211,7 @@ public class ExpressServiceImpl implements ExpressService {
             orderInfo.setServiceMode(serviceMode);
             orderInfo.setPayMode(payMode);
 
-            //获取下单时间，存在配置，选用配置时间，没有配置，获取默认设置时间
-            String orderTime = getExpressOrderTime();
+            //下单时间为空时默认当天19：30
             if(!StringUtils.isNullOrEmpty(orderTime)){
                 orderInfo.setOrderTime(orderTime);
             }
@@ -502,17 +501,4 @@ public class ExpressServiceImpl implements ExpressService {
         }
     }
 
-    public String getExpressOrderTime() throws ClientException {
-        String orderTime = StringUtils.EMPTY;
-        List<NBOwnerReferenceList> nbReferenceList = (List<NBOwnerReferenceList>) uiService.getReferenceList(EXPRESS_ORDER_TIME, NBReferenceList.CATEGORY_OWNER);
-        if (CollectionUtils.isNotEmpty(nbReferenceList)) {
-            String time = nbReferenceList.get(0).getKey();
-            String [] timeArray = time.split(":");
-            LocalDateTime ldt = LocalDateTime.now();
-            ldt = ldt.withHour(Integer.parseInt(timeArray[0]));
-            ldt = ldt.withMinute(Integer.parseInt(timeArray[1]));
-            orderTime = ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        }
-        return orderTime;
-    }
 }

@@ -9,10 +9,10 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
-import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.utils.DateUtils;
-import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.*;
 import com.newbiest.gc.GcExceptions;
+import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequest;
+import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
 import com.newbiest.gc.service.ScmService;
 import com.newbiest.gc.service.model.QueryEngResponse;
 import com.newbiest.mms.exception.MmsException;
@@ -24,7 +24,7 @@ import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
-import com.newbiest.msg.DefaultParser;
+import com.newbiest.msg.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -75,6 +75,8 @@ public class ScmServiceImpl implements ScmService {
 
     public static final String REFERENCE_NAME_FOR_SCM = "SCMImportType";
     public static final String QUERY_ENG_API = "/api/wip/sync-eng/query";
+
+    public static final String MATERIAL_LOT_STATE_REPORT = "/api/wip/wipdata/update_stage?system_id=1";
 
     public static final String MSCM_SERVICE_NAME = "interface";
     public static final String MSCM_TOKEN_API = "/api/?r=Api/Token/AccessToken";
@@ -324,6 +326,38 @@ public class ScmServiceImpl implements ScmService {
             return referenceLists;
         }
         return Lists.newArrayList();
+    }
+
+    @Async
+    public void sendMaterialStateReport(List<MaterialLot> materialLots, String action,  SessionContext sc) throws ClientException {
+        try {
+            MaterialLotStateReportRequest request = new MaterialLotStateReportRequest();
+            RequestHeader requestHeader = new RequestHeader();
+            requestHeader.setOrgName(sc.getOrgName());
+            requestHeader.setOrgRrn(sc.getOrgRrn());
+            requestHeader.setUsername(sc.getUsername());
+            requestHeader.setTransactionId(sc.getTransRrn());
+            request.setHeader(requestHeader);
+
+            MaterialLotStateReportRequestBody requestBody = new MaterialLotStateReportRequestBody();
+            List<Map<String, String>> reportDataList = Lists.newArrayList();
+            for (MaterialLot materialLot : materialLots) {
+                Map<String, String> reportData = Maps.newHashMap();
+                reportData.put("lotId", materialLot.getLotId());
+                reportData.put("waferId", materialLot.getReserved2());
+                reportDataList.add(reportData);
+            }
+            requestBody.setMaterialLotList(reportDataList);
+            request.setBody(requestBody);
+            String responseStr = sendHttpRequest(mScmUrl + MATERIAL_LOT_STATE_REPORT, request, Maps.newHashMap());
+
+            Response response = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(responseStr);
+            if (!ResponseHeader.RESULT_SUCCESS.equals(response.getHeader().getResult())) {
+                throw new ClientException(response.getHeader().getResultCode());
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     private String sendHttpRequest(String url, Object requestInfo, Map<String, String> httpHeaders) throws ClientException {

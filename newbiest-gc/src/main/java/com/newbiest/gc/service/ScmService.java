@@ -1,6 +1,7 @@
 package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.utils.SessionContext;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 
@@ -20,4 +21,6 @@ public interface ScmService {
     String getMScmToken() throws ClientException;
     void addTracking(String orderId, String expressNumber, boolean isKuayueExprress) throws ClientException;
     void addScmTracking(String orderId, List<MaterialLot> materialLotList) throws ClientException;
+
+    void sendMaterialStateReport(List<MaterialLot> materialLots, String action, SessionContext sc) throws ClientException;
 }
