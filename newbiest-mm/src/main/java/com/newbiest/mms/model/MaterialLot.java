@@ -70,10 +70,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String PLAN_ORDER_TYPE_AUTO  = "AutoOrder";
 
-    public static final String TRANSTYPE_BIND_WORKORDER = "bindWorkorder";
-
-    public static final String TRANSTYPE_UN_BIND_WORKORDER = "unbindWorkorder";
-
     /**
      * F等级
      */
@@ -178,7 +174,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WLT_IN_FLAG_WAFER_SOURCE = "5";
     public static final String LCP_IN_FLAG_WAFER_SOURCE = "3";
     public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
-    public static final String ERROR_WAFER_SOUCE = "E";
 
     /**
      * 根据产品结尾数字获取WaferSource
@@ -916,8 +911,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     /**
      * sparePartsLine 备件线别
      */
+    @Column(name="VENDER_ADDRESS")
+    private String venderAddress;
+
+    /**
+     * sparePartsLine 备件线别
+     */
     @Column(name="RESERVED60")
     private String reserved60;
+
 
     @Transient
     private String documentLineUser;
