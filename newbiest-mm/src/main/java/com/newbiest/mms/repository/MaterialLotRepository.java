@@ -43,4 +43,6 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     void deleteByImportType(@Param("importCode") String importCode) throws ClientException;
 
     List<MaterialLot> findByLotIdAndReserved7AndStatusCategoryAndStatus(@Param("lotId")String lotId,@Param("reserved7")String reserved7, @Param("statusCategory")String statusCategory, @Param("status")String status) throws ClientException;
+
+    MaterialLot findByLotIdAndWorkOrderId(@Param("lotId")String lotId, @Param("workOrderId") String workOrderId) throws ClientException;
 }

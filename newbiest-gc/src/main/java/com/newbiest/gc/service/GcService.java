@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    List<Map<String, String>> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel) throws ClientException;
     List<Map<String, String>> getRWIssueMaterialLotPrintParameter(List<MaterialLot> materialLotList) throws ClientException;
     Material saveProductAndSetStatusModelRrn(String name) throws ClientException;
 

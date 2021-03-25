@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RwFinishPackedLotReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add RwFinishPackedLotReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RwFinishPackedLotReceiveManager
+              description: RW产线接收入库
+              tableName: GCRwWaitReceivePackedLot
+              secondTableName: GCRwFinishPackedLotScan
+              url: /GC/GCRWFinishGoodManager
+              parentRrn: 24
+              seqNo: 40
+              image: icon-rule
+              labelZh: RW产线接收入库
+              labelEn: RwFinishPackedLotReceive

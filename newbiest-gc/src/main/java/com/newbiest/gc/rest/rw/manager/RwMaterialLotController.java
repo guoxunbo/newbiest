@@ -39,6 +39,9 @@ public class RwMaterialLotController {
         if (RwMaterialLotRequest.ACTION_QUERY_PRINT_PARAMETER.equals(actionType)) {
             List<Map<String, String>> parameterMapList = gcService.getRWIssueMaterialLotPrintParameter(requestBody.getMaterialLotList());
             responseBody.setParameterList(parameterMapList);
+        } else if(RwMaterialLotRequest.ACTION_RECEIVE_PACKEDLOT.equals(actionType)) {
+            List<Map<String, String>> parameterMapList = gcService.receiveRWFinishPackedLot(requestBody.getMesPackedLots(), requestBody.getPrintLabel());
+            responseBody.setParameterList(parameterMapList);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

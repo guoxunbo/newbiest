@@ -70,6 +70,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String PLAN_ORDER_TYPE_AUTO  = "AutoOrder";
 
+    public static final String TRANSTYPE_BIND_WORKORDER = "bindWorkorder";
+
+    public static final String TRANSTYPE_UN_BIND_WORKORDER = "unbindWorkorder";
+
     /**
      * F等级
      */
@@ -182,6 +186,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WAFER_SOURCE_END2 = "2";
     public static final String WAFER_SOURCE_END3 = "3";
     public static final String WAFER_SOURCE_END4 = "4";
+    public static final String ERROR_WAFER_SOUCE = "E";
 
     /**
      * Reserved7
@@ -529,6 +534,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="LOT_CST")
     private String lotCst;
+
+    /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
 
     /**
      * 原材料生产日期

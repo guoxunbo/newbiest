@@ -14,6 +14,8 @@ public class RwMaterialLotRequest extends Request {
 
 	public static final String ACTION_QUERY_PRINT_PARAMETER = "getPrintParameter";
 
+	public static final String ACTION_RECEIVE_PACKEDLOT = "RWReceivePackedLot";
+
 	private RwMaterialLotRequestBody body;
 
 }
