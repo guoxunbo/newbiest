@@ -347,6 +347,7 @@ public class ScmServiceImpl implements ScmService {
                 reportData.put("waferId", materialLot.getReserved2());
                 reportDataList.add(reportData);
             }
+            requestBody.setActionType(action);
             requestBody.setMaterialLotList(reportDataList);
             request.setBody(requestBody);
             String responseStr = sendHttpRequest(mScmUrl + MATERIAL_LOT_STATE_REPORT, request, Maps.newHashMap());
