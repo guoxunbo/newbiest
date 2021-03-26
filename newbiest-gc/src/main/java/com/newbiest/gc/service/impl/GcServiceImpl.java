@@ -9159,4 +9159,38 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 获取RW产线接收Lot标签打印参数
+     * @param materialLot
+     * @return
+     */
+    public Map<String, String> getRwReceiveLotLabelPrintParameter(MaterialLot materialLot) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+            parameterMap.put("CSTID", materialLot.getLotId());
+            parameterMap.put("WAFERQTY", materialLot.getCurrentSubQty().toString());
+            parameterMap.put("LOCATION", materialLot.getReserved6());
+            parameterMap.put("SUBCODE", materialLot.getReserved1());
+            parameterMap.put("LOIID", materialLot.getLotId());
+            parameterMap.put("LOTCST", materialLot.getLotCst());
+            parameterMap.put("PCODE", materialLot.getPcode());
+            parameterMap.put("QTY", materialLot.getCurrentQty().toString());
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            int i = 1;
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                parameterMap.put("frameID" + i, materialLotUnit.getUnitId());
+                parameterMap.put("chipQty" + i, materialLotUnit.getCurrentQty().toString());
+                i++;
+            }
+            for (int j = i; j <= 13; j++) {
+                parameterMap.put("frameID" + j, StringUtils.EMPTY);
+                parameterMap.put("chipQty" + j, StringUtils.EMPTY);
+            }
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

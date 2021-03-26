@@ -26,4 +26,7 @@ public class RwMaterialLotRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "打印标签")
 	private String printLabel;
+
+	@ApiModelProperty(value = "物料批次号")
+	private MaterialLot materialLot;
 }
