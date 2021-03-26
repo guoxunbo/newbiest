@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRwWaitReceivePackedLot_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCRwWaitReceivePackedLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRwWaitReceivePackedLot
+              description: RW等待接收的完成品
+              tableName: MES_PACKED_LOT
+              modelName: MesPackedLot
+              modelClass: com.newbiest.gc.model.MesPackedLot
+              labelZh: RW待接收完成品
+              label: RwWaitReceivePackedLot

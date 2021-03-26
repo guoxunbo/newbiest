@@ -178,7 +178,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WLT_IN_FLAG_WAFER_SOURCE = "5";
     public static final String LCP_IN_FLAG_WAFER_SOURCE = "3";
     public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
-    public static final String ERROR_WAFER_SOUCE = "E";
 
     /**
      * 根据产品结尾数字获取WaferSource
@@ -187,6 +186,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WAFER_SOURCE_END2 = "2";
     public static final String WAFER_SOURCE_END3 = "3";
     public static final String WAFER_SOURCE_END4 = "4";
+    public static final String ERROR_WAFER_SOUCE = "E";
 
     /**
      * Reserved7
@@ -534,6 +534,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="LOT_CST")
     private String lotCst;
+
+    /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
 
     /**
      * 原材料生产日期
@@ -916,8 +922,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     /**
      * sparePartsLine 备件线别
      */
+    @Column(name="VENDER_ADDRESS")
+    private String venderAddress;
+
+    /**
+     * sparePartsLine 备件线别
+     */
     @Column(name="RESERVED60")
     private String reserved60;
+
 
     @Transient
     private String documentLineUser;

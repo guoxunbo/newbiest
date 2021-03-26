@@ -194,6 +194,12 @@ public class MaterialLotUnitHistory extends NBHis {
     private String lotCst;
 
     /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
+
+    /**
      * 二级代码
      */
     @Column(name="RESERVED1")

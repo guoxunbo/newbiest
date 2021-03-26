@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRwMLotReceiveLabelPrint_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCRwMLotReceiveLabelPrint to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRwMLotReceiveLabelPrint
+              description: RW产线接收标签补打
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: RW产线Lot标签补打
+              label: RwMLotReceiveLabelPrint

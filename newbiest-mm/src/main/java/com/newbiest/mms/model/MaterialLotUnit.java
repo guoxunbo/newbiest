@@ -77,6 +77,7 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String PRODUCT_CATEGORY_FT = "FT";
     public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
     public static final String PRODUCT_CATEGORY_FT_COB = "COB";
+    public static final String PRODUCT_CATEGORY_RW = "RW";
 
     public static final String BOX_TYPE = "COB";
 
@@ -250,6 +251,12 @@ public class MaterialLotUnit extends NBUpdatable {
      */
     @Column(name="LOT_CST")
     private String lotCst;
+
+    /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
 
     /**
      * 二级代码
