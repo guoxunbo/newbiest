@@ -4316,20 +4316,10 @@ public class GcServiceImpl implements GcService {
                 importType = materialLotUnits.get(0).getReserved49();
             }
 
-            String productClassify = StringUtils.EMPTY;
-            if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
-                productClassify = MaterialLotUnit.PRODUCT_CLASSIFY_WLT;
-            } else if(MaterialLotUnit.PRODUCT_CATEGORY_CP.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(productCategory)){
-                productClassify = MaterialLotUnit.PRODUCT_CLASSIFY_CP;
-            }
-            List<MaterialLot> materialLotList = materialLotRepository.findByLotIdAndReserved7AndStatusCategoryAndStatus(mesPackedLot.getCstId(), productClassify, MaterialLot.STATUS_FIN, MaterialLotUnit.STATE_ISSUE);
-            if(CollectionUtils.isEmpty(materialLotList)){
-                if(!mesPackedLot.getCstId().endsWith(".01")){
-                    materialLotList = materialLotRepository.findByLotIdAndReserved7AndStatusCategoryAndStatus(mesPackedLot.getLotId(), productClassify, MaterialLot.STATUS_FIN, MaterialLotUnit.STATE_ISSUE);
-                }
-            }
-            if(CollectionUtils.isNotEmpty(materialLotList)){
-                productType = materialLotList.get(0).getProductType();
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderId(mesPackedLot.getCstId(), mesPackedLot.getWorkorderId());
+            if(materialLot == null){
+                String lotId = mesPackedLot.getCstId().split("\\.")[0] + ".01";
+                materialLot = materialLotRepository.findByLotIdAndWorkOrderId(lotId, mesPackedLot.getWorkorderId());
             }
 
             PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
@@ -4337,14 +4327,15 @@ public class GcServiceImpl implements GcService {
             packedLot.setBoxId(mLotId);
             packedLot.setPackedLotRrn(null);
             packedLot.setSubName(subName);
-            packedLot.setProductType(productType);
+            if(materialLot != null){
+                packedLot.setProductType(materialLot.getProductType());
+            }
             packedLot.setImportType(importType);
             packedLot.setWaferId("");
             packedLot.setLocation(location);
             packedLot.setFabDevice(fabDevice);
             packedLot.setQuantity(totalQty.intValue());
             packedLot.setWaferQty(number);
-//            packedLot = mesPackedLotRepository.saveAndFlush(packedLot);
 
             return packedLot;
         } catch (Exception e) {
