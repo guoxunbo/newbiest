@@ -429,9 +429,6 @@ databaseChangeLog:
       file: db.changelog-add.GCVenderAndAddress_nb_table.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-0.2.8.comments.yaml
-      relativeToChangelogFile: true
-  - include:
       file: db.changelog-add.GCRwFinishMLotReceive_nb_table.yaml
       relativeToChangelogFile: true
   - include:
