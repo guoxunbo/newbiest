@@ -3549,6 +3549,7 @@ public class GcServiceImpl implements GcService {
                 action.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
                 action.setTargetStorageId(storageId);
                 action.setTransQty(materialLot.getCurrentQty());
+                action.setTransCount(materialLot.getCurrentSubQty());
 
                 List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
                 // 如果为空就是做入库事件 如果不是空则做转库事件
@@ -4286,7 +4287,6 @@ public class GcServiceImpl implements GcService {
             MesPackedLot packedLot = new MesPackedLot();
             String subName = StringUtils.EMPTY;
             String fabDevice = StringUtils.EMPTY;
-            String productType = StringUtils.EMPTY;
             String importType = StringUtils.EMPTY;
             String location = StringUtils.EMPTY;
             String inFlag = mesPackedLot.getInFlag();
