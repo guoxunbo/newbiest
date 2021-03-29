@@ -9088,7 +9088,7 @@ public class GcServiceImpl implements GcService {
                 seqList.add(Long.parseLong(docLine.getReserved1()));
 
                 documentLineRepository.deleteById(docLine.getObjectRrn());
-                baseService.saveHistoryEntity(documentLine, DocumentLineHistory.TRANS_TYPE_DELETE);
+                baseService.saveHistoryEntity(docLine, DocumentLineHistory.TRANS_TYPE_DELETE);
             }
 
             //根据单据的类型更新中间表单据的状态
