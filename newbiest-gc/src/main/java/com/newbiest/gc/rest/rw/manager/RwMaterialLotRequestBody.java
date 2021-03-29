@@ -29,4 +29,7 @@ public class RwMaterialLotRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "物料批次号")
 	private MaterialLot materialLot;
+
+    @ApiModelProperty(value = "挑选所需数量")
+    private Long pickQty;
 }

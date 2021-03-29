@@ -18,6 +18,8 @@ public class RwMaterialLotRequest extends Request {
 
 	public static final String ACTION_PRINT_LOT_LABEL = "GetLotPrintLabel";
 
+	public static final String ACTION_AUTO_PICK = "AutoPick";
+
 	private RwMaterialLotRequestBody body;
 
 }

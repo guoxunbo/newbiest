@@ -557,3 +557,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRwMLotReceiveLabelPrint.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRwMLotStockOutTagManager.nb_authority.yaml
+      relativeToChangelogFile: true

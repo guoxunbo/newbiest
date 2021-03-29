@@ -9193,4 +9193,21 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+
+    /**
+     * RW批次标注自动挑选
+     * @param materialLotList
+     * @param pickQty
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, Long pickQty) throws ClientException{
+        try {
+
+            return materialLotList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

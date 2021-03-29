@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.rw.manager;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.ResponseBody;
 import lombok.Data;
 
@@ -16,4 +17,6 @@ public class RwMaterialLotResponseBody extends ResponseBody {
 	private List<Map<String, String>> parameterList = Lists.newArrayList();
 
 	private Map<String, String> parameterMap = Maps.newHashMap();
+
+	private List<MaterialLot> materialLotList = Lists.newArrayList();
 }
