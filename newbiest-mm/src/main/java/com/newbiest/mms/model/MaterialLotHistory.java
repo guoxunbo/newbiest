@@ -391,6 +391,12 @@ public class MaterialLotHistory extends NBHis {
     private String lotCst;
 
     /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
+
+    /**
      * 原材料生产日期
      */
     @Column(name="MFG_DATE")

@@ -342,11 +342,16 @@ public class ScmServiceImpl implements ScmService {
             MaterialLotStateReportRequestBody requestBody = new MaterialLotStateReportRequestBody();
             List<Map<String, String>> reportDataList = Lists.newArrayList();
             for (MaterialLot materialLot : materialLots) {
-                Map<String, String> reportData = Maps.newHashMap();
-                reportData.put("lotId", materialLot.getLotId());
-                reportData.put("waferId", materialLot.getReserved2());
-                reportDataList.add(reportData);
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                for(MaterialLotUnit materialLotUnit: materialLotUnitList){
+                    Map<String, String> reportData = Maps.newHashMap();
+                    reportData.put("lotId", materialLotUnit.getLotId());
+                    String waferId = materialLotUnit.getUnitId().split("-")[1];
+                    reportData.put("waferId", waferId);
+                    reportDataList.add(reportData);
+                }
             }
+            requestBody.setActionType(action);
             requestBody.setMaterialLotList(reportDataList);
             request.setBody(requestBody);
             String responseStr = sendHttpRequest(mScmUrl + MATERIAL_LOT_STATE_REPORT, request, Maps.newHashMap());
