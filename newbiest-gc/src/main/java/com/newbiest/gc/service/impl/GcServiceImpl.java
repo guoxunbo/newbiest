@@ -41,6 +41,7 @@ import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.mms.utils.CollectorsUtils;
 import freemarker.template.utility.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.ThreadContext;
 import org.hibernate.transform.Transformers;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -4186,7 +4187,7 @@ public class GcServiceImpl implements GcService {
     private MesPackedLot getRwReceicvePackedLotByBoxId(MesPackedLot mesPackedLot, Material material, Long totalQuantity, int count) throws ClientException{
         try {
             MesPackedLot packedLot = new MesPackedLot();
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderId(mesPackedLot.getLotId(), mesPackedLot.getWorkorderId());
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
             if(!StringUtils.isNullOrEmpty(materialLot.getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLot.getReserved13())){
                 packedLot.setLocation(MaterialLot.LOCATION_SH);
             }
@@ -4314,26 +4315,27 @@ public class GcServiceImpl implements GcService {
                     location = MaterialLot.LOCATION_SH;
                 }
                 importType = materialLotUnits.get(0).getReserved49();
-            }
 
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderId(mesPackedLot.getCstId(), mesPackedLot.getWorkorderId());
-            if(materialLot == null){
-                String lotId = mesPackedLot.getCstId().split("\\.")[0] + ".01";
-                materialLot = materialLotRepository.findByLotIdAndWorkOrderId(lotId, mesPackedLot.getWorkorderId());
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotUnits.get(0).getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+
+                packedLot.setLocation(location);
+                packedLot.setFabDevice(fabDevice);
+                packedLot.setImportType(importType);
+                packedLot.setSubName(subName);
+                packedLot.setProductType(materialLot.getProductType());
+            } else {
+                packedLot.setProductType(MaterialLot.RECEIVE_ERROR);
+                packedLot.setLocation(MaterialLot.RECEIVE_ERROR);
+                packedLot.setFabDevice(MaterialLot.RECEIVE_ERROR);
+                packedLot.setImportType(MaterialLot.RECEIVE_ERROR);
+                packedLot.setSubName(MaterialLot.RECEIVE_ERROR);
             }
 
             PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
             String mLotId = mmsService.generatorMLotId(material);
             packedLot.setBoxId(mLotId);
             packedLot.setPackedLotRrn(null);
-            packedLot.setSubName(subName);
-            if(materialLot != null){
-                packedLot.setProductType(materialLot.getProductType());
-            }
-            packedLot.setImportType(importType);
             packedLot.setWaferId("");
-            packedLot.setLocation(location);
-            packedLot.setFabDevice(fabDevice);
             packedLot.setQuantity(totalQty.intValue());
             packedLot.setWaferQty(number);
 
@@ -9068,6 +9070,7 @@ public class GcServiceImpl implements GcService {
             documentLine.setQty(new BigDecimal(totalDocQty));
             documentLine.setUnHandledQty(documentLine.getQty());
             documentLine.setUnReservedQty(documentLine.getQty());
+            documentLine.setMergeDoc(DocumentLine.DOC_MERGE);
             documentLine = documentLineRepository.saveAndFlush(documentLine);
 
             baseService.saveHistoryEntity(documentLine, DocumentLineHistory.TRANS_TYPE_MERGE_DOC);
