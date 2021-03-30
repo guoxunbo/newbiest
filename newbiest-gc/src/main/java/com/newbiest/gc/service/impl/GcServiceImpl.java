@@ -4324,11 +4324,7 @@ public class GcServiceImpl implements GcService {
                 packedLot.setSubName(subName);
                 packedLot.setProductType(materialLot.getProductType());
             } else {
-                packedLot.setProductType(MaterialLot.RECEIVE_ERROR);
-                packedLot.setLocation(MaterialLot.RECEIVE_ERROR);
-                packedLot.setFabDevice(MaterialLot.RECEIVE_ERROR);
-                packedLot.setImportType(MaterialLot.RECEIVE_ERROR);
-                packedLot.setSubName(MaterialLot.RECEIVE_ERROR);
+                throw new ClientParameterException(GcExceptions.WAFER_ID__IS_NOT_EXIST, mesPackedLot.getWaferId(), mesPackedLot.getWorkorderId());
             }
 
             PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
