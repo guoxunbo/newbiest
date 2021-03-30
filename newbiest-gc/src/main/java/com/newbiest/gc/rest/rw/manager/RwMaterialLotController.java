@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.rw.manager;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -39,6 +40,15 @@ public class RwMaterialLotController {
         if (RwMaterialLotRequest.ACTION_QUERY_PRINT_PARAMETER.equals(actionType)) {
             List<Map<String, String>> parameterMapList = gcService.getRWIssueMaterialLotPrintParameter(requestBody.getMaterialLotList());
             responseBody.setParameterList(parameterMapList);
+        } else if(RwMaterialLotRequest.ACTION_RECEIVE_PACKEDLOT.equals(actionType)) {
+            List<Map<String, String>> parameterMapList = gcService.receiveRWFinishPackedLot(requestBody.getMesPackedLots(), requestBody.getPrintLabel());
+            responseBody.setParameterList(parameterMapList);
+        } else if(RwMaterialLotRequest.ACTION_PRINT_LOT_LABEL.equals(actionType)){
+            Map<String, String> parameterMap = gcService.getRwReceiveLotLabelPrintParameter(requestBody.getMaterialLot());
+            responseBody.setParameterMap(parameterMap);
+        } else if(RwMaterialLotRequest.ACTION_AUTO_PICK.equals(actionType)){
+            List<MaterialLot> materialLots = gcService.rwTagginggAutoPickMLot(requestBody.getMaterialLotList(), requestBody.getPickQty());
+            responseBody.setMaterialLotList(materialLots);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

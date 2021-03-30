@@ -121,7 +121,7 @@ public class DocumentLine extends NBUpdatable {
      * 合单标记
      */
     @Column(name="MERGE_DOC")
-    private String mergeDoc = DOC_MERGE;
+    private String mergeDoc;
 
     /**
      * 关联ERP LINE的SEQ主键
