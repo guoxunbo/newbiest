@@ -1301,6 +1301,7 @@ public class GcServiceImpl implements GcService {
      */
     public void waferIssue(List<DocumentLine> documentLines, List<MaterialLot> materialLots) {
         try {
+            documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
             for (DocumentLine documentLine: documentLines) {
 
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
@@ -1450,6 +1451,7 @@ public class GcServiceImpl implements GcService {
      */
     private void receiveWafer(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
+            documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
             for (DocumentLine documentLine: documentLines) {
 
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
@@ -1573,6 +1575,7 @@ public class GcServiceImpl implements GcService {
      */
     private void reTestMaterialLots(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
+            documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
             for (DocumentLine documentLine: documentLines) {
 
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
@@ -6879,7 +6882,12 @@ public class GcServiceImpl implements GcService {
 
             List<MaterialLot> materialLotList = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getThreeSideOrder())).collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(materialLotList)){
-                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_HAS_BEEN_SOLD_BY_THREE_PARTIES, materialLotList.get(0).getMaterialLotId());
+                for(MaterialLot materialLot : materialLotList){
+                    DocumentLine threeSideOrder = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLot.getThreeSideOrder()));
+                    if(documentLine.getObjectRrn() == threeSideOrder.getObjectRrn()){
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_HAS_BEEN_SOLD_BY_THREE_PARTIES, materialLotList.get(0).getMaterialLotId(), documentLine.getDocId());
+                    }
+                }
             }
 
             BigDecimal handledQty = BigDecimal.ZERO;
@@ -7025,6 +7033,72 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * WLT/CP销售出货
+     * @param documentLineList
+     * @param materialLotActions
+     * @param checkSubCode
+     * @throws ClientException
+     */
+    public void wltCpMaterialLotSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException{
+        try {
+            List<DocumentLine> saleShipOrder = documentLineList.stream().filter(documentLine ->  ErpSoa.SOURCE_TABLE_NAME.equals(documentLine.getReserved31()) &&
+                    !DocumentLine.CUSCODE_9006.equals(documentLine.getThreeSideTransaction()) && !DocumentLine.CUSCODE_C1001.equals(documentLine.getThreeSideTransaction())
+                            && !DocumentLine.CUSCODE_C2837.equals(documentLine.getThreeSideTransaction()) && !DocumentLine.CUSCODE_C9009.equals(documentLine.getThreeSideTransaction())
+                            && !DocumentLine.CUSCODE_C001.equals(documentLine.getThreeSideTransaction())).collect(Collectors.toList());
+
+            if(CollectionUtils.isEmpty(saleShipOrder)){
+                throw new ClientParameterException(GcExceptions.CHOOSE_STOCK_OUT_ORDER_PLEASE, ErpSoa.SOURCE_TABLE_NAME);
+            }
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+
+            documentLineList = saleShipOrder.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+
+            Map<String, List<DocumentLine>> saleShipOrderMap = groupDocLineByMaterialAndSecondCodeAndBondPropAndShipper(documentLineList, checkSubCode);
+            Map<String, List<MaterialLot>> materialLotMap = groupWaferByMaterialAndSecondCodeAndBondPropAndShipper(materialLots, checkSubCode);
+
+            // 确保所有的物料批次都能匹配上单据, 并且数量足够
+            for (String key : materialLotMap.keySet()) {
+                validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(key, materialLotMap, saleShipOrderMap);
+                wltCpStockOut(saleShipOrderMap.get(key), materialLotMap.get(key));
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证物料信息是否匹配存在批次单据，并且数量足够
+     * @param materialInfo
+     * @param materialLotMap
+     * @param documentLineMap
+     * @throws ClientException
+     */
+    private void validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(String materialInfo, Map<String,List<MaterialLot>> materialLotMap, Map<String,List<DocumentLine>> documentLineMap) throws ClientException{
+        try {
+            if (!documentLineMap.keySet().contains(materialInfo)) {
+                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(materialInfo).get(0).getMaterialLotId());
+            }
+
+            Long totalOrderQty = documentLineMap.get(materialInfo).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+            //根据出货形态验证出货时消耗的颗数还是片数
+            BigDecimal totalQty = BigDecimal.ZERO;
+            for(MaterialLot materialLot : materialLotMap.get(materialInfo)){
+                if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54())){
+                    totalQty = totalQty.add(materialLot.getCurrentQty());
+                } else {
+                    totalQty = totalQty.add(materialLot.getCurrentSubQty());
+                }
+            }
+            Long totalMaterialLotQty = totalQty.longValue();
+            if (totalMaterialLotQty.compareTo(totalOrderQty) > 0) {
+                throw new ClientException(GcExceptions.OVER_DOC_QTY);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * WLT/CP物料批次根据发货单进行发货，更新单据数据以及，更改ERP的中间表数据
      *  documentLine 产品型号 materialName，二级代码 reserved2， 物流 reserved7 一致
      *  materialLot 产品型号 materialName，二级代码 reserved1， 物料 reserved6 一致
@@ -7043,24 +7117,7 @@ public class GcServiceImpl implements GcService {
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
-                if (!documentLineMap.keySet().contains(key)) {
-                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
-                }
-
-                Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
-                //根据出货形态验证出货时消耗的颗数还是片数
-                BigDecimal totalQty = BigDecimal.ZERO;
-                for(MaterialLot materialLot : materialLotMap.get(key)){
-                    if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54())){
-                        totalQty = totalQty.add(materialLot.getCurrentQty());
-                    } else {
-                        totalQty = totalQty.add(materialLot.getCurrentSubQty());
-                    }
-                }
-                Long totalMaterialLotQty = totalQty.longValue();
-                if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
-                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
-                }
+                validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(key, materialLotMap, documentLineMap);
                 wltCpStockOut(documentLineMap.get(key), materialLotMap.get(key));
             }
         } catch (Exception e) {
@@ -7142,6 +7199,7 @@ public class GcServiceImpl implements GcService {
      */
     private void wltCpStockOut(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
+            documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
             for(DocumentLine documentLine : documentLines){
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
                 Iterator<MaterialLot> iterator = materialLots.iterator();
@@ -7190,32 +7248,97 @@ public class GcServiceImpl implements GcService {
                     documentLine = documentLineRepository.saveAndFlush(documentLine);
                     baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SHIP);
 
-                    // 获取到主单据
-                    OtherShipOrder otherShipOrder = (OtherShipOrder) otherShipOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-                    otherShipOrder.setHandledQty(otherShipOrder.getHandledQty().add(handledQty));
-                    otherShipOrder.setUnHandledQty(otherShipOrder.getUnHandledQty().subtract(handledQty));
-                    otherShipOrder = otherShipOrderRepository.saveAndFlush(otherShipOrder);
-                    baseService.saveHistoryEntity(otherShipOrder, MaterialLotHistory.TRANS_TYPE_SHIP);
-
-                    if(StringUtils.isNullOrEmpty(documentLine.getMergeDoc())){
-                        Optional<ErpSob> erpSobOptional = erpSobOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
-                        if (!erpSobOptional.isPresent()) {
-                            throw new ClientParameterException(GcExceptions.ERP_SOB_IS_NOT_EXIST, documentLine.getReserved1());
-                        }
-
-                        ErpSob erpSob = erpSobOptional.get();
-                        erpSob.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-                        erpSob.setLeftNum(erpSob.getLeftNum().subtract(handledQty));
-                        if (StringUtils.isNullOrEmpty(erpSob.getDeliveredNum())) {
-                            erpSob.setDeliveredNum(handledQty.toPlainString());
-                        } else {
-                            BigDecimal docHandledQty = new BigDecimal(erpSob.getDeliveredNum());
-                            docHandledQty = docHandledQty.add(handledQty);
-                            erpSob.setDeliveredNum(docHandledQty.toPlainString());
-                        }
-                        erpSobOrderRepository.save(erpSob);
+                    if(ErpSob.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
+                        updateDocQyAndErpSobSynStatusAndQty(documentLine, handledQty);
+                    } else if(ErpSoa.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())) {
+                        updateDocQyAndErpSoaSynStatusAndQty(documentLine, handledQty);
                     }
                 }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 单据种存在合单的单据，先扣减数量，其次按照单据数量扣减
+     * @param documentLines
+     * @return
+     * @throws ClientException
+     */
+    private List<DocumentLine> vlidateDocMergeAndSortDocumentLinesBySeq(List<DocumentLine> documentLines) throws ClientException{
+        try {
+            List<DocumentLine> documentLineList = Lists.newArrayList();
+            List<DocumentLine> mergeDocLineList = documentLines.stream().filter(documentLine -> DocumentLine.ERROR_MEMO.equals(documentLine.getMergeDoc())).collect(Collectors.toList());
+            List<DocumentLine> unMergeDocLineList = documentLines.stream().filter(documentLine -> StringUtils.isNullOrEmpty(documentLine.getMergeDoc())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(mergeDocLineList)){
+                mergeDocLineList = mergeDocLineList.stream().sorted(Comparator.comparing(DocumentLine :: getCreated)).collect(Collectors.toList());
+                documentLineList.addAll(mergeDocLineList);
+            }
+            if(CollectionUtils.isNotEmpty(unMergeDocLineList)){
+                for(DocumentLine documentLine : unMergeDocLineList){
+                    documentLine.setErpSeq(Integer.parseInt(documentLine.getReserved1()));
+                }
+                unMergeDocLineList = unMergeDocLineList.stream().sorted(Comparator.comparing(DocumentLine :: getErpSeq)).collect(Collectors.toList());
+                documentLineList.addAll(unMergeDocLineList);
+            }
+            return documentLineList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 销售出单据信息修改，回写ERP_SOA表数量信息
+     * @param documentLine
+     * @param handledQty
+     * @throws ClientException
+     */
+    private void updateDocQyAndErpSoaSynStatusAndQty(DocumentLine documentLine, BigDecimal handledQty) throws ClientException{
+        try {
+            OtherStockOutOrder otherStockOutOrder = (OtherStockOutOrder) otherStockOutOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            otherStockOutOrder.setHandledQty(otherStockOutOrder.getHandledQty().add(handledQty));
+            otherStockOutOrder.setUnHandledQty(otherStockOutOrder.getUnHandledQty().subtract(handledQty));
+            otherStockOutOrder = otherStockOutOrderRepository.saveAndFlush(otherStockOutOrder);
+            baseService.saveHistoryEntity(otherStockOutOrder, MaterialLotHistory.TRANS_TYPE_SHIP);
+
+            validateAndUpdateErpSoa(documentLine, handledQty);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 销售单修改单据数量并回写中间表（ETM_SOB）
+     * @param documentLine
+     * @param handledQty
+     * @throws ClientException
+     */
+    private void updateDocQyAndErpSobSynStatusAndQty(DocumentLine documentLine, BigDecimal handledQty) throws ClientException{
+        try {
+            OtherShipOrder otherShipOrder = (OtherShipOrder) otherShipOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+            otherShipOrder.setHandledQty(otherShipOrder.getHandledQty().add(handledQty));
+            otherShipOrder.setUnHandledQty(otherShipOrder.getUnHandledQty().subtract(handledQty));
+            otherShipOrder = otherShipOrderRepository.saveAndFlush(otherShipOrder);
+            baseService.saveHistoryEntity(otherShipOrder, MaterialLotHistory.TRANS_TYPE_SHIP);
+
+            if(StringUtils.isNullOrEmpty(documentLine.getMergeDoc())){
+                Optional<ErpSob> erpSobOptional = erpSobOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                if (!erpSobOptional.isPresent()) {
+                    throw new ClientParameterException(GcExceptions.ERP_SOB_IS_NOT_EXIST, documentLine.getReserved1());
+                }
+
+                ErpSob erpSob = erpSobOptional.get();
+                erpSob.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                erpSob.setLeftNum(erpSob.getLeftNum().subtract(handledQty));
+                if (StringUtils.isNullOrEmpty(erpSob.getDeliveredNum())) {
+                    erpSob.setDeliveredNum(handledQty.toPlainString());
+                } else {
+                    BigDecimal docHandledQty = new BigDecimal(erpSob.getDeliveredNum());
+                    docHandledQty = docHandledQty.add(handledQty);
+                    erpSob.setDeliveredNum(docHandledQty.toPlainString());
+                }
+                erpSobOrderRepository.save(erpSob);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -8472,6 +8595,7 @@ public class GcServiceImpl implements GcService {
      */
     private void hkOrFtStockOut(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
+            documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
             for(DocumentLine documentLine : documentLines){
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
                 Iterator<MaterialLot> iterator = materialLots.iterator();
@@ -8579,6 +8703,7 @@ public class GcServiceImpl implements GcService {
      */
     private void receiveCogMLot(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
+            documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
             for (DocumentLine documentLine: documentLines) {
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
                 Iterator<MaterialLot> iterator = materialLots.iterator();

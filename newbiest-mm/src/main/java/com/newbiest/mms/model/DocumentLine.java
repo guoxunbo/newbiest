@@ -306,6 +306,9 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="RESERVED31")
     private String reserved31;
 
+    @Transient
+    private Integer erpSeq;
+
     public void setDoc(Document document) {
         this.setDocRrn(document.getObjectRrn());
         this.setDocId(document.getName());

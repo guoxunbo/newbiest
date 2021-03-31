@@ -67,6 +67,8 @@ public class WltStockOutController {
             gcService.validationMLotMaterialName(requestBody.getMaterialLotActions());
         } else if(WltStockOutRequest.ACTION_THREESIDE_SHIP.equals(actionType)){
             gcService.wltCpThreeSideShip(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
+        } else if(WltStockOutRequest.ACTION_SALE_SHIP.equals(actionType)) {
+            gcService.wltCpMaterialLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
