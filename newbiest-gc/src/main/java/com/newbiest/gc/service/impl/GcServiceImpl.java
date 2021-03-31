@@ -9186,16 +9186,114 @@ public class GcServiceImpl implements GcService {
 
 
     /**
-     * RW批次标注自动挑选
+     * RW批次标注自动挑选(按照先进先出的原则，先挑选装箱的)
      * @param materialLotList
      * @param pickQty
      * @return
      * @throws ClientException
      */
-    public List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, Long pickQty) throws ClientException{
+    public List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, BigDecimal pickQty) throws ClientException{
         try {
+            List<MaterialLot> pickMLotList = Lists.newArrayList();
+            List<MaterialLot> packedMaterialLots = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())).collect(Collectors.toList());
+            List<MaterialLot> unpackedMaterialLots = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(packedMaterialLots)){
+                packedMaterialLots = packedMaterialLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                Map<String, List<MaterialLot>> packedMLotMap = packedMaterialLots.stream().collect(Collectors.groupingBy(MaterialLot::getParentMaterialLotId));
+                for(String parentMLotId : packedMLotMap.keySet()){
+                    List<MaterialLot> materialLots = packedMLotMap.get(parentMLotId);
+                    materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                    for(MaterialLot materialLot : materialLots){
+                        if(pickQty.compareTo(materialLot.getCurrentQty()) > 0){
+                            pickMLotList.add(materialLot);
+                            pickQty = pickQty.subtract(materialLot.getCurrentQty());
+                        }
+                    }
+                }
+            }
+            if(CollectionUtils.isNotEmpty(unpackedMaterialLots)){
+                unpackedMaterialLots = unpackedMaterialLots.stream().sorted(Comparator.comparing(MaterialLot :: getCreated)).collect(Collectors.toList());
+                for(MaterialLot materialLot : unpackedMaterialLots){
+                    if(pickQty.compareTo(materialLot.getCurrentQty()) >= 0){
+                        pickMLotList.add(materialLot);
+                        pickQty = pickQty.subtract(materialLot.getCurrentQty());
+                    }
+                }
+            }
+            return pickMLotList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
-            return materialLotList;
+    /**
+     * RW出货标注
+     * @param materialLotList
+     * @param customerName
+     * @param abbreviation
+     * @param remarks
+     * @throws ClientException
+     */
+    public void rwMaterialLotStockOutTag(List<MaterialLot> materialLotList, String customerName, String abbreviation, String remarks) throws ClientException{
+        try {
+            //验证装箱的Lot客户标识和客户简称是否一致，不一致不能标注
+            Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            for(String parentMaterialLotId : packedLotMap.keySet()){
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(parentMaterialLotId, ThreadLocalContext.getOrgRrn());
+                validateMLotTagInfo(materialLot, customerName, abbreviation);
+
+                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks);
+            }
+
+            for(MaterialLot materialLot : materialLotList){
+                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 保存标注信息并记录历史
+     * @param materialLot
+     * @param customerName
+     * @param abbreviation
+     * @param remarks
+     * @throws ClientException
+     */
+    private void saveMaterialLotTaggingInfoAndSaveHis(MaterialLot materialLot, String customerName, String abbreviation, String remarks) throws ClientException{
+        try {
+            materialLot.setCustomerId(customerName);
+            materialLot.setReserved55(abbreviation);
+            materialLot.setReserved57(remarks);
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
+            materialLotHistoryRepository.save(history);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证箱中的Lot是否已经标注，如果已经标注，则验证客户标识与客户简称是否一致
+     * @param materialLot
+     * @param customerName
+     * @param abbreviation
+     * @throws ClientException
+     */
+    private void validateMLotTagInfo(MaterialLot materialLot, String customerName, String abbreviation) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            for(MaterialLot mLot : materialLots){
+                if(!StringUtils.isNullOrEmpty(mLot.getReserved55()) && !abbreviation.equals(mLot.getReserved55())){
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_CUSTOMER_NAME_IS_NOT_SAME, materialLot.getMaterialLotId());
+                }
+                if(!StringUtils.isNullOrEmpty(mLot.getCustomerId()) && !customerName.equals(mLot.getCustomerId())){
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_ABBREVIATION_IS_NOT_SAME, materialLot.getMaterialLotId());
+                }
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

@@ -544,6 +544,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String pcode;
 
     /**
+     * 客户标识
+     */
+    @Column(name="CUSTOMER_ID")
+    private String customerId;
+
+    /**
      * 原材料生产日期
      */
     @Column(name="MFG_DATE")

@@ -49,6 +49,8 @@ public class RwMaterialLotController {
         } else if(RwMaterialLotRequest.ACTION_AUTO_PICK.equals(actionType)){
             List<MaterialLot> materialLots = gcService.rwTagginggAutoPickMLot(requestBody.getMaterialLotList(), requestBody.getPickQty());
             responseBody.setMaterialLotList(materialLots);
+        } else if(RwMaterialLotRequest.ACTION_STOCK_OUT_TAG.equals(actionType)) {
+            gcService.rwMaterialLotStockOutTag(requestBody.getMaterialLotList(), requestBody.getCustomerName(), requestBody.getAbbreviation(), requestBody.getRemarks());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

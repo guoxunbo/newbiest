@@ -20,6 +20,8 @@ public class RwMaterialLotRequest extends Request {
 
 	public static final String ACTION_AUTO_PICK = "AutoPick";
 
+	public static final String ACTION_STOCK_OUT_TAG = "StockOutTag";
+
 	private RwMaterialLotRequestBody body;
 
 }
