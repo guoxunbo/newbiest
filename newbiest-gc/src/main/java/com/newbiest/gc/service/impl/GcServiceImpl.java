@@ -4058,10 +4058,8 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getProductId));
             Map<String, Warehouse> warehouseMap = Maps.newHashMap();
             List<ErpMoa> erpMoaList = Lists.newArrayList();
-            MesPackedLotRelation mesPackedLotRelation;
 
             for (String productId : packedLotMap.keySet()) {
-                List<MesPackedLot> mesPackedLotList = packedLotMap.get(productId);
                 Material material = mmsService.getProductByName(productId);
                 if (material == null) {
                     throw new ClientParameterException(MM_PRODUCT_ID_IS_NOT_EXIST, productId);
@@ -4070,19 +4068,17 @@ public class GcServiceImpl implements GcService {
                 List<MesPackedLot> mesPackedLots = packedLotMap.get(productId);
                 List<MaterialLotAction> materialLotActions = Lists.newArrayList();
                 for (MesPackedLot mesPackedLot : mesPackedLots) {
-//                    验证MM_PACKEND_LOT_RELATION表中有没有记录物料编码信息
-                    List<MesPackedLot> mesPackedLotUnits = mesPackedLotRepository.findByCstIdAndPackedStatusAndWaferIdIsNotNull(mesPackedLot.getCstId(), MesPackedLot.PACKED_STATUS_IN);
-                    mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotUnits.get(0).getPackedLotRrn());
-                    if(mesPackedLotRelation == null){
-                        throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
+                    //从发料Lot的获取无聊编码信息
+                    MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
+                    if(materialLot == null){
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
                     } else {
-                        String vender = mesPackedLotRelation.getVender();
-                        if(!StringUtils.isNullOrEmpty(vender)){
-                            Supplier supplier = supplierRepository.getByNameAndType(vender, Supplier.TYPE_VENDER);
+                        if(!StringUtils.isNullOrEmpty(materialLot.getReserved22())){
+                            Supplier supplier = supplierRepository.getByNameAndType(materialLot.getReserved22(), Supplier.TYPE_VENDER);
                             if(supplier == null){
                                 supplier = new Supplier();
                                 supplier.setType(Supplier.TYPE_VENDER);
-                                supplier.setName(vender);
+                                supplier.setName(materialLot.getReserved22());
                                 supplierRepository.save(supplier);
                             }
                         }
@@ -4131,12 +4127,11 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     otherReceiveProps.put("reserved22", mesPackedLot.getSubName());
                     otherReceiveProps.put("reserved24", mesPackedLot.getFabDevice());
-                    if(mesPackedLotRelation != null){
-                        otherReceiveProps.put("reserved25", mesPackedLotRelation.getWaferProperty());
-                    }
                     otherReceiveProps.put("reserved49", mesPackedLot.getImportType());
                     otherReceiveProps.put("reserved7", mesPackedLot.getProductCategory());
                     otherReceiveProps.put("reserved50", MaterialLot.LCP_WAFER_SOURCE);
+
+                    otherReceiveProps.put("reserved25", materialLot.getReserved25());
 
                     if(mesPackedLot.getWaferQty() != null){
                         BigDecimal waferQty = new BigDecimal(mesPackedLot.getWaferQty().toString());
@@ -4150,15 +4145,16 @@ public class GcServiceImpl implements GcService {
                     erpMoa.setFQty(mesPackedLot.getWaferQty());
                     erpMoa.setWarehouseCode(warehouseName);
                     erpMoa.setMesPackedLot(mesPackedLot);
+                    erpMoa.setCMOCode(mesPackedLot.getShipSequenceNumber());
 
-                    //从MM_PACKED_LOT_RELATION表中获取物料型号、物料数据等相关数据
+                    //从发料的Lot上获取物料编码等相关数据
                     erpMoa.setCMemo("EMPTY");
-                    erpMoa.setMaterialBonded(mesPackedLotRelation.getMaterialBonded());
-                    erpMoa.setMaterialCode(mesPackedLotRelation.getMaterialCode());
+                    erpMoa.setMaterialBonded(materialLot.getReserved6());
+                    erpMoa.setMaterialCode(materialLot.getMaterialName());
                     erpMoa.setMaterialQty(mesPackedLot.getWaferQty());
-                    erpMoa.setMaterialGrade(mesPackedLotRelation.getMaterialGrade());
-                    erpMoa.setMaterialVersion(mesPackedLotRelation.getMaterialVersion());
-                    erpMoa.setProdCate(mesPackedLotRelation.getProductType());
+                    erpMoa.setMaterialGrade(materialLot.getGrade());
+                    erpMoa.setMaterialVersion(materialLot.getReserved1());
+                    erpMoa.setProdCate(materialLot.getProductType());
 
                     erpMoaList.add(erpMoa);
                 }
