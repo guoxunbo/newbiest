@@ -3990,6 +3990,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved38(packedLot.getWaferMark());
                     materialLotUnit.setReserved50(materialLot.getReserved50());
                     materialLotUnit.setReserved22(materialLot.getReserved22());
+                    materialLotUnit.setReserved24(materialLot.getReserved24());
                     if(mesPackedLotRelation != null){
                         materialLotUnit.setReserved25(mesPackedLotRelation.getWaferProperty());
                     }
@@ -8601,16 +8602,16 @@ public class GcServiceImpl implements GcService {
                 Iterator<MaterialLot> iterator = materialLots.iterator();
                 while (iterator.hasNext()) {
                     MaterialLot materialLot = iterator.next();
-                    BigDecimal currentQty = materialLot.getCurrentQty();
-                    if (unhandedQty.compareTo(currentQty) >= 0) {
-                        unhandedQty = unhandedQty.subtract(currentQty);
-                        currentQty = BigDecimal.ZERO;
+                    BigDecimal currentSubQty = materialLot.getCurrentSubQty();
+                    if (unhandedQty.compareTo(currentSubQty) >= 0) {
+                        unhandedQty = unhandedQty.subtract(currentSubQty);
+                        currentSubQty = BigDecimal.ZERO;
                     } else {
-                        currentQty = currentQty.subtract(unhandedQty);
+                        currentSubQty = currentSubQty.subtract(unhandedQty);
                         unhandedQty = BigDecimal.ZERO;
                     }
-                    materialLot.setCurrentQty(currentQty);
-                    if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                    materialLot.setCurrentSubQty(currentSubQty);
+                    if (materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) == 0) {
                         saveDocLineRrnAndChangeStatus(materialLot, documentLine);
                         iterator.remove();
                     }
