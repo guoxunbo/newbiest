@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.1.3
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: RESERVED47
+                  type: varchar(64)
+                  remarks: PID(成品)
+              - column:
+                  name: RESERVED48
+                  type: varchar(64)
+                  remarks: 内部物料编码(成品)

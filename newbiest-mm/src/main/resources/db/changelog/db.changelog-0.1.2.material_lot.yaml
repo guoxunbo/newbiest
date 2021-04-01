@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.1.2
+      author: Tao Zhou
+      remarks: mms_material_lot add column
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: EXPECTED_DELIVERY_DATE
+                  type: datetime
+                  remarks: 预计到达日期

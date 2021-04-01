@@ -30,6 +30,9 @@ public class Storage extends NBUpdatable {
     @Column(name="WAREHOUSE_RRN")
     private String warehouseRrn;
 
+    @Column(name="WAREHOUSE_NAME")
+    private String warehouseName;
+
     /**
      * 父级节点
      */

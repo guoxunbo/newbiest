@@ -18,8 +18,20 @@ public class Warehouse extends NBUpdatable{
 
     private static final long serialVersionUID = -4573637477819603368L;
 
-    //表示hold仓库
-    public static final String HOLD_WAREHOUSE_TYPE = "Hold";
+    //hold仓库类型
+    public static final String WAREHOUSE_TYPE_HOLD = "Hold";
+    //原材料仓库类型
+    public static final String WAREHOUSE_TYPE_RAW_MATERIAL = "RawMaterial";
+    //完成品仓库类型
+    public static final String WAREHOUSE_TYPE_PRODUCT = "Product";
+    //实验室仓库类型
+    public static final String WAREHOUSE_TYPE_LABORATORY = "Laboratory";
+    //不良品仓库类型
+    public static final String WAREHOUSE_TYPE_REJECTS= "Rejects";
+    //包材仓库类型
+    public static final String WAREHOUSE_TYPE_PACKING_MATERIAL = "PackingMaterial";
+    //备件仓库类型
+    public static final String WAREHOUSE_TYPE_SPARE = "Spare";
 
     @Column(name="NAME")
     private String name;

@@ -15,6 +15,9 @@ public class IssueMLotByDocRequest extends Request {
 	public static final String ACTION_TYPE_ISSUE = "Issue";
 	public static final String ACTION_TYPE_GET_MATERIAL_LOT = "GetMaterialLot";
 
+	public static final String ACTION_TYPE_ISSUE_MLOT = "IssueMLot";
+	public static final String ACTION_TYPE_GET_WAIT_ISSUE_MLOT = "GetWaitIssueMLotByDocId";
+
 	private IssueMLotByDocRequestBody body;
 
 }

@@ -12,6 +12,7 @@ public class FinishGoodReservedRequest extends Request {
     public static final String ACTION_TYPE_FINISH_GOOD_RESERVED = "FinishGoodReserved";
     public static final String ACTION_TYPE_FINISH_GOOD_UN_RESERVED = "FinishGoodUnReserved";
     public static final String ACTION_TYPE_PRINT_RESERVED_ORDER = "PrintReservedOrder";
+    public static final String ACTION_TYPE_SEND_MAIL = "SendMail";
 
     private FinishGoodReservedRequestBody body;
 }

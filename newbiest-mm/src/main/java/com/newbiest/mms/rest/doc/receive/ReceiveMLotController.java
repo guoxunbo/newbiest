@@ -8,6 +8,7 @@ import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.state.model.MaterialStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/mms")
@@ -48,6 +50,7 @@ public class ReceiveMLotController extends AbstractRestController {
             documentService.receiveIncomingLot(requestBody.getDocumentId(), materialLotList);
         } else if (ReceiveMLotRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
             List<MaterialLot> materialLots = mmsService.getMLotByIncomingDocId(requestBody.getDocumentId());
+            materialLots = materialLots.stream().filter(mlot-> MaterialStatus.STATUS_CREATE.equals(mlot.getStatus())).collect(Collectors.toList());
             responseBody.setMaterialLotList(materialLots);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);

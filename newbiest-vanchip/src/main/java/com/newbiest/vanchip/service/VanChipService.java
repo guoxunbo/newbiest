@@ -2,10 +2,10 @@ package com.newbiest.vanchip.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.mms.model.DocumentLine;
-import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author guoxunbo
@@ -20,14 +20,16 @@ public interface VanChipService {
 
     void deleteIncomingMaterialLot(List<MaterialLot> materialLotList, String deleteNote) throws ClientException;
 
+    List<MaterialLot> getIssueOrderMLotParameter(String documentId) throws ClientException;
     void issueMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
     void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
 
     void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
 
     MaterialLot validationDocLineAndMaterialLot(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
+    List<MaterialLot> getMLotByFIFO(DocumentLine documentLine) throws ClientException;
 
-    List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine);
+    List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine, String reservedRule) throws ClientException;
 
     void reservedMaterialLot(DocumentLine documentLine, List<MaterialLotAction> materialLotActionList) throws ClientException;
 
@@ -38,4 +40,55 @@ public interface VanChipService {
     List<MaterialLot> stockInFinishGood(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
 
     void issueFinishGoodByDoc(String documentId, List<String> materialLotIds) throws ClientException;
+    void batchIqc(List<String> materialLotIds, MaterialLotAction materialLotAction) throws ClientException;
+    List<MaterialLot> validationAndGetWaitIqcMLot(List<String> materialLotIds) throws ClientException;
+
+    void createFinishGoodOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots) throws ClientException;
+    void receiveFinishGood(String documentId, List<String> materialLotIdList) throws ClientException;
+
+    MaterialLot packageMaterialLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException;
+    List<MaterialLot> unPack(List<MaterialLotAction> materialLotActions) throws ClientException;
+    MaterialLot appendPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException;
+
+    void asyncMesProduct() throws ClientException;
+
+    void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
+
+    List<MaterialLot> getMLotByLineObjectRrn(String docLineObjectRrn) throws ClientException;
+
+    List<MaterialLot> getWaitShipMLotByDocLine(DocumentLine documentLine) throws ClientException;
+
+    List<MaterialLotInventory> getMLotInventoryByDoc(Document document) throws ClientException;
+    List<MaterialLotInventory> getMLotInventoryByDocId(String documentId) throws ClientException;
+    List<MaterialLot> getMLotByBoxMaterialLotId(String materialLot) throws ClientException;
+    void picks(List<MaterialLotAction> materialLotActions) throws ClientException;
+
+    MaterialLot weightMaterialLot(String materialLotId, String grossWeight, String cartonSize) throws ClientException;
+
+    Map<String, Object> getBoxPrintParameter(String materialLotId) throws ClientException;
+    Map<String, Object> getCOCPrintParameter(String documentLineId) throws ClientException;
+    Map<String, Object> getPackingListPrintParameter(String documentLineId) throws ClientException;
+    List<Map<String, Object>> getPackingListMLotParameter(String documentLineId) throws ClientException;
+    Map<String, Object> getShippingListPrintParameter(String documentLineId) throws ClientException;
+    List<Map<String, Object>> getShippingListPrintMLotParameter(String documentLineId) throws ClientException;
+    Map<String, Object> getPKListParameter(String documentLineId) throws ClientException;
+    List<Map<String, Object>> getPKListMLotParameter(String documentLineId);
+
+    void packCheckPass(List<MaterialLot> materialLots) throws ClientException;
+    void packCheckNg(MaterialLotAction materialLotAction) throws ClientException;
+
+    void reservedSendMail(DocumentLine documentLine, List<MaterialLotAction> materialLotActionList);
+
+    //Mobile
+    void receiveMLotMobile(String documentId, MaterialLotAction materialLotAction)throws ClientException;
+    MaterialLot stockInMLotMobile(MaterialLotAction materialLotAction)throws ClientException;
+    MaterialLot stockOutMLotMobile(MaterialLotAction materialLotAction) throws ClientException;
+    MaterialLot queryPackageMLotMobile(MaterialLotAction materialLotAction) throws ClientException;
+    void shipOutMobile(String documentId ,MaterialLotAction materialLotAction) throws ClientException;
+    MaterialLotInventory checkMlotInventoryMobile(MaterialLotAction materialLotAction) throws ClientException;
+
+    void saveProduct(List<Product> dataList) throws ClientException;
+    void saveRawMaterial(List<RawMaterial> dataList) throws ClientException;
+
+    Storage saveStorageInfo(Storage storages) throws ClientException;
 }

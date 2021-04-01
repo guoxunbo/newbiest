@@ -1,0 +1,1 @@
+您好：单据号为[${parameterMap.documentId}],有待Release的ReelCode,具体的ReelNo为[${parameterMap.reelNo}]

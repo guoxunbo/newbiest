@@ -9,10 +9,10 @@ databaseChangeLog:
       file: db.changelog-mLot_doc_rule_line.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-0.0.4.material.yaml
+      file: db.changelog-0.0.5.material.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-0.0.4.material_his.yaml
+      file: db.changelog-0.0.5.material_his.yaml
       relativeToChangelogFile: true
   - include:
       file: db.changelog-vc-0.0.2.comments.yaml
@@ -28,4 +28,16 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: db.changelog-0.0.7.documentLine.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-vc-0.0.5.comments.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-vc-0.0.6.comments.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-vc-0.0.7.comments.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-material_model_conversion.yaml
       relativeToChangelogFile: true

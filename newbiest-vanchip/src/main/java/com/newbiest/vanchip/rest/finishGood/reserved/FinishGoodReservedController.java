@@ -2,6 +2,7 @@ package com.newbiest.vanchip.rest.finishGood.reserved;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
+import com.newbiest.main.MailService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.vanchip.service.VanChipService;
@@ -29,6 +30,9 @@ public class FinishGoodReservedController {
     @Autowired
     DocumentService documentService;
 
+    @Autowired
+    MailService mailService;
+
     @ApiOperation(value = "对完成品做操作", notes = "备货")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "FinishGoodReservedRequest")
     @RequestMapping(value = "/finishGoodReserved", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -40,7 +44,7 @@ public class FinishGoodReservedController {
         String actionType = requestBody.getActionType();
 
         if (FinishGoodReservedRequest.ACTION_TYPE_GET_MATERIALLOT.equals(actionType)){
-            List<MaterialLot> materialLots = vanChipService.getReservedMaterialLot(requestBody.getDocumentLine());
+            List<MaterialLot> materialLots = vanChipService.getReservedMaterialLot(requestBody.getDocumentLine(), requestBody.getReservedRule());
             responseBody.setMaterialLotList(materialLots);
         }else if (FinishGoodReservedRequest.ACTION_TYPE_FINISH_GOOD_RESERVED.equals(actionType)){
 
@@ -52,6 +56,13 @@ public class FinishGoodReservedController {
 
             List<MaterialLot> materialLotList = vanChipService.printReservedOrder(requestBody.getDocumentLine());
             responseBody.setMaterialLotList(materialLotList);
+        }else if(FinishGoodReservedRequest.ACTION_TYPE_SEND_MAIL.equals(actionType)){
+            vanChipService.reservedSendMail(requestBody.getDocumentLine(), requestBody.getMaterialLotActionList());
+//            DocumentLine documentLine = requestBody.getDocumentLine();
+//            String docLineId = documentLine.getLineId();
+//            List<String> to = Lists.newArrayList();
+//            to.add("1943896827@qq.com");
+//            mailService.sendSimpleMessage(to,"配料单释放","您好：发货单据号为"+docLineId+"的单据有待释放批次，具体reel code为：");
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }

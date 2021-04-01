@@ -48,6 +48,9 @@ public class MaterialEvent extends Event {
      */
     public static final String EVENT_WAIT_RETURN = "WaitReturn";
 
+    public static final String EVENT_RESERVED = "Reserved";
+    public static final String EVENT_UN_RESERVED = "UnReserved";
+
     /**
      * 发料
      */

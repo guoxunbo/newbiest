@@ -8,4 +8,5 @@ public class CreateIssueOrderResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
+	private String documentId;
 }

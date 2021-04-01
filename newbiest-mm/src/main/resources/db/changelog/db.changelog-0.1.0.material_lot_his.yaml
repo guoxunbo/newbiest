@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.1.0
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column INCOMING_QTY
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: INCOMING_QTY
+                  type: bigint
+                  remarks: 来料导入数量

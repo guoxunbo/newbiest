@@ -1,5 +1,6 @@
 vc:
-  mesUrl: http://127.0.0.1/mycim2
+  mesUrl: http://192.168.34.133:7001/mycim2
+  openSchedule: true
 #设置server的基本信息
 server:
   servlet:
@@ -20,9 +21,12 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@127.0.0.1:1521:newbiest
-      username: vcwms
-      password: vcwms
+#      url: jdbc:oracle:thin:@10.39.0.49:1521:orcl
+#      username: wmstest
+#      password: wmstest
+      url: jdbc:oracle:thin:@localhost/ORCL
+      username: wmstest6
+      password: wmstest6
       driver-class-name: oracle.jdbc.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1
@@ -64,10 +68,10 @@ spring:
       # 配置密码的公钥 默认使用druid的ConfigTool进行加密
       connection-properties: config.decrypt=false;config.decrypt.key=${publickey}
   mail:
-    host:
-    username:
-    password:
-    from:
+    host: smtp.163.com
+    username: taozhou0311@163.com
+    password: CYORWSWNLEXZVSNJ
+    from: taozhou0311@163.com
     properties:
       mail:
         smtp:
@@ -96,7 +100,7 @@ show:
 gateway:
   enable: true
 logging:
-  path: /Users/guoxunbo/Documents/newbiest/log
+  path: D:/g/newbiestLog/log
 management:
   server:
     servlet:

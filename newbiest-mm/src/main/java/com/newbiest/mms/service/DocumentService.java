@@ -19,10 +19,11 @@ public interface DocumentService {
 
     void receiveIncomingLot(String documentId, List<MaterialLot> materialLots) throws ClientException;
     void approveDocument(Document document) throws ClientException;
+    void approveDocument(String documentId) throws ClientException;
 
     String generatorDocId(String generatorRule) throws ClientException;
 
-    void createIssueLotOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
+    String createIssueLotOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
     void createIssueMaterialOrder(String documentId, boolean approveFlag, Map<String, BigDecimal> rawMaterialQtyMap) throws ClientException;
     void issueMLotByDoc(String issueLotOrderId, List<String> materialLotIdList) throws ClientException;
     void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
@@ -32,11 +33,15 @@ public interface DocumentService {
 
     List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
 
-    void createDeliveryOrder(String documentId, boolean approveFlag, List<DocumentLine> documentLineList) throws ClientException;
+    String createDeliveryOrder(String documentId, boolean approveFlag, List<DocumentLine> documentLineList) throws ClientException;
+    void createByReelDeliveryOrder(String documentId, boolean approveFlag, List<DocumentLine> documentLineList) throws ClientException;
 
     List<MaterialLot> validationDocReservedMLot(String documentId, List<String> validationMLotIdList) throws ClientException;
 
     void createIssueFinishGoodOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
     void issueFinishGoodByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
+
+    String createIssueMLotOrder(String documentId,  boolean approveFlag, List<String> materialLotIds) throws ClientException;
+    void issueMaterialLotByDoc(String documentId, List<String> materialLotIdList)throws ClientException;
 }
 

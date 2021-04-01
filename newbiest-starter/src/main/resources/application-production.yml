@@ -1,5 +1,5 @@
 vc:
-  mesUrl: http://110.39.0.53/mycim2
+  mesUrl: http://10.39.0.50/mycim2
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
