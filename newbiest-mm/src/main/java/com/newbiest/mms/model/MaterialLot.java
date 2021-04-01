@@ -12,6 +12,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by guoxunbo on 2019/2/26.
@@ -199,14 +200,14 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 有效时长
      */
     @Column(name="EFFECTIVE_LIFE")
-    private Long effectiveLife;
+    private Double effectiveLife;
 
     /**
      * 警告时长
      * 当达到此时长的时候触发警告
      */
     @Column(name="WARNING_LIFE")
-    private Long warningLife;
+    private Double warningLife;
 
     /**
      * 有效时长单位
@@ -323,7 +324,19 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String boxMaterialLotRrn;
 
     /**
-     * PackageSize
+     *  来料导入数量
+     */
+    @Column(name= "INCOMING_QTY")
+    private BigDecimal incomingQty;
+
+    /**
+     *  预计达到时间
+     */
+    @Column(name= "EXPECTED_DELIVERY_DATE")
+    private Date expectedDeliveryDate;
+
+    /**
+     * LotNo
      */
     @Column(name="RESERVED1")
     private String reserved1;
@@ -385,7 +398,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved10;
 
     /**
-     * Carton QTY
+     * ctnNo
      */
     @Column(name="RESERVED11")
     private String reserved11;
@@ -403,7 +416,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved13;
 
     /**
-     * 终端客户
+     * RAMAEK
      */
     @Column(name="RESERVED14")
     private String reserved14;
@@ -594,6 +607,48 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED45")
     private String reserved45;
 
+    /**
+     * 预留字段
+     */
+    @Column(name="RESERVED46")
+    private String reserved46;
+
+    /**
+     * PID
+     */
+    @Column(name="RESERVED47")
+    private String reserved47;
+
+    /**
+     * 供应商
+     */
+    @Column(name="RESERVED48")
+    private String reserved48;
+
+    /**
+     * 采购数量
+     */
+    @Column(name="RESERVED49")
+    private String reserved49;
+
+    /**
+     * 采购单位
+     */
+    @Column(name="RESERVED50")
+    private String reserved50;
+
+    /**
+     * 成品接收传入Unit
+     */
+    @Transient
+    private List<MaterialLotUnit> materialLotUnits;
+
+    /**
+     * 接收页面传入的预计到达时间
+     */
+    @Transient
+    private String expectedDeliveryDateValue ;
+
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
     }
@@ -677,6 +732,13 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setEffectiveLife(material.getEffectiveLife());
         this.setEffectiveUnit(material.getEffectiveUnit());
         this.setWarningLife(material.getWarningLife());
+    }
+
+    public void initialWarehouseAndStorageInfo() {
+        setLastStorageId(StringUtils.EMPTY);
+        setLastStorageRrn(StringUtils.EMPTY);
+        setLastWarehouseId(StringUtils.EMPTY);
+        setLastWarehouseRrn(StringUtils.EMPTY);
     }
 
 }

@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_0.0.7-modifyDataType
+      author: Tao Zhou
+      remarks: MMS_MATERIAL_HIS  modifyDataType
+      changes:
+        - modifyDataType:
+            columnName: EFFECTIVE_LIFE
+            newDataType: double
+            tableName: MMS_MATERIAL_HIS
+        - modifyDataType:
+            columnName: WARNING_LIFE
+            newDataType: double
+            tableName: MMS_MATERIAL_HIS
+

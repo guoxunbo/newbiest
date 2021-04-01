@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_his_0.0.4
+      author: Tao Zhou
+      remarks: mms_material_his add column IQC_SHEET_NAME, OQC_SHEET_NAME, WAREHOUSE_NAME
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_HIS
+            columns:
+              - column:
+                  name: IQC_SHEET_NAME
+                  type: varchar(64)
+                  remarks: IQC检查清单名称
+              - column:
+                  name: OQC_SHEET_NAME
+                  type: varchar(64)
+                  remarks: OQC检查清单名称
+              - column:
+                  name: WAREHOUSE_NAME
+                  type: varchar(64)
+                  remarks: 仓库名称

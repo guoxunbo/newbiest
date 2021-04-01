@@ -21,6 +21,9 @@ public class MaterialLotHold extends NBAction {
     //IQC NG Hold code
     public static final String IQC_NG_HOLD = "IQC_NG_Hold";
 
+    //OQC NG Hold code
+    public static final String OQC_NG_HOLD = "OQC_NG_Hold";
+
     @Column(name="MATERIAL_LOT_RRN")
     private String materialLotRrn;
 

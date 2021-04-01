@@ -98,6 +98,18 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name="RESERVED2")
     private String reserved2;
 
+    /**
+     * Part Number
+     */
+    @Column(name="RESERVED3")
+    private String reserved3;
+
+    /**
+     * Control Lot
+     */
+    @Column(name="RESERVED4")
+    private String reserved4;
+
 
 
     public void setMaterialLot(MaterialLot materialLot){

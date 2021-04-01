@@ -25,8 +25,15 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, String> 
     List<MaterialLot> findReservedLotsByDocId(String documentId) throws ClientException;
 
     List<MaterialLot> findByReserved44(String docLineObjectRrn);
+    List<MaterialLot> findByBoxMaterialLotId(String materialLotId);
 
-    List<MaterialLot> findByMaterialNameAndGradeAndReserved44IsNullAndBoxMaterialLotIdIsNull(String materialName, String grade);
+    List<MaterialLot> findByReserved44AndCategory(String objectRrn, String category);
 
-    List<MaterialLot> findByMaterialNameAndReserved45IsNullAndBoxMaterialLotIdIsNull(String materialName);
+    List<MaterialLot> findByMaterialNameAndStatusIn(String materialName, List<String> status);
+
+    List<MaterialLot> findByReserved4(String controlLot);
+
+    List<MaterialLot> findByMaterialCategory(String materialCategory);
+
+    List<MaterialLot> findByReserved45IsNullAndBoxMaterialLotIdIsNullAndStatusAndMaterialCategory(String statusIn, String typeProduct);
 }

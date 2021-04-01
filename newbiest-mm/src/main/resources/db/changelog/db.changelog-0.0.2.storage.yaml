@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_storage_0.0.2
+      author: Tao Zhpu
+      remarks: mms_storage add warehouse_name info columns
+      changes:
+        - addColumn:
+            tableName: MMS_STORAGE
+            columns:
+              - column:
+                  name: WAREHOUSE_NAME
+                  type: varchar(64)
+                  remarks: 仓库名称

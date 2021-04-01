@@ -25,6 +25,9 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_ISSUE = "Issue";
     public static final String TRANS_TYPE_RETURN = "Return";
     public static final String TRANS_TYPE_CREATE_RETURN_ORDER = "CreateReturnOrder";
+    public static final String TRANS_TYPE_CREATE_ISSE_LOT_ORDER = "CreateIssueLotOrder";
+    public static final String TRANS_TYPE_CREATE_ISSUE_MATERIAL_ORDER = "CreateIssueMaterialOrder";
+    public static final String TRANS_TYPE_CREATE_ISSUE_ORDER = "CreateIssueOrder";
 
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
@@ -37,6 +40,10 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_SPLIT = "Split";
     public static final String TRANS_TYPE_SPLIT_CREATE = "SplitCreate";
 
+    public static final String TRANS_TYPE_RESERVED = "Reserved";
+    public static final String TRANS_TYPE_UNRESERVED = "unReserved";
+    public static final String TRANS_TYPE_WEIGHT = "Weight";
+    public static final String TRANS_TYPE_PACK_CKECK = "PackCkeck";
     /**
      * 因为包装产生的批次
      */
@@ -202,14 +209,14 @@ public class MaterialLotHistory extends NBHis {
      * 有效时长
      */
     @Column(name="EFFECTIVE_LIFE")
-    private Long effectiveLife;
+    private Double effectiveLife;
 
     /**
      * 警告时长
      * 当达到此时长的时候触发警告
      */
     @Column(name="WARNING_LIFE")
-    private Long warningLife;
+    private Double warningLife;
 
     /**
      * 有效时长单位
@@ -342,6 +349,18 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="BOX_MATERIAL_LOT_RRN")
     private String boxMaterialLotIdRrn;
+
+    /**
+     *  来料导入数量
+     */
+    @Column(name= "INCOMING_QTY")
+    private BigDecimal incomingQty;
+
+    /**
+     *  预计达到时间
+     */
+    @Column(name= "EXPECTED_DELIVERY_DATE")
+    private Date expectedDeliveryDate;
 
     /**
      * PackageSize
@@ -614,6 +633,36 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="RESERVED45")
     private String reserved45;
+
+    /**
+     * 预留字段46
+     */
+    @Column(name="RESERVED46")
+    private String reserved46;
+
+    /**
+     * PID
+     */
+    @Column(name="RESERVED47")
+    private String reserved47;
+
+    /**
+     * 供应商
+     */
+    @Column(name="RESERVED48")
+    private String reserved48;
+
+    /**
+     * 采购数量
+     */
+    @Column(name="RESERVED49")
+    private String reserved49;
+
+    /**
+     * 采购单位
+     */
+    @Column(name="RESERVED50")
+    private String reserved50;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

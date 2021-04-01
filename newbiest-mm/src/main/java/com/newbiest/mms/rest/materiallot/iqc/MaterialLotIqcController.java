@@ -1,14 +1,8 @@
 package com.newbiest.mms.rest.materiallot.iqc;
 
-import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.exception.ClientParameterException;
-import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.MLotCheckSheet;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.mms.service.MmsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -30,7 +24,7 @@ public class MaterialLotIqcController extends AbstractRestController {
     MmsService mmsService;
 
     @ApiOperation(value = "IQC", notes = "IQC")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "IssueMLotByDocRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotIqcRequest")
     @RequestMapping(value = "/materialLotIQC", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public MaterialLotIqcResponse execute(@RequestBody MaterialLotIqcRequest request) throws Exception {
         MaterialLotIqcResponse response = new MaterialLotIqcResponse();

@@ -68,10 +68,10 @@ spring:
       # 配置密码的公钥 默认使用druid的ConfigTool进行加密
       connection-properties: config.decrypt=false;config.decrypt.key=${publickey}
   mail:
-    host:
-    username:
-    password:
-    from:
+    host: smtp.163.com
+    username: taozhou0311@163.com
+    password: CYORWSWNLEXZVSNJ
+    from: taozhou0311@163.com
     properties:
       mail:
         smtp:

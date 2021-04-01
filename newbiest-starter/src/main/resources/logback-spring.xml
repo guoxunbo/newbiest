@@ -61,7 +61,7 @@
         </root>
     </springProfile>
 
-    <springProfile name="local, demo, dev">
+    <springProfile name="local, demo, test, dev">
         <root level="INFO">
             <appender-ref ref="console" />
             <appender-ref ref="file" />

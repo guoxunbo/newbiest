@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_his_0.0.6
+      author: Tao Zhou
+      remarks: mms_material_his add FULL_NAME
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_HIS
+            columns:
+              - column:
+                  name: FULL_NAME
+                  type: varchar(128)
+                  remarks: 全称

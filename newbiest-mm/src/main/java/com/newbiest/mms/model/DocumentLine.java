@@ -182,10 +182,29 @@ public class DocumentLine extends NBUpdatable {
     private String reserved21;
 
     /**
-     * 预留栏位22
+     * 客户产品
      */
     @Column(name="RESERVED22")
     private String reserved22;
+
+    /**
+     * 配料单流水码
+     */
+    @Column(name="RESERVED23")
+    private String reserved23;
+
+    /**
+     * 导入时格式转换
+     */
+    @Transient
+    private String shippingDateValue;
+
+    /**
+     * 创建ByReelCode发料单时，接收ReelCode
+     * 一个Excel表示一个发货单，此单据无主单号
+     */
+    @Transient
+    private String reelCodeId;
 
     public void setMaterial(Material material) {
         this.materialRrn = material.getObjectRrn();

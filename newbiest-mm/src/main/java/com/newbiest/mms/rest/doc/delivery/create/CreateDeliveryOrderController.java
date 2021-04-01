@@ -22,7 +22,7 @@ public class CreateDeliveryOrderController {
     @Autowired
     DocumentService documentService;
 
-    @ApiOperation(value = "创建发货单")
+    @ApiOperation(value = "创建发货单",notes = "创建，审核")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "CreateDeliveryOrderRequest")
     @RequestMapping(value = "/createDeliveryOrder", method = RequestMethod.POST)
     public CreateDeliveryOrderResponse excute(@RequestBody CreateDeliveryOrderRequest request){
@@ -35,6 +35,9 @@ public class CreateDeliveryOrderController {
         if (CreateDeliveryOrderRequest.ACTION_TYPE_CREATE.equals(actionType)){
 
             documentService.createDeliveryOrder(requestBody.getDocumentId(), false, requestBody.getDocumentLineList());
+        }else if(CreateDeliveryOrderRequest.ACTION_TYPE_CREATE_BY_REEL_DELIVERY.equals(actionType)){
+
+            documentService.createByReelDeliveryOrder(requestBody.getDocumentId(), false, requestBody.getDocumentLineList());
         }else if (CreateDeliveryOrderRequest.ACTION_TYPE_APPROVE.equals(actionType)){
 
             documentService.approveDocument(requestBody.getDocumentId());
