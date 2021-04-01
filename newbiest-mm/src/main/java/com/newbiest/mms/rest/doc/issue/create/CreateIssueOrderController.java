@@ -1,11 +1,8 @@
 package com.newbiest.mms.rest.doc.issue.create;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import io.swagger.annotations.Api;
@@ -17,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/mms")
@@ -46,6 +41,8 @@ public class CreateIssueOrderController extends AbstractRestController {
             documentService.createIssueLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_MATERIAL_ORDER.equals(actionType)){
             documentService.createIssueMaterialOrder(requestBody.getDocumentId(), true, requestBody.getRawMaterialQtyMap());
+        }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_FINISH_GOOD_ORDER.equals(actionType)){
+            documentService.createIssueFinishGoodOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }

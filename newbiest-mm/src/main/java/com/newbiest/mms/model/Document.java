@@ -21,6 +21,7 @@ import java.util.List;
 @DiscriminatorColumn(name="CATEGORY", discriminatorType = DiscriminatorType.STRING, length = 32)
 public class Document extends NBUpdatable {
 
+    public static final String CATEGORY_ISSUE_FINISH_GOOD= "IssueFinishGood";
     public static final String CATEGORY_DELIVERY = "Delivery";
     public static final String CATEGORY_INCOMING = "Incoming";
     public static final String CATEGORY_ISSUE_LOT = "IssueLot";

@@ -16,4 +16,6 @@ public class DocumentException {
 
     public static final String DOCUMENT_NOT_RESERVED_MLOT = "mms.doc_not_reserved_mlot";
 
+
+    public static final String MLOT_TOTAL_QTY_GREATER_THAN_DOCLINE_UNHANDLED_QTY = "mms.mlot_total_qty_greater_than_docline_unhandled_qty";
 }
