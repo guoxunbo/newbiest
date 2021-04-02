@@ -43,4 +43,7 @@ public class RwMaterialLotRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "备注")
 	private String remarks;
+
+	@ApiModelProperty(value = "出货单号")
+	private String shipOrderId;
 }

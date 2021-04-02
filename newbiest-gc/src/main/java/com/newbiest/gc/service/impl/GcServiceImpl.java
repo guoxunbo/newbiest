@@ -7587,6 +7587,7 @@ public class GcServiceImpl implements GcService {
             materialLot.setReserved56(StringUtils.EMPTY);
             materialLot.setReserved57(StringUtils.EMPTY);
             materialLot.setVenderAddress(StringUtils.EMPTY);
+            materialLot.setCustomerId(StringUtils.EMPTY);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_STOCK_OUT_TAG);
@@ -9414,6 +9415,76 @@ public class GcServiceImpl implements GcService {
                 }
                 if(!StringUtils.isNullOrEmpty(mLot.getCustomerId()) && !customerName.equals(mLot.getCustomerId())){
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_ABBREVIATION_IS_NOT_SAME, materialLot.getMaterialLotId());
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 物料批次添加快递单号
+     * 暂时将出货单号记录到reserved56栏位（于CP出货标注PO共用一个栏位）
+     * @param materialLotList
+     * @param shipOrderId
+     * @throws ClientException
+     */
+    public void rwMaterialLotAddShipOrderId(List<MaterialLot> materialLotList, String shipOrderId) throws ClientException {
+        try {
+            Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            for(String parentMLotId : packedLotMap.keySet()){
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(parentMLotId, ThreadLocalContext.getOrgRrn());
+                List<MaterialLot> materialLots = packageService.getPackageDetailLots(materialLot.getObjectRrn()).stream().filter(mLot -> StringUtils.isNullOrEmpty(mLot.getReserved56())).collect(Collectors.toList());
+                if(!shipOrderId.equals(materialLots.get(0).getReserved56())){
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_SHIP_ORDER_ID_IS_NOT_SAME, parentMLotId);
+                }
+
+                saveMaterialLotShipOrderIdAndSaveHis(materialLot, shipOrderId);
+            }
+            for(MaterialLot materialLot : materialLotList){
+                saveMaterialLotShipOrderIdAndSaveHis(materialLot, shipOrderId);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * RW保存物料批次出货单号
+     * @param materialLot
+     * @param shipOrderId
+     * @throws ClientException
+     */
+    private void saveMaterialLotShipOrderIdAndSaveHis(MaterialLot materialLot, String shipOrderId) throws ClientException{
+        try {
+            materialLot.setReserved56(shipOrderId);
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_ADD_SHIP_ORDER_ID);
+            materialLotHistoryRepository.save(history);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * RW取消出货标注
+     * @param materialLots
+     * @throws ClientException
+     */
+    public void rwMaterialLotCancelStockTag(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            for(MaterialLot materialLot : materialLots){
+                unTaggingMaterialLot(materialLot);
+            }
+
+            Map<String, List<MaterialLot>> packedLotMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            if (packedLotMap != null && packedLotMap.keySet().size() > 0) {
+                for (String parentMaterialLotId : packedLotMap.keySet()) {
+                    MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(parentMaterialLotId, ThreadLocalContext.getOrgRrn());
+                    unTaggingMaterialLot(materialLot);
                 }
             }
         } catch (Exception e) {

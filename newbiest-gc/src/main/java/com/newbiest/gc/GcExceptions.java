@@ -53,6 +53,7 @@ public class GcExceptions {
     public static final String WAFER_ID__IS_NOT_EXIST = "gc.wafer_id_is_not_exist";
     public static final String MATERIAL_LOT_CUSTOMER_NAME_IS_NOT_SAME = "gc.material_lot_customer_name_is_not_same";
     public static final String MATERIAL_LOT_ABBREVIATION_IS_NOT_SAME = "gc.material_lot_abbreviation_is_not_same";
+    public static final String MATERIAL_LOT_SHIP_ORDER_ID_IS_NOT_SAME = "gc.material_lot_ship_order_id_is_not_same";
 
     public static final String DOCUMENT_LINE_MERGE_RULE_IS_NOE_EXIST = "gc.document_line_merge_rule_is_not_exist";
 
