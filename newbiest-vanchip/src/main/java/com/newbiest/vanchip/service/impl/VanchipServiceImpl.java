@@ -31,7 +31,9 @@ import com.newbiest.vanchip.exception.VanchipExceptions;
 import com.newbiest.vanchip.model.MLotDocRule;
 import com.newbiest.vanchip.model.MLotDocRuleContext;
 import com.newbiest.vanchip.model.MaterialModelConversion;
-import com.newbiest.vanchip.repository.*;
+import com.newbiest.vanchip.repository.MLotDocRuleLineRepository;
+import com.newbiest.vanchip.repository.MLotDocRuleRepository;
+import com.newbiest.vanchip.repository.MaterialModelConversionRepository;
 import com.newbiest.vanchip.service.MesService;
 import com.newbiest.vanchip.service.VanChipService;
 import lombok.extern.slf4j.Slf4j;
@@ -183,12 +185,6 @@ public class VanchipServiceImpl implements VanChipService {
 
     @Autowired
     MaterialModelConversionRepository materialModelConversionRepository;
-
-    @Autowired
-    EmailManagerRepository emailManagerRepository;
-
-    @Autowired
-    EmailMessageRepository emailMessageRepository;
 
     @Autowired
     MaterialStatusModelRepository materialStatusModelRepository;
@@ -1898,25 +1894,6 @@ public class VanchipServiceImpl implements VanChipService {
         parameterMap.put("documentId", docLineId);
         parameterMap.put("reelNo", reelCodeIdStr);
        // mailService.sendTemplateMessage(toUserList, "WMS-Release", "reserved_Release", parameterMap);
-    }
-
-    /**
-     * 手持端 接收
-     * @param documentId 单据号
-     * @param materialLotAction 物料号以及数量
-     * @return
-     * @throws ClientException
-     */
-    public void receiveMLotMobile(String documentId, MaterialLotAction materialLotAction)throws ClientException{
-        try {
-            List<MaterialLot> materialLots = Lists.newArrayList();
-            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true);
-            materialLot.setCurrentQty(materialLotAction.getTransQty());
-            materialLots.add(materialLot);
-            documentService.receiveIncomingLot(documentId, materialLots);
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
     }
 
     /**

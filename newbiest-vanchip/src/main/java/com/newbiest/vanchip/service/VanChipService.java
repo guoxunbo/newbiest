@@ -79,8 +79,6 @@ public interface VanChipService {
 
     void reservedSendMail(DocumentLine documentLine, List<MaterialLotAction> materialLotActionList);
 
-    //Mobile
-    void receiveMLotMobile(String documentId, MaterialLotAction materialLotAction)throws ClientException;
     MaterialLot stockInMLotMobile(MaterialLotAction materialLotAction)throws ClientException;
     MaterialLot stockOutMLotMobile(MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot queryPackageMLotMobile(MaterialLotAction materialLotAction) throws ClientException;
