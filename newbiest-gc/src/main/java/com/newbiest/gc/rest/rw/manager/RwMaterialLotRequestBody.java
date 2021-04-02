@@ -6,6 +6,8 @@ import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -31,5 +33,17 @@ public class RwMaterialLotRequestBody extends RequestBody {
 	private MaterialLot materialLot;
 
     @ApiModelProperty(value = "挑选所需数量")
-    private Long pickQty;
+    private BigDecimal pickQty;
+
+	@ApiModelProperty(value = "客户标识")
+	private String customerName;
+
+	@ApiModelProperty(value = "简称")
+	private String abbreviation;
+
+	@ApiModelProperty(value = "备注")
+	private String remarks;
+
+	@ApiModelProperty(value = "出货单号")
+	private String shipOrderId;
 }

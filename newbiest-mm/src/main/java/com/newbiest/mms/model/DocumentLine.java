@@ -121,7 +121,7 @@ public class DocumentLine extends NBUpdatable {
      * 合单标记
      */
     @Column(name="MERGE_DOC")
-    private String mergeDoc = DOC_MERGE;
+    private String mergeDoc;
 
     /**
      * 关联ERP LINE的SEQ主键
@@ -305,6 +305,9 @@ public class DocumentLine extends NBUpdatable {
 
     @Column(name="RESERVED31")
     private String reserved31;
+
+    @Transient
+    private Integer erpSeq;
 
     public void setDoc(Document document) {
         this.setDocRrn(document.getObjectRrn());

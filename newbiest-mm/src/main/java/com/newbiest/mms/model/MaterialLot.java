@@ -89,6 +89,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String WLT_SHIP_MLOT_MERGE_RULE = "WltCPShipCase";
 
+    public static final String RECEIVE_ERROR = "ERROR";
+
     /**
      * COB一个lot最大片数为13
      */
@@ -540,6 +542,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="PCODE")
     private String pcode;
+
+    /**
+     * 客户标识
+     */
+    @Column(name="CUSTOMER_ID")
+    private String customerId;
 
     /**
      * 原材料生产日期
