@@ -2,11 +2,8 @@ databaseChangeLog:
   - changeSet:
       id: mms_document_line_0.0.8
       author: Tao Zhou
-      remarks: mms_document_line add column RESERVED23
+      remarks: mms_document_line add column RESERVED23, RESERVED24
       changes:
-        - dropColumn:
-            tableName: MMS_DOCUMENT_LINE
-            columnName: ERP_CREATED
         - addColumn:
             tableName: MMS_DOCUMENT_LINE
             columns:
@@ -14,4 +11,7 @@ databaseChangeLog:
                   name: RESERVED23
                   type: varchar(64)
                   remarks: 配料单流水码
-
+              - column:
+                  name: RESERVED24
+                  type: varchar(64)
+                  remarks: 备货规则

@@ -35,13 +35,10 @@ public class CreateDeliveryOrderController {
         if (CreateDeliveryOrderRequest.ACTION_TYPE_CREATE.equals(actionType)){
 
             documentService.createDeliveryOrder(requestBody.getDocumentId(), false, requestBody.getDocumentLineList());
-        }else if(CreateDeliveryOrderRequest.ACTION_TYPE_CREATE_BY_REEL_DELIVERY.equals(actionType)){
-
-            documentService.createByReelDeliveryOrder(requestBody.getDocumentId(), false, requestBody.getDocumentLineList());
-        }else if (CreateDeliveryOrderRequest.ACTION_TYPE_APPROVE.equals(actionType)){
+        } else if (CreateDeliveryOrderRequest.ACTION_TYPE_APPROVE.equals(actionType)){
 
             documentService.approveDocument(requestBody.getDocumentId());
-        }else {
+        } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
         response.setBody(responseBody);

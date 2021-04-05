@@ -20,4 +20,7 @@ public class DocumentException {
     public static final String MATERIAL_LOT_ALREADY_RESERVED = "mms.material_lot_already_reserved";
 
     public static final String MLOT_TOTAL_QTY_GREATER_THAN_DOCLINE_UNHANDLED_QTY = "mms.mlot_total_qty_greater_than_docline_unhandled_qty";
+
+    public static final String IMPORT_TEMPLATE_ERROR = "mms.import_template_error";
+
 }

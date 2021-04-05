@@ -68,16 +68,14 @@ public class VanchipServiceImpl implements VanChipService {
     public static final String S_HOLD = "S_Hold";
     public static final String P_HOLD = "P_Hold";
     public static final String Q_HOLD = "Q_Hold";
-    public static final String N_HOLD = "N_Hold";
+    public static final String E_HOLD = "E_Hold";
     public static final String O_MRB_HOLD = "O_MRB_Hold";
 
     //根据字符 进行不同的hold
     public static final String CUSTORDERID_S = "S";
     public static final String CUSTORDERID_P = "P";
     public static final String CUSTORDERID_Q = "Q";
-    public static final String CUSTORDERID_N = "N";
-
-
+    public static final String CUSTORDERID_E = "E";
     /**
      * 退料原因里是否需要Hold的关键
      */
@@ -88,10 +86,7 @@ public class VanchipServiceImpl implements VanChipService {
      */
     public static final String RETURN_HOLD_CODE = "TL_HOLD";
 
-    public static final String DocLineAndMaterialLot = "DocLineAndMaterialLot";
-
     public static final String GENERATOR_RESERVED_ORDER_ID = "CreateReservedOrderId" ;
-    public static final String RESERVED_GET_MLOT_BY_CUSTOMER_VERSIONS = "GetMLotByCustomerVersions" ;
 
     @Autowired
     BaseService baseService;
@@ -497,17 +492,20 @@ public class VanchipServiceImpl implements VanChipService {
     /**
      * 获得待备货批次
      * @param documentLine
-     * @param reservedRule 备货规则 页面传递过来，后面改成根据导入的发货单判断
      * @return
      * @throws ClientException
      */
-    public List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine, String reservedRule) throws ClientException{
+    public List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine) throws ClientException{
         try {
-            if (StringUtils.EMPTY.equals(reservedRule)){
-                throw new ClientException(VanchipExceptions.RESERVED_RULE_IS_NOT_EXIST);
-            }
             DocumentLine docLine = documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             List<MaterialLot> materialLots = Lists.newArrayList();
+
+            String reservedRule = docLine.getReserved24();
+            if (StringUtils.isNullOrEmpty(reservedRule)){
+                //根据发货单查询
+                materialLots = materialLotRepository.findByReserved45AndBoxMaterialLotIdIsNull(documentLine.getLineId());
+                return materialLots;
+            }
 
             //未备货,未装箱,在库状态(Status=In),成品(MaterialCategory=Product)
             materialLots = materialLotRepository.findByReserved45IsNullAndBoxMaterialLotIdIsNullAndStatusAndMaterialCategory(MaterialStatus.STATUS_IN, Material.TYPE_PRODUCT);
@@ -522,14 +520,12 @@ public class VanchipServiceImpl implements VanChipService {
             Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, reservedRule);
 
             for (String key : documentLineMap.keySet()) {
-                if (!materialLotMap.keySet().contains(key)) {
+                if (StringUtils.SPLIT_CODE.equals(key) || !materialLotMap.keySet().contains(key)) {
                    return null;
                 }
                 materialLots = materialLotMap.get(key);
             }
             materialLots.forEach(materialLot -> validateMLotAndDocLineByRule(docLine, materialLot, reservedRule));
-            //优先MRB
-            materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getReserved16, Comparator.nullsLast(String::compareTo))).collect(Collectors.toList());
             return materialLots;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -632,9 +628,9 @@ public class VanchipServiceImpl implements VanChipService {
     public List<MaterialLot> printReservedOrder(DocumentLine documentLine) throws ClientException{
         try {
             //第一次打印时生成一个备货单流水号
-            if(StringUtils.isNullOrEmpty(documentLine.getReserved22())){
+            if(StringUtils.isNullOrEmpty(documentLine.getReserved23())){
                 String reservedOrderId = documentService.generatorDocId(GENERATOR_RESERVED_ORDER_ID);
-                documentLine.setReserved22(reservedOrderId);
+                documentLine.setReserved23(reservedOrderId);
                 baseService.saveEntity(documentLine);
             }
             String docLineObjRrn = documentLine.getObjectRrn();
@@ -749,15 +745,11 @@ public class VanchipServiceImpl implements VanChipService {
 
         String firstCustOrderId = customerOrderId.substring(0, 1);
         String secondCustOrderId = customerOrderId.substring(1, 2);
+        String thirdCustOrderId = customerOrderId.substring(2, 3);
 
         MaterialLotAction mLotAction = new MaterialLotAction();
         //根据客户订单第一位hold
         switch (firstCustOrderId){
-            case CUSTORDERID_N :
-                mLotAction.setActionCode(N_HOLD);
-                mLotAction.setMaterialLotId(materialLot.getMaterialLotId());
-                materialLotActions.add(mLotAction);
-                break;
             case CUSTORDERID_P :
                 mLotAction.setActionCode(P_HOLD);
                 mLotAction.setMaterialLotId(materialLot.getMaterialLotId());
@@ -778,6 +770,15 @@ public class VanchipServiceImpl implements VanChipService {
             action.setMaterialLotId(materialLot.getMaterialLotId());
             materialLotActions.add(action);
         }
+
+        //根据客户订单第三位hold
+        if (CUSTORDERID_E.equals(thirdCustOrderId)){
+            MaterialLotAction action = new MaterialLotAction();
+            action.setActionCode(E_HOLD);
+            action.setMaterialLotId(materialLot.getMaterialLotId());
+            materialLotActions.add(action);
+        }
+
         return materialLotActions;
     }
 
@@ -1773,14 +1774,14 @@ public class VanchipServiceImpl implements VanChipService {
                 throw new ClientParameterException(DocumentException.DOCUMENT_IS_NOT_EXIST, documentLineId);
             }
             //第一次打印时生成一个备货单流水号
-            if(StringUtils.isNullOrEmpty(deliveryOrderLine.getReserved22())){
+            if(StringUtils.isNullOrEmpty(deliveryOrderLine.getReserved23())){
                 String reservedOrderId = documentService.generatorDocId(GENERATOR_RESERVED_ORDER_ID);
-                deliveryOrderLine.setReserved22(reservedOrderId);
+                deliveryOrderLine.setReserved23(reservedOrderId);
                 deliveryOrderLine = (DocumentLine) baseService.saveEntity(deliveryOrderLine);
             }
 
             parameterMap.put("lineId",deliveryOrderLine.getLineId());
-            parameterMap.put("pKId", deliveryOrderLine.getReserved22());
+            parameterMap.put("pKId", deliveryOrderLine.getReserved23());
             parameterMap.put("customerVersion",deliveryOrderLine.getReserved3());
             parameterMap.put("customerCode", deliveryOrderLine.getReserved2());
             parameterMap.put("packageType", "");

@@ -40,6 +40,11 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_SPLIT = "Split";
     public static final String TRANS_TYPE_SPLIT_CREATE = "SplitCreate";
 
+    /**
+     * 在ByReel发货单导入时
+     * 物料绑定单据
+     */
+    public static final String TRANS_TYPE_PRE_RESERVED = "PreReserved";
     public static final String TRANS_TYPE_RESERVED = "Reserved";
     public static final String TRANS_TYPE_UNRESERVED = "unReserved";
     public static final String TRANS_TYPE_WEIGHT = "Weight";

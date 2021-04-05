@@ -29,7 +29,7 @@ public interface VanChipService {
     MaterialLot validationDocLineAndMaterialLot(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
     List<MaterialLot> getMLotByFIFO(DocumentLine documentLine) throws ClientException;
 
-    List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine, String reservedRule) throws ClientException;
+    List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine) throws ClientException;
 
     void reservedMaterialLot(DocumentLine documentLine, List<MaterialLotAction> materialLotActionList) throws ClientException;
 

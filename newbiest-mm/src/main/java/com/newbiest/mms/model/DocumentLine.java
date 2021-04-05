@@ -194,6 +194,12 @@ public class DocumentLine extends NBUpdatable {
     private String reserved23;
 
     /**
+     * 对应备货规则
+     */
+    @Column(name="RESERVED24")
+    private String reserved24;
+
+    /**
      * 导入时格式转换
      */
     @Transient
@@ -201,10 +207,22 @@ public class DocumentLine extends NBUpdatable {
 
     /**
      * 创建ByReelCode发料单时，接收ReelCode
-     * 一个Excel表示一个发货单，此单据无主单号
+     * 一个Excel表示一个发货单
      */
     @Transient
     private String reelCodeId;
+
+    /**
+     * 创建通过客户版本发料单时，接收客户版本
+     */
+    @Transient
+    private String customerVersion;
+
+    /**
+     * 创建通过客户产品发料单时，接收客户产品
+     */
+    @Transient
+    private String customerProduct;
 
     public void setMaterial(Material material) {
         this.materialRrn = material.getObjectRrn();

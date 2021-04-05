@@ -34,7 +34,6 @@ public interface DocumentService {
     List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
 
     String createDeliveryOrder(String documentId, boolean approveFlag, List<DocumentLine> documentLineList) throws ClientException;
-    void createByReelDeliveryOrder(String documentId, boolean approveFlag, List<DocumentLine> documentLineList) throws ClientException;
 
     List<MaterialLot> validationDocReservedMLot(String documentId, List<String> validationMLotIdList) throws ClientException;
 
