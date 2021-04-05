@@ -26,6 +26,7 @@ import java.util.List;
 @RequestMapping("/vc")
 @Slf4j
 @Api(value="/vc")
+@Deprecated
 public class MobileController extends AbstractRestController {
 
     @Autowired
@@ -44,9 +45,7 @@ public class MobileController extends AbstractRestController {
         MobileRequestBody requestBody = request.getBody();
 
         String actionType = requestBody.getActionType();
-        if (MobileRequest.ACTION_RECEIVE_MLOT.equals(actionType)){
-            vanChipService.receiveMLotMobile(requestBody.getDocumentId(), requestBody.getMaterialLotAction());
-        }else if (MobileRequest.ACTION_STOCK_IN.equals(actionType)){
+        if (MobileRequest.ACTION_STOCK_IN.equals(actionType)){
             List<MaterialLot> materialLots = Lists.newArrayList();
             MaterialLot materialLot= vanChipService.stockInMLotMobile(requestBody.getMaterialLotAction());
             materialLots.add(materialLot);

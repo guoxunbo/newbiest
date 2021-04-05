@@ -50,9 +50,9 @@ public class ReceiveMLotController extends AbstractRestController {
             documentService.receiveIncomingLot(requestBody.getDocumentId(), materialLotList);
         } else if (ReceiveMLotRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
             List<MaterialLot> materialLots = mmsService.getMLotByIncomingDocId(requestBody.getDocumentId());
-            materialLots = materialLots.stream().filter(mlot-> MaterialStatus.STATUS_CREATE.equals(mlot.getStatus())).collect(Collectors.toList());
+            materialLots = materialLots.stream().filter(mLot-> MaterialStatus.STATUS_CREATE.equals(mLot.getStatus())).collect(Collectors.toList());
             responseBody.setMaterialLotList(materialLots);
-        }else {
+        } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }
         response.setBody(responseBody);
