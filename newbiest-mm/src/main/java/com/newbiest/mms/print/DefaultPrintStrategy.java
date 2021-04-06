@@ -31,7 +31,7 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
  * @author guoxunbo
  * @date 4/6/21 3:07 PM
  */
-@Component
+@Component("defaultPrintStrategy")
 @Slf4j
 public class DefaultPrintStrategy implements IPrintStrategy {
 
@@ -99,7 +99,8 @@ public class DefaultPrintStrategy implements IPrintStrategy {
     }
 
     public void printWithBartender(PrintContext printContext) {
-        String destination = printContext.getLabelTemplate().getBartenderDestination();
+
+        String destination = printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation());
         Map<String, Object> params = buildParameters(printContext);
 
         HttpHeaders headers = new HttpHeaders();

@@ -2,6 +2,7 @@ package com.newbiest.mms.print;
 
 import com.google.common.collect.Maps;
 import com.newbiest.mms.model.LabelTemplate;
+import com.newbiest.mms.model.WorkStation;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -19,5 +20,7 @@ public class PrintContext implements Serializable {
     private Map<String, Object> parameterMap = Maps.newHashMap();
 
     private LabelTemplate labelTemplate;
+
+    private WorkStation workStation;
 
 }
