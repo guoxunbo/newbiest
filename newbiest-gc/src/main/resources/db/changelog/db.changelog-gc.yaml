@@ -446,3 +446,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRwMLotStockOutTagUpdate_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRwStockOutOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRwStockOutMLotScan_nb_table.yaml
+      relativeToChangelogFile: true

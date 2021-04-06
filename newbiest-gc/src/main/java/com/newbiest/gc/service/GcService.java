@@ -18,6 +18,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void rwStockOut(List<MaterialLot> materialLotList, List<DocumentLine> documentLineList) throws ClientException;
     void rwMaterialLotCancelStockTag(List<MaterialLot> materialLotList) throws ClientException;
     void rwMaterialLotAddShipOrderId(List<MaterialLot> materialLotList, String shipOrderId) throws ClientException;
     void rwMaterialLotStockOutTag(List<MaterialLot> materialLotList, String customerName, String abbreviation, String remarks) throws ClientException;

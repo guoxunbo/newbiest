@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRwMLotStockOutOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCRwMLotStockOutOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRwMLotStockOutOrder
+              description: RW出货
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: RW出货单据
+              label: RwMLotStockOut

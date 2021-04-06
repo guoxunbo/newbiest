@@ -4292,6 +4292,7 @@ public class GcServiceImpl implements GcService {
             String location = StringUtils.EMPTY;
             String inFlag = mesPackedLot.getInFlag();
             String productCategory = mesPackedLot.getProductCategory();
+            PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
             List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndWorkOrderIdAndState(mesPackedLot.getWaferId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
             if(CollectionUtils.isNotEmpty(materialLotUnits)){
                 if(!MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
@@ -4327,7 +4328,6 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(GcExceptions.WAFER_ID__IS_NOT_EXIST, mesPackedLot.getWaferId(), mesPackedLot.getWorkorderId());
             }
 
-            PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
             String mLotId = mmsService.generatorMLotId(material);
             packedLot.setBoxId(mLotId);
             packedLot.setPackedLotRrn(null);
@@ -7270,7 +7270,7 @@ public class GcServiceImpl implements GcService {
     private List<DocumentLine> vlidateDocMergeAndSortDocumentLinesBySeq(List<DocumentLine> documentLines) throws ClientException{
         try {
             List<DocumentLine> documentLineList = Lists.newArrayList();
-            List<DocumentLine> mergeDocLineList = documentLines.stream().filter(documentLine -> DocumentLine.ERROR_MEMO.equals(documentLine.getMergeDoc())).collect(Collectors.toList());
+            List<DocumentLine> mergeDocLineList = documentLines.stream().filter(documentLine -> DocumentLine.DOC_MERGE.equals(documentLine.getMergeDoc())).collect(Collectors.toList());
             List<DocumentLine> unMergeDocLineList = documentLines.stream().filter(documentLine -> StringUtils.isNullOrEmpty(documentLine.getMergeDoc())).collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(mergeDocLineList)){
                 mergeDocLineList = mergeDocLineList.stream().sorted(Comparator.comparing(DocumentLine :: getCreated)).collect(Collectors.toList());
@@ -8553,7 +8553,7 @@ public class GcServiceImpl implements GcService {
                 if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
                     throw new ClientException(GcExceptions.OVER_DOC_QTY);
                 }
-                hkOrFtStockOut(documentLineMap.get(key), materialLotMap.get(key));
+                materialLotStockOutByErpSoa(documentLineMap.get(key), materialLotMap.get(key));
             }
 
         } catch (Exception e) {
@@ -8582,7 +8582,7 @@ public class GcServiceImpl implements GcService {
                 if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
                     throw new ClientException(GcExceptions.OVER_DOC_QTY);
                 }
-                hkOrFtStockOut(documentLineMap.get(key), materialLotMap.get(key));
+                materialLotStockOutByErpSoa(documentLineMap.get(key), materialLotMap.get(key));
             }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -8590,12 +8590,12 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 香港仓/FT出货
+     * 物料批次通过ERP_SOA单据出货
      * @param documentLines
      * @param materialLots
      * @throws ClientException
      */
-    private void hkOrFtStockOut(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
+    private void materialLotStockOutByErpSoa(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
             documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
             for(DocumentLine documentLine : documentLines){
@@ -9491,4 +9491,33 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * RW出货
+     * @param materialLotList
+     * @param documentLineList
+     * @throws ClientException
+     */
+    public void rwStockOut(List<MaterialLot> materialLotList, List<DocumentLine> documentLineList) throws ClientException{
+        try {
+            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+            materialLotList = materialLotList.stream().map(materialLot -> mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true)).collect(Collectors.toList());
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLotList, MaterialLot.RW_MLOT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.RW_MLOT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
+            for (String key : materialLotMap.keySet()) {
+                if (!documentLineMap.keySet().contains(key)) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+                }
+                Long totalMaterialLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentSubQty().longValue()));
+                Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
+                    throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLineMap.get(key).get(0).getDocId());
+                }
+                materialLotStockOutByErpSoa(documentLineMap.get(key), materialLotMap.get(key));
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 }

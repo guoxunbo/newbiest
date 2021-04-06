@@ -1,6 +1,7 @@
 package com.newbiest.gc.rest.rw.manager;
 
 import com.newbiest.gc.model.MesPackedLot;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -46,4 +47,14 @@ public class RwMaterialLotRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "出货单号")
 	private String shipOrderId;
+
+	@ApiModelProperty(value = "表单主键")
+	private Long tableRrn;
+
+	@ApiModelProperty(value = "CstId/BoxId")
+	private String queryLotId;
+
+	@ApiModelProperty(value = "出货单据")
+	private List<DocumentLine> documentLineList;
+
 }
