@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.2.7
+      author: Guozhang Lou
+      remarks: mms_material add column CUSTOMER_ID
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: CUSTOMER_ID
+                  type: varchar(64)
+                  remarks: 客户标识

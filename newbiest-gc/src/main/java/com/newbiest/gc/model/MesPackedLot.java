@@ -121,6 +121,12 @@ public class MesPackedLot implements Serializable {
     private String shipSerialNumber;
 
     /**
+     * 入库单号
+     */
+    @Column(name="SHIP_SEQUENCE_NUMBER")
+    private String shipSequenceNumber;
+
+    /**
      * 仓库号
      */
     @Column(name="STOCK")

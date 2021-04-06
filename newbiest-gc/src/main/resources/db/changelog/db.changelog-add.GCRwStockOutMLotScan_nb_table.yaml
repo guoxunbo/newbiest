@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRwStockOutMLotScan_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCRwStockOutMLotScan to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRwStockOutMLotScan
+              description: RW出货
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: RW出货
+              label: RwStockOut

@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRwMLotStockOutManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCRwMLotStockOutManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRwMLotStockOutManager
+              description: RW出货
+              tableName: GCRwMLotStockOutOrder
+              secondTableName: GCRwStockOutMLotScan
+              mobileFlag: N
+              url: /GC/GCRWMLotStockOutManager
+              parentRrn: 1010
+              seqNo: 42
+              image: icon-rule
+              labelZh: RW出货
+              labelEn: RwMLotStockOut

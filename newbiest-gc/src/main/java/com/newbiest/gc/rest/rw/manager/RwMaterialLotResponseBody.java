@@ -19,4 +19,9 @@ public class RwMaterialLotResponseBody extends ResponseBody {
 	private Map<String, String> parameterMap = Maps.newHashMap();
 
 	private List<MaterialLot> materialLotList = Lists.newArrayList();
+
+	private MaterialLot materialLot;
+
+    private boolean falg;
+
 }

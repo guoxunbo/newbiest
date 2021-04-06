@@ -30,6 +30,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_THREESIDE_SHIP = "ThreeSideShip";
 
+	public static final String ACTION_SALE_SHIP = "SaleShip";
+
 	private WltStockOutRequestBody body;
 
 }

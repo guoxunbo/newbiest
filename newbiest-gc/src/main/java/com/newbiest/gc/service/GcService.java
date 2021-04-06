@@ -9,6 +9,7 @@ import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,11 @@ import java.util.Map;
  */
 public interface GcService {
 
-    List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, Long pickQty) throws ClientException;
+    void rwStockOut(List<MaterialLot> materialLotList, List<DocumentLine> documentLineList) throws ClientException;
+    void rwMaterialLotCancelStockTag(List<MaterialLot> materialLotList) throws ClientException;
+    void rwMaterialLotAddShipOrderId(List<MaterialLot> materialLotList, String shipOrderId) throws ClientException;
+    void rwMaterialLotStockOutTag(List<MaterialLot> materialLotList, String customerName, String abbreviation, String remarks) throws ClientException;
+    List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, BigDecimal pickQty) throws ClientException;
     Map<String, String> getRwReceiveLotLabelPrintParameter(MaterialLot materialLot) throws ClientException;
     List<Map<String, String>> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel) throws ClientException;
     List<Map<String, String>> getRWIssueMaterialLotPrintParameter(List<MaterialLot> materialLotList) throws ClientException;
@@ -25,7 +30,9 @@ public interface GcService {
 
     boolean validateMLotByPackageRule(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> materialLotUnitAssignEng(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+
     void wltCpThreeSideShip(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void wltCpMaterialLotSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException;
 
     String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws ClientException;
     void validateAndRawMaterialIssue(DocumentLine documentLine, List<MaterialLot> materialLots) throws ClientException;

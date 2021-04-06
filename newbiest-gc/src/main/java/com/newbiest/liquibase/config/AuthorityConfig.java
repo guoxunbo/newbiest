@@ -43,6 +43,8 @@ public class AuthorityConfig extends VCimAbstractLiquibaseConfig {
 
     private String label;
 
+    private String mobileFlag;
+
     private String parameter1;
 
     private String parameter2;
