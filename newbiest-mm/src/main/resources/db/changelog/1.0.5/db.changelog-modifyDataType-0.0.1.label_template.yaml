@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id:  modifyDataType-0.0.1.mms-lbl-template
+      author:  Tao Zhou
+      remarks: MMS_LBL_TEMPLATE  modifyDataType
+      changes:
+        -  modifyDataType:
+             columnName: DESTINATION
+             newDataType: varchar(128)
+             tableName: MMS_LBL_TEMPLATE
