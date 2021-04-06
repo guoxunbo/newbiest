@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
+import com.newbiest.base.utils.DateUtils;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.LabelTemplate;
 import com.newbiest.mms.model.LabelTemplateParameter;
@@ -70,7 +71,7 @@ public class PrintServiceImpl implements PrintService {
 
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("qty", materialLot.getCurrentQty());
-            parameterMap.put("inDate", "");
+            parameterMap.put("inDate", DateUtils.now());
             parameterMap.put("specification", materialLot.getMaterialDesc());
             printContext.setParameterMap(parameterMap);
 
