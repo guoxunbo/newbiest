@@ -23,3 +23,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.1.label_template_para.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-modifyDataType-0.0.1.label_template.yaml
+      relativeToChangelogFile: true

@@ -1,5 +1,6 @@
 package com.newbiest.mms.print;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.utils.CollectionUtils;
@@ -14,7 +15,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -73,23 +73,23 @@ public class DefaultPrintStrategy implements IPrintStrategy {
             for (LabelTemplateParameter parameter : labelTemplateParameters) {
                 Object value = null;
                 if (printContext.getParameterMap().containsKey(parameter.getName())) {
-                    value = parameterMap.get(parameter.getName());
+                    value = printContext.getParameterMap().get(parameter.getName());
                 } else {
                     try {
                         value = PropertyUtils.getProperty(printContext.getBaseObject(), parameter.getName());
-                        if (value != null) {
-                            if (value instanceof Date) {
-                                SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
-                                value = sdf.format(value);
-                            }
-                            value = String.valueOf(value);
-                        } else {
-                            value = parameter.getDefaultValue();
-                        }
                     } catch (Exception e) {
                         // 此处异常不处理
                         log.warn(e.getMessage(), e);
                     }
+                }
+                if (value != null) {
+                    if (value instanceof Date) {
+                        SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+                        value = sdf.format(value);
+                    }
+                    value = String.valueOf(value);
+                } else {
+                    value = parameter.getDefaultValue();
                 }
                 parameterMap.put(parameter.getName(), value);
             }
@@ -103,13 +103,20 @@ public class DefaultPrintStrategy implements IPrintStrategy {
         String destination = printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation());
         Map<String, Object> params = buildParameters(printContext);
 
+        List<String> paramStr = Lists.newArrayList();
+        for (String key : params.keySet()) {
+            paramStr.add(key + "=" + params.get(key));
+        }
+
         HttpHeaders headers = new HttpHeaders();
         HttpEntity entity = new HttpEntity(headers);
+
 
         if (log.isDebugEnabled()) {
             log.debug("Start to send print data to bartender. The destination is [ " + destination + "] and the parameter is [ " + params + "] ");
         }
-        HttpEntity<byte[]> responseEntity = restTemplate.exchange(destination, HttpMethod.GET, entity, byte[].class, params);
+        destination = destination + "?" + StringUtils.join(paramStr, "&");
+        HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(destination, byte[].class);
         String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
         if (log.isDebugEnabled()) {
             log.debug(String.format("Get response from bartender. Response is [%s]", response));
