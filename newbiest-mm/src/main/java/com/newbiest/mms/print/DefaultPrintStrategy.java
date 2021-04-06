@@ -99,7 +99,8 @@ public class DefaultPrintStrategy implements IPrintStrategy {
     }
 
     public void printWithBartender(PrintContext printContext) {
-        String destination = printContext.getLabelTemplate().getBartenderDestination();
+
+        String destination = printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation());
         Map<String, Object> params = buildParameters(printContext);
 
         HttpHeaders headers = new HttpHeaders();

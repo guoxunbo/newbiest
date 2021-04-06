@@ -19,6 +19,8 @@ import java.util.List;
 @Data
 public class LabelTemplate extends NBBase {
 
+    public static final String BARTENDER_REPLACE_URL_PARAMETER = "${remote_address}";
+
     public static final String TYPE_BARTENDER = "Bartender";
     public static final String TYPE_EXCEL = "Excel";
 
@@ -45,8 +47,8 @@ public class LabelTemplate extends NBBase {
     @Transient
     private List<LabelTemplateParameter> labelTemplateParameterList;
 
-    public String getBartenderDestination() {
-        return destination.replace("${remote_address}", ThreadLocalContext.getTransactionIp());
+    public String getBartenderDestination(WorkStation workStation) {
+        return destination.replace(BARTENDER_REPLACE_URL_PARAMETER, workStation.getPrintMachineIpAddress());
     }
 
 }

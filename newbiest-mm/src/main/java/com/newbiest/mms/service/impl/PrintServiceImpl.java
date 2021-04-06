@@ -71,6 +71,7 @@ public class PrintServiceImpl implements PrintService {
             PrintContext printContext = new PrintContext();
             printContext.setBaseObject(materialLot);
             printContext.setLabelTemplate(labelTemplate);
+            printContext.setWorkStation(workStation);
 
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("qty", materialLot.getCurrentQty());
