@@ -31,7 +31,7 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
  * @author guoxunbo
  * @date 4/6/21 3:07 PM
  */
-@Component
+@Component("defaultPrintStrategy")
 @Slf4j
 public class DefaultPrintStrategy implements IPrintStrategy {
 

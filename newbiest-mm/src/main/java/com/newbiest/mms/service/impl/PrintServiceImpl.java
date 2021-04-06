@@ -42,6 +42,9 @@ public class PrintServiceImpl implements PrintService {
     public static final String PRINT_MATERIAL_LOT = "printMLot";
 
     @Autowired
+    Map<String, IPrintStrategy> printStrategyMap;
+
+    @Autowired
     WorkStationRepository workStationRepository;
 
     @Autowired
@@ -58,7 +61,7 @@ public class PrintServiceImpl implements PrintService {
             if (workStation == null) {
                 throw new ClientParameterException(MmsException.MM_WORK_STATION_IS_NOT_EXIST, transactionIp);
             }
-            LabelTemplate labelTemplate = labelTemplateRepository.findOneByName("PRINT_MATERIAL_LOT");
+            LabelTemplate labelTemplate = labelTemplateRepository.findOneByName("PrintMLot");
             if (labelTemplate == null) {
                 throw new ClientParameterException(MmsException.MM_LBL_TEMPLATE_IS_NOT_EXIST, transactionIp);
             }
@@ -75,7 +78,11 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("specification", materialLot.getMaterialDesc());
             printContext.setParameterMap(parameterMap);
 
-            IPrintStrategy printStrategy = new DefaultPrintStrategy();
+            IPrintStrategy printStrategy = printStrategyMap.get("PrintMLot");
+            if (printStrategy == null) {
+                printStrategy = printStrategyMap.get("defaultPrintStrategy");
+            }
+//            IPrintStrategy printStrategy = new DefaultPrintStrategy();
             printStrategy.print(printContext);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
