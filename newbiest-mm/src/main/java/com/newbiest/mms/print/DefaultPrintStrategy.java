@@ -105,6 +105,9 @@ public class DefaultPrintStrategy implements IPrintStrategy {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity entity = new HttpEntity(headers);
 
+        if (log.isDebugEnabled()) {
+            log.debug("Start to send print data to bartender. The destination is [ " + destination + "] and the parameter is [ " + params + "] ");
+        }
         HttpEntity<byte[]> responseEntity = restTemplate.exchange(destination, HttpMethod.GET, entity, byte[].class, params);
         String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
         if (log.isDebugEnabled()) {
