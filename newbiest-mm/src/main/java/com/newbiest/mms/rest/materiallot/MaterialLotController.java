@@ -10,6 +10,7 @@ import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.base.msg.Request;
+import com.newbiest.mms.service.PrintService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +32,9 @@ public class MaterialLotController extends AbstractRestController {
 
     @Autowired
     MmsService mmsService;
+
+    @Autowired
+    PrintService printService;
 
     @ApiOperation(value = "对物料批做操作", notes = "接收。消耗等")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotRequest")
@@ -54,6 +58,9 @@ public class MaterialLotController extends AbstractRestController {
         } else if (MaterialLotRequest.ACTION_CONSUME.equals(actionType)) {
             materialLot = validationMaterialLot(materialLot);
             materialLot = mmsService.consumeMLot(materialLot, materialLotAction);
+        } else if (MaterialLotRequest.ACTION_PRINT_LABEL.equals(actionType)) {
+            materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+            printService.printMLot(materialLot);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
