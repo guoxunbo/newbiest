@@ -200,6 +200,35 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
+     * 根据标准数量将物料批次分批
+     * @param parentMaterialLotId
+     * @param standardQty
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public List<MaterialLot> splitStandardMLot(String parentMaterialLotId, BigDecimal standardQty) throws ClientException {
+        try {
+            List<MaterialLot> subMaterialLots = Lists.newArrayList();
+            MaterialLot parentMaterialLot = getMLotByMLotId(parentMaterialLotId, true);
+            if (parentMaterialLot.getCurrentQty().compareTo(standardQty) <= 0){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO);
+            }
+            BigDecimal currentQty = parentMaterialLot.getCurrentQty();
+            MaterialLotAction materialLotAction = new MaterialLotAction();
+            materialLotAction.setTransQty(standardQty);
+            while (currentQty.compareTo(standardQty) > 0) {
+                MaterialLot subMaterialLot = splitMLot(parentMaterialLotId, materialLotAction);
+                subMaterialLots.add(subMaterialLot);
+                currentQty = currentQty.subtract(standardQty);
+            }
+            return subMaterialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 物料批次分批
      * @param parentMaterialLotId 母批的物料批次号
      * @param materialLotAction 动作包含数量原因等
@@ -208,25 +237,26 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot splitMLot(String parentMaterialLotId, MaterialLotAction materialLotAction) throws ClientException {
         try {
-            MaterialLot materialLot = getMLotByMLotId(parentMaterialLotId, true);
+            MaterialLot parentMaterialLot = getMLotByMLotId(parentMaterialLotId, true);
             BigDecimal splitQty = materialLotAction.getTransQty();
-            if (materialLot.getCurrentQty().compareTo(splitQty) <= 0){
+            if (parentMaterialLot.getCurrentQty().compareTo(splitQty) <= 0){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO);
             }
-            materialLot.setCurrentQty(materialLot.getCurrentQty().subtract(splitQty));
-            materialLot.setReceiveQty(materialLot.getReceiveQty().subtract(splitQty));
-            if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
-                materialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_FIN);
-                materialLot.setStatus(MaterialStatus.STATUS_SPLIT);
+            parentMaterialLot.setCurrentQty(parentMaterialLot.getCurrentQty().subtract(splitQty));
+            parentMaterialLot.setReceiveQty(parentMaterialLot.getReceiveQty().subtract(splitQty));
+            if (parentMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                parentMaterialLot.setStatusCategory(MaterialStatusCategory.STATUS_CATEGORY_FIN);
+                parentMaterialLot.setStatus(MaterialStatus.STATUS_SPLIT);
             }
-            baseService.saveEntity(materialLot, MaterialLotHistory.TRANS_TYPE_SPLIT, materialLotAction);
+            baseService.saveEntity(parentMaterialLot, MaterialLotHistory.TRANS_TYPE_SPLIT, materialLotAction);
 
-            String subMLotId = generatorSubMLotId(MaterialLot.GENERATOR_SUB_MATERIAL_LOT_ID_RULE, materialLot);
-            MaterialLot subMaterialLot =  (MaterialLot) materialLot.clone();
+            String subMLotId = generatorSubMLotId(MaterialLot.GENERATOR_SUB_MATERIAL_LOT_ID_RULE, parentMaterialLot);
+            MaterialLot subMaterialLot =  (MaterialLot) parentMaterialLot.clone();
             subMaterialLot.setMaterialLotId(subMLotId);
             subMaterialLot.setCurrentQty(splitQty);
             subMaterialLot.setReceiveQty(splitQty);
-            subMaterialLot.setParentMaterialLot(materialLot);
+            subMaterialLot.setIncomingQty(BigDecimal.ZERO);
+            subMaterialLot.setParentMaterialLot(parentMaterialLot);
             baseService.saveEntity(subMaterialLot, MaterialLotHistory.TRANS_TYPE_SPLIT_CREATE, materialLotAction);
             return subMaterialLot;
         } catch (Exception e) {
