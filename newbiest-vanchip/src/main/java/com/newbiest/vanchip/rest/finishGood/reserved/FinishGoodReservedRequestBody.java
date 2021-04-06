@@ -21,7 +21,4 @@ public class FinishGoodReservedRequestBody extends RequestBody {
 
     @ApiModelProperty(value = "完成品信息")
     private List<MaterialLotAction> materialLotActionList;
-
-    @ApiModelProperty(value = "备货规则，不同单据，传入不同规则")
-    private String reservedRule;
 }

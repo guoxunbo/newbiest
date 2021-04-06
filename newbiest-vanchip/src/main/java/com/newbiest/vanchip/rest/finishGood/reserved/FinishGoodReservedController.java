@@ -44,7 +44,7 @@ public class FinishGoodReservedController {
         String actionType = requestBody.getActionType();
 
         if (FinishGoodReservedRequest.ACTION_TYPE_GET_MATERIALLOT.equals(actionType)){
-            List<MaterialLot> materialLots = vanChipService.getReservedMaterialLot(requestBody.getDocumentLine(), requestBody.getReservedRule());
+            List<MaterialLot> materialLots = vanChipService.getReservedMaterialLot(requestBody.getDocumentLine());
             responseBody.setMaterialLotList(materialLots);
         }else if (FinishGoodReservedRequest.ACTION_TYPE_FINISH_GOOD_RESERVED.equals(actionType)){
 
