@@ -171,6 +171,7 @@ public interface GcService {
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
 
     List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
+    List<Map> findEntityMapListByQueryText(String queryText, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
     List<MaterialLot>  getWaitChangeStorageMaterialLotByRelayBoxId(String relayBoxId) throws ClientException;
     void transferStorage(List<RelayBoxStockInModel> relayBoxStockInModel) throws  ClientException;
     List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn,String whereClause) throws ClientException;
