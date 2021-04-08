@@ -25,6 +25,7 @@ import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.service.PrintService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.state.model.MaterialStatusCategory;
@@ -101,6 +102,9 @@ public class MmsServiceImpl implements MmsService {
 
     @Autowired
     ProductRepository productRepository;
+
+    @Autowired
+    PrintService printService;
 
     /**
      * 根据名称获取源物料。
@@ -222,6 +226,11 @@ public class MmsServiceImpl implements MmsService {
                 subMaterialLots.add(subMaterialLot);
                 currentQty = currentQty.subtract(standardQty);
             }
+            // 如果没有分完，则需要重新打标签
+            if (currentQty.compareTo(BigDecimal.ZERO) > 0) {
+                parentMaterialLot = getMLotByMLotId(parentMaterialLotId, true);
+                printService.printMLot(parentMaterialLot);
+            }
             return subMaterialLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -258,6 +267,8 @@ public class MmsServiceImpl implements MmsService {
             subMaterialLot.setIncomingQty(BigDecimal.ZERO);
             subMaterialLot.setParentMaterialLot(parentMaterialLot);
             baseService.saveEntity(subMaterialLot, MaterialLotHistory.TRANS_TYPE_SPLIT_CREATE, materialLotAction);
+
+            printService.printMLot(subMaterialLot);
             return subMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
