@@ -35,4 +35,7 @@ public class HKWarehouseRequestBody extends RequestBody {
 	@ApiModelProperty(value = "真空包号")
 	private String queryLotId;
 
+	@ApiModelProperty(value = "单据信息")
+	private DocumentLine documentLine;
+
 }

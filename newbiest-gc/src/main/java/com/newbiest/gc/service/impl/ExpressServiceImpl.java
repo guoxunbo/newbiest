@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -213,8 +214,12 @@ public class ExpressServiceImpl implements ExpressService {
 
             //下单时间为空时默认当天19：30
             if(!StringUtils.isNullOrEmpty(orderTime)){
-                orderInfo.setOrderTime(orderTime);
+                orderInfo.setGoodsTime(orderTime);
             }
+
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            String date = formatter.format(new Date());
+            orderInfo.setOrderTime(date);
 
             orderInfo.setOrderId(ExpressConfiguration.PLAN_ORDER_DEFAULT_ORDER_ID);
             orderInfo.setPaymentCustomer(expressConfiguration.getCustomerCode());
