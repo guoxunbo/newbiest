@@ -572,3 +572,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRwMLotStockOutManager.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.CSTPackMaterialLot.nb_authority.yaml
+      relativeToChangelogFile: true

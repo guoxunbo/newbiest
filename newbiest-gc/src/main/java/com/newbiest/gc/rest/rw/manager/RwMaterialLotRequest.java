@@ -30,6 +30,8 @@ public class RwMaterialLotRequest extends Request {
 
 	public static final String ACTION_STOCK_OUT = "StockOut";
 
+	public static final String ACTION_GET_RW_PRINT_PARAMETER = "RWBoxPrint";
+
 	private RwMaterialLotRequestBody body;
 
 }

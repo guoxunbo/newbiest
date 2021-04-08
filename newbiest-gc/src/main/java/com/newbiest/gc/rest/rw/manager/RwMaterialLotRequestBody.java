@@ -57,4 +57,7 @@ public class RwMaterialLotRequestBody extends RequestBody {
 	@ApiModelProperty(value = "出货单据")
 	private List<DocumentLine> documentLineList;
 
+	@ApiModelProperty(value = "物料主键")
+	private Long materialLotRrn;
+
 }
