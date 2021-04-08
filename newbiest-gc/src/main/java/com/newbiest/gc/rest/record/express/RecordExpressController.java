@@ -66,7 +66,6 @@ public class RecordExpressController {
             responseBody.setParameterMapList(parameterMapList);
         }else if(RecordExpressRequestBody.ACTION_TYPE_OBLIQUE_LABEL_PRINT.equals(actionType)){
             materialLots = requestBody.getMaterialLots();
-            expressService.validateReservedOrderId(materialLots);
             parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(),null);
             responseBody.setParameterMapList(parameterMapList);
         } else if(RecordExpressRequestBody.ACTION_TYPE_BATCH_CANCEL_ORDER.equals(actionType)){

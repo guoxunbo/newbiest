@@ -569,3 +569,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRwMLotStockOutTagUpdateManager.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRwMLotStockOutManager.nb_authority.yaml
+      relativeToChangelogFile: true
