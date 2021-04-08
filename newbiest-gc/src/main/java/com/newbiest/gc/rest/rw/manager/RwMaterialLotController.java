@@ -60,7 +60,10 @@ public class RwMaterialLotController {
             responseBody.setMaterialLot(materialLot);
         } else if(RwMaterialLotRequest.ACTION_STOCK_OUT.equals(actionType)){
             gcService.rwStockOut(requestBody.getMaterialLotList(), requestBody.getDocumentLineList());
-        } else {
+        } else if(RwMaterialLotRequest.ACTION_GET_RW_PRINT_PARAMETER.equals(actionType)){
+            Map<String, String> parameterMap = gcService.getRWBoxPrintParameter(requestBody.getMaterialLotRrn());
+            responseBody.setParameterMap(parameterMap);
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
         response.setBody(responseBody);

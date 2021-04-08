@@ -9385,6 +9385,64 @@ public class GcServiceImpl implements GcService {
 
 
     /**
+     * 获取RW产线接收Lot标签打印参数
+     * @param materialLotRrn
+     * @return
+     */
+    public Map<String, String> getRWBoxPrintParameter(Long materialLotRrn) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            MaterialLot materialLot = mmsService.getMLotByObjectRrn(materialLotRrn);
+            parameterMap.put("DeviceID", materialLot.getMaterialName());
+            parameterMap.put("BoxID", materialLot.getMaterialLotId());
+            parameterMap.put("Qty", materialLot.getCurrentQty().toPlainString());
+            parameterMap.put("BP", materialLot.getReserved6());
+            if(materialLot.getGrade().contains("A"))
+            {
+                parameterMap.put("SubCode", "A"+materialLot.getReserved1());
+            }else
+            {
+                parameterMap.put("SubCode", materialLot.getGrade()+materialLot.getReserved1());
+            }
+            if(StringUtils.isNullOrEmpty(materialLot.getPcode()))
+            {
+                parameterMap.put("Pcode", StringUtils.EMPTY);
+            }else
+            {
+                parameterMap.put("Pcode", materialLot.getPcode());
+            }
+            List<MaterialLot> materialLotDetails = materialLotRepository.getByParentMaterialLotId(materialLot.getMaterialLotId());
+            if (CollectionUtils.isNotEmpty(materialLotDetails)) {
+                MaterialLot materialLotDetail = materialLotDetails.get(0);
+                if(StringUtils.isNullOrEmpty(materialLotDetail.getLotCst()))
+                {
+                    parameterMap.put("LotID", StringUtils.EMPTY);
+                }else
+                {
+                    parameterMap.put("LotID", materialLotDetail.getLotCst());
+                }
+                parameterMap.put("CSTID", materialLotDetail.getLotId());
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLotDetail.getMaterialLotId());
+                parameterMap.put("FrameQty", ""+materialLotUnitList.size());
+                for(int i=0;i<materialLotUnitList.size();i++)
+                {
+                    parameterMap.put("FrameID" + i, "" + materialLotUnitList.get(i).getUnitId());
+                    parameterMap.put("ChipQty" + i, "" + materialLotUnitList.get(i).getCurrentQty());
+                }
+                for(int j=materialLotUnitList.size();j < 13;j++)
+                {
+                    parameterMap.put("FrameID" + j, StringUtils.EMPTY);
+                    parameterMap.put("ChipQty" + j, StringUtils.EMPTY);
+                }
+            }
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
+    /**
      * RW批次标注自动挑选(按照先进先出的原则，先挑选装箱的)
      * @param materialLotList
      * @param pickQty
