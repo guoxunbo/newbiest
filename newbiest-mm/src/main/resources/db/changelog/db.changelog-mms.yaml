@@ -575,3 +575,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.CSTPackMaterialLot.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRwTapeScanReceiveManager.nb_authority.yaml
+      relativeToChangelogFile: true

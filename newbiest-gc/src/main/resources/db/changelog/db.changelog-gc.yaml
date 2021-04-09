@@ -455,3 +455,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.CSTPackMaterialLot_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRwTapeScanReceive_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.2.9.comments.yaml
+      relativeToChangelogFile: true
