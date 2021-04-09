@@ -4216,7 +4216,8 @@ public class GcServiceImpl implements GcService {
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             List<MesPackedLot> packedLotList = packedLotMap.get(packedLot.getCstId());
-            parameterMap.put("PRODUCTID", packedLot.getProductId());
+            String productId = packedLot.getProductId();
+            parameterMap.put("PRODUCTID", productId.substring(0, productId.lastIndexOf("-")));
             parameterMap.put("CSTID", packedLot.getCstId());
             parameterMap.put("WAFERQTY", packedLot.getWaferQty().toString());
             parameterMap.put("LOCATION", packedLot.getBondedProperty());
@@ -9357,7 +9358,8 @@ public class GcServiceImpl implements GcService {
     public Map<String, String> getRwReceiveLotLabelPrintParameter(MaterialLot materialLot) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
-            parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+            String materialName = materialLot.getMaterialName();
+            parameterMap.put("PRODUCTID", materialName.substring(0 , materialName.lastIndexOf("-")));
             parameterMap.put("CSTID", materialLot.getLotId());
             parameterMap.put("WAFERQTY", materialLot.getCurrentSubQty().toString());
             parameterMap.put("LOCATION", materialLot.getReserved6());
