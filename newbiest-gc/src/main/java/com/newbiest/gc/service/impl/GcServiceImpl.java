@@ -2912,7 +2912,7 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 格科同步MES金线、IRA型号
+     * 格科同步MES金线、IRA型号、TAPE、BLADE
      */
     public void asyncMesMaterialModel() throws ClientException{
         try {
@@ -2936,6 +2936,10 @@ public class GcServiceImpl implements GcService {
                             material.setMaterialType(Material.MATERIAL_TYPE_IRA);
                         } else if(Material.MATERIAL_TYPE_WIRE.equals(materialType)){
                             material.setMaterialType(Material.MATERIAL_TYPE_GOLD);
+                        } else if(Material.MATERIAL_TYPE_TAPE.equals(materialType)) {
+                            material.setMaterialType(Material.MATERIAL_TYPE_TAPE);
+                        } else if(Material.MATERIAL_TYPE_BLADE.equals(materialType)) {
+                            material.setMaterialType(Material.MATERIAL_TYPE_BLADE);
                         }
 
                         mmsService.createRawMaterial(material);

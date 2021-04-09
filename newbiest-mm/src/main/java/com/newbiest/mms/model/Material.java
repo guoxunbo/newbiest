@@ -75,8 +75,8 @@ public class Material extends NBVersionControl {
     public static final String MATERIAL_TYPE_IR = "IR";
 
     //RW辅料类型
-    public static final String MATERIAL_TYPE_TAPE = "Tape";
-    public static final String MATERIAL_TYPE_BLADE = "Blade";
+    public static final String MATERIAL_TYPE_TAPE = "TAPE";
+    public static final String MATERIAL_TYPE_BLADE = "BLADE";
 
     public static final String MATERIAL_TYPE_IRA = "IRA";
     public static final String MATERIAL_TYPE_GOLD = "金线";
