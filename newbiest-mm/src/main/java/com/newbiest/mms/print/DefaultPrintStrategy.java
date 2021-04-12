@@ -31,9 +31,11 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
  * @author guoxunbo
  * @date 4/6/21 3:07 PM
  */
-@Component("defaultPrintStrategy")
+@Component(DefaultPrintStrategy.DEFAULT_STRATEGY_NAME)
 @Slf4j
 public class DefaultPrintStrategy implements IPrintStrategy {
+
+    public static final String DEFAULT_STRATEGY_NAME = "defaultPrintStrategy";
 
     public static final int CONNECTION_TIME_OUT = 10;
 
@@ -99,7 +101,6 @@ public class DefaultPrintStrategy implements IPrintStrategy {
     }
 
     public void printWithBartender(PrintContext printContext) {
-
         String destination = printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation());
         Map<String, Object> params = buildParameters(printContext);
 
@@ -108,14 +109,11 @@ public class DefaultPrintStrategy implements IPrintStrategy {
             paramStr.add(key + "=" + params.get(key));
         }
 
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity entity = new HttpEntity(headers);
-
-
-        if (log.isDebugEnabled()) {
-            log.debug("Start to send print data to bartender. The destination is [ " + destination + "] and the parameter is [ " + params + "] ");
-        }
         destination = destination + "?" + StringUtils.join(paramStr, "&");
+        if (log.isDebugEnabled()) {
+            log.debug("Start to send print data to bartender. The destination is [ " + destination + "] ");
+        }
+
         HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(destination, byte[].class);
         String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
         if (log.isDebugEnabled()) {

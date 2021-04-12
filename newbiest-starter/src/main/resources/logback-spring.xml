@@ -44,6 +44,34 @@
         </encoder>
     </appender>
 
+    <appender name="vanchip" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/vanchip/vanchip.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/vanchip/vanchip.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${global_pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="mms" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/mms/mms.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/mms/mms.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${global_pattern}</pattern>
+        </encoder>
+    </appender>
+
     <appender name="async_file_log" class="ch.qos.logback.classic.AsyncAppender">
         <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
         <discardingThreshold>0</discardingThreshold>
@@ -54,6 +82,14 @@
         <neverBlock>true</neverBlock>
         <appender-ref ref="file"/>
     </appender>
+
+    <logger name="com.newbiest.vanchip" level="DEBUG" additivity="false">
+        <appender-ref ref="vanchip"/>
+    </logger>
+
+    <logger name="com.newbiest.mms" level="DEBUG" additivity="false">
+        <appender-ref ref="mms"/>
+    </logger>
 
     <springProfile name="production">
         <root level="INFO">
