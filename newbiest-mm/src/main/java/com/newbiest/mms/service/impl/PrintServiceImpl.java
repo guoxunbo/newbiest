@@ -12,7 +12,6 @@ import com.newbiest.mms.model.LabelTemplate;
 import com.newbiest.mms.model.LabelTemplateParameter;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.WorkStation;
-import com.newbiest.mms.print.DefaultPrintStrategy;
 import com.newbiest.mms.print.IPrintStrategy;
 import com.newbiest.mms.print.PrintContext;
 import com.newbiest.mms.repository.LabelTemplateParameterRepository;
@@ -76,7 +75,8 @@ public class PrintServiceImpl implements PrintService {
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("qty", materialLot.getCurrentQty());
             parameterMap.put("inDate", DateUtils.now());
-            parameterMap.put("specification", materialLot.getMaterialDesc());
+            parameterMap.put("chineseName", materialLot.getReserved21());
+            parameterMap.put("specification", materialLot.getReserved43());
             printContext.setParameterMap(parameterMap);
 
             IPrintStrategy printStrategy = printStrategyMap.get("PrintMLot");

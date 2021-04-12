@@ -71,6 +71,8 @@ public class MobileController extends AbstractRestController {
             vanChipService.shipOutMobile(requestBody.getDocumentId(), requestBody.getMaterialLotAction());
         }else if (MobileRequest.ACTION_CHECK_MLOT_INVENTORY.equals(actionType)){
             vanChipService.checkMlotInventoryMobile(requestBody.getMaterialLotAction());
+        }else if (MobileRequest.ACTION_PRINT_MLOTS.equals(actionType)){
+            vanChipService.printMLots(requestBody.getMaterialLots());
         }else {
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);
         }

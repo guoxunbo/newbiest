@@ -23,6 +23,7 @@ public class MobileRequest extends Request {
 	public static final String ACTION_SHIP_MLOT = "shipMLot";
 
 	public static final String ACTION_CHECK_MLOT_INVENTORY = "checkMLotInventory";
+	public static final String ACTION_PRINT_MLOTS = "printMLots";
 
 	private MobileRequestBody body;
 

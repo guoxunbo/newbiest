@@ -2,6 +2,7 @@ package com.newbiest.vanchip.rest.mobile;
 
 import com.newbiest.base.msg.RequestBody;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -23,4 +24,6 @@ public class MobileRequestBody extends RequestBody {
 	private String packageType;
 
 	private List<MaterialLotAction> materialLotActions;
+
+	private List<MaterialLot> materialLots;
 }

@@ -502,8 +502,8 @@ public class VanchipServiceImpl implements VanChipService {
 
             String reservedRule = docLine.getReserved24();
             if (StringUtils.isNullOrEmpty(reservedRule)){
-                //根据发货单查询
-                materialLots = materialLotRepository.findByReserved45AndBoxMaterialLotIdIsNull(documentLine.getLineId());
+                //根据发货单查询,且过滤查询出已经装箱的
+                materialLots = materialLotRepository.findByReserved45AndBoxMaterialLotIdIsNullAndCategoryIsNull(documentLine.getLineId());
                 return materialLots;
             }
 
@@ -1899,14 +1899,16 @@ public class VanchipServiceImpl implements VanChipService {
 
     /**
      *手持端 入库
-     * @param materialLotAction 批次号，仓库号，库位号
+     * @param materialLotAction 批次号，库位号
      * @return
      * @throws ClientException
      */
     public MaterialLot stockInMLotMobile(MaterialLotAction materialLotAction)throws ClientException{
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true);
-            Warehouse warehouse = warehouseRepository.findOneByName(materialLotAction.getTargetWarehouseId());
+
+            Storage storage = storageRepository.findOneByName(materialLotAction.getTargetStorageId());
+            Warehouse warehouse = warehouseRepository.findByObjectRrn(storage.getWarehouseRrn());
 
             materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
             materialLotAction.setTransQty(materialLot.getCurrentQty());
@@ -1919,14 +1921,18 @@ public class VanchipServiceImpl implements VanChipService {
 
     /**
      * 手持端 出库
-     * @param materialLotAction 批次号,仓库号,库位号
+     * @param materialLotAction 批次号,库位号
      * @return
      * @throws ClientException
      */
     public MaterialLot stockOutMLotMobile(MaterialLotAction materialLotAction)throws ClientException{
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true);
-            if (!materialLot.getLastStorageId().equals(materialLotAction.getFromStorageId()) || !materialLot.getLastWarehouseId().equals(materialLotAction.getFromWarehouseId())){
+
+            Storage storage = storageRepository.findOneByName(materialLotAction.getFromStorageId());
+            Warehouse warehouse = warehouseRepository.findByObjectRrn(storage.getWarehouseRrn());
+
+            if (!materialLot.getLastStorageId().equals(materialLotAction.getFromStorageId()) || !materialLot.getLastWarehouseId().equals(warehouse.getName())){
                 throw new ClientParameterException(VanchipExceptions.WAREHOUSE_OR_STORAGE_ERROR);
             }
 
@@ -1989,6 +1995,16 @@ public class VanchipServiceImpl implements VanChipService {
             materialLotAction.setFromStorageRrn(storage.getObjectRrn());
             MaterialLotInventory materialLotInventory = mmsService.checkMaterialInventory(materialLot, materialLotAction);
             return materialLotInventory;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e,log);
+        }
+    }
+
+    public void printMLots(List<MaterialLot> materialLots) throws ClientException{
+        try {
+           for (MaterialLot materialLot:materialLots){
+               printService.printMLot(materialLot);
+           }
         }catch (Exception e){
             throw ExceptionManager.handleException(e,log);
         }
