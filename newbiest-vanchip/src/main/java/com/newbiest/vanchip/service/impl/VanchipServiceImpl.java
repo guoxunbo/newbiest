@@ -1906,8 +1906,7 @@ public class VanchipServiceImpl implements VanChipService {
     public MaterialLot stockInMLotMobile(MaterialLotAction materialLotAction)throws ClientException{
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true);
-            Storage storage = storageRepository.findOneByName(materialLotAction.getTargetStorageId());
-            Warehouse warehouse = warehouseRepository.findByObjectRrn(storage.getWarehouseRrn());
+            Warehouse warehouse = warehouseRepository.findOneByName(materialLotAction.getTargetWarehouseId());
 
             materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
             materialLotAction.setTransQty(materialLot.getCurrentQty());
@@ -1927,10 +1926,7 @@ public class VanchipServiceImpl implements VanChipService {
     public MaterialLot stockOutMLotMobile(MaterialLotAction materialLotAction)throws ClientException{
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true);
-            Storage storage = storageRepository.findOneByName(materialLotAction.getFromStorageId());
-            Warehouse warehouse = warehouseRepository.findByObjectRrn(storage.getWarehouseRrn());
-
-            if (!materialLot.getLastStorageId().equals(materialLotAction.getFromStorageId()) || !materialLot.getLastWarehouseId().equals(warehouse.getName())){
+            if (!materialLot.getLastStorageId().equals(materialLotAction.getFromStorageId()) || !materialLot.getLastWarehouseId().equals(materialLotAction.getFromWarehouseId())){
                 throw new ClientParameterException(VanchipExceptions.WAREHOUSE_OR_STORAGE_ERROR);
             }
 
