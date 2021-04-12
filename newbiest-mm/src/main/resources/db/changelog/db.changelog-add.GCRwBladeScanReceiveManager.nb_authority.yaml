@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RwBladeScanReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add RwBladeScanReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RwBladeScanReceiveManager
+              description: Blade扫描接收
+              tableName: GCRwBladeScanReceive
+              mobileFlag: N
+              url: /GC/RwBladeScanReceiveManager
+              parentRrn: 2030
+              seqNo: 70
+              image: icon-recipe
+              labelZh: Blade扫描接收
+              labelEn: BladeScanReceive

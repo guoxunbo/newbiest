@@ -461,3 +461,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.2.9.comments.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRwBladeScanReceive_nb_table.yaml
+      relativeToChangelogFile: true

@@ -15,4 +15,6 @@ public class RwMaterialResponseBody extends ResponseBody {
 
 	private List<MaterialLot> materialLotList;
 
+	private String materialLotId;
+
 }
