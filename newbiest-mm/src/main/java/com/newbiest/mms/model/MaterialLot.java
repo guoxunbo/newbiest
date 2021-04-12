@@ -61,6 +61,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String GENERATOR_QRCODE_LABEL_WEIGHT_SEQ_RULE = "BoxWeightSeq";
 
     /**
+     * RW辅料Tape箱号生成规则
+     */
+    public static final String TAPE_MATERIAL_LOT_ID_RULE = "CreateTapeLotId";
+
+    /**
      * 手动快递下单
      */
     public static final String PLAN_ORDER_TYPE_MANUAL  = "ManualOrder";
@@ -977,6 +982,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     @Transient
     private String boxsScanSeq;
+
+    @Transient
+    private String tapeMaterialCode;
 
     /**
      * 验证物料批次是否在有效期内

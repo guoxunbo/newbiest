@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_CSTPackMaterialLot_to_NB_AUTHORITY
+      author: zhuqin zhou
+      comment: add CSTPackMaterialLot to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: CSTPacking
+              description: CST装箱
+              tableName: CSTPackMaterialLot
+              url: /GC/GCCSTPackMaterialLot
+              mobileFlag: N
+              parentRrn: 1001
+              seqNo: 51
+              image: icon-rule
+              labelZh: CST装箱
+              labelEn: CSTPacking
+

@@ -18,12 +18,15 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void receiveTapeMaterial(List<MaterialLot> materialLotList) throws ClientException;
+    List<MaterialLot> getMaterialLotByTapeMaterialCode(String tapeMaterialCode) throws ClientException;
     void rwStockOut(List<MaterialLot> materialLotList, List<DocumentLine> documentLineList) throws ClientException;
     void rwMaterialLotCancelStockTag(List<MaterialLot> materialLotList) throws ClientException;
     void rwMaterialLotAddShipOrderId(List<MaterialLot> materialLotList, String shipOrderId) throws ClientException;
     void rwMaterialLotStockOutTag(List<MaterialLot> materialLotList, String customerName, String abbreviation, String remarks) throws ClientException;
     List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, BigDecimal pickQty) throws ClientException;
     Map<String, String> getRwReceiveLotLabelPrintParameter(MaterialLot materialLot) throws ClientException;
+    Map<String, String> getRWBoxPrintParameter(Long materialLotRrn) throws ClientException;
     List<Map<String, String>> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel) throws ClientException;
     List<Map<String, String>> getRWIssueMaterialLotPrintParameter(List<MaterialLot> materialLotList) throws ClientException;
     Material saveProductAndSetStatusModelRrn(String name) throws ClientException;

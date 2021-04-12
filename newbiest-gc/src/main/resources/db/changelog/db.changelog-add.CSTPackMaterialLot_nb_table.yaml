@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_CSTPackMaterialLot_to_NB_TABLE
+      author: zhuqin zhou
+      comment: add CSTPackMaterialLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: CSTPackMaterialLot
+              description: CST装箱
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: CST装箱
+              label: CSTPacking
