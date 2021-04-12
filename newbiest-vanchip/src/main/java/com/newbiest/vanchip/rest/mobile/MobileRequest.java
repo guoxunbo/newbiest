@@ -12,7 +12,6 @@ public class MobileRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "PackMaterialLot";
 
-	public static final String ACTION_RECEIVE_MLOT = "receiveMLot";
 	public static final String ACTION_STOCK_IN = "stockIn";
 	public static final String ACTION_STOCK_OUT = "stockOut";
 
@@ -23,7 +22,6 @@ public class MobileRequest extends Request {
 	public static final String ACTION_SHIP_MLOT = "shipMLot";
 
 	public static final String ACTION_CHECK_MLOT_INVENTORY = "checkMLotInventory";
-	public static final String ACTION_PRINT_MLOTS = "printMLots";
 
 	private MobileRequestBody body;
 
