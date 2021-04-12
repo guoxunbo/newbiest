@@ -7,6 +7,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.DateUtils;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.LabelTemplate;
 import com.newbiest.mms.model.LabelTemplateParameter;
@@ -21,6 +22,7 @@ import com.newbiest.mms.service.PrintService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +38,8 @@ import java.util.Map;
 @Transactional
 @BaseJpaFilter
 @Data
+@Async
 public class PrintServiceImpl implements PrintService {
-
-    public static final String PRINT_MATERIAL_LOT = "printMLot";
 
     @Autowired
     Map<String, IPrintStrategy> printStrategyMap;
@@ -52,7 +53,13 @@ public class PrintServiceImpl implements PrintService {
     @Autowired
     LabelTemplateParameterRepository labelTemplateParameterRepository;
 
+    /**
+     * 打标签进行异步构建
+     * @param materialLot
+     * @throws ClientException
+     */
     @Override
+    @Async
     public void printMLot(MaterialLot materialLot) throws ClientException {
         try {
             String transactionIp = ThreadLocalContext.getTransactionIp();
@@ -78,16 +85,26 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("specification", materialLot.getMaterialDesc());
             printContext.setParameterMap(parameterMap);
 
-            IPrintStrategy printStrategy = printStrategyMap.get("PrintMLot");
-            if (printStrategy == null) {
-                printStrategy = printStrategyMap.get("defaultPrintStrategy");
-            }
-//            IPrintStrategy printStrategy = new DefaultPrintStrategy();
-            printStrategy.print(printContext);
+            print(printContext);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
 
+    }
+
+    public void print(PrintContext printContext) {
+        print(DefaultPrintStrategy.DEFAULT_STRATEGY_NAME, printContext);
+    }
+
+    public void print(String strategyName, PrintContext printContext) {
+        IPrintStrategy printStrategy = printStrategyMap.get(strategyName);
+        if (printStrategy == null) {
+            printStrategy = printStrategyMap.get(DefaultPrintStrategy.DEFAULT_STRATEGY_NAME);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Use context [" + printContext.toString() + "] to print");
+        }
+        printStrategy.print(printContext);
     }
 
 }
