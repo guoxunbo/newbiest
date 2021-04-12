@@ -1906,9 +1906,7 @@ public class VanchipServiceImpl implements VanChipService {
     public MaterialLot stockInMLotMobile(MaterialLotAction materialLotAction)throws ClientException{
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true);
-
-            Storage storage = storageRepository.findOneByName(materialLotAction.getTargetStorageId());
-            Warehouse warehouse = warehouseRepository.findByObjectRrn(storage.getWarehouseRrn());
+            Warehouse warehouse = warehouseRepository.findOneByName(materialLotAction.getTargetWarehouseId());
 
             materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
             materialLotAction.setTransQty(materialLot.getCurrentQty());
@@ -1928,11 +1926,7 @@ public class VanchipServiceImpl implements VanChipService {
     public MaterialLot stockOutMLotMobile(MaterialLotAction materialLotAction)throws ClientException{
         try {
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true);
-
-            Storage storage = storageRepository.findOneByName(materialLotAction.getFromStorageId());
-            Warehouse warehouse = warehouseRepository.findByObjectRrn(storage.getWarehouseRrn());
-
-            if (!materialLot.getLastStorageId().equals(materialLotAction.getFromStorageId()) || !materialLot.getLastWarehouseId().equals(warehouse.getName())){
+            if (!materialLot.getLastStorageId().equals(materialLotAction.getFromStorageId()) || !materialLot.getLastWarehouseId().equals(materialLotAction.getFromWarehouseId())){
                 throw new ClientParameterException(VanchipExceptions.WAREHOUSE_OR_STORAGE_ERROR);
             }
 
@@ -1995,16 +1989,6 @@ public class VanchipServiceImpl implements VanChipService {
             materialLotAction.setFromStorageRrn(storage.getObjectRrn());
             MaterialLotInventory materialLotInventory = mmsService.checkMaterialInventory(materialLot, materialLotAction);
             return materialLotInventory;
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e,log);
-        }
-    }
-
-    public void printMLots(List<MaterialLot> materialLots) throws ClientException{
-        try {
-           for (MaterialLot materialLot:materialLots){
-               printService.printMLot(materialLot);
-           }
         }catch (Exception e){
             throw ExceptionManager.handleException(e,log);
         }

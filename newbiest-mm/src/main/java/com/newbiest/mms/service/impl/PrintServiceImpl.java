@@ -75,8 +75,7 @@ public class PrintServiceImpl implements PrintService {
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("qty", materialLot.getCurrentQty());
             parameterMap.put("inDate", DateUtils.now());
-            parameterMap.put("chineseName", materialLot.getReserved21());
-            parameterMap.put("specification", materialLot.getReserved43());
+            parameterMap.put("specification", materialLot.getMaterialDesc());
             printContext.setParameterMap(parameterMap);
 
             IPrintStrategy printStrategy = printStrategyMap.get("PrintMLot");
