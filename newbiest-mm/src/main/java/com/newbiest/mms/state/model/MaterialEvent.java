@@ -40,5 +40,7 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_TRANSFER = "Transfer";
 
+    public static final String EVENT_MATEREIAL_SPARE = "MaterialSpare";
+
 
 }

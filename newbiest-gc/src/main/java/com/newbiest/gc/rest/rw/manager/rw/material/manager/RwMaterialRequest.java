@@ -22,6 +22,8 @@ public class RwMaterialRequest extends Request {
 
 	public static final String ACTION_BLADE_SCAN = "BladeScan";
 
+	public static final String ACTION_MATERIAL_SPARE = "MaterialSpare";
+
 	private RwMaterialRequestBody body;
 
 }

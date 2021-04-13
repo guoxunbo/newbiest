@@ -581,3 +581,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRwBladeScanReceiveManager.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRwMaterialSpareManager.nb_authority.yaml
+      relativeToChangelogFile: true
