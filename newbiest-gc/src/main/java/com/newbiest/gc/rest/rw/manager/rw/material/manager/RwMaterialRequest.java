@@ -24,6 +24,8 @@ public class RwMaterialRequest extends Request {
 
 	public static final String ACTION_MATERIAL_SPARE = "MaterialSpare";
 
+	public static final String ACTION_MATERIAL_ISSUE = "MaterialIssue";
+
 	private RwMaterialRequestBody body;
 
 }

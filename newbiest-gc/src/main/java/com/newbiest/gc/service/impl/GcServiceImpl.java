@@ -9875,4 +9875,23 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * RW原材料发料
+     * @param materialLotList
+     * @throws ClientException
+     */
+    public void issueRwMaterial(List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
+                materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE);
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 }

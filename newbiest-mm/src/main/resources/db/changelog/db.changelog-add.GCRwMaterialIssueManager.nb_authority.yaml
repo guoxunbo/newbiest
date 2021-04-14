@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RwMaterialIssueManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add RwMaterialIssueManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRwMaterialIssueManager
+              description: RW材料发料
+              tableName: GCRwIssueMaterialScan
+              secondTableName: GCRwWaitIssueMaterial
+              mobileFlag: N
+              url: /GC/GCRwMaterialIssueManager
+              parentRrn: 2030
+              seqNo: 80
+              image: icon-rule
+              labelZh: RW材料发料
+              labelEn: RwMaterialIssue
