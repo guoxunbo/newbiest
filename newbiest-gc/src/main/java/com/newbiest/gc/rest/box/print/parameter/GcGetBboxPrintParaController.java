@@ -46,10 +46,7 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
 
         GcGetBboxPrintParaRequestBody requestBody = request.getBody();
         Map<String, String> parameterMap = Maps.newHashMap();
-        // barcode=1&device=s100&subcode=1&wafernum=3&
-        // VBox1=1&VBox2=1&VBox3=1&
-        // VBox4=1&VBox5=1&VBox6=1&VBox7=1&VBox8=1&VBox9=1&
-        // VBox10=1&VBox11=1&VBox12=1&VBox13=1&VBox14=1&VBox15=1&VBox16=1&VBox17=1&VBox18=1
+        Map<String, String> customerParameterMap = Maps.newHashMap();
 
         MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
         parameterMap.put("barcode", materialLot.getMaterialLotId());
@@ -70,8 +67,12 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
                 i++;
             }
         }
-        for (int j = i; j <= 18; j++) {
+        for (int j = i; j <= 10; j++) {
             parameterMap.put("VBox" + j, StringUtils.EMPTY);
+        }
+        if (!StringUtils.isNullOrEmpty(materialLot.getReserved18())){
+            customerParameterMap.put("CSNAME",materialLot.getReserved18());
+            responseBody.setCustomerParameter(customerParameterMap);
         }
         responseBody.setParameters(parameterMap);
         response.setBody(responseBody);
