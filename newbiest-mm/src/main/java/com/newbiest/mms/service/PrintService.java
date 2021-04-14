@@ -8,5 +8,5 @@ import com.newbiest.mms.model.MaterialLot;
  * @date 4/6/21 3:04 PM
  */
 public interface PrintService {
-    void printMLot(MaterialLot materialLot) throws ClientException;
+    void printMLot(MaterialLot materialLot, String workStationIp) throws ClientException;
 }
