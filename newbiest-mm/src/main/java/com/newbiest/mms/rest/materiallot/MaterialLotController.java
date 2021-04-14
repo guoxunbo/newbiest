@@ -2,14 +2,14 @@ package com.newbiest.mms.rest.materiallot;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
+import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.mms.service.MmsService;
-import com.newbiest.base.msg.Request;
 import com.newbiest.mms.service.PrintService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -60,7 +60,8 @@ public class MaterialLotController extends AbstractRestController {
             materialLot = mmsService.consumeMLot(materialLot, materialLotAction);
         } else if (MaterialLotRequest.ACTION_PRINT_LABEL.equals(actionType)) {
             materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
-            printService.printMLot(materialLot);
+            log.debug("transactionIp" + ThreadLocalContext.getTransactionIp());
+            printService.printMLot(materialLot, ThreadLocalContext.getTransactionIp());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

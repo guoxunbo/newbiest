@@ -1,7 +1,6 @@
 package com.newbiest.mms.print;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.DateUtils;
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -69,7 +67,8 @@ public class DefaultPrintStrategy implements IPrintStrategy {
     }
 
     public Map<String, Object> buildParameters(PrintContext printContext) {
-        Map<String, Object> parameterMap = Maps.newHashMap();
+        Map<String, Object> parameterMap = printContext.getParameterMap();
+        log.debug("parameterMap:" + parameterMap);
         List<LabelTemplateParameter> labelTemplateParameters = printContext.getLabelTemplate().getLabelTemplateParameterList();
         if (CollectionUtils.isNotEmpty(labelTemplateParameters)) {
             for (LabelTemplateParameter parameter : labelTemplateParameters) {
@@ -86,6 +85,7 @@ public class DefaultPrintStrategy implements IPrintStrategy {
                 }
                 if (value != null) {
                     if (value instanceof Date) {
+                        log.debug("value:" + value);
                         SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
                         value = sdf.format(value);
                     }
@@ -94,6 +94,7 @@ public class DefaultPrintStrategy implements IPrintStrategy {
                     value = parameter.getDefaultValue();
                 }
                 parameterMap.put(parameter.getName(), value);
+                log.debug("parameterName:" + parameter.getName() + ".value :" + value);
             }
         }
         parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());
