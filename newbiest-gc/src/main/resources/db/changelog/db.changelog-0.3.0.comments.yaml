@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_add_reserved_comments_0.3.0
+      author: Guozhang Luo
+      comment: add commments
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/comments_0.3.0.sql

@@ -9726,7 +9726,7 @@ public class GcServiceImpl implements GcService {
      * @param materialLotList
      * @throws ClientException
      */
-    public void receiveTapeMaterial(List<MaterialLot> materialLotList) throws ClientException{
+    public void receiveTapeMaterial(List<MaterialLot> materialLotList, String tapeSize) throws ClientException{
         try {
             Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_ZJ);
             Map<String, List<MaterialLot>> tapeMaterialMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot :: getTapeMaterialCode));
@@ -9736,6 +9736,7 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLot materialLot : materialLots){
                     materialLot.setLotId(lotId);
                     materialLot.setReserved13(warehouse.getObjectRrn().toString());
+                    materialLot.setReserved24(tapeSize);
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                     // 记录历史
