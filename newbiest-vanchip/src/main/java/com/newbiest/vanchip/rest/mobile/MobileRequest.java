@@ -12,7 +12,6 @@ public class MobileRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "PackMaterialLot";
 
-	public static final String ACTION_RECEIVE_MLOT = "receiveMLot";
 	public static final String ACTION_STOCK_IN = "stockIn";
 	public static final String ACTION_STOCK_OUT = "stockOut";
 

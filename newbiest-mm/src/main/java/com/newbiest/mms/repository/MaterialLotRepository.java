@@ -31,11 +31,9 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, String> 
 
     List<MaterialLot> findByMaterialNameAndStatusIn(String materialName, List<String> status);
 
-    List<MaterialLot> findByReserved4(String controlLot);
-
     List<MaterialLot> findByMaterialCategory(String materialCategory);
 
     List<MaterialLot> findByReserved45IsNullAndBoxMaterialLotIdIsNullAndStatusAndMaterialCategory(String statusIn, String typeProduct);
 
-    List<MaterialLot> findByReserved45AndBoxMaterialLotIdIsNull(String lineId) throws ClientException;
+    List<MaterialLot> findByReserved45AndBoxMaterialLotIdIsNullAndCategoryIsNull(String lineId);
 }
