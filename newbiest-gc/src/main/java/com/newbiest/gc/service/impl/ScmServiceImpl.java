@@ -8,6 +8,7 @@ import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
+import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.gc.GcExceptions;
@@ -16,6 +17,7 @@ import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
 import com.newbiest.gc.service.ScmService;
 import com.newbiest.gc.service.model.QueryEngResponse;
 import com.newbiest.mms.exception.MmsException;
+import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotHistory;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -72,6 +74,9 @@ public class ScmServiceImpl implements ScmService {
      * 读取SCM的超时时间 单位秒
      */
     public static final int SCM_READ_TIME_OUT = 60;
+
+    public static final String SCM_TAG_TABLE_NAEM = "GCCPStockOutTagging";
+    public static final String SCM_UNTAG_TABLE_NAEM = "GCWaferUnStockOutTagging";
 
     public static final String REFERENCE_NAME_FOR_SCM = "SCMImportType";
     public static final String QUERY_ENG_API = "/api/wip/sync-eng/query";
@@ -133,12 +138,7 @@ public class ScmServiceImpl implements ScmService {
 
     public void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException{
         try {
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC, MaterialLot.STATUS_CREATE),
-                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK, MaterialLot.STATUS_CREATE));
-
-            if (materialLot == null) {
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
-            }
+            MaterialLot materialLot = getMaterialLotByNbTableNameAndLotId(SCM_TAG_TABLE_NAEM, lotId);
 
             scmAssignAndSaveHis(materialLot, materialType, vendor, poId, remarks);
 
@@ -149,6 +149,40 @@ public class ScmServiceImpl implements ScmService {
             }
 
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据表单名称和lotId查询需要标注和取消标注的lot信息
+     * @param tableName
+     * @param lotId
+     * @return
+     * @throws ClientException
+     */
+    private MaterialLot getMaterialLotByNbTableNameAndLotId(String tableName, String lotId) throws ClientException{
+        try {
+            MaterialLot materialLot = new MaterialLot();
+            NBTable nbTable = uiService.getNBTableByName(tableName);
+            String whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer();
+            clauseBuffer.append(" lotId = ");
+            clauseBuffer.append("'" + lotId + "'");
+            if (!StringUtils.isNullOrEmpty(whereClause)) {
+                clauseBuffer.append(" AND ");
+                clauseBuffer.append(whereClause);
+            }
+            whereClause = clauseBuffer.toString();
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+
+            if (CollectionUtils.isEmpty(materialLots)) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
+            } else {
+                materialLot = materialLots.get(0);
+            }
+            return materialLot;
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -218,11 +252,8 @@ public class ScmServiceImpl implements ScmService {
 
     public void scmUnAssign(String lotId) throws ClientException{
         try {
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryInAndStatusIn(lotId, Lists.newArrayList(MaterialLot.STATUS_FIN, MaterialLot.STATUS_STOCK, MaterialLot.STATUS_OQC, MaterialLot.STATUS_CREATE),
-                    Lists.newArrayList(MaterialLot.CATEGORY_PACKAGE, MaterialLot.STATUS_IN, MaterialLot.STATUS_OK, MaterialLot.STATUS_CREATE));
-            if (materialLot == null) {
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
-            }
+            MaterialLot materialLot = getMaterialLotByNbTableNameAndLotId(SCM_UNTAG_TABLE_NAEM, lotId);
+
             scmUnAssignMaterialLot(materialLot);
 
             if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
@@ -354,7 +385,7 @@ public class ScmServiceImpl implements ScmService {
             requestBody.setActionType(action);
             requestBody.setMaterialLotList(reportDataList);
             request.setBody(requestBody);
-            String responseStr = sendHttpRequest(mScmUrl + MATERIAL_LOT_STATE_REPORT, request, Maps.newHashMap());
+            String responseStr = sendHttpRequest(scmUrl + MATERIAL_LOT_STATE_REPORT, request, Maps.newHashMap());
 
             Response response = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(responseStr);
             if (!ResponseHeader.RESULT_SUCCESS.equals(response.getHeader().getResult())) {

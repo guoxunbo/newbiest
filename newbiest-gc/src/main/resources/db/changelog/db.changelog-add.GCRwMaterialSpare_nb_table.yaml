@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRwMaterialSpare_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCRwMaterialSpare to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRwMaterialSpare
+              description: Rw材料备料
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: Rw材料备料
+              label: MaterialSpare

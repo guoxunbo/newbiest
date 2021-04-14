@@ -18,6 +18,11 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void issueRwMaterial(List<MaterialLot> materialLotList) throws ClientException;
+    void spareRwMaterial(List<MaterialLot> materialLotList) throws ClientException;
+    void receiveBladeMaterial(List<MaterialLot> materialLotList) throws ClientException;
+    String validateAndGetBladeMLotId(String bladeMaterialLotCode) throws ClientException;
+    MaterialLot getMaterialLotByBladeMaterialCode(String bladeMaterialCode) throws ClientException;
     void receiveTapeMaterial(List<MaterialLot> materialLotList) throws ClientException;
     List<MaterialLot> getMaterialLotByTapeMaterialCode(String tapeMaterialCode) throws ClientException;
     void rwStockOut(List<MaterialLot> materialLotList, List<DocumentLine> documentLineList) throws ClientException;

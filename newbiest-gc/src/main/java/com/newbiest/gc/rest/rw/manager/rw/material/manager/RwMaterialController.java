@@ -40,6 +40,18 @@ public class RwMaterialController {
             responseBody.setMaterialLotList(materialLotList);
         } else if(RwMaterialRequest.ACTION_TAPE_RECEIVE.equals(actionType)) {
             gcService.receiveTapeMaterial(requestBody.getMaterialLotList());
+        } else if(RwMaterialRequest.ACTION_GET_BLADE_MLOTID.equals(actionType)){
+            String materialLotId = gcService.validateAndGetBladeMLotId(requestBody.getMaterialLotCode());
+            responseBody.setMaterialLotId(materialLotId);
+        } else if(RwMaterialRequest.ACTION_BLADE_SCAN.equals(actionType)){
+            MaterialLot materialLot = gcService.getMaterialLotByBladeMaterialCode(requestBody.getBladeMaterialCode());
+            responseBody.setMaterialLot(materialLot);
+        } else if(RwMaterialRequest.ACTION_BLADE_RECEIVE.equals(actionType)){
+            gcService.receiveBladeMaterial(requestBody.getMaterialLotList());
+        } else if(RwMaterialRequest.ACTION_MATERIAL_SPARE.equals(actionType)){
+            gcService.spareRwMaterial(requestBody.getMaterialLotList());
+        } else if(RwMaterialRequest.ACTION_MATERIAL_ISSUE.equals(actionType)){
+            gcService.issueRwMaterial(requestBody.getMaterialLotList());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

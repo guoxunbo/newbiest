@@ -16,6 +16,16 @@ public class RwMaterialRequest extends Request {
 
 	public static final String ACTION_TAPE_RECEIVE = "TapeReceive";
 
+	public static final String ACTION_BLADE_RECEIVE = "BladeReceive";
+
+	public static final String ACTION_GET_BLADE_MLOTID = "GetBladeMLotId";
+
+	public static final String ACTION_BLADE_SCAN = "BladeScan";
+
+	public static final String ACTION_MATERIAL_SPARE = "MaterialSpare";
+
+	public static final String ACTION_MATERIAL_ISSUE = "MaterialIssue";
+
 	private RwMaterialRequestBody body;
 
 }

@@ -23,4 +23,10 @@ public class RwMaterialRequestBody extends RequestBody {
 	@ApiModelProperty(value = "辅料信息")
 	private List<MaterialLot> materialLotList;
 
+	@ApiModelProperty(value = "bladeMaterialCode")
+	private String bladeMaterialCode;
+
+	@ApiModelProperty(value = "materialLotCode")
+	private String materialLotCode;
+
 }

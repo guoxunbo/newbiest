@@ -77,6 +77,9 @@ public class Material extends NBVersionControl {
     //RW辅料类型
     public static final String MATERIAL_TYPE_TAPE = "TAPE";
     public static final String MATERIAL_TYPE_BLADE = "BLADE";
+    public static final String MATERIAL_SHIPPER_NAME = "Lintec";
+    public static final String MATERIAL_DISCO = "DISCO";
+    public static final String MATERIAL_PO_EMPTY = "NO PO";
 
     public static final String MATERIAL_TYPE_IRA = "IRA";
     public static final String MATERIAL_TYPE_GOLD = "金线";
