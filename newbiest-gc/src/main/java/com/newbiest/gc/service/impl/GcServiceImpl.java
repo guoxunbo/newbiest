@@ -4289,21 +4289,30 @@ public class GcServiceImpl implements GcService {
      */
     private MesPackedLot getReceicvePackedLotByPackedWafer(MesPackedLot mesPackedLot, Material material, Long totalQty, int number) throws ClientException{
         try {
+            MaterialLot materialLot = new MaterialLot();
             MesPackedLot packedLot = new MesPackedLot();
             String subName = StringUtils.EMPTY;
             String fabDevice = StringUtils.EMPTY;
-            String importType = StringUtils.EMPTY;
             String location = StringUtils.EMPTY;
             String inFlag = mesPackedLot.getInFlag();
             String productCategory = mesPackedLot.getProductCategory();
             PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
-            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndWorkOrderIdAndState(mesPackedLot.getWaferId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
-            if(CollectionUtils.isNotEmpty(materialLotUnits)){
+            if(StringUtils.isNullOrEmpty(mesPackedLot.getMaterialLotName())){
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndWorkOrderIdAndState(mesPackedLot.getWaferId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
+                if(CollectionUtils.isNotEmpty(materialLotUnits)){
+                    materialLot = mmsService.getMLotByMLotId(materialLotUnits.get(0).getMaterialLotId());
+                } else {
+                    throw new ClientParameterException(GcExceptions.WAFER_ID__IS_NOT_EXIST, mesPackedLot.getWaferId(), mesPackedLot.getWorkorderId());
+                }
+            } else {
+                materialLot = mmsService.getMLotByMLotId(mesPackedLot.getMaterialLotName());
+            }
+            if(materialLot != null){
                 if(!MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
                     if(MesPackedLot.IN_FLAG_ONE.equals(inFlag)){
-                        subName = materialLotUnits.get(0).getReserved22();
+                        subName = materialLot.getReserved22();
                     } else {
-                        if(MesPackedLot.ZH_WAREHOUSE.equals(materialLotUnits.get(0).getReserved13())){
+                        if(MesPackedLot.ZH_WAREHOUSE.equals(materialLot.getReserved13())){
                             subName = MesPackedLot.ZJ_SUB_NAME;
                         } else {
                             subName = MesPackedLot.SH_SUB_NAME;
@@ -4313,23 +4322,18 @@ public class GcServiceImpl implements GcService {
 
                 if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_CP.equals(productCategory) ||
                         MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(productCategory) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(productCategory)){
-                    fabDevice = materialLotUnits.get(0).getReserved24();
+                    fabDevice = materialLot.getReserved24();
                 }
 
-                if(!StringUtils.isNullOrEmpty(materialLotUnits.get(0).getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLotUnits.get(0).getReserved13())){
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLot.getReserved13())){
                     location = MaterialLot.LOCATION_SH;
                 }
-                importType = materialLotUnits.get(0).getReserved49();
-
-                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotUnits.get(0).getMaterialLotId(), ThreadLocalContext.getOrgRrn());
 
                 packedLot.setLocation(location);
                 packedLot.setFabDevice(fabDevice);
-                packedLot.setImportType(importType);
+                packedLot.setImportType(materialLot.getReserved49());
                 packedLot.setSubName(subName);
                 packedLot.setProductType(materialLot.getProductType());
-            } else {
-                throw new ClientParameterException(GcExceptions.WAFER_ID__IS_NOT_EXIST, mesPackedLot.getWaferId(), mesPackedLot.getWorkorderId());
             }
 
             String mLotId = mmsService.generatorMLotId(material);
