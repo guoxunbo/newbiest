@@ -476,3 +476,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.3.0.comments.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.gc_outsource_po.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.3.gc_outsource_po.yaml
+      relativeToChangelogFile: true

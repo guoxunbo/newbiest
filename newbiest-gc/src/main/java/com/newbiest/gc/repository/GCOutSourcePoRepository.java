@@ -14,6 +14,6 @@ public interface GCOutSourcePoRepository extends IRepository<GCOutSourcePo, Long
     @Query("SELECT distinct(g.supplierName) FROM GCOutSourcePo g")
     List<String> getSupplierName() throws Exception;
 
-    GCOutSourcePo findByPoId(@Param("poId") String poId);
+    GCOutSourcePo findByPoIdAndMaterialName(@Param("poId") String poId, @Param("materialName") String materialName);
 
 }

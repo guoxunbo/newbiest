@@ -7428,22 +7428,26 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             if(!StringUtils.isNullOrEmpty(poId)){
-                BigDecimal totalTaggingQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentSubQty));
-                GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoId(poId);
-                if(outSourcePo != null){
-                    if(outSourcePo.getUnHandledQty().subtract(totalTaggingQty).compareTo(BigDecimal.ZERO) < 0){
-                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_QTY_OVER_PO_QTY, poId);
-                    } else {
-                        BigDecimal unHandledQty = outSourcePo.getUnHandledQty();
-                        BigDecimal handledQty = outSourcePo.getHandledQty();
-                        unHandledQty = unHandledQty.subtract(totalTaggingQty);
-                        handledQty = handledQty.add(totalTaggingQty);
-                        outSourcePo.setUnHandledQty(unHandledQty);
-                        outSourcePo.setHandledQty(handledQty);
-                        outSourcePo = outSourcePoRepository.saveAndFlush(outSourcePo);
+                //按照产品型号分组扣减PO，PO号和产品号唯一确定一条PO信息
+                Map<String, List<MaterialLot>> materialNameMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot :: getMaterialName));
+                for(String materialName : materialNameMap.keySet()){
+                    BigDecimal totalTaggingQty = materialNameMap.get(materialName).stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentSubQty));
+                    GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoIdAndMaterialName(poId, materialName);
+                    if(outSourcePo != null){
+                        if(outSourcePo.getUnHandledQty().subtract(totalTaggingQty).compareTo(BigDecimal.ZERO) < 0){
+                            throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_QTY_OVER_PO_QTY, poId);
+                        } else {
+                            BigDecimal unHandledQty = outSourcePo.getUnHandledQty();
+                            BigDecimal handledQty = outSourcePo.getHandledQty();
+                            unHandledQty = unHandledQty.subtract(totalTaggingQty);
+                            handledQty = handledQty.add(totalTaggingQty);
+                            outSourcePo.setUnHandledQty(unHandledQty);
+                            outSourcePo.setHandledQty(handledQty);
+                            outSourcePo = outSourcePoRepository.saveAndFlush(outSourcePo);
 
-                        GCOutSourcePoHis history = (GCOutSourcePoHis) baseService.buildHistoryBean(outSourcePo, GCOutSourcePoHis.TRANS_TYPE_STOCK_OUT_TAG);
-                        outSourcePoHisRepository.save(history);
+                            GCOutSourcePoHis history = (GCOutSourcePoHis) baseService.buildHistoryBean(outSourcePo, GCOutSourcePoHis.TRANS_TYPE_STOCK_OUT_TAG);
+                            outSourcePoHisRepository.save(history);
+                        }
                     }
                 }
             }
@@ -7553,16 +7557,19 @@ public class GcServiceImpl implements GcService {
                 //还原PO标注数量信息
                 String poId = materialLot.getReserved56();
                 if(!StringUtils.isNullOrEmpty(poId)){
-                    GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoId(poId);
-                    if(outSourcePo != null){
-                        BigDecimal poHandleQty = outSourcePo.getHandledQty().subtract(materialLot.getCurrentSubQty());
-                        BigDecimal poUnHandleQty = outSourcePo.getUnHandledQty().add(materialLot.getCurrentSubQty());
-                        outSourcePo.setHandledQty(poHandleQty);
-                        outSourcePo.setUnHandledQty(poUnHandleQty);
-                        outSourcePo = outSourcePoRepository.saveAndFlush(outSourcePo);
+                    Map<String, List<MaterialLot>> materialNameMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot :: getMaterialName));
+                    for(String materialName : materialNameMap.keySet()){
+                        GCOutSourcePo outSourcePo = outSourcePoRepository.findByPoIdAndMaterialName(poId, materialName);
+                        if(outSourcePo != null){
+                            BigDecimal poHandleQty = outSourcePo.getHandledQty().subtract(materialLot.getCurrentSubQty());
+                            BigDecimal poUnHandleQty = outSourcePo.getUnHandledQty().add(materialLot.getCurrentSubQty());
+                            outSourcePo.setHandledQty(poHandleQty);
+                            outSourcePo.setUnHandledQty(poUnHandleQty);
+                            outSourcePo = outSourcePoRepository.saveAndFlush(outSourcePo);
 
-                        GCOutSourcePoHis history = (GCOutSourcePoHis) baseService.buildHistoryBean(outSourcePo, GCOutSourcePoHis.TRANS_TYPE_UNSTOCK_OUT_TAG);
-                        outSourcePoHisRepository.save(history);
+                            GCOutSourcePoHis history = (GCOutSourcePoHis) baseService.buildHistoryBean(outSourcePo, GCOutSourcePoHis.TRANS_TYPE_UNSTOCK_OUT_TAG);
+                            outSourcePoHisRepository.save(history);
+                        }
                     }
                 }
 
