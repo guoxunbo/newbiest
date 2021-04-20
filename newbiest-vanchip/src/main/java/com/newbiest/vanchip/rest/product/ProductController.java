@@ -4,7 +4,6 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.rest.entity.EntityRequest;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.Product;
@@ -50,13 +49,10 @@ public class ProductController extends AbstractRestController {
                 throw new ClientParameterException(MmsException.MM_PRODUCT_IS_EXIST, material.getName());
             }
             material = mmsService.saveProduct(material);
-        }else if(ProductRequest.ACTION_IMPORT_SAVE.equals(actionType)){
-
-            vanChipService.saveProduct(requestBody.getDataList());
-        } else if (EntityRequest.ACTION_UPDATE.equals(actionType)) {
-            validateEntity(material);
-            material = mmsService.saveProduct(material);
-        } else {
+        }else if (ProductRequest.ACTION_UPDATE_OR_ADD.equals(actionType)){
+            material = vanChipService.saveProduct(requestBody.getMaterial());
+            responseBody.setMaterial(material);
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
         responseBody.setMaterial(material);

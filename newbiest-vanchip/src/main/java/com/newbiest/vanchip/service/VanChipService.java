@@ -85,8 +85,9 @@ public interface VanChipService {
     void shipOutMobile(String documentId ,MaterialLotAction materialLotAction) throws ClientException;
     MaterialLotInventory checkMlotInventoryMobile(MaterialLotAction materialLotAction) throws ClientException;
 
-    void saveProduct(List<Product> dataList) throws ClientException;
-    void saveRawMaterial(List<RawMaterial> dataList) throws ClientException;
+    RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
+    Product saveProduct(Product product) throws ClientException;
+    LabMaterial saveLabMaterial(LabMaterial material)throws ClientException;
 
     Storage saveStorageInfo(Storage storages) throws ClientException;
 }

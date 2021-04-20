@@ -6,7 +6,10 @@ import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.model.NBVersionControl;
+import com.newbiest.base.model.NBVersionControlHis;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.service.VersionControlService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.*;
 import com.newbiest.commom.sm.exception.StatusMachineExceptions;
@@ -189,6 +192,12 @@ public class VanchipServiceImpl implements VanChipService {
 
     @Autowired
     IQCCheckSheetRepository iqcCheckSheetRepository;
+
+    @Autowired
+    LabMaterialRepository labMaterialRepository;
+
+    @Autowired
+    VersionControlService versionControlService;
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
@@ -2013,92 +2022,82 @@ public class VanchipServiceImpl implements VanChipService {
 
     /**
      * 保存成品物料
-     * @param products
+     * @param product
+     * @return
      * @throws ClientException
      */
-    public void saveProduct(List<Product> products) throws ClientException{
+    public Product saveProduct(Product product) throws ClientException{
         try {
-            if(CollectionUtils.isEmpty(products)){
-                return ;
-            }
-
-            List<Warehouse> warehouses = warehouseRepository.findAll();
-
-            for (Product product : products) {
+            if (product.getObjectRrn() == null){
                 String name = product.getName();
                 Product productByName = productRepository.findOneByName(name);
                 if (productByName != null){
                     throw new ClientParameterException(MmsException.MM_PRODUCT_IS_EXIST, name);
                 }
-
-                //保存仓库主键
-                String warehouseName = product.getWarehouseName();
-                if (!StringUtils.isNullOrEmpty(warehouseName)){
-                    List<Warehouse> warehouseList = warehouses.stream().filter(warehouse -> warehouseName.contains(warehouse.getName())).collect(Collectors.toList());
-                    if(CollectionUtils.isEmpty(warehouseList)){
-                        throw new ClientParameterException(VanchipExceptions.WAREHOUSE_NAME_IS_NOT_EXIST ,warehouseName);
-                    }
-                    product.setWarehouseRrn(warehouseList.get(0).getObjectRrn());
-                }
+                //型号转换
                 product = (Product) conversionMaterialMode(product);
-                mmsService.saveProduct(product);
-
             }
+            //保存仓库信息
+            String warehouseName = product.getWarehouseName();
+            if (!StringUtils.isNullOrEmpty(warehouseName)){
+                Warehouse warehouse = warehouseRepository.findOneByName(warehouseName);
+                if (warehouse == null){
+                    throw new ClientParameterException(VanchipExceptions.WAREHOUSE_NAME_IS_NOT_EXIST ,warehouseName);
+                }
+                product.setWarehouseRrn(warehouse.getObjectRrn());
+            }
+
+            product = mmsService.saveProduct(product);
+
+           return product;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
 
     /**
-     * 保存原材料物料
-     * @param rawMaterials
+     * 保存源物料
+     * @param rawMaterial
+     * @return
      * @throws ClientException
      */
-    public void saveRawMaterial(List<RawMaterial> rawMaterials) throws ClientException{
+    public RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException{
         try {
-            if(CollectionUtils.isEmpty(rawMaterials)){
-                return ;
-            }
-            MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
-            if (statusModel == null) {
-                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
-
-            }
-
-            List<IqcCheckSheet> iqcCheckSheets = iqcCheckSheetRepository.findAll();
-            List<Warehouse> warehouses = warehouseRepository.findAll();
-
-            for (RawMaterial rawMaterial : rawMaterials) {
+            if (rawMaterial.getObjectRrn() == null){
                 String name = rawMaterial.getName();
                 RawMaterial rawMaterialByName = rawMaterialRepository.findOneByName(name);
                 if (rawMaterialByName != null){
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_EXIST, name);
                 }
+                MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
+                if (statusModel == null) {
+                    throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+                }
                 rawMaterial.setStatusModelRrn(statusModel.getObjectRrn());
-                rawMaterial = (RawMaterial) conversionMaterialMode(rawMaterial);
 
-                //保存IQC主键
+                //保存IQC信息
                 String iqcName = rawMaterial.getIqcSheetName();
                 if(!StringUtils.isNullOrEmpty(iqcName)){
-                    List<IqcCheckSheet> iqcCheckSheetList = iqcCheckSheets.stream().filter(iqcCheckSheet -> iqcName.contains(iqcCheckSheet.getName())).collect(Collectors.toList());
-                    if(CollectionUtils.isEmpty(iqcCheckSheetList)){
+                    IqcCheckSheet iqcCheckSheet = iqcCheckSheetRepository.findOneByName(iqcName);
+                    if (iqcCheckSheet == null){
                         throw new ClientParameterException(VanchipExceptions.IQC_NAME_IS_NOT_EXIST,iqcName);
                     }
-                    rawMaterial.setIqcSheetRrn(iqcCheckSheetList.get(0).getObjectRrn());
+                    rawMaterial.setIqcSheetRrn(iqcCheckSheet.getObjectRrn());
                 }
-
-                //保存仓库主键
-                String warehouseName = rawMaterial.getWarehouseName();
-                if (!StringUtils.isNullOrEmpty(warehouseName)){
-                    List<Warehouse> warehouseList = warehouses.stream().filter(warehouse -> warehouseName.contains(warehouse.getName())).collect(Collectors.toList());
-                    if(CollectionUtils.isEmpty(warehouseList)){
-                        throw new ClientParameterException(VanchipExceptions.WAREHOUSE_NAME_IS_NOT_EXIST ,warehouseName);
-                    }
-                    rawMaterial.setWarehouseRrn(warehouseList.get(0).getObjectRrn());
-                }
-
-                mmsService.saveRawMaterial(rawMaterial);
+                rawMaterial = (RawMaterial) conversionMaterialMode(rawMaterial);
             }
+
+            //保存仓库信息
+            String warehouseName = rawMaterial.getWarehouseName();
+            if (!StringUtils.isNullOrEmpty(warehouseName)){
+                Warehouse warehouse = warehouseRepository.findOneByName(warehouseName);
+                if(warehouse == null){
+                    throw new ClientParameterException(VanchipExceptions.WAREHOUSE_NAME_IS_NOT_EXIST ,warehouseName);
+                }
+                rawMaterial.setWarehouseRrn(warehouse.getObjectRrn());
+            }
+            rawMaterial = mmsService.saveRawMaterial(rawMaterial);
+            return rawMaterial;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -2114,7 +2113,13 @@ public class VanchipServiceImpl implements VanChipService {
             String materialCategory =material.getMaterialCategory();
             String materialType = material.getMaterialType();
             String materialClassify = material.getReserved3();
+
             List<MaterialModelConversion> materialModelConversions = materialModelConversionRepository.findByMaterialCategoryAndMaterialTypeAndMaterialClassify(materialCategory, materialType, materialClassify);
+            if (StringUtils.isNullOrEmpty(materialType)){
+                materialModelConversions = materialModelConversionRepository.findByMaterialCategoryAndMaterialClassify(materialCategory, materialClassify);
+            }else if (StringUtils.isNullOrEmpty(materialClassify)){
+                materialModelConversions = materialModelConversionRepository.findByMaterialCategoryAndMaterialType(materialCategory, materialType);
+            }
             if (CollectionUtils.isEmpty(materialModelConversions)){
                 throw new ClientParameterException(VanchipExceptions.CONVERSION_MATERIAL_MODEL_IS_NOT_EXIST, material.getName());
             }
@@ -2122,6 +2127,64 @@ public class VanchipServiceImpl implements VanChipService {
             material.setMaterialType(materialModelConversions.get(0).getConversionMaterialType());
             material.setReserved3(materialModelConversions.get(0).getConversionMaterialClassify());
             return material ;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 保存实验室物料
+     * @param labMaterial
+     * @return
+     * @throws ClientException
+     */
+    public LabMaterial saveLabMaterial(LabMaterial labMaterial)throws ClientException{
+        try {
+            LabMaterial material = labMaterialRepository.findOneByName(labMaterial.getName());
+            if (material != null){
+                throw new ClientParameterException(MmsException.MM_LAB_MATERIAL_IS_EXIST);
+            }
+
+            //保存仓库信息
+            String warehouseName = labMaterial.getWarehouseName();
+            if (!StringUtils.isNullOrEmpty(warehouseName)){
+                Warehouse warehouse = warehouseRepository.findOneByName(warehouseName);
+                if(warehouse == null){
+                    throw new ClientParameterException(VanchipExceptions.WAREHOUSE_NAME_IS_NOT_EXIST ,warehouseName);
+                }
+                labMaterial.setWarehouseRrn(warehouse.getObjectRrn());
+            }
+
+            if (labMaterial.getObjectRrn() == null) {
+                labMaterial.setActiveTime(new Date());
+                labMaterial.setActiveUser(ThreadLocalContext.getUsername());
+                labMaterial.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
+                Long version = versionControlService.getNextVersion(labMaterial);
+                labMaterial.setVersion(version);
+
+                MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
+                if (statusModel == null) {
+                    throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+                }
+                labMaterial.setStatusModelRrn(statusModel.getObjectRrn());
+
+                //保存IQC信息
+                String iqcName = labMaterial.getIqcSheetName();
+                if(!StringUtils.isNullOrEmpty(iqcName)){
+                    IqcCheckSheet iqcCheckSheet = iqcCheckSheetRepository.findOneByName(iqcName);
+                    if(iqcCheckSheet == null){
+                        throw new ClientParameterException(VanchipExceptions.IQC_NAME_IS_NOT_EXIST,iqcName);
+                    }
+                    labMaterial.setIqcSheetRrn(iqcCheckSheet.getObjectRrn());
+                }
+                labMaterial = (LabMaterial)baseService.saveEntity(labMaterial, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
+            } else {
+                NBVersionControl oldData = labMaterialRepository.findByObjectRrn(labMaterial.getObjectRrn());
+                // 不可改变状态
+                labMaterial.setStatus(oldData.getStatus());
+                labMaterial = (LabMaterial)baseService.saveEntity(labMaterial);
+            }
+            return labMaterial;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }

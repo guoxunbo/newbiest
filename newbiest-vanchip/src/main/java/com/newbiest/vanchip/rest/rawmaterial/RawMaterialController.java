@@ -3,6 +3,7 @@ package com.newbiest.vanchip.rest.rawmaterial;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController("VCRawMaterialController")
 @RequestMapping("/vc")
@@ -35,9 +38,13 @@ public class RawMaterialController extends AbstractRestController {
         String actionType = requestBody.getActionType();
 
         if (RawMaterialRequest.ACTION_IMPORT_SAVE.equals(actionType)) {
-            vanchipService.saveRawMaterial(requestBody.getDataList());
-        } else if (RawMaterialRequest.ACTION_ADD_OR_UPDATE.equals(actionType)){
-
+            List<RawMaterial> rawMaterials = requestBody.getDataList();
+            for (RawMaterial rawMaterial: rawMaterials){
+                vanchipService.saveRawMaterial(rawMaterial);
+            }
+        } else if (RawMaterialRequest.ACTION_UPDATE_OR_ADD.equals(actionType)){
+            RawMaterial rawMaterial = vanchipService.saveRawMaterial(requestBody.getMaterial());
+            responseBody.setMaterial(rawMaterial);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

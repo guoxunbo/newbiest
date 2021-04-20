@@ -138,12 +138,12 @@ public class MmsServiceImpl implements MmsService {
                 Long version = versionControlService.getNextVersion(rawMaterial);
                 rawMaterial.setVersion(version);
 
-                baseService.saveEntity(rawMaterial, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
+                rawMaterial = (RawMaterial)baseService.saveEntity(rawMaterial, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
             } else {
                 NBVersionControl oldData = rawMaterialRepository.findByObjectRrn(rawMaterial.getObjectRrn());
                 // 不可改变状态
                 rawMaterial.setStatus(oldData.getStatus());
-                baseService.saveEntity(rawMaterial);
+                rawMaterial = (RawMaterial)baseService.saveEntity(rawMaterial);
             }
             return rawMaterial;
         } catch (Exception e) {
