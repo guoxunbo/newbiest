@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-unique-constraint-for-GC_OUTSOURCE_PO-table
+      author: Guozhang Luo
+      comment: drop unique constraint (ORG_RRN, PO_ID) for GC_OUTSOURCE_PO
+      changes:
+        - dropUniqueConstraint:
+            tableName: GC_OUTSOURCE_PO
+            constraintName: UK_GC_OUTSOURCE_PO

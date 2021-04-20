@@ -39,7 +39,7 @@ public class RwMaterialController {
             List<MaterialLot> materialLotList = gcService.getMaterialLotByTapeMaterialCode(requestBody.getTapeMaterialCode());
             responseBody.setMaterialLotList(materialLotList);
         } else if(RwMaterialRequest.ACTION_TAPE_RECEIVE.equals(actionType)) {
-            gcService.receiveTapeMaterial(requestBody.getMaterialLotList());
+            gcService.receiveTapeMaterial(requestBody.getMaterialLotList(), requestBody.getTapeSize());
         } else if(RwMaterialRequest.ACTION_GET_BLADE_MLOTID.equals(actionType)){
             String materialLotId = gcService.validateAndGetBladeMLotId(requestBody.getMaterialLotCode());
             responseBody.setMaterialLotId(materialLotId);

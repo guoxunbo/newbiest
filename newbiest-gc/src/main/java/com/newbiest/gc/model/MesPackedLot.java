@@ -176,6 +176,12 @@ public class MesPackedLot implements Serializable {
     private String lotId;
 
     /**
+     * 物料批次号
+     */
+    @Column(name="MATERIAL_LOT_NAME")
+    private String materialLotName;
+
+    /**
      * 载具号
      */
     @Column(name="PCODE")

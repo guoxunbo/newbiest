@@ -29,4 +29,7 @@ public class RwMaterialRequestBody extends RequestBody {
 	@ApiModelProperty(value = "materialLotCode")
 	private String materialLotCode;
 
+	@ApiModelProperty(value = "tapeSize")
+	private String tapeSize;
+
 }
