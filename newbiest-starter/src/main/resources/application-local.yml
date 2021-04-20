@@ -97,7 +97,7 @@ show:
 gateway:
   enable: true
 logging:
-  path: D:/g/newbiestLog/log
+  path: ../log
 management:
   server:
     servlet:
@@ -121,7 +121,6 @@ management:
 info:
   groupId: VCIM
   developer: XunboGuo
-
 vcim:
   snowflake:
     workCenterId: 2
