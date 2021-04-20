@@ -207,6 +207,9 @@ public class ExpressServiceImpl implements ExpressService {
             preWaybillPickup.setPerson(materialLots.get(0).getReserved52());
             preWaybillPickup.setMobile(materialLots.get(0).getReserved53());
             preWaybillPickup.setAddress(materialLots.get(0).getReserved51());
+            DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLots.get(0).getReserved16()));
+            preWaybillPickup.setCompanyName(documentLine.getReserved8());
+
             orderInfo.setPreWaybillPickup(preWaybillPickup);
 
             orderInfo.setServiceMode(serviceMode);
