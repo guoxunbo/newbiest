@@ -5,6 +5,7 @@ import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.LabelTemplate;
@@ -59,14 +60,11 @@ public class PrintServiceImpl implements PrintService {
      */
     @Override
     @Async
-    public void printMLot(MaterialLot materialLot, String workStationIp) throws ClientException {
+    public void printMLot(MaterialLot materialLot) throws ClientException {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("workStationIp：" + workStationIp);
-            }
-            WorkStation workStation = workStationRepository.findByIpAddress(workStationIp);
+            WorkStation workStation = workStationRepository.findByIpAddress(ThreadLocalContext.getTransactionIp());
             if (workStation == null) {
-                throw new ClientParameterException(MmsException.MM_WORK_STATION_IS_NOT_EXIST, workStationIp);
+                throw new ClientParameterException(MmsException.MM_WORK_STATION_IS_NOT_EXIST, ThreadLocalContext.getTransactionIp());
             }
             LabelTemplate labelTemplate = labelTemplateRepository.findOneByName("PrintMLot");
             if (labelTemplate == null) {

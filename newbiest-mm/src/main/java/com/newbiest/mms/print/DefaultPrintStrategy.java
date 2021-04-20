@@ -68,7 +68,6 @@ public class DefaultPrintStrategy implements IPrintStrategy {
 
     public Map<String, Object> buildParameters(PrintContext printContext) {
         Map<String, Object> parameterMap = printContext.getParameterMap();
-        log.debug("parameterMap:" + parameterMap);
         List<LabelTemplateParameter> labelTemplateParameters = printContext.getLabelTemplate().getLabelTemplateParameterList();
         if (CollectionUtils.isNotEmpty(labelTemplateParameters)) {
             for (LabelTemplateParameter parameter : labelTemplateParameters) {
@@ -83,18 +82,22 @@ public class DefaultPrintStrategy implements IPrintStrategy {
                         log.warn(e.getMessage(), e);
                     }
                 }
-                if (value != null) {
-                    if (value instanceof Date) {
-                        log.debug("value:" + value);
-                        SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
-                        value = sdf.format(value);
-                    }
-                    value = String.valueOf(value);
-                } else {
+                if (value == null) {
                     value = parameter.getDefaultValue();
                 }
                 parameterMap.put(parameter.getName(), value);
                 log.debug("parameterName:" + parameter.getName() + ".value :" + value);
+            }
+        }
+
+        if (parameterMap != null && parameterMap.size() > 0) {
+            for (String key : parameterMap.keySet()) {
+                Object value = parameterMap.get(key);
+                if (value != null && value instanceof Date) {
+                    SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+                    value = sdf.format(value);
+                    parameterMap.put(key, value);
+                }
             }
         }
         parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());
