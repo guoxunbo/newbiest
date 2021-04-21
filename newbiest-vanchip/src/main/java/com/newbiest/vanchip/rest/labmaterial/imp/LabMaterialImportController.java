@@ -3,10 +3,15 @@ package com.newbiest.vanchip.rest.labmaterial.imp;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.DefaultParser;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.mms.model.LabMaterial;
+import com.newbiest.mms.model.Material;
+import com.newbiest.mms.repository.MaterialStatusModelRepository;
+import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.mms.utils.CsvUtils;
 import com.newbiest.ui.model.NBTable;
 import com.newbiest.vanchip.service.VanChipService;
@@ -31,6 +36,9 @@ public class LabMaterialImportController extends AbstractRestController {
     @Autowired
     VanChipService vanChipService;
 
+    @Autowired
+    MaterialStatusModelRepository materialStatusModelRepository;
+
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "LabMaterialImportRequest")
     @RequestMapping(value = "/labMaterialImport", method = RequestMethod.POST)
     public LabMaterialImportResponse excute(@RequestParam MultipartFile file, @RequestParam String request)throws Exception {
@@ -48,6 +56,11 @@ public class LabMaterialImportController extends AbstractRestController {
 
         List<LabMaterial> LabMaterials = Lists.newArrayList();
         for (LabMaterial labMaterial : datas) {
+            MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
+            if (statusModel == null) {
+                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+            }
+            labMaterial.setStatusModelRrn(statusModel.getObjectRrn());
             labMaterial = vanChipService.saveLabMaterial(labMaterial);
             LabMaterials.add(labMaterial);
         }

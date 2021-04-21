@@ -2028,19 +2028,9 @@ public class VanchipServiceImpl implements VanChipService {
      */
     public Product saveProduct(Product product) throws ClientException{
         try {
-            if (product.getObjectRrn() == null){
-                String name = product.getName();
-                Product productByName = productRepository.findOneByName(name);
-                if (productByName != null){
-                    throw new ClientParameterException(MmsException.MM_PRODUCT_IS_EXIST, name);
-                }
+            product = (Product) conversionMaterialMode(product);
 
-                product = (Product) conversionMaterialMode(product);
-            }
-
-            Warehouse warehouse = getWarehouseByName(product.getWarehouseName(), true);
-            product.setWarehouseRrn(warehouse.getObjectRrn());
-            product = mmsService.saveProduct(product);
+            product = mmsService.saveProduct(product, product.getWarehouseName());
            return product;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -2055,27 +2045,10 @@ public class VanchipServiceImpl implements VanChipService {
      */
     public RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException{
         try {
-            if (rawMaterial.getObjectRrn() == null){
-                RawMaterial material = rawMaterialRepository.findOneByName(rawMaterial.getName());
-                if (material != null){
-                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_EXIST, rawMaterial.getName());
-                }
-
-                MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
-                if (statusModel == null) {
-                    throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
-                }
-                rawMaterial.setStatusModelRrn(statusModel.getObjectRrn());
-
                 rawMaterial = (RawMaterial) conversionMaterialMode(rawMaterial);
-            }
+            rawMaterial = (RawMaterial) conversionMaterialMode(rawMaterial);
 
-            IqcCheckSheet iqcCheckSheet = getIqcSheetByName(rawMaterial.getIqcSheetName(), true);
-            rawMaterial.setIqcSheetRrn(iqcCheckSheet.getObjectRrn());
-
-            Warehouse warehouse = getWarehouseByName(rawMaterial.getWarehouseName(), true);
-            rawMaterial.setWarehouseRrn(warehouse.getObjectRrn());
-            rawMaterial = mmsService.saveRawMaterial(rawMaterial);
+            rawMaterial = mmsService.saveRawMaterial(rawMaterial, rawMaterial.getWarehouseName(), rawMaterial.getIqcSheetName());
             return rawMaterial;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -2094,10 +2067,12 @@ public class VanchipServiceImpl implements VanChipService {
             String materialClassify = material.getReserved3();
 
             List<MaterialModelConversion> materialModelConversions = materialModelConversionRepository.findByMaterialCategoryAndMaterialTypeAndMaterialClassify(materialCategory, materialType, materialClassify);
-            if (StringUtils.isNullOrEmpty(materialType)){
-                materialModelConversions = materialModelConversionRepository.findByMaterialCategoryAndMaterialClassify(materialCategory, materialClassify);
-            }else if (StringUtils.isNullOrEmpty(materialClassify)){
+            if (!StringUtils.isNullOrEmpty(materialType) && StringUtils.isNullOrEmpty(materialClassify)){
+
                 materialModelConversions = materialModelConversionRepository.findByMaterialCategoryAndMaterialType(materialCategory, materialType);
+            }else if (!StringUtils.isNullOrEmpty(materialClassify) && StringUtils.isNullOrEmpty(materialType)){
+
+                materialModelConversions = materialModelConversionRepository.findByMaterialCategoryAndMaterialClassify(materialCategory, materialClassify);
             }
             if (CollectionUtils.isEmpty(materialModelConversions)){
                 throw new ClientParameterException(VanchipExceptions.CONVERSION_MATERIAL_MODEL_IS_NOT_EXIST, material.getName());
@@ -2119,7 +2094,7 @@ public class VanchipServiceImpl implements VanChipService {
      */
     public LabMaterial saveLabMaterial(LabMaterial labMaterial)throws ClientException{
         try {
-            Warehouse warehouse = getWarehouseByName(labMaterial.getWarehouseName(), true);
+            Warehouse warehouse = mmsService.getWarehouseByName(labMaterial.getWarehouseName(), true);
             labMaterial.setWarehouseRrn(warehouse.getObjectRrn());
 
             if (labMaterial.getObjectRrn() == null) {
@@ -2134,13 +2109,7 @@ public class VanchipServiceImpl implements VanChipService {
                 Long version = versionControlService.getNextVersion(labMaterial);
                 labMaterial.setVersion(version);
 
-                MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
-                if (statusModel == null) {
-                    throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
-                }
-                labMaterial.setStatusModelRrn(statusModel.getObjectRrn());
-
-                IqcCheckSheet iqcCheckSheet = getIqcSheetByName(labMaterial.getIqcSheetName(), true);
+                IqcCheckSheet iqcCheckSheet = mmsService.getIqcSheetByName(labMaterial.getIqcSheetName(), true);
                 labMaterial.setIqcSheetRrn(iqcCheckSheet.getObjectRrn());
                 labMaterial = (LabMaterial)baseService.saveEntity(labMaterial, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
             } else {
@@ -2154,29 +2123,7 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
-    public Warehouse getWarehouseByName(String warehouseName, boolean throwExceptionFlag) throws ClientException{
-        try {
-            Warehouse warehouse = warehouseRepository.findOneByName(warehouseName);
-            if(warehouse == null && throwExceptionFlag){
-                throw new ClientParameterException(VanchipExceptions.WAREHOUSE_NAME_IS_NOT_EXIST ,warehouseName);
-            }
-            return warehouse;
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
 
-    public IqcCheckSheet getIqcSheetByName(String iqcSheetName, boolean throwExceptionFlag) throws ClientException{
-        try {
-            IqcCheckSheet iqcCheckSheet = iqcCheckSheetRepository.findOneByName(iqcSheetName);
-            if(iqcCheckSheet == null && throwExceptionFlag){
-                throw new ClientParameterException(VanchipExceptions.IQC_NAME_IS_NOT_EXIST, iqcSheetName);
-            }
-            return iqcCheckSheet;
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
 
     /**
      * 保存库位信息

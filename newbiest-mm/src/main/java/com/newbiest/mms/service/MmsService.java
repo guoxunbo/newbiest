@@ -37,6 +37,7 @@ public interface MmsService {
 
     // rawMaterial
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
+    RawMaterial saveRawMaterial(RawMaterial rawMaterial, String warehouseName,String iqcSheetName) throws ClientException;
     RawMaterial getRawMaterialByName(String name) throws ClientException;
 
     // MaterialLot
@@ -61,13 +62,14 @@ public interface MmsService {
     List<MaterialLotInventory> getMaterialLotInv(String mLotRrn) throws ClientException;
     MaterialLotInventory getMaterialLotInv(String mLotRrn, String warehouseRrn, String storageRrn) throws ClientException;
 
-    Warehouse getWarehouseByName(String name) throws ClientException;
-    public Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
-
     MaterialLot holdByIqcNG(MaterialLot materialLot);
+    IqcCheckSheet getIqcSheetByName(String name, boolean throwExceptionFlag) throws ClientException;
 
+    Warehouse getWarehouseByName(String name, boolean throwExceptionFlag) throws ClientException;
+    Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
     //product
     Product saveProduct(Product product) throws ClientException;
+    Product saveProduct(Product product, String warehouseName) throws ClientException;
     Product getProductByName(String name) throws ClientException;
 
     void validateHoldMLotMatchedHoldWarehouse(MaterialLotAction materialLotAction) throws ClientException;
