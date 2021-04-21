@@ -2058,7 +2058,7 @@ public class VanchipServiceImpl implements VanChipService {
             if (rawMaterial.getObjectRrn() == null){
                 RawMaterial material = rawMaterialRepository.findOneByName(rawMaterial.getName());
                 if (material != null){
-                    throw new ClientParameterException(MmsException.MM_PRODUCT_IS_EXIST, rawMaterial.getName());
+                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_EXIST, rawMaterial.getName());
                 }
 
                 MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
