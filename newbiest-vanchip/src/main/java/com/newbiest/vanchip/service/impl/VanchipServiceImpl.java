@@ -2156,12 +2156,9 @@ public class VanchipServiceImpl implements VanChipService {
 
     public Warehouse getWarehouseByName(String warehouseName, boolean throwExceptionFlag) throws ClientException{
         try {
-            Warehouse warehouse = new Warehouse();
-            if (!StringUtils.isNullOrEmpty(warehouseName)){
-                warehouse = warehouseRepository.findOneByName(warehouseName);
-                if(warehouse == null && throwExceptionFlag){
-                    throw new ClientParameterException(VanchipExceptions.WAREHOUSE_NAME_IS_NOT_EXIST ,warehouseName);
-                }
+            Warehouse warehouse = warehouseRepository.findOneByName(warehouseName);
+            if(warehouse == null && throwExceptionFlag){
+                throw new ClientParameterException(VanchipExceptions.WAREHOUSE_NAME_IS_NOT_EXIST ,warehouseName);
             }
             return warehouse;
         }catch (Exception e){
@@ -2171,12 +2168,9 @@ public class VanchipServiceImpl implements VanChipService {
 
     public IqcCheckSheet getIqcSheetByName(String iqcSheetName, boolean throwExceptionFlag) throws ClientException{
         try {
-            IqcCheckSheet iqcCheckSheet = new IqcCheckSheet();
-            if(!StringUtils.isNullOrEmpty(iqcSheetName)){
-                iqcCheckSheet = iqcCheckSheetRepository.findOneByName(iqcSheetName);
-                if(iqcCheckSheet == null && throwExceptionFlag){
-                    throw new ClientParameterException(VanchipExceptions.IQC_NAME_IS_NOT_EXIST, iqcSheetName);
-                }
+            IqcCheckSheet iqcCheckSheet = iqcCheckSheetRepository.findOneByName(iqcSheetName);
+            if(iqcCheckSheet == null && throwExceptionFlag){
+                throw new ClientParameterException(VanchipExceptions.IQC_NAME_IS_NOT_EXIST, iqcSheetName);
             }
             return iqcCheckSheet;
         }catch (Exception e){
