@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RWStockOutTagging2_to_NB_AUTHORITY
+      author: zhuqin zhou
+      comment: add RWStockOutTagging2 to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RWStockOut
+              description: RW出货箱标签
+              tableName: RWStockOutTagging
+              url: /GC/GCRWStockOutTagging
+              mobileFlag: N
+              parentRrn: 1001
+              seqNo: 66
+              image: icon-rule
+              labelZh: RW出货箱标签
+              labelEn: RWStockOutTagging
+

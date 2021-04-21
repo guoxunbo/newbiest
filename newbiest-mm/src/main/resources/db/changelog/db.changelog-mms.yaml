@@ -587,3 +587,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRwMaterialIssueManager.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RWStockOutTagging2.nb_authority.yaml
+      relativeToChangelogFile: true
