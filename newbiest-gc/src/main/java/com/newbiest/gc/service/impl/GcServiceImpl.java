@@ -6733,6 +6733,38 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 获取RW产线出货箱标签打印参数
+     * @param materialLotRrn
+     * @return
+     */
+    public Map<String, String> getRWStockOutPrintParameter(Long materialLotRrn) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            MaterialLot materialLot = mmsService.getMLotByObjectRrn(materialLotRrn);
+            parameterMap.put("DeviceNo", materialLot.getMaterialName());
+            parameterMap.put("PN", "N/A");
+            parameterMap.put("Qty", materialLot.getCurrentQty().toPlainString());
+            parameterMap.put("WaferLotNo", materialLot.getLotCst());
+            parameterMap.put("assyPN",materialLot.getMaterialName());
+            parameterMap.put("assyLotNo", materialLot.getInnerLotId());
+            parameterMap.put("shipLotNo", materialLot.getMaterialName());
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+            String updated = formatter.format(materialLot.getUpdated());
+            parameterMap.put("DC", updated);
+            parameterMap.put("weight", "N/A");
+            List<MaterialLot> materialLotDetails = materialLotRepository.getByParentMaterialLotId(materialLot.getMaterialLotId());
+            if (CollectionUtils.isNotEmpty(materialLotDetails)) {
+                MaterialLot materialLotDetail = materialLotDetails.get(0);
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLotDetail.getMaterialLotId());
+                parameterMap.put("FrameSlice", ""+materialLotUnitList.size());
+            }
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 验证WLT封装回货模板是否经WLA处理，根据产品型号转换表验证晶圆型号是否需要转换
      * @return
      * @param materialLotUnitList
