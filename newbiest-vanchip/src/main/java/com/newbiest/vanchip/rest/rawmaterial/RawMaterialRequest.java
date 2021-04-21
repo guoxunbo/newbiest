@@ -17,7 +17,7 @@ public class RawMaterialRequest extends Request {
 	public static final String ACTION_IMPORT_SAVE = "importSave";
 
 	@ApiModelProperty("添加，修改")
-	public static final String ACTION_UPDATE_OR_ADD = "UpdateOrAdd";
+	public static final String ACTION_MERGE = "merge";
 
 	private RawMaterialRequestBody body;
 

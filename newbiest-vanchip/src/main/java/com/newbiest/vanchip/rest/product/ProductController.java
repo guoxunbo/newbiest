@@ -49,7 +49,7 @@ public class ProductController extends AbstractRestController {
                 throw new ClientParameterException(MmsException.MM_PRODUCT_IS_EXIST, material.getName());
             }
             material = mmsService.saveProduct(material);
-        }else if (ProductRequest.ACTION_UPDATE_OR_ADD.equals(actionType)){
+        }else if (ProductRequest.ACTION_MERGE.equals(actionType)){
             material = vanChipService.saveProduct(requestBody.getMaterial());
             responseBody.setMaterial(material);
         }else {

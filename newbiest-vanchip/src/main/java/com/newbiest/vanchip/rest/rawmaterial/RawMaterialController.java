@@ -42,7 +42,7 @@ public class RawMaterialController extends AbstractRestController {
             for (RawMaterial rawMaterial: rawMaterials){
                 vanchipService.saveRawMaterial(rawMaterial);
             }
-        } else if (RawMaterialRequest.ACTION_UPDATE_OR_ADD.equals(actionType)){
+        } else if (RawMaterialRequest.ACTION_MERGE.equals(actionType)){
             RawMaterial rawMaterial = vanchipService.saveRawMaterial(requestBody.getMaterial());
             responseBody.setMaterial(rawMaterial);
         }else {

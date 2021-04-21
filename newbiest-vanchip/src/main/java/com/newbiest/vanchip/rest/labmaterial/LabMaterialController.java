@@ -34,7 +34,7 @@ public class LabMaterialController extends AbstractRestController {
 
         LabMaterialRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
-        if (LabMaterialRequest.ACTION_ADD_OR_UPDATE.equals(actionType)){
+        if (LabMaterialRequest.ACTION_MERGE.equals(actionType)){
             LabMaterial material = vanchipService.saveLabMaterial(requestBody.getMaterial());
             responseBody.setMaterial(material);
         }else {

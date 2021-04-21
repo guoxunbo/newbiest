@@ -14,7 +14,7 @@ public class ProductRequest extends Request {
 	public static final String MESSAGE_NAME = "ProductManager";
 
 	public static final String ACTION_IMPORT_SAVE = "importSave";
-	public static final String ACTION_UPDATE_OR_ADD = "UpdateOrAdd";
+	public static final String ACTION_MERGE = "merge";
 
 	private ProductRequestBody body;
 

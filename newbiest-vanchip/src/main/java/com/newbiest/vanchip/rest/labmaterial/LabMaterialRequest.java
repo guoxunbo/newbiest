@@ -17,7 +17,7 @@ public class LabMaterialRequest extends Request {
 	public static final String ACTION_IMPORT = "import";
 
 	@ApiModelProperty("添加，修改")
-	public static final String ACTION_ADD_OR_UPDATE = "addOrUpdate";
+	public static final String ACTION_MERGE = "merge";
 
 	private LabMaterialRequestBody body;
 
