@@ -2461,7 +2461,6 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getProductId));
             Map<String, Warehouse> warehouseMap = Maps.newHashMap();
 
-            List<MaterialLot> scmReportHoldMLotList = Lists.newArrayList();
             List<ErpMo> erpMos = Lists.newArrayList();
             List<ErpMoa> erpMoaList = Lists.newArrayList();
             MesPackedLotRelation mesPackedLotRelation;
@@ -2653,21 +2652,12 @@ public class GcServiceImpl implements GcService {
                         MaterialLotAction materialLotAction = new MaterialLotAction();
                         materialLotAction.setActionReason(workorderRelation.getHoldReason());
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
-
-                        if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
-                                || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()))){
-                            scmReportHoldMLotList.add(materialLot);
-                        }
                     }
                     GCFutureHoldConfig futureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
                     if (futureHoldConfig != null){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
                         materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
-
-                        if(MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7())){
-                            scmReportHoldMLotList.add(materialLot);
-                        }
                     }
                 }
             };
@@ -2675,10 +2665,6 @@ public class GcServiceImpl implements GcService {
             packedLotList = packedLotList.stream().filter(packedLot -> packedLot.getPackedLotRrn() != null).collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(packedLotList)){
                 mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
-            }
-
-            if(CollectionUtils.isNotEmpty(scmReportHoldMLotList)){
-                scmService.sendMaterialStateReport(scmReportHoldMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD, ThreadLocalContext.getSessionContext());
             }
 
             //TODO 如果后续有ERP dblink问题。此处需要考虑批量插入。JPA提供的saveAll本质也是for循环调用save。
@@ -3982,7 +3968,21 @@ public class GcServiceImpl implements GcService {
             receiveFinishGood(mesPackedLots);
             materialLotList = saveMaterialLotUnitAndSaveHis(packedLotMap, mesPackedLots, materialLotList);
 
+            //验证物料批次是否存在Hold信息，保存Hold
+            for(MaterialLot materialLot: materialLotList){
+                if(MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
+                    if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
+                            || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()))){
+                        scmReportHoldMLotList.add(materialLot);
+                    }
+                }
+            }
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
+
+            if(CollectionUtils.isNotEmpty(scmReportHoldMLotList)){
+                scmService.sendMaterialStateReport(scmReportHoldMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD, ThreadLocalContext.getSessionContext());
+            }
+
             if(!StringUtils.isNullOrEmpty(printLabel)){
                 mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
                 for(MesPackedLot mesPackedLot : mesPackedLots){

@@ -48,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.apache.http.impl.client.HttpClientBuilder.create;
@@ -367,7 +368,7 @@ public class ScmServiceImpl implements ScmService {
             requestHeader.setOrgName(sc.getOrgName());
             requestHeader.setOrgRrn(sc.getOrgRrn());
             requestHeader.setUsername(sc.getUsername());
-            requestHeader.setTransactionId(sc.getTransRrn());
+            requestHeader.setTransactionId(sc.getTransRrn() == null? UUID.randomUUID().toString(): sc.getTransRrn());
             request.setHeader(requestHeader);
 
             MaterialLotStateReportRequestBody requestBody = new MaterialLotStateReportRequestBody();
