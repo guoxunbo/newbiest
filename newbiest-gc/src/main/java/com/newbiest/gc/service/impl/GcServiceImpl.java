@@ -4967,31 +4967,21 @@ public class GcServiceImpl implements GcService {
 
     public void deleteCogEcretive(List<MaterialLot> lcdCogEcretiveList, String deleteNote) throws ClientException{
         try {
-            //RMA模板的数据可能箱号为空，赋值避免后面分组报错
-            for (MaterialLot materialLot:lcdCogEcretiveList) {
-                if(StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
-                    materialLot.setParentMaterialLotId("");
-                }
-            }
-            Map<String, List<MaterialLot>> materialLotMap = lcdCogEcretiveList.stream().collect(Collectors.groupingBy(MaterialLot:: getParentMaterialLotId));
-            for (String materialLotId:materialLotMap.keySet()) {
-                if(StringUtils.isNullOrEmpty(materialLotId)){
-                    continue;
-                }
+            Map<String, List<MaterialLot>> packedMLotMap = lcdCogEcretiveList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            for (String materialLotId : packedMLotMap.keySet()) {
                 List<MaterialLot> fullBoxData = materialLotRepository.getByParentMaterialLotId(materialLotId);
-                if(materialLotMap.get(materialLotId).size() < fullBoxData.size()){
+                if(packedMLotMap.get(materialLotId).size() < fullBoxData.size()){
                     throw new ClientParameterException(GcExceptions.MUST_DELETE_FULL_BOX_DATA, materialLotId);
                 }
                 MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
                 materialLotRepository.delete(materialLot);
+
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
+                history.setActionComment(deleteNote);
                 materialLotHistoryRepository.save(history);
             }
-            for (MaterialLot materialLot:lcdCogEcretiveList) {
-                materialLotRepository.delete(materialLot);
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
-                materialLotHistoryRepository.save(history);
-            }
+            deleteMaterialLotAndSaveHis(lcdCogEcretiveList, deleteNote);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -9120,6 +9110,26 @@ public class GcServiceImpl implements GcService {
                 materialLotHistoryRepository.save(history);
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 删除物料批次信息
+     * @param materialLotList
+     * @param remarks
+     * @throws ClientException
+     */
+    public void deleteMaterialLotAndSaveHis(List<MaterialLot> materialLotList, String remarks) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                materialLotRepository.delete(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
+                history.setActionComment(remarks);
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
