@@ -12,6 +12,8 @@ public class IssueMLotByDocRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
+	private String actionType;
+
 	private String documentId;
 
 	private List<String> materialLotIdList;

@@ -1,11 +1,11 @@
 package com.newbiest.mms.repository;
 
 import com.newbiest.base.repository.custom.IRepository;
-import com.newbiest.mms.model.IssueMLotOrder;
+import com.newbiest.mms.model.IssueLabMLotOrder;
 import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface IssueMLotOrderRepository extends IRepository<IssueMLotOrder, String> {
+public interface IssueLabMLotOrderRepository extends IRepository<IssueLabMLotOrder, String> {
 
 }

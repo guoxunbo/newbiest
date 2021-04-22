@@ -4,11 +4,10 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Document;
 import com.newbiest.mms.model.DocumentLine;
+import com.newbiest.mms.model.LabMaterial;
 import com.newbiest.mms.model.MaterialLot;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 单据相关service
@@ -23,10 +22,13 @@ public interface DocumentService {
 
     String generatorDocId(String generatorRule) throws ClientException;
 
+    void issueMaterialLotByDoc(String documentId, List<String> materialLotIdList);
+
     String createIssueLotOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
-    void createIssueMaterialOrder(String documentId, boolean approveFlag, Map<String, BigDecimal> rawMaterialQtyMap) throws ClientException;
     void issueMLotByDoc(String issueLotOrderId, List<String> materialLotIdList) throws ClientException;
-    void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
+
+    String createIssueMaterialOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
+    void issueMaterialByDoc(String issueMaterialOrderId, List<String> materialLotIdList)throws ClientException;
 
     void createReturnOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException;
     void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
@@ -40,7 +42,12 @@ public interface DocumentService {
     void createIssueFinishGoodOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
     void issueFinishGoodByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
 
-    String createIssueMLotOrder(String documentId,  boolean approveFlag, List<String> materialLotIds) throws ClientException;
-    void issueMaterialLotByDoc(String documentId, List<String> materialLotIdList)throws ClientException;
+    void changeDocMLotStatus(String documentId, List<String> materialLotIds, String status)throws ClientException;
+
+    Document createIssueLabMLotOrder(String documentId, boolean approveFlag, List<LabMaterial> labMaterials) throws ClientException;
+    List<MaterialLot> recommendIssueLabMLot(String documentId) throws ClientException;
+    void issueLabMLot(String documentId, List<String> materialLotIds) throws ClientException;
+
+    Document getDocumentByName(String documentId, boolean throwExceptionFlag) throws ClientException;
 }
 

@@ -3,7 +3,6 @@ package com.newbiest.mms.rest.doc.issue.mlot;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import io.swagger.annotations.Api;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/mms")
@@ -30,7 +27,7 @@ public class IssueMLotByDocController extends AbstractRestController {
     @Autowired
     DocumentService documentService;
     
-    @ApiOperation(value = "发料")
+    @ApiOperation(value = "发料,指定物料批次")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "IssueMLotByDocRequest")
     @RequestMapping(value = "/issueMLotByDoc", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public IssueMLotByDocResponse execute(@RequestBody IssueMLotByDocRequest request) throws Exception {
@@ -40,12 +37,7 @@ public class IssueMLotByDocController extends AbstractRestController {
         IssueMLotByDocRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
 
-        if(IssueMLotByDocRequest.ACTION_TYPE_ISSUE.equals(actionType)){
-            documentService.issueMLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
-        } else if (IssueMLotByDocRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
-            List<MaterialLot> materialLots = documentService.getReservedMLotByDocId(requestBody.getDocumentId());
-            responseBody.setMaterialLotList(materialLots);
-        } else if(IssueMLotByDocRequest.ACTION_TYPE_ISSUE_MLOT.equals(actionType)){
+        if(IssueMLotByDocRequest.ACTION_TYPE_ISSUE_MLOT_BY_ORDER.equals(actionType)){
             documentService.issueMaterialLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);

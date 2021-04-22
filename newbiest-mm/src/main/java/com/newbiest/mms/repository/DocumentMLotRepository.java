@@ -10,8 +10,6 @@ import java.util.List;
 @Repository
 public interface DocumentMLotRepository extends IRepository<DocumentMLot, String> {
 
-    DocumentMLot findByMaterialLotIdAndStatus(String materialLotId, String status);
-
     List<DocumentMLot> findByDocumentId(String documentId);
 
     List<DocumentMLot> findByStatus(String status);
