@@ -54,12 +54,12 @@ public class LabMaterialImportController extends AbstractRestController {
         CsvUtils.validateImportFile(fieldMap, file.getInputStream(), nbTable);
         List<LabMaterial> datas = (List) CsvUtils.importCsv(nbTable, getClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), StringUtils.SPLIT_COMMA);
 
+        MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
+        if (statusModel == null) {
+            throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+        }
         List<LabMaterial> LabMaterials = Lists.newArrayList();
         for (LabMaterial labMaterial : datas) {
-            MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
-            if (statusModel == null) {
-                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
-            }
             labMaterial.setStatusModelRrn(statusModel.getObjectRrn());
             labMaterial = vanChipService.saveLabMaterial(labMaterial);
             LabMaterials.add(labMaterial);
