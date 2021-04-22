@@ -8344,30 +8344,19 @@ public class GcServiceImpl implements GcService {
     @Override
     public String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws  ClientException{
         try {
+            validateRawMaterialAndMaterialLot(materialLotList, importType);
             Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_ZJ);
             if (warehouse == null) {
                 throw new ClientParameterException(MmsException.MM_WAREHOUSE_IS_NOT_EXIST, WAREHOUSE_ZJ);
             }
+            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getMaterialName));
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
             SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
             String importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
-            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getMaterialName));
             for(String materialName : materialLotMap.keySet()){
                 RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
-                if (rawMaterial == null){
-                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
-                }
-                String materialType = rawMaterial.getMaterialType() ;
-                if (!importType.equals(materialType)){
-                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_TYPE_NOT_SAME, importType);
-                }
                 List<MaterialLot> materialLots = materialLotMap.get(materialName);
                 for(MaterialLot materialLot : materialLots){
-                    MaterialLot oldmaterialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
-                    if(oldmaterialLot != null){
-                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLot.getMaterialLotId());
-                    }
-
                     materialLot.setMaterial(rawMaterial);
                     materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                     materialLot.setStatus(MaterialStatus.STATUS_CREATE);
@@ -8396,6 +8385,50 @@ public class GcServiceImpl implements GcService {
             }
             return importCode;
         }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证原材料型号是否存在，导入模板与导入类型是否一致
+     * @param materialLotList
+     * @param importType
+     * @throws ClientException
+     */
+    private void validateRawMaterialAndMaterialLot(List<MaterialLot> materialLotList, String importType) throws ClientException{
+        try{
+            if(Material.MATERIAL_TYPE_IRA.equals(importType)){
+                List<MaterialLot> materialLots = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getLotId())).collect(Collectors.toList());
+                if(CollectionUtils.isNotEmpty(materialLots)){
+                    throw new ClientParameterException(GcExceptions.IRA_RAW_MATERIAL_BOX_ID_CANNOT_EMPTY, materialLots.get(0).getMaterialLotId());
+                } else {
+                    Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getLotId));
+                    for(String lotId : materialLotMap.keySet()){
+                        List<MaterialLot> mLotList = materialLotRepository.findByLotIdAndMaterialCategoryAndMaterialType(lotId, Material.TYPE_MATERIAL, Material.MATERIAL_TYPE_IRA);
+                        if(CollectionUtils.isNotEmpty(mLotList)){
+                            throw new ClientParameterException(GcExceptions.IRA_RAW_MATERIAL_BOX_ID_IS_EXISTS, lotId);
+                        }
+                    }
+                }
+            }
+            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getMaterialName));
+            for(String materialName : materialLotMap.keySet()){
+                RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
+                if (rawMaterial == null){
+                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
+                }
+                String materialType = rawMaterial.getMaterialType() ;
+                if (!importType.equals(materialType)){
+                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_TYPE_NOT_SAME, importType);
+                }
+            }
+            for(MaterialLot materialLot : materialLotList){
+                MaterialLot oldmaterialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+                if(oldmaterialLot != null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLot.getMaterialLotId());
+                }
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

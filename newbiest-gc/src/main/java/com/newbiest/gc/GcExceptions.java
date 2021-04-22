@@ -90,7 +90,9 @@ public class GcExceptions {
     //MSCM
     public static final String MSCM_ERROR = "gc.mscm_error";
 
-    //RW相关
+    //原材料相关
     public static final String TAPA_MATERIAL_CODE_IS_ERROR = "gc.tape_material_code_is_error";
     public static final String BLADE_MATERIAL_CODE_IS_ERROR = "gc.Blade_material_code_is_error";
+    public static final String IRA_RAW_MATERIAL_BOX_ID_CANNOT_EMPTY = "gc.ira_raw_material_box_id_cannot_empty";
+    public static final String IRA_RAW_MATERIAL_BOX_ID_IS_EXISTS = "gc.ira_raw_material_box_id_is_exists";
 }
