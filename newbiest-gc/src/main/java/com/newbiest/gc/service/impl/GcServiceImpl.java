@@ -605,6 +605,45 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 获取原材料入库位物料批次信息
+     * @param mLotId
+     * @param tableRrn
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> queryRawMaterialByMaterialLotOrLotIdAndTableRrn(String mLotId, Long tableRrn) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = Lists.newArrayList();
+            if(mLotId.startsWith(Material.IRA_MATERIAL_BOX_ID_START)){
+                NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+                String _whereClause = nbTable.getWhereClause();
+                String orderBy = nbTable.getOrderBy();
+                StringBuffer clauseBuffer = new StringBuffer();
+                clauseBuffer.append(" lotId = ");
+                clauseBuffer.append("'" + mLotId + "'");
+                clauseBuffer.append(" and  materialType = 'IRA' ");
+
+                if (!StringUtils.isNullOrEmpty(_whereClause)) {
+                    clauseBuffer.append(" AND ");
+                    clauseBuffer.append(_whereClause);
+                }
+                _whereClause = clauseBuffer.toString();
+                materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
+
+                if(CollectionUtils.isEmpty(materialLots)){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mLotId);
+                }
+            } else {
+                MaterialLot materialLot = getMaterialLotByMaterialLotIdAndTableRrn(mLotId, tableRrn);
+                materialLots.add(materialLot);
+            }
+            return materialLots;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 入库位
      * @return
      */
@@ -615,7 +654,6 @@ public class GcServiceImpl implements GcService {
 
             //1. 把箱批次和普通的物料批次区分出来
             List<MaterialLot> materialLots = stockInModels.stream().map(model -> mmsService.getMLotByMLotId(model.getMaterialLotId(), true)).collect(Collectors.toList());
-            List<MaterialLot> packageMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getPackageType())).collect(Collectors.toList());
             List<MaterialLot> normalMaterialLots = materialLots.stream().filter(materialLot -> materialLot.getParentMaterialLotRrn() == null).collect(Collectors.toList());
 
             //2. 普通批次才做绑定中转箱功能，直接release原来的中转箱号
@@ -674,6 +712,13 @@ public class GcServiceImpl implements GcService {
                             materialLotHistoryRepository.save(history);
                         }
                     }
+                }
+
+                //原材料接收入库时，如果未入库需将原材料信息写入中间表
+                if(Material.TYPE_MATERIAL.equals(materialLot.getMaterialCategory()) && MaterialStatus.STATUS_CREATE.equals(materialLot.getStatus())){
+                    ErpMaterialIn erpMaterialIn = new ErpMaterialIn();
+                    erpMaterialIn.setMaterialLot(materialLot);
+                    erpMaterialInRepository.save(erpMaterialIn);
                 }
             }
         } catch (Exception e) {
@@ -3919,6 +3964,7 @@ public class GcServiceImpl implements GcService {
     public List<Map<String,String>> receiveWltFinishGood(List<MesPackedLot> packedLotList, String printLabel) throws ClientException {
         try {
             List<Map<String, String>> parameterMapList = Lists.newArrayList();
+            List<MaterialLot> scmReportHoldMLotList = Lists.newArrayList();
             List<MaterialLot> materialLotList = Lists.newArrayList();
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getCstId));
             List<MesPackedLot> mesPackedLots = Lists.newArrayList();
@@ -9100,7 +9146,6 @@ public class GcServiceImpl implements GcService {
     public void receiveRawMaterial(List<MaterialLot> materialLotList) throws ClientException{
         try {
             SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
-            String ddate = formats.format(new Date());
             for(MaterialLot materialLot : materialLotList){
                 Warehouse warehouse = new Warehouse();
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
