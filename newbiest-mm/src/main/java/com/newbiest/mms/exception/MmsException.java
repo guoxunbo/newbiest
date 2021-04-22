@@ -46,4 +46,9 @@ public class MmsException {
     public static final String MM_LBL_TEMPLATE_IS_NOT_EXIST = "mm.lbl_template_is_not_exist";
     public static final String MM_LBL_TEMPLATE_TYPE_IS_NOT_ALLOW = "mm.lbl_template_is_not_allow";
 
+    public static final String MM_LAB_MATERIAL_IS_EXIST = "mm.lab_material_is_exist";
+    public static final String MM_LAB_MATERIAL_IS_NOT_EXIST = "mm.lab_material_is_not_exist";
+
+    public static final String MM_IQC_IS_NOT_EXIST = "mm.iqc_is_not_exist";
+    public static final String MM_WAREHOUSE_IS_NOT_EXIST = "mm.warehouse_is_not_exist";
 }

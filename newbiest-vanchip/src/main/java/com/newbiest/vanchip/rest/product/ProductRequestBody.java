@@ -14,12 +14,10 @@ public class ProductRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
-	@ApiModelProperty(value = "操作类型", example = "Create/Update等")
+	@ApiModelProperty(value = "操作类型", example = "merge/import")
 	private String actionType;
 
 	@ApiModelProperty(value = "操作的物料对象")
-	private Product material;
-
 	private List<Product> dataList;
 
 }

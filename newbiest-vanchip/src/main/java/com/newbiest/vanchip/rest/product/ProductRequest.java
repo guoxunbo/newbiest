@@ -12,7 +12,10 @@ public class ProductRequest extends Request {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String MESSAGE_NAME = "ProductManager";
+
 	public static final String ACTION_IMPORT_SAVE = "importSave";
+	public static final String ACTION_MERGE = "merge";
+
 	private ProductRequestBody body;
 
 }

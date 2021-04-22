@@ -138,14 +138,31 @@ public class MmsServiceImpl implements MmsService {
                 Long version = versionControlService.getNextVersion(rawMaterial);
                 rawMaterial.setVersion(version);
 
-                baseService.saveEntity(rawMaterial, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
+                rawMaterial = (RawMaterial)baseService.saveEntity(rawMaterial, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
             } else {
                 NBVersionControl oldData = rawMaterialRepository.findByObjectRrn(rawMaterial.getObjectRrn());
                 // 不可改变状态
                 rawMaterial.setStatus(oldData.getStatus());
-                baseService.saveEntity(rawMaterial);
+                rawMaterial = (RawMaterial)baseService.saveEntity(rawMaterial);
             }
             return rawMaterial;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public RawMaterial saveRawMaterial(RawMaterial rawMaterial, String warehouseName,String iqcSheetName) throws ClientException {
+        try {
+            if (!StringUtils.isNullOrEmpty(warehouseName)){
+                Warehouse warehouse = getWarehouseByName(warehouseName, true);
+                rawMaterial.setWarehouseRrn(warehouse.getObjectRrn());
+            }
+
+            if (!StringUtils.isNullOrEmpty(iqcSheetName)){
+                IqcCheckSheet iqcCheckSheet = getIqcSheetByName(iqcSheetName, true);
+                rawMaterial.setIqcSheetRrn(iqcCheckSheet.getObjectRrn());
+            }
+            return saveRawMaterial(rawMaterial);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -1132,8 +1149,28 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
-    public Warehouse getWarehouseByName(String name) throws ClientException {
-        return warehouseRepository.findOneByName(name);
+    public Warehouse getWarehouseByName(String warehouseName, boolean throwExceptionFlag) throws ClientException{
+        try {
+            Warehouse warehouse = warehouseRepository.findOneByName(warehouseName);
+            if(warehouse == null && throwExceptionFlag){
+                throw new ClientParameterException(MmsException.MM_WAREHOUSE_IS_NOT_EXIST ,warehouseName);
+            }
+            return warehouse;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public IqcCheckSheet getIqcSheetByName(String iqcSheetName, boolean throwExceptionFlag) throws ClientException{
+        try {
+            IqcCheckSheet iqcCheckSheet = iqcCheckSheetRepository.findOneByName(iqcSheetName);
+            if(iqcCheckSheet == null && throwExceptionFlag){
+                throw new ClientParameterException(MmsException.MM_IQC_IS_NOT_EXIST, iqcSheetName);
+            }
+            return iqcCheckSheet;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     public List<MaterialLot> getMLotByIncomingDocId(String incomingDocId) throws ClientException {
@@ -1148,25 +1185,20 @@ public class MmsServiceImpl implements MmsService {
      */
     public Product saveProduct(Product product) throws ClientException {
         try {
-            if (product.getObjectRrn() == null ){
+            if (product.getObjectRrn() == null){
+                Product productByName = productRepository.findOneByName(product.getName());
+                if (productByName != null){
+                    throw new ClientParameterException(MmsException.MM_PRODUCT_IS_EXIST, product.getName());
+                }
                 product.setActiveTime(new Date());
                 product.setActiveUser(ThreadLocalContext.getUsername());
                 product.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
                 Long version = versionControlService.getNextVersion(product);
                 product.setVersion(version);
-
-                MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
-                if (statusModel == null) {
-                    throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
-
-                }
-                product.setStatusModelRrn(statusModel.getObjectRrn());
-
                 product = (Product) baseService.saveEntity(product, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
             }else {
                 NBVersionControl oldData = productRepository.findByObjectRrn(product.getObjectRrn());
                 product.setStatus(oldData.getStatus());
-
                 product = (Product)baseService.saveEntity(product);
             }
             return product;
@@ -1231,6 +1263,18 @@ public class MmsServiceImpl implements MmsService {
                 }
             }
         }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public Product saveProduct(Product product, String warehouseName) throws ClientException {
+        try {
+            if (!StringUtils.isNullOrEmpty(warehouseName)){
+                Warehouse warehouse = getWarehouseByName(warehouseName, true);
+                product.setWarehouseRrn(warehouse.getObjectRrn());
+            }
+            return saveProduct(product);
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

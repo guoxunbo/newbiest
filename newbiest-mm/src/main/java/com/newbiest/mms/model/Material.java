@@ -24,9 +24,14 @@ public class Material extends NBVersionControl {
     public static final String CLASS_RAW = "RAW";
 
     /**
-     * 产品型号
+     * 成品
      */
     public static final String CLASS_PRODUCT = "PRODUCT";
+
+    /**
+     * 实验室材料
+     */
+    public static final String CLASS_LAB = "LAB";
 
     /**
      * 默认状态模型
@@ -51,6 +56,20 @@ public class Material extends NBVersionControl {
     public static final String OQC_SHEET_NAME = "OQC出货检验记录";
 
     public static final String TYPE_PRODUCT = "Product";
+
+    //MainMaterial PackingMaterial material Laboratory
+
+    //成品类型
+    public static final String MATERIAL_CATEGORY_PRODUCT = "Product";
+    //主材类型
+    public static final String MATERIAL_CATEGORY_MAIN_MATERIAL = "MainMaterial";
+    //包材类型
+    public static final String MATERIAL_CATEGORY_PACKING_MATERIAL = "PackingMaterial";
+    //辅材类型
+    public static final String MATERIAL_CATEGORY_MATERIAL = "Material";
+    //实验室类型
+    public static final String MATERIAL_CATEGORY_LABORATORY = "Laboratory";
+
 
 
     @Column(name="CLASS",insertable = false, updatable = false)
