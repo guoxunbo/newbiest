@@ -49,6 +49,6 @@ public class MmsException {
     public static final String MM_LAB_MATERIAL_IS_EXIST = "mm.lab_material_is_exist";
     public static final String MM_LAB_MATERIAL_IS_NOT_EXIST = "mm.lab_material_is_not_exist";
 
-    public static final String MM_IQC_NAME_IS_NOT_EXIST = "mm.iqc_name_is_not_exist";
-    public static final String MM_WAREHOUSE_NAME_IS_NOT_EXIST = "mm.warehouse_name_is_not_exist";
+    public static final String MM_IQC_IS_NOT_EXIST = "mm.iqc_is_not_exist";
+    public static final String MM_WAREHOUSE_IS_NOT_EXIST = "mm.warehouse_is_not_exist";
 }

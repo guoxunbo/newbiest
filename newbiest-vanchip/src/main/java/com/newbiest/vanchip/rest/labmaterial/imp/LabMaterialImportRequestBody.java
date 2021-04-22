@@ -10,5 +10,5 @@ public class LabMaterialImportRequestBody extends RequestBody {
 
     private static final long serialVersionUID = 1L;
 
-    private String objectRrn;
+    private String importNBTableObjectRrn;
 }

@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/vc")
 @Slf4j
-@Api(value="/vc", tags="Vanchip客制化")
+@Api(value="/vc", tags="VC客制化", description = "物料管理相关")
 public class LabMaterialImportController extends AbstractRestController {
 
     @Autowired
@@ -47,7 +47,7 @@ public class LabMaterialImportController extends AbstractRestController {
         response.getHeader().setTransactionId(labMaterialImportRequest.getHeader().getTransactionId());
         LabMaterialImportResponseBody responseBody = new LabMaterialImportResponseBody();
 
-        NBTable nbTable = uiService.getDeepTable(labMaterialImportRequest.getBody().getObjectRrn());
+        NBTable nbTable = uiService.getDeepTable(labMaterialImportRequest.getBody().getImportNBTableObjectRrn());
         BiMap<String, String> fieldMap = HashBiMap.create(CsvUtils.buildHeaderByTable(nbTable, labMaterialImportRequest.getHeader().getLanguage()));
         fieldMap = fieldMap.inverse();
 

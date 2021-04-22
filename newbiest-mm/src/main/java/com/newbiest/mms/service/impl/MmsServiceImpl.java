@@ -153,11 +153,15 @@ public class MmsServiceImpl implements MmsService {
 
     public RawMaterial saveRawMaterial(RawMaterial rawMaterial, String warehouseName,String iqcSheetName) throws ClientException {
         try {
-            Warehouse warehouse = getWarehouseByName(warehouseName, true);
-            IqcCheckSheet iqcCheckSheet = getIqcSheetByName(iqcSheetName, true);
+            if (!StringUtils.isNullOrEmpty(warehouseName)){
+                Warehouse warehouse = getWarehouseByName(warehouseName, true);
+                rawMaterial.setWarehouseRrn(warehouse.getObjectRrn());
+            }
 
-            rawMaterial.setWarehouseRrn(warehouse.getObjectRrn());
-            rawMaterial.setIqcSheetRrn(iqcCheckSheet.getObjectRrn());
+            if (!StringUtils.isNullOrEmpty(iqcSheetName)){
+                IqcCheckSheet iqcCheckSheet = getIqcSheetByName(iqcSheetName, true);
+                rawMaterial.setIqcSheetRrn(iqcCheckSheet.getObjectRrn());
+            }
             return saveRawMaterial(rawMaterial);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -1149,7 +1153,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             Warehouse warehouse = warehouseRepository.findOneByName(warehouseName);
             if(warehouse == null && throwExceptionFlag){
-                throw new ClientParameterException(MmsException.MM_WAREHOUSE_NAME_IS_NOT_EXIST ,warehouseName);
+                throw new ClientParameterException(MmsException.MM_WAREHOUSE_IS_NOT_EXIST ,warehouseName);
             }
             return warehouse;
         }catch (Exception e){
@@ -1161,7 +1165,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             IqcCheckSheet iqcCheckSheet = iqcCheckSheetRepository.findOneByName(iqcSheetName);
             if(iqcCheckSheet == null && throwExceptionFlag){
-                throw new ClientParameterException(MmsException.MM_IQC_NAME_IS_NOT_EXIST, iqcSheetName);
+                throw new ClientParameterException(MmsException.MM_IQC_IS_NOT_EXIST, iqcSheetName);
             }
             return iqcCheckSheet;
         }catch (Exception e){
@@ -1263,9 +1267,12 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    public Product saveProduct(Product product, String warehouseName) throws ClientException {
         try {
-            Warehouse warehouse = getWarehouseByName(warehouseName, true);
-            product.setWarehouseRrn(warehouse.getObjectRrn());
+            if (!StringUtils.isNullOrEmpty(warehouseName)){
+                Warehouse warehouse = getWarehouseByName(warehouseName, true);
+                product.setWarehouseRrn(warehouse.getObjectRrn());
+            }
             return saveProduct(product);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

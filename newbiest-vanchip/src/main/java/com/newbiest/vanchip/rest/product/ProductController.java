@@ -43,7 +43,7 @@ public class ProductController extends AbstractRestController {
 
         ProductRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
-        Product material = requestBody.getMaterial();
+        List<Product> products = requestBody.getDataList();
 
         if (ProductRequest.ACTION_IMPORT_SAVE.equals(actionType)){
             MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
@@ -51,18 +51,17 @@ public class ProductController extends AbstractRestController {
                 throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
             }
 
-            List<Product> products = requestBody.getDataList();
             for (Product product: products){
                 product.setStatusModelRrn(statusModel.getObjectRrn());
                 vanChipService.saveProduct(product);
             }
         }else if (ProductRequest.ACTION_MERGE.equals(actionType)){
-            material = vanChipService.saveProduct(material);
-            responseBody.setMaterial(material);
+            Product product = products.get(0);
+            product = vanChipService.saveProduct(product);
+            responseBody.setMaterial(product);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
-        responseBody.setMaterial(material);
         response.setBody(responseBody);
         return response;
     }

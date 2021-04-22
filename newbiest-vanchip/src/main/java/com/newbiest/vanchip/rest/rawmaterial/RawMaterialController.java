@@ -43,6 +43,7 @@ public class RawMaterialController extends AbstractRestController {
 
         RawMaterialRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
+        List<RawMaterial> rawMaterials = requestBody.getDataList();
 
         if (RawMaterialRequest.ACTION_IMPORT_SAVE.equals(actionType)) {
             MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
@@ -50,13 +51,13 @@ public class RawMaterialController extends AbstractRestController {
                 throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
             }
 
-            List<RawMaterial> rawMaterials = requestBody.getDataList();
             for (RawMaterial rawMaterial: rawMaterials){
                 rawMaterial.setStatusModelRrn(statusModel.getObjectRrn());
                 vanchipService.saveRawMaterial(rawMaterial);
             }
         } else if (RawMaterialRequest.ACTION_MERGE.equals(actionType)){
-            RawMaterial rawMaterial = vanchipService.saveRawMaterial(requestBody.getMaterial());
+            RawMaterial rawMaterial = rawMaterials.get(0);
+            rawMaterial = vanchipService.saveRawMaterial(rawMaterial);
             responseBody.setMaterial(rawMaterial);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());

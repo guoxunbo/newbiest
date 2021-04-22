@@ -2045,7 +2045,6 @@ public class VanchipServiceImpl implements VanChipService {
      */
     public RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException{
         try {
-                rawMaterial = (RawMaterial) conversionMaterialMode(rawMaterial);
             rawMaterial = (RawMaterial) conversionMaterialMode(rawMaterial);
 
             rawMaterial = mmsService.saveRawMaterial(rawMaterial, rawMaterial.getWarehouseName(), rawMaterial.getIqcSheetName());
@@ -2094,8 +2093,14 @@ public class VanchipServiceImpl implements VanChipService {
      */
     public LabMaterial saveLabMaterial(LabMaterial labMaterial)throws ClientException{
         try {
-            Warehouse warehouse = mmsService.getWarehouseByName(labMaterial.getWarehouseName(), true);
-            labMaterial.setWarehouseRrn(warehouse.getObjectRrn());
+            if (!StringUtils.isNullOrEmpty(labMaterial.getWarehouseName())){
+                Warehouse warehouse = mmsService.getWarehouseByName(labMaterial.getWarehouseName(), true);
+                labMaterial.setWarehouseRrn(warehouse.getObjectRrn());
+            }
+            if (!StringUtils.isNullOrEmpty(labMaterial.getIqcSheetName())){
+                IqcCheckSheet iqcCheckSheet = mmsService.getIqcSheetByName(labMaterial.getIqcSheetName(), true);
+                labMaterial.setIqcSheetRrn(iqcCheckSheet.getObjectRrn());
+            }
 
             if (labMaterial.getObjectRrn() == null) {
                 LabMaterial material = labMaterialRepository.findOneByName(labMaterial.getName());
@@ -2108,9 +2113,6 @@ public class VanchipServiceImpl implements VanChipService {
                 labMaterial.setStatus(DefaultStatusMachine.STATUS_ACTIVE);
                 Long version = versionControlService.getNextVersion(labMaterial);
                 labMaterial.setVersion(version);
-
-                IqcCheckSheet iqcCheckSheet = mmsService.getIqcSheetByName(labMaterial.getIqcSheetName(), true);
-                labMaterial.setIqcSheetRrn(iqcCheckSheet.getObjectRrn());
                 labMaterial = (LabMaterial)baseService.saveEntity(labMaterial, NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
             } else {
                 NBVersionControl oldData = labMaterialRepository.findByObjectRrn(labMaterial.getObjectRrn());
