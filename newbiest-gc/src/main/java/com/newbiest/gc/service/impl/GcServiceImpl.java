@@ -655,6 +655,7 @@ public class GcServiceImpl implements GcService {
             //1. 把箱批次和普通的物料批次区分出来
             List<MaterialLot> materialLots = stockInModels.stream().map(model -> mmsService.getMLotByMLotId(model.getMaterialLotId(), true)).collect(Collectors.toList());
             List<MaterialLot> normalMaterialLots = materialLots.stream().filter(materialLot -> materialLot.getParentMaterialLotRrn() == null).collect(Collectors.toList());
+            List<MaterialLot> materialLotList = materialLots.stream().filter(materialLot -> MaterialLot.STATUS_CREATE.equals(materialLot.getStatus()) && Material.TYPE_MATERIAL.equals(materialLot.getMaterialCategory())).collect(Collectors.toList());
 
             //2. 普通批次才做绑定中转箱功能，直接release原来的中转箱号
             for (MaterialLot materialLot : normalMaterialLots) {
@@ -713,9 +714,11 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                 }
+            }
 
-                //原材料接收入库时，如果未入库需将原材料信息写入中间表
-                if(Material.TYPE_MATERIAL.equals(materialLot.getMaterialCategory()) && MaterialStatus.STATUS_CREATE.equals(materialLot.getStatus())){
+            //原材料接收入库时，如果未入库需将原材料信息写入中间表
+            if(CollectionUtils.isNotEmpty(materialLotList)){
+                for(MaterialLot materialLot: materialLotList){
                     ErpMaterialIn erpMaterialIn = new ErpMaterialIn();
                     erpMaterialIn.setMaterialLot(materialLot);
                     erpMaterialInRepository.save(erpMaterialIn);
@@ -1950,6 +1953,7 @@ public class GcServiceImpl implements GcService {
                     if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                         receiveOrder.setQty(totalQty);
                         receiveOrder.setUnHandledQty(receiveOrder.getQty().subtract(receiveOrder.getHandledQty()));
+                        receiveOrder.setUnReservedQty(receiveOrder.getQty().subtract(receiveOrder.getReservedQty()));
                         receiveOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
                         receiveOrder = (ReceiveOrder) baseService.saveEntity(receiveOrder);
                     }
@@ -2064,6 +2068,8 @@ public class GcServiceImpl implements GcService {
                     if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                         cogReceiveOrder.setQty(totalQty);
                         cogReceiveOrder.setUnHandledQty(cogReceiveOrder.getQty().subtract(cogReceiveOrder.getHandledQty()));
+                        cogReceiveOrder.setUnReservedQty(cogReceiveOrder.getQty().subtract(cogReceiveOrder.getReservedQty()));
+
                         cogReceiveOrder.setReserved31(ErpSo.SOURCE_TABLE_NAME);
                         cogReceiveOrder = (CogReceiveOrder) baseService.saveEntity(cogReceiveOrder);
                     }
@@ -6090,6 +6096,7 @@ public class GcServiceImpl implements GcService {
                             totalQty = totalQty.add(erpMaterialOutaOrder.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpMaterialOutaOrder.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
+                            documentLine.setUnReservedQty(documentLine.getQty().subtract(documentLine.getReservedQty()));
                             documentLines.add(documentLine);
 
                             otherIssueOrder.setOwner(erpMaterialOutaOrder.getChandler());
@@ -6106,6 +6113,7 @@ public class GcServiceImpl implements GcService {
                     if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                         otherIssueOrder.setQty(totalQty);
                         otherIssueOrder.setUnHandledQty(otherIssueOrder.getQty().subtract(otherIssueOrder.getHandledQty()));
+                        otherIssueOrder.setUnReservedQty(otherIssueOrder.getQty().subtract(otherIssueOrder.getReservedQty()));
 
                         otherIssueOrder.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
                         otherIssueOrder = (WaferIssueOrder) baseService.saveEntity(otherIssueOrder);
@@ -6277,6 +6285,7 @@ public class GcServiceImpl implements GcService {
                             totalQty = totalQty.add(erpMaterialOutaOrder.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpMaterialOutaOrder.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
+                            documentLine.setUnReservedQty(documentLine.getQty().subtract(documentLine.getReservedQty()));
                             documentLines.add(documentLine);
 
                             materialIssueOrder.setOwner(erpMaterialOutaOrder.getChandler());
@@ -6292,6 +6301,7 @@ public class GcServiceImpl implements GcService {
                     if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                         materialIssueOrder.setQty(totalQty);
                         materialIssueOrder.setUnHandledQty(materialIssueOrder.getQty().subtract(materialIssueOrder.getHandledQty()));
+                        materialIssueOrder.setUnReservedQty(materialIssueOrder.getQty().subtract(materialIssueOrder.getReservedQty()));
 
                         materialIssueOrder.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
                         materialIssueOrder = (MaterialIssueOrder) baseService.saveEntity(materialIssueOrder);
