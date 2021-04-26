@@ -48,6 +48,9 @@ public interface GcService {
     void receiveRawMaterial(List<MaterialLot> materialLotList) throws ClientException;
     void deleteMaterialLotAndSaveHis(List<MaterialLot> materialLotList, String deleteNote) throws ClientException;
     List<MaterialLot> queryRawMaterialByMaterialLotOrLotIdAndTableRrn(String mLotId, Long tableRrn) throws ClientException;
+    List<MaterialLot> getWaitSpareRawMaterialLotListByOrderAndTableRrn(Long docLineRrn, Long tableRrn) throws ClientException;
+    List<MaterialLot> getSpareRawMaterialLotListByDocLineRrrn(List<MaterialLot> materialLots, Long docLineRrn) throws ClientException;
+    void rawMaterialMLotSpare(List<MaterialLot> materialLotList, Long docLineRrn) throws ClientException;
 
     void waferOutOrderIssue(List<MaterialLotAction> materialLotActions) throws ClientException;
     Map<String, String> getCOBLabelPrintParamater(String materialLotId) throws ClientException;

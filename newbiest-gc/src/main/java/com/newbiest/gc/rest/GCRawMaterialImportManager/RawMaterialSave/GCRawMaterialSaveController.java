@@ -45,6 +45,14 @@ public class GCRawMaterialSaveController {
             gcService.scrapRawMaterial(materialLotList, requestBody.getReason(), requestBody.getRemarks());
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_DELETE.equals(actionType)){
             gcService.deleteMaterialLotAndSaveHis(materialLotList, requestBody.getRemarks());
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_QUERY_SPARE_MLOT.equals(actionType)){
+            List<MaterialLot> materialLots = gcService.getWaitSpareRawMaterialLotListByOrderAndTableRrn(requestBody.getDocLineRrn(), requestBody.getTableRrn());
+            responseBody.setMaterialLotList(materialLots);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_GET_SPARE_RAW_MLOT.equals(actionType)){
+            List<MaterialLot> materialLots = gcService.getSpareRawMaterialLotListByDocLineRrrn(materialLotList, requestBody.getDocLineRrn());
+            responseBody.setMaterialLotList(materialLots);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SPARE_RAW_MLOT.equals(actionType)){
+            gcService.rawMaterialMLotSpare(materialLotList, requestBody.getDocLineRrn());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

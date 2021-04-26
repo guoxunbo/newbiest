@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialSpareOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCRawMaterialSpareOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRawMaterialSpareOrder
+              description: 原材料备料单据
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 原材料备料单据
+              label: RawMaterialSpareOrder

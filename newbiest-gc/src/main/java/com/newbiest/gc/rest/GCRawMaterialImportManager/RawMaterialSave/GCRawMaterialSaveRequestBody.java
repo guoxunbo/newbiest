@@ -33,4 +33,10 @@ public class GCRawMaterialSaveRequestBody extends RequestBody {
     @ApiModelProperty(value = "备注")
     private String remarks;
 
+    @ApiModelProperty(value = "单据主键")
+    private Long docLineRrn;
+
+    @ApiModelProperty(value = "table主键")
+    private Long tableRrn ;
+
 }

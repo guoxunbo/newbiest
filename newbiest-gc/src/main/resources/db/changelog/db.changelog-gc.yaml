@@ -488,3 +488,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRawMaterialDelete_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialSpareOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialSpareMLot_nb_table.yaml
+      relativeToChangelogFile: true

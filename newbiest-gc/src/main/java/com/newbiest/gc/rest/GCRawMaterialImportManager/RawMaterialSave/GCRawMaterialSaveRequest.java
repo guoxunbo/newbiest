@@ -20,5 +20,11 @@ public class GCRawMaterialSaveRequest extends Request {
 
     public static final String ACTION_TYPE_DELETE = "Delete";
 
+    public static final String ACTION_TYPE_QUERY_SPARE_MLOT = "QuerySpareMLot";
+
+    public static final String ACTION_TYPE_GET_SPARE_RAW_MLOT = "GetSpareRawMLot";
+
+    public static final String ACTION_TYPE_SPARE_RAW_MLOT = "SpareRawMLot";
+
     private GCRawMaterialSaveRequestBody body;
 }
