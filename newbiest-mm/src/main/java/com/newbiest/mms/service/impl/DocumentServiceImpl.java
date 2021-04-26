@@ -80,7 +80,7 @@ public class DocumentServiceImpl implements DocumentService {
     IssueFinishGoodOrderRepository issueFinishGoodOrderRepository;
 
     @Autowired
-    IssueMLotOrderRepository issueMLotOrderRepository;
+    LabMaterialRepository labMaterialRepository;
 
     //by客户版本备货的规则
     public static final String RESERVED_RULE_BY_CUSTOMER_VERSION = "ReservedRuleByCustomerVersion";
@@ -334,23 +334,23 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     * 创建发料单
-     *  此种发料单不指定批次，只指定型号 一般用于源材料的使用
-     * @param documentId 单据号 不传，系统会自己生成一个
-     * @param approveFlag 是否创建即approve
-     * @param rawMaterialQtyMap 物料对应的数量
+     *创建辅材发料单
+     * @param documentId
+     * @param approveFlag
+     * @param materialLotIdList
      * @throws ClientException
      */
-    public void createIssueMaterialOrder(String documentId, boolean approveFlag, Map<String, BigDecimal> rawMaterialQtyMap) throws ClientException{
+    public String createIssueMaterialOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException{
         try {
             if (StringUtils.isNullOrEmpty(documentId)) {
-                documentId = generatorDocId(IssueMaterialOrder.GENERATOR_ISSUE_MATERIAL_ORDER_ID_RULE);
+                documentId = generatorDocId(IssueLotOrder.GENERATOR_ISSUE_LOT_ORDER_ID_RULE);
             }
             IssueMaterialOrder issueMaterialOrder = issueMaterialOrderRepository.findOneByName(documentId);
             if (issueMaterialOrder != null) {
                 throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
             }
-            BigDecimal totalQty = rawMaterialQtyMap.values().stream().reduce(BigDecimal::add).get();
+            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
+            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
 
             issueMaterialOrder = new IssueMaterialOrder();
             issueMaterialOrder.setName(documentId);
@@ -361,57 +361,17 @@ public class DocumentServiceImpl implements DocumentService {
             }
             issueMaterialOrder = (IssueMaterialOrder) baseService.saveEntity(issueMaterialOrder);
 
-            for (String rawMaterialName : rawMaterialQtyMap.keySet()) {
-                RawMaterial rawMaterial = mmsService.getRawMaterialByName(rawMaterialName);
-                if (rawMaterial == null) {
-                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, rawMaterialName);
-                }
-                DocumentLine documentLine = new DocumentLine();
-                documentLine.setDocument(issueMaterialOrder);
-                documentLine.setMaterial(rawMaterial);
-                documentLine.setQty(rawMaterialQtyMap.get(rawMaterialName));
-                documentLine.setUnHandledQty(rawMaterialQtyMap.get(rawMaterialName));
-                baseService.saveEntity(documentLine);
-            }
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 发料
-     *  根据物料清单发料，不卡控物料批次。只验证发料规则
-     * @param documentLine 发料明细单
-     * @param materialLotIdList 发料的物料批次
-     * @throws ClientException
-     */
-    public void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException {
-        try {
-            IssueMaterialOrder issueMaterialOrder = issueMaterialOrderRepository.findOneByName(documentLine.getDocId());
-            if (issueMaterialOrder == null) {
-                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, documentLine.getDocId());
-            }
-            if (!Document.STATUS_APPROVE.equals(issueMaterialOrder.getStatus())) {
-                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, documentLine.getDocId());
-            }
-            // TODO 维护单据规则，以及验证规则
-            List<MaterialLot> materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
-            BigDecimal handleQty = BigDecimal.ZERO;
+            //验证物料是否被create状态的单据绑定
+            validationMLotBoundOrder(materialLotIdList);
 
             for (MaterialLot materialLot : materialLots) {
-                handleQty = handleQty.add(materialLot.getCurrentQty());
-                mmsService.issue(materialLot);
+                DocumentMLot documentMLot = new DocumentMLot();
+                documentMLot.setDocumentId(issueMaterialOrder.getName());
+                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
+                documentMLot.setStatus(DocumentMLot.STATUS_CREATE);
+                documentMLotRepository.save(documentMLot);
             }
-            if (documentLine.getUnHandledQty().compareTo(handleQty) < 0){
-                throw new ClientParameterException(MLOT_TOTAL_QTY_GREATER_THAN_DOCLINE_UNHANDLED_QTY);
-            }
-            documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
-            documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(handleQty));
-            baseService.saveEntity(documentLine, DocumentHistory.TRANS_TYPE_ISSUE);
-
-            issueMaterialOrder.setHandledQty(issueMaterialOrder.getHandledQty().add(handleQty));
-            issueMaterialOrder.setUnHandledQty(issueMaterialOrder.getUnHandledQty().subtract(handleQty));
-            baseService.saveEntity(issueMaterialOrder, DocumentHistory.TRANS_TYPE_ISSUE);
+            return documentId;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -422,7 +382,29 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     * 发料
+     * 指定物料批次发料
+     * @param documentId
+     * @param materialLotIdList
+     */
+    public void issueMaterialLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException {
+        try {
+            Document document = getDocumentByName(documentId, true);
+            if (document instanceof IssueLotOrder){
+                issueMLotByDoc(documentId, materialLotIdList);
+            }else if (document instanceof IssueMaterialOrder){
+                issueMaterialByDoc(documentId, materialLotIdList);
+            }else if (document instanceof IssueFinishGoodOrder){
+                issueFinishGoodByDoc(documentId, materialLotIdList);
+            }else {
+                throw new ClientParameterException(DOCUMENT_CATEGORY_IS_NOT_EXIST, documentId);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 主材发料
      *  不根据物料发料，单据会事先绑好物料批次进行发料
      * @param issueLotOrderId 发料单号
      * @param materialLotIdList 发料的物料批次
@@ -449,6 +431,40 @@ public class DocumentServiceImpl implements DocumentService {
 
             //更改documentMLot状态
             changeDocMLotStatus(issueLotOrderId, materialLotIdList, DocumentMLot.STATUS_ISSUE);
+
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 辅材发料
+     * 单据会事先绑好物料批次进行发料
+     * @param issueMaterialOrderId 发料单号
+     * @param materialLotIdList 发料的物料批次
+     * @throws ClientException
+     */
+    public void issueMaterialByDoc(String issueMaterialOrderId, List<String> materialLotIdList) throws ClientException {
+        try {
+            IssueMaterialOrder issueMaterialOrder = issueMaterialOrderRepository.findOneByName(issueMaterialOrderId);
+            if (issueMaterialOrder == null) {
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, issueMaterialOrder.getName());
+            }
+            if (!Document.STATUS_APPROVE.equals(issueMaterialOrder.getStatus())) {
+                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, issueMaterialOrder.getName());
+            }
+            List<MaterialLot> materialLots = validationDocReservedMLot(issueMaterialOrderId, materialLotIdList);
+
+            BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+            for (MaterialLot materialLot : materialLots) {
+                mmsService.issue(materialLot);
+            }
+            issueMaterialOrder.setHandledQty(issueMaterialOrder.getHandledQty().add(handleQty));
+            issueMaterialOrder.setUnHandledQty(issueMaterialOrder.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(issueMaterialOrder, DocumentHistory.TRANS_TYPE_ISSUE);
+
+            //更改documentMLot状态
+            changeDocMLotStatus(issueMaterialOrderId, materialLotIdList, DocumentMLot.STATUS_ISSUE);
 
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -606,86 +622,6 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     * 创建发料单，内部发料使用
-     * @param documentId
-     * @param approveFlag
-     * @param materialLotIds
-     * @return
-     * @throws ClientException
-     */
-    public String createIssueMLotOrder(String documentId, boolean approveFlag, List<String> materialLotIds) throws ClientException{
-        try {
-            if (StringUtils.isNullOrEmpty(documentId)) {
-                documentId = generatorDocId(IssueMLotOrder.GENERATOR_ISSUE_MLOT_ORDER_ID_RULE);
-            }
-            IssueMLotOrder issueMLotOrder = issueMLotOrderRepository.findOneByName(documentId);
-
-            if (issueMLotOrder != null) {
-                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
-            }
-            List<MaterialLot> materialLots = materialLotIds.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
-            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
-
-            issueMLotOrder = new IssueMLotOrder();
-            issueMLotOrder.setName(documentId);
-            issueMLotOrder.setQty(totalQty);
-            issueMLotOrder.setUnHandledQty(totalQty);
-            issueMLotOrder.setStatus(Document.STATUS_CREATE);
-            if (approveFlag) {
-                issueMLotOrder.setStatus(Document.STATUS_APPROVE);
-            }
-            issueMLotOrder = (IssueMLotOrder) baseService.saveEntity(issueMLotOrder);
-
-            //验证物料是否被create状态的单据绑定
-            validationMLotBoundOrder(materialLotIds);
-
-            for (MaterialLot materialLot : materialLots) {
-                DocumentMLot documentMLot = new DocumentMLot();
-                documentMLot.setDocumentId(issueMLotOrder.getName());
-                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
-                documentMLot.setStatus(DocumentMLot.STATUS_CREATE);
-                documentMLotRepository.save(documentMLot);
-            }
-            return documentId;
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 内部发料
-     * @param issueMLotId
-     * @param materialLotIdList
-     * @throws ClientException
-     */
-    public void issueMaterialLotByDoc(String issueMLotId, List<String> materialLotIdList) throws ClientException {
-        try {
-            IssueMLotOrder issueMLotOrder = issueMLotOrderRepository.findOneByName(issueMLotId);
-            if (issueMLotOrder == null) {
-                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, issueMLotOrder.getName());
-            }
-            if (!Document.STATUS_APPROVE.equals(issueMLotOrder.getStatus())) {
-                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, issueMLotOrder.getName());
-            }
-            List<MaterialLot> materialLots = validationDocReservedMLot(issueMLotId, materialLotIdList);
-
-            BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
-            for (MaterialLot materialLot : materialLots) {
-                mmsService.issue(materialLot);
-            }
-            issueMLotOrder.setHandledQty(issueMLotOrder.getHandledQty().add(handleQty));
-            issueMLotOrder.setUnHandledQty(issueMLotOrder.getUnHandledQty().subtract(handleQty));
-            baseService.saveEntity(issueMLotOrder, DocumentHistory.TRANS_TYPE_ISSUE);
-
-            //更改documentMLot状态
-            changeDocMLotStatus(issueMLotId, materialLotIdList, DocumentMLot.STATUS_ISSUE);
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-
-    /**
      *验证物料绑定的单据在documentMlot中Status为Create
      * @param materialLotIds
      */
@@ -727,6 +663,166 @@ public class DocumentServiceImpl implements DocumentService {
                 }
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 创建实验室发料单 指定物料而非物料批次
+     * @param documentId
+     * @param approveFlag
+     * @param labMaterials 包含PickQty
+     * @throws ClientException
+     */
+    public Document createIssueLabMLotOrder(String documentId, boolean approveFlag, List<LabMaterial> labMaterials) throws ClientException{
+        try {
+            if (StringUtils.isNullOrEmpty(documentId)) {
+                documentId = generatorDocId(IssueLabMLotOrder.GENERATOR_ISSUE_LABMLOT_ORDER_ID_RULE);
+            }
+            IssueLabMLotOrder issueLabMLotOrder = issueLabMLotOrderRepository.findOneByName(documentId);
+            if (issueLabMLotOrder != null) {
+                throw new ClientParameterException(DocumentException.DOCUMENT_IS_EXIST, documentId);
+            }
+            BigDecimal totalQty = labMaterials.stream().collect(CollectorsUtils.summingBigDecimal(LabMaterial :: getPickQty));
+
+            issueLabMLotOrder = new IssueLabMLotOrder();
+            issueLabMLotOrder.setName(documentId);
+            issueLabMLotOrder.setQty(totalQty);
+            issueLabMLotOrder.setUnHandledQty(totalQty);
+            if (approveFlag) {
+                issueLabMLotOrder.setStatus(Document.STATUS_APPROVE);
+            }
+            issueLabMLotOrder = (IssueLabMLotOrder) baseService.saveEntity(issueLabMLotOrder);
+
+            for (LabMaterial labMaterial : labMaterials){
+                BigDecimal pickQty = labMaterial.getPickQty();
+                labMaterial = labMaterialRepository.findOneByName(labMaterial.getName());
+                if (labMaterial == null){
+                    throw  new ClientParameterException(MmsException.MM_LAB_MATERIAL_IS_NOT_EXIST, labMaterial.getName());
+                }
+                DocumentLine documentLine = new DocumentLine();
+                documentLine.setDocument(issueLabMLotOrder);
+                documentLine.setMaterial(labMaterial);
+                documentLine.setQty(pickQty);
+                documentLine.setUnHandledQty(pickQty);
+                baseService.saveEntity(documentLine);
+            }
+
+            return issueLabMLotOrder;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 推荐发料
+     * @param documentId
+     * @return
+     */
+    public List<MaterialLot> recommendIssueLabMLot(String documentId) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = Lists.newArrayList();
+            List<DocumentLine> documentLines = documentLineRepository.findByDocId(documentId);
+
+            for (DocumentLine documentLine : documentLines){
+                List<MaterialLot> materialLotList = getMLotByDocumentLineAndFIFO(documentLine);
+
+                materialLots.addAll(materialLotList);
+            }
+            return materialLots;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+
+        }
+    }
+
+    public List<MaterialLot> getMLotByDocumentLineAndFIFO(DocumentLine documentLine) throws ClientException{
+        try {
+            String materialName = documentLine.getMaterialName();
+
+            List<MaterialLot> materialLots = materialLotRepository.findByMaterialNameAndStatus(materialName, MaterialStatus.STATUS_IN);
+
+            //根据接收时间排序
+            materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getReceiveDate)).collect(Collectors.toList());
+
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            for (MaterialLot materialLot : materialLots){
+                BigDecimal docLineUnHandleQty = documentLine.getUnHandledQty();
+
+                materialLot.setPickQty(documentLine.getQty());
+                materialLotList.add(materialLot);
+                docLineUnHandleQty.subtract(materialLot.getCurrentQty());
+
+                if (docLineUnHandleQty.compareTo(materialLot.getCurrentQty()) < 0 ){
+                    return materialLotList;
+                }
+            }
+            return materialLotList;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 实验室发料
+     * @param documentId
+     * @param materialLotIds
+     * @return
+     */
+    public void issueLabMLot(String documentId, List<String> materialLotIds) throws ClientException{
+        try {
+            IssueLabMLotOrder issueLabMLotOrder = issueLabMLotOrderRepository.findOneByName(documentId);
+            if (issueLabMLotOrder == null) {
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, documentId);
+            }
+            if (!Document.STATUS_APPROVE.equals(issueLabMLotOrder.getStatus())) {
+                throw new ClientParameterException(DOCUMENT_STATUS_IS_NOT_ALLOW, documentId);
+            }
+
+            List<MaterialLot> materialLots = materialLotIds.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
+            BigDecimal handleQty = BigDecimal.ZERO;
+
+            for (MaterialLot materialLot : materialLots) {
+                handleQty = handleQty.add(materialLot.getCurrentQty());
+                mmsService.issue(materialLot);
+
+                DocumentMLot documentMLot = new DocumentMLot();
+                documentMLot.setDocumentId(issueLabMLotOrder.getName());
+                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
+                documentMLot.setStatus(DocumentMLot.STATUS_ISSUE);
+                documentMLotRepository.save(documentMLot);
+            }
+            issueLabMLotOrder.setHandledQty(issueLabMLotOrder.getHandledQty().add(handleQty));
+            issueLabMLotOrder.setUnHandledQty(issueLabMLotOrder.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(issueLabMLotOrder, DocumentHistory.TRANS_TYPE_ISSUE);
+
+            Map<String, List<MaterialLot>> materialLotMaps = materialLots.stream().collect(Collectors.groupingBy(MaterialLot::getMaterialName));
+            List<DocumentLine> docLines = documentLineRepository.findByDocId(documentId);
+            for (String materialName:materialLotMaps.keySet()){
+                Optional<DocumentLine> documentLineOptional = docLines.stream().filter(docLine -> docLine.getMaterialName().equals(materialName)).findAny();
+
+                List<MaterialLot> materialLotList= materialLotMaps.get(materialName);
+                handleQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot ::getCurrentQty));
+
+                DocumentLine documentLine = documentLineOptional.get();
+                documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
+                documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(handleQty));
+                baseService.saveEntity(documentLine, DocumentHistory.TRANS_TYPE_ISSUE);
+            }
+
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public Document getDocumentByName(String documentId, boolean throwExceptionFlag) throws ClientException{
+        try {
+            Document document = documentRepository.findOneByName(documentId);
+            if (document == null && throwExceptionFlag){
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, documentId);
+            }
+            return document;
+        }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

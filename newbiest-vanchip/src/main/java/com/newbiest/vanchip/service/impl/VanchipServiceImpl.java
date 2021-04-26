@@ -321,13 +321,7 @@ public class VanchipServiceImpl implements VanChipService {
 
     }
 
-    /**
-     * 获得发料单物料批次数据
-     * @param documentId 单据号
-     * @return
-     * @throws ClientException
-     */
-    public List<MaterialLot> getIssueOrderMLotParameter(String documentId) throws ClientException{
+    public List<MaterialLot> getMLotByOrderId(String documentId) throws ClientException{
         try {
             Document document = documentRepository.findOneByName(documentId);
             if (document == null){
@@ -341,6 +335,35 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
+    /**
+     *指定物料批次发料
+     * @param documentId
+     * @param materialLotIdList
+     * @throws ClientException
+     */
+    public void issueMLotByOrder(String documentId, List<String> materialLotIdList)throws ClientException{
+        try {
+            Document document = documentService.getDocumentByName(documentId, true);
+            if (document instanceof IssueLotOrder){
+                issueMLotByDoc(documentId, materialLotIdList);
+            } else if (document instanceof IssueMaterialOrder) {
+                issueMaterialByDoc(documentId, materialLotIdList);
+            } else if (document instanceof IssueFinishGoodOrder){
+                issueFinishGoodByDoc(documentId, materialLotIdList);
+            } else {
+                throw new ClientParameterException(DocumentException.DOCUMENT_CATEGORY_IS_NOT_EXIST, documentId);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 主材发料
+     * @param documentId 主材发料单
+     * @param materialLotIdList
+     * @throws ClientException
+     */
     public void issueMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException{
         try {
             documentService.issueMLotByDoc(documentId, materialLotIdList);
@@ -351,11 +374,34 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
-    public void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws  ClientException{
+    /**
+     * 辅材发料
+     * @param documentId
+     * @param materialLotIdList
+     * @throws ClientException
+     */
+    public void issueMaterialByDoc(String documentId, List<String> materialLotIdList) throws ClientException{
         try {
-            documentService.issueMLotByDocLine(documentLine, materialLotIdList);
+            documentService.issueMaterialByDoc(documentId, materialLotIdList);
+
             mesService.issueMLot(materialLotIdList);
-        } catch (Exception e){
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 成品发料
+     * @param documentId
+     * @param materialLotIds
+     * @throws ClientException
+     */
+    public void issueFinishGoodByDoc(String documentId, List<String> materialLotIds) throws ClientException{
+        try {
+            documentService.issueFinishGoodByDoc(documentId, materialLotIds);
+
+            mesService.issueMLot(materialLotIds);
+        }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -386,63 +432,6 @@ public class VanchipServiceImpl implements VanChipService {
                 mmsService.holdMaterialLot(materialLotActions);
             }
             mesService.returnMLot(materialLotIdList);
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 辅材发料 获得物料批次,根据FIFO 进行排序
-     * @param documentLine
-     * @return
-     * @throws ClientException
-     */
-    public List<MaterialLot> getMLotByFIFO(DocumentLine documentLine) throws ClientException{
-        try {
-            String materialName = documentLine.getMaterialName();
-            List<MaterialLot> materialLots = Lists.newArrayList();
-            // 在仓库或者已下架状态 先进先出
-            List<String> statusList = Lists.newArrayList();
-            statusList.add(MaterialStatus.STATUS_IN);
-            statusList.add(MaterialStatus.STATUS_WAIT);
-            materialLots = materialLotRepository.findByMaterialNameAndStatusIn(materialName, statusList);
-
-            materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getReceiveDate)).collect(Collectors.toList());
-            return materialLots;
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 辅材单据验证
-     * @param documentLine
-     * @param materialLotIds
-     * @return
-     * @throws ClientException
-     */
-    public MaterialLot validationDocLineAndMaterialLot(DocumentLine documentLine, List<String> materialLotIds) throws ClientException{
-        try {
-            String materialLotId = materialLotIds.get(0) ;
-            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
-            if (materialLot == null){
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST,materialLotId);
-            }
-            List<MaterialLot> materialLotList = Lists.newArrayList();
-            materialLotList.add(materialLot);
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLotList, "DocLineAndMaterialLot");
-
-            documentLine = documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
-            List<DocumentLine> documentLineList = Lists.newArrayList();
-            documentLineList.add(documentLine);
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, "DocLineAndMaterialLot");
-
-            for (String key : materialLotMap.keySet()) {
-                if (!documentLineMap.keySet().contains(key)) {
-                    throw new ClientParameterException(VanchipExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
-                }
-            }
-            return materialLot;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -807,22 +796,6 @@ public class VanchipServiceImpl implements VanChipService {
         action.setActionCode(O_MRB_HOLD);
         action.setMaterialLotId(materialLot.getMaterialLotId());
         return action;
-    }
-
-    /**
-     * 成品发料
-     * @param documentId
-     * @param materialLotIds
-     * @throws ClientException
-     */
-    public void issueFinishGoodByDoc(String documentId, List<String> materialLotIds) throws ClientException{
-        try {
-            documentService.issueFinishGoodByDoc(documentId, materialLotIds);
-
-            mesService.issueMLot(materialLotIds);
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
     }
 
 

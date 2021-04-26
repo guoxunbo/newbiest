@@ -1,6 +1,7 @@
-package com.newbiest.mms.rest.doc.issue.create;
+package com.newbiest.vanchip.rest.doc.issue.create.laboratory;
 
 import com.newbiest.base.msg.RequestBody;
+import com.newbiest.mms.model.LabMaterial;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class CreateIssueOrderRequestBody extends RequestBody {
 	@ApiModelProperty(value = "单据号")
 	private String documentId;
 
-	@ApiModelProperty(value = "物料批次号")
-	private List<String> materialLotIdList;
+	@ApiModelProperty(value = "物料")
+	List<LabMaterial> materials;
+
 }

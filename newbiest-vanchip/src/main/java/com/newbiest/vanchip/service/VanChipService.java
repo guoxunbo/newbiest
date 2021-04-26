@@ -20,14 +20,12 @@ public interface VanChipService {
 
     void deleteIncomingMaterialLot(List<MaterialLot> materialLotList, String deleteNote) throws ClientException;
 
-    List<MaterialLot> getIssueOrderMLotParameter(String documentId) throws ClientException;
+    List<MaterialLot> getMLotByOrderId(String documentId) throws ClientException;
     void issueMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
-    void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
+    void issueMaterialByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
+    void issueMLotByOrder(String documentId, List<String> materialLotIdList) throws ClientException;
 
     void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
-
-    MaterialLot validationDocLineAndMaterialLot(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
-    List<MaterialLot> getMLotByFIFO(DocumentLine documentLine) throws ClientException;
 
     List<MaterialLot> getReservedMaterialLot(DocumentLine documentLine) throws ClientException;
 

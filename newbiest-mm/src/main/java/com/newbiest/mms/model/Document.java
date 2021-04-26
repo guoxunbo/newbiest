@@ -25,8 +25,9 @@ public class Document extends NBUpdatable {
     public static final String CATEGORY_DELIVERY = "Delivery";
     public static final String CATEGORY_INCOMING = "Incoming";
     public static final String CATEGORY_ISSUE_LOT = "IssueLot";
-    public static final String CATEGORY_ISSUE_MLOT = "IssueMLot";
     public static final String CATEGORY_ISSUE_MATERIAL = "IssueMaterial";
+    public static final String CATEGORY_ISSUE_LABMLOT = "IssueLabMLot";
+
     public static final String CATEGORY_RETURN = "Return";
     public static final String CATEGORY_FINISH_GOOD = "FinishGood";
 
