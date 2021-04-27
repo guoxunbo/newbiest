@@ -18,6 +18,7 @@ import java.util.Map;
  */
 public interface GcService {
 
+    MaterialLot getRwMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, Long tableRrn) throws ClientException;
     void issueRwMaterial(List<MaterialLot> materialLotList) throws ClientException;
     void spareRwMaterial(List<MaterialLot> materialLotList) throws ClientException;
     void receiveBladeMaterial(List<MaterialLot> materialLotList) throws ClientException;

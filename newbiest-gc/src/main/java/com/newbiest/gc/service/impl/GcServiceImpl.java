@@ -523,6 +523,28 @@ public class GcServiceImpl implements GcService {
     public MaterialLot getMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, long tableRrn) throws ClientException {
         try {
             MaterialLot materialLot = new MaterialLot();
+            List<MaterialLot> materialLotList = getMaterialLotListByTableRrnAndMLotId(tableRrn, materialLotId);
+
+            if(CollectionUtils.isEmpty(materialLotList)){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+            } else {
+                materialLot = materialLotList.get(0);
+            }
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据表单主键及物料编码获取批次信息
+     * @param tableRrn
+     * @param materialLotId
+     * @return
+     * @throws ClientException
+     */
+    private List<MaterialLot> getMaterialLotListByTableRrnAndMLotId(long tableRrn, String materialLotId) throws ClientException{
+        try {
             NBTable nbTable = uiService.getDeepNBTable(tableRrn);
             String _whereClause = nbTable.getWhereClause();
             String orderBy = nbTable.getOrderBy();
@@ -535,13 +557,8 @@ public class GcServiceImpl implements GcService {
             }
             _whereClause = clauseBuffer.toString();
             List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
-            if(CollectionUtils.isEmpty(materialLots)){
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
-            } else {
-                materialLot = materialLots.get(0);
-            }
-            return materialLot;
-        } catch (Exception e) {
+            return materialLots;
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -10078,10 +10095,10 @@ public class GcServiceImpl implements GcService {
      */
     public String validateAndGetBladeMLotId(String bladeMaterialLotCode) throws ClientException{
         try {
-            if(bladeMaterialLotCode.length() < 14){
+            if(bladeMaterialLotCode.length() < 16){
                 throw new ClientParameterException(GcExceptions.BLADE_MATERIAL_CODE_IS_ERROR, bladeMaterialLotCode);
             }
-            String materialLotId = bladeMaterialLotCode.substring(bladeMaterialLotCode.length() - 14);
+            String materialLotId = bladeMaterialLotCode.substring(bladeMaterialLotCode.length() - 15, bladeMaterialLotCode.length()-1);
             MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
             if(materialLot != null){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);
@@ -10159,6 +10176,31 @@ public class GcServiceImpl implements GcService {
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE);
                 materialLotHistoryRepository.save(history);
             }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取RW原材料批次信息
+     * @param materialLotId
+     * @param tableRrn
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot getRwMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, Long tableRrn) throws ClientException{
+        try {
+            MaterialLot materialLot = new MaterialLot();
+            if(materialLotId.length() > 20){
+                materialLotId = materialLotId.substring(materialLotId.length() - 15, materialLotId.length()-1);
+            }
+            List<MaterialLot> materialLotList = getMaterialLotListByTableRrnAndMLotId(tableRrn, materialLotId);
+            if(CollectionUtils.isNotEmpty(materialLotList)){
+                materialLot = materialLotList.get(0);
+            } else {
+                materialLot.setMaterialLotId(materialLotId);
+            }
+            return materialLot;
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
