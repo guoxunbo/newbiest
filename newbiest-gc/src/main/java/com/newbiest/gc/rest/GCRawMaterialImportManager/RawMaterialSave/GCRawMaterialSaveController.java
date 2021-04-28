@@ -40,7 +40,7 @@ public class GCRawMaterialSaveController {
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_RECEIVE.equals(actionType)){
             gcService.receiveRawMaterial(materialLotList);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
-            gcService.validateAndRawMaterialIssue(requestBody.getDocumentLine() ,materialLotList);
+            gcService.validateAndRawMaterialIssue(requestBody.getDocumentLineList() ,materialLotList);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SCRAP.equals(actionType)){
             gcService.scrapRawMaterial(materialLotList, requestBody.getReason(), requestBody.getRemarks());
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_DELETE.equals(actionType)){
@@ -53,6 +53,9 @@ public class GCRawMaterialSaveController {
             responseBody.setMaterialLotList(materialLots);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SPARE_RAW_MLOT.equals(actionType)){
             gcService.rawMaterialMLotSpare(materialLotList, requestBody.getDocLineRrn());
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_QUERY_ISSUE_RAW_MATERIAL_LOT.equals(actionType)){
+            List<MaterialLot> materialLots = gcService.queryIssueRawMaterialByMaterialLotIdOrLotIdAndTableRrn(requestBody.getQueryLotId(), requestBody.getTableRrn());
+            responseBody.setMaterialLotList(materialLots);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

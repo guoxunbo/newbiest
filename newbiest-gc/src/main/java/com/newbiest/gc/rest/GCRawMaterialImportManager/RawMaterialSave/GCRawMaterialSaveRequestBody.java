@@ -25,7 +25,7 @@ public class GCRawMaterialSaveRequestBody extends RequestBody {
     private List<MaterialLot> materialLotList;
 
     @ApiModelProperty(value = "发料单据")
-    private DocumentLine documentLine;
+    private List<DocumentLine> documentLineList;
 
     @ApiModelProperty(value = "报废原因")
     private String reason;
@@ -38,5 +38,8 @@ public class GCRawMaterialSaveRequestBody extends RequestBody {
 
     @ApiModelProperty(value = "table主键")
     private Long tableRrn ;
+
+    @ApiModelProperty(value = "原材料批号/箱号")
+    private String queryLotId ;
 
 }
