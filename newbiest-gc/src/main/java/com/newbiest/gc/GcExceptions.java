@@ -95,4 +95,5 @@ public class GcExceptions {
     public static final String BLADE_MATERIAL_CODE_IS_ERROR = "gc.Blade_material_code_is_error";
     public static final String IRA_RAW_MATERIAL_BOX_ID_CANNOT_EMPTY = "gc.ira_raw_material_box_id_cannot_empty";
     public static final String IRA_RAW_MATERIAL_BOX_ID_IS_EXISTS = "gc.ira_raw_material_box_id_is_exists";
+    public static final String TAPE_MATERIAL_LOT_ID_IS_REPEAT = "gc.tape_material_lot_id_is_repeat";
 }

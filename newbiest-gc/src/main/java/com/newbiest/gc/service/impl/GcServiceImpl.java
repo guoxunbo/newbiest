@@ -9965,6 +9965,7 @@ public class GcServiceImpl implements GcService {
     public List<MaterialLot> getMaterialLotByTapeMaterialCode(String tapeMaterialCode) throws ClientException {
         try {
             List<MaterialLot> materialLotList = Lists.newArrayList();
+            List<String> mLotIdList = Lists.newArrayList();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
             SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
             String[] tepaArray = tapeMaterialCode.split(" ");
@@ -9985,6 +9986,9 @@ public class GcServiceImpl implements GcService {
             while (materialLotIdList.length() >= 10) {
                 MaterialLot materialLot = new MaterialLot();
                 String materialLotId = materialLotIdList.substring(0, 10);
+                if(CollectionUtils.isNotEmpty(mLotIdList) && mLotIdList.contains(materialLotId)){
+                    throw new ClientParameterException(GcExceptions.TAPE_MATERIAL_LOT_ID_IS_REPEAT, materialLotId);
+                }
                 MaterialLot oldMaterialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
                 if(oldMaterialLot != null){
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);
