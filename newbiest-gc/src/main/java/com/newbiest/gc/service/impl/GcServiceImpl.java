@@ -4166,6 +4166,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setCurrentQty(BigDecimal.valueOf(packedLot.getQuantity()));
                     materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                     materialLotUnit.setTreasuryNote(packedLot.getTreasuryNote());
+                    materialLotUnit.setSourceProductId(packedLot.getOrgProductId());
                     materialLotUnit.setReceiveQty(BigDecimal.valueOf(packedLot.getQuantity()));
                     materialLotUnit.setReserved1(packedLot.getLevelTwoCode());
                     materialLotUnit.setReserved3(String.valueOf(mesPackedLotList.size()));
@@ -4176,6 +4177,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved50(materialLot.getReserved50());
                     materialLotUnit.setReserved22(materialLot.getReserved22());
                     materialLotUnit.setReserved24(materialLot.getReserved24());
+                    materialLotUnit.setReserved26(materialLot.getReserved26());
                     if(mesPackedLotRelation != null){
                         materialLotUnit.setReserved25(mesPackedLotRelation.getWaferProperty());
                     }
@@ -4212,8 +4214,9 @@ public class GcServiceImpl implements GcService {
                 Long totalQuantity = packedLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getQuantity().longValue()));
                 String productId = packedLotList.get(0).getProductId();
                 Material material = mmsService.getProductByName(productId);
+                //产品号不存在时，自动创建产品号
                 if (material == null) {
-                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, productId);
+                    material = saveProductAndSetStatusModelRrn(productId);
                 }
 
                 MesPackedLot mesPackedLot = getRwReceicvePackedLotByBoxId(packedLotList.get(0), material, totalQuantity, packedLotList.size());
@@ -4321,6 +4324,9 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved50", MaterialLot.LCP_WAFER_SOURCE);
 
                     otherReceiveProps.put("reserved25", materialLot.getReserved25());
+                    //记录物料批次的原产品型号和等级
+                    otherReceiveProps.put("sourceProductId", mesPackedLot.getOrgProductId());
+                    otherReceiveProps.put("reserved26", mesPackedLot.getBinType());
 
                     if(mesPackedLot.getWaferQty() != null){
                         BigDecimal waferQty = new BigDecimal(mesPackedLot.getWaferQty().toString());
@@ -4373,6 +4379,9 @@ public class GcServiceImpl implements GcService {
         try {
             MesPackedLot packedLot = new MesPackedLot();
             MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
+            if(materialLot == null){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
+            }
             if(!StringUtils.isNullOrEmpty(materialLot.getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLot.getReserved13())){
                 packedLot.setLocation(MaterialLot.LOCATION_SH);
             }
