@@ -10018,6 +10018,7 @@ public class GcServiceImpl implements GcService {
                 if(CollectionUtils.isNotEmpty(mLotIdList) && mLotIdList.contains(materialLotId)){
                     throw new ClientParameterException(GcExceptions.TAPE_MATERIAL_LOT_ID_IS_REPEAT, materialLotId);
                 }
+                mLotIdList.add(materialLotId);
                 MaterialLot oldMaterialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
                 if(oldMaterialLot != null){
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);

@@ -434,6 +434,9 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="SOURCE_MODEL_ID")
     private String sourceModelId;
 
+    @Column(name="VENDER_ADDRESS")
+    private String venderAddress;
+
     /**
      * GlaxyCore MES完成品的levelTwoCode
      */
