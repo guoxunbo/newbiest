@@ -32,4 +32,7 @@ public class RwMaterialRequestBody extends RequestBody {
 	@ApiModelProperty(value = "tapeSize")
 	private String tapeSize;
 
+	@ApiModelProperty(value = "表单主键")
+	private Long tableRrn;
+
 }

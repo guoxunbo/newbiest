@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController("GcStockInController")
 @RequestMapping("/gc")
 @Slf4j
@@ -44,6 +46,9 @@ public class StockInController {
             responseBody.setMaterialLot(materialLot);
         } else if (StockInRequest.ACTION_STOCK_IN.equals(actionType)) {
             gcService.stockIn(requestBody.getStockInModels());
+        } else if(StockInRequest.ACTION_QUERY_MATERIAL.equals(actionType)){
+            List<MaterialLot> materialLotList = gcService.queryRawMaterialByMaterialLotOrLotIdAndTableRrn(requestBody.getMaterialLotId(), requestBody.getTableRrn());
+            responseBody.setMaterialLotList(materialLotList);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

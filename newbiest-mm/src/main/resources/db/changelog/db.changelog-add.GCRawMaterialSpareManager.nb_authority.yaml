@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRwMaterialSpareManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCRwMaterialSpareManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRwMaterialSpareManager
+              description: 原材料备料
+              tableName: GCRawMaterialSpareOrder
+              secondTableName: GCRawMaterialSpareMLot
+              mobileFlag: N
+              url: /GC/GCRawMaterialSpareManager
+              parentRrn: 2030
+              seqNo: 25
+              image: icon-rule
+              labelZh: 原材料备料
+              labelEn: RawMaterialSpare

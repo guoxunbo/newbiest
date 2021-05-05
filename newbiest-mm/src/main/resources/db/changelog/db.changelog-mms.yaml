@@ -590,3 +590,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.RWStockOutTagging2.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialDeleteManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialSpareManager.nb_authority.yaml
+      relativeToChangelogFile: true

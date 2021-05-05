@@ -1,6 +1,7 @@
 package com.newbiest.gc.rest.rw.manager.rw.material.manager;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
@@ -52,6 +53,9 @@ public class RwMaterialController {
             gcService.spareRwMaterial(requestBody.getMaterialLotList());
         } else if(RwMaterialRequest.ACTION_MATERIAL_ISSUE.equals(actionType)){
             gcService.issueRwMaterial(requestBody.getMaterialLotList());
+        } else if(RwMaterialRequest.ACTION_GET_RW_MLOT.equals(actionType)){
+            MaterialLot materialLot = gcService.getRwMaterialLotByMaterialLotIdAndTableRrn(requestBody.getMaterialLotCode(), requestBody.getTableRrn());
+            responseBody.setMaterialLot(materialLot);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
