@@ -86,6 +86,11 @@ public class Material extends NBVersionControl {
     public static final String MATERIAL_TYPE_GLUE = "胶水";
     public static final String IRA_MATERIAL_BOX_ID_START = "RB";
 
+    /**
+     * 原材料产线退仓库标记
+     */
+    public static final String RAW_MATERIAL_RETURN_FLAD = "RETURN";
+
     public static final String QUERY_WAFERTYPEINFO = "queryWaferType";
     public static final String QUERY_PRODUCTINFO = "GETPRODUCTINFO";
     public static final String QUERY_PRODUCT_SUBCODE = "queryProductSubcode";

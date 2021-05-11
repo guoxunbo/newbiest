@@ -28,6 +28,11 @@ public class MesSaveMLotHisRequest extends Request {
 	 */
 	public static final String ACTION_RECEIVE_RAW_MATERIAL = "RawMaterialReceive";
 
+	/**
+	 * IRA退料
+	 */
+	public static final String ACTION_IRA_RETURN = "IraReturnWarehouse";
+
 	private MesSaveMLotHisRequestBody body;
 
 }

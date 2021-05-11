@@ -53,6 +53,10 @@ public class MesSaveMLotHisController extends AbstractRestController {
             List<MaterialLot> materialLotList = requestBody.getMaterialLots();
             String message = gcService.mesReceiveRawMaterialAndSaveHis(materialLotList, transId);
             response.setMessage(message);
+        } else if(MesSaveMLotHisRequest.ACTION_IRA_RETURN.equals(actionType)){
+            List<MaterialLot> materialLotList = requestBody.getMaterialLots();
+            String message = gcService.mesIraMaterialReturnWarehouse(materialLotList, transId);
+            response.setMessage(message);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
