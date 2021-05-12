@@ -8740,6 +8740,64 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * IRA从mes退料到仓库
+     * @param materialLotList
+     * @param transType
+     * @return
+     * @throws ClientException
+     */
+    public String mesIraMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transType) throws ClientException{
+        String errorMessage = "";
+        try {
+            SimpleDateFormat format = new SimpleDateFormat(DateUtils.DEFAULT_DATETIME_PATTERN);
+            Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_ZJ);
+            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getMaterialName));
+            for(String materialName: materialLotMap.keySet()){
+                Material material = mmsService.getRawMaterialByName(materialName);
+                if(material == null){
+                    RawMaterial rawMaterial = new RawMaterial();
+                    rawMaterial.setName(materialName);
+                    rawMaterial.setMaterialCategory(Material.TYPE_MATERIAL);
+                    rawMaterial.setMaterialType(Material.MATERIAL_TYPE_IRA);
+                    material = mmsService.createRawMaterial(rawMaterial);
+                }
+                List<MaterialLot> materialLots = materialLotMap.get(materialName);
+                for(MaterialLot materialLot : materialLots){
+                    MaterialLot oldMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                    if(oldMLot != null){
+                        oldMLot.setCurrentQty(oldMLot.getReceiveQty());
+                        oldMLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                        oldMLot.setStatus(MaterialStatus.STATUS_CREATE);
+                        oldMLot.setReserved46(Material.RAW_MATERIAL_RETURN_FLAD);
+                        oldMLot = materialLotRepository.saveAndFlush(oldMLot);
+
+                        MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(oldMLot, transType);
+                        materialLotHistoryRepository.save(materialLotHistory);
+                    } else {
+                        materialLot.initialMaterialLot();
+                        materialLot.setMaterial(material);
+                        materialLot.clearPackedMaterialLot();
+                        materialLot.setReserved13(warehouse.getObjectRrn().toString());
+                        materialLot.setMfgDate(format.parse(materialLot.getMfgDateValue()));
+                        materialLot.setExpDate(format.parse(materialLot.getExpDateValue()));
+                        if(!StringUtils.isNullOrEmpty(materialLot.getShippingDateValue())){
+                            materialLot.setShippingDate(format.parse(materialLot.getShippingDateValue()));
+                        }
+                        materialLot.setReserved46(Material.RAW_MATERIAL_RETURN_FLAD);
+                        materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                        MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transType);
+                        materialLotHistoryRepository.save(materialLotHistory);
+                    }
+                }
+            }
+        } catch (Exception e){
+            errorMessage = e.getMessage();
+        }
+        return errorMessage;
+    }
+
+    /**
      * HongKong仓接收物料批次（暂时只做接收入库，不对晶圆做eng验证，不写入中间表）
      * @param materialLotActions
      * @throws ClientException
