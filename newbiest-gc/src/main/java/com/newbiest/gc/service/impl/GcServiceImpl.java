@@ -2645,10 +2645,13 @@ public class GcServiceImpl implements GcService {
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
                     materialLotAction.setSourceModelId(mesPackedLot.getProductId());
 
-                    // 真空包产地是SH的入SH仓库，是ZJ的入浙江仓库
-                    // 20191217 产地是空的话则是ZJ仓库
+                    // 真空包产地是SH的入SH仓库，是ZJ的入浙江仓库(COM和FT的保税属性是上海的入上海仓库，其他入浙江仓库)
                     String warehouseName = WAREHOUSE_ZJ;
-                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getLocation()) && mesPackedLot.getLocation().equalsIgnoreCase("SH")) {
+                    if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) || MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(productCateGory)){
+                        if(!StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty()) && mesPackedLot.getBondedProperty().equals(MaterialLot.LOCATION_SH)){
+                            warehouseName = WAREHOUSE_SH;
+                        }
+                    } else if (!StringUtils.isNullOrEmpty(mesPackedLot.getLocation()) && mesPackedLot.getLocation().equalsIgnoreCase(MaterialLot.LOCATION_SH)) {
                         warehouseName = WAREHOUSE_SH;
                     }
 
@@ -2764,6 +2767,11 @@ public class GcServiceImpl implements GcService {
                 }
                 List<MaterialLot> materialLotList = mmsService.receiveMLotList2Warehouse(material, materialLotActions);
                 for(MaterialLot materialLot : materialLotList){
+                    //COM以及FT的，若保税属性为ZSH，进行转库操作，转至SH_STOCK，保税属性修改为SH
+                    if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(materialLot.getReserved7()) || MesPackedLot.PRODUCT_CATEGORY_FT.equals(materialLot.getReserved7()) || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(materialLot.getReserved7())) {
+                        Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_SH);
+                        materialLotTransferWareHouse(materialLot, MaterialLot.LOCATION_SH, warehouse);
+                    }
                     String workOrderId = materialLot.getWorkOrderId();
                     String grade = materialLot.getGrade();
                     String lotId = materialLot.getLotId();
@@ -2800,6 +2808,30 @@ public class GcServiceImpl implements GcService {
             if(CollectionUtils.isNotEmpty(erpMoaList)){
                 erpMoaRepository.saveAll(erpMoaList);
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 物料批次转仓库操作，并修改保税属性
+     * @param materialLot
+     * @param bondedProperty
+     * @param warehouse
+     */
+    private void materialLotTransferWareHouse(MaterialLot materialLot, String bondedProperty, Warehouse warehouse) throws ClientException{
+        try{
+            List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
+            MaterialLotInventory materialLotInventory = materialLotInvList.get(0);
+            materialLotInventory.setWarehouse(warehouse);
+            materialLotInventoryRepository.saveAndFlush(materialLotInventory);
+
+            materialLot.setReserved6(bondedProperty);
+            materialLot.setReserved13(warehouse.getObjectRrn().toString());
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_TRANSFER_WAREHOUSE);
+            materialLotHistoryRepository.save(history);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
