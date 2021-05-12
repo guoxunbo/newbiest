@@ -432,7 +432,11 @@ public class ExpressServiceImpl implements ExpressService {
             }
             for (MaterialLot materialLot : materialLots){
                 Map<String, String> parameterMap =  Maps.newHashMap();
-                parameterMap.put("CSNAME", materialLot.getShipper());
+                if (StringUtils.isNullOrEmpty(materialLot.getReserved18())){
+                    parameterMap.put("CSNAME", materialLot.getShipper());
+                }else{
+                    parameterMap.put("CSNAME", materialLot.getReserved18());
+                }
                 parameterMap.put("NUMCHANG", seq.toString());
                 parameterMap.put("NUMFIX", numfix.toString());
                 if(StringUtils.isNullOrEmpty(expressNumber)){
