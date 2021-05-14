@@ -4307,7 +4307,7 @@ public class GcServiceImpl implements GcService {
 
                     // 产地是空的话则是ZJ仓库
                     String warehouseName = WAREHOUSE_ZJ;
-                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getLocation()) && mesPackedLot.getLocation().equalsIgnoreCase("SH")) {
+                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty()) && MaterialLot.BONDED_PROPERTY_ZSH.equals(mesPackedLot.getBondedProperty())) {
                         warehouseName = WAREHOUSE_SH;
                     }
 
@@ -4376,7 +4376,14 @@ public class GcServiceImpl implements GcService {
 
                     erpMoaList.add(erpMoa);
                 }
-                mmsService.receiveMLotList2Warehouse(material, materialLotActions);
+                List<MaterialLot> materialLots = mmsService.receiveMLotList2Warehouse(material, materialLotActions);
+
+                for(MaterialLot materialLot : materialLots){
+                    if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6())){
+                        Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_SH);
+                        materialLotTransferWareHouse(materialLot, MaterialLot.LOCATION_SH, warehouse);
+                    }
+                }
             };
 
             List<Long> parentRrnList = packedLotList.stream().map(MesPackedLot :: getParentRrn).collect(Collectors.toList());
