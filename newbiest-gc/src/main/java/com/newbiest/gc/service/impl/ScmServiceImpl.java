@@ -17,13 +17,8 @@ import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
 import com.newbiest.gc.service.ScmService;
 import com.newbiest.gc.service.model.QueryEngResponse;
 import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.model.Material;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotHistory;
-import com.newbiest.mms.model.MaterialLotUnit;
-import com.newbiest.mms.repository.MaterialLotHistoryRepository;
-import com.newbiest.mms.repository.MaterialLotRepository;
-import com.newbiest.mms.repository.MaterialLotUnitRepository;
+import com.newbiest.mms.model.*;
+import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.msg.*;
@@ -123,6 +118,12 @@ public class ScmServiceImpl implements ScmService {
 
     @Autowired
     PackageService packageService;
+
+    @Autowired
+    InterfaceFailRepository interfaceFailRepository;
+
+    @Autowired
+    InterfaceHistoryRepository interfaceHistoryRepository;
 
     @PostConstruct
     public void init() {
@@ -267,6 +268,25 @@ public class ScmServiceImpl implements ScmService {
     }
 
     /**
+     * 做接口的重试x
+     */
+    public void retry() throws ClientException{
+        try {
+            List<InterfaceFail> interfaceFails = interfaceFailRepository.findAll();
+            if (CollectionUtils.isNotEmpty(interfaceFails)) {
+                for (InterfaceFail interfaceFail : interfaceFails) {
+                    String response = sendHttpRequest(interfaceFail.getDestination(), interfaceFail.getRequestTxt(), Maps.newHashMap(), InterfaceHistory.TRANS_TYPE_RETRY);
+                    if (!StringUtils.isNullOrEmpty(response)) {
+                        interfaceFailRepository.delete(interfaceFail);
+                    }
+                }
+            }
+        } catch(Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * SAM取消晶圆标注
      * @param materialLot
      * @throws ClientException
@@ -321,30 +341,32 @@ public class ScmServiceImpl implements ScmService {
             requestInfo.put("engs", requestWaferList);
 
             String response = sendHttpRequest(scmUrl + QUERY_ENG_API, requestInfo, Maps.newHashMap());
-            QueryEngResponse queryEngResponse = DefaultParser.getObjectMapper().readerFor(QueryEngResponse.class).readValue(response);
-            if (!QueryEngResponse.SUCCESS_CODE.equals(queryEngResponse.getCode())) {
-                throw new ClientException(queryEngResponse.getMessage());
-            }
-            List<Map> responseDataList = queryEngResponse.getData();
-            List<String> engWaferIdList = Lists.newArrayList();
-            if (CollectionUtils.isNotEmpty(responseDataList)) {
-                for (Map responseData : responseDataList) {
-                    String lotId = (String) responseData.get("lot_no");
-                    String waferId = (String) responseData.get("wafer_id");
-                    boolean engFlag = (boolean) responseData.get("is_eng");
-                    if (engFlag) {
-                        String unitId = lotId + StringUtils.SPLIT_CODE + waferId;
-                        for(MaterialLotUnit materialLotUnit: materialLotUnits){
-                            if(unitId.equals(materialLotUnit.getUnitId())){
-                                materialLotUnit.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+            if (!StringUtils.isNullOrEmpty(response)) {
+                QueryEngResponse queryEngResponse = DefaultParser.getObjectMapper().readerFor(QueryEngResponse.class).readValue(response);
+                if (!QueryEngResponse.SUCCESS_CODE.equals(queryEngResponse.getCode())) {
+                    throw new ClientException(queryEngResponse.getMessage());
+                }
+                List<Map> responseDataList = queryEngResponse.getData();
+                List<String> engWaferIdList = Lists.newArrayList();
+                if (CollectionUtils.isNotEmpty(responseDataList)) {
+                    for (Map responseData : responseDataList) {
+                        String lotId = (String) responseData.get("lot_no");
+                        String waferId = (String) responseData.get("wafer_id");
+                        boolean engFlag = (boolean) responseData.get("is_eng");
+                        if (engFlag) {
+                            String unitId = lotId + StringUtils.SPLIT_CODE + waferId;
+                            for(MaterialLotUnit materialLotUnit: materialLotUnits){
+                                if(unitId.equals(materialLotUnit.getUnitId())){
+                                    materialLotUnit.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                                }
                             }
+                            engWaferIdList.add(lotId + StringUtils.SPLIT_CODE + waferId);
                         }
-                        engWaferIdList.add(lotId + StringUtils.SPLIT_CODE + waferId);
                     }
                 }
-            }
-            if (CollectionUtils.isNotEmpty(engWaferIdList)) {
-                log.debug(String.format("Eng Wafer List is [%s]", engWaferIdList));
+                if (CollectionUtils.isNotEmpty(engWaferIdList)) {
+                    log.debug(String.format("Eng Wafer List is [%s]", engWaferIdList));
+                }
             }
             return materialLotUnits;
         } catch (Exception e) {
@@ -361,7 +383,7 @@ public class ScmServiceImpl implements ScmService {
     }
 
     @Async
-    public void sendMaterialStateReport(List<MaterialLot> materialLots, String action,  SessionContext sc) throws ClientException {
+    public void sendMaterialStateReport(List<MaterialLot> materialLots, String action, SessionContext sc) throws ClientException {
         try {
             MaterialLotStateReportRequest request = new MaterialLotStateReportRequest();
             RequestHeader requestHeader = new RequestHeader();
@@ -388,22 +410,38 @@ public class ScmServiceImpl implements ScmService {
             request.setBody(requestBody);
             String responseStr = sendHttpRequest(scmUrl + MATERIAL_LOT_STATE_REPORT, request, Maps.newHashMap());
 
-            Response response = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(responseStr);
-            if (!ResponseHeader.RESULT_SUCCESS.equals(response.getHeader().getResult())) {
-                throw new ClientException(response.getHeader().getResultCode());
+            if (!StringUtils.isNullOrEmpty(responseStr)) {
+                Response response = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(responseStr);
+                if (!ResponseHeader.RESULT_SUCCESS.equals(response.getHeader().getResult())) {
+                    throw new ClientException(response.getHeader().getResultCode());
+                }
             }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
     private String sendHttpRequest(String url, Object requestInfo, Map<String, String> httpHeaders) throws ClientException {
+        return sendHttpRequest(url, requestInfo, httpHeaders, InterfaceHistory.TRANS_TYPE_NORMAL);
+    }
+
+    private String sendHttpRequest(String url, Object requestInfo, Map<String, String> httpHeaders, String transType) throws ClientException {
+        String response = StringUtils.EMPTY;
+        InterfaceHistory interfaceHistory = new InterfaceHistory();
+        interfaceHistory.setTransType(transType);
+        interfaceHistory.setDestination(url);
         try {
-            String response = StringUtils.EMPTY;
-            String requestString = DefaultParser.getObjectMapper().writeValueAsString(requestInfo);
+            String requestString = StringUtils.EMPTY;
+            if (requestInfo instanceof String) {
+                requestString = (String) requestInfo;
+            } else {
+                requestString = DefaultParser.getObjectMapper().writeValueAsString(requestInfo);
+            }
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Send data. RequestString is [%s]", requestString));
             }
+            interfaceHistory.setRequestTxt(requestString);
 
             HttpHeaders headers = new HttpHeaders();
             String contentType = httpHeaders.get("contentType");
@@ -436,10 +474,23 @@ public class ScmServiceImpl implements ScmService {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Get response by scm. Response is [%s]", response));
             }
-            return response;
+            interfaceHistory.setResponseTxt(response);
         } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
+            log.error(e.getMessage(), e);
+            String errorMessage = e.getMessage();
+            if (!StringUtils.isNullOrEmpty(errorMessage) && errorMessage.length() > InterfaceHistory.ACTION_CODE_MAX_LENGTH) {
+                errorMessage = errorMessage.substring(0, InterfaceHistory.ACTION_CODE_MAX_LENGTH);
+            }
+            interfaceHistory.setActionCode(errorMessage);
+            interfaceHistory.setResult(InterfaceHistory.RESULT_FAIL);
         }
+        interfaceHistory.setResponseTxt(response);
+        if (InterfaceHistory.RESULT_FAIL.equals(interfaceHistory.getResult()) && !InterfaceHistory.TRANS_TYPE_RETRY.equals(transType)) {
+            InterfaceFail interfaceFail = new InterfaceFail(interfaceHistory);
+            interfaceFailRepository.save(interfaceFail);
+        }
+        interfaceHistoryRepository.save(interfaceHistory);
+        return response;
     }
 
     private String getReceivingTime() {
@@ -465,11 +516,14 @@ public class ScmServiceImpl implements ScmService {
             requestInfoList.add(requestInfo);
 
             String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, httpHeader);
-            Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
-            Integer ret = (Integer) responseData.get("ret");
-            if (200 != ret) {
-                throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+            if (!StringUtils.isNullOrEmpty(response)) {
+                Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
+                Integer ret = (Integer) responseData.get("ret");
+                if (200 != ret) {
+                    throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+                }
             }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -527,11 +581,14 @@ public class ScmServiceImpl implements ScmService {
             httpHeader.put("authorization", token);
 
             String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, httpHeader);
-            Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
-            Integer ret = (Integer) responseData.get("ret");
-            if (200 != ret) {
-                throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+            if (!StringUtils.isNullOrEmpty(response)) {
+                Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
+                Integer ret = (Integer) responseData.get("ret");
+                if (200 != ret) {
+                    throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+                }
             }
+
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -539,6 +596,7 @@ public class ScmServiceImpl implements ScmService {
 
     public String getMScmToken() throws ClientException{
         try {
+            String token = StringUtils.EMPTY;
             Map httpHeader = Maps.newHashMap();
             httpHeader.put("contentType", "application/x-www-form-urlencoded");
 
@@ -550,12 +608,14 @@ public class ScmServiceImpl implements ScmService {
             String response = sendHttpRequest(mScmUrl + MSCM_TOKEN_API, requestInfo, httpHeader);
             Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
 
-            Integer ret = (Integer) responseData.get("ret");
-            if (200 != ret) {
-                throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+            if (!StringUtils.isNullOrEmpty(response)) {
+                Integer ret = (Integer) responseData.get("ret");
+                if (200 != ret) {
+                    throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+                }
+                Map<String, Object> data = (Map<String, Object>) responseData.get("data");
+                token = (String) data.get("token");
             }
-            Map<String, Object> data = (Map<String, Object>) responseData.get("data");
-            String token = (String) data.get("token");
             return token;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

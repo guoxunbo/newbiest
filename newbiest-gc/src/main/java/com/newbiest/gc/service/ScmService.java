@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface ScmService {
 
+    void retry() throws ClientException;
+
     void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException;
     void scmUnAssign(String lotId) throws ClientException;
 
