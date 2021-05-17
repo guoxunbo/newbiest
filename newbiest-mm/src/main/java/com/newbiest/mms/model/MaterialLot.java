@@ -250,6 +250,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WAREHOUSE_HK = "HK_STOCK";
 
     public static final String LOCATION_SH = "SH";
+    public static final String BONDED_PROPERTY_ZSH = "ZSH";
 
     /**
      * 物料批次号

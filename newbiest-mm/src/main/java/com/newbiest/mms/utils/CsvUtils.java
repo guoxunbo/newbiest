@@ -41,13 +41,13 @@ public class CsvUtils {
                         if(stringCodeIsEmpty(stringCode)){
                             Object object = clazz.newInstance();
                             for (int i = 0 ; i < stringCode.length ; i++){
-                                if(i < boxhead.length && !StringUtils.isNullOrEmpty(boxhead[i])){
-                                    if (headersMapped.containsKey(boxhead[i])){
-                                        NBField nbField = fieldMap.get(boxhead[i]);
+                                if(i < boxhead.length && !StringUtils.isNullOrEmpty(boxhead[i].trim())){
+                                    if (headersMapped.containsKey(boxhead[i].trim())){
+                                        NBField nbField = fieldMap.get(boxhead[i].trim());
                                         if(nbField.getRequiredFlag() && StringUtils.isNullOrEmpty(stringCode[i].trim())){
-                                            throw new ClientParameterException(MmsException.MM_IMPORT_FILE_CONTAINS_EMPTY_DATA, boxhead[i]);
+                                            throw new ClientParameterException(MmsException.MM_IMPORT_FILE_CONTAINS_EMPTY_DATA, boxhead[i].trim());
                                         } else {
-                                            PropertyUtils.setProperty(object,headersMapped.get(boxhead[i]),stringCode[i].trim() );
+                                            PropertyUtils.setProperty(object,headersMapped.get(boxhead[i].trim()),stringCode[i].trim() );
                                         }
                                     }
                                 }
@@ -128,7 +128,9 @@ public class CsvUtils {
             for(String headerName : headersMapped.keySet()){
                 nbFieldNameList.add(headerName);
             }
-            nbFieldNameList.removeAll(fieldNameList);
+            for(String fileName : fieldNameList){
+                nbFieldNameList.remove(fileName.trim());
+            }
             if(nbFieldNameList != null){
                 for(String headerName : nbFieldNameList){
                     for(NBField nbField :nbTable.getFields() ){
