@@ -1,6 +1,7 @@
 package com.newbiest.gc.trigger;
 
 import com.newbiest.gc.service.GcService;
+import com.newbiest.gc.service.ScmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,9 @@ public class GcTriggerConfigure implements SchedulingConfigurer {
     @Autowired
     GcService gcService;
 
+    @Autowired
+    ScmService scmService;
+
     @Override
     public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
         scheduledTaskRegistrar.setScheduler(taskExecutor());
@@ -40,10 +44,10 @@ public class GcTriggerConfigure implements SchedulingConfigurer {
         scheduledTaskRegistrar.addCronTask(new AsyncMaterialNameThread(gcService), AsyncMaterialNameThread.CRON_EXPRESS);
         scheduledTaskRegistrar.addCronTask(new AsyncProductThread(gcService), AsyncProductThread.CRON_EXPRESS);
         scheduledTaskRegistrar.addCronTask(new AsyncWaferTypeThread(gcService), AsyncWaferTypeThread.CRON_EXPRESS);
-//        scheduledTaskRegistrar.addCronTask(new AsyncProductSubcodeThread(gcService), AsyncProductSubcodeThread.CRON_EXPRESS);
         scheduledTaskRegistrar.addCronTask(new AsyncProductModelConversionThread(gcService), AsyncProductModelConversionThread.CRON_EXPRESS);
         scheduledTaskRegistrar.addCronTask(new AsyncProductRelationThread(gcService), AsyncProductRelationThread.CRON_EXPRESS);
         scheduledTaskRegistrar.addCronTask(new AsyncPoSupplierThread(gcService), AsyncPoSupplierThread.CRON_EXPRESS);
+        scheduledTaskRegistrar.addCronTask(new RetryInterfaceThread(gcService, scmService), RetryInterfaceThread.CRON_EXPRESS);
 
     }
 
