@@ -19,6 +19,7 @@ public class GcExceptions {
     public static final String CHOOSE_STOCK_OUT_ORDER_PLEASE = "gc.choose_stock_out_order_please";
     public static final String MATERIAL_LOT_HAS_BEEN_SOLD_BY_THREE_PARTIES = "gc.the_materialLot_has_been_sold_by_three_parties";
     public static final String ERP_ORDER_CANNOT_EMPTY = "gc.erp_order_seq_cannot_empty";
+    public static final String ERP_ISSUE_ORDER_AND_SPARE_ORDER_IS_NOT_SAME = "gc.erp_issue_order_and_spare_order_is_not_same";
 
     public static final String MATERIAL_LOT_NOT_MATCH_ORDER = "gc.meterial_lot_not_match_order";
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "gc.meterial_lot_reserved_by_another";

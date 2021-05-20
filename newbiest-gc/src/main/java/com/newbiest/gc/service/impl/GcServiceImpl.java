@@ -663,13 +663,14 @@ public class GcServiceImpl implements GcService {
             DocumentLine rawMaterialIssueOrder = (DocumentLine) documentLineRepository.findByObjectRrn(docLineRrn);
             if (rawMaterialIssueOrder.getUnReservedQty().compareTo(BigDecimal.ZERO) > 0) {
                 NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+                String orderBy = nbTable.getOrderBy();
                 StringBuffer whereClause = new StringBuffer();
                 if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
                     whereClause.append(nbTable.getWhereClause());
                 }
                 whereClause.append(" and materialName = '" + rawMaterialIssueOrder.getMaterialName() + "'");
 
-                List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause.toString(), "");
+                List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause.toString(), orderBy);
                 if (CollectionUtils.isNotEmpty(materialLots)) {
                     for (MaterialLot materialLot : materialLots) {
                         try {
@@ -742,6 +743,8 @@ public class GcServiceImpl implements GcService {
             }
 
             for(MaterialLot materialLot: materialLotList){
+                materialLot.setReserved16(documentLine.getObjectRrn().toString());
+                materialLot.setReserved17(documentLine.getDocId());
                 materialLot = mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_MATEREIAL_SPARE, StringUtils.EMPTY);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_MATERIAL_SPARE);
@@ -8817,6 +8820,8 @@ public class GcServiceImpl implements GcService {
                         materialLot.initialMaterialLot();
                         materialLot.setMaterial(material);
                         materialLot.clearPackedMaterialLot();
+                        materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                        materialLot.setStatus(MaterialStatus.STATUS_CREATE);
                         materialLot.setReserved13(warehouse.getObjectRrn().toString());
                         materialLot.setMfgDate(format.parse(materialLot.getMfgDateValue()));
                         materialLot.setExpDate(format.parse(materialLot.getExpDateValue()));
@@ -9530,7 +9535,7 @@ public class GcServiceImpl implements GcService {
                 if (totalRawMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
                     throw new ClientException(GcExceptions.OVER_DOC_QTY);
                 }
-                rawMaterialIssue(documentLineMap.get(key), materialLotMap.get(key));
+                rawMaterialIssueBySpareOrder(documentLineMap.get(key), materialLotMap.get(key));
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -9538,86 +9543,62 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 原材料自动匹配单据发料
+     * 原材料发料通过备料单发料
      * @param documentLines
      * @param materialLots
      */
-    private void rawMaterialIssue(List<DocumentLine> documentLines, List<MaterialLot> materialLots) {
+    private void rawMaterialIssueBySpareOrder(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
-            for (DocumentLine documentLine: documentLines) {
-                BigDecimal unhandedQty = documentLine.getUnHandledQty();
-                Iterator<MaterialLot> iterator = materialLots.iterator();
-                while (iterator.hasNext()) {
-                    MaterialLot rawMaterialLot = iterator.next();
-                    BigDecimal currentQty = rawMaterialLot.getCurrentQty();
-                    if (StringUtils.isNullOrEmpty(rawMaterialLot.getReserved12())) {
-                        rawMaterialLot.setReserved12(documentLine.getObjectRrn().toString());
-                    } else {
-                        rawMaterialLot.setReserved12(rawMaterialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
-                    }
-                    if (unhandedQty.compareTo(currentQty) >= 0) {
-                        unhandedQty = unhandedQty.subtract(currentQty);
-                        currentQty = BigDecimal.ZERO;
-                    } else {
-                        currentQty = currentQty.subtract(unhandedQty);
-                        unhandedQty = BigDecimal.ZERO;
-                    }
-                    rawMaterialLot.setCurrentQty(currentQty);
-                    if (rawMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
-                        mmsService.changeMaterialLotState(rawMaterialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
-                        materialLotInventoryRepository.deleteByMaterialLotRrn(rawMaterialLot.getObjectRrn());
-                        iterator.remove();
-                    } else {
-                        List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(rawMaterialLot.getObjectRrn());
-                        if (CollectionUtils.isNotEmpty(materialLotInvList)) {
-                            MaterialLotInventory rawMaterialInv = materialLotInvList.get(0);
-                            rawMaterialInv.setStockQty(currentQty);
-                            materialLotInventoryRepository.save(rawMaterialInv);
-                        }
+            Map<String, List<MaterialLot>> materialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot::getReserved16));
+            for(String docRrn: materialLotMap.keySet()){
+                DocumentLine documentLine = (DocumentLine)documentLineRepository.findByObjectRrn(Long.parseLong(docRrn));
+                if(documentLines.contains(documentLine)){
+                    List<MaterialLot> materialLotList = materialLotMap.get(docRrn);
+                    BigDecimal handleQty = BigDecimal.ZERO;
+                    for(MaterialLot materialLot : materialLotList){
+                        handleQty = handleQty.add(materialLot.getCurrentQty());
+                        materialLot.setReserved12(documentLine.getObjectRrn().toString());
+                        materialLot.setCurrentQty(BigDecimal.ZERO);
+                        mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
+                        materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
                     }
 
-                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(rawMaterialLot, GCMaterialEvent.EVENT_WAFER_ISSUE);
-                    history.setReserved12(documentLine.getObjectRrn().toString());
-                    materialLotHistoryRepository.save(history);
-                    if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
-                        break;
+                    BigDecimal unHandledQty = documentLine.getUnHandledQty().subtract(handleQty);
+                    if(unHandledQty.compareTo(BigDecimal.ZERO) < 0){
+                        throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
                     }
-                }
-
-                BigDecimal handledQty = documentLine.getUnHandledQty().subtract(unhandedQty);
-                if(handledQty.compareTo(BigDecimal.ZERO) == 0) {
-                    break;
-                } else {
-                    documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
-                    documentLine.setUnHandledQty(unhandedQty);
+                    documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
+                    documentLine.setUnHandledQty(unHandledQty);
                     documentLine = documentLineRepository.saveAndFlush(documentLine);
                     baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_WAFER_ISSUE);
 
                     MaterialIssueOrder materialIssueOrder = (MaterialIssueOrder) materialIssueOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-                    materialIssueOrder.setHandledQty(materialIssueOrder.getHandledQty().add(handledQty));
-                    materialIssueOrder.setUnHandledQty(materialIssueOrder.getUnHandledQty().subtract(handledQty));
+                    materialIssueOrder.setHandledQty(materialIssueOrder.getHandledQty().add(handleQty));
+                    materialIssueOrder.setUnHandledQty(materialIssueOrder.getUnHandledQty().subtract(handleQty));
                     materialIssueOrderRepository.save(materialIssueOrder);
                     baseService.saveHistoryEntity(materialIssueOrder, GCMaterialEvent.EVENT_WAFER_ISSUE);
 
                     Optional<ErpMaterialOutaOrder> erpMaterialOutAOrderOptional = erpMaterialOutAOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
                     if(erpMaterialOutAOrderOptional.isPresent()) {
                         ErpMaterialOutaOrder erpMOutAOrder = erpMaterialOutAOrderOptional.get();
-                        erpMOutAOrder.setLeftNum(erpMOutAOrder.getLeftNum().subtract(handledQty));
+                        erpMOutAOrder.setLeftNum(erpMOutAOrder.getLeftNum().subtract(handleQty));
                         erpMOutAOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
                         if (StringUtils.isNullOrEmpty(erpMOutAOrder.getDeliveredNum())) {
-                            erpMOutAOrder.setDeliveredNum(handledQty.toPlainString());
+                            erpMOutAOrder.setDeliveredNum(handleQty.toPlainString());
                         } else {
                             BigDecimal docHandledQty = new BigDecimal(erpMOutAOrder.getDeliveredNum());
-                            docHandledQty = docHandledQty.add(handledQty);
+                            docHandledQty = docHandledQty.add(handleQty);
                             erpMOutAOrder.setDeliveredNum(docHandledQty.toPlainString());
                         }
                         erpMaterialOutAOrderRepository.save(erpMOutAOrder);
                     } else {
                         throw new ClientParameterException(GcExceptions.ERP_RAW_MATERIAL_ISSUE_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
                     }
+                } else {
+                    throw new ClientParameterException(GcExceptions.ERP_ISSUE_ORDER_AND_SPARE_ORDER_IS_NOT_SAME, documentLine.getDocId());
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
