@@ -141,6 +141,12 @@ public class ErpMaterialIn implements Serializable {
     @Column(name="PLTYPE")
     private String pltype;
 
+    /**
+     * PO
+     */
+    @Column(name="PO")
+    private String po;
+
     public void setMaterialLot(MaterialLot materialLot){
         this.setCcode(materialLot.getReserved27());
         this.setSubname(materialLot.getReserved22());
@@ -153,6 +159,7 @@ public class ErpMaterialIn implements Serializable {
         this.setCmemo(materialLot.getReserved41());
         this.setPltype(materialLot.getReserved49());
         this.setCmaker(DEFAULT_CMAKER);
+        this.setPo(materialLot.getReserved27());
         if(MaterialLot.ZJ_WAREHOUSE.equals(materialLot.getReserved13())){
             this.setWarehouse(MaterialLot.ZJ_STOCK);
         } else if(MaterialLot.HK_WAREHOUSE.equals(materialLot.getReserved13())){
