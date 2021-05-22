@@ -719,6 +719,7 @@ public class GcServiceImpl implements GcService {
                             boxQtyMap.get(totalQty).addAll(iraLotList);
                         } else {
                             boxQtyMap.put(totalQty, iraLotList);
+                            totalQtyList.add(totalQty);
                         }
                     }
                     Collections.sort(totalQtyList);
