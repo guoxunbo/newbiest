@@ -50,4 +50,7 @@ public class MmsException {
 
     public static final String MM_WLA_IMPORT_MATERIAL_LOT_UNIT_SIZE_IS_OVER_THIRTEEN = "mm.wla_import_material_lot_unit_size_is_over_thirteen";
 
+    public static final String MM_WORK_STATION_IS_NOT_EXIST = "mm.work_station_is_not_exist";
+    public static final String MM_LBL_TEMPLATE_IS_NOT_EXIST = "mm.lbl_template_is_not_exist";
+    public static final String MM_LBL_TEMPLATE_TYPE_IS_NOT_ALLOW = "mm.lbl_template_is_not_allow";
 }

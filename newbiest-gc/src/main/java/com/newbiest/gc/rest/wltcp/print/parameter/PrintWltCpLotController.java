@@ -6,12 +6,14 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.PackageService;
+import com.newbiest.mms.service.PrintService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -44,6 +46,9 @@ public class PrintWltCpLotController extends AbstractRestController {
     @Autowired
     PackageService packageService;
 
+    @Autowired
+    PrintService printService;
+
     @ApiOperation(value = "获取WLT/CPlot数据")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "PrintWltCpLotRequest")
     @RequestMapping(value = "/printWltCpLot", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -57,6 +62,7 @@ public class PrintWltCpLotController extends AbstractRestController {
         MaterialLot materialLot = requestBody.getMaterialLot();
         if(materialLot != null){
             parameterMap = gcService.getWltCpPrintParameter(materialLot);
+//            printService.printWltOrCpLabel(materialLot, ThreadLocalContext.getSessionContext());
         }
         responseBody.setParameterMap(parameterMap);
         response.setBody(responseBody);
