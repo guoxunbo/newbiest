@@ -18,12 +18,10 @@ public interface ExpressService {
     void batchCancelOrderByWayBillNumber(List<OrderInfo> orderInfoList) throws ClientException;
     OrderInfo getOrderInfoByWayBillNumber(String wayBillNumber) throws ClientException;
     void validateReservedOrderId(List<MaterialLot> materialLots) throws ClientException;
-    List<Map<String, String>> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException;
+    void planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException;
     void cancelOrderByMaterialLots(List<MaterialLot> materialLots) throws ClientException;
 
     List<DocumentLine> recordExpressNumber(List<DocumentLine> documentLineList) throws ClientException;
 
     List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String expressCompany, String planOrderType) throws ClientException;
-
-    List<Map<String, String>> getPrintLabelParameterList(List<MaterialLot> materialLotList, String expressNumber) throws ClientException;
 }

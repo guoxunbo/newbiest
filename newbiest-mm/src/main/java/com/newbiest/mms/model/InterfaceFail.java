@@ -1,15 +1,13 @@
 package com.newbiest.mms.model;
 
 import com.newbiest.base.model.NBHis;
-import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.security.model.NBOrg;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicInsert;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * 接口失败的实例。需要进行重发
@@ -49,6 +47,10 @@ public class InterfaceFail extends NBHis {
     }
 
     protected void prePersist() {
+        if (this.created == null) {
+            created = new Date();
+        }
+        updated = new Date();
         this.orgRrn = NBOrg.GLOBAL_ORG_RRN;
     }
 }

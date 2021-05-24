@@ -31,7 +31,6 @@ public class MmsException {
 
     public static final String MM_PACKAGE_TYPE_IS_NOT_EXIST = "mm.package_type_is_not_exist";
     public static final String MM_PACKAGE_OVER_MAX_QTY = "mm.package_over_max_qty";
-    public static final String MM_MATERIAL_LOT_ALREADY_RESERVED = "mm.material_lot_already_reserved";
 
     public static final String MM_MATERIAL_LOT_RESERVED_INFO_IS_NOT_SAME = "mm.material_lot_reserved_info_is_not_same";
     public static final String MM_MATERIAL_LOT_IS_NOT_RESERVED_ALL = "mm.material_lot_is_not_reserved_all";
@@ -41,7 +40,6 @@ public class MmsException {
 
     public static final String MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME = "mm.material_lot_import_type_is_not_same";
     public static final String MM_IMPORT_FILE_CONTAINS_EMPTY_DATA = "mm.the_import_file_contains_empty_data";
-    public static final String MM_MATERIAL_LOT_UNIT_IS_NOT_BIND_WORKORDER = "mm.material_lot_unit_is_not_bind_workorder";
 
     public static final String MM_MATERIAL_LOT_IMPORT_TIME_OUT = "mm.material_lot_imp_time_out";
 
@@ -49,5 +47,12 @@ public class MmsException {
     public static final String MM_MATERIAL_LOT_UNIT_SIZE_MORE_THAN_THIRTEEN = "mm.material_lot_unit_size_more_than_thirteen";
 
     public static final String MM_WLA_IMPORT_MATERIAL_LOT_UNIT_SIZE_IS_OVER_THIRTEEN = "mm.wla_import_material_lot_unit_size_is_over_thirteen";
+
+    public static final String MM_WORK_STATION_IS_NOT_EXIST = "mm.work_station_is_not_exist";
+    public static final String MM_LBL_TEMPLATE_IS_NOT_EXIST = "mm.lbl_template_is_not_exist";
+    public static final String MM_LBL_TEMPLATE_TYPE_IS_NOT_ALLOW = "mm.lbl_template_is_not_allow";
+
+    //标签打印相关
+    public static final String MATERIAL_LOT_NOT_RECORD_EXPRESS = "gc.material_lot_not_recorded_express";
 
 }

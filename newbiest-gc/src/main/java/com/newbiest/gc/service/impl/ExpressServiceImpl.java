@@ -33,6 +33,7 @@ import com.newbiest.mms.repository.DeliveryOrderRepository;
 import com.newbiest.mms.repository.DocumentLineRepository;
 import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
+import com.newbiest.mms.service.PrintService;
 import com.newbiest.msg.DefaultParser;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +86,9 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Autowired
     DocumentLineRepository documentLineRepository;
+
+    @Autowired
+    PrintService printService;
 
     @Value("${spring.profiles.active}")
     private String profiles;
@@ -180,9 +184,8 @@ public class ExpressServiceImpl implements ExpressService {
      * @param serviceMode 服务模式 次日达等等
      * @param payMode 支付方式
      */
-    public List<Map<String, String>> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException {
+    public void planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException {
         try {
-            List<Map<String, String>> parameterMapList = Lists.newArrayList();
             Optional optional = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved51())).findFirst();
             if (optional.isPresent()) {
                 throw new ClientException(GcExceptions.PICKUP_ADDRESS_IS_NULL);
@@ -255,9 +258,8 @@ public class ExpressServiceImpl implements ExpressService {
                 materialLotHistoryRepository.save(history);
             }
 
-            parameterMapList = getPrintLabelParameterList(materialLots, waybillNumber);
-
-            return parameterMapList;
+            //自动打印斜标签
+            printService.printMaterialLotObliqueBoxLabel(materialLots, waybillNumber);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -405,54 +407,6 @@ public class ExpressServiceImpl implements ExpressService {
         }
         return documentLineList;
     }
-
-    public List<Map<String,String>> getPrintLabelParameterList(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{
-        try {
-            List<Map<String, String>> parameterMapList =  Lists.newArrayList();
-            List<MaterialLot> expressNumberInfoList = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getExpressNumber())).collect(Collectors.toList());
-            if(CollectionUtils.isNotEmpty(expressNumberInfoList)){
-                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_RECORD_EXPRESS, expressNumberInfoList.get(0).getMaterialLotId());
-            }
-
-            Integer seq = 1;
-            Integer numfix = materialLotList.size();
-            //按照称重的先后排序打印标签
-            List<MaterialLot> materialLots = Lists.newArrayList();
-            List<MaterialLot> mLotList = Lists.newArrayList();
-            for(MaterialLot materialLot : materialLotList){
-                if(StringUtils.isNullOrEmpty(materialLot.getWeightSeq())){
-                    materialLots.add(materialLot);
-                } else {
-                    mLotList.add(materialLot);
-                }
-            }
-            if(CollectionUtils.isNotEmpty(mLotList)){
-                mLotList = mLotList.stream().sorted(Comparator.comparing(MaterialLot::getWeightSeq)).collect(Collectors.toList());
-                materialLots.addAll(mLotList);
-            }
-            for (MaterialLot materialLot : materialLots){
-                Map<String, String> parameterMap =  Maps.newHashMap();
-                if (StringUtils.isNullOrEmpty(materialLot.getReserved18())){
-                    parameterMap.put("CSNAME", materialLot.getShipper());
-                }else{
-                    parameterMap.put("CSNAME", materialLot.getReserved18());
-                }
-                parameterMap.put("NUMCHANG", seq.toString());
-                parameterMap.put("NUMFIX", numfix.toString());
-                if(StringUtils.isNullOrEmpty(expressNumber)){
-                    parameterMap.put("EXNUM", materialLot.getExpressNumber());
-                }else {
-                    parameterMap.put("EXNUM", expressNumber);
-                }
-                parameterMapList.add(parameterMap);
-                ++seq;
-            }
-            return parameterMapList;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
 
     /**
      * 判断所有的备货单号是否一致
