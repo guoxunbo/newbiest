@@ -11,7 +11,6 @@ public class GcExceptions {
 
     public static final String ERP_RECEIVE_ORDER_IS_NOT_EXIST = "gc.erp_receive_order_is_not_exist";
 
-    public static final String ERP_SO_IS_NOT_EXIST = "gc.erp_so_is_not_exist";
     public static final String ERP_SOB_IS_NOT_EXIST = "gc.erp_sob_is_not_exist";
     public static final String RESERVED_OVER_QTY = "gc.reserved_over_qty";
     public static final String ERP_SOA_IS_NOT_EXIST = "gc.erp_soa_is_not_exist";
@@ -69,7 +68,6 @@ public class GcExceptions {
 
     //快递相关
     public static final String MATERIAL_LOT_ALREADY_RECORD_EXPRESS = "gc.material_lot_recorded_express";
-    public static final String MATERIAL_LOT_NOT_RECORD_EXPRESS = "gc.material_lot_not_recorded_express";
     public static final String EXPRESS_NUMBER_IS_INCONSISTENT = "gc.express_number_is_inconsistent";
     public static final String ORDER_STATUS_NOT_ALLOWED_ONLY_MANUALLY_CANCEL = "gc.order_status_is_not_allow_only_munually_cancel";
     public static final String SHIP_ORDER_IS_NOT_SAME = "gc.ship_order_is_not_same";
@@ -84,7 +82,6 @@ public class GcExceptions {
 
     //产品相关
     public static final String PRODUCT_NUMBER_RELATION_IS_EXIST = "gc.product_number_relation_is_exist";
-    public static final String PRODUCT_WEIGHT_RELATION_IS_NOT_EXIST_OR_ERROR = "gc.product_weight_relation_is_not_exist_or_error";
     public static final String PRODUCT_NUMBER_RELATION_IS_ERROR = "gc.product_number_relation_is_error";
     public static final String PRODUCT_NUMBER_RELATION_IS_NOT_EXIST = "gc.product_number_relation_is_not_exist";
 

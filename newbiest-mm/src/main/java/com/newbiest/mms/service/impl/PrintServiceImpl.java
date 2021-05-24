@@ -1,5 +1,6 @@
 package com.newbiest.mms.service.impl;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.annotation.BaseJpaFilter;
 import com.newbiest.base.exception.ClientException;
@@ -18,12 +19,14 @@ import com.newbiest.mms.service.PrintService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author guoxunbo
@@ -81,14 +84,12 @@ public class PrintServiceImpl implements PrintService {
 
     /**
      * 构建打印参数
-     * @param baseObject
      * @param labelTemplateName
      * @return
      * @throws ClientException
      */
-    private PrintContext buildPrintContext(Object baseObject, String labelTemplateName, SessionContext sc) throws ClientException{
+    private PrintContext buildPrintContext(String labelTemplateName) throws ClientException{
         try {
-            sc.buildTransInfo();
             WorkStation workStation = workStationRepository.findByIpAddress("localhost");
             if (workStation == null) {
                 throw new ClientParameterException(MmsException.MM_WORK_STATION_IS_NOT_EXIST, "localhost");
@@ -101,7 +102,6 @@ public class PrintServiceImpl implements PrintService {
             labelTemplate.setLabelTemplateParameterList(parameterList);
 
             PrintContext printContext = new PrintContext();
-            printContext.setBaseObject(baseObject);
             printContext.setLabelTemplate(labelTemplate);
             printContext.setWorkStation(workStation);
             return printContext;
@@ -116,10 +116,9 @@ public class PrintServiceImpl implements PrintService {
      * @throws ClientException
      */
     @Override
-    @Async
-    public void printWltOrCpLabel(MaterialLot materialLot, SessionContext sc) throws ClientException {
+    public void printWltOrCpLabel(MaterialLot materialLot) throws ClientException {
         try {
-            PrintContext printContext = buildPrintContext(materialLot, "PrintWltOrCpBoxLabel", sc);
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_CP_BOX_LABEL);
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("DEVICEID", materialLot.getMaterialName());
             parameterMap.put("QTY", materialLot.getCurrentQty().toString());
@@ -154,12 +153,65 @@ public class PrintServiceImpl implements PrintService {
                     parameterMap.put("WAFERID2", StringUtils.EMPTY);
                 }
             }
+            printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
             print(printContext);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
+    }
 
+    /**
+     * 斜标签补打
+     * @param materialLotList
+     * @throws ClientException
+     */
+    public void printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_OBLIQUE_BOX_LABEL);
+            List<MaterialLot> expressNumberInfoList = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getExpressNumber())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(expressNumberInfoList)){
+                throw new ClientParameterException(MmsException.MATERIAL_LOT_NOT_RECORD_EXPRESS, expressNumberInfoList.get(0).getMaterialLotId());
+            }
+
+            Integer seq = 1;
+            Integer numfix = materialLotList.size();
+            //按照称重的先后排序打印标签
+            List<MaterialLot> materialLots = Lists.newArrayList();
+            List<MaterialLot> mLotList = Lists.newArrayList();
+            for(MaterialLot materialLot : materialLotList){
+                if(StringUtils.isNullOrEmpty(materialLot.getWeightSeq())){
+                    materialLots.add(materialLot);
+                } else {
+                    mLotList.add(materialLot);
+                }
+            }
+            if(CollectionUtils.isNotEmpty(mLotList)){
+                mLotList = mLotList.stream().sorted(Comparator.comparing(MaterialLot::getWeightSeq)).collect(Collectors.toList());
+                materialLots.addAll(mLotList);
+            }
+            for (MaterialLot materialLot : materialLots){
+                Map<String, Object> parameterMap =  Maps.newHashMap();
+                if (StringUtils.isNullOrEmpty(materialLot.getReserved18())){
+                    parameterMap.put("CSNAME", materialLot.getShipper());
+                }else{
+                    parameterMap.put("CSNAME", materialLot.getReserved18());
+                }
+                parameterMap.put("NUMCHANG", seq.toString());
+                parameterMap.put("NUMFIX", numfix.toString());
+                if(StringUtils.isNullOrEmpty(expressNumber)){
+                    parameterMap.put("EXNUM", materialLot.getExpressNumber());
+                }else {
+                    parameterMap.put("EXNUM", expressNumber);
+                }
+                ++seq;
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            }
+
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
 }
