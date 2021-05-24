@@ -24,5 +24,5 @@ public interface PackageService {
 
     void validationPackageRule(List<MaterialLot> materialLots, MaterialLotPackageType materialLotPackageType) throws ClientException;
     List<MaterialLot> unPack(List<MaterialLotAction> materialLotActions) throws ClientException;
-
+    List<MaterialLot> getWaitPackMaterialLots(List<MaterialLot> materialLots) throws ClientException;
 }

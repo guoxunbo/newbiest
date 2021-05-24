@@ -1750,6 +1750,8 @@ public class GcServiceImpl implements GcService {
     public void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            //将装箱的物料批次筛选出来
+            materialLots = packageService.getWaitPackMaterialLots(materialLots);
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
             Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.MLOT_RETEST_DOC_VALIDATE_RULE_ID);
             Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.MLOT_RETEST_DOC_VALIDATE_RULE_ID);
