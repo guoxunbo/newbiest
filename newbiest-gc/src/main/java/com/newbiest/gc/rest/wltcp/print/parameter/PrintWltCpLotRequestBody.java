@@ -19,4 +19,7 @@ public class PrintWltCpLotRequestBody extends RequestBody {
 	@ApiModelProperty(value = "操作类型", example = "getPrintParameter")
 	private String actionType;
 
+	@ApiModelProperty(value = "打印份数")
+	private String printCount;
+
 }

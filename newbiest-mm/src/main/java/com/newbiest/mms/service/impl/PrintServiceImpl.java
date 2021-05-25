@@ -88,7 +88,7 @@ public class PrintServiceImpl implements PrintService {
      * @return
      * @throws ClientException
      */
-    private PrintContext buildPrintContext(String labelTemplateName) throws ClientException{
+    private PrintContext buildPrintContext(String labelTemplateName, String printCount) throws ClientException{
         try {
             WorkStation workStation = workStationRepository.findByIpAddress("localhost");
             if (workStation == null) {
@@ -97,6 +97,9 @@ public class PrintServiceImpl implements PrintService {
             LabelTemplate labelTemplate = labelTemplateRepository.findByName(labelTemplateName);
             if (labelTemplate == null) {
                 throw new ClientParameterException(MmsException.MM_LBL_TEMPLATE_IS_NOT_EXIST, labelTemplateName);
+            }
+            if(!StringUtils.isNullOrEmpty(printCount)){
+                labelTemplate.setPrintCount(Integer.parseInt(printCount));
             }
             List<LabelTemplateParameter> parameterList = labelTemplateParameterRepository.findByLblTemplateRrn(labelTemplate.getObjectRrn());
             labelTemplate.setLabelTemplateParameterList(parameterList);
@@ -110,15 +113,23 @@ public class PrintServiceImpl implements PrintService {
         }
     }
 
-    /**
-     * 打印WLT或者CP批次标签（产线接收入库）
-     * @param materialLot
-     * @throws ClientException
-     */
     @Override
-    public void printWltOrCpLabel(MaterialLot materialLot) throws ClientException {
+    public void printReceiveWltCpLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException {
         try {
-            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_CP_BOX_LABEL);
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_CP_BOX_LABEL, printCount);
+            for(MaterialLot materialLot : materialLotList){
+                Map<String, Object> parameterMap = buildWltCpPrintParameter(materialLot);
+                printContext.setBaseObject(materialLot);
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Map<String,Object> buildWltCpPrintParameter(MaterialLot materialLot) throws ClientException{
+        try {
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("DEVICEID", materialLot.getMaterialName());
             parameterMap.put("QTY", materialLot.getCurrentQty().toString());
@@ -153,6 +164,22 @@ public class PrintServiceImpl implements PrintService {
                     parameterMap.put("WAFERID2", StringUtils.EMPTY);
                 }
             }
+            return parameterMap;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 打印WLT或者CP批次标签（产线接收入库）
+     * @param materialLot
+     * @throws ClientException
+     */
+    @Override
+    public void printWltOrCpLabel(MaterialLot materialLot, String printCount) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_CP_BOX_LABEL, printCount);
+            Map<String, Object> parameterMap = buildWltCpPrintParameter(materialLot);
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
             print(printContext);
@@ -168,7 +195,7 @@ public class PrintServiceImpl implements PrintService {
      */
     public void printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{
         try {
-            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_OBLIQUE_BOX_LABEL);
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_OBLIQUE_BOX_LABEL, "");
             List<MaterialLot> expressNumberInfoList = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getExpressNumber())).collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(expressNumberInfoList)){
                 throw new ClientParameterException(MmsException.MATERIAL_LOT_NOT_RECORD_EXPRESS, expressNumberInfoList.get(0).getMaterialLotId());

@@ -38,13 +38,11 @@ public class FinishGoodController {
 
         FinishGoodResponseBody responseBody = new FinishGoodResponseBody();
         FinishGoodRequestBody requestBody = request.getBody();
-        List<Map<String, String>> parameterMapList = Lists.newArrayList();
 
         if(FinishGoodRequest.ACTION_COM_RECEIVE.equals(requestBody.getActionType())){
             gcService.receiveFinishGood(requestBody.getMesPackedLots());
         } else if(FinishGoodRequest.ACTION_WLT_RECEIVE.equals(requestBody.getActionType())){
-            parameterMapList = gcService.receiveWltFinishGood(requestBody.getMesPackedLots(), requestBody.getPrintLabel());
-            responseBody.setParameterMapList(parameterMapList);
+            gcService.receiveWltFinishGood(requestBody.getMesPackedLots(), requestBody.getPrintLabel(), requestBody.getPrintCount());
         } else if(FinishGoodRequest.ACTION_COB_RECEIVE.equals(requestBody.getActionType())){
             gcService.receiveCOBFinishGood(requestBody.getMesPackedLots());
         } else {

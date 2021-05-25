@@ -12,7 +12,8 @@ import java.util.List;
  */
 public interface PrintService {
 
-    void printWltOrCpLabel(MaterialLot materialLot) throws ClientException;
+    void printReceiveWltCpLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
+    void printWltOrCpLabel(MaterialLot materialLot, String printCount) throws ClientException;
     void printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException;
 
 }

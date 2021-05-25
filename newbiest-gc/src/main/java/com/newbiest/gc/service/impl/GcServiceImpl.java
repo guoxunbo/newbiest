@@ -34,6 +34,7 @@ import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
+import com.newbiest.mms.service.PrintService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.state.model.MaterialStatusModel;
@@ -249,6 +250,9 @@ public class GcServiceImpl implements GcService {
 
     @Autowired
     MesService mesService;
+
+    @Autowired
+    PrintService printService;
 
     @Autowired
     GCProductRelationRepository productRelationRepository;
@@ -4146,9 +4150,8 @@ public class GcServiceImpl implements GcService {
      * 接收WLT的完成品
      * @param packedLotList
      */
-    public List<Map<String,String>> receiveWltFinishGood(List<MesPackedLot> packedLotList, String printLabel) throws ClientException {
+    public void receiveWltFinishGood(List<MesPackedLot> packedLotList, String printLabel, String printCount) throws ClientException {
         try {
-            List<Map<String, String>> parameterMapList = Lists.newArrayList();
             List<MaterialLot> scmReportHoldMLotList = Lists.newArrayList();
             List<MaterialLot> materialLotList = Lists.newArrayList();
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getCstId));
@@ -4184,13 +4187,9 @@ public class GcServiceImpl implements GcService {
 
             if(!StringUtils.isNullOrEmpty(printLabel)){
                 mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
-                for(MesPackedLot mesPackedLot : mesPackedLots){
-                    MaterialLot materialLot = mmsService.getMLotByMLotId(mesPackedLot.getBoxId());
-                    Map<String, String> parameterMap = getWltCpPrintParameter(materialLot);
-                    parameterMapList.add(parameterMap);
-                }
+                List<MaterialLot> materialLots = mesPackedLots.stream().map(mesPackedLot -> mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true)).collect(Collectors.toList());
+                printService.printReceiveWltCpLotLabel(materialLots, printCount);
             }
-            return parameterMapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -7978,54 +7977,6 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 获取WLT或者CP的标签打印参数
-     * @return
-     * @throws ClientException
-     */
-    public Map<String, String> getWltCpPrintParameter(MaterialLot materialLot) throws ClientException{
-        try {
-            Map<String, String> parameterMap = Maps.newHashMap();
-            parameterMap.put("LOTID", materialLot.getLotId());
-            parameterMap.put("DEVICEID", materialLot.getMaterialName());
-            parameterMap.put("QTY", materialLot.getCurrentQty().toString());
-            parameterMap.put("WAFERGRADE", materialLot.getGrade());
-            parameterMap.put("LOCATION", materialLot.getReserved6());
-            parameterMap.put("SUBCODE", materialLot.getReserved1());
-            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
-
-            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
-                Integer waferQty = materialLotUnitList.size();
-                parameterMap.put("WAFERQTY", waferQty.toString());
-                String waferIdList1 = "";
-                String waferIdList2 = "";
-
-                for(int j = 0; j <  materialLotUnitList.size() ; j++){
-                    String[] waferIdList = materialLotUnitList.get(j).getUnitId().split(StringUtils.SPLIT_CODE);
-                    String waferSeq = waferIdList[1] + ",";
-                    if(j < 8){
-                        waferIdList1 = waferIdList1 + waferSeq;
-                    } else {
-                        waferIdList2 = waferIdList2 + waferSeq;
-                    }
-                }
-                if(!StringUtils.isNullOrEmpty(waferIdList1)){
-                    parameterMap.put("WAFERID1", waferIdList1);
-                } else {
-                    parameterMap.put("WAFERID1", StringUtils.EMPTY);
-                }
-                if(!StringUtils.isNullOrEmpty(waferIdList2)){
-                    parameterMap.put("WAFERID2", waferIdList2);
-                } else {
-                    parameterMap.put("WAFERID2", StringUtils.EMPTY);
-                }
-            }
-            return parameterMap;
-        } catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
      * 获取装箱检验的物料批次信息
      * @return
      * @throws ClientException
@@ -10130,20 +10081,21 @@ public class GcServiceImpl implements GcService {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
             SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
             String[] tepaArray = tapeMaterialCode.split(" ");
-            if(tepaArray.length < 6 || tepaArray[3].length() < 24 || tepaArray[4].length() < 27 || tepaArray[5].length() < 16){
+            if(tepaArray.length < 120 ){
                 throw new ClientParameterException(GcExceptions.TAPA_MATERIAL_CODE_IS_ERROR, tapeMaterialCode);
             }
-            String materialName = tepaArray[1] + " " + tepaArray[2];
+            String materialName = tepaArray[3];
             Material material = mmsService.getRawMaterialByName(materialName);
             if(material == null || !Material.MATERIAL_TYPE_TAPE.equals(material.getMaterialType())){
                 throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
             }
+            String tepeType = tepaArray[14];
+            String tapeSize = tepeType.substring(2, 5) + "mm*" + tepeType.substring(10, 13) + "m*" + tepeType.substring(23, 24) + "R";
+            String dateAndlots = tepaArray[15];
+            String mfgDate = formats.format(simpleDateFormat.parse(dateAndlots.substring(1, 9)));
+            String expDate = formats.format(simpleDateFormat.parse(dateAndlots.substring(9, 17)));
 
-            String tapeSize = tepaArray[3].substring(2, 5) + "mm*" + tepaArray[3].substring(13, 16) + "mm*" + tepaArray[3].substring(21, 24) + "s";
-            String mfgDate = formats.format(simpleDateFormat.parse(tepaArray[5].substring(0, 8)));
-            String expDate = formats.format(simpleDateFormat.parse(tepaArray[5].substring(8, 16)));
-
-            String materialLotIdList = tepaArray[4].substring(17);
+            String materialLotIdList = dateAndlots.substring(17);
             while (materialLotIdList.length() >= 10) {
                 MaterialLot materialLot = new MaterialLot();
                 String materialLotId = materialLotIdList.substring(0, 10);
