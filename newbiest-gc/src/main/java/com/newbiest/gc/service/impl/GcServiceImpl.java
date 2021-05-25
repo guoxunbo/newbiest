@@ -8612,6 +8612,9 @@ public class GcServiceImpl implements GcService {
                 } else {
                     Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getLotId));
                     for(String lotId : materialLotMap.keySet()){
+                        if(!lotId.startsWith(Material.IRA_MATERIAL_BOX_ID_START)){
+                            throw new ClientParameterException(GcExceptions.IRA_MATERIAL_LOT_BOX_MUST_SATRT_WITH_GCB, lotId);
+                        }
                         List<MaterialLot> mLotList = materialLotRepository.findByLotIdAndMaterialCategoryAndMaterialType(lotId, Material.TYPE_MATERIAL, Material.MATERIAL_TYPE_IRA);
                         if(CollectionUtils.isNotEmpty(mLotList)){
                             throw new ClientParameterException(GcExceptions.IRA_RAW_MATERIAL_BOX_ID_IS_EXISTS, lotId);
@@ -10337,7 +10340,7 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 查询原材料批次信息，批次号位RB开头时，当做LotId做查询，其余的
+     * 查询原材料批次信息，批次号位GCB开头时，当做LotId做查询，其余的当作物料批次做查询
      * @param queryLotId
      * @param tableRrn
      * @return

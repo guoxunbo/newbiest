@@ -84,7 +84,7 @@ public class Material extends NBVersionControl {
     public static final String MATERIAL_TYPE_IRA = "IRA";
     public static final String MATERIAL_TYPE_GOLD = "金线";
     public static final String MATERIAL_TYPE_GLUE = "胶水";
-    public static final String IRA_MATERIAL_BOX_ID_START = "RB";
+    public static final String IRA_MATERIAL_BOX_ID_START = "GCB";
 
     /**
      * 原材料产线退仓库标记
