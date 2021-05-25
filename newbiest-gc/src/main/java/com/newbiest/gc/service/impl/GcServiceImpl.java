@@ -10319,7 +10319,9 @@ public class GcServiceImpl implements GcService {
         try {
             MaterialLot materialLot = new MaterialLot();
             if(materialLotId.length() > 20){
-                materialLotId = materialLotId.substring(materialLotId.length() - 15, materialLotId.length()-1);
+                materialLotId = materialLotId.substring(materialLotId.length() - 15, materialLotId.length() - 1);
+            } else if(materialLotId.length() == 11){
+                materialLotId = materialLotId.substring(0, materialLotId.length() - 1);
             }
             List<MaterialLot> materialLotList = queryMaterialLotByTableRrnAndMaterialLotId(tableRrn, materialLotId);
             if(CollectionUtils.isNotEmpty(materialLotList)){
