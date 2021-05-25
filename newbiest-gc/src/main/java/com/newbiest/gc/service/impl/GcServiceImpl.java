@@ -736,6 +736,7 @@ public class GcServiceImpl implements GcService {
                                 waitSpareRawMLotList.addAll(iraLotList);
                                 unReservedQty = unReservedQty.subtract(new BigDecimal(boxQty));
                             } else {
+                                iraLotList = iraLotList.stream().sorted(Comparator.comparing(MaterialLot :: getCurrentQty)).collect(Collectors.toList());
                                 for(MaterialLot materialLot : iraLotList){
                                     if(unReservedQty.compareTo(materialLot.getCurrentQty()) >= 0){
                                         waitSpareRawMLotList.add(materialLot);
