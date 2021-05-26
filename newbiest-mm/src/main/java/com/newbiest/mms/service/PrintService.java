@@ -15,5 +15,7 @@ public interface PrintService {
     void printReceiveWltCpLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
     void printWltOrCpLabel(MaterialLot materialLot, String printCount) throws ClientException;
     void printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException;
+    void printRwLotCstLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
+    void rePrintRwLotCstLabel(MaterialLot materialLot, String printCount) throws ClientException;
 
 }

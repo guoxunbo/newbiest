@@ -241,4 +241,76 @@ public class PrintServiceImpl implements PrintService {
         }
     }
 
+    /**
+     * RW的CST标签打印
+     * @param materialLotList
+     * @param printCount
+     * @throws ClientException
+     */
+    public void printRwLotCstLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException{
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_LOT_CST_LABEL, printCount);
+            for(MaterialLot materialLot : materialLotList){
+                Map<String, Object> parameterMap = buildRwLotCsttPrintParameter(materialLot);
+                printContext.setBaseObject(materialLot);
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取RW完成品接收打印参数
+     * @param materialLot
+     */
+    private Map<String, Object> buildRwLotCsttPrintParameter(MaterialLot materialLot) throws ClientException{
+        try {
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            String productId = materialLot.getMaterialName();
+            parameterMap.put("PRODUCTID", productId.substring(0, productId.lastIndexOf("-")));
+            parameterMap.put("CSTID", materialLot.getLotId());
+            parameterMap.put("WAFERQTY", materialLot.getCurrentSubQty().toString());
+            parameterMap.put("LOCATION", materialLot.getReserved6());
+            parameterMap.put("SUBCODE", materialLot.getReserved1());
+            parameterMap.put("LOIID", materialLot.getLotId());
+            parameterMap.put("LOTCST", materialLot.getLotCst());
+            parameterMap.put("PCODE", materialLot.getPcode());
+            parameterMap.put("QTY", materialLot.getCurrentQty().toString());
+            int i = 1;
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                parameterMap.put("frameID" + i, materialLotUnit.getUnitId());
+                parameterMap.put("chipQty" + i, materialLotUnit.getCurrentQty().toString());
+                i++;
+            }
+            for (int j = i; j <= 13; j++) {
+                parameterMap.put("frameID" + j, StringUtils.EMPTY);
+                parameterMap.put("chipQty" + j, StringUtils.EMPTY);
+            }
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * RW的LotCst标签补打
+     * @param materialLot
+     * @param printCount
+     * @throws ClientException
+     */
+    @Override
+    public void rePrintRwLotCstLabel(MaterialLot materialLot, String printCount) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_LOT_CST_LABEL, printCount);
+            Map<String, Object> parameterMap = buildRwLotCsttPrintParameter(materialLot);
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+        }catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

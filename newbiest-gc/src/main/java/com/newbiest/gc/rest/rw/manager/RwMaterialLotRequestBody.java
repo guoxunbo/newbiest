@@ -60,4 +60,7 @@ public class RwMaterialLotRequestBody extends RequestBody {
 	@ApiModelProperty(value = "物料主键")
 	private Long materialLotRrn;
 
+	@ApiModelProperty(value = "标签打印份数")
+	private String printCount;
+
 }

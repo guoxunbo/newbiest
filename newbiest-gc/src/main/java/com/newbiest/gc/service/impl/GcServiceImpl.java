@@ -1955,7 +1955,11 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MaterialLot>> mLotExpressMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
                     .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
             for (String expressId : mLotExpressMap.keySet()){
-                expressNumber += expressId + StringUtils.SEMICOLON_CODE;
+                if(StringUtils.isNullOrEmpty(expressNumber)){
+                    expressNumber = expressId;
+                } else {
+                    expressNumber += StringUtils.SEMICOLON_CODE + expressId;
+                }
             }
             BigDecimal handledQty = BigDecimal.ZERO;
             for (MaterialLot materialLot : materialLots) {
@@ -4261,7 +4265,7 @@ public class GcServiceImpl implements GcService {
      * @param printLabel
      * @throws ClientException
      */
-    public List<Map<String, String>> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel) throws ClientException {
+    public List<Map<String, String>> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel, String printCount) throws ClientException {
         try {
             List<Map<String, String>> parameterMapList = Lists.newArrayList();
             List<MaterialLot> materialLotList = Lists.newArrayList();
@@ -4286,10 +4290,8 @@ public class GcServiceImpl implements GcService {
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLots.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
             if(!StringUtils.isNullOrEmpty(printLabel)){
                 mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
-                for(MesPackedLot packedLot : mesPackedLots){
-                    Map<String, String> parameterMap = getRwPackedLotPrintParameter(packedLot, packedLotMap);
-                    parameterMapList.add(parameterMap);
-                }
+                List<MaterialLot> materialLots = mesPackedLots.stream().map(mesPackedLot -> mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true)).collect(Collectors.toList());
+                printService.printRwLotCstLabel(materialLots, printCount);
             }
 
             return parameterMapList;
@@ -4464,40 +4466,6 @@ public class GcServiceImpl implements GcService {
             packedLot.setWaferQty(count);
 
             return packedLot;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 获取RW完成品接收打印参数
-     */
-    private Map<String,String> getRwPackedLotPrintParameter(MesPackedLot packedLot, Map<String, List<MesPackedLot>> packedLotMap) throws ClientException{
-        try {
-            Map<String, String> parameterMap = Maps.newHashMap();
-            List<MesPackedLot> packedLotList = packedLotMap.get(packedLot.getCstId());
-            String productId = packedLot.getProductId();
-            parameterMap.put("PRODUCTID", productId.substring(0, productId.lastIndexOf("-")));
-            parameterMap.put("CSTID", packedLot.getCstId());
-            parameterMap.put("WAFERQTY", packedLot.getWaferQty().toString());
-            parameterMap.put("LOCATION", packedLot.getBondedProperty());
-            parameterMap.put("SUBCODE", packedLot.getLevelTwoCode());
-            parameterMap.put("LOIID", packedLot.getCstId());
-            parameterMap.put("LOTCST", packedLot.getLotId());
-            parameterMap.put("PCODE", packedLot.getPcode());
-            parameterMap.put("QTY", packedLot.getQuantity().toString());
-            int i = 1;
-            for(MesPackedLot mesPackedLot : packedLotList){
-                parameterMap.put("frameID" + i, mesPackedLot.getBoxId());
-                parameterMap.put("chipQty" + i, mesPackedLot.getQuantity().toString());
-                i++;
-            }
-            for (int j = i; j <= 13; j++) {
-                parameterMap.put("frameID" + j, StringUtils.EMPTY);
-                parameterMap.put("chipQty" + j, StringUtils.EMPTY);
-            }
-
-            return parameterMap;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -9759,42 +9727,6 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-
-    /**
-     * 获取RW产线接收Lot标签打印参数
-     * @param materialLot
-     * @return
-     */
-    public Map<String, String> getRwReceiveLotLabelPrintParameter(MaterialLot materialLot) throws ClientException{
-        try {
-            Map<String, String> parameterMap = Maps.newHashMap();
-            String materialName = materialLot.getMaterialName();
-            parameterMap.put("PRODUCTID", materialName.substring(0 , materialName.lastIndexOf("-")));
-            parameterMap.put("CSTID", materialLot.getLotId());
-            parameterMap.put("WAFERQTY", materialLot.getCurrentSubQty().toString());
-            parameterMap.put("LOCATION", materialLot.getReserved6());
-            parameterMap.put("SUBCODE", materialLot.getReserved1());
-            parameterMap.put("LOIID", materialLot.getLotId());
-            parameterMap.put("LOTCST", materialLot.getLotCst());
-            parameterMap.put("PCODE", materialLot.getPcode());
-            parameterMap.put("QTY", materialLot.getCurrentQty().toString());
-            List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-            int i = 1;
-            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                parameterMap.put("frameID" + i, materialLotUnit.getUnitId());
-                parameterMap.put("chipQty" + i, materialLotUnit.getCurrentQty().toString());
-                i++;
-            }
-            for (int j = i; j <= 13; j++) {
-                parameterMap.put("frameID" + j, StringUtils.EMPTY);
-                parameterMap.put("chipQty" + j, StringUtils.EMPTY);
-            }
-            return parameterMap;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
 
     /**
      * 获取RW产线接收Lot标签打印参数

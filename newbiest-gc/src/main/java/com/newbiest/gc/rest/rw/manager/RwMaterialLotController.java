@@ -3,6 +3,7 @@ package com.newbiest.gc.rest.rw.manager;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.service.PrintService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -26,6 +27,9 @@ public class RwMaterialLotController {
     @Autowired
     GcService gcService;
 
+    @Autowired
+    PrintService printService;
+
     @ApiOperation(value = "RwManager", notes = "RW管理")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "RwMaterialLotRequest")
     @RequestMapping(value = "/rwMaterialLotManager", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -41,11 +45,10 @@ public class RwMaterialLotController {
             List<Map<String, String>> parameterMapList = gcService.getRWIssueMaterialLotPrintParameter(requestBody.getMaterialLotList());
             responseBody.setParameterList(parameterMapList);
         } else if(RwMaterialLotRequest.ACTION_RECEIVE_PACKEDLOT.equals(actionType)) {
-            List<Map<String, String>> parameterMapList = gcService.receiveRWFinishPackedLot(requestBody.getMesPackedLots(), requestBody.getPrintLabel());
+            List<Map<String, String>> parameterMapList = gcService.receiveRWFinishPackedLot(requestBody.getMesPackedLots(), requestBody.getPrintLabel(), requestBody.getPrintCount());
             responseBody.setParameterList(parameterMapList);
         } else if(RwMaterialLotRequest.ACTION_PRINT_LOT_LABEL.equals(actionType)){
-            Map<String, String> parameterMap = gcService.getRwReceiveLotLabelPrintParameter(requestBody.getMaterialLot());
-            responseBody.setParameterMap(parameterMap);
+            printService.rePrintRwLotCstLabel(requestBody.getMaterialLot(), requestBody.getPrintCount());
         } else if(RwMaterialLotRequest.ACTION_AUTO_PICK.equals(actionType)){
             List<MaterialLot> materialLots = gcService.rwTagginggAutoPickMLot(requestBody.getMaterialLotList(), requestBody.getPickQty());
             responseBody.setMaterialLotList(materialLots);
