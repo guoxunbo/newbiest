@@ -610,13 +610,8 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLots = Lists.newArrayList();
             if(mLotId.startsWith(Material.IRA_MATERIAL_BOX_ID_START)){
                 materialLots = getIRARawMaterialByLotIdAndTableRrn(mLotId, tableRrn);
-
-                if(CollectionUtils.isEmpty(materialLots)){
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mLotId);
-                }
             } else {
-                MaterialLot materialLot = getMaterialLotByMaterialLotIdAndTableRrn(mLotId, tableRrn);
-                materialLots.add(materialLot);
+                materialLots = queryMaterialLotByTableRrnAndMaterialLotId(tableRrn, mLotId);
             }
             return materialLots;
         } catch (Exception e){
