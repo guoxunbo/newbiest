@@ -28,6 +28,8 @@ public class LabelTemplate extends NBBase {
     public static final String PRINT_RW_LOT_CST_LABEL = "PrintRwLotCstLabel";//RW Lot标签打印
     public static final String PRINT_COB_BOX_LABEL = "PrintCOBBoxLabel";//COB装箱标签打印
     public static final String PRINT_WLT_BOX_LABEL = "PrintWltBoxLabel";//WLT装箱标签打印
+    public static final String PRINT_COM_BOX_LABEL = "PrintComBoxLabel";//COM装箱标签打印
+    public static final String PRINT_CUSTOMER_NAME_LABEL = "PrintCusNameLabel";//COM装箱客户标签打印
 
     @Column(name="NAME")
     private String name;

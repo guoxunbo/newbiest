@@ -435,4 +435,61 @@ public class PrintServiceImpl implements PrintService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * COM的箱标签与客户标签的打印
+     * @param materialLot
+     * @param subcode
+     * @throws ClientException
+     */
+    @Override
+    public void printComBoxAndCustomerLabel(MaterialLot materialLot, String subcode) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COM_BOX_LABEL, "");
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("barcode", materialLot.getMaterialLotId());
+            parameterMap.put("device", materialLot.getMaterialName());
+            parameterMap.put("wafernum", materialLot.getCurrentQty().toPlainString());
+            parameterMap.put("subcode", subcode);
+
+            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            int i = 1;
+            if (CollectionUtils.isNotEmpty(packageDetailLots)) {
+                for (MaterialLot packedMLot : packageDetailLots) {
+                    parameterMap.put("VBox" + i, packedMLot.getMaterialLotId());
+                    i++;
+                }
+            }
+            for (int j = i; j <= 10; j++) {
+                parameterMap.put("VBox" + j, StringUtils.EMPTY);
+            }
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+
+            if (!StringUtils.isNullOrEmpty(materialLot.getReserved18())){
+                printCustomerNameLabel(materialLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 打印客户标签
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void printCustomerNameLabel(MaterialLot materialLot) throws ClientException{
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_CUSTOMER_NAME_LABEL, "");
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("CSNAME",materialLot.getReserved18());
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
