@@ -371,4 +371,68 @@ public class PrintServiceImpl implements PrintService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * WLT装箱标签打印
+     * @param materialLot
+     * @throws ClientException
+     */
+    @Override
+    public void printWltBoxLabel(MaterialLot materialLot) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COB_BOX_LABEL, "");
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("BOXID", materialLot.getMaterialLotId());
+            parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+            parameterMap.put("GRADE", materialLot.getGrade());
+            parameterMap.put("SECONDCODE", materialLot.getReserved1());
+            parameterMap.put("LOCATION", materialLot.getReserved6());
+            parameterMap.put("QUANTITY", materialLot.getCurrentQty().toPlainString());
+            parameterMap.put("NUMBER", materialLot.getCurrentSubQty().toPlainString());
+
+            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            int i = 1;
+            if (CollectionUtils.isNotEmpty(packageDetailLots)) {
+                for (MaterialLot packedMLot : packageDetailLots) {
+                    parameterMap.put("CSTID" + i, packedMLot.getLotId());
+                    parameterMap.put("WAFERQTY" + i, packedMLot.getCurrentSubQty().toString());
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedMLot.getMaterialLotId());
+                    String unitIdList1 = "";
+                    String unitIdList2 = "";
+                    for(int j = 0; j <  materialLotUnitList.size() ; j++){
+                        String[] unitIdList = materialLotUnitList.get(j).getUnitId().split(StringUtils.SPLIT_CODE);
+                        String waferSeq = unitIdList[1] + ",";
+                        if(j < 5){
+                            unitIdList1 = unitIdList1 + waferSeq;
+                        } else {
+                            unitIdList2 = unitIdList2 + waferSeq;
+                        }
+                    }
+                    if(!StringUtils.isNullOrEmpty(unitIdList1)){
+                        parameterMap.put("UNITID" + i + 1 , unitIdList1);
+                    } else {
+                        parameterMap.put("UNITID" + i + 1 , StringUtils.EMPTY);
+                    }
+                    if(!StringUtils.isNullOrEmpty(unitIdList2)){
+                        parameterMap.put("UNITID" + i + 2 , unitIdList2);
+                    }else {
+                        parameterMap.put("UNITID" + i + 2 , StringUtils.EMPTY);
+                    }
+                    i++;
+                }
+            }
+
+            if(i <= 2){
+                parameterMap.put("CSTID" + i, StringUtils.EMPTY);
+                parameterMap.put("WAFERQTY" + i, StringUtils.EMPTY);
+                parameterMap.put("UNITID" + i + 1, StringUtils.EMPTY);
+                parameterMap.put("UNITID" + i + 2, StringUtils.EMPTY);
+            }
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
