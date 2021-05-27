@@ -15,6 +15,7 @@ import com.newbiest.mms.print.PrintContext;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.service.PrintService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +67,9 @@ public class PrintServiceImpl implements PrintService {
 
     @Autowired
     MaterialLotUnitService materialLotUnitService;
+
+    @Autowired
+    PackageService packageService;
 
     public void print(PrintContext printContext) {
         print(DefaultPrintStrategy.DEFAULT_STRATEGY_NAME, printContext);
@@ -310,6 +314,60 @@ public class PrintServiceImpl implements PrintService {
             printContext.setParameterMap(parameterMap);
             print(printContext);
         }catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 打印COB装箱标签(一箱只有一包)
+     * @param materialLot
+     * @throws ClientException
+     */
+    @Override
+    public void printCobBoxLabel(MaterialLot materialLot) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COB_BOX_LABEL, "");
+            materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("BOXID", materialLot.getMaterialLotId());
+            parameterMap.put("SUBCODE", materialLot.getReserved1());
+            parameterMap.put("LOCATION", materialLot.getReserved6());
+            parameterMap.put("DEVICEID", materialLot.getMaterialName());
+            parameterMap.put("CHIPNUM", materialLot.getCurrentQty().toPlainString());
+
+            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            if(CollectionUtils.isNotEmpty(packageDetailLots)){
+                //COB箱号，一箱只装一个真空包
+                MaterialLot packedLot = packageDetailLots.get(0);
+                parameterMap.put("CSTID", packedLot.getLotId());
+                parameterMap.put("FRAMEQTY", packedLot.getCurrentSubQty().toPlainString());
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedLot.getMaterialLotId());
+
+                if(CollectionUtils.isNotEmpty(materialLotUnitList) && materialLotUnitList.size() > 13){
+                    throw new ClientParameterException(MmsException.MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN, materialLot.getMaterialLotId());
+                }
+
+                int i = 1;
+                if (CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        parameterMap.put("FRAMEID" + i, materialLotUnit.getUnitId());
+                        parameterMap.put("CHIPQTY" + i, materialLotUnit.getCurrentQty().toPlainString());
+                        i++;
+                    }
+                }
+
+                for (int j = i; j <= 13; j++) {
+                    parameterMap.put("FRAMEID" + j, StringUtils.EMPTY);
+                    parameterMap.put("CHIPQTY" + j, StringUtils.EMPTY);
+                }
+            } else {
+                throw new ClientParameterException(MmsException.MATERIALLOT_PACKED_DETIAL_IS_NULL, materialLot.getMaterialLotId());
+            }
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

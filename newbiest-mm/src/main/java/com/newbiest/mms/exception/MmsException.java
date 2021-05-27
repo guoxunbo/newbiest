@@ -54,5 +54,8 @@ public class MmsException {
 
     //标签打印相关
     public static final String MATERIAL_LOT_NOT_RECORD_EXPRESS = "gc.material_lot_not_recorded_express";
+    public static final String MATERIALLOT_PACKED_DETIAL_IS_NULL = "gc.material_lot_packed_detial_is_null";
+    public static final String MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN = "gc.material_lot_wafer_qty_more_than_thirteen";
+
 
 }

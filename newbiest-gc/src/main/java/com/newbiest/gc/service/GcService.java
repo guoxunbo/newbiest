@@ -54,7 +54,6 @@ public interface GcService {
     void rawMaterialMLotSpare(List<MaterialLot> materialLotList, Long docLineRrn) throws ClientException;
 
     void waferOutOrderIssue(List<MaterialLotAction> materialLotActions) throws ClientException;
-    Map<String, String> getCOBLabelPrintParamater(String materialLotId) throws ClientException;
     List<Map<String, String>> getRmaLabelPrintParameter(List<MaterialLot> materialLots) throws ClientException;
     List<MaterialLot> receiveRmaMLot(List<MaterialLotAction> materialLotActions) throws ClientException;
     GcUnConfirmWaferSet saveUnConfirmWaferTrackSetInfo(GcUnConfirmWaferSet unConfirmWaferSet, String transType) throws ClientException;

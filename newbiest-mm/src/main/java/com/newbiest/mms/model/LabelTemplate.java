@@ -26,6 +26,7 @@ public class LabelTemplate extends NBBase {
     public static final String PRINT_OBLIQUE_BOX_LABEL = "PrintObliqueBoxLabel";//斜标签打印
     public static final String PRINT_WLT_CP_BOX_LABEL = "PrintWltOrCpBoxLabel";//Wlt/CP箱标签打印
     public static final String PRINT_RW_LOT_CST_LABEL = "PrintRwLotCstLabel";//RW Lot标签打印
+    public static final String PRINT_COB_BOX_LABEL = "PrintCOBBoxLabel";//COB装箱标签打印
 
     @Column(name="NAME")
     private String name;
