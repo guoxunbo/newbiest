@@ -3,6 +3,7 @@ package com.newbiest.gc.rest.rw.manager;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PrintService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
@@ -26,6 +27,9 @@ public class RwMaterialLotController {
 
     @Autowired
     GcService gcService;
+
+    @Autowired
+    MmsService mmsService;
 
     @Autowired
     PrintService printService;
@@ -64,8 +68,8 @@ public class RwMaterialLotController {
         } else if(RwMaterialLotRequest.ACTION_STOCK_OUT.equals(actionType)){
             gcService.rwStockOut(requestBody.getMaterialLotList(), requestBody.getDocumentLineList());
         } else if(RwMaterialLotRequest.ACTION_GET_RW_PRINT_PARAMETER.equals(actionType)){
-            Map<String, String> parameterMap = gcService.getRWBoxPrintParameter(requestBody.getMaterialLotRrn());
-            responseBody.setParameterMap(parameterMap);
+            MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
+            printService.printRwCstLabel(materialLot, requestBody.getPrintCount());
         }else if(RwMaterialLotRequest.ACTION_GET_RW_STOCK_OUT.equals(actionType)){
             Map<String, String> parameterMap = gcService.getRWStockOutPrintParameter(requestBody.getMaterialLotRrn());
             responseBody.setParameterMap(parameterMap);

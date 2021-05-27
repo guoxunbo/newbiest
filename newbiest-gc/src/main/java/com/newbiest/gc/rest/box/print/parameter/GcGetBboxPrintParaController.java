@@ -1,13 +1,9 @@
 package com.newbiest.gc.rest.box.print.parameter;
 
-import com.google.common.collect.Maps;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.MmsService;
-import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.service.PrintService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -19,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/gc")
@@ -52,7 +46,7 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
         if(!MaterialLot.PRODUCT_CATEGORY.equals(materialLot.getReserved7())){
             subcode = gcService.getEncryptionSubCode(materialLot.getGrade(), materialLot.getReserved1());
         }
-        printService.printComBoxAndCustomerLabel(materialLot, subcode);
+        printService.printComBoxAndCustomerLabel(materialLot, subcode, requestBody.getPrintCount());
 
         response.setBody(responseBody);
         return response;

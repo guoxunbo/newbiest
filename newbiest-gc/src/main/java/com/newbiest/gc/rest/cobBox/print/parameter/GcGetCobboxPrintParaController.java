@@ -31,7 +31,7 @@ public class GcGetCobboxPrintParaController extends AbstractRestController {
         GcGetCobboxPrintParaResponseBody responseBody = new GcGetCobboxPrintParaResponseBody();
         GcGetCobboxPrintParaRequestBody requestBody = request.getBody();
 
-        printService.printCobBoxLabel(requestBody.getMaterialLot());
+        printService.printCobBoxLabel(requestBody.getMaterialLot(), requestBody.getPrintCount());
 
         response.setBody(responseBody);
         return response;
