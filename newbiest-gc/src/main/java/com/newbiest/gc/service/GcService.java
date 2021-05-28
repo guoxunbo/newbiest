@@ -95,8 +95,6 @@ public interface GcService {
     List<MaterialLotUnit> validateAndSetWaferSource(String importType, String checkFourCodeFlag, List<MaterialLotUnit> materialLotUnitList)throws ClientException;
     void deleteCogDetail(List<GCLcdCogDetail> lcdCogDetails, String deleteNote)throws ClientException;
     void deleteCogEcretive(List<MaterialLot> lcdCogEcretiveList, String deleteNote) throws ClientException;
-    Map<String, String> getCOBBoxLabelPrintParamater(MaterialLot materialLot) throws ClientException;
-    List<Map<String, String>> getBoxQRCodeLabelPrintParamater(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
     String saveLCDCOGDetailList(List<MaterialLot> materialLots, String importType)throws ClientException;
     List<MaterialLot> validationAndGetWaitIssueWafer(Long tableRrn,String whereClause) throws ClientException;
 

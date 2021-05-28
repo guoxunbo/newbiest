@@ -7,16 +7,20 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.utils.*;
+import com.newbiest.common.idgenerator.service.GeneratorService;
+import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.print.DefaultPrintStrategy;
 import com.newbiest.mms.print.IPrintStrategy;
+import com.newbiest.mms.print.MLotCodePrint;
 import com.newbiest.mms.print.PrintContext;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.service.PrintService;
+import freemarker.template.utility.StringUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -70,6 +75,9 @@ public class PrintServiceImpl implements PrintService {
     @Autowired
     PackageService packageService;
 
+    @Autowired
+    GeneratorService generatorService;
+
     public void print(PrintContext printContext) {
         print(DefaultPrintStrategy.DEFAULT_STRATEGY_NAME, printContext);
     }
@@ -83,6 +91,22 @@ public class PrintServiceImpl implements PrintService {
             log.debug("Use context [" + printContext.toString() + "] to print");
         }
         printStrategy.print(printContext);
+    }
+
+    /**
+     * 根据ID生成规则生成序列号
+     * @return
+     * @throws ClientException
+     */
+    public String generatorMLotsTransId(String ruleId) throws ClientException{
+        try {
+            GeneratorContext generatorContext = new GeneratorContext();
+            generatorContext.setRuleName(ruleId);
+            String id = generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
+            return id;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     /**
@@ -367,6 +391,256 @@ public class PrintServiceImpl implements PrintService {
             printContext.setParameterMap(parameterMap);
             print(printContext);
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取真空包或箱号标签打印参数信息
+     * COB标签只打印箱号标签，不打印真空包
+     * @param materialLot
+     * @throws ClientException
+     */
+    @Override
+    public void printCobBBoxLabel(MaterialLot materialLot) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_QR_CODE_LABEL, "");
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
+            String date = formatter.format(new Date());
+            DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLot.getReserved16()));
+            String printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE).substring(8, 14);
+            String flow = printSeq + StringUtils.UNDERLINE_CODE  + printSeq;
+            String dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(materialLot.getCurrentQty().toString() , 6 , "0");
+            String twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + documentLine.getReserved21() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+            parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("MATERIALCODE", documentLine.getReserved21() + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("FLOW", flow);
+            parameterMap.put("BOXSEQ", "BZ");
+            parameterMap.put("TWODCODE", twoDCode);
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 非COB真空包或箱号二维码标签打印
+     * @param materialLot
+     * @param printVboxLabelFlag
+     * @throws ClientException
+     */
+    @Override
+    public void printBoxQRCodeLabel(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException {
+        try {
+            //获取当前日期，时间格式yyMMdd
+            SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
+            String date = formatter.format(new Date());
+
+            //从产品上获取真空包的标准数量，用于区分真空包属于零包还是散包
+            Product product = mmsService.getProductByName(materialLot.getMaterialName());
+            BigDecimal packageTotalQty = new BigDecimal(product.getReserved1());
+            DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLot.getReserved16()));
+
+            if(StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_QR_CODE_LABEL, "1");
+                Map<String, Object> parameterMap = buildQRCodeBoxLabelParameter(materialLot, documentLine, date, packageTotalQty);
+                printContext.setBaseObject(materialLot);
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            } else {
+                //如果勾选打印箱中真空包标签信息，需要按照整包和零包进行分组，再按照是否打印真空包flag组装Map
+                List<MaterialLot> materialLotList = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                List<MaterialLot> fullPackageMLotList = new ArrayList<>();
+                List<MaterialLot> zeroPackageMLotList = new ArrayList<>();
+                for(MaterialLot mLot : materialLotList){
+                    if(packageTotalQty.compareTo(mLot.getCurrentQty()) > 0){
+                        zeroPackageMLotList.add(mLot);
+                    }else {
+                        fullPackageMLotList.add(mLot);
+                    }
+                }
+                if(MaterialLot.PRINT_CHECK.equals(printVboxLabelFlag)){
+                    if( CollectionUtils.isNotEmpty(fullPackageMLotList)){
+                        printQRCodeLabelPrintParmByVboxStandardQty(fullPackageMLotList, documentLine, date, MLotCodePrint.VBOXSEQ_START_VZ);
+                    }
+                    if( CollectionUtils.isNotEmpty(zeroPackageMLotList)){
+                        printQRCodeLabelPrintParmByVboxStandardQty(zeroPackageMLotList, documentLine, date, MLotCodePrint.VBOXSEQ_START_VL);
+                    }
+                } else {
+                    List<Map<String, Object>> parameterMapList = Lists.newArrayList();
+                    //不打印真空包标签也要区分散包零包的箱标签
+                    if( CollectionUtils.isNotEmpty(fullPackageMLotList)){
+                        parameterMapList = buildQRCodeBoxLabelPrintParmByVboxStandardQty(parameterMapList, fullPackageMLotList, documentLine, date, MLotCodePrint.BOXSEQ_START_BZ);
+                    }
+                    if( CollectionUtils.isNotEmpty(zeroPackageMLotList)){
+                        parameterMapList = buildQRCodeBoxLabelPrintParmByVboxStandardQty(parameterMapList, zeroPackageMLotList, documentLine, date, MLotCodePrint.BOXSEQ_START_BL);
+                    }
+                    PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_QR_CODE_LABEL, "2");
+                    for(Map<String, Object> parameterMap : parameterMapList){
+                        printContext.setBaseObject(materialLot);
+                        printContext.setParameterMap(parameterMap);
+                        print(printContext);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 构建箱子二维码标签打印参数
+     * @param materialLot
+     * @param documentLine
+     * @param date
+     * @param packageTotalQty
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,Object> buildQRCodeBoxLabelParameter(MaterialLot materialLot, DocumentLine documentLine, String date, BigDecimal packageTotalQty) throws ClientException{
+        try {
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            String boxSeq = StringUtils.EMPTY;
+            String printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE).substring(8, 14);
+            String flow = printSeq + StringUtils.UNDERLINE_CODE  + printSeq;
+            parameterMap.put("VENDER", MaterialLot.GC_CODE);
+            parameterMap.put("MATERIALCODE", documentLine.getReserved21());
+            String dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(materialLot.getCurrentQty().toString() , 6 , "0") + StringUtils.UNDERLINE_CODE;
+            parameterMap.put("DATEANDNUMBER", dateAndNumber);
+            if(packageTotalQty.compareTo(materialLot.getCurrentQty()) > 0 ){
+                boxSeq = MLotCodePrint.VBOXSEQ_START_VL + materialLot.getMaterialLotId().substring(materialLot.getMaterialLotId().length() - 3);
+            } else {
+                boxSeq = MLotCodePrint.VBOXSEQ_START_VZ + materialLot.getMaterialLotId().substring(materialLot.getMaterialLotId().length() - 3);
+            }
+            String twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + documentLine.getReserved21() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+            parameterMap.put("FLOW", flow);
+            parameterMap.put("BOXSEQ", boxSeq);
+            parameterMap.put("TWODCODE", twoDCode);
+            return  parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取区分整包零包之后的箱标签打印参数
+     * @param materialLotList
+     * @param documentLine
+     * @param date
+     * @param boxSeq
+     * @return
+     * @throws ClientException
+     */
+    private List<Map<String,Object>> buildQRCodeBoxLabelPrintParmByVboxStandardQty( List<Map<String, Object>> parameterMapList, List<MaterialLot> materialLotList, DocumentLine documentLine, String date, String boxSeq) throws ClientException{
+        try {
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            String printSeq = StringUtils.EMPTY;
+            String flow = StringUtils.EMPTY;
+
+            Long totalQty = materialLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getCurrentQty().longValue()));
+            String  startPrintSeq = "";
+            int vobxQty = materialLotList.size();
+            for(int i=0; i < vobxQty; i++){
+                printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE).substring(8, 14);
+                if(StringUtils.isNullOrEmpty(startPrintSeq)){
+                    startPrintSeq = printSeq;
+                }
+                flow = printSeq + StringUtils.UNDERLINE_CODE + printSeq;
+            }
+            String dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(totalQty.toString(), 6 , "0");
+            String twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + documentLine.getReserved21() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+            parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("MATERIALCODE", documentLine.getReserved21() + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("FLOW", flow);
+            parameterMap.put("BOXSEQ", MLotCodePrint.BOXSEQ_START_BL);
+            parameterMap.put("TWODCODE", twoDCode);
+            parameterMapList.add(parameterMap);
+
+            //将箱号二维码信息记录到真空包上
+            for(MaterialLot mLot : materialLotList){
+                mLot.setBoxQrcodeInfo(twoDCode);
+                materialLotRepository.saveAndFlush(mLot);
+            }
+            return parameterMapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取真空包和箱号标签打印参数信息
+     * 物料信息已经通过真空包标准数量分组
+     * @param materialLotList
+     * @param documentLine
+     * @param date
+     * @param boxStart
+     * @return
+     */
+    private void printQRCodeLabelPrintParmByVboxStandardQty(List<MaterialLot> materialLotList, DocumentLine documentLine, String date, String boxStart)throws ClientException{
+        try {
+            List<Map<String, Object>> parameterMapList = Lists.newArrayList();
+            String dateAndNumber = StringUtils.EMPTY;
+            String printSeq = StringUtils.EMPTY;
+            String flow = StringUtils.EMPTY;
+            String boxSeq = StringUtils.EMPTY;
+            String twoDCode = StringUtils.EMPTY;
+
+            Long fullPackageTotalQty = materialLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getCurrentQty().longValue()));
+            String  startPrintSeq = "";
+            for(MaterialLot materialLot : materialLotList){
+                Map<String, Object> parameterMap = Maps.newHashMap();
+                printSeq = generatorMLotsTransId(MaterialLot.GENERATOR_QRCODE_LABEL_PRINT_SEQ_RULE).substring(8, 14);
+                if(StringUtils.isNullOrEmpty(startPrintSeq)){
+                    startPrintSeq = printSeq;
+                }
+                flow = printSeq + StringUtils.UNDERLINE_CODE + printSeq;
+                dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad(materialLot.getCurrentQty().toString() , 6 , "0");
+                boxSeq = boxStart + materialLot.getMaterialLotId().substring(materialLot.getMaterialLotId().length() - 3);
+                twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + documentLine.getReserved21() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+                parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
+                parameterMap.put("MATERIALCODE", documentLine.getReserved21() + StringUtils.UNDERLINE_CODE);
+                parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
+                parameterMap.put("FLOW", flow);
+                parameterMap.put("BOXSEQ", boxSeq);
+                parameterMap.put("TWODCODE", twoDCode);
+                parameterMapList.add(parameterMap);
+
+                //将二维码信息记录到真空包上
+                materialLot.setVboxQrcodeInfo(twoDCode);
+                materialLotRepository.saveAndFlush(materialLot);
+            }
+            for(Map<String, Object> parameterMap : parameterMapList){
+                PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_QR_CODE_LABEL, "1");
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            }
+
+            //获取箱标签信息
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            dateAndNumber = date + StringUtils.UNDERLINE_CODE + StringUtil.leftPad( fullPackageTotalQty.toString(), 6 , "0");
+            flow = startPrintSeq + StringUtils.UNDERLINE_CODE + printSeq;
+            twoDCode = MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE + documentLine.getReserved21() + StringUtils.UNDERLINE_CODE + dateAndNumber + StringUtils.UNDERLINE_CODE + flow;
+            parameterMap.put("VENDER", MaterialLot.GC_CODE + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("MATERIALCODE", documentLine.getReserved21() + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("DATEANDNUMBER", dateAndNumber + StringUtils.UNDERLINE_CODE);
+            parameterMap.put("FLOW", flow);
+            parameterMap.put("BOXSEQ", MLotCodePrint.BOXSEQ_START_BL);
+            parameterMap.put("TWODCODE", twoDCode);
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_QR_CODE_LABEL, "2");
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+
+            //将箱号二维码信息记录到真空包上
+            for(MaterialLot materialLot : materialLotList){
+                materialLot.setBoxQrcodeInfo(twoDCode);
+                materialLotRepository.saveAndFlush(materialLot);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

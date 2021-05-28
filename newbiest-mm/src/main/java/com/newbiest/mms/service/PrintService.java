@@ -23,6 +23,8 @@ public interface PrintService {
     void printRwStockOutLabel(MaterialLot materialLot) throws ClientException;
 
     void printCobBoxLabel(MaterialLot materialLot,  String printCount) throws ClientException;
+    void printCobBBoxLabel(MaterialLot materialLot) throws ClientException;
+    void printBoxQRCodeLabel(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
 
     void printComBoxAndCustomerLabel(MaterialLot materialLot, String subcode, String printCount) throws ClientException;
     void rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException;
