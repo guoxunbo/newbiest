@@ -188,5 +188,4 @@ public interface GcService {
     void transferStorage(List<RelayBoxStockInModel> relayBoxStockInModel) throws  ClientException;
     List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn,String whereClause) throws ClientException;
 
-    Map<String, String> getRWStockOutPrintParameter(Long materialLotRrn) throws ClientException;
 }

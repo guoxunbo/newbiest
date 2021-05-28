@@ -24,9 +24,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -540,6 +539,61 @@ public class PrintServiceImpl implements PrintService {
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
             print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * RW出货标签打印
+     * @param materialLot
+     * @throws ClientException
+     */
+    @Override
+    public void printRwStockOutLabel(MaterialLot materialLot) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_STOCK_OUT_LABEL, "");
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("DeviceNo", materialLot.getMaterialName());
+            parameterMap.put("PN", "");
+            parameterMap.put("Qty", materialLot.getCurrentQty().toPlainString());
+            parameterMap.put("WaferLotNo", materialLot.getLotCst());
+            parameterMap.put("assyPN","");
+            parameterMap.put("assyLotNo", materialLot.getLotId());
+            parameterMap.put("shipLotNo", materialLot.getLotCst());
+            parameterMap.put("DC", setYearWeek());
+            List<MaterialLot> materialLotDetails = materialLotRepository.getByParentMaterialLotId(materialLot.getMaterialLotId());
+            if (CollectionUtils.isNotEmpty(materialLotDetails)) {
+                MaterialLot materialLotDetail = materialLotDetails.get(0);
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLotDetail.getMaterialLotId());
+                parameterMap.put("FrameSlice", String.valueOf(materialLotUnitList.size()));
+            }
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取周信息
+     * @return
+     * @throws ClientException
+     */
+    private String setYearWeek() throws ClientException{
+        try{
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Calendar cl = Calendar.getInstance();
+            cl.setTime(sdf.parse(sdf.format(new Date())));
+            int week = cl.get(Calendar.WEEK_OF_YEAR);
+            cl.add(Calendar.DAY_OF_MONTH,-7);
+            int year = cl.get(Calendar.YEAR);
+            if(week < cl.get(Calendar.WEEK_OF_YEAR)){
+                year += 1;
+            }
+            String yearWeek = String.valueOf(year + week);
+            return yearWeek;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

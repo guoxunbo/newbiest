@@ -6951,53 +6951,6 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 获取RW产线出货箱标签打印参数
-     * @param materialLotRrn
-     * @return
-     */
-    public Map<String, String> getRWStockOutPrintParameter(Long materialLotRrn) throws ClientException{
-        try {
-            Map<String, String> parameterMap = Maps.newHashMap();
-            MaterialLot materialLot = mmsService.getMLotByObjectRrn(materialLotRrn);
-            parameterMap.put("DeviceNo", materialLot.getMaterialName());
-            parameterMap.put("PN", "");
-            parameterMap.put("Qty", materialLot.getCurrentQty().toPlainString());
-            parameterMap.put("WaferLotNo", materialLot.getLotCst());
-            parameterMap.put("assyPN","");
-            parameterMap.put("assyLotNo", materialLot.getLotId());
-            parameterMap.put("shipLotNo", materialLot.getLotCst());
-            parameterMap.put("DC", setYearWeek());
-            List<MaterialLot> materialLotDetails = materialLotRepository.getByParentMaterialLotId(materialLot.getMaterialLotId());
-            if (CollectionUtils.isNotEmpty(materialLotDetails)) {
-                MaterialLot materialLotDetail = materialLotDetails.get(0);
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLotDetail.getMaterialLotId());
-                parameterMap.put("FrameSlice", String.valueOf(materialLotUnitList.size()));
-            }
-            return parameterMap;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    private String setYearWeek() throws ClientException{
-        try{
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Calendar cl = Calendar.getInstance();
-            cl.setTime(sdf.parse(sdf.format(new Date())));
-            int week = cl.get(Calendar.WEEK_OF_YEAR);
-            cl.add(Calendar.DAY_OF_MONTH,-7);
-            int year = cl.get(Calendar.YEAR);
-            if(week < cl.get(Calendar.WEEK_OF_YEAR)){
-                year += 1;
-            }
-            String yearWeek = String.valueOf(year + week);
-            return yearWeek;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
      * 验证WLT封装回货模板是否经WLA处理，根据产品型号转换表验证晶圆型号是否需要转换
      * @return
      * @param materialLotUnitList

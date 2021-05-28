@@ -71,8 +71,8 @@ public class RwMaterialLotController {
             MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
             printService.printRwCstLabel(materialLot, requestBody.getPrintCount());
         }else if(RwMaterialLotRequest.ACTION_GET_RW_STOCK_OUT.equals(actionType)){
-            Map<String, String> parameterMap = gcService.getRWStockOutPrintParameter(requestBody.getMaterialLotRrn());
-            responseBody.setParameterMap(parameterMap);
+            MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
+            printService.printRwStockOutLabel(materialLot);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

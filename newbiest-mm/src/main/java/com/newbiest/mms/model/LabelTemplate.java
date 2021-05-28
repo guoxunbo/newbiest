@@ -32,6 +32,7 @@ public class LabelTemplate extends NBBase {
     public static final String PRINT_CUSTOMER_NAME_LABEL = "PrintCusNameLabel";//COM装箱客户标签打印
     public static final String PRINT_RW_CST_BOX_LABEL = "PrintRwCstBoxLabel";//RW的CST标签打印
     public static final String PRINT_COM_VBOX_LABEL = "PrintComVBoxLabel";//COM的VBOX标签打印
+    public static final String PRINT_RW_STOCK_OUT_LABEL = "PrintRWStockOutLabel";//RW出货标签打印
 
     @Column(name="NAME")
     private String name;
