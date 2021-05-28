@@ -4,6 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.model.MaterialLot;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author guoxunbo
@@ -23,5 +24,5 @@ public interface PrintService {
     void printCobBoxLabel(MaterialLot materialLot,  String printCount) throws ClientException;
 
     void printComBoxAndCustomerLabel(MaterialLot materialLot, String subcode, String printCount) throws ClientException;
-
+    void rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException;
 }

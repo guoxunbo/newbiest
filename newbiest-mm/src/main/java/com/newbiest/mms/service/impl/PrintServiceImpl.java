@@ -544,4 +544,22 @@ public class PrintServiceImpl implements PrintService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 真空包标签补打（打印真空包种的盒子信息）
+     * @param parameterMapList
+     * @throws ClientException
+     */
+    @Override
+    public void rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COM_VBOX_LABEL, "");
+            for(Map<String, Object> parameterMap : parameterMapList){
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
