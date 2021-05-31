@@ -938,6 +938,40 @@ public class PrintServiceImpl implements PrintService {
     }
 
     /**
+     * RW物料发料标签打印
+     * @param materialLotList
+     * @throws ClientException
+     */
+    @Override
+    public void printRwLotIssueLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_LOT_ISSUE_LABEL, printCount);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyMMdd");
+            String date = formatter.format(new Date());
+            String innerLotInfo = MLotCodePrint.COMPANY_INITIALS_G + date;
+            for(MaterialLot materialLot : materialLotList){
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                Map<String, Object> parameter = Maps.newHashMap();
+                parameter.put("CUSTOMER", MLotCodePrint.PRINT_GALAXYCORE);
+                parameter.put("WAFERCOUNT", Integer.toString(materialLotUnitList.size()));
+                parameter.put("MATERIALNAME", materialLot.getMaterialName());
+                parameter.put("LOTID", materialLot.getLotId());
+                parameter.put("PRODUCTID", materialLot.getMaterialName());
+                parameter.put("INNERLOTID", materialLot.getInnerLotId());
+                parameter.put("WAFERQTY", materialLot.getCurrentQty().toString());
+                parameter.put("PLANTIME", materialLot.getWorkOrderPlanputTime());
+                innerLotInfo = innerLotInfo + materialLot.getInnerLotId();
+                parameter.put("INNERLOTINFO", innerLotInfo );
+                printContext.setBaseObject(materialLot);
+                printContext.setParameterMap(parameter);
+                print(printContext);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 获取周信息
      * @return
      * @throws ClientException

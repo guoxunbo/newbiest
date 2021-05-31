@@ -25,6 +25,7 @@ public interface PrintService {
     void rePrintRwLotCstLabel(MaterialLot materialLot, String printCount) throws ClientException;
     void printRwCstLabel(MaterialLot materialLot, String printCount) throws ClientException;
     void printRwStockOutLabel(MaterialLot materialLot) throws ClientException;
+    void printRwLotIssueLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
 
     void printCobBoxLabel(MaterialLot materialLot,  String printCount) throws ClientException;
     void printCobBBoxLabel(MaterialLot materialLot) throws ClientException;

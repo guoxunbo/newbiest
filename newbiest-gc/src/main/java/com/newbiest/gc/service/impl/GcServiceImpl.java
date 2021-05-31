@@ -1420,7 +1420,7 @@ public class GcServiceImpl implements GcService {
     }
 
 
-    public List<Map<String,String>> validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException{
+    public void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
 
@@ -1451,7 +1451,7 @@ public class GcServiceImpl implements GcService {
 
             //RW的来料发料之后自动打印RW发料标签
             List<MaterialLot> rwMaterialLots = materialLots.stream().filter(materialLot -> materialLot.getMaterialName().endsWith("-2.1") && MaterialLot.SCP_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
-            List<Map<String, String>> parameterMapList = getRWIssueMaterialLotPrintParameter(rwMaterialLots);
+            printService.printRwLotIssueLabel(rwMaterialLots, "");
 
 
             if(StringUtils.isNullOrEmpty(unPlanLot)){
@@ -1463,8 +1463,6 @@ public class GcServiceImpl implements GcService {
                     log.info("wafer issue to mes plan lot end ");
                 }
             }
-
-            return parameterMapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -9333,39 +9331,6 @@ public class GcServiceImpl implements GcService {
             mLotDocRuleContext.setDocumentLineList(documentLines);
             mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
             mLotDocRuleContext.validationDocMerge();
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 获取RW发料标签打印参数
-     * @param materialLotList
-     * @return
-     */
-    public List<Map<String,String>> getRWIssueMaterialLotPrintParameter(List<MaterialLot> materialLotList) throws ClientException{
-        try {
-            List<Map<String, String>> parameterMapList = Lists.newArrayList();
-            SimpleDateFormat formatter = new SimpleDateFormat("yyMMdd");
-            String date = formatter.format(new Date());
-            String innerLotInfo = MLotCodePrint.COMPANY_INITIALS_G + date;
-            for(MaterialLot materialLot : materialLotList){
-                Map<String, String> parameter = Maps.newHashMap();
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-                parameter.put("CUSTOMER", MLotCodePrint.PRINT_GALAXYCORE);
-                parameter.put("WAFERCOUNT", Integer.toString(materialLotUnitList.size()));
-                parameter.put("MATERIALNAME", materialLot.getMaterialName());
-                parameter.put("LOTID", materialLot.getLotId());
-                parameter.put("PRODUCTID", materialLot.getMaterialName());
-                parameter.put("INNERLOTID", materialLot.getInnerLotId());
-                parameter.put("WAFERQTY", materialLot.getCurrentQty().toString());
-                parameter.put("PLANTIME", materialLot.getWorkOrderPlanputTime());
-                innerLotInfo = innerLotInfo + materialLot.getInnerLotId();
-                parameter.put("INNERLOTINFO", innerLotInfo );
-
-                parameterMapList.add(parameter);
-            }
-            return parameterMapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
