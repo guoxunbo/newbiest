@@ -8994,33 +8994,6 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 获取RMA真空包打印参数
-     * @param materialLots
-     * @return
-     * @throws ClientException
-     */
-    public List<Map<String, String>> getRmaLabelPrintParameter(List<MaterialLot> materialLots) throws ClientException{
-        try {
-             List<Map<String, String>> parameterMapList = Lists.newArrayList();
-             for(MaterialLot materialLot : materialLots){
-                 Map<String, String> parameterMap = Maps.newHashMap();
-                 parameterMap.put("BOXID", materialLot.getMaterialLotId());
-                 parameterMap.put("PRODUCTID", materialLot.getMaterialName());
-                 parameterMap.put("GRADE", materialLot.getGrade() + StringUtils.PARAMETER_CODE + materialLot.getCurrentQty());
-                 parameterMap.put("LOCATION", materialLot.getReserved6());
-                 parameterMap.put("SUBCODE", materialLot.getReserved1());
-                 parameterMap.put("PASSDIES", materialLot.getReserved34());
-                 parameterMap.put("NGDIES", materialLot.getReserved35());
-
-                 parameterMapList.add(parameterMap);
-             }
-             return parameterMapList;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
      * 原材料接收
      * 写入中间表MTE_MATERIAL_IN
      * @param materialLotList

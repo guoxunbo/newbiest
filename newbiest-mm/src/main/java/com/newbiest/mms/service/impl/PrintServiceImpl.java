@@ -710,6 +710,93 @@ public class PrintServiceImpl implements PrintService {
     }
 
     /**
+     * 来料晶圆箱标签打印
+     * @param materialLotUnitList
+     * @throws ClientException
+     */
+    @Override
+    public void printWltBboxLabel(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
+        try {
+            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_BBOX_LABEL, "");
+                Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
+                for(String materialLotId : materialLotUnitMap.keySet()){
+                    Map<String, Object> parameterMap = Maps.newHashMap();
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
+                    parameterMap.put("LOTID", materialLot.getLotId());
+                    parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+                    parameterMap.put("SECONDCODE", materialLot.getReserved1());
+                    parameterMap.put("LOCATION", materialLot.getReserved6());
+                    parameterMap.put("VENDER", materialLot.getReserved22());
+                    List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(materialLotId);
+                    Integer waferNumber = 0;
+                    String unitIdList1 = "";
+                    String unitIdLisr2 = "";
+                    if(CollectionUtils.isNotEmpty(materialLotUnits)){
+                        waferNumber = materialLotUnits.size();
+                        for(int j = 0; j <  materialLotUnits.size() ; j++){
+                            String[] unitIdList = materialLotUnits.get(j).getUnitId().split(StringUtils.SPLIT_CODE);
+                            String waferSeq = unitIdList[1] + ",";
+                            if(j < 12){
+                                unitIdList1 = unitIdList1 + waferSeq;
+                            } else {
+                                unitIdLisr2 = unitIdLisr2 + waferSeq;
+                            }
+                        }
+                    }
+                    if(!StringUtils.isNullOrEmpty(unitIdList1)){
+                        parameterMap.put("WAFERLIST1", unitIdList1);
+                    } else {
+                        parameterMap.put("WAFERLIST1", StringUtils.EMPTY);
+                    }
+                    if(!StringUtils.isNullOrEmpty(unitIdLisr2)){
+                        parameterMap.put("WAFERLIST2", unitIdLisr2);
+                    } else {
+                        parameterMap.put("WAFERLIST2", StringUtils.EMPTY);
+                    }
+
+                    parameterMap.put("GRADE", materialLot.getGrade() + "(" + waferNumber.toString() + ")");
+                    parameterMap.put("QTY", materialLot.getCurrentQty().toString());
+
+                    printContext.setBaseObject(materialLot);
+                    printContext.setParameterMap(parameterMap);
+                    print(printContext);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * RMA来料接收箱标签打印
+     * @param materialLotList
+     * @throws ClientException
+     */
+    @Override
+    public void printRmaMaterialLotLabel(List<MaterialLot> materialLotList) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RMA_BOX_LABEL, "");
+            for(MaterialLot materialLot : materialLotList){
+                Map<String, Object> parameterMap = Maps.newHashMap();
+                parameterMap.put("BOXID", materialLot.getMaterialLotId());
+                parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+                parameterMap.put("GRADE", materialLot.getGrade() + StringUtils.PARAMETER_CODE + materialLot.getCurrentQty());
+                parameterMap.put("LOCATION", materialLot.getReserved6());
+                parameterMap.put("SUBCODE", materialLot.getReserved1());
+                parameterMap.put("PASSDIES", materialLot.getReserved34());
+                parameterMap.put("NGDIES", materialLot.getReserved35());
+
+                printContext.setBaseObject(materialLot);
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * COM的箱标签与客户标签的打印
      * @param materialLot
      * @param subcode
