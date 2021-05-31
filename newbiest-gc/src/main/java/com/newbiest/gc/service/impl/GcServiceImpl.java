@@ -4263,7 +4263,7 @@ public class GcServiceImpl implements GcService {
      * @param printLabel
      * @throws ClientException
      */
-    public List<Map<String, String>> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel, String printCount) throws ClientException {
+    public void receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel, String printCount) throws ClientException {
         try {
             List<Map<String, String>> parameterMapList = Lists.newArrayList();
             List<MaterialLot> materialLotList = Lists.newArrayList();
@@ -4291,8 +4291,6 @@ public class GcServiceImpl implements GcService {
                 List<MaterialLot> materialLots = mesPackedLots.stream().map(mesPackedLot -> mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true)).collect(Collectors.toList());
                 printService.printRwLotCstLabel(materialLots, printCount);
             }
-
-            return parameterMapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
