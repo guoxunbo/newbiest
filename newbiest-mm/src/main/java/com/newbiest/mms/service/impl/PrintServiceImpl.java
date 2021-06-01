@@ -158,6 +158,7 @@ public class PrintServiceImpl implements PrintService {
     private Map<String,Object> buildWltCpPrintParameter(MaterialLot materialLot) throws ClientException{
         try {
             Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("LOTID", materialLot.getLotId());
             parameterMap.put("DEVICEID", materialLot.getMaterialName());
             parameterMap.put("QTY", materialLot.getCurrentQty().toString());
             parameterMap.put("WAFERGRADE", materialLot.getGrade());
@@ -653,7 +654,7 @@ public class PrintServiceImpl implements PrintService {
     @Override
     public void printWltBoxLabel(MaterialLot materialLot, String printCount) throws ClientException {
         try {
-            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COB_BOX_LABEL, printCount);
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("BOXID", materialLot.getMaterialLotId());
             parameterMap.put("PRODUCTID", materialLot.getMaterialName());
