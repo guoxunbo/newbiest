@@ -61,8 +61,7 @@ public class PrintWltCpLotController extends AbstractRestController {
         Map<String, String> parameterMap = Maps.newHashMap();
         MaterialLot materialLot = requestBody.getMaterialLot();
         if(materialLot != null){
-            parameterMap = gcService.getWltCpPrintParameter(materialLot);
-//            printService.printWltOrCpLabel(materialLot, ThreadLocalContext.getSessionContext());
+            printService.printWltOrCpLabel(materialLot, requestBody.getPrintCount());
         }
         responseBody.setParameterMap(parameterMap);
         response.setBody(responseBody);

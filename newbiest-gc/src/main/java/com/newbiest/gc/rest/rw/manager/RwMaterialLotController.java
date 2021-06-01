@@ -3,6 +3,8 @@ package com.newbiest.gc.rest.rw.manager;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.service.PrintService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -26,6 +28,12 @@ public class RwMaterialLotController {
     @Autowired
     GcService gcService;
 
+    @Autowired
+    MmsService mmsService;
+
+    @Autowired
+    PrintService printService;
+
     @ApiOperation(value = "RwManager", notes = "RW管理")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "RwMaterialLotRequest")
     @RequestMapping(value = "/rwMaterialLotManager", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -38,14 +46,11 @@ public class RwMaterialLotController {
 
         String actionType = requestBody.getActionType();
         if (RwMaterialLotRequest.ACTION_QUERY_PRINT_PARAMETER.equals(actionType)) {
-            List<Map<String, String>> parameterMapList = gcService.getRWIssueMaterialLotPrintParameter(requestBody.getMaterialLotList());
-            responseBody.setParameterList(parameterMapList);
+            printService.printRwLotIssueLabel(requestBody.getMaterialLotList(), requestBody.getPrintCount());
         } else if(RwMaterialLotRequest.ACTION_RECEIVE_PACKEDLOT.equals(actionType)) {
-            List<Map<String, String>> parameterMapList = gcService.receiveRWFinishPackedLot(requestBody.getMesPackedLots(), requestBody.getPrintLabel());
-            responseBody.setParameterList(parameterMapList);
+            gcService.receiveRWFinishPackedLot(requestBody.getMesPackedLots(), requestBody.getPrintLabel(), requestBody.getPrintCount());
         } else if(RwMaterialLotRequest.ACTION_PRINT_LOT_LABEL.equals(actionType)){
-            Map<String, String> parameterMap = gcService.getRwReceiveLotLabelPrintParameter(requestBody.getMaterialLot());
-            responseBody.setParameterMap(parameterMap);
+            printService.rePrintRwLotCstLabel(requestBody.getMaterialLot(), requestBody.getPrintCount());
         } else if(RwMaterialLotRequest.ACTION_AUTO_PICK.equals(actionType)){
             List<MaterialLot> materialLots = gcService.rwTagginggAutoPickMLot(requestBody.getMaterialLotList(), requestBody.getPickQty());
             responseBody.setMaterialLotList(materialLots);
@@ -61,11 +66,11 @@ public class RwMaterialLotController {
         } else if(RwMaterialLotRequest.ACTION_STOCK_OUT.equals(actionType)){
             gcService.rwStockOut(requestBody.getMaterialLotList(), requestBody.getDocumentLineList());
         } else if(RwMaterialLotRequest.ACTION_GET_RW_PRINT_PARAMETER.equals(actionType)){
-            Map<String, String> parameterMap = gcService.getRWBoxPrintParameter(requestBody.getMaterialLotRrn());
-            responseBody.setParameterMap(parameterMap);
+            MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
+            printService.printRwCstLabel(materialLot, requestBody.getPrintCount());
         }else if(RwMaterialLotRequest.ACTION_GET_RW_STOCK_OUT.equals(actionType)){
-            Map<String, String> parameterMap = gcService.getRWStockOutPrintParameter(requestBody.getMaterialLotRrn());
-            responseBody.setParameterMap(parameterMap);
+            MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
+            printService.printRwStockOutLabel(materialLot);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

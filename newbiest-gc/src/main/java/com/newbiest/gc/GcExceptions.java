@@ -48,8 +48,6 @@ public class GcExceptions {
     public static final String MATERIALLOT_PACKAGE_RULE_IS_ERROR = "gc.material_lot_package_rule_is_error";
     public static final String MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME = "gc.material_lot_reserved_docId_is_not_same";
     public static final String MATERIALLOT_RESERVED_ORDER_IS_NULL = "gc.material_lot_reserved_order_is_null";
-    public static final String MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN = "gc.material_lot_wafer_qty_more_than_thirteen";
-    public static final String MATERIALLOT_PACKED_DETIAL_IS_NULL = "gc.material_lot_packed_detial_is_null";
     public static final String WAFER_ID__IS_NOT_EXIST = "gc.wafer_id_is_not_exist";
     public static final String MATERIAL_LOT_CUSTOMER_NAME_IS_NOT_SAME = "gc.material_lot_customer_name_is_not_same";
     public static final String MATERIAL_LOT_ABBREVIATION_IS_NOT_SAME = "gc.material_lot_abbreviation_is_not_same";
@@ -96,4 +94,5 @@ public class GcExceptions {
     public static final String TAPE_MATERIAL_LOT_ID_IS_REPEAT = "gc.tape_material_lot_id_is_repeat";
     public static final String RAW_MATERIAL_WARNING_LIFE_TIME_IS_NOT_SET = "gc.raw_material_warning_life_time_is_not_set";
     public static final String RAW_MATERIAL_LOT_EXPDATE_LESS_THAN_WARNING_LIFE = "gc.raw_material_lot_expdate_less_than_warning_life";
+    public static final String IRA_MATERIAL_LOT_BOX_MUST_SATRT_WITH_GCB = "gc.ira_material_lot_box_must_start_with_GCB";
 }

@@ -14,4 +14,6 @@ public class GcGetCobboxPrintParaRequestBody extends RequestBody {
 
 	private MaterialLot materialLot;
 
+	private String printCount;
+
 }

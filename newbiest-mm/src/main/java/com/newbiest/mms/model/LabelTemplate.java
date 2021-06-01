@@ -25,6 +25,18 @@ public class LabelTemplate extends NBBase {
     //标签打印模板
     public static final String PRINT_OBLIQUE_BOX_LABEL = "PrintObliqueBoxLabel";//斜标签打印
     public static final String PRINT_WLT_CP_BOX_LABEL = "PrintWltOrCpBoxLabel";//Wlt/CP箱标签打印
+    public static final String PRINT_RW_LOT_CST_LABEL = "PrintRwLotCstLabel";//RW Lot标签打印
+    public static final String PRINT_COB_BOX_LABEL = "PrintCOBBoxLabel";//COB装箱标签打印
+    public static final String PRINT_WLT_BOX_LABEL = "PrintWltBoxLabel";//WLT装箱标签打印
+    public static final String PRINT_COM_BOX_LABEL = "PrintComBoxLabel";//COM装箱标签打印
+    public static final String PRINT_CUSTOMER_NAME_LABEL = "PrintCusNameLabel";//COM装箱客户标签打印
+    public static final String PRINT_RW_CST_BOX_LABEL = "PrintRwCstBoxLabel";//RW的CST标签打印
+    public static final String PRINT_COM_VBOX_LABEL = "PrintComVBoxLabel";//COM的VBOX标签打印
+    public static final String PRINT_RW_STOCK_OUT_LABEL = "PrintRWStockOutLabel";//RW出货标签打印
+    public static final String PRINT_QR_CODE_LABEL = "PrintBoxQRCode";//二维码标签打印
+    public static final String PRINT_WLT_BBOX_LABEL = "PrintWltBboxLabel";//WLT来料晶圆箱标签打印
+    public static final String PRINT_RMA_BOX_LABEL = "PrintRMABoxLabel";//RMA来料接收箱标签打印
+    public static final String PRINT_RW_LOT_ISSUE_LABEL = "PrintRwLotIdIssueLabel";//RW发料箱标签打印
 
     @Column(name="NAME")
     private String name;
