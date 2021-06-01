@@ -44,8 +44,8 @@ public class IssueMLotByDocController extends AbstractRestController {
 
             if (CollectionUtils.isNotEmpty(materialLotList)){
                 materialLotList = materialLotList.stream().filter(materialLot -> !MaterialStatus.STATUS_ISSUE.equals(materialLot.getStatus())).collect(Collectors.toList());
-                responseBody.setMaterialLotList(materialLotList);
             }
+            responseBody.setMaterialLotList(materialLotList);
         } else if (IssueMLotByDocRequest.ACTION_TYPE_ISSUE_MLOT_BY_DOC.equals(actionTyep)){
             vanChipService.issueMLotByOrder(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
         } else {

@@ -39,6 +39,8 @@ public class IssueMLotByDocController extends AbstractRestController {
 
         if(IssueMLotByDocRequest.ACTION_TYPE_ISSUE_MLOT_BY_ORDER.equals(actionType)){
             documentService.issueMaterialLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
+        } else if (IssueMLotByDocRequest.ACTION_TYPE_ISSUE_MATERIAL_LOT_BY_ORDER.equals(actionType)){
+            documentService.issueMaterialLotByOrder(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }

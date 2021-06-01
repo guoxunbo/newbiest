@@ -200,6 +200,11 @@ public class DocumentLine extends NBUpdatable {
     private String reserved24;
 
     /**
+     * Delivery Term:
+     */
+    @Column(name="RESERVED25")
+    private String reserved25;
+    /**
      * 导入时格式转换
      */
     @Transient

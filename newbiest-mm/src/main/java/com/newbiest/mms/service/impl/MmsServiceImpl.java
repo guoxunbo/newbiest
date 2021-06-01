@@ -192,11 +192,14 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot issue(MaterialLot materialLot) throws ClientException {
         try {
+            MaterialLotAction materialLotAction = new MaterialLotAction();
+            materialLotAction.setTransQty(materialLot.getCurrentQty());
             materialLot.setCurrentQty(BigDecimal.ZERO);
             materialLot.setCurrentSubQty(BigDecimal.ZERO);
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_ISSUE, StringUtils.EMPTY);
 
             baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_ISSUE);
+            baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_ISSUE, materialLotAction);
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -1279,4 +1282,27 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    /**
+     * 获得物料库存数量
+     * @param materials
+     * @return
+     */
+    public List<Material> getMaterialStockQty(List<Material> materials) throws ClientException{
+        try {
+            List<Material> materialList = Lists.newArrayList();
+            List<MaterialLotInventory> materialLotInventorys = materialLotInventoryRepository.findAll();
+            for (Material material :materials){
+                List<MaterialLotInventory> mLotInventorys = materialLotInventorys.stream().filter(materialLotInventory -> materialLotInventory.getMaterialName().equals(material.getName())).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(mLotInventorys)){
+                    BigDecimal materialStockQty = mLotInventorys.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotInventory::getStockQty));
+                    material.setMaterialStockQty(materialStockQty);
+
+                    materialList.add(material);
+                }
+            }
+            return  materialList;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
