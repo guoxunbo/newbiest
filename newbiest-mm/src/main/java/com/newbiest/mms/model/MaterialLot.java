@@ -648,6 +648,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Transient
     private String expectedDeliveryDateValue ;
+    /**
+     *需求领料数量
+     */
+    @Transient
+    private BigDecimal pickQty;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
@@ -719,6 +724,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public void setParentMaterialLot(MaterialLot parentMaterialLot) {
         this.parentMaterialLotId = parentMaterialLot.getMaterialLotId();
         this.parentMaterialLotRrn = parentMaterialLot.getObjectRrn();
+        this.setSubMaterialLotFlag(true);
     }
 
     public void setMaterial(Material material) {
