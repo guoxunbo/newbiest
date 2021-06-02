@@ -649,9 +649,9 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
-    public List<MaterialLot> getWaitShipMLotByDocLine(DocumentLine documentLine) throws ClientException{
+    public List<MaterialLot> getWaitShipMLotByDocLineId(String docLineId) throws ClientException{
         try {
-            return materialLotRepository.findByReserved44AndCategory(documentLine.getObjectRrn(), StringUtils.YES);
+            return materialLotRepository.findByReserved45AndCategory(docLineId, StringUtils.YES);
         }catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

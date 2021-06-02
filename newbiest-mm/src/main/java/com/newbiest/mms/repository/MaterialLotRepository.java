@@ -24,12 +24,12 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, String> 
     @Query("SELECT m FROM MaterialLot m, DocumentMLot d where d.materialLotId = m.materialLotId and d.documentId = :documentId")
     List<MaterialLot> findReservedLotsByDocId(String documentId) throws ClientException;
 
-    List<MaterialLot> findByReserved44(String docLineObjectRrn);
-    List<MaterialLot> findByBoxMaterialLotId(String materialLotId);
+    List<MaterialLot> findByReserved44(String docLineObjectRrn) throws ClientException;
+    List<MaterialLot> findByBoxMaterialLotId(String materialLotId) throws ClientException;
 
-    List<MaterialLot> findByReserved44AndCategory(String docLineId, String category);
+    List<MaterialLot> findByReserved45AndCategory(String docLineId, String category) throws ClientException;
 
-    List<MaterialLot> findByMaterialNameAndStatus(String materialName, String status);
+    List<MaterialLot> findByMaterialNameAndStatus(String materialName, String status) throws ClientException;
 
     List<MaterialLot> findByMaterialCategory(String materialCategory);
 
