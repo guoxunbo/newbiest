@@ -27,7 +27,7 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, String> 
     List<MaterialLot> findByReserved44(String docLineObjectRrn);
     List<MaterialLot> findByBoxMaterialLotId(String materialLotId);
 
-    List<MaterialLot> findByReserved45AndCategory(String docLineId, String category);
+    List<MaterialLot> findByReserved44AndCategory(String docLineId, String category);
 
     List<MaterialLot> findByMaterialNameAndStatus(String materialName, String status);
 
