@@ -16,6 +16,8 @@ public class IssueMLotByDocRequest extends Request {
 	@ApiModelProperty("指定物料批次发料")
 	public static final String ACTION_TYPE_ISSUE_MLOT_BY_ORDER = "IssueMLotByOrder";
 
+	@ApiModelProperty("指定批次以及数量发料")
+	public static final String ACTION_TYPE_ISSUE_MATERIAL_LOT_BY_ORDER= "IssueMaterialLotByOrder";
 	private IssueMLotByDocRequestBody body;
 
 }

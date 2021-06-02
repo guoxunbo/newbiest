@@ -73,4 +73,5 @@ public interface MmsService {
     Product getProductByName(String name) throws ClientException;
 
     void validateHoldMLotMatchedHoldWarehouse(MaterialLotAction materialLotAction) throws ClientException;
+    List<Material> getMaterialStockQty(List<Material> materials) throws ClientException;
 }
