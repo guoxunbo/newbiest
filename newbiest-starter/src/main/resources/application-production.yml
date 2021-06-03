@@ -1,5 +1,6 @@
 vc:
   mesUrl: http://10.39.0.50/mycim2
+  openSchedule: false
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense

@@ -1,8 +1,8 @@
-package com.newbiest.vanchip.rest.stock.out;
+package com.newbiest.vanchip.rest.ship;
 
 import com.newbiest.base.msg.RequestBody;
-import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
+import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.util.List;
 
 @Data
 @ApiModel("具体请求操作信息")
-public class StockOutRequestBody extends RequestBody {
+public class ShipOutRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -22,8 +22,11 @@ public class StockOutRequestBody extends RequestBody {
 	@ApiModelProperty(value = "发货单")
 	private DocumentLine documentLine;
 
-	@ApiModelProperty(value = "物料批次动作")
-	private List<MaterialLotAction> materialLotActionList;
+	@ApiModelProperty(value = "物料批次号")
+	private List<MaterialLot> materialLots;
+
+	@ApiModelProperty(value = "发货单号")
+	private String docLineId;
 
 
 

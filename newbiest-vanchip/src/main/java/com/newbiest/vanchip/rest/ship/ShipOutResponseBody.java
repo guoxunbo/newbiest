@@ -1,4 +1,4 @@
-package com.newbiest.vanchip.rest.stock.out;
+package com.newbiest.vanchip.rest.ship;
 
 import com.newbiest.base.msg.ResponseBody;
 import com.newbiest.mms.model.MaterialLot;
@@ -8,7 +8,7 @@ import java.util.List;
 
 
 @Data
-public class StockOutResponseBody extends ResponseBody {
+public class ShipOutResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 

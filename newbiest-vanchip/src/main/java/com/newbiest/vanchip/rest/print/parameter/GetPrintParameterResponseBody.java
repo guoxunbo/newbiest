@@ -1,6 +1,7 @@
 package com.newbiest.vanchip.rest.print.parameter;
 
 import com.newbiest.base.msg.ResponseBody;
+import com.newbiest.mms.model.Document;
 import com.newbiest.mms.model.MaterialLot;
 import lombok.Data;
 
@@ -18,4 +19,6 @@ public class GetPrintParameterResponseBody extends ResponseBody {
 	private List<Map<String, Object>> parameterList;
 
 	private List<MaterialLot> materialLots;
+
+	private Document document;
 }

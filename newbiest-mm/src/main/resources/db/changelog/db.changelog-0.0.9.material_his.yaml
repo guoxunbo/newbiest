@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_his_0.0.9
+      author: Tao Zhou
+      remarks: mms_material_his drop STANDARD_PICK_QTY colums and modify DESCRIPTION colums
+      changes:
+        - modifyDataType:
+            columnName: DESCRIPTION
+            newDataType: varchar(128)
+            tableName: MMS_MATERIAL_HIS
+        - dropColumn:
+            columnName: STANDARD_PICK_QTY
+            tableName: MMS_MATERIAL_HIS

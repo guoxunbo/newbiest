@@ -34,6 +34,6 @@ public interface MaterialLotInventoryRepository extends IRepository<MaterialLotI
     @Query("DELETE FROM MaterialLotInventory MaterialLotInventory WHERE MaterialLotInventory.materialLotRrn = :materialLotRrn")
     void deleteByMaterialLotRrn(String materialLotRrn) throws ClientException;
 
-    List<MaterialLotInventory> findByMaterialLotIdIn(List<String> waitStockInMLotIds) throws ClientException;
+    MaterialLotInventory findByMaterialLotId(String materialLotId);
 
 }

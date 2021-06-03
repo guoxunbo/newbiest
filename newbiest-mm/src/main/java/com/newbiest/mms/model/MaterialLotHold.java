@@ -18,11 +18,17 @@ import javax.persistence.Table;
 @Table(name="MMS_MATERIAL_LOT_HOLD")
 public class MaterialLotHold extends NBAction {
 
-    //IQC NG Hold code
-    public static final String IQC_NG_HOLD = "IQC_NG_Hold";
+    //IQC Hold code
+    public static final String IQC_HOLD = "IQC_HOLD";
 
-    //OQC NG Hold code
-    public static final String OQC_NG_HOLD = "OQC_NG_Hold";
+    //OQC Hold code
+    public static final String OQC_HOLD = "OQC_HOLD";
+
+    //装箱检验 Hold code
+    public static final String PACK_CHECK_HOLD = "PACK_CHECK_HOLD";
+
+    //物料过期hold code
+    public static final String EXPIRE_HOLD = "EXPIRE_HOLD";
 
     @Column(name="MATERIAL_LOT_RRN")
     private String materialLotRrn;
@@ -68,6 +74,12 @@ public class MaterialLotHold extends NBAction {
      */
     @Column(name="MATERIAL_TYPE")
     private String materialType;
+
+    @Column(name="UNIT_ID")
+    private String unitId;
+
+    @Column(name="UNIT_RRN")
+    private String unitRrn;
 
     public MaterialLotHold setMaterialLot(MaterialLot materialLot) {
         this.setMaterialLotId(materialLot.getMaterialLotId());

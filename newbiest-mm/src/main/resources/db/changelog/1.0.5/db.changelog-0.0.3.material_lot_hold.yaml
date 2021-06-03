@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material-lot-hold-table_0.0.3
+      author: Tao Zhou
+      comment: mms_material_lot_hold add columns UNIT_ID,UNIT_RRN
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HOLD
+            columns:
+              - column:
+                  name: UNIT_ID
+                  type: varchar(64)
+                  remarks: 测试批次号
+              - column:
+                  name: UNIT_RRN
+                  type: varchar(64)
+                  remarks: 测试批次主键
+

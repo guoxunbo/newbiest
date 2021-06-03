@@ -5,8 +5,10 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.CollectorsUtils;
+import com.newbiest.base.utils.PreConditionalUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
@@ -96,6 +98,9 @@ public class DocumentServiceImpl implements DocumentService {
     MaterialRepository materialRepository;
 
     @Autowired
+    ReturnLotOrderRepository returnLotOrderRepository;
+
+    @Autowired
     PackagedLotDetailRepository packagedLotDetailRepository;
 
     //BY客户版本备货 reserved5+reserved4+reserved3
@@ -104,6 +109,15 @@ public class DocumentServiceImpl implements DocumentService {
     //BY客户产品备货 reserved5+reserved4+reserved23
     public static final String CREATE_BY_CUSTOMER_PRODUCT_RESERVED_RULE = "createByCustomerProductReservedRule";
 
+    /**
+     * 仓库退料到供应商
+     */
+    public static final String RETURN_SUPPLIER = "returnSupplier";
+
+    /**
+     * 产线退料到仓库
+     */
+    public static final String RETURN_WAREHOUSE = "returnWarehouse";
 
     /**
      * 创建发货单
@@ -244,29 +258,71 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    public void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException {
+    /**
+     * 退料
+     * @param documentId
+     * @param materialLotIdList
+     * @param returnTarget 仓库OR供应商
+     * @throws ClientException
+     */
+    public void returnMLotByDoc(String documentId, List<String> materialLotIdList, String returnTarget) throws ClientException {
         try {
-            ReturnOrder returnOrder = returnOrderRepository.findOneByName(documentId);
-            if (returnOrder == null) {
-                throw new ClientParameterException(DocumentException.DOCUMENT_IS_NOT_EXIST, returnOrder.getName());
-            }
-            if (!Document.STATUS_APPROVE.equals(returnOrder.getStatus())) {
-                throw new ClientParameterException(DocumentException.DOCUMENT_STATUS_IS_NOT_ALLOW, returnOrder.getName());
-            }
             List<MaterialLot> materialLots = validationDocReservedMLot(documentId, materialLotIdList);
 
-            BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
-            for (MaterialLot materialLot : materialLots) {
-                mmsService.returnMLot(materialLot);
+            BigDecimal handleQty = BigDecimal.ZERO;
+            if (RETURN_WAREHOUSE.equals(returnTarget)){
+                handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+
+                for (MaterialLot materialLot : materialLots) {
+                    mmsService.returnMLot(materialLot);
+                }
+            }else if (RETURN_SUPPLIER.equals(returnTarget)){
+                handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
+
+                for (MaterialLot materialLot : materialLots) {
+                    mmsService.returnMaterialLot(materialLot);
+                }
             }
 
-            returnOrder.setHandledQty(returnOrder.getHandledQty().add(handleQty));
-            returnOrder.setUnHandledQty(returnOrder.getUnHandledQty().subtract(handleQty));
-            baseService.saveEntity(returnOrder, DocumentHistory.TRANS_TYPE_RETURN);
+            //更新document数量
+            saveDocument(documentId, handleQty, DocumentHistory.TRANS_TYPE_RETURN);
 
             //更改documentMLot状态
             changeDocMLotStatus(documentId, materialLotIdList, DocumentMLot.STATUS_RETURN);
 
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 创建退料单
+     * 这个退料单指仓库退回供应商
+     * @param documentId
+     * @param approveFlag
+     * @param materialLotActions 批次号 退料数量(可以只退部分)
+     * @throws ClientException
+     */
+    public Document createReturnMLotOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException {
+        try {
+            BigDecimal qty = materialLotActions.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotAction::getTransQty));
+            Document returnMLotOrder = createDocument(new ReturnMLotOrder(), documentId, ReturnMLotOrder.GENERATOR_RETURN_MLOT_ORDER_RULE, approveFlag, qty);
+
+            //验证批次是否被create状态的单据绑定
+            List<String> materialLotIds = materialLotActions.stream().map(materialLotAction -> materialLotAction.getMaterialLotId()).collect(Collectors.toList());
+            validationMLotBoundOrder(materialLotIds);
+
+            List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId(), true)).collect(Collectors.toList());
+            Map<String, MaterialLotAction> materialLotActionMap = materialLotActions.stream().collect(Collectors.toMap(MaterialLotAction::getMaterialLotId, Function.identity()));
+            for (MaterialLot materialLot : materialLots) {
+                MaterialLotAction materialLotAction = materialLotActionMap.get(materialLot.getMaterialLotId());
+                materialLot.setReservedQty(materialLotAction.getTransQty());
+                materialLot.setReturnReason(materialLotAction.getActionReason());
+                materialLotRepository.save(materialLot);
+                //将单据与批次绑定
+                createDocumentMLot(returnMLotOrder.getName(), materialLot.getMaterialLotId());
+            }
+            return returnMLotOrder;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -900,6 +956,74 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
+     * 创建退货单
+     * @param returnLotId
+     * @param approveFlag
+     * @param materialLots
+     * @throws ClientException
+     */
+    public void createReturnLotOrder(String returnLotId, boolean approveFlag, List<MaterialLot> materialLots) throws ClientException{
+        try {
+            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
+            ReturnLotOrder returnLotOrder = (ReturnLotOrder)createDocument(new ReturnLotOrder(), returnLotId, ReturnLotOrder.GENERATOR_RETURN_LOT_ORDER_RULE, approveFlag, totalQty);
+
+            List<MaterialLot> mLots = materialLotRepository.findByStatus(MaterialStatus.STATUS_SHIP);
+            for (MaterialLot materialLot : materialLots){
+                Optional<MaterialLot> materialLotOptional = mLots.stream().filter(mLot -> mLot.getMaterialLotId().equals(materialLot.getMaterialLotId()))
+                        .findFirst();
+                if (!materialLotOptional.isPresent()){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLot.getMaterialLotId());
+                }
+                MaterialLot mLot = materialLotOptional.get();
+
+                mLot.setCurrentQty(materialLot.getCurrentQty());
+                mmsService.waitReturnMLot(mLot);
+
+                createDocumentMLot(returnLotOrder.getName(), materialLot.getMaterialLotId());
+            }
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     *退货 厂内发出的物品
+     *进行解绑,状态为接收
+     * @param returnLotId
+     * @param materialLotIds
+     * @throws ClientException
+     */
+    public void returnLotOrder(String returnLotId, List<String> materialLotIds) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = validationDocReservedMLot(returnLotId, materialLotIds);
+            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
+            saveDocument(returnLotId, totalQty, DocumentHistory.TRANS_TYPE_RETURN);
+
+            Map<String, List<MaterialLot>> boxMLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot::getBoxMaterialLotRrn));
+            for (String boxMLotRrn : boxMLotMap.keySet()) {
+                List<PackagedLotDetail> packagedLotDetails = packagedLotDetailRepository.findByPackagedLotRrn(boxMLotRrn);
+                for (PackagedLotDetail packagedLotDetail : packagedLotDetails) {
+                    packagedLotDetailRepository.deleteById(packagedLotDetail.getObjectRrn());
+                }
+            }
+
+            for (MaterialLot materialLot : materialLots) {
+                //取消箱号绑定
+                materialLot.setBoxMaterialLotRrn(StringUtils.EMPTY);
+                materialLot.setBoxMaterialLotId(StringUtils.EMPTY);
+                //取消单据绑定
+                materialLot.setReserved44(StringUtils.EMPTY);
+                materialLot.setReserved45(StringUtils.EMPTY);
+                mmsService.returnMLot(materialLot);
+            }
+
+            changeDocMLotStatus(returnLotId, materialLotIds, DocumentMLot.STATUS_RETURN);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 根据单据号获得绑定的批次
      * @param documentId
      * @return
@@ -954,4 +1078,39 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    /**
+     * 单据删除
+     * 用户可以删除自己创建还未处理的单据
+     * @param documentId
+     * @return
+     * @throws ClientException
+     */
+    public void deleteDocument(String documentId) throws ClientException{
+        try{
+            Document document = getDocumentByName(documentId, true);
+            String userName = ThreadLocalContext.getUsername();
+
+            if (document.getQty().compareTo(document.getUnHandledQty()) != 0 || !userName.equals(document.getCreatedBy())){
+                throw new ClientParameterException(DOCUMENT_NOT_CANT_DELETE, documentId);
+            }
+
+            List<DocumentMLot> documentMLots = documentMLotRepository.findByDocumentId(document.getName());
+            if (!CollectionUtils.isNotEmpty(documentMLots)){
+                List<MaterialLot> materialLots = documentMLots.stream().map(documentMLot -> mmsService.getMLotByMLotId(documentMLot.getMaterialLotId(), true)).collect(Collectors.toList());
+                materialLots.forEach(mLot -> {
+                    mLot.setReservedQty(BigDecimal.ZERO);
+                    materialLotRepository.save(mLot);
+                });
+                documentMLotRepository.deleteInBatch(documentMLots);
+            }else {
+                List<DocumentLine> documentLine = documentLineRepository.findByDocId(documentId);
+                documentLineRepository.deleteInBatch(documentLine);
+            }
+            documentRepository.delete(document);
+
+
+        }catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

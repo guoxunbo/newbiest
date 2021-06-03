@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.2.0
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column MATERIAL_PROPERTIES and INFERIOR_PRODUCTS_FLAG
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: MATERIAL_PROPERTIES
+                  type: varchar(64)
+                  remarks: 物料属性
+              - column:
+                  name: INFERIOR_PRODUCTS_FLAG
+                  type: varchar(64)
+                  remarks: 次品标识
