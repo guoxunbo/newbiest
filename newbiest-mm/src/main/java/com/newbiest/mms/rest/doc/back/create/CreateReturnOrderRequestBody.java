@@ -2,6 +2,7 @@ package com.newbiest.mms.rest.doc.back.create;
 
 import com.newbiest.base.msg.RequestBody;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -22,5 +23,8 @@ public class CreateReturnOrderRequestBody extends RequestBody {
 
 	@ApiModelProperty(value="具体的物料动作")
 	private List<MaterialLotAction> materialLotActionList;
+
+	@ApiModelProperty(value="退货批次")
+	private List<MaterialLot> dataList;
 
 }

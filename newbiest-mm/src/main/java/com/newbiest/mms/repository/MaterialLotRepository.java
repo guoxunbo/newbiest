@@ -33,7 +33,16 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, String> 
 
     List<MaterialLot> findByMaterialCategoryAndStatus(String materialCategory, String status) throws ClientException;
 
-    List<MaterialLot> findByReserved45IsNullAndBoxMaterialLotIdIsNullAndStatusAndMaterialCategory(String statusIn, String typeProduct);
+    List<MaterialLot> findByReserved45IsNullAndBoxMaterialLotIdIsNullAndStatusAndMaterialCategory(String statusIn, String typeProduct) throws ClientException;
 
-    List<MaterialLot> findByReserved45AndBoxMaterialLotIdIsNullAndCategoryIsNull(String lineId);
+    List<MaterialLot> findByReserved45AndBoxMaterialLotIdIsNullAndCategoryIsNull(String lineId)throws ClientException;
+
+    List<MaterialLot> findByIncomingDocIdAndReserved4(String incomingDocId, String controlLot)throws ClientException;
+
+
+    List<MaterialLot> findByStatus(String status) throws ClientException;
+
+    List<MaterialLot> findByWarningStatusNotOrWarningStatusNullAndStatus(String warningStatus, String status) throws ClientException;
+
+
 }

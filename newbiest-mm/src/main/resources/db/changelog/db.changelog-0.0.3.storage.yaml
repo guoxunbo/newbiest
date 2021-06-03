@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_storage_0.0.3
+      author: Tao Zhou
+      remarks: mms_storage add warehouse_desc info columns
+      changes:
+        - addColumn:
+            tableName: MMS_STORAGE
+            columns:
+              - column:
+                  name: WAREHOUSE_DESC
+                  type: varchar(64)
+                  remarks: 仓库描述

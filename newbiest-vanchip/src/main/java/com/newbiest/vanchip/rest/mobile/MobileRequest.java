@@ -14,6 +14,7 @@ public class MobileRequest extends Request {
 
 	public static final String ACTION_STOCK_IN = "stockIn";
 	public static final String ACTION_STOCK_OUT = "stockOut";
+	public static final String ACTION_STOCK_OUT_BY_ORDER = "stockOutByOrder";
 
 	public static final String ACTION_QUERY_PACKAGE_MLOT = "queryPackageMLot";
 	public static final String ACTION_PACKAGE_MLOT = "packageMLot";
@@ -22,6 +23,13 @@ public class MobileRequest extends Request {
 	public static final String ACTION_SHIP_MLOT = "shipMLot";
 
 	public static final String ACTION_CHECK_MLOT_INVENTORY = "checkMLotInventory";
+
+	public static final String ACTION_TRANSFER_INVENTORY = "transferInv";
+	public static final String ACTION_STOCK_IN_FINISH_GOOD = "stockInFinishGood";
+
+	public static final String ACTION_VAILADATE_TARGET_WAREHOUSE = "vailadateTargetWarehouse";
+	public static final String ACTION_VAILADATE_FROM_WAREHOUSE = "vailadateFromWarehouse";
+	public static final String ACTION_TRANSFER_INVENTORY_MLOTS = "transferInvMLots";
 
 	private MobileRequestBody body;
 

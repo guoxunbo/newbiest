@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 
 /**
  * 退料单
+ * 产线退到仓库
  */
 @Entity
 @DiscriminatorValue(Document.CATEGORY_RETURN)

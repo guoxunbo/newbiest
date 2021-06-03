@@ -13,16 +13,6 @@ public class GetPrintParameterRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "PrintParameterManager";
 
-	@ApiModelProperty(value = "coc标签打印")
-	public static final String ACTION_COC = "GetCocParameter";
-
-	@ApiModelProperty(value = "出货清单打印")
-	public static final String ACTION_SHIPPING_LIST = "GetShippingListParameter";
-	public static final String ACTION_SHIPPING_LIST_MLOT = "GetShippingListMLotParameter";
-
-	@ApiModelProperty(value = "装箱清单打印")
-	public static final String ACTION_PACKING_LIST = "GetPackingListParameter";
-
 	@ApiModelProperty(value = "箱标签打印")
 	public static final String ACTION_BOX = "GetBoxParameter";
 

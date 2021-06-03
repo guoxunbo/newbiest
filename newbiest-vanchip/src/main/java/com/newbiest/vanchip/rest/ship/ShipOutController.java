@@ -1,9 +1,8 @@
-package com.newbiest.vanchip.rest.stock.out;
+package com.newbiest.vanchip.rest.ship;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
@@ -18,31 +17,30 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController("VCStockOutController")
+@RestController
 @RequestMapping("/vc")
 @Slf4j
 @Api(value="/vc", tags="Vanchip客制化")
-public class StockOutController extends AbstractRestController {
+public class ShipOutController extends AbstractRestController {
 
     @Autowired
     VanChipService vanChipService;
 
-    @ApiOperation(value = "物料批次发货", notes = "发货")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "StockOutRequest")
-    @RequestMapping(value = "/stockOut", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-    public StockOutResponse execute(@RequestBody StockOutRequest request) throws Exception {
-        StockOutResponse response = new StockOutResponse();
+    @ApiOperation(value = "发货", notes = "发货")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "ShipOutRequest")
+    @RequestMapping(value = "/shipOut", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    public ShipOutResponse execute(@RequestBody ShipOutRequest request) throws Exception {
+        ShipOutResponse response = new ShipOutResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
-        StockOutResponseBody responseBody = new StockOutResponseBody();
-        StockOutRequestBody requestBody = request.getBody();
+        ShipOutResponseBody responseBody = new ShipOutResponseBody();
+        ShipOutRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
 
-        if (StockOutRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
-            DocumentLine documentLine = requestBody.getDocumentLine();
-            List<MaterialLot> materialLots = vanChipService.getWaitShipMLotByDocLine(documentLine);
+        if (ShipOutRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
+            List<MaterialLot> materialLots = vanChipService.getWaitShipMLotByDocLineId(requestBody.getDocLineId());
             responseBody.setMaterialLots(materialLots);
-        }else if (StockOutRequest.ACTION_TYPE_STOCK_OUT.equals(actionType)){
-            vanChipService.stockOut(requestBody.getDocumentLine(), requestBody.getMaterialLotActionList());
+        }else if (ShipOutRequest.ACTION_TYPE_SHIP_OUT.equals(actionType)){
+            vanChipService.shipOut(requestBody.getDocLineId(), requestBody.getMaterialLots());
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }

@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id:  modifyDataType-nb_query-0.0.1
+      author:  Tao Zhou
+      remarks: NB_QUERY  modifyDataType
+      changes:
+        -  modifyDataType:
+             columnName:  QUERY_TEXT
+             newDataType:  varchar2(4000)
+             tableName:  NB_QUERY

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.1.8
+      author: Tao Zhou
+      remarks: mms_material_lot add column RESERVED52
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: RESERVED53
+                  type: varchar(64)
+                  remarks: 最终客户
+        - modifyDataType:
+            columnName: MATERIAL_DESC
+            newDataType: varchar(128)
+            tableName: MMS_MATERIAL_LOT

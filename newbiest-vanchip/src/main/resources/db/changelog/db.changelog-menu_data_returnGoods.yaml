@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: menu_data_returnGoods
+      author: Tao Zhou
+      comment: returnGoods menu data
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/menu_data_returnGoods.sql

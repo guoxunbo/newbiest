@@ -28,5 +28,7 @@ public class VanchipExceptions {
 
     public static final String CONVERSION_MATERIAL_MODEL_IS_NOT_EXIST = "vc.conversion_material_model_is_not_exist";
 
+    public static final String  NB_QUERY_IS_NOT_EXIST = "vc.nb_query_is_not_exist";
+
 }
 

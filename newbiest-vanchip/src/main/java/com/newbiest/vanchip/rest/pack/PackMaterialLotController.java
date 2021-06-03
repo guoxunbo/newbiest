@@ -1,7 +1,10 @@
 package com.newbiest.vanchip.rest.pack;
 
+import com.newbiest.base.exception.ClientParameterException;
+import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.service.PrintService;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,6 +28,9 @@ public class PackMaterialLotController extends AbstractRestController {
     @Autowired
     VanChipService vanChipService;
 
+    @Autowired
+    PrintService printService;
+
     @ApiOperation(value = "物料批次包装", notes = "物料批次包装")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "PackMaterialLotRequest")
     @RequestMapping(value = "/packMaterialLots", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -34,9 +40,17 @@ public class PackMaterialLotController extends AbstractRestController {
         PackMaterialLotResponseBody responseBody = new PackMaterialLotResponseBody();
 
         PackMaterialLotRequestBody requestBody = request.getBody();
+        String actionType = requestBody.getActionType();
 
-        MaterialLot packagedMaterialLot = vanChipService.packageMaterialLots(requestBody.getMaterialLotActions(), requestBody.getPackageType());
-        responseBody.setMaterialLot(packagedMaterialLot);
+        if (PackMaterialLotRequest.ACTION_PACKAGE_MLOT.equals(actionType)){
+            MaterialLot packagedMaterialLot = vanChipService.packageMaterialLots(requestBody.getMaterialLotActions(), requestBody.getPackageType());
+            responseBody.setMaterialLot(packagedMaterialLot);
+        }else if (PackMaterialLotRequest.ACTION_PRINT_PACKAGE_MLOT.equals(actionType)){
+            printService.printBoxMLot(requestBody.getMaterialLotId());
+        }else {
+            throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);
+        }
+
         response.setBody(responseBody);
         return response;
     }

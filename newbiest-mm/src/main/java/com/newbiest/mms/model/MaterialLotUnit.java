@@ -85,7 +85,6 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name = "GRADE")
     private String grade;
 
-
     /**
      * PO NO
      */
@@ -110,6 +109,11 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name="RESERVED4")
     private String reserved4;
 
+    /**
+     * 最终客户
+     */
+    @Column(name="RESERVED5")
+    private String reserved5;
 
 
     public void setMaterialLot(MaterialLot materialLot){

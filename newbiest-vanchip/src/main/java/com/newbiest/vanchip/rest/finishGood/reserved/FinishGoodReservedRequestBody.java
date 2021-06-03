@@ -6,6 +6,7 @@ import com.newbiest.mms.model.DocumentLine;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -21,4 +22,7 @@ public class FinishGoodReservedRequestBody extends RequestBody {
 
     @ApiModelProperty(value = "完成品信息")
     private List<MaterialLotAction> materialLotActionList;
+
+    @ApiModelProperty(value = "标准数量")
+    private BigDecimal standardQty;
 }

@@ -37,7 +37,21 @@ public class Document extends NBUpdatable {
      */
     public static final String CATEGORY_ISSUE_BY_MLOT = "IssueByMLot";
 
+    /**
+     * 产线退料到仓库
+     */
     public static final String CATEGORY_RETURN = "Return";
+
+    /**
+     * 仓库退料到供应商
+     */
+    public static final String CATEGORY_RETURN_MLOT = "ReturnMLot";
+
+    /**
+     * 客户退货
+     */
+    public static final String CATEGORY_RETURN_LOT = "ReturnLot";
+
     public static final String CATEGORY_FINISH_GOOD = "FinishGood";
 
     public static final String STATUS_CREATE = "Create";
