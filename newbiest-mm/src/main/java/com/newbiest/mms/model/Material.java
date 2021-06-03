@@ -34,6 +34,11 @@ public class Material extends NBVersionControl {
     public static final String CLASS_LAB = "LAB";
 
     /**
+     * 备品备件
+     */
+    public static final String CLASS_PARTS = "PARTS";
+
+    /**
      * 默认状态模型
      */
     public static final String DEFAULT_STATUS_MODEL = "Normal";
@@ -56,8 +61,8 @@ public class Material extends NBVersionControl {
     public static final String OQC_SHEET_NAME = "OQC出货检验记录";
 
     public static final String TYPE_PRODUCT = "Product";
-
-    //MainMaterial PackingMaterial material Laboratory
+    public static final String TYPE_PARTS = "Parts";
+    public static final String TYPE_SPECIAL_PARTS = "SpecialParts";
 
     //成品类型
     public static final String MATERIAL_CATEGORY_PRODUCT = "Product";
@@ -69,8 +74,8 @@ public class Material extends NBVersionControl {
     public static final String MATERIAL_CATEGORY_MATERIAL = "Material";
     //实验室类型
     public static final String MATERIAL_CATEGORY_LABORATORY = "Laboratory";
-
-
+    //备件类型
+    public static final String MATERIAL_CATEGORY_PARTS = "Parts";
 
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;
@@ -267,27 +272,57 @@ public class Material extends NBVersionControl {
     @Column(name="RESERVED15")
     private String reserved15;
 
+    /**
+     * 物料属性 自购/客供
+     */
     @Column(name="RESERVED16")
     private String reserved16;
 
+    /**
+     * 品牌
+     */
     @Column(name="RESERVED17")
     private String reserved17;
 
+    /**
+     * 环境要求
+     */
     @Column(name="RESERVED18")
     private String reserved18;
 
+    /**
+     *防护要求
+     */
     @Column(name="RESERVED19")
     private String reserved19;
 
+    /**
+     * 备件价格
+     */
     @Column(name="RESERVED20")
     private String reserved20;
 
+    /**
+     * 有无图纸
+     */
     @Column(name="RESERVED21")
     private String reserved21;
 
+    /**
+     * Remark
+     */
     @Column(name="RESERVED22")
     private String reserved22;
 
+    /**
+     * 是否特殊备件
+     */
     @Column(name="RESERVED23")
     private String reserved23;
+
+    @Transient
+    private BigDecimal materialStockQty;
+
+    @Transient
+    private BigDecimal pickQty;
 }
