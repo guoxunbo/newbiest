@@ -51,6 +51,7 @@ public interface VanChipService {
     void asyncMesProduct() throws ClientException;
 
     void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
+    List<MaterialLot> getWaitShipMLotByDocLineId(String docLineId) throws ClientException;
 
     List<MaterialLot> getMLotByLineObjectRrn(String docLineObjectRrn) throws ClientException;
 
