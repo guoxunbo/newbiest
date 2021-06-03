@@ -31,7 +31,7 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, String> 
 
     List<MaterialLot> findByMaterialNameAndStatus(String materialName, String status) throws ClientException;
 
-    List<MaterialLot> findByMaterialCategory(String materialCategory);
+    List<MaterialLot> findByMaterialCategoryAndStatus(String materialCategory, String status) throws ClientException;
 
     List<MaterialLot> findByReserved45IsNullAndBoxMaterialLotIdIsNullAndStatusAndMaterialCategory(String statusIn, String typeProduct);
 

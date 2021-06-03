@@ -1305,4 +1305,16 @@ public class MmsServiceImpl implements MmsService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    public Material getMaterialByName(String name, boolean throwExceptionFlag) throws ClientException{
+        try {
+            Material material = materialRepository.findOneByName(name);
+            if (material == null && throwExceptionFlag){
+                throw new ClientParameterException(MmsException.MM_MATERIAL_IS_NOT_EXIST, name);
+            }
+            return material;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }

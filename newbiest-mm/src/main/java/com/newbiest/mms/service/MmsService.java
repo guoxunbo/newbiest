@@ -74,4 +74,6 @@ public interface MmsService {
 
     void validateHoldMLotMatchedHoldWarehouse(MaterialLotAction materialLotAction) throws ClientException;
     List<Material> getMaterialStockQty(List<Material> materials) throws ClientException;
+
+    Material getMaterialByName(String name, boolean throwExceptionFlag) throws ClientException;
 }
