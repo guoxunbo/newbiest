@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id:  modifyDataType-0.0.1-material_desc
+      author:  Tao Zhou
+      remarks: modifyDataType MATERIAL_DESC
+      changes:
+        - modifyDataType:
+             columnName: MATERIAL_DESC
+             newDataType: varchar(128)
+             tableName: MMS_MATERIAL_LOT_UNIT
+        - modifyDataType:
+            columnName: MATERIAL_DESC
+            newDataType: varchar(128)
+            tableName: MMS_MATERIAL_LOT_INVENTORY

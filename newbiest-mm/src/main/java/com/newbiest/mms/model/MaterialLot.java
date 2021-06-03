@@ -336,6 +336,42 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private Date expectedDeliveryDate;
 
     /**
+     * 物料属性
+     */
+    @Column(name= "MATERIAL_PROPERTIES")
+    private String materialProperties;
+
+    /**
+     * 次品标识
+     */
+    @Column(name= "INFERIOR_PRODUCTS_FLAG")
+    private String inferiorProductsFlag;
+
+    /**
+     * iqc数量
+     */
+    @Column(name= "IQC_QTY")
+    private BigDecimal iqcQty;
+
+    /**
+     * ICL打印日期
+     */
+    @Column(name= "ICL_DATE")
+    private Date iclDate;
+
+    /**
+     * 警告状态
+     */
+    @Column(name= "WARNING_STATUS")
+    private String warningStatus;
+
+    /**
+     * 警告状态描述
+     */
+    @Column(name= "WARNING_STATUS_DESC")
+    private String warningStatusDesc;
+
+    /**
      * LotNo
      */
     @Column(name="RESERVED1")
@@ -362,13 +398,13 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved4;
 
     /**
-     * WaferId
+     * Customer Lot No
      */
     @Column(name="RESERVED5")
     private String reserved5;
 
     /**
-     * 客户订单编码
+     * 唯捷生产订单号
      */
     @Column(name="RESERVED6")
     private String reserved6;
@@ -422,13 +458,13 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved14;
 
     /**
-     * wire Type
+     * 空
      */
     @Column(name="RESERVED15")
     private String reserved15;
 
     /**
-     * MRB
+     * MRB 原料自带
      */
     @Column(name="RESERVED16")
     private String reserved16;
@@ -638,6 +674,36 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved50;
 
     /**
+     *产地
+     */
+    @Column(name="RESERVED51")
+    private String reserved51;
+
+    /**
+     * MRB mes生产过程中产生
+     */
+    @Column(name="RESERVED52")
+    private String reserved52;
+
+    /**
+     * 最终客户
+     */
+    @Column(name="RESERVED53")
+    private String reserved53;
+
+    /**
+     *客户订单编码
+     */
+    @Column(name="RESERVED54")
+    private String reserved54;
+
+    /**
+     *厂家
+     */
+    @Column(name="RESERVED55")
+    private String reserved55;
+
+    /**
      * 成品接收传入Unit
      */
     @Transient
@@ -647,7 +713,19 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * 接收页面传入的预计到达时间
      */
     @Transient
-    private String expectedDeliveryDateValue ;
+    private String expectedDeliveryDateValue;
+
+    /**
+     * 接收页面传入的生产日期
+     */
+    @Transient
+    private String productionDateValue;
+
+    /**
+     *需求领料数量
+     */
+    @Transient
+    private BigDecimal pickQty;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
@@ -719,6 +797,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public void setParentMaterialLot(MaterialLot parentMaterialLot) {
         this.parentMaterialLotId = parentMaterialLot.getMaterialLotId();
         this.parentMaterialLotRrn = parentMaterialLot.getObjectRrn();
+        this.setSubMaterialLotFlag(true);
     }
 
     public void setMaterial(Material material) {
@@ -732,6 +811,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setEffectiveLife(material.getEffectiveLife());
         this.setEffectiveUnit(material.getEffectiveUnit());
         this.setWarningLife(material.getWarningLife());
+        this.setMaterialProperties(material.getReserved16());
     }
 
     public void initialWarehouseAndStorageInfo() {

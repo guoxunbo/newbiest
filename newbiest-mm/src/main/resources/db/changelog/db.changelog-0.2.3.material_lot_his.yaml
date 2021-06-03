@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.2.3
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column WARNING_STATUS AND WARNING_STATUS_DESC
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: WARNING_STATUS
+                  type: varchar(64)
+                  remarks: 警告状态
+              - column:
+                  name: WARNING_STATUS_DESC
+                  type: varchar(128)
+                  remarks: 警告状态描述

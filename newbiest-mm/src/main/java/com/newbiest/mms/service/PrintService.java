@@ -9,4 +9,7 @@ import com.newbiest.mms.model.MaterialLot;
  */
 public interface PrintService {
     void printMLot(MaterialLot materialLot) throws ClientException;
+
+    void printBoxMLot(String materialLotId) throws ClientException;
+
 }

@@ -40,6 +40,12 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_SPLIT = "Split";
     public static final String TRANS_TYPE_SPLIT_CREATE = "SplitCreate";
 
+    //iqc绑定的操作
+    public static final String TRANS_TYPE_IQC = "IQC";
+
+    public static final String TRANS_TYPE_OQC = "OQC";
+    public static final String TRANS_TYPE_WAIT_RETURN = "WaitReturn";
+
     /**
      * 在ByReel发货单导入时
      * 物料绑定单据
@@ -277,6 +283,25 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="TARGET_STORAGE_ID")
     private String targetStorageId;
 
+
+    /**
+     * 最近入库的仓库主键 只具备显示意义，不具备统计意义
+     */
+    @Column(name="LAST_WAREHOUSE_RRN")
+    private String lastWarehouseRrn;
+
+    /**
+     * 最近入库的仓库号 只具备显示意义，不具备统计意义
+     */
+    @Column(name="LAST_WAREHOUSE_ID")
+    private String lastWarehouseId;
+
+    /**
+     * 最近入库的库位主键 只具备显示意义，不具备统计意义
+     */
+    @Column(name="LAST_STORAGE_RRN")
+    private String lastStorageRrn;
+
     /**
      * 最近入库的库位号 只具备显示意义，不具备统计意义
      */
@@ -368,6 +393,30 @@ public class MaterialLotHistory extends NBHis {
     private Date expectedDeliveryDate;
 
     /**
+     * 物料属性
+     */
+    @Column(name= "MATERIAL_PROPERTIES")
+    private String materialProperties;
+
+    /**
+     * 次品标识
+     */
+    @Column(name= "INFERIOR_PRODUCTS_FLAG")
+    private String inferiorProductsFlag;
+
+    /**
+     * iqc数量
+     */
+    @Column(name= "IQC_QTY")
+    private BigDecimal iqcQty;
+
+    /**
+     * ICL打印日期
+     */
+    @Column(name= "ICL_DATE")
+    private Date iclDate;
+
+    /**
      * PackageSize
      */
     @Column(name="RESERVED1")
@@ -400,7 +449,7 @@ public class MaterialLotHistory extends NBHis {
     private String reserved5;
 
     /**
-     * 客户订单编码
+     * 唯捷生产订单号
      */
     @Column(name="RESERVED6")
     private String reserved6;
@@ -668,6 +717,36 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="RESERVED50")
     private String reserved50;
+
+    /**
+     * 产地
+     */
+    @Column(name="RESERVED51")
+    private String reserved51;
+
+    /**
+     * MRB mes生产过程中产生
+     */
+    @Column(name="RESERVED52")
+    private String reserved52;
+
+    /**
+     * 最终客户
+     */
+    @Column(name="RESERVED53")
+    private String reserved53;
+
+    /**
+     *客户订单编码
+     */
+    @Column(name="RESERVED54")
+    private String reserved54;
+
+//    /**
+//     *厂家
+//     */
+//    @Column(name="RESERVED55")
+//    private String reserved55;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: db.changelog-0.0.1.material_model_conversion
+      author: Tao Zhou
+      remarks: material_model_conversion add model_type
+      changes:
+        - addColumn:
+            tableName: VC_MATERIAL_MODEL_CONVERSION
+            columns:
+              - column:
+                  name: MODEL_TYPE
+                  type: varchar2(64)
+                  remarks: 转换系统类型 SAP/WMS

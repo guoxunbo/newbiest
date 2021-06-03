@@ -20,6 +20,12 @@ public class DocumentMLot extends NBBase {
     public static final String STATUS_CREATE = "Create";
     public static final String STATUS_ISSUE = "Issue";
     public static final String STATUS_RETURN = "Return";
+    public static final String STATUS_RECEIVE = "Receive";
+
+    /**
+     * 当前的批次没有被发料 而是其子批进行发料
+     */
+    public static final String STATUS_ISSUE_SUB_MLOT = "IssueSubMLot";
 
     @Column(name="DOCUMENT_ID")
     private String documentId;

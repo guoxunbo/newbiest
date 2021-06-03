@@ -5,6 +5,8 @@ import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
+import com.newbiest.mms.service.impl.DocumentServiceImpl;
+import com.newbiest.mms.state.model.MaterialStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/mms")
@@ -37,11 +40,17 @@ public class ReturnMLotByDocController extends AbstractRestController {
         String actionType = requestBody.getActionType();
 
         if(ReturnMLotByDocRequest.ACTION_TYPE_RETURN_MLOT.equals(actionType)){
-            documentService.returnMLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
+            documentService.returnMLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList(), DocumentServiceImpl.RETURN_WAREHOUSE);
         } else if (ReturnMLotByDocRequest.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)){
             List<MaterialLot> materialLotList = documentService.getReservedMLotByDocId(requestBody.getDocumentId());
+            materialLotList = materialLotList.stream().filter(mLot-> MaterialStatus.STATUS_IN.equals(mLot.getStatus())
+                    || MaterialStatus.STATUS_WAIT.equals(mLot.getStatus()) || MaterialStatus.STATUS_RETURN.equals(mLot.getStatus())).collect(Collectors.toList());
             responseBody.setMaterialLotList(materialLotList);
-        } else {
+        } else if (ReturnMLotByDocRequest.ACTION_TYPE_RETURN_MATERIAL_LOT.equals(actionType)){
+            documentService.returnMLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList(), DocumentServiceImpl.RETURN_SUPPLIER);
+        } else if (ReturnMLotByDocRequest.ACTION_TYPE_RETURN_GOODS.equals(actionType)){
+            documentService.returnLotOrder(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }
 

@@ -19,4 +19,6 @@ public class MaterialLotIqcRequestBody extends RequestBody {
 
 	private List<String> materialLotIds;
 
+	private List<MaterialLotAction> materialLotActions;
+
 }

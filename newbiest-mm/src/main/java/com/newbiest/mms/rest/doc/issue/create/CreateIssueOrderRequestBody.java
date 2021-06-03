@@ -1,6 +1,8 @@
 package com.newbiest.mms.rest.doc.issue.create;
 
 import com.newbiest.base.msg.RequestBody;
+import com.newbiest.mms.model.Material;
+import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,4 +23,10 @@ public class CreateIssueOrderRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "物料批次号")
 	private List<String> materialLotIdList;
+
+	@ApiModelProperty(value = "操作的物料以及pickQty")
+	private List<Material> materials;
+
+	@ApiModelProperty(value = "操作的物料批次以及pickQty")
+	private List<MaterialLot> materialLots;
 }

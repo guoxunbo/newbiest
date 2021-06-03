@@ -13,4 +13,7 @@ public interface DocumentMLotRepository extends IRepository<DocumentMLot, String
     List<DocumentMLot> findByDocumentId(String documentId);
 
     List<DocumentMLot> findByStatus(String status);
+
+    List<DocumentMLot> findByMaterialLotId(String materialLotId);
+
 }

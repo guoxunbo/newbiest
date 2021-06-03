@@ -57,4 +57,9 @@ public class MaterialModelConversion extends NBBase {
     @Column(name = "DESCRIPTION")
     private String description;
 
+    /**
+     *SAP/WMS
+     */
+    @Column(name = "MODEL_TYPE")
+    private String modelType;
 }

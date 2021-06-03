@@ -34,5 +34,7 @@ public class MaterialStatus extends Status{
 
     public static final String STATUS_ISSUE= "Issue";
 
+    public static final String STATUS_RETURN= "Return";
+    public static final String STATUS_SHIP= "Ship";
 
 }

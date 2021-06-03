@@ -12,8 +12,7 @@ public class PackCheckRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "PackCheck";
 
-	public static final String ACTION_TYPE_PACK_CHECK_PASS = "packCheckPass";
-	public static final String ACTION_TYPE_PACK_CHECK_NG = "packCheckNG";
+	public static final String ACTION_TYPE_PACK_CHECK = "PackCheck";
 
 	private PackCheckRequestBody body;
 

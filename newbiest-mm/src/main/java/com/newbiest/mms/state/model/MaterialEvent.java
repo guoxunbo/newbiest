@@ -48,6 +48,12 @@ public class MaterialEvent extends Event {
      */
     public static final String EVENT_WAIT_RETURN = "WaitReturn";
 
+    /**
+     * 等待退库
+     *  一般指创建了退料单进行退料的事件
+     */
+    public static final String EVENT_RETURN = "Return";
+
     public static final String EVENT_RESERVED = "Reserved";
     public static final String EVENT_UN_RESERVED = "UnReserved";
 

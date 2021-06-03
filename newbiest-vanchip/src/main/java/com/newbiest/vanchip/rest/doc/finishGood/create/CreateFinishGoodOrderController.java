@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/vc")
 @Slf4j
-@Api(value="/vc", tags="MaterialManagerSystem", description = "成品相关")
+@Api(value="/vc", tags="VanChip客制化", description = "成品相关")
 public class CreateFinishGoodOrderController {
 
     @Autowired
