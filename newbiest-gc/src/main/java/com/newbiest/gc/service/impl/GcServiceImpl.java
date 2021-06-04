@@ -1459,7 +1459,7 @@ public class GcServiceImpl implements GcService {
                 log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
                 if(waferIssueToMesPlanLot){
                     log.info("wafer issue to mes plan lot start ");
-                    mesService.materialLotUnitPlanLot(materialLots, ThreadLocalContext.getSessionContext());
+                    mesService.materialLotUnitPlanLot(materialLots);
                     log.info("wafer issue to mes plan lot end ");
                 }
             }
@@ -4180,7 +4180,7 @@ public class GcServiceImpl implements GcService {
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
 
             if(CollectionUtils.isNotEmpty(scmReportHoldMLotList)){
-                scmService.sendMaterialStateReport(scmReportHoldMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD, ThreadLocalContext.getSessionContext());
+                scmService.sendMaterialStateReport(scmReportHoldMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
             }
 
             if(!StringUtils.isNullOrEmpty(printLabel)){
@@ -4761,7 +4761,7 @@ public class GcServiceImpl implements GcService {
             }
 
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
-                scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD, ThreadLocalContext.getSessionContext());
+                scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -4816,7 +4816,7 @@ public class GcServiceImpl implements GcService {
             }
 
             if(CollectionUtils.isNotEmpty(scmReleaseReportMLotList)){
-                scmService.sendMaterialStateReport(scmReleaseReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_RELEASE, ThreadLocalContext.getSessionContext());
+                scmService.sendMaterialStateReport(scmReleaseReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_RELEASE);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -8426,9 +8426,9 @@ public class GcServiceImpl implements GcService {
 
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
                 if(MaterialLot.TRANSTYPE_BIND_WORKORDER.equals(transId)){
-                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_PLAN, ThreadLocalContext.getSessionContext());
+                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_PLAN);
                 } else if(MaterialLot.TRANSTYPE_UN_BIND_WORKORDER.equals(transId)){
-                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_UN_PLAN, ThreadLocalContext.getSessionContext());
+                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_UN_PLAN);
                 }
             }
         } catch (Exception e) {
@@ -9115,7 +9115,7 @@ public class GcServiceImpl implements GcService {
             log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
             if(waferIssueToMesPlanLot){
                 log.info("wafer issue to mes plan lot start ");
-                mesService.materialLotUnitPlanLot(materialLots, ThreadLocalContext.getSessionContext());
+                mesService.materialLotUnitPlanLot(materialLots);
                 log.info("wafer issue to mes plan lot end ");
             }
         } catch (Exception e) {

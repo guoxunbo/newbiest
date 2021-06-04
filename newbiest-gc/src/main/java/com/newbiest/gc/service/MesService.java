@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface MesService {
 
-    void materialLotUnitPlanLot(List<MaterialLot> materialLots, SessionContext sc) throws ClientException;
+    void materialLotUnitPlanLot(List<MaterialLot> materialLots) throws ClientException;
 
     void saveBackendWaferReceive(List<MaterialLot> materialLots) throws ClientException;
 

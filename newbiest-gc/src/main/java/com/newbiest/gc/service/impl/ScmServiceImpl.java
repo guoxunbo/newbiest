@@ -383,14 +383,14 @@ public class ScmServiceImpl implements ScmService {
     }
 
     @Async
-    public void sendMaterialStateReport(List<MaterialLot> materialLots, String action, SessionContext sc) throws ClientException {
+    public void sendMaterialStateReport(List<MaterialLot> materialLots, String action) throws ClientException {
         try {
             MaterialLotStateReportRequest request = new MaterialLotStateReportRequest();
             RequestHeader requestHeader = new RequestHeader();
-            requestHeader.setOrgName(sc.getOrgName());
-            requestHeader.setOrgRrn(sc.getOrgRrn());
-            requestHeader.setUsername(sc.getUsername());
-            requestHeader.setTransactionId(sc.getTransRrn() == null? UUID.randomUUID().toString(): sc.getTransRrn());
+            requestHeader.setOrgName(ThreadLocalContext.getOrgName());
+            requestHeader.setOrgRrn(ThreadLocalContext.getOrgRrn());
+            requestHeader.setUsername(ThreadLocalContext.getUsername());
+            requestHeader.setTransactionId(ThreadLocalContext.getTransRrn() == null? UUID.randomUUID().toString(): ThreadLocalContext.getTransRrn());
             request.setHeader(requestHeader);
 
             MaterialLotStateReportRequestBody requestBody = new MaterialLotStateReportRequestBody();
