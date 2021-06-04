@@ -117,9 +117,10 @@ public class PrintServiceImpl implements PrintService {
      */
     private PrintContext buildPrintContext(String labelTemplateName, String printCount) throws ClientException{
         try {
-            WorkStation workStation = workStationRepository.findByIpAddress("localhost");
+            String ipAddress = ThreadLocalContext.getTransactionIp();
+            WorkStation workStation = workStationRepository.findByIpAddress(ipAddress);
             if (workStation == null) {
-                throw new ClientParameterException(MmsException.MM_WORK_STATION_IS_NOT_EXIST, "localhost");
+                throw new ClientParameterException(MmsException.MM_WORK_STATION_IS_NOT_EXIST, ipAddress);
             }
             LabelTemplate labelTemplate = labelTemplateRepository.findByName(labelTemplateName);
             if (labelTemplate == null) {
