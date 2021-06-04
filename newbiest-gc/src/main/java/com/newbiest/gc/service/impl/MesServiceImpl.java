@@ -94,7 +94,7 @@ public class MesServiceImpl implements MesService {
      * @throws ClientException
      */
     @Async
-    public void materialLotUnitPlanLot(List<MaterialLot> materialLots, SessionContext sc) throws ClientException {
+    public void materialLotUnitPlanLot(List<MaterialLot> materialLots) throws ClientException {
         try {
             List<String> unitIdList = Lists.newArrayList();
             for(MaterialLot materialLot : materialLots){
@@ -125,7 +125,7 @@ public class MesServiceImpl implements MesService {
             if(CollectionUtils.isNotEmpty(unitIdList)){
                 Map<String, Object> requestInfo = Maps.newHashMap();
                 requestInfo.put("planLotUnit", unitIdList);
-                requestInfo.put("userName", sc.getUsername());
+                requestInfo.put("userName", ThreadLocalContext.getUsername());
                 requestInfo.put("messageName", "materialLotUnitManager");
                 requestInfo.put("facilityId", MES_FACILITY_ID);
 

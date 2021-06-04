@@ -702,11 +702,22 @@ public class GcServiceImpl implements GcService {
             DocumentLine documentLine = (DocumentLine)documentLineRepository.findByObjectRrn(docLineRrn);
             BigDecimal unReservedQty = documentLine.getUnReservedQty();
             String materialType = materialLotList.get(0).getMaterialType();
-            materialLotList = materialLotList.stream().sorted(Comparator.comparing(MaterialLot :: getMfgDate)).collect(Collectors.toList());
+            List<Date> dateList = Lists.newArrayList();
             if(Material.MATERIAL_TYPE_IRA.equals(materialType)){
-                Map<Date, List<MaterialLot>> mLotDateMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot :: getMfgDate));
+                Map<Date, List<MaterialLot>> mLotDateMap = Maps.newHashMap();
+                for(MaterialLot materialLot: materialLotList){
+                    if(mLotDateMap.containsKey(materialLot.getMfgDate())){
+                        mLotDateMap.get(materialLot.getMfgDate()).add(materialLot);
+                    } else {
+                        List<MaterialLot> materialLots = Lists.newArrayList();
+                        materialLots.add(materialLot);
+                        mLotDateMap.put(materialLot.getMfgDate(), materialLots);
+                        dateList.add(materialLot.getMfgDate());
+                    }
+                }
+                Collections.sort(dateList);
                 //同一天的原材料可能包含多个箱子，整箱数量可能存在相同的，先挑整箱数量少的，数量不够的，从整箱中挑选部分
-                for(Date mfgDate : mLotDateMap.keySet()){
+                for(Date mfgDate : dateList){
                     List<MaterialLot> materialLots = mLotDateMap.get(mfgDate);
                     Map<Long, List<MaterialLot>> boxQtyMap = Maps.newHashMap();
                     List<Long> totalQtyList = Lists.newArrayList();
@@ -761,7 +772,7 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-
+    
     /**
      * 原材料备料
      * @param materialLotList
@@ -1459,7 +1470,7 @@ public class GcServiceImpl implements GcService {
                 log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
                 if(waferIssueToMesPlanLot){
                     log.info("wafer issue to mes plan lot start ");
-                    mesService.materialLotUnitPlanLot(materialLots, ThreadLocalContext.getSessionContext());
+                    mesService.materialLotUnitPlanLot(materialLots);
                     log.info("wafer issue to mes plan lot end ");
                 }
             }
@@ -4180,7 +4191,7 @@ public class GcServiceImpl implements GcService {
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
 
             if(CollectionUtils.isNotEmpty(scmReportHoldMLotList)){
-                scmService.sendMaterialStateReport(scmReportHoldMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD, ThreadLocalContext.getSessionContext());
+                scmService.sendMaterialStateReport(scmReportHoldMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
             }
 
             if(!StringUtils.isNullOrEmpty(printLabel)){
@@ -4761,7 +4772,7 @@ public class GcServiceImpl implements GcService {
             }
 
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
-                scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD, ThreadLocalContext.getSessionContext());
+                scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -4816,7 +4827,7 @@ public class GcServiceImpl implements GcService {
             }
 
             if(CollectionUtils.isNotEmpty(scmReleaseReportMLotList)){
-                scmService.sendMaterialStateReport(scmReleaseReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_RELEASE, ThreadLocalContext.getSessionContext());
+                scmService.sendMaterialStateReport(scmReleaseReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_RELEASE);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -8426,9 +8437,9 @@ public class GcServiceImpl implements GcService {
 
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
                 if(MaterialLot.TRANSTYPE_BIND_WORKORDER.equals(transId)){
-                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_PLAN, ThreadLocalContext.getSessionContext());
+                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_PLAN);
                 } else if(MaterialLot.TRANSTYPE_UN_BIND_WORKORDER.equals(transId)){
-                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_UN_PLAN, ThreadLocalContext.getSessionContext());
+                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_UN_PLAN);
                 }
             }
         } catch (Exception e) {
@@ -9115,7 +9126,7 @@ public class GcServiceImpl implements GcService {
             log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
             if(waferIssueToMesPlanLot){
                 log.info("wafer issue to mes plan lot start ");
-                mesService.materialLotUnitPlanLot(materialLots, ThreadLocalContext.getSessionContext());
+                mesService.materialLotUnitPlanLot(materialLots);
                 log.info("wafer issue to mes plan lot end ");
             }
         } catch (Exception e) {
