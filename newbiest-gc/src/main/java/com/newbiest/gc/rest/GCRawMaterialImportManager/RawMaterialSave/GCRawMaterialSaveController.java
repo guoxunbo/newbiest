@@ -40,7 +40,7 @@ public class GCRawMaterialSaveController {
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_RECEIVE.equals(actionType)){
             gcService.receiveRawMaterial(materialLotList);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
-            gcService.validateAndRawMaterialIssue(requestBody.getDocumentLineList() ,materialLotList);
+            gcService.validateAndRawMaterialIssue(requestBody.getDocumentLineList() ,materialLotList, requestBody.getIssueWithDoc());
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SCRAP.equals(actionType)){
             gcService.scrapRawMaterial(materialLotList, requestBody.getReason(), requestBody.getRemarks());
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_DELETE.equals(actionType)){

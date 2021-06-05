@@ -9140,27 +9140,61 @@ public class GcServiceImpl implements GcService {
      * 原材料发料
      * @param documentLineList
      * @param materialLotList
+     * @param issueWithDoc
      * @throws ClientException
      */
-    public void validateAndRawMaterialIssue(List<DocumentLine> documentLineList, List<MaterialLot> materialLotList) throws ClientException{
+    public void validateAndRawMaterialIssue(List<DocumentLine> documentLineList, List<MaterialLot> materialLotList, String issueWithDoc) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotList.stream().map(materialLot -> mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true)).collect(Collectors.toList());
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByImportType(materialLots, MaterialLot.RAW_MATERIAL_ISSUE_DOC_VALIDATE_RULE_ID, MaterialLot.COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID);
+            validateIssueWithDocFlag(materialLots,issueWithDoc);
+            if (StringUtils.isNullOrEmpty(issueWithDoc)){
+                for(MaterialLot materialLot : materialLots){
+                    materialLot.setCurrentQty(BigDecimal.ZERO);
+                    materialLot = mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
 
-            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.RAW_MATERIAL_ISSUE_DOC_VALIDATE_RULE_ID);
-            for (String key : materialLotMap.keySet()) {
-                if (!documentLineMap.keySet().contains(key)) {
-                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getLotId());
+                    MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RAW_MATERIAL_ISSUE);
+                    materialLotHistoryRepository.save(materialLotHistory);
+
+                    materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
                 }
-                Long totalRawMaterialLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
-                Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
-                if (totalRawMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
-                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
+            }else {
+                Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByImportType(materialLots, MaterialLot.RAW_MATERIAL_ISSUE_DOC_VALIDATE_RULE_ID, MaterialLot.COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID);
+                documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+                Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.RAW_MATERIAL_ISSUE_DOC_VALIDATE_RULE_ID);
+                for (String key : materialLotMap.keySet()) {
+                    if (!documentLineMap.keySet().contains(key)) {
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getLotId());
+                    }
+                    Long totalRawMaterialLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                    Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                    if (totalRawMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
+                        throw new ClientException(GcExceptions.OVER_DOC_QTY);
+                    }
+                    rawMaterialIssueBySpareOrder(documentLineMap.get(key), materialLotMap.get(key));
                 }
-                rawMaterialIssueBySpareOrder(documentLineMap.get(key), materialLotMap.get(key));
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private void validateIssueWithDocFlag(List<MaterialLot> materialLots, String issueWithDoc) throws ClientException{
+        try{
+            List<MaterialLot> unReservedMaterialLotList = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved16())).collect(Collectors.toList());
+            if (StringUtils.isNullOrEmpty(issueWithDoc)){
+                if (unReservedMaterialLotList.size() == 0){
+                    throw new ClientException(GcExceptions.RESERVED_MATERIAL_MUST_CHECK_DOCUMENT);
+                }else if (unReservedMaterialLotList.size() != materialLots.size()){
+                    throw new ClientException(GcExceptions.UNRESERVED_AND_RESERVED_MATERIAL_LOT_CANNOT_ISUUE_TOGETHER);
+                }
+            }else {
+                if (unReservedMaterialLotList.size() == materialLots.size()){
+                    throw new ClientException(GcExceptions.UNRESERVED_MATERIAL_DONOT_CHECK_DOCUMENT);
+                }else if (unReservedMaterialLotList.size() != materialLots.size() && unReservedMaterialLotList.size() != 0){
+                    throw new ClientException(GcExceptions.UNRESERVED_AND_RESERVED_MATERIAL_LOT_CANNOT_ISUUE_TOGETHER);
+                }
+            }
+        }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

@@ -95,4 +95,7 @@ public class GcExceptions {
     public static final String RAW_MATERIAL_WARNING_LIFE_TIME_IS_NOT_SET = "gc.raw_material_warning_life_time_is_not_set";
     public static final String RAW_MATERIAL_LOT_EXPDATE_LESS_THAN_WARNING_LIFE = "gc.raw_material_lot_expdate_less_than_warning_life";
     public static final String IRA_MATERIAL_LOT_BOX_MUST_SATRT_WITH_GCB = "gc.ira_material_lot_box_must_start_with_GCB";
+    public static final String UNRESERVED_AND_RESERVED_MATERIAL_LOT_CANNOT_ISUUE_TOGETHER = "gc.unreserved_and_reserved_material_lot_cannot_isuue_together";
+    public static final String RESERVED_MATERIAL_MUST_CHECK_DOCUMENT = "gc.reserved_material_must_check_document";
+    public static final String UNRESERVED_MATERIAL_DONOT_CHECK_DOCUMENT = "gc.reserved_material_donot_check_document";
 }
