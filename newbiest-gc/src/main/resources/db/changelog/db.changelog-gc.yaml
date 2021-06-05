@@ -506,3 +506,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MMSLabelTemplateParameter_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RawMaterialScrapShipOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RawMaterialScrapScanShip_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RawMaterialScrapWaitShip_nb_table.yaml
+      relativeToChangelogFile: true

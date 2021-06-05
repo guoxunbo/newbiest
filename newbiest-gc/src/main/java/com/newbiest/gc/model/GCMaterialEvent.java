@@ -9,6 +9,6 @@ public class GCMaterialEvent {
 
     public static final String EVENT_RETEST = "ReTest";
 
-    public static final String EVENT_HOLD = "Hold";
+    public static final String EVENT_SCRAP_SHIP = "ScrapShip";
 
 }

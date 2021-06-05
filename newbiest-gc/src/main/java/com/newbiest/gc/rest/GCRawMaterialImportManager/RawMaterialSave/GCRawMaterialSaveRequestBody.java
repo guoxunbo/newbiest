@@ -42,4 +42,7 @@ public class GCRawMaterialSaveRequestBody extends RequestBody {
     @ApiModelProperty(value = "原材料批号/箱号")
     private String queryLotId ;
 
+    @ApiModelProperty(value = "单据信息")
+    private DocumentLine documentLine ;
+
 }

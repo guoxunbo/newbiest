@@ -28,5 +28,7 @@ public class GCRawMaterialSaveRequest extends Request {
 
     public static final String ACTION_TYPE_QUERY_ISSUE_RAW_MATERIAL_LOT = "QueryIssueRawMaterialLot";
 
+    public static final String ACTION_TYPE_SCRAP_RAW_MATERIAL_SHIP = "ScrapRawMLotShip";
+
     private GCRawMaterialSaveRequestBody body;
 }

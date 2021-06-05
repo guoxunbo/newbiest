@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialScrapScanShip_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCRawMaterialScrapScanShip to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRawMaterialScrapScanShip
+              description: 报废原材料出库扫描
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 报废原材料出库扫描
+              label: ScrapRawMaterialScanShip
