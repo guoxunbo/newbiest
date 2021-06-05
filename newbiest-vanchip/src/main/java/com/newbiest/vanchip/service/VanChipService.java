@@ -41,8 +41,6 @@ public interface VanChipService {
 
     List<MaterialLot> printReservedOrder(DocumentLine documentLine) throws ClientException;
 
-    List<MaterialLot> stockInFinishGood(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
-
     void issueFinishGoodByDoc(String documentId, List<String> materialLotIds) throws ClientException;
     void batchIqc(List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLot> validationAndGetWaitIqcMLot(List<String> materialLotIds) throws ClientException;

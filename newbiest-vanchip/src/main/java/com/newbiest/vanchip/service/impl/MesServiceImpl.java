@@ -17,9 +17,6 @@ import com.newbiest.vanchip.dto.mes.receive.ReceiveMLotRequestHeader;
 import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequest;
 import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequestBody;
 import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequestHeader;
-import com.newbiest.vanchip.dto.mes.sync.material.SyncMaterialRequest;
-import com.newbiest.vanchip.dto.mes.sync.material.SyncMaterialRequestBody;
-import com.newbiest.vanchip.dto.mes.sync.material.SyncMaterialRequestHeader;
 import com.newbiest.vanchip.service.MesService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,7 +60,6 @@ public class MesServiceImpl implements MesService {
     public static final String RETURN_URL = "/wms/returnMLot.spring";
     public static final String RECEIVE_URL = "/wms/shipVBox.spring";
     public static final String RECEIVE_INFERIOR_PRODUCT_URL = "/wms/storageOfDefectiveProducts.spring";
-    public static final String SYNC_MATERIAL_URL = "/wms/syncMaterial.spring";
 
     private RestTemplate restTemplate;
 
@@ -73,23 +69,6 @@ public class MesServiceImpl implements MesService {
         requestFactory.setConnectTimeout(MES_CONNECTION_TIME_OUT * 1000);
         requestFactory.setReadTimeout(MES_READ_TIME_OUT * 1000);
         restTemplate = new RestTemplate();
-    }
-
-    //同步物料
-    public void syncMaterial(String materialName) throws ClientException{
-        try {
-            SyncMaterialRequestHeader requestHeader = new SyncMaterialRequestHeader();
-            SyncMaterialRequest request = new SyncMaterialRequest();
-            SyncMaterialRequestBody requestBody = new SyncMaterialRequestBody();
-
-            requestBody.setMaterialName(materialName);
-            request.setBody(requestBody);
-            request.setHeader(requestHeader);
-
-            sendMesRequest(request, SYNC_MATERIAL_URL, null);
-        }catch (Exception e){
-
-        }
     }
 
     public void receiveInferiorProduct(List<String> materialLotIdList) throws ClientException{
