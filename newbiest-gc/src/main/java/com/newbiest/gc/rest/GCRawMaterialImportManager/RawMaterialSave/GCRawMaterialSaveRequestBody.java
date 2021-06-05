@@ -45,4 +45,6 @@ public class GCRawMaterialSaveRequestBody extends RequestBody {
     @ApiModelProperty(value = "单据信息")
     private DocumentLine documentLine ;
 
+    @ApiModelProperty(value = "发料绑定单据")
+    private String issueWithDoc;
 }
