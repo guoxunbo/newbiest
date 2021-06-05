@@ -86,6 +86,15 @@ public class CreateAuthorityChange extends VCimAbstractChange  {
                     authority.setParameter1(Long.toString(secondTableRrn));
                 }
             }
+            //多表单功能，第三个表单主键set到authority的parameter2
+            if(!StringUtils.isNullOrEmpty(authority.getThirdTableName())){
+                NBTable nbTable = new NBTable();
+                nbTable.setName(authority.getThirdTableName());
+                Long thirdTableRrn = getObjectRrnByName(database, nbTable, CreateTableChange.TABLE_NAME);
+                if(thirdTableRrn != null){
+                    authority.setParameter2(Long.toString(thirdTableRrn));
+                }
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             changeValidationErrors.addError(e.getMessage());
