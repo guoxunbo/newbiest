@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MMSLabelTemplateParameter_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add MMSLabelTemplateParameter to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: MMSLabelTemplateParameter
+              description: 标签模板参数
+              tableName: MMS_LBL_TEMPLATE_PARA
+              modelName: LabelTemplateParameter
+              modelClass: com.newbiest.mms.model.LabelTemplateParameter
+              labelZh: 标签模板参数
+              label: LabelTemplateParameter

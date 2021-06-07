@@ -1,14 +1,7 @@
 package com.newbiest.gc.rest.cobBox.print.parameter;
 
-import com.google.common.collect.Maps;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.utils.CollectionUtils;
-import com.newbiest.gc.service.GcService;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotUnit;
-import com.newbiest.mms.service.MaterialLotUnitService;
-import com.newbiest.mms.service.MmsService;
-import com.newbiest.mms.service.PackageService;
+import com.newbiest.mms.service.PrintService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -19,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/gc")
 @Slf4j
@@ -29,16 +19,7 @@ import java.util.Map;
 public class GcGetCobboxPrintParaController extends AbstractRestController {
 
     @Autowired
-    GcService gcService;
-
-    @Autowired
-    MmsService mmsService;
-
-    @Autowired
-    PackageService packageService;
-
-    @Autowired
-    MaterialLotUnitService materialLotUnitService;
+    PrintService printService;
 
     @ApiOperation(value = "获取COB箱标签参数")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "GcGetCOBboxPrintParaRequest")
@@ -50,11 +31,8 @@ public class GcGetCobboxPrintParaController extends AbstractRestController {
         GcGetCobboxPrintParaResponseBody responseBody = new GcGetCobboxPrintParaResponseBody();
         GcGetCobboxPrintParaRequestBody requestBody = request.getBody();
 
-        Map<String, String> parameterMap = Maps.newHashMap();
+        printService.printCobBoxLabel(requestBody.getMaterialLot(), requestBody.getPrintCount());
 
-        parameterMap = gcService.getCOBLabelPrintParamater(requestBody.getMaterialLot().getMaterialLotId());
-
-        responseBody.setParameters(parameterMap);
         response.setBody(responseBody);
         return response;
     }

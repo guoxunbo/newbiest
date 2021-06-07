@@ -602,3 +602,21 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.1.interface_history.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MMSLabelTemplateManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MMSWorkOrderStationManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.label_template.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.label_template_para.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.work_station.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RawMaterialScrapShip.nb_authority.yaml
+      relativeToChangelogFile: true

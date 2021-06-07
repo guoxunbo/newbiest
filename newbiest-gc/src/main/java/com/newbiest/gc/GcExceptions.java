@@ -11,7 +11,6 @@ public class GcExceptions {
 
     public static final String ERP_RECEIVE_ORDER_IS_NOT_EXIST = "gc.erp_receive_order_is_not_exist";
 
-    public static final String ERP_SO_IS_NOT_EXIST = "gc.erp_so_is_not_exist";
     public static final String ERP_SOB_IS_NOT_EXIST = "gc.erp_sob_is_not_exist";
     public static final String RESERVED_OVER_QTY = "gc.reserved_over_qty";
     public static final String ERP_SOA_IS_NOT_EXIST = "gc.erp_soa_is_not_exist";
@@ -19,6 +18,7 @@ public class GcExceptions {
     public static final String CHOOSE_STOCK_OUT_ORDER_PLEASE = "gc.choose_stock_out_order_please";
     public static final String MATERIAL_LOT_HAS_BEEN_SOLD_BY_THREE_PARTIES = "gc.the_materialLot_has_been_sold_by_three_parties";
     public static final String ERP_ORDER_CANNOT_EMPTY = "gc.erp_order_seq_cannot_empty";
+    public static final String ERP_ISSUE_ORDER_AND_SPARE_ORDER_IS_NOT_SAME = "gc.erp_issue_order_and_spare_order_is_not_same";
 
     public static final String MATERIAL_LOT_NOT_MATCH_ORDER = "gc.meterial_lot_not_match_order";
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "gc.meterial_lot_reserved_by_another";
@@ -48,8 +48,6 @@ public class GcExceptions {
     public static final String MATERIALLOT_PACKAGE_RULE_IS_ERROR = "gc.material_lot_package_rule_is_error";
     public static final String MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME = "gc.material_lot_reserved_docId_is_not_same";
     public static final String MATERIALLOT_RESERVED_ORDER_IS_NULL = "gc.material_lot_reserved_order_is_null";
-    public static final String MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN = "gc.material_lot_wafer_qty_more_than_thirteen";
-    public static final String MATERIALLOT_PACKED_DETIAL_IS_NULL = "gc.material_lot_packed_detial_is_null";
     public static final String WAFER_ID__IS_NOT_EXIST = "gc.wafer_id_is_not_exist";
     public static final String MATERIAL_LOT_CUSTOMER_NAME_IS_NOT_SAME = "gc.material_lot_customer_name_is_not_same";
     public static final String MATERIAL_LOT_ABBREVIATION_IS_NOT_SAME = "gc.material_lot_abbreviation_is_not_same";
@@ -68,7 +66,6 @@ public class GcExceptions {
 
     //快递相关
     public static final String MATERIAL_LOT_ALREADY_RECORD_EXPRESS = "gc.material_lot_recorded_express";
-    public static final String MATERIAL_LOT_NOT_RECORD_EXPRESS = "gc.material_lot_not_recorded_express";
     public static final String EXPRESS_NUMBER_IS_INCONSISTENT = "gc.express_number_is_inconsistent";
     public static final String ORDER_STATUS_NOT_ALLOWED_ONLY_MANUALLY_CANCEL = "gc.order_status_is_not_allow_only_munually_cancel";
     public static final String SHIP_ORDER_IS_NOT_SAME = "gc.ship_order_is_not_same";
@@ -83,7 +80,6 @@ public class GcExceptions {
 
     //产品相关
     public static final String PRODUCT_NUMBER_RELATION_IS_EXIST = "gc.product_number_relation_is_exist";
-    public static final String PRODUCT_WEIGHT_RELATION_IS_NOT_EXIST_OR_ERROR = "gc.product_weight_relation_is_not_exist_or_error";
     public static final String PRODUCT_NUMBER_RELATION_IS_ERROR = "gc.product_number_relation_is_error";
     public static final String PRODUCT_NUMBER_RELATION_IS_NOT_EXIST = "gc.product_number_relation_is_not_exist";
 
@@ -96,4 +92,10 @@ public class GcExceptions {
     public static final String IRA_RAW_MATERIAL_BOX_ID_CANNOT_EMPTY = "gc.ira_raw_material_box_id_cannot_empty";
     public static final String IRA_RAW_MATERIAL_BOX_ID_IS_EXISTS = "gc.ira_raw_material_box_id_is_exists";
     public static final String TAPE_MATERIAL_LOT_ID_IS_REPEAT = "gc.tape_material_lot_id_is_repeat";
+    public static final String RAW_MATERIAL_WARNING_LIFE_TIME_IS_NOT_SET = "gc.raw_material_warning_life_time_is_not_set";
+    public static final String RAW_MATERIAL_LOT_EXPDATE_LESS_THAN_WARNING_LIFE = "gc.raw_material_lot_expdate_less_than_warning_life";
+    public static final String IRA_MATERIAL_LOT_BOX_MUST_SATRT_WITH_GCB = "gc.ira_material_lot_box_must_start_with_GCB";
+    public static final String UNRESERVED_AND_RESERVED_MATERIAL_LOT_CANNOT_ISUUE_TOGETHER = "gc.unreserved_and_reserved_material_lot_cannot_isuue_together";
+    public static final String RESERVED_MATERIAL_MUST_CHECK_DOCUMENT = "gc.reserved_material_must_check_document";
+    public static final String UNRESERVED_MATERIAL_DONOT_CHECK_DOCUMENT = "gc.reserved_material_donot_check_document";
 }

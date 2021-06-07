@@ -72,6 +72,9 @@ public class MmsConfiguration {
         ModelFactory.registerModelClassLoader(DeliveryOrder.class.getName(), DeliveryOrder.class.getClassLoader());
         ModelFactory.registerModelClassLoader(Product.class.getName(), Product.class.getClassLoader());
         ModelFactory.registerModelClassLoader(Parts.class.getName(), Parts.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(LabelTemplate.class.getName(), LabelTemplate.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(LabelTemplateParameter.class.getName(), LabelTemplateParameter.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(WorkStation.class.getName(), WorkStation.class.getClassLoader());
 
         ModelFactory.registerModelClassLoader(MaterialLotUnit.class.getName(), MaterialLotUnit.class.getClassLoader());
         ModelFactory.registerModelClassLoader(MaterialLotUnitHistory.class.getName(), MaterialLotUnitHistory.class.getClassLoader());

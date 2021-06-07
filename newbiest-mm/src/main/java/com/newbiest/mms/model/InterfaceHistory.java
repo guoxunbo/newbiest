@@ -3,11 +3,10 @@ package com.newbiest.mms.model;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.security.model.NBOrg;
 import lombok.Data;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * 接口历史
@@ -45,6 +44,10 @@ public class InterfaceHistory extends NBHis {
     private String responseTxt;
 
     protected void prePersist() {
+        if (this.created == null) {
+            created = new Date();
+        }
+        updated = new Date();
         this.orgRrn = NBOrg.GLOBAL_ORG_RRN;
     }
 

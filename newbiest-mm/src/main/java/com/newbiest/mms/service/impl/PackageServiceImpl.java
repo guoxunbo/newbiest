@@ -458,7 +458,7 @@ public class PackageServiceImpl implements PackageService{
      * 格科要求装过箱的真空包也可以再次装箱
      * @return
      */
-    private List<MaterialLot> getWaitPackMaterialLots(List<MaterialLot> materialLots) throws ClientException {
+    public List<MaterialLot> getWaitPackMaterialLots(List<MaterialLot> materialLots) throws ClientException {
         try {
             List<MaterialLot> waitPackMaterialLots = Lists.newArrayList();
             List<MaterialLot> waitUnPackMaterialLots = Lists.newArrayList();
