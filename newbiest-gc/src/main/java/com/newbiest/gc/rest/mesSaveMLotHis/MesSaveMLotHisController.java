@@ -3,6 +3,7 @@ package com.newbiest.gc.rest.mesSaveMLotHis;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.msg.Request;
@@ -55,7 +56,13 @@ public class MesSaveMLotHisController extends AbstractRestController {
             response.setMessage(message);
         } else if(MesSaveMLotHisRequest.ACTION_IRA_RETURN.equals(actionType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLots();
-            String message = gcService.mesIraMaterialReturnWarehouse(materialLotList, transId);
+            String message = gcService.mesRawMaterialReturnWarehouse(materialLotList, transId, Material.MATERIAL_TYPE_IRA);
+            response.setMessage(message);
+        } else if(MesSaveMLotHisRequest.ACTION_GLUE_RETURN.equals(actionType)){
+            String message = gcService.mesRawMaterialReturnWarehouse(requestBody.getMaterialLots(), transId, Material.MATERIAL_TYPE_GLUE);
+            response.setMessage(message);
+        } else if(MesSaveMLotHisRequest.ACTION_WIRE_RETURN.equals(actionType)){
+            String message = gcService.mesRawMaterialReturnWarehouse(requestBody.getMaterialLots(), transId, Material.MATERIAL_TYPE_GOLD);
             response.setMessage(message);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());

@@ -8483,10 +8483,11 @@ public class GcServiceImpl implements GcService {
      * IRA从mes退料到仓库
      * @param materialLotList
      * @param transType
+     * @param materialType
      * @return
      * @throws ClientException
      */
-    public String mesIraMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transType) throws ClientException{
+    public String mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transType, String materialType) throws ClientException{
         String errorMessage = "";
         try {
             SimpleDateFormat format = new SimpleDateFormat(DateUtils.DEFAULT_DATETIME_PATTERN);
@@ -8498,7 +8499,7 @@ public class GcServiceImpl implements GcService {
                     RawMaterial rawMaterial = new RawMaterial();
                     rawMaterial.setName(materialName);
                     rawMaterial.setMaterialCategory(Material.TYPE_MATERIAL);
-                    rawMaterial.setMaterialType(Material.MATERIAL_TYPE_IRA);
+                    rawMaterial.setMaterialType(materialType);
                     material = mmsService.createRawMaterial(rawMaterial);
                 }
                 List<MaterialLot> materialLots = materialLotMap.get(materialName);

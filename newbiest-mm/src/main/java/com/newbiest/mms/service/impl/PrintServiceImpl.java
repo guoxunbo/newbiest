@@ -24,6 +24,7 @@ import freemarker.template.utility.StringUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -119,6 +120,9 @@ public class PrintServiceImpl implements PrintService {
         try {
             String ipAddress = ThreadLocalContext.getTransactionIp();
             WorkStation workStation = workStationRepository.findByIpAddress(ipAddress);
+            if (workStation == null) {
+                workStation = workStationRepository.findByIpAddress("localhost");
+            }
             if (workStation == null) {
                 throw new ClientParameterException(MmsException.MM_WORK_STATION_IS_NOT_EXIST, ipAddress);
             }

@@ -66,7 +66,7 @@ public interface GcService {
     String mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     String mesSaveMaterialLotHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     String mesReceiveRawMaterialAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
-    String mesIraMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transId) throws ClientException;
+    String mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transId, String materialType) throws ClientException;
 
     List<MaterialLotUnit> validateAndChangeMaterialNameByImportType(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     List<GCProductNumberRelation> getProductNumberRelationByDocRrn(Long documentLineRrn) throws ClientException;
