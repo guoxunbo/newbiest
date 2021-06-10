@@ -4764,13 +4764,15 @@ public class GcServiceImpl implements GcService {
                     .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
             for (String parentMaterialLotId : packedMLotMap.keySet()){
                 MaterialLot materialLot = mmsService.getMLotByMLotId(parentMaterialLotId);
-                materialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
-                materialLot = materialLotRepository.saveAndFlush(materialLot);
+                if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
+                    materialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
 
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
-                history.setActionComment(remarks);
-                history.setActionReason(holdReason);
-                materialLotHistoryRepository.save(history);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
+                    history.setActionComment(remarks);
+                    history.setActionReason(holdReason);
+                    materialLotHistoryRepository.save(history);
+                }
             }
 
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
