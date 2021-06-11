@@ -793,6 +793,7 @@ public class GcServiceImpl implements GcService {
             for(MaterialLot materialLot: materialLotList){
                 materialLot.setReserved16(documentLine.getObjectRrn().toString());
                 materialLot.setReserved17(documentLine.getDocId());
+                materialLot.setReservedQty(materialLot.getCurrentQty());
                 materialLot = mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_MATEREIAL_SPARE, StringUtils.EMPTY);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_MATERIAL_SPARE);
