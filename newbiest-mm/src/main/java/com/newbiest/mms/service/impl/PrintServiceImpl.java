@@ -121,10 +121,8 @@ public class PrintServiceImpl implements PrintService {
             String ipAddress = ThreadLocalContext.getTransactionIp();
             WorkStation workStation = workStationRepository.findByIpAddress(ipAddress);
             if (workStation == null) {
-                workStation = workStationRepository.findByIpAddress("localhost");
-            }
-            if (workStation == null) {
-                throw new ClientParameterException(MmsException.MM_WORK_STATION_IS_NOT_EXIST, ipAddress);
+                workStation = new WorkStation();
+                workStation.setPrintMachineIpAddress(ipAddress);
             }
             LabelTemplate labelTemplate = labelTemplateRepository.findByName(labelTemplateName);
             if (labelTemplate == null) {

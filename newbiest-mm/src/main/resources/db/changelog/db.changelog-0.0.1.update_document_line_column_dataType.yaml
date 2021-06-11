@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_update_mms_document_line_qty_column_dataType_0.1
+      author: Guozhang.Luo
+      comment: update mms_document_line qty column dataType
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/update_mms_document_line_column_type.sql
