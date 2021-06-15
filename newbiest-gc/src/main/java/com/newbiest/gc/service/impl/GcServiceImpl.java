@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
+import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBQuery;
 import com.newbiest.base.repository.QueryRepository;
@@ -9288,6 +9289,48 @@ public class GcServiceImpl implements GcService {
 
             updateRawMaterialIssueOrderAndErpMaterialOutaOrderAndSaveHis(documentLine, handleQty, MaterialLotHistory.TRANS_TYPE_SCRAP_SHIP);
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     *取消原材料备料
+     * @param materialLotList
+     * @throws ClientException
+     */
+    @Override
+    public void unRawMaterialSpare(List<MaterialLot> materialLotList) throws ClientException {
+        try{
+            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getReserved16));
+
+            for (String docRrn : materialLotMap.keySet()) {
+                BigDecimal totalQty = BigDecimal.ZERO;
+                List<MaterialLot> materialLots = materialLotMap.get(docRrn);
+                for (MaterialLot materialLot : materialLots) {
+                    BigDecimal reservedQty = materialLot.getReservedQty();
+                    totalQty = totalQty.add(reservedQty);
+                    materialLot.restoreStatus();
+                    materialLot.setReserved17(StringUtils.EMPTY);
+                    materialLot.setReserved16(StringUtils.EMPTY);
+                    materialLotRepository.saveAndFlush(materialLot);
+
+                    MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
+                    materialLotHistoryRepository.save(materialLotHistory);
+                }
+                DocumentLine documentLine = (DocumentLine)documentLineRepository.findByObjectRrn(Long.parseLong(docRrn));
+                documentLine.setReservedQty(documentLine.getReservedQty().subtract(totalQty));
+                documentLine.setUnReservedQty(documentLine.getUnReservedQty().add(totalQty));
+
+                documentLine = documentLineRepository.saveAndFlush(documentLine);
+                baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
+
+                MaterialIssueOrder materialIssueOrder = (MaterialIssueOrder) materialIssueOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                materialIssueOrder.setReservedQty(materialIssueOrder.getReservedQty().subtract(totalQty));
+                materialIssueOrder.setUnReservedQty(materialIssueOrder.getUnReservedQty().add(totalQty));
+                materialIssueOrderRepository.save(materialIssueOrder);
+                baseService.saveHistoryEntity(materialIssueOrder, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

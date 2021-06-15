@@ -51,6 +51,7 @@ public interface GcService {
     List<MaterialLot> getSpareRawMaterialLotListByDocLineRrrn(List<MaterialLot> materialLots, Long docLineRrn) throws ClientException;
     void rawMaterialMLotSpare(List<MaterialLot> materialLotList, Long docLineRrn) throws ClientException;
     void scrapRawMaterialShip(DocumentLine documentLine, List<MaterialLot> materialLotList) throws ClientException;
+    void unRawMaterialSpare(List<MaterialLot> materialLotList) throws ClientException;
 
     void waferOutOrderIssue(List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLot> receiveRmaMLot(List<MaterialLotAction> materialLotActions) throws ClientException;

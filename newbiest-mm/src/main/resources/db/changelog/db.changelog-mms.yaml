@@ -629,3 +629,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.1.update_document_line_column_dataType.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCUnRawMaterialSpareTable.nb_authority.yaml
+      relativeToChangelogFile: true
