@@ -24,7 +24,6 @@ import freemarker.template.utility.StringUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -660,7 +659,8 @@ public class PrintServiceImpl implements PrintService {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("BOXID", materialLot.getMaterialLotId());
-            parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+            String productId = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().indexOf("-"));
+            parameterMap.put("PRODUCTID", productId);
             parameterMap.put("GRADE", materialLot.getGrade());
             parameterMap.put("SECONDCODE", materialLot.getReserved1());
             parameterMap.put("LOCATION", materialLot.getReserved6());
@@ -1008,6 +1008,75 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COM_VBOX_LABEL, "");
             for(Map<String, Object> parameterMap : parameterMapList){
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    @Override
+    public void printRawMlotIRLabel(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_IR_LABEL, "");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (int i = 0; i < materialLots.size(); i++) {
+                Map<String, Object> parameterMap = Maps.newHashMap();
+                parameterMap.put("VENDER", materialLots.get(i).getReserved22());
+                parameterMap.put("MATERIALNAME",materialLots.get(i).getMaterialName());
+                parameterMap.put("MATERIALLOTID",materialLots.get(i).getMaterialLotId());
+                parameterMap.put("QTY",materialLots.get(i).getCurrentQty().toString());
+                parameterMap.put("MFGDATE",sdf.format(materialLots.get(i).getMfgDate()));
+                parameterMap.put("EXPDATE",sdf.format(materialLots.get(i).getExpDate()));
+                parameterMap.put("REMARK",materialLots.get(i).getReserved41());
+                printContext.setBaseObject(materialLots.get(i));
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    @Override
+    public void printRawMlotGlueLabel(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_GLUE_LABEL, "");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            for (int i = 0; i < materialLots.size(); i++) {
+                Map<String, Object> parameterMap = Maps.newHashMap();
+                parameterMap.put("GLUENAME",materialLots.get(i).getMaterialLotId());
+                parameterMap.put("GLUETYPE",materialLots.get(i).getMaterialName());
+                parameterMap.put("DESCRIPTION",materialLots.get(i).getMaterialDesc());
+                parameterMap.put("PRODUCTIONDATE",sdf.format(materialLots.get(i).getMfgDate()));
+                parameterMap.put("EFFECTIVEDATE",sdf.format(materialLots.get(i).getExpDate()));
+                parameterMap.put("FIRSTTEMPERATURETIME","");
+                parameterMap.put("SECONDTEMPERATURETIME","");
+                parameterMap.put("THIRDTEMPERATURETIME","");
+                printContext.setBaseObject(materialLots.get(i));
+                printContext.setParameterMap(parameterMap);
+                print(printContext);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    @Override
+    public void printIRABoxLabel(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_IRA_BOX_LABEL, "");
+            Map<String,List<MaterialLot>> materialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
+            for (String lotId : materialLotMap.keySet()) {
+                List<MaterialLot> materialLotList = materialLotMap.get(lotId);
+                String grossQty = materialLotList.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue())).toString();
+                Map<String, Object> parameterMap = Maps.newHashMap();
+                parameterMap.put("BOXID", lotId);
+                parameterMap.put("GROSSQTY", grossQty);
+                parameterMap.put("MATERIALNAME", materialLotList.get(0).getMaterialName());
+                parameterMap.put("QTY", String.valueOf(materialLotList.size()));
+                parameterMap.put("VENDER", materialLotList.get(0).getReserved22());
                 printContext.setParameterMap(parameterMap);
                 print(printContext);
             }

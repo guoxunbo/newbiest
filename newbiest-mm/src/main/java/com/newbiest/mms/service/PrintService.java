@@ -33,4 +33,8 @@ public interface PrintService {
 
     void printComBoxAndCustomerLabel(MaterialLot materialLot, String subcode, String printCount) throws ClientException;
     void rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException;
+
+    void printRawMlotIRLabel(List<MaterialLot> materialLots) throws ClientException;
+    void printRawMlotGlueLabel(List<MaterialLot> materialLots) throws ClientException;
+    void printIRABoxLabel(List<MaterialLot> materialLots) throws ClientException;
 }

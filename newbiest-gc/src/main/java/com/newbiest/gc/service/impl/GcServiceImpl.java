@@ -4199,7 +4199,11 @@ public class GcServiceImpl implements GcService {
 
             if(!StringUtils.isNullOrEmpty(printLabel)){
                 mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
-                List<MaterialLot> materialLots = mesPackedLots.stream().map(mesPackedLot -> mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true)).collect(Collectors.toList());
+                List<MaterialLot> materialLots = Lists.newArrayList();
+                for(MesPackedLot mesPackedLot : mesPackedLots){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true);
+                    materialLots.add(materialLot);
+                }
                 printService.printReceiveWltCpLotLabel(materialLots, printCount);
             }
         } catch (Exception e) {

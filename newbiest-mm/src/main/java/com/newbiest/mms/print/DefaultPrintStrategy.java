@@ -54,7 +54,7 @@ public class DefaultPrintStrategy implements IPrintStrategy {
     }
 
     @Override
-    @Async
+    //@Async
     public void print(PrintContext printContext) {
         LabelTemplate labelTemplate = printContext.getLabelTemplate();
         if (LabelTemplate.TYPE_BARTENDER.equals(labelTemplate.getType())) {

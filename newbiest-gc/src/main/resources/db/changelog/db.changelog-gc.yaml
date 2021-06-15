@@ -518,3 +518,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.1.update_nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialLotRePrint_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.mms_lbl_template.yaml
+      relativeToChangelogFile: true

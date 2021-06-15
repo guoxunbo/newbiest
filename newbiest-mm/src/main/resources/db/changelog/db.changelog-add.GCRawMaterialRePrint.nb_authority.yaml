@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialRePrint_to_NB_AUTHORITY
+      author: Naferian Wang
+      comment: add GCRawMaterialRePrint to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRawMaterialRePrint
+              description: 原材料标签补打
+              tableName: GCRawMaterialRePrint
+              mobileFlag: N
+              url: /RawMaterial/GCRawMaterialRePrint
+              parentRrn: 2030
+              seqNo: 56
+              image: icon-delivery
+              labelZh: 原材料标签补打
+              labelEn: RawMaterialRePrint
