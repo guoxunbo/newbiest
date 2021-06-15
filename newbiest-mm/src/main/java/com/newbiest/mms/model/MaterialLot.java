@@ -25,6 +25,8 @@ import java.util.Date;
 @Data
 public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
+    public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
     /**
      * 产品分类
      */
@@ -563,7 +565,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="MFG_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date mfgDate;
 
     /**
@@ -571,7 +573,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="EXP_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date expDate;
 
     /**
@@ -579,7 +581,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="SHIPPING_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date shippingDate;
 
     /**

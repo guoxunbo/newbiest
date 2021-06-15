@@ -8302,6 +8302,7 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> rawMaterialLotList = Lists.newArrayList();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
             SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
+            Map<String, Date> dateMap = new HashMap<>();
             if(Material.MATERIAL_TYPE_IRA.equals(importType)){
                 List<MaterialLot> materialLots = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getLotId())).collect(Collectors.toList());
                 if(CollectionUtils.isNotEmpty(materialLots)){
@@ -8325,7 +8326,7 @@ public class GcServiceImpl implements GcService {
                 if (rawMaterial == null){
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
                 }
-                String materialType = rawMaterial.getMaterialType() ;
+                String materialType = rawMaterial.getMaterialType();
                 if (!importType.equals(materialType)){
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_TYPE_NOT_SAME, importType);
                 }
@@ -8339,16 +8340,37 @@ public class GcServiceImpl implements GcService {
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLot.getMaterialLotId());
                     }
                     if(!StringUtils.isNullOrEmpty(materialLot.getMfgDateValue())){
-                        String msgDate = formats.format(simpleDateFormat.parse(materialLot.getMfgDateValue()));
-                        materialLot.setMfgDate(formats.parse(msgDate));
+                        if(dateMap.containsKey(materialLot.getMfgDateValue())){
+                            materialLot.setMfgDate(dateMap.get(materialLot.getMfgDateValue()));
+                        } else {
+                            String msgDate = formats.format(simpleDateFormat.parse(materialLot.getMfgDateValue()));
+                            materialLot.setMfgDate(formats.parse(msgDate));
+                            dateMap.put(materialLot.getMfgDateValue(), materialLot.getMfgDate());
+                        }
                     }
                     if(!StringUtils.isNullOrEmpty(materialLot.getExpDateValue())){
-                        String expDate = formats.format(simpleDateFormat.parse(materialLot.getExpDateValue()));
-                        materialLot.setExpDate(formats.parse(expDate));
+                        if(dateMap.containsKey(materialLot.getExpDateValue())){
+                            materialLot.setExpDate(dateMap.get(materialLot.getExpDateValue()));
+                        } else {
+                            String expDateValue = formats.format(simpleDateFormat.parse(materialLot.getExpDateValue()));
+                            Date expDate = formats.parse(expDateValue);
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(expDate);
+                            calendar.add(Calendar.HOUR,23);
+                            calendar.add(Calendar.MINUTE,59);
+                            calendar.add(Calendar.SECOND,59);
+                            materialLot.setExpDate(calendar.getTime());
+                            dateMap.put(materialLot.getExpDateValue(), materialLot.getExpDate());
+                        }
                     }
                     if(!StringUtils.isNullOrEmpty(materialLot.getShippingDateValue())){
-                        String shippingDate = formats.format(simpleDateFormat.parse(materialLot.getShippingDateValue()));
-                        materialLot.setShippingDate(formats.parse(shippingDate));
+                        if(dateMap.containsKey(materialLot.getShippingDateValue())){
+                            materialLot.setShippingDate(dateMap.get(materialLot.getShippingDateValue()));
+                        } else {
+                            String shippingDate = formats.format(simpleDateFormat.parse(materialLot.getShippingDateValue()));
+                            materialLot.setShippingDate(formats.parse(shippingDate));
+                            dateMap.put(materialLot.getShippingDateValue(), materialLot.getShippingDate());
+                        }
                     }
                     //验证原材料有效时间，超出有效时间不允许导入(默认有效时间单位为天)
                     Long warningLife = rawMaterial.getWarningLife();
