@@ -14,6 +14,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
@@ -53,6 +54,7 @@ public class DefaultPrintStrategy implements IPrintStrategy {
     }
 
     @Override
+    //@Async
     public void print(PrintContext printContext) {
         LabelTemplate labelTemplate = printContext.getLabelTemplate();
         if (LabelTemplate.TYPE_BARTENDER.equals(labelTemplate.getType())) {

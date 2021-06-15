@@ -33,6 +33,16 @@ public class MesSaveMLotHisRequest extends Request {
 	 */
 	public static final String ACTION_IRA_RETURN = "IraReturnWarehouse";
 
+	/**
+	 * 金线退仓库
+	 */
+	public static final String ACTION_WIRE_RETURN = "WireReturnWarehouse";
+
+	/**
+	 * 胶水退仓库
+	 */
+	public static final String ACTION_GLUE_RETURN = "GlueReturnWarehouse";
+
 	private MesSaveMLotHisRequestBody body;
 
 }

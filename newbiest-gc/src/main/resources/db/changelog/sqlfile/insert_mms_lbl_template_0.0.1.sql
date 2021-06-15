@@ -1,0 +1,3 @@
+insert into mms_lbl_template values(hibernate_sequence.nextval, 'Y', 1,'PrintGlueLabel','胶水标签打印','Bartender','http://${remote_address}:10032/Integration/wms-print-GluePrint/Execute','1');
+insert into mms_lbl_template values(hibernate_sequence.nextval, 'Y', 1,'PrintIRLabel','IRA标签打印','Bartender','http://${remote_address}:10033/Integration/wms-print-IRAPrint/Execute','1');
+insert into mms_lbl_template values(hibernate_sequence.nextval, 'Y', 1,'PrintIRABoxLabel','IR箱号标签打印','Bartender','http://${remote_address}:10034/Integration/wms-print-IRABoxPrint/Execute','1');

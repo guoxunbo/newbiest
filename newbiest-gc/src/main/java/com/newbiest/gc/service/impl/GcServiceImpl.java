@@ -793,6 +793,7 @@ public class GcServiceImpl implements GcService {
             for(MaterialLot materialLot: materialLotList){
                 materialLot.setReserved16(documentLine.getObjectRrn().toString());
                 materialLot.setReserved17(documentLine.getDocId());
+                materialLot.setReservedQty(materialLot.getCurrentQty());
                 materialLot = mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_MATEREIAL_SPARE, StringUtils.EMPTY);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_MATERIAL_SPARE);
@@ -4198,7 +4199,11 @@ public class GcServiceImpl implements GcService {
 
             if(!StringUtils.isNullOrEmpty(printLabel)){
                 mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
-                List<MaterialLot> materialLots = mesPackedLots.stream().map(mesPackedLot -> mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true)).collect(Collectors.toList());
+                List<MaterialLot> materialLots = Lists.newArrayList();
+                for(MesPackedLot mesPackedLot : mesPackedLots){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true);
+                    materialLots.add(materialLot);
+                }
                 printService.printReceiveWltCpLotLabel(materialLots, printCount);
             }
         } catch (Exception e) {
@@ -4764,13 +4769,15 @@ public class GcServiceImpl implements GcService {
                     .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
             for (String parentMaterialLotId : packedMLotMap.keySet()){
                 MaterialLot materialLot = mmsService.getMLotByMLotId(parentMaterialLotId);
-                materialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
-                materialLot = materialLotRepository.saveAndFlush(materialLot);
+                if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
+                    materialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
 
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
-                history.setActionComment(remarks);
-                history.setActionReason(holdReason);
-                materialLotHistoryRepository.save(history);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
+                    history.setActionComment(remarks);
+                    history.setActionReason(holdReason);
+                    materialLotHistoryRepository.save(history);
+                }
             }
 
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
@@ -8483,10 +8490,11 @@ public class GcServiceImpl implements GcService {
      * IRA从mes退料到仓库
      * @param materialLotList
      * @param transType
+     * @param materialType
      * @return
      * @throws ClientException
      */
-    public String mesIraMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transType) throws ClientException{
+    public String mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transType, String materialType) throws ClientException{
         String errorMessage = "";
         try {
             SimpleDateFormat format = new SimpleDateFormat(DateUtils.DEFAULT_DATETIME_PATTERN);
@@ -8498,7 +8506,7 @@ public class GcServiceImpl implements GcService {
                     RawMaterial rawMaterial = new RawMaterial();
                     rawMaterial.setName(materialName);
                     rawMaterial.setMaterialCategory(Material.TYPE_MATERIAL);
-                    rawMaterial.setMaterialType(Material.MATERIAL_TYPE_IRA);
+                    rawMaterial.setMaterialType(materialType);
                     material = mmsService.createRawMaterial(rawMaterial);
                 }
                 List<MaterialLot> materialLots = materialLotMap.get(materialName);
