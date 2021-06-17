@@ -8534,10 +8534,14 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLot materialLot : materialLots){
                     MaterialLot oldMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
                     if(oldMLot != null){
-                        oldMLot.setCurrentQty(oldMLot.getReceiveQty());
+                        oldMLot.setReceiveQty(materialLot.getReceiveQty());
+                        oldMLot.setCurrentQty(materialLot.getReceiveQty());
+                        oldMLot.setReservedQty(BigDecimal.ZERO);
                         oldMLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         oldMLot.setStatus(MaterialStatus.STATUS_CREATE);
                         oldMLot.setReserved12(StringUtils.EMPTY);
+                        oldMLot.setReserved16(StringUtils.EMPTY);
+                        oldMLot.setReserved17(StringUtils.EMPTY);
                         oldMLot.setReserved46(Material.RAW_MATERIAL_RETURN_FLAD);
                         oldMLot = materialLotRepository.saveAndFlush(oldMLot);
 
