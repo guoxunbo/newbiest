@@ -25,8 +25,6 @@ import java.util.Date;
 @Data
 public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
-    public static final String Grade_A = "A";
-
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
@@ -223,6 +221,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String GEADE_DA = "DA";
     public static final String GEADE_EA = "EA";
     public static final String GEADE_AA = "AA";
+    public static final String GEADE_A = "A";
 
     /**
      * 加密等级中的固定字符

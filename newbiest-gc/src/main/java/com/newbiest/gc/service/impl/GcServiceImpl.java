@@ -528,8 +528,8 @@ public class GcServiceImpl implements GcService {
      * @return
      */
     public MaterialLot getMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, long tableRrn) throws ClientException {
-            try {
-             MaterialLot materialLot = new MaterialLot();
+        try {
+            MaterialLot materialLot = new MaterialLot();
             List<MaterialLot> materialLotList = queryMaterialLotByTableRrnAndMaterialLotId(tableRrn, materialLotId);
 
             if(CollectionUtils.isEmpty(materialLotList)){
@@ -8279,7 +8279,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReserved48(importCode);
                     materialLot.setReserved49(importType);
                     materialLot.setReserved50(MaterialLot.RAW_MATERIAL_WAFER_SOURCE);
-                    materialLot.setGrade(MaterialLot.Grade_A);
+                    materialLot.setGrade(MaterialLot.GEADE_A);
                     materialLotRepository.save(materialLot);
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
                     materialLotHistoryRepository.save(history);
@@ -8540,11 +8540,11 @@ public class GcServiceImpl implements GcService {
                         oldMLot.setReservedQty(BigDecimal.ZERO);
                         oldMLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         oldMLot.setStatus(MaterialStatus.STATUS_CREATE);
+                        oldMLot.setGrade(materialLot.getGrade());
                         oldMLot.setReserved12(StringUtils.EMPTY);
                         oldMLot.setReserved16(StringUtils.EMPTY);
                         oldMLot.setReserved17(StringUtils.EMPTY);
                         oldMLot.setReserved46(Material.RAW_MATERIAL_RETURN_FLAD);
-                        oldMLot.setGrade(materialLot.getGrade());
                         oldMLot = materialLotRepository.saveAndFlush(oldMLot);
                         MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(oldMLot, transType);
                         materialLotHistoryRepository.save(materialLotHistory);
