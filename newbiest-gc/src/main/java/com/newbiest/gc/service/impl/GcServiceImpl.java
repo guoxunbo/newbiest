@@ -1461,13 +1461,12 @@ public class GcServiceImpl implements GcService {
                 waferIssueWithOutDocument(materialLots);
             }
 
-            //将晶圆信息保存至Mes backendWaferReceive表中
-            mesService.saveBackendWaferReceive(materialLots);
-
             //RW的来料发料之后自动打印RW发料标签
-            List<MaterialLot> rwMaterialLots = materialLots.stream().filter(materialLot -> materialLot.getMaterialName().endsWith("-2.1") && MaterialLot.SCP_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
+            List<MaterialLot> rwMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getInnerLotId()) && MaterialLot.SCP_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
             printService.printRwLotIssueLabel(rwMaterialLots, "");
 
+            //将晶圆信息保存至Mes backendWaferReceive表中
+            mesService.saveBackendWaferReceive(materialLots);
 
             if(StringUtils.isNullOrEmpty(unPlanLot)){
                 boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
@@ -8330,9 +8329,6 @@ public class GcServiceImpl implements GcService {
                 if (!importType.equals(materialType)){
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_TYPE_NOT_SAME, importType);
                 }
-                if(rawMaterial.getWarningLife() == null){
-                    throw new ClientParameterException(GcExceptions.RAW_MATERIAL_WARNING_LIFE_TIME_IS_NOT_SET, materialName);
-                }
                 List<MaterialLot> materialLots = materialLotMap.get(materialName);
                 for(MaterialLot materialLot : materialLots){
                     MaterialLot oldmaterialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
@@ -8373,11 +8369,13 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     //验证原材料有效时间，超出有效时间不允许导入(默认有效时间单位为天)
-                    Long warningLife = rawMaterial.getWarningLife();
-                    Long effectiveTime = materialLot.getExpDate().getTime() - new Date().getTime();//这样得到的差值是毫秒级别
-                    Long effectiveDays = effectiveTime / (1000 * 60 * 60 * 24);
-                    if(effectiveDays < warningLife){
-                        throw new ClientParameterException(GcExceptions.RAW_MATERIAL_LOT_EXPDATE_LESS_THAN_WARNING_LIFE, materialLot.getMaterialLotId());
+                    if(rawMaterial.getWarningLife() != null && rawMaterial.getWarningLife() > 0){
+                        Long warningLife = rawMaterial.getWarningLife();
+                        Long effectiveTime = materialLot.getExpDate().getTime() - new Date().getTime();//这样得到的差值是毫秒级别
+                        Long effectiveDays = effectiveTime / (1000 * 60 * 60 * 24);
+                        if(effectiveDays < warningLife){
+                            throw new ClientParameterException(GcExceptions.RAW_MATERIAL_LOT_EXPDATE_LESS_THAN_WARNING_LIFE, materialLot.getMaterialLotId());
+                        }
                     }
                     rawMaterialLotList.add(materialLot);
                 }
@@ -8536,10 +8534,14 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLot materialLot : materialLots){
                     MaterialLot oldMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
                     if(oldMLot != null){
-                        oldMLot.setCurrentQty(oldMLot.getReceiveQty());
+                        oldMLot.setReceiveQty(materialLot.getReceiveQty());
+                        oldMLot.setCurrentQty(materialLot.getReceiveQty());
+                        oldMLot.setReservedQty(BigDecimal.ZERO);
                         oldMLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         oldMLot.setStatus(MaterialStatus.STATUS_CREATE);
                         oldMLot.setReserved12(StringUtils.EMPTY);
+                        oldMLot.setReserved16(StringUtils.EMPTY);
+                        oldMLot.setReserved17(StringUtils.EMPTY);
                         oldMLot.setReserved46(Material.RAW_MATERIAL_RETURN_FLAD);
                         oldMLot = materialLotRepository.saveAndFlush(oldMLot);
 
