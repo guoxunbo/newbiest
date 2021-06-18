@@ -25,6 +25,8 @@ import java.util.Date;
 @Data
 public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
+    public static final String Grade_A = "A";
+
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
