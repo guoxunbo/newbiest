@@ -30,5 +30,7 @@ public class GCRawMaterialSaveRequest extends Request {
 
     public static final String ACTION_TYPE_SCRAP_RAW_MATERIAL_SHIP = "ScrapRawMLotShip";
 
+    public static final String ACTION_TYPE_GC_UN_RAW_MATERIAL_SPARE = "GCUnRawMaterialSpare";
+
     private GCRawMaterialSaveRequestBody body;
 }

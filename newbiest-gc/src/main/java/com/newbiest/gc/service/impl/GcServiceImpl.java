@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
+import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBQuery;
 import com.newbiest.base.repository.QueryRepository;
@@ -1460,13 +1461,12 @@ public class GcServiceImpl implements GcService {
                 waferIssueWithOutDocument(materialLots);
             }
 
-            //将晶圆信息保存至Mes backendWaferReceive表中
-            mesService.saveBackendWaferReceive(materialLots);
-
             //RW的来料发料之后自动打印RW发料标签
-            List<MaterialLot> rwMaterialLots = materialLots.stream().filter(materialLot -> materialLot.getMaterialName().endsWith("-2.1") && MaterialLot.SCP_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
+            List<MaterialLot> rwMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getInnerLotId()) && MaterialLot.SCP_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
             printService.printRwLotIssueLabel(rwMaterialLots, "");
 
+            //将晶圆信息保存至Mes backendWaferReceive表中
+            mesService.saveBackendWaferReceive(materialLots);
 
             if(StringUtils.isNullOrEmpty(unPlanLot)){
                 boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
@@ -8279,6 +8279,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReserved48(importCode);
                     materialLot.setReserved49(importType);
                     materialLot.setReserved50(MaterialLot.RAW_MATERIAL_WAFER_SOURCE);
+                    materialLot.setGrade(MaterialLot.GEADE_A);
                     materialLotRepository.save(materialLot);
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
                     materialLotHistoryRepository.save(history);
@@ -8301,6 +8302,7 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> rawMaterialLotList = Lists.newArrayList();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
             SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
+            Map<String, Date> dateMap = new HashMap<>();
             if(Material.MATERIAL_TYPE_IRA.equals(importType)){
                 List<MaterialLot> materialLots = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getLotId())).collect(Collectors.toList());
                 if(CollectionUtils.isNotEmpty(materialLots)){
@@ -8324,12 +8326,9 @@ public class GcServiceImpl implements GcService {
                 if (rawMaterial == null){
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
                 }
-                String materialType = rawMaterial.getMaterialType() ;
+                String materialType = rawMaterial.getMaterialType();
                 if (!importType.equals(materialType)){
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_TYPE_NOT_SAME, importType);
-                }
-                if(rawMaterial.getWarningLife() == null){
-                    throw new ClientParameterException(GcExceptions.RAW_MATERIAL_WARNING_LIFE_TIME_IS_NOT_SET, materialName);
                 }
                 List<MaterialLot> materialLots = materialLotMap.get(materialName);
                 for(MaterialLot materialLot : materialLots){
@@ -8338,23 +8337,46 @@ public class GcServiceImpl implements GcService {
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLot.getMaterialLotId());
                     }
                     if(!StringUtils.isNullOrEmpty(materialLot.getMfgDateValue())){
-                        String msgDate = formats.format(simpleDateFormat.parse(materialLot.getMfgDateValue()));
-                        materialLot.setMfgDate(formats.parse(msgDate));
+                        if(dateMap.containsKey(materialLot.getMfgDateValue())){
+                            materialLot.setMfgDate(dateMap.get(materialLot.getMfgDateValue()));
+                        } else {
+                            String msgDate = formats.format(simpleDateFormat.parse(materialLot.getMfgDateValue()));
+                            materialLot.setMfgDate(formats.parse(msgDate));
+                            dateMap.put(materialLot.getMfgDateValue(), materialLot.getMfgDate());
+                        }
                     }
                     if(!StringUtils.isNullOrEmpty(materialLot.getExpDateValue())){
-                        String expDate = formats.format(simpleDateFormat.parse(materialLot.getExpDateValue()));
-                        materialLot.setExpDate(formats.parse(expDate));
+                        if(dateMap.containsKey(materialLot.getExpDateValue())){
+                            materialLot.setExpDate(dateMap.get(materialLot.getExpDateValue()));
+                        } else {
+                            String expDateValue = formats.format(simpleDateFormat.parse(materialLot.getExpDateValue()));
+                            Date expDate = formats.parse(expDateValue);
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(expDate);
+                            calendar.add(Calendar.HOUR,23);
+                            calendar.add(Calendar.MINUTE,59);
+                            calendar.add(Calendar.SECOND,59);
+                            materialLot.setExpDate(calendar.getTime());
+                            dateMap.put(materialLot.getExpDateValue(), materialLot.getExpDate());
+                        }
                     }
                     if(!StringUtils.isNullOrEmpty(materialLot.getShippingDateValue())){
-                        String shippingDate = formats.format(simpleDateFormat.parse(materialLot.getShippingDateValue()));
-                        materialLot.setShippingDate(formats.parse(shippingDate));
+                        if(dateMap.containsKey(materialLot.getShippingDateValue())){
+                            materialLot.setShippingDate(dateMap.get(materialLot.getShippingDateValue()));
+                        } else {
+                            String shippingDate = formats.format(simpleDateFormat.parse(materialLot.getShippingDateValue()));
+                            materialLot.setShippingDate(formats.parse(shippingDate));
+                            dateMap.put(materialLot.getShippingDateValue(), materialLot.getShippingDate());
+                        }
                     }
                     //验证原材料有效时间，超出有效时间不允许导入(默认有效时间单位为天)
-                    Long warningLife = rawMaterial.getWarningLife();
-                    Long effectiveTime = materialLot.getExpDate().getTime() - new Date().getTime();//这样得到的差值是毫秒级别
-                    Long effectiveDays = effectiveTime / (1000 * 60 * 60 * 24);
-                    if(effectiveDays < warningLife){
-                        throw new ClientParameterException(GcExceptions.RAW_MATERIAL_LOT_EXPDATE_LESS_THAN_WARNING_LIFE, materialLot.getMaterialLotId());
+                    if(rawMaterial.getWarningLife() != null && rawMaterial.getWarningLife() > 0){
+                        Long warningLife = rawMaterial.getWarningLife();
+                        Long effectiveTime = materialLot.getExpDate().getTime() - new Date().getTime();//这样得到的差值是毫秒级别
+                        Long effectiveDays = effectiveTime / (1000 * 60 * 60 * 24);
+                        if(effectiveDays < warningLife){
+                            throw new ClientParameterException(GcExceptions.RAW_MATERIAL_LOT_EXPDATE_LESS_THAN_WARNING_LIFE, materialLot.getMaterialLotId());
+                        }
                     }
                     rawMaterialLotList.add(materialLot);
                 }
@@ -8513,13 +8535,17 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLot materialLot : materialLots){
                     MaterialLot oldMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
                     if(oldMLot != null){
-                        oldMLot.setCurrentQty(oldMLot.getReceiveQty());
+                        oldMLot.setReceiveQty(materialLot.getReceiveQty());
+                        oldMLot.setCurrentQty(materialLot.getReceiveQty());
+                        oldMLot.setReservedQty(BigDecimal.ZERO);
                         oldMLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         oldMLot.setStatus(MaterialStatus.STATUS_CREATE);
+                        oldMLot.setGrade(materialLot.getGrade());
                         oldMLot.setReserved12(StringUtils.EMPTY);
+                        oldMLot.setReserved16(StringUtils.EMPTY);
+                        oldMLot.setReserved17(StringUtils.EMPTY);
                         oldMLot.setReserved46(Material.RAW_MATERIAL_RETURN_FLAD);
                         oldMLot = materialLotRepository.saveAndFlush(oldMLot);
-
                         MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(oldMLot, transType);
                         materialLotHistoryRepository.save(materialLotHistory);
                     } else {
@@ -9288,6 +9314,48 @@ public class GcServiceImpl implements GcService {
 
             updateRawMaterialIssueOrderAndErpMaterialOutaOrderAndSaveHis(documentLine, handleQty, MaterialLotHistory.TRANS_TYPE_SCRAP_SHIP);
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     *取消原材料备料
+     * @param materialLotList
+     * @throws ClientException
+     */
+    @Override
+    public void unRawMaterialSpare(List<MaterialLot> materialLotList) throws ClientException {
+        try{
+            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getReserved16));
+
+            for (String docRrn : materialLotMap.keySet()) {
+                BigDecimal totalQty = BigDecimal.ZERO;
+                List<MaterialLot> materialLots = materialLotMap.get(docRrn);
+                for (MaterialLot materialLot : materialLots) {
+                    BigDecimal reservedQty = materialLot.getReservedQty();
+                    totalQty = totalQty.add(reservedQty);
+                    materialLot.restoreStatus();
+                    materialLot.setReserved17(StringUtils.EMPTY);
+                    materialLot.setReserved16(StringUtils.EMPTY);
+                    materialLotRepository.saveAndFlush(materialLot);
+
+                    MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
+                    materialLotHistoryRepository.save(materialLotHistory);
+                }
+                DocumentLine documentLine = (DocumentLine)documentLineRepository.findByObjectRrn(Long.parseLong(docRrn));
+                documentLine.setReservedQty(documentLine.getReservedQty().subtract(totalQty));
+                documentLine.setUnReservedQty(documentLine.getUnReservedQty().add(totalQty));
+
+                documentLine = documentLineRepository.saveAndFlush(documentLine);
+                baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
+
+                MaterialIssueOrder materialIssueOrder = (MaterialIssueOrder) materialIssueOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                materialIssueOrder.setReservedQty(materialIssueOrder.getReservedQty().subtract(totalQty));
+                materialIssueOrder.setUnReservedQty(materialIssueOrder.getUnReservedQty().add(totalQty));
+                materialIssueOrderRepository.save(materialIssueOrder);
+                baseService.saveHistoryEntity(materialIssueOrder, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

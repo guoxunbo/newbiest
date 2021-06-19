@@ -621,11 +621,8 @@ databaseChangeLog:
       file: db.changelog-add.RawMaterialScrapShip.nb_authority.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-0.0.1.update_material_lot_column_dataType.yaml
+      file: db.changelog-add.GCUnRawMaterialSpareTable.nb_authority.yaml
       relativeToChangelogFile: true
   - include:
-      file: db.changelog-0.0.1.update_document_column_dataType.yaml
-      relativeToChangelogFile: true
-  - include:
-      file: db.changelog-0.0.1.update_document_line_column_dataType.yaml
+      file: db.changelog-add.GCRawMaterialRePrint.nb_authority.yaml
       relativeToChangelogFile: true

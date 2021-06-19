@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCUnRawMaterialSpareTable_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCUnRawMaterialSpareTable to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCUnRawMaterialSpareManager
+              description: 取消备料
+              tableName: GCUnRawMaterialSpareTable
+              url: /GC/GCUnRawMaterialSpare
+              mobileFlag: N
+              parentRrn: 2030
+              seqNo: 26
+              image: icon-rule
+              labelZh: 取消备料
+              labelEn: UnRawMaterialSpare
+
