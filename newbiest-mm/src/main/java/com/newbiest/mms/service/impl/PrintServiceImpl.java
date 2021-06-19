@@ -659,7 +659,7 @@ public class PrintServiceImpl implements PrintService {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("BOXID", materialLot.getMaterialLotId());
-            String productId = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().indexOf("-"));
+            String productId = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-"));
             parameterMap.put("PRODUCTID", productId);
             parameterMap.put("GRADE", materialLot.getGrade());
             parameterMap.put("SECONDCODE", materialLot.getReserved1());
