@@ -1021,16 +1021,16 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_IR_LABEL, "");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            for (int i = 0; i < materialLots.size(); i++) {
+            for (MaterialLot materialLot : materialLots) {
                 Map<String, Object> parameterMap = Maps.newHashMap();
-                parameterMap.put("VENDER", materialLots.get(i).getReserved22());
-                parameterMap.put("MATERIALNAME",materialLots.get(i).getMaterialName());
-                parameterMap.put("MATERIALLOTID",materialLots.get(i).getMaterialLotId());
-                parameterMap.put("QTY",materialLots.get(i).getCurrentQty().toString());
-                parameterMap.put("MFGDATE",sdf.format(materialLots.get(i).getMfgDate()));
-                parameterMap.put("EXPDATE",sdf.format(materialLots.get(i).getExpDate()));
-                parameterMap.put("REMARK",materialLots.get(i).getReserved41());
-                printContext.setBaseObject(materialLots.get(i));
+                parameterMap.put("VENDER", materialLot.getReserved22());
+                parameterMap.put("MATERIALNAME", materialLot.getMaterialName());
+                parameterMap.put("MATERIALLOTID", materialLot.getMaterialLotId());
+                parameterMap.put("QTY", materialLot.getCurrentQty().toString());
+                parameterMap.put("MFGDATE", sdf.format(materialLot.getMfgDate()));
+                parameterMap.put("EXPDATE", sdf.format(materialLot.getExpDate()));
+                parameterMap.put("REMARK", materialLot.getReserved41() == null ? "": materialLot.getReserved41());
+                printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameterMap);
                 print(printContext);
             }
@@ -1044,17 +1044,17 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_GLUE_LABEL, "");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            for (int i = 0; i < materialLots.size(); i++) {
+            for (MaterialLot materialLot : materialLots) {
                 Map<String, Object> parameterMap = Maps.newHashMap();
-                parameterMap.put("GLUENAME",materialLots.get(i).getMaterialLotId());
-                parameterMap.put("GLUETYPE",materialLots.get(i).getMaterialName());
-                parameterMap.put("DESCRIPTION",materialLots.get(i).getMaterialDesc());
-                parameterMap.put("PRODUCTIONDATE",sdf.format(materialLots.get(i).getMfgDate()));
-                parameterMap.put("EFFECTIVEDATE",sdf.format(materialLots.get(i).getExpDate()));
+                parameterMap.put("GLUENAME", materialLot.getMaterialLotId());
+                parameterMap.put("GLUETYPE", materialLot.getMaterialName());
+                parameterMap.put("DESCRIPTION", materialLot.getMaterialDesc() == null ? "": materialLot.getMaterialDesc());
+                parameterMap.put("PRODUCTIONDATE", sdf.format(materialLot.getMfgDate()));
+                parameterMap.put("EFFECTIVEDATE", sdf.format(materialLot.getExpDate()));
                 parameterMap.put("FIRSTTEMPERATURETIME","");
                 parameterMap.put("SECONDTEMPERATURETIME","");
                 parameterMap.put("THIRDTEMPERATURETIME","");
-                printContext.setBaseObject(materialLots.get(i));
+                printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameterMap);
                 print(printContext);
             }
