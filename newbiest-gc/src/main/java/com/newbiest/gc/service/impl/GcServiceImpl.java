@@ -4166,6 +4166,11 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> scmReportHoldMLotList = Lists.newArrayList();
             List<MaterialLot> materialLotList = Lists.newArrayList();
+            List<MesPackedLot> waitReceivePackedLotList = packedLotList.stream().map(mesPackedLot -> mesPackedLotRepository.findByBoxId(mesPackedLot.getBoxId())).collect(Collectors.toList());
+            waitReceivePackedLotList = waitReceivePackedLotList.stream().filter(mesPackedLot -> MesPackedLot.PACKED_STATUS_IN.equals(mesPackedLot.getPackedStatus())).collect(Collectors.toList());
+            if(CollectionUtils.isEmpty(waitReceivePackedLotList) || waitReceivePackedLotList.size() != packedLotList.size()){
+                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_ALREADY_RECEIVE, packedLotList.get(0).getBoxId());
+            }
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getCstId));
             List<MesPackedLot> mesPackedLots = Lists.newArrayList();
             for(String cstId : packedLotMap.keySet()){
