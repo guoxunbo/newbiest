@@ -542,3 +542,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileQueryMaterialLot_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotReceiveOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotReceive_nb_table.yaml
+      relativeToChangelogFile: true
