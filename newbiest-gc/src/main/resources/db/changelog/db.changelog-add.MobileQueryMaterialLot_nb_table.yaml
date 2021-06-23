@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileQueryMaterialLot_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCMobileQueryMaterialLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileQueryMaterialLot
+              description: 手持端物料批次查询
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 手持端物料批次查询
+              label: MobileQueryMLot
