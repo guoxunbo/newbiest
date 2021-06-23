@@ -626,6 +626,3 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRawMaterialRePrint.nb_authority.yaml
       relativeToChangelogFile: true
-  - include:
-      file: db.changelog-add.GCRawMaterialInventoryManager.nb_authority.yaml
-      relativeToChangelogFile: true

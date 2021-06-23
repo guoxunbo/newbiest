@@ -3727,7 +3727,6 @@ public class GcServiceImpl implements GcService {
                     MaterialLot materialLot = mmsService.getMLotByMLotId(weightModel.getMaterialLotId());
                     materialLot.setScanSeq(weightModel.getScanSeq());
                     materialLot.setReserved19(weightModel.getWeight());
-                    materialLot.setReserved20(StringUtils.EMPTY);
                     materialLotList.add(materialLot);
                 }
             }
