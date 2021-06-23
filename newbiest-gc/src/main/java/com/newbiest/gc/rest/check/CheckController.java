@@ -35,7 +35,6 @@ public class CheckController {
 
         CheckResponseBody responseBody = new CheckResponseBody();
         CheckRequestBody requestBody = request.getBody();
-        gcService.checkMaterialInventory(requestBody.getExistMaterialLots(), requestBody.getErrorMaterialLots());
 
         String actionType = requestBody.getActionType();
         if(CheckRequest.ACTION_CHECK.equals(actionType)){
