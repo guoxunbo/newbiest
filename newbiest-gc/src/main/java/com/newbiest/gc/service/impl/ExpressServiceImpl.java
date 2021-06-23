@@ -133,6 +133,9 @@ public class ExpressServiceImpl implements ExpressService {
             if (log.isInfoEnabled()) {
                 log.info("Start to send [" + methodCode + "] to express.");
             }
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Send data. RequestString is [%s]", parameter));
+            }
             String token = getToken();
             KyeClient kyeClient = new DefaultKyeClient(isProdEnv() ? KyeConstants.SERVER_URL : KyeConstants.SANDBOX_SERVER_URL, expressConfiguration.getAppKey(), expressConfiguration.getAppSecret(), token);
             DefaultRequest request = new DefaultRequest(methodCode, parameter, KyeConstants.REQUEST_DATA_FORMAT_JSON, KyeConstants.RESPONSE_DATA_FORMAT_JSON);
