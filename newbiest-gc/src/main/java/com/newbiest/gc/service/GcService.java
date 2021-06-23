@@ -82,7 +82,7 @@ public interface GcService {
     GCWorkorderRelation saveWorkorderGradeHoldInfo(GCWorkorderRelation workorderRelation, String transType) throws ClientException;
     String getEncryptionSubCode(String grade, String subcode) throws ClientException;
     List<MaterialLot> getMaterialLotByTableRrnAndMLotId(String mLotId, long tableRrn) throws ClientException;
-    MaterialLot getWltMaterialLotToStockOut(Long tableRrn, String queryLotId) throws ClientException;
+    MaterialLot getMaterialLotByTableRrnAndMaterialLotIdOrLotId(Long tableRrn, String queryLotId) throws ClientException;
     void validationMaterialLotVender(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferUnStockOutTagging(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferStockOutTagging(List<MaterialLotAction> materialLotActions, String stockTagNote, String customerName, String stockOutType, String poId, String address) throws ClientException;

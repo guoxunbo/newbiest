@@ -785,7 +785,7 @@ public class GcServiceImpl implements GcService {
     public void rawMaterialMLotSpare(List<MaterialLot> materialLotList, Long docLineRrn) throws ClientException{
         try {
             DocumentLine documentLine = (DocumentLine)documentLineRepository.findByObjectRrn(docLineRrn);
-            Long totalMLotQty = materialLotList.stream().collect(Collectors.summingLong(mLot -> mLot.getCurrentQty().longValue()));
+            Double totalMLotQty = materialLotList.stream().collect(Collectors.summingDouble(mLot -> mLot.getCurrentQty().doubleValue()));
             BigDecimal spareQty = new BigDecimal(totalMLotQty);
             if(documentLine.getUnReservedQty().compareTo(new BigDecimal(totalMLotQty)) < 0){
                 throw new ClientException(GcExceptions.OVER_DOC_QTY);
@@ -3548,7 +3548,7 @@ public class GcServiceImpl implements GcService {
      */
     public MaterialLot getWaitWeightMaterialLot(String materialLotId, Long tableRrn) throws ClientException {
         try {
-            MaterialLot materialLot = getWltMaterialLotToStockOut(tableRrn, materialLotId);
+            MaterialLot materialLot = getMaterialLotByTableRrnAndMaterialLotIdOrLotId(tableRrn, materialLotId);
             if(materialLot.getObjectRrn() == null){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
             } else if(MaterialLot.PRODUCT_CATEGORY.equals(materialLot.getReserved7()) && !StringUtils.isNullOrEmpty(materialLot.getPackageType())){
@@ -7649,7 +7649,7 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    public MaterialLot getWltMaterialLotToStockOut(Long tableRrn, String queryLotId) throws ClientException {
+    public MaterialLot getMaterialLotByTableRrnAndMaterialLotIdOrLotId(Long tableRrn, String queryLotId) throws ClientException {
         try {
             MaterialLot materialLot = new MaterialLot();
             NBTable nbTable = uiService.getDeepNBTable(tableRrn);
