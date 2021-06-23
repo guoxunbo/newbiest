@@ -641,3 +641,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileMaterialLotReceive.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotIssue.nb_authority.yaml
+      relativeToChangelogFile: true
