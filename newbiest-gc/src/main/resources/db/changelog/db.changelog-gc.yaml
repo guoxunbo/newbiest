@@ -533,3 +533,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileMaterialLotStockIn_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialInventoryManager_nb_table.yaml
+      relativeToChangelogFile: true
