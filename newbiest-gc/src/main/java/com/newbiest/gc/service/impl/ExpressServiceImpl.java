@@ -25,6 +25,7 @@ import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.express.dto.WaybillDelivery;
 import com.newbiest.gc.service.ExpressService;
+import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
@@ -322,7 +323,15 @@ public class ExpressServiceImpl implements ExpressService {
                 String planOrderType = materialLots.get(0).getPlanOrderType();
                 if (MaterialLot.PLAN_ORDER_TYPE_AUTO.equals(planOrderType)) {
                     Map<String, Object> requestParameters = Maps.newHashMap();
-                    requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
+                    if (StringUtils.isNullOrEmpty(materialLots.get(0).getReserved16())) {
+                        throw new ClientException(GcExceptions.MATERIALLOT_RESERVED_ORDER_IS_NULL);
+                    }
+                    DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLots.get(0).getReserved16()));
+                    if (ZJ_BOOK.equals(documentLine.getReserved30())) {
+                        requestParameters.put("customerCode", expressConfiguration.getZjCustomerCode());
+                    } else {
+                        requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
+                    }
                     requestParameters.put("waybillNumber", expressNumber);
                     sendRequest(ExpressConfiguration.CANCEL_ORDER_METHOD, requestParameters);
                 }

@@ -61,7 +61,7 @@ public class RwMaterialLotController {
         } else if(RwMaterialLotRequest.ACTION_UN_STOCK_OUT_TAG.equals(actionType)){
             gcService.rwMaterialLotCancelStockTag(requestBody.getMaterialLotList());
         } else if(RwMaterialLotRequest.ACTION_QUERY_MLOT.equals(actionType)){
-            MaterialLot materialLot = gcService.getWltMaterialLotToStockOut(requestBody.getTableRrn(), requestBody.getQueryLotId());
+            MaterialLot materialLot = gcService.getMaterialLotByTableRrnAndMaterialLotIdOrLotId(requestBody.getTableRrn(), requestBody.getQueryLotId());
             responseBody.setMaterialLot(materialLot);
         } else if(RwMaterialLotRequest.ACTION_STOCK_OUT.equals(actionType)){
             gcService.rwStockOut(requestBody.getMaterialLotList(), requestBody.getDocumentLineList());

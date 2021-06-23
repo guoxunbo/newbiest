@@ -16,6 +16,7 @@ public class StockInRequest extends Request {
 	public static final String ACTION_QUERY_WAFER = "QueryWafer";
 	public static final String ACTION_STOCK_IN = "StockIn";
 	public static final String ACTION_QUERY_MATERIAL = "QueryMaterial";
+	public static final String ACTION_QUERY_MATERIAL_INFO = "QueryMaterialInfo";
 
 	private StockInRequestBody body;
 
