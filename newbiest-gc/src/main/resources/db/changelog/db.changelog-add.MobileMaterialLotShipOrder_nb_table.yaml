@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileMaterialLotShipOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCMobileMaterialLotShipOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileMaterialLotShipOrder
+              description: 手持端出货单据
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 手持端出货单据
+              label: MobileMLotShipOrder
