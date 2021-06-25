@@ -647,3 +647,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileMaterialLotShip.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialStockInChange.nb_authority.yaml
+      relativeToChangelogFile: true
