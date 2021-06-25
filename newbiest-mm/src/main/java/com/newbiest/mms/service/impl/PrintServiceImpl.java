@@ -982,7 +982,7 @@ public class PrintServiceImpl implements PrintService {
      */
     private String setYearWeek() throws ClientException{
         try{
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             Calendar cl = Calendar.getInstance();
             cl.setTime(sdf.parse(sdf.format(new Date())));
             int week = cl.get(Calendar.WEEK_OF_YEAR);
@@ -1020,7 +1020,7 @@ public class PrintServiceImpl implements PrintService {
     public void printRawMlotIRLabel(List<MaterialLot> materialLots) throws ClientException {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_IR_LABEL, "");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATETIME_PATTERN);
             for (MaterialLot materialLot : materialLots) {
                 Map<String, Object> parameterMap = Maps.newHashMap();
                 parameterMap.put("VENDER", materialLot.getReserved22());
@@ -1043,7 +1043,7 @@ public class PrintServiceImpl implements PrintService {
     public void printRawMlotGlueLabel(List<MaterialLot> materialLots) throws ClientException {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_GLUE_LABEL, "");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             for (MaterialLot materialLot : materialLots) {
                 Map<String, Object> parameterMap = Maps.newHashMap();
                 parameterMap.put("GLUENAME", materialLot.getMaterialLotId());
