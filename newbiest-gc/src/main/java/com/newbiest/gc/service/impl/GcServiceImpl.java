@@ -4401,7 +4401,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved24", mesPackedLot.getFabDevice());
                     otherReceiveProps.put("reserved49", mesPackedLot.getImportType());
                     otherReceiveProps.put("reserved7", mesPackedLot.getProductCategory());
-                    otherReceiveProps.put("reserved50", MaterialLot.LCP_WAFER_SOURCE);
+                    otherReceiveProps.put("reserved50", MaterialLot.RW_WAFER_SOURCE);
 
                     otherReceiveProps.put("reserved25", materialLot.getReserved25());
                     //记录物料批次的原产品型号和等级
@@ -4477,9 +4477,13 @@ public class GcServiceImpl implements GcService {
             String mLotId = mmsService.generatorMLotId(material);
             packedLot.setBoxId(mLotId);
             packedLot.setPackedLotRrn(null);
-            packedLot.setSubName(materialLot.getReserved22());
+            if(MaterialLot.WAREHOUSE_ZJ.equals(materialLot.getReserved13())){
+                packedLot.setSubName(MesPackedLot.ZJ_SUB_NAME);
+            } else {
+                packedLot.setSubName(MesPackedLot.SH_SUB_NAME);
+            }
             packedLot.setProductType(materialLot.getProductType());
-            packedLot.setImportType(materialLot.getReserved49());
+            packedLot.setImportType(StringUtils.EMPTY);
             packedLot.setWaferId(StringUtils.EMPTY);
             packedLot.setFabDevice(materialLot.getReserved24());
             packedLot.setQuantity(totalQuantity.intValue());
@@ -4859,7 +4863,7 @@ public class GcServiceImpl implements GcService {
     public List<MaterialLot> validationAndGetWaitIssueWafer(Long tableRrn,String whereClause) throws ClientException{
         try {
             //获取当前日期，时间格式yyMMdd
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.DEFAULT_REVERSE_DATA_PATTERN);
             NBTable nbTable = uiService.getDeepNBTable(tableRrn);
             String _whereClause = nbTable.getWhereClause();
             String orderBy = nbTable.getOrderBy();
@@ -4900,7 +4904,7 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
             //获取当前日期，时间格式yyMMdd
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.DEFAULT_REVERSE_DATA_PATTERN);
             NBTable nbTable = uiService.getDeepNBTable(tableRrn);
             String _whereClause = nbTable.getWhereClause();
             String orderBy = nbTable.getOrderBy();
@@ -8306,8 +8310,8 @@ public class GcServiceImpl implements GcService {
     private List<MaterialLot> validateRawMaterialAndMaterialLot(List<MaterialLot> materialLotList, String importType) throws ClientException{
         try{
             List<MaterialLot> rawMaterialLotList = Lists.newArrayList();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-            SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(MaterialLot.DEFAULT_NO_FORMAT_DATE_PATTERN);
+            SimpleDateFormat formats = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             Map<String, Date> dateMap = new HashMap<>();
             if(Material.MATERIAL_TYPE_IRA.equals(importType)){
                 List<MaterialLot> materialLots = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getLotId())).collect(Collectors.toList());
@@ -9050,7 +9054,7 @@ public class GcServiceImpl implements GcService {
      */
     public void receiveRawMaterial(List<MaterialLot> materialLotList) throws ClientException{
         try {
-            SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formats = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             for(MaterialLot materialLot : materialLotList){
                 Warehouse warehouse = new Warehouse();
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
@@ -9107,7 +9111,10 @@ public class GcServiceImpl implements GcService {
         try {
             for(MaterialLot materialLot : materialLotList){
                 materialLotRepository.delete(materialLot);
-
+                List<MaterialLotInventory> materialLotInventoryList = materialLotInventoryRepository.findByMaterialLotRrn(materialLot.getMaterialRrn());
+                if (CollectionUtils.isNotEmpty(materialLotInventoryList)){
+                    materialLotInventoryRepository.deleteByMaterialLotRrn(materialLotInventoryList.get(0).getMaterialLotRrn());
+                }
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
                 history.setActionComment(remarks);
                 materialLotHistoryRepository.save(history);
@@ -9124,7 +9131,7 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
 
-            SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formats = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             String ddate = formats.format(new Date());
             //写数据到中间表etm_material_out表中，WLA/CP一个lot写入一条，FT的一个晶圆写入一条
             for(MaterialLot materialLot: materialLots){
@@ -9746,8 +9753,8 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> materialLotList = Lists.newArrayList();
             List<String> mLotIdList = Lists.newArrayList();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-            SimpleDateFormat formats = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(MaterialLot.DEFAULT_NO_FORMAT_DATE_PATTERN);
+            SimpleDateFormat formats = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             String[] tepaArray = tapeMaterialCode.split(" ");
             if(tepaArray.length < 120 ){
                 throw new ClientParameterException(GcExceptions.TAPA_MATERIAL_CODE_IS_ERROR, tapeMaterialCode);

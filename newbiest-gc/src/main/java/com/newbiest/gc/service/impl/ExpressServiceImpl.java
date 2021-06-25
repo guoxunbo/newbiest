@@ -227,7 +227,7 @@ public class ExpressServiceImpl implements ExpressService {
                 orderInfo.setGoodsTime(orderTime);
             }
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.DEFAULT_NOT_S_DATE_PATTERN);
             String date = formatter.format(new Date());
             orderInfo.setOrderTime(date);
 
