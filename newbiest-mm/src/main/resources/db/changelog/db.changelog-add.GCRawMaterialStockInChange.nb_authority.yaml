@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialStockInChange_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCRawMaterialStockInChange to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRawMaterialStockInChangeTable
+              description: 原材料库位调整
+              tableName: GCRawMaterialStockInChange
+              secondTableName: GCChangeWaitRawMaterialStockIn
+              url: /RawMaterial/GCRawMaterialStockInChange
+              mobileFlag: N
+              parentRrn: 2030
+              seqNo: 42
+              image: icon-rule
+              labelZh: 原材料库位调整
+              labelEn: GCRawMaterialStockInChange

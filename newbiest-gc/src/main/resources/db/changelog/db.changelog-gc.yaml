@@ -560,3 +560,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileMaterialLotShipScan_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialStockInChange_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCChangeWaitRawMaterialStockIn_nb_table.yaml
+      relativeToChangelogFile: true
