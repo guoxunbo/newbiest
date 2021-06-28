@@ -168,7 +168,7 @@ public class ExpressServiceImpl implements ExpressService {
         try {
             validateMLotAddressAndShipper(materialLots);
             for (MaterialLot materialLot : materialLots) {
-                materialLot.setExpressNumber(expressNumber);
+                materialLot.setExpressNumber(expressNumber.toUpperCase());
                 materialLot.setExpressCompany(expressCompany);
                 materialLot.setPlanOrderType(planOrderType);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
@@ -413,6 +413,7 @@ public class ExpressServiceImpl implements ExpressService {
     public List<DocumentLine> recordExpressNumber(List<DocumentLine> documentLines) throws ClientException {
         List<DocumentLine> documentLineList = Lists.newArrayList();
         for (DocumentLine documentLine : documentLines) {
+            documentLine.setExpressNumber(documentLine.getExpressNumber().toUpperCase());
             documentLine = documentLineRepository.saveAndFlush(documentLine);
             documentLineList.add(documentLine);
             baseService.saveHistoryEntity(documentLine, "RecordExpress");
