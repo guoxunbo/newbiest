@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileMaterialLotReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MobileMaterialLotReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileMaterialLotReceiveManager
+              description: 手持端来料接收
+              tableName: GCMobileMaterialLotReceiveOrder
+              secondTableName: GCMobileMaterialLotReceive
+              mobileFlag: Y
+              url: /Mobile/MaterialLotReceive
+              parentRrn: 2
+              seqNo: 45
+              image: icon-rule
+              labelZh: 来料接收
+              labelEn: Receive

@@ -35,13 +35,12 @@ public class CheckController {
 
         CheckResponseBody responseBody = new CheckResponseBody();
         CheckRequestBody requestBody = request.getBody();
-        gcService.checkMaterialInventory(requestBody.getExistMaterialLots(), requestBody.getErrorMaterialLots());
 
         String actionType = requestBody.getActionType();
         if(CheckRequest.ACTION_CHECK.equals(actionType)){
             gcService.checkMaterialInventory(requestBody.getExistMaterialLots(), requestBody.getErrorMaterialLots());
         } else if (CheckRequest.ACTION_QUERY.equals(actionType)){
-            MaterialLot materialLot = gcService.getWltMaterialLotToStockOut(requestBody.getTableRrn(),requestBody.getQueryLotId());
+            MaterialLot materialLot = gcService.getMaterialLotByTableRrnAndMaterialLotIdOrLotId(requestBody.getTableRrn(),requestBody.getQueryLotId());
             responseBody.setMaterialLot(materialLot);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());

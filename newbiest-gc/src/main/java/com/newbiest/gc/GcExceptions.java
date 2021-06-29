@@ -53,6 +53,7 @@ public class GcExceptions {
     public static final String MATERIAL_LOT_ABBREVIATION_IS_NOT_SAME = "gc.material_lot_abbreviation_is_not_same";
     public static final String MATERIAL_LOT_SHIP_ORDER_ID_IS_NOT_SAME = "gc.material_lot_ship_order_id_is_not_same";
     public static final String MATERIAL_LOT_IS_NOT_PACKED = "gc.material_lot_is_not_packed";
+    public static final String MATERIAL_LOT_ALREADY_RECEIVE = "gc.material_lot_already_receive";
 
     public static final String DOCUMENT_LINE_MERGE_RULE_IS_NOE_EXIST = "gc.document_line_merge_rule_is_not_exist";
 

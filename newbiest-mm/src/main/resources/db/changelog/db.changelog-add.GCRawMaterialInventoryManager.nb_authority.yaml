@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialInventoryManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCRawMaterialInventoryManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRawMaterialInventoryTable
+              description: 原材料盘点
+              tableName: GCRawMaterialInventoryTable
+              url: /GC/GCRawMaterialInventoryManager
+              mobileFlag: N
+              parentRrn: 2030
+              seqNo: 27
+              image: icon-rule
+              labelZh: 原材料盘点
+              labelEn: GCRawMaterialInventory

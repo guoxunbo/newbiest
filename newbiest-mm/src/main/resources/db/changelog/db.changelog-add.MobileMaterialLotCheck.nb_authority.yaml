@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileMaterialLotCheckManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MobileMaterialLotCheckManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileMaterialLotCheckManager
+              description: 手持端入库位
+              tableName: GCMobileMaterialLotCheck
+              mobileFlag: Y
+              url: /Mobile/MaterialLotCheck
+              parentRrn: 2
+              seqNo: 80
+              image: icon-rule
+              labelZh: 盘点
+              labelEn: Check

@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileQueryMaterialLotManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MobileQueryMaterialLotManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileQueryMaterialLotManager
+              description: 手持端物料批次查询
+              tableName: GCMobileQueryMaterialLot
+              mobileFlag: Y
+              url: /Mobile/MaterialLotQuery
+              parentRrn: 2
+              seqNo: 90
+              image: icon-rule
+              labelZh: 物料查询
+              labelEn: MaterialLotQuery

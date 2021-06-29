@@ -25,6 +25,9 @@ import java.util.Date;
 @Data
 public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
+    public static final String DEFAULT_REVERSE_DATA_PATTERN = "dd/MM/yyyy";
+    public static final String DEFAULT_NO_FORMAT_DATE_PATTERN = "yyyyMMdd";
+    public static final String DEFAULT_NOT_S_DATE_PATTERN = "yyyy-MM-dd HH:mm";
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
@@ -174,6 +177,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     /**
      * Wafer Source
      */
+    public static final String RW_WAFER_SOURCE = "20";
     public static final String COM_WAFER_SOURCE = "19";
     public static final String WLT_WAFER_SOURCE = "6";
     public static final String LCP_WAFER_SOURCE = "4";

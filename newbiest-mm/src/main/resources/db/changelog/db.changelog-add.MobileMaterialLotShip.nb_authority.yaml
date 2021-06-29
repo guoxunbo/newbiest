@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileMaterialLotShipManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MobileMaterialLotShipManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileMaterialLotShipManager
+              description: 手持端出货
+              tableName: GCMobileMaterialLotShipOrder
+              secondTableName: GCMobileMaterialLotShipScan
+              mobileFlag: Y
+              url: /Mobile/MaterialLotShip
+              parentRrn: 2
+              seqNo: 55
+              image: icon-rule
+              labelZh: 发货
+              labelEn: StockOut

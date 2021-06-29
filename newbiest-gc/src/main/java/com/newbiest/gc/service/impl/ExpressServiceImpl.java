@@ -25,6 +25,7 @@ import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.express.dto.WaybillDelivery;
 import com.newbiest.gc.service.ExpressService;
+import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
@@ -132,6 +133,9 @@ public class ExpressServiceImpl implements ExpressService {
             if (log.isInfoEnabled()) {
                 log.info("Start to send [" + methodCode + "] to express.");
             }
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Send data. RequestString is [%s]", parameter));
+            }
             String token = getToken();
             KyeClient kyeClient = new DefaultKyeClient(isProdEnv() ? KyeConstants.SERVER_URL : KyeConstants.SANDBOX_SERVER_URL, expressConfiguration.getAppKey(), expressConfiguration.getAppSecret(), token);
             DefaultRequest request = new DefaultRequest(methodCode, parameter, KyeConstants.REQUEST_DATA_FORMAT_JSON, KyeConstants.RESPONSE_DATA_FORMAT_JSON);
@@ -164,7 +168,7 @@ public class ExpressServiceImpl implements ExpressService {
         try {
             validateMLotAddressAndShipper(materialLots);
             for (MaterialLot materialLot : materialLots) {
-                materialLot.setExpressNumber(expressNumber);
+                materialLot.setExpressNumber(expressNumber.toUpperCase());
                 materialLot.setExpressCompany(expressCompany);
                 materialLot.setPlanOrderType(planOrderType);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
@@ -223,7 +227,7 @@ public class ExpressServiceImpl implements ExpressService {
                 orderInfo.setGoodsTime(orderTime);
             }
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.DEFAULT_NOT_S_DATE_PATTERN);
             String date = formatter.format(new Date());
             orderInfo.setOrderTime(date);
 
@@ -322,7 +326,15 @@ public class ExpressServiceImpl implements ExpressService {
                 String planOrderType = materialLots.get(0).getPlanOrderType();
                 if (MaterialLot.PLAN_ORDER_TYPE_AUTO.equals(planOrderType)) {
                     Map<String, Object> requestParameters = Maps.newHashMap();
-                    requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
+                    if (StringUtils.isNullOrEmpty(materialLots.get(0).getReserved16())) {
+                        throw new ClientException(GcExceptions.MATERIALLOT_RESERVED_ORDER_IS_NULL);
+                    }
+                    DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLots.get(0).getReserved16()));
+                    if (ZJ_BOOK.equals(documentLine.getReserved30())) {
+                        requestParameters.put("customerCode", expressConfiguration.getZjCustomerCode());
+                    } else {
+                        requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
+                    }
                     requestParameters.put("waybillNumber", expressNumber);
                     sendRequest(ExpressConfiguration.CANCEL_ORDER_METHOD, requestParameters);
                 }
@@ -401,6 +413,7 @@ public class ExpressServiceImpl implements ExpressService {
     public List<DocumentLine> recordExpressNumber(List<DocumentLine> documentLines) throws ClientException {
         List<DocumentLine> documentLineList = Lists.newArrayList();
         for (DocumentLine documentLine : documentLines) {
+            documentLine.setExpressNumber(documentLine.getExpressNumber().toUpperCase());
             documentLine = documentLineRepository.saveAndFlush(documentLine);
             documentLineList.add(documentLine);
             baseService.saveHistoryEntity(documentLine, "RecordExpress");

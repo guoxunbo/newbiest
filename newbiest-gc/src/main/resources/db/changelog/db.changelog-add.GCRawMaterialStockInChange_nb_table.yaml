@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialStockInChange_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCRawMaterialStockInChange to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRawMaterialStockInChange
+              description: 原材料库位调整
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 原材料库位调整
+              label: GCRawMaterialStockInChange

@@ -626,3 +626,27 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRawMaterialRePrint.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotStockIn.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialInventoryManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotCheck.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileQueryMaterialLot.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotReceive.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotIssue.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotShip.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialStockInChange.nb_authority.yaml
+      relativeToChangelogFile: true
