@@ -32,6 +32,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String GENERATOR_SUB_MATERIAL_LOT_ID_RULE = "CreateSubMLot";
 
+    /**
+     * 生成检验不合格物料子批号的规则
+     */
+    public static final String GENERATOR_NG_SUB_MATERIAL_LOT_ID_RULE = "CreateNGSubMLot";
+
     public static final String HOLD_STATE_ON = "On";
     public static final String HOLD_STATE_OFF = "Off";
 
@@ -354,10 +359,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private BigDecimal iqcQty;
 
     /**
-     * ICL打印日期
+     * 丢料数量
      */
-    @Column(name= "ICL_DATE")
-    private Date iclDate;
+    @Column(name= "MISSING_QTY")
+    private BigDecimal missingQty;
 
     /**
      * 警告状态
@@ -704,6 +709,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved55;
 
     /**
+     *备件编码
+     */
+    @Column(name="RESERVED56")
+    private String reserved56;
+
+    /**
      * 成品接收传入Unit
      */
     @Transient
@@ -726,6 +737,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Transient
     private BigDecimal pickQty;
+
+    /**
+     * ICL打印日期
+     */
+    @Transient
+    private String iclDate;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
@@ -812,6 +829,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setEffectiveUnit(material.getEffectiveUnit());
         this.setWarningLife(material.getWarningLife());
         this.setMaterialProperties(material.getReserved16());
+        this.setReserved56(material.getReserved20());
     }
 
     public void initialWarehouseAndStorageInfo() {

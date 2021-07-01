@@ -279,50 +279,102 @@ public class Material extends NBVersionControl {
     private String reserved16;
 
     /**
-     * 品牌
+     * 采购单位
      */
     @Column(name="RESERVED17")
     private String reserved17;
 
     /**
-     * 环境要求
+     *品牌
      */
     @Column(name="RESERVED18")
     private String reserved18;
 
     /**
-     *防护要求
+     *备件价格
      */
     @Column(name="RESERVED19")
     private String reserved19;
 
     /**
-     * 备件价格
+     *备件编码
      */
     @Column(name="RESERVED20")
     private String reserved20;
 
     /**
-     * 有无图纸
+     * 是否特殊（是/否）
      */
     @Column(name="RESERVED21")
     private String reserved21;
 
     /**
-     * Remark
+     * 环境要求
      */
     @Column(name="RESERVED22")
     private String reserved22;
 
     /**
-     * 是否特殊备件
+     * 图纸
      */
     @Column(name="RESERVED23")
     private String reserved23;
+
+    /**
+     * 防护要求
+     */
+    @Column(name="RESERVED24")
+    private String reserved24;
+
+    /**
+     * Remark
+     */
+    @Column(name="RESERVED25")
+    private String reserved25;
+
+    /**
+     * ABC标识
+     */
+    @Column(name="RESERVED26")
+    private String reserved26;
+
+    /**
+     * 批次管理标识
+     */
+    @Column(name="RESERVED27")
+    private String reserved27;
+
+    /**
+     * 默认仓库二
+     */
+    @Column(name="RESERVED28")
+    private String reserved28;
+
+    /**
+     * 默认仓库二主键
+     */
+    @Column(name="RESERVED29")
+    private String reserved29;
 
     @Transient
     private BigDecimal materialStockQty;
 
     @Transient
     private BigDecimal pickQty;
+
+    /**
+     * 物料类型组
+     * A101001
+     * 1-2位是物料大类，2-3是中类，后面是小类
+     */
+    @Transient
+    private String materialTypeGroup;
+
+    /**
+     * 物料类型组描述
+     * "包材-非BOM内-背胶袋 ==> 大类描述-中类描述-小类描述"
+     */
+    @Transient
+    private String materialTypeGroupDesc;
+
 }

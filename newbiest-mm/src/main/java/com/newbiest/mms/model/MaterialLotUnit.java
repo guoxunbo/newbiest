@@ -110,10 +110,16 @@ public class MaterialLotUnit extends NBUpdatable {
     private String reserved4;
 
     /**
-     * 最终客户
+     * MRB1 (原料自带的MRB)
      */
     @Column(name="RESERVED5")
     private String reserved5;
+
+    /**
+     * MRB2 (生产产生的MRB)
+     */
+    @Column(name="RESERVED6")
+    private String reserved6;
 
 
     public void setMaterialLot(MaterialLot materialLot){

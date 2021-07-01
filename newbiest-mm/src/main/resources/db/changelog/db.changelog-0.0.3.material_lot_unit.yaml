@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.0.3
+      author: Tao Zhou
+      remarks: mms_material_lot_unit add column
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: RESERVED6
+                  type: varchar(64)
+                  remarks: MRB2(生产产生的MRB)

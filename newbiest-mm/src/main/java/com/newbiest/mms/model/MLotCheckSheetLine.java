@@ -53,6 +53,18 @@ public class MLotCheckSheetLine extends NBUpdatable {
     @Column(name="ACTION_COMMENT")
     private String actionComment;
 
+    /**
+     * 抽样备注
+     */
+    @Column(name="SAMPLING_REMARK")
+    private String samplingRemark;
+
+    /**
+     * 抽样方案
+     */
+    @Column(name="SAMPLING_SCHEME")
+    private String samplingScheme ;
+
     @PreUpdate
     protected void preUpdate() {
         super.preUpdate();

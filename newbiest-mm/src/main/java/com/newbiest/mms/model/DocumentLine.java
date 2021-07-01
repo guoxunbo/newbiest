@@ -204,6 +204,13 @@ public class DocumentLine extends NBUpdatable {
      */
     @Column(name="RESERVED25")
     private String reserved25;
+
+    /**
+     * 备件编码
+     */
+    @Column(name="RESERVED26")
+    private String reserved26;
+
     /**
      * 导入时格式转换
      */

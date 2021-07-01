@@ -26,6 +26,7 @@ public class Document extends NBUpdatable {
     public static final String CATEGORY_INCOMING = "Incoming";
     public static final String CATEGORY_ISSUE_LOT = "IssueLot";
     public static final String CATEGORY_ISSUE_MATERIAL = "IssueMaterial";
+    public static final String CATEGORY_ISSUE_PARTS = "IssueParts";
 
     /**
      * 指定物料发料以及数量，不管主辅材或实验室
@@ -115,6 +116,9 @@ public class Document extends NBUpdatable {
     @Transient
     private List<DocumentLine> documentLines;
 
+    /**
+     * 领料人
+     */
     @Column(name="RESERVED1")
     private String reserved1;
 

@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -29,4 +30,8 @@ public class CreateIssueOrderRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "操作的物料批次以及pickQty")
 	private List<MaterialLot> materialLots;
+
+	private String materialName;
+	private String creator;
+	private BigDecimal qty;
 }

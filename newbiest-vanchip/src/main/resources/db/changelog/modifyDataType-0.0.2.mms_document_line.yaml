@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id:  modifyDataType-mms_document_line-0.0.2
+      author:  Tao Zhou
+      remarks: mms_document_line  modifyDataType
+      changes:
+        -  modifyDataType:
+             columnName: RESERVED12
+             newDataType: varchar2(512)
+             tableName: MMS_DOCUMENT_LINE
+        - modifyDataType:
+            columnName: RESERVED13
+            newDataType: varchar2(512)
+            tableName: MMS_DOCUMENT_LINE
+        - modifyDataType:
+            columnName: RESERVED15
+            newDataType: varchar2(512)
+            tableName: MMS_DOCUMENT_LINE
+        - modifyDataType:
+            columnName: RESERVED16
+            newDataType: varchar2(512)
+            tableName: MMS_DOCUMENT_LINE

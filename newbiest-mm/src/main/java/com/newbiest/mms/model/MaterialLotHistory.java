@@ -61,6 +61,13 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_CREATE_PACKAGE = "CreatePackage";
     public static final String TRANS_TYPE_ADDITIONAL_PACKAGE = "AdditionalPackage";
 
+    public static final String TRANS_TYPE_ISSUE_CREATE = "IssueCreate";
+
+    /**
+     * 丢料
+     */
+    public static final String TRANS_TYPE_MISSING_MLOT = "Missing";
+
     /**
      * 物料批次号
      */
@@ -411,10 +418,10 @@ public class MaterialLotHistory extends NBHis {
     private BigDecimal iqcQty;
 
     /**
-     * ICL打印日期
+     * 丢料数量
      */
-    @Column(name= "ICL_DATE")
-    private Date iclDate;
+    @Column(name= "MISSING_QTY")
+    private BigDecimal missingQty;
 
     /**
      * PackageSize
@@ -742,11 +749,17 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED54")
     private String reserved54;
 
-//    /**
-//     *厂家
-//     */
-//    @Column(name="RESERVED55")
-//    private String reserved55;
+    /**
+     *厂家
+     */
+    @Column(name="RESERVED55")
+    private String reserved55;
+
+    /**
+     *备件编码
+     */
+    @Column(name="RESERVED56")
+    private String reserved56;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

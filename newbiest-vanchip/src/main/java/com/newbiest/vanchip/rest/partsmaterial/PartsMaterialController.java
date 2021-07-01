@@ -4,8 +4,12 @@ import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.base.utils.StringUtils;
+import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.Parts;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.state.model.MaterialStatusModel;
+import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -26,6 +30,9 @@ import java.util.List;
 public class PartsMaterialController extends AbstractRestController {
 
     @Autowired
+    VanChipService vanChipService;
+
+    @Autowired
     MmsService mmsService;
 
     @ApiOperation(value = "对备件做操作", notes = "备件操作")
@@ -40,10 +47,15 @@ public class PartsMaterialController extends AbstractRestController {
         String actionType = requestBody.getActionType();
         List<Parts> dataList = requestBody.getDataList();
 
+        MaterialStatusModel statusModel = mmsService.getStatusModelByName(Material.DEFAULT_STATUS_MODEL, true);
+
         if(PartsMaterialRequest.ACTION_MERGE_PARTS.equals(actionType)){
             List<Parts> partsList = Lists.newArrayList();
             for (Parts parts : dataList) {
-                parts = mmsService.saveParts(parts, parts.getWarehouseName());
+                if (StringUtils.isNullOrEmpty(parts.getStatusModelRrn())){
+                    parts.setStatusModelRrn(statusModel.getObjectRrn());
+                }
+                parts = vanChipService.saveParts(parts);
                 partsList.add(parts);
             }
             responseBody.setDataList(partsList);
