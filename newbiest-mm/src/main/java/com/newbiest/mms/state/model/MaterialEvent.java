@@ -42,5 +42,6 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_MATEREIAL_SPARE = "MaterialSpare";
 
+    public static final String EVENT_CANCEL_MATEREIAL_SPARE = "MaterialCancel";
 
 }

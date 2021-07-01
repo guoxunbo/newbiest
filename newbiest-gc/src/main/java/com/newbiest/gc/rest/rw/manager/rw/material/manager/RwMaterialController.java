@@ -51,6 +51,8 @@ public class RwMaterialController {
             gcService.receiveBladeMaterial(requestBody.getMaterialLotList());
         } else if(RwMaterialRequest.ACTION_MATERIAL_SPARE.equals(actionType)){
             gcService.spareRwMaterial(requestBody.getMaterialLotList());
+        } else if(RwMaterialRequest.ACTION_CANCEL_SPARE_MATERIAL.equals(actionType)){
+            gcService.CancelSpareRwMaterial(requestBody.getMaterialLotList());
         } else if(RwMaterialRequest.ACTION_MATERIAL_ISSUE.equals(actionType)){
             gcService.issueRwMaterial(requestBody.getMaterialLotList());
         } else if(RwMaterialRequest.ACTION_GET_RW_MLOT.equals(actionType)){
