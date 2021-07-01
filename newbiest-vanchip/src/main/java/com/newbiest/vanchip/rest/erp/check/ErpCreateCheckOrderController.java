@@ -25,7 +25,7 @@ public class ErpCreateCheckOrderController {
 
     @ApiOperation(value = "ERP创建盘点单据")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "ErpCreateCheckOrderRequest")
-    @RequestMapping(value = "/materialManager", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/createCheckOrder", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public ErpCreateCheckOrderResponse execute(@RequestBody ErpCreateCheckOrderRequest request) throws Exception {
         ErpCreateCheckOrderResponse response = new ErpCreateCheckOrderResponse();
         ErpCreateCheckOrderResponseBody responseBody = new ErpCreateCheckOrderResponseBody();
