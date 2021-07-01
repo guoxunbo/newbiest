@@ -22,6 +22,7 @@ public interface GcService {
     MaterialLot getRwMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, Long tableRrn) throws ClientException;
     void issueRwMaterial(List<MaterialLot> materialLotList) throws ClientException;
     void spareRwMaterial(List<MaterialLot> materialLotList) throws ClientException;
+    void CancelSpareRwMaterial(List<MaterialLot> materialLotList) throws ClientException;
     void receiveBladeMaterial(List<MaterialLot> materialLotList) throws ClientException;
     String validateAndGetBladeMLotId(String bladeMaterialLotCode) throws ClientException;
     MaterialLot getMaterialLotByBladeMaterialCode(String bladeMaterialCode) throws ClientException;
