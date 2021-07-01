@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_inventory-0.0.4
+      author: Tao Zhou
+      comment: Add Column MMS_MATERIAL_LOT_INVENTORY RESERVED1, RESERVED2
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_INVENTORY
+            columns:
+              - column:
+                  name: RESERVED1
+                  type: varchar2(64)
+                  remarks: 中文名称
+              - column:
+                  name: RESERVED2
+                  type: varchar2(64)
+                  remarks: 备件编码

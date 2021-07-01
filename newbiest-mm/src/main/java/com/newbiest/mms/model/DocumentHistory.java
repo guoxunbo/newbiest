@@ -17,6 +17,7 @@ public class DocumentHistory extends NBUpdatable {
     public static final String TRANS_TYPE_APPROVE = "Approve";
     public static final String TRANS_TYPE_ISSUE = "Issue";
     public static final String TRANS_TYPE_RETURN = "Return";
+    public static final String TRANS_TYPE_STOCK_OUT = "StockOut";
 
     @Column(name="NAME")
     private String name;

@@ -20,5 +20,6 @@ public class DocumentException {
     public static final String DOCUMENT_NOT_CANT_DELETE = "mm_document_not_cant_delete";
 
     public static final String DOCUMENT_CATEGORY_IS_NOT_EXIST = "mms.document_category_is_not_exist";
+    public static final String OPERATIONS_QTY_GREATER_THAN_ACTUAL_QTY = "mms.operations_qty_greater_than_actual_qty";
 
 }

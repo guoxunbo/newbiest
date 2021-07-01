@@ -18,6 +18,7 @@ public interface MmsService {
 
 
     MaterialStatusModel getStatusModelByRrn(String statusModelRrn) throws ClientException;
+    MaterialStatusModel getStatusModelByName(String statusModelName, boolean throwExceptionFlag) throws ClientException;
 
     MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, BigDecimal transQty, BigDecimal transSubQty, Map<String, Object> propsMap) throws ClientException;
     List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException;

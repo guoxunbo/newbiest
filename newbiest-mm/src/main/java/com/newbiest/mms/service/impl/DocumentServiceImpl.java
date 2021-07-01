@@ -768,16 +768,6 @@ public class DocumentServiceImpl implements DocumentService {
             BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
             Document issueByMaterialOrder = saveDocument(documentId, handleQty, DocumentHistory.TRANS_TYPE_ISSUE);
 
-            for (MaterialLot materialLot : materialLots) {
-                mmsService.issue(materialLot);
-
-                DocumentMLot documentMLot = new DocumentMLot();
-                documentMLot.setDocumentId(issueByMaterialOrder.getName());
-                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
-                documentMLot.setStatus(DocumentMLot.STATUS_ISSUE);
-                documentMLotRepository.save(documentMLot);
-            }
-
             Map<String, List<MaterialLot>> materialLotMaps = materialLots.stream().collect(Collectors.groupingBy(MaterialLot::getMaterialName));
             List<DocumentLine> docLines = documentLineRepository.findByDocId(documentId);
             for (String materialName:materialLotMaps.keySet()){
@@ -790,6 +780,25 @@ public class DocumentServiceImpl implements DocumentService {
                 documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
                 documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(handleQty));
                 baseService.saveEntity(documentLine, DocumentHistory.TRANS_TYPE_ISSUE);
+            }
+
+            for (MaterialLot materialLot : materialLots) {
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setTransQty(materialLot.getCurrentQty());
+
+                materialLot = mmsService.issue(materialLot);
+
+                DocumentMLot documentMLot = new DocumentMLot();
+                documentMLot.setDocumentId(issueByMaterialOrder.getName());
+                documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
+                documentMLot.setStatus(DocumentMLot.STATUS_ISSUE);
+                documentMLotRepository.save(documentMLot);
+
+                //备件
+                if (materialLot.getMaterialCategory().equals(Material.MATERIAL_CATEGORY_PARTS)){
+                    Parts parts = mmsService.getPartsByName(materialLot.getMaterialName(), true);
+                    issueCreate(materialLot, parts, materialLotAction);
+                }
             }
 
         }catch (Exception e){
@@ -830,11 +839,6 @@ public class DocumentServiceImpl implements DocumentService {
             materialLotRepository.save(materialLot);
 
             createDocumentMLot(issueByMLotOrder.getName(), materialLot.getMaterialLotId());
-//            DocumentMLot documentMLot = new DocumentMLot();
-//            documentMLot.setDocumentId(issueByMLotOrder.getName());
-//            documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
-//            documentMLot.setStatus(DocumentMLot.STATUS_CREATE);
-//            documentMLotRepository.save(documentMLot);
         }
         return issueByMLotOrder;
     }
@@ -1042,11 +1046,12 @@ public class DocumentServiceImpl implements DocumentService {
                 materialLots = materialLotRepository.findByReserved44(documetnLine.getObjectRrn());
             }else{
                 materialLots = getReservedMLotByDocId(documentId);
+
+                if(document.getCategory().equals(Document.CATEGORY_INCOMING)){
+                    materialLots = materialLotRepository.findByIncomingDocId(document.getName());
+                }
             }
 
-            if(document.getCategory().equals(Document.CATEGORY_INCOMING)){
-                materialLots = materialLotRepository.findByIncomingDocId(document.getName());
-            }
             return materialLots;
         }catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -1090,12 +1095,12 @@ public class DocumentServiceImpl implements DocumentService {
             Document document = getDocumentByName(documentId, true);
             String userName = ThreadLocalContext.getUsername();
 
-            if (document.getQty().compareTo(document.getUnHandledQty()) != 0 || !userName.equals(document.getCreatedBy())){
+            if (document.getQty().compareTo(document.getUnHandledQty()) != 0 || (!userName.equals(document.getCreatedBy()) && !"admin".equals(userName))){
                 throw new ClientParameterException(DOCUMENT_NOT_CANT_DELETE, documentId);
             }
 
             List<DocumentMLot> documentMLots = documentMLotRepository.findByDocumentId(document.getName());
-            if (!CollectionUtils.isNotEmpty(documentMLots)){
+            if (CollectionUtils.isNotEmpty(documentMLots)){
                 List<MaterialLot> materialLots = documentMLots.stream().map(documentMLot -> mmsService.getMLotByMLotId(documentMLot.getMaterialLotId(), true)).collect(Collectors.toList());
                 materialLots.forEach(mLot -> {
                     mLot.setReservedQty(BigDecimal.ZERO);
@@ -1110,6 +1115,65 @@ public class DocumentServiceImpl implements DocumentService {
 
 
         }catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 发料到其他仓库
+     * 正常发料结束后，对于该仓库批次已经结束。
+     * 此种特殊物料，在正常发料之后，对于其他仓库而言，该批次是新建。
+     * @param materialLot
+     * @param materialLotAction
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot issueCreate(MaterialLot materialLot, Material material, MaterialLotAction materialLotAction) throws ClientException {
+        try {
+            materialLot.setMaterialName(material.getReserved20());
+            materialLot.setCurrentQty(materialLotAction.getTransQty());
+            materialLot.initialWarehouseAndStorageInfo();
+            materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_ISSUE_CREATE, StringUtils.EMPTY);
+            baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_ISSUE_CREATE, materialLotAction);
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 备品备件发料单据
+     * @param documentId
+     * @param approveFlag
+     * @param materialName
+     * @param qty
+     * @param creator
+     * @throws ClientException
+     */
+    public void createIssuePartsOrder(String documentId, boolean approveFlag, String materialName, BigDecimal qty, String creator) throws ClientException{
+        try {
+            Parts parts = mmsService.getPartsByName(materialName, true);
+
+            List<MaterialLot> materialLots = materialLotRepository.findByMaterialNameAndStatus(parts.getReserved20(), "In2");
+            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+            if (totalQty.compareTo(qty) < 0){
+                throw new ClientParameterException(OPERATIONS_QTY_GREATER_THAN_ACTUAL_QTY, totalQty);
+            }
+
+            IssuePartsOrder issuePartsOrder= new IssuePartsOrder();
+            issuePartsOrder.setReserved1(creator);
+            Document document = createDocument(issuePartsOrder, documentId, IssuePartsOrder.GENERATOR_ISSUE_PARTS_ORDER_ID_RULE, approveFlag, qty);
+
+            DocumentLine documentLine = new DocumentLine();
+            documentLine.setDocument(document);
+            documentLine.setMaterialRrn(parts.getObjectRrn());
+            documentLine.setMaterialName(parts.getName());
+            documentLine.setReserved26(parts.getReserved20());
+            documentLine.setHandledQty(BigDecimal.ZERO);
+            documentLine.setUnHandledQty(qty);
+            documentLine.setQty(qty);
+            baseService.saveEntity(documentLine);
+        }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

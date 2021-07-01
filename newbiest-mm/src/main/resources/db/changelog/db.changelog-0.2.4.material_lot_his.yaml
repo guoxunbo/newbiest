@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.2.4
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column MISSING_QTY, drop column ICL_DATE
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: MISSING_QTY
+                  type: varchar(64)
+                  remarks: 丢料数量
+        - dropColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columnName: ICL_DATE

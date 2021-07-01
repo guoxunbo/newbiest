@@ -28,6 +28,9 @@ public class CreateIssueOrderRequest extends Request {
 	@ApiModelProperty("创建指定批次和数量发料单")
 	public static final String ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MLOT = "CreateIssueOrderByMLot";
 
+	@ApiModelProperty("备品配件发料单")
+	public static final String ACTION_TYPE_CREATE_ISSUE_PARTS_ORDER = "CreateIssuePartsOrder";
+
 	private CreateIssueOrderRequestBody body;
 
 }

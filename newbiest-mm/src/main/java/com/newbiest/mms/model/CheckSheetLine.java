@@ -24,5 +24,9 @@ public class CheckSheetLine extends NBBase {
     @Column(name="DESCRIPTION")
     private String description;
 
-
+    /**
+     * 抽样方案
+     */
+    @Column(name="SAMPLING_SCHEME")
+    private String samplingScheme ;
 }

@@ -91,4 +91,14 @@ public interface VanChipService {
     void transferInvMLots(List<MaterialLotAction> materialLotActions) throws ClientException;
 
     void preWarning() throws ClientException;
+
+    Parts saveParts(Parts parts) throws ClientException;
+    void checkMlotInventorys(List<MaterialLotAction> materialLotActions) throws ClientException;
+
+    MaterialLot createMLot2Warehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
+    void stockOutParts(String documentId, MaterialLotAction materialLotAction) throws ClientException;
+    MaterialLot returnMLotWarehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
+
+    void erpSaveMaterial(List<Material> materials) throws ClientException;
+
 }

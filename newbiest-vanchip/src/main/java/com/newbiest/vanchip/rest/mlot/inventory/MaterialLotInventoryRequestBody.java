@@ -3,6 +3,7 @@ package com.newbiest.vanchip.rest.mlot.inventory;
 import com.newbiest.base.msg.RequestBody;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Document;
+import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -28,4 +29,5 @@ public class MaterialLotInventoryRequestBody extends RequestBody {
 	@ApiModelProperty("物料操作，包含了数量仓库等")
 	private List<MaterialLotAction> materialLotActions;
 
+	private MaterialLot materialLot;
 }

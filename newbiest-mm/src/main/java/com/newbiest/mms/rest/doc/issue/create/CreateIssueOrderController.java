@@ -52,6 +52,9 @@ public class CreateIssueOrderController extends AbstractRestController {
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MLOT.equals(actionType)){
             Document document = documentService.createIssueMaterialLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLots());
             responseBody.setDocument(document);
+        }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_PARTS_ORDER.equals(actionType)){
+
+            documentService.createIssuePartsOrder(requestBody.getDocumentId(), true, requestBody.getMaterialName(), requestBody.getQty(), requestBody.getCreator());
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_check_sheet_line-0.0.2
+      author: Xunbo Guo
+      comment: MMS_CHECK_SHEET_LINE add column SAMPLING_SCHEME
+      changes:
+        - addColumn:
+            tableName: MMS_CHECK_SHEET_LINE
+            columns:
+              - column:
+                  name: SAMPLING_SCHEME
+                  type: varchar(256)
+                  remarks: 抽样描述

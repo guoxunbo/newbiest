@@ -1,6 +1,5 @@
 package com.newbiest.mms.print;
 
-import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.DateUtils;
@@ -16,8 +15,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -108,17 +109,18 @@ public class DefaultPrintStrategy implements IPrintStrategy {
         String destination = printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation());
         Map<String, Object> params = buildParameters(printContext);
 
-        List<String> paramStr = Lists.newArrayList();
+        UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromHttpUrl(destination);
         for (String key : params.keySet()) {
-            paramStr.add(key + "=" + params.get(key));
+            urlBuilder.queryParam(key, params.get(key));
         }
+        URI url = urlBuilder.build(false).encode().toUri();
 
-        destination = destination + "?" + StringUtils.join(paramStr, "&");
+        String urlStr = url.toString();
         if (log.isDebugEnabled()) {
-            log.debug("Start to send print data to bartender. The destination is [ " + destination + "] ");
+            log.debug("Start to send print data to bartender. The destination is [ " + urlStr + "] ");
         }
 
-        HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(destination, byte[].class);
+        HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(url, byte[].class);
         String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
         if (log.isDebugEnabled()) {
             log.debug(String.format("Get response from bartender. Response is [%s]", response));

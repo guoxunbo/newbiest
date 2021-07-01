@@ -4,6 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -53,11 +54,16 @@ public interface DocumentService {
 
     List<MaterialLot> getMLotByDocumentId(String documentId) throws ClientException;
     Document getDocumentByMLotIdAndDocumentCategory(String mLotId, String documentCategory)throws ClientException;
-    DocumentMLot createDocumentMLot(String documentId, String mLot)throws ClientException;
+    DocumentMLot createDocumentMLot(String documentId, String mLotId)throws ClientException;
 
     void createReturnLotOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots)throws ClientException;
     void returnLotOrder(String returnLotId, List<String> materialLotIds) throws ClientException;
 
     void deleteDocument(String documentId) throws ClientException;
+
+    Document createDocument(Document document, String documentId, String idGeneratorRule, boolean approveFlag, BigDecimal qty);
+    Document saveDocument(String documentId, BigDecimal handleQty, String transType) throws ClientException;
+
+    void createIssuePartsOrder(String documentId, boolean approveFlag, String materialName, BigDecimal qty, String creator) throws ClientException;
 }
 
