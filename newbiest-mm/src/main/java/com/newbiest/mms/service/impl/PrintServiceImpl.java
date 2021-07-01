@@ -1051,9 +1051,7 @@ public class PrintServiceImpl implements PrintService {
                 parameterMap.put("DESCRIPTION", materialLot.getMaterialDesc() == null ? "": materialLot.getMaterialDesc());
                 parameterMap.put("PRODUCTIONDATE", sdf.format(materialLot.getMfgDate()));
                 parameterMap.put("EFFECTIVEDATE", sdf.format(materialLot.getExpDate()));
-                parameterMap.put("FIRSTTEMPERATURETIME","");
-                parameterMap.put("SECONDTEMPERATURETIME","");
-                parameterMap.put("THIRDTEMPERATURETIME","");
+                parameterMap.put("WEIGHT", materialLot.getCurrentQty().toString());
                 printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameterMap);
                 print(printContext);
@@ -1068,7 +1066,9 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_IRA_BOX_LABEL, "");
             Map<String,List<MaterialLot>> materialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
-            for (String lotId : materialLotMap.keySet()) {
+            Map<String, List<MaterialLot>> sortMap = materialLotMap.entrySet().stream().sorted(Map.Entry.comparingByKey())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,(oldValue, newValue) -> oldValue, LinkedHashMap::new));
+            for (String lotId : sortMap.keySet()) {
                 List<MaterialLot> materialLotList = materialLotMap.get(lotId);
                 String grossQty = materialLotList.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue())).toString();
                 Map<String, Object> parameterMap = Maps.newHashMap();
