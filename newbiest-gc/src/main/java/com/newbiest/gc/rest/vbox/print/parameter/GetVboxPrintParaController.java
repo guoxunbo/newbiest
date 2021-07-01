@@ -67,7 +67,7 @@ public class GetVboxPrintParaController extends AbstractRestController {
                 String subCode = gcService.getEncryptionSubCode(vBox.getGrade(), vBox.getLevelTwoCode());
                 parameterMap.put("SUBCODE", subCode);
             } else {
-                parameterMap.put("SUBCODE", vBox.getLevelTwoCode());
+                parameterMap.put("SUBCODE", vBox.getLevelTwoCode() + vBox.getGrade());
             }
 
             parameterMap.put("NUMBER", vBox.getQuantity().toString());
