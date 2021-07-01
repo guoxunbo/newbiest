@@ -708,34 +708,6 @@ public class VanchipServiceImpl implements VanChipService {
     }
 
     /**
-     * mes成品入库
-     * 入库后根据条件Hold
-     * 验证hold物料入hold仓
-     * @param materialLots
-     * @param materialLotActionList
-     * @return
-     * @throws ClientException
-     */
-    public List<MaterialLot> stockInFinishGood(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException {
-        try {
-            List<MaterialLot> materialLotList = Lists.newArrayList();
-
-            for (MaterialLot materialLot : materialLots) {
-                MaterialLot stockInMaterialLot ;
-                MaterialLotAction materialLotAction = materialLotActionList.stream().filter(
-                        action -> action.getMaterialLotId().equals(materialLot.getMaterialLotId())).findFirst().get();
-
-                stockInMaterialLot = mmsService.stockIn(materialLot, materialLotAction);
-                materialLotList.add(stockInMaterialLot);
-            }
-
-            return materialLotList;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
      * 成品全部hold,客户订单号信息 hold,mrb信息 Hold
      * @param materialLot
      */
@@ -1985,8 +1957,6 @@ public class VanchipServiceImpl implements VanChipService {
             rawMaterial = (RawMaterial) conversionMaterialMode(rawMaterial);
 
             rawMaterial = mmsService.saveRawMaterial(rawMaterial, rawMaterial.getWarehouseName(), rawMaterial.getIqcSheetName());
-
-            //mesService.syncMaterial(rawMaterial.getName());
             return rawMaterial;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);

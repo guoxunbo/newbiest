@@ -9,7 +9,6 @@ import java.util.List;
  */
 public interface MesService {
 
-    void syncMaterial(String materialName) throws ClientException;
     void receiveInferiorProduct(List<String> materialLotIdList) throws ClientException;
     void receiveFinishGood(List<String> materialLotIdList) throws ClientException;
     void issueMLot(List<String> materialLotIdList) throws ClientException;
