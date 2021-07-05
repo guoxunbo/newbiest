@@ -9759,14 +9759,22 @@ public class GcServiceImpl implements GcService {
             if(tepaArray.length < 120 ){
                 throw new ClientParameterException(GcExceptions.TAPA_MATERIAL_CODE_IS_ERROR, tapeMaterialCode);
             }
-            String materialName = tepaArray[3];
+            String[] tepaInfoArray = new String[20];
+            int count = 0;
+            for(int i=0; i<tepaArray.length; i++){
+                if(!StringUtils.isNullOrEmpty(tepaArray[i])){
+                    tepaInfoArray[count] = tepaArray[i];
+                    count++;
+                }
+            }
+            String materialName = tepaInfoArray[2];
             Material material = mmsService.getRawMaterialByName(materialName);
             if(material == null || !Material.MATERIAL_TYPE_TAPE.equals(material.getMaterialType())){
                 throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
             }
-            String tepeType = tepaArray[14];
+            String tepeType = tepaInfoArray[3];
             String tapeSize = tepeType.substring(2, 5) + "mm*" + tepeType.substring(10, 13) + "m*" + tepeType.substring(23, 24) + "R";
-            String dateAndlots = tepaArray[15];
+            String dateAndlots = tepaInfoArray[4];
             String mfgDate = formats.format(simpleDateFormat.parse(dateAndlots.substring(1, 9)));
             String expDate = formats.format(simpleDateFormat.parse(dateAndlots.substring(9, 17)));
 
@@ -9854,9 +9862,9 @@ public class GcServiceImpl implements GcService {
             materialLotAction.setTransCount(materialLot.getCurrentSubQty());
             mmsService.stockIn(materialLot, materialLotAction);
 
-            ErpMaterialIn erpMaterialIn = new ErpMaterialIn();
-            erpMaterialIn.setMaterialLot(materialLot);
-            erpMaterialInRepository.save(erpMaterialIn);
+//            ErpMaterialIn erpMaterialIn = new ErpMaterialIn();
+//            erpMaterialIn.setMaterialLot(materialLot);
+//            erpMaterialInRepository.save(erpMaterialIn);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
