@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCWaferHoldRelationManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCWaferHoldRelationManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCWaferHoldRelationManager
+              description: GCWaferHold设置
+              tableName: GCWaferHoldRelation
+              url: /GC/GCWaferHoldRelationManager
+              mobileFlag: N
+              parentRrn: 555
+              seqNo: 20
+              image: icon-rule
+              labelZh: GCWaferHold设置
+              labelEn: GCWaferHoldSettings
+

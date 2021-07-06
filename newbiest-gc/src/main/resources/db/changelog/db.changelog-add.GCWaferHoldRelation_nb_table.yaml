@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCWaferHoldRelation_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCWaferHoldRelation to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCWaferHoldRelation
+              description: Wafer Hold设置
+              tableName: GC_WAFER_HOLD_RELATION
+              modelName: WaferHoldRelation
+              modelClass: com.newbiest.gc.model.WaferHoldRelation
+              labelZh: Wafer Hold 设置
+              label: Wafer Hold Settings

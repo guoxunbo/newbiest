@@ -308,6 +308,8 @@ public class GcServiceImpl implements GcService {
     @Autowired
     GCFutureHoldConfigRepository futureHoldConfigRepository;
 
+    @Autowired
+    GCWaferHoldRelationRepository gcWaferHoldRelationRepository;
 
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
@@ -5209,6 +5211,17 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Warehouse warehouse = new Warehouse();
             for(MaterialLot materialLot : materialLots){
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
+                    if (MaterialLot.IMPORT_WLT.equals(materialLotUnit.getReserved49())) {
+                        WaferHoldRelation waferHoldRelation = gcWaferHoldRelationRepository.findByWaferId(materialLotUnit.getUnitId());
+                        if (waferHoldRelation != null) {
+                            MaterialLotAction materialLotAction = new MaterialLotAction();
+                            materialLotAction.setActionReason(waferHoldRelation.getHoldReason());
+                            mmsService.holdMaterialLot(materialLot, materialLotAction);
+                        }
+                    }
+                }
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
                     warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                 }
