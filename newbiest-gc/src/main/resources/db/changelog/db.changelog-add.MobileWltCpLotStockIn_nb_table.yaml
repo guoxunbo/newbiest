@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileWltCpFinishLotStockInScan_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCMobileWltCpFinishLotStockInScan to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileWltCpFinishLotStockInScan
+              description: 手持端Lot产线入库
+              tableName: MES_PACKED_LOT
+              modelName: MesPackedLot
+              modelClass: com.newbiest.gc.model.MesPackedLot
+              labelZh: Lot产线入库
+              label: MobileLotStockIn

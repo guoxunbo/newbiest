@@ -659,3 +659,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.WaferHoldRelation.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileWltCPLotStockIn.nb_authority.yaml
+      relativeToChangelogFile: true
