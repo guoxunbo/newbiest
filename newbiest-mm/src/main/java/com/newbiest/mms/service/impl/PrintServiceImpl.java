@@ -831,7 +831,7 @@ public class PrintServiceImpl implements PrintService {
             printContext.setParameterMap(parameterMap);
             print(printContext);
 
-            if (!StringUtils.isNullOrEmpty(materialLot.getReserved18())){
+            if (!StringUtils.isNullOrEmpty(materialLot.getReserved18()) || !StringUtils.isNullOrEmpty(materialLot.getShipper())){
                 printCustomerNameLabel(materialLot);
             }
         } catch (Exception e) {
@@ -848,7 +848,7 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_CUSTOMER_NAME_LABEL, "");
             Map<String, Object> parameterMap = Maps.newHashMap();
-            parameterMap.put("CSNAME",materialLot.getReserved18());
+            parameterMap.put("CSNAME",materialLot.getReserved18() == null ? materialLot.getShipper() : materialLot.getReserved18());
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
             print(printContext);
