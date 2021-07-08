@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileWaferCheck_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCMobileWaferCheck to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileWaferCheck
+              description: 手持端晶圆盘点
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 手持端晶圆盘点
+              label: MobileWaferCheck

@@ -662,3 +662,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileWltCPLotStockIn.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileWaferCheck.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRawMaterialCheck.nb_authority.yaml
+      relativeToChangelogFile: true
