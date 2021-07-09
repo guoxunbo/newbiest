@@ -7097,6 +7097,42 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * RW属性转换
+     * @param materialLots
+     * @throws ClientException
+     */
+    @Override
+    public void rWAttributeChange(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            for(MaterialLot materialLot : materialLots){
+                String waferSource = materialLot.getReserved50();
+                if (!StringUtils.isNullOrEmpty(waferSource)){
+                    if (MaterialLot.RW_TO_CP_WAFER_SOURCE.equals(waferSource)) {
+                        materialLot.setReserved50(MaterialLot.SCP_WAFER_SOURCE);
+                    }else if (MaterialLot.SCP_WAFER_SOURCE.equals(waferSource)){
+                        materialLot.setReserved50(MaterialLot.RW_TO_CP_WAFER_SOURCE);
+                    }
+
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_WAFER_SOURCE_UPDATE);
+                    materialLotHistoryRepository.save(history);
+
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        materialLotUnit.setReserved50(materialLot.getReserved50());
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_WAFER_SOURCE_UPDATE);
+                        materialLotUnitHisRepository.save(materialLotUnitHistory);
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 验证物料信息是否匹配存在批次单据，并且数量足够
      * @param materialInfo
      * @param materialLotMap

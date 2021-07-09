@@ -41,6 +41,7 @@ public interface GcService {
 
     void wltCpThreeSideShip(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void wltCpMaterialLotSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException;
+    void rWAttributeChange(List<MaterialLot> materialLots) throws ClientException;
 
     String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws ClientException;
     void validateAndRawMaterialIssue(List<DocumentLine> documentLineList, List<MaterialLot> materialLots, String issueWithDoc) throws ClientException;
@@ -171,7 +172,7 @@ public interface GcService {
     void asyncMaterialName() throws ClientException;
 
     void valaidateAndMergeErpDocLine(List<DocumentLine> documentLineList) throws ClientException;
-    
+
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 
     void validationDocLine(List<DocumentLine> documentLineList, MaterialLot materialLot) throws ClientException;

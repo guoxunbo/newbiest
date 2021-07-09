@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRWAttributeChange_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCRWAttributeChange to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRWAttributeChange
+              description: RW属性转换
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: RW属性转换
+              label: GCRWAttributeChange
