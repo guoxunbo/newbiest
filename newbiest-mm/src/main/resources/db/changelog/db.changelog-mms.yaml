@@ -670,6 +670,7 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: db.changelog-add.MobileRawMaterialReceive.nb_authority.yaml
+      relativeToChangelogFile: true
   - include:
       file: db.changelog-add.GCRWAttributeChange.nb_authority.yaml
       relativeToChangelogFile: true
