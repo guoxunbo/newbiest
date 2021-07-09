@@ -590,3 +590,7 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileRawMaterialReceive_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRWAttributeChange_nb_table.yaml
+      relativeToChangelogFile: true
+
