@@ -55,5 +55,8 @@ public class WltStockOutRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "供应商地址")
 	private String address;
+
+	@ApiModelProperty(value = "选择的物料批次")
+	private List<MaterialLot> materialLots;
   
 }

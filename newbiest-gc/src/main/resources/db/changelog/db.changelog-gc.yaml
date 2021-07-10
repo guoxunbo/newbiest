@@ -572,3 +572,25 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRwCancelSpareMaterial_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.gc_wafer_hold_relation.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCWaferHoldRelation_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileWltCpLotStockIn_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileWaferCheck_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRawMaterialCheck_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRawMaterialReceive_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRWAttributeChange_nb_table.yaml
+      relativeToChangelogFile: true
+

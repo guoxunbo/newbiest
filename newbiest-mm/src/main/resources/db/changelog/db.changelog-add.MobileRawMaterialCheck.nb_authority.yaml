@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileRawMaterialCheckManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileRawMaterialCheckManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileRawMaterialCheckManager
+              description: 手持端原材料盘点
+              tableName: GCMobileRawMaterialCheck
+              mobileFlag: Y
+              url: /Mobile/MobileRawMaterialCheck
+              parentRrn: 2
+              seqNo: 120
+              image: icon-rule
+              labelZh: 原材料盘点
+              labelEn: Check

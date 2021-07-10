@@ -308,6 +308,8 @@ public class GcServiceImpl implements GcService {
     @Autowired
     GCFutureHoldConfigRepository futureHoldConfigRepository;
 
+    @Autowired
+    GCWaferHoldRelationRepository gcWaferHoldRelationRepository;
 
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
@@ -5209,6 +5211,17 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Warehouse warehouse = new Warehouse();
             for(MaterialLot materialLot : materialLots){
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
+                    if (MaterialLot.IMPORT_WLT.equals(materialLotUnit.getReserved49())) {
+                        WaferHoldRelation waferHoldRelation = gcWaferHoldRelationRepository.findByWaferId(materialLotUnit.getUnitId());
+                        if (waferHoldRelation != null) {
+                            MaterialLotAction materialLotAction = new MaterialLotAction();
+                            materialLotAction.setActionReason(waferHoldRelation.getHoldReason());
+                            mmsService.holdMaterialLot(materialLot, materialLotAction);
+                        }
+                    }
+                }
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
                     warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                 }
@@ -7077,6 +7090,42 @@ public class GcServiceImpl implements GcService {
             for (String key : materialLotMap.keySet()) {
                 validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(key, materialLotMap, saleShipOrderMap);
                 wltCpStockOut(saleShipOrderMap.get(key), materialLotMap.get(key));
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * RW属性转换
+     * @param materialLots
+     * @throws ClientException
+     */
+    @Override
+    public void rWAttributeChange(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            for(MaterialLot materialLot : materialLots){
+                String waferSource = materialLot.getReserved50();
+                if (!StringUtils.isNullOrEmpty(waferSource)){
+                    if (MaterialLot.RW_TO_CP_WAFER_SOURCE.equals(waferSource)) {
+                        materialLot.setReserved50(MaterialLot.SCP_WAFER_SOURCE);
+                    }else if (MaterialLot.SCP_WAFER_SOURCE.equals(waferSource)){
+                        materialLot.setReserved50(MaterialLot.RW_TO_CP_WAFER_SOURCE);
+                    }
+
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_WAFER_SOURCE_UPDATE);
+                    materialLotHistoryRepository.save(history);
+
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        materialLotUnit.setReserved50(materialLot.getReserved50());
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_WAFER_SOURCE_UPDATE);
+                        materialLotUnitHisRepository.save(materialLotUnitHistory);
+                    }
+
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

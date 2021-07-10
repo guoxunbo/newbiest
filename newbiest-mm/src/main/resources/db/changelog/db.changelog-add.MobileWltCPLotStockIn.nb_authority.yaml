@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileWltCpLotStockInManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MobileWltCpFinishLotStockInManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileWltCpFinishLotStockIn
+              description: 手持端Lot产线接收
+              tableName: GCMobileWltCpFinishLotStockInScan
+              mobileFlag: Y
+              url: /Mobile/WltCpFinishLotStockIn
+              parentRrn: 2
+              seqNo: 100
+              image: icon-rule
+              labelZh: Lot产线入库
+              labelEn: LotFinishStockIn

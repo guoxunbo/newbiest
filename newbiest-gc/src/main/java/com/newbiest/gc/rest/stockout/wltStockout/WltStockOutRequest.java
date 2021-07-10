@@ -32,6 +32,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_SALE_SHIP = "SaleShip";
 
+	public static final String ACTION_GC_RW_ATTRIBUTE_CHANGE = "GCRWAttributeChange";
+
 	private WltStockOutRequestBody body;
 
 }
