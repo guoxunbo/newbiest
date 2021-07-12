@@ -9933,7 +9933,7 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, bladeMaterialCode);
             }
             materialLot.setMaterial(material);
-            materialLot.setCurrentQty(BigDecimal.ONE);
+            materialLot.setCurrentQty(BigDecimal.TEN);
             materialLot.setCurrentSubQty(BigDecimal.ONE);
             materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
             materialLot.setStatus(MaterialStatus.STATUS_CREATE);
@@ -9954,15 +9954,14 @@ public class GcServiceImpl implements GcService {
      */
     public String validateAndGetBladeMLotId(String bladeMaterialLotCode) throws ClientException{
         try {
-            if(bladeMaterialLotCode.length() < 16){
+            if(bladeMaterialLotCode.length() < 15){
                 throw new ClientParameterException(GcExceptions.BLADE_MATERIAL_CODE_IS_ERROR, bladeMaterialLotCode);
             }
-            String materialLotId = bladeMaterialLotCode.substring(bladeMaterialLotCode.length() - 15, bladeMaterialLotCode.length()-1);
-            MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
+            MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(bladeMaterialLotCode, ThreadLocalContext.getOrgRrn());
             if(materialLot != null){
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLotId);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, bladeMaterialLotCode);
             }
-            return materialLotId;
+            return bladeMaterialLotCode;
         }catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
