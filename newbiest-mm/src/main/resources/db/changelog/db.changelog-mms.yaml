@@ -674,6 +674,3 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRWAttributeChange.nb_authority.yaml
       relativeToChangelogFile: true
-  - include:
-      file: db.changelog-add.GCCancelCheck.nb_authority.yaml
-      relativeToChangelogFile: true
