@@ -8367,6 +8367,13 @@ public class GcServiceImpl implements GcService {
                 if(CollectionUtils.isNotEmpty(materialLots)){
                     throw new ClientParameterException(GcExceptions.IRA_RAW_MATERIAL_BOX_ID_CANNOT_EMPTY, materialLots.get(0).getMaterialLotId());
                 } else {
+                    Map<String, List<MaterialLot>> materialNameMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getMaterialName));
+                    for (String materialName : materialNameMap.keySet()) {
+                        List<MaterialLot> mLotList =  materialNameMap.get(materialName).stream().filter(materialLot -> !materialLot.getMaterialLotId().startsWith(materialName)).collect(Collectors.toList());
+                        if (CollectionUtils.isNotEmpty(mLotList)){
+                            throw new ClientParameterException(GcExceptions.MATERIAL_TYPE_AND_MATERIAL_LOT_IS_NOT_SAME);
+                        }
+                    }
                     Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getLotId));
                     for(String lotId : materialLotMap.keySet()){
                         if(!lotId.startsWith(Material.IRA_MATERIAL_BOX_ID_START)){
