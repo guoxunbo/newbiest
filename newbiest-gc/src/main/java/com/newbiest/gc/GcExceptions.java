@@ -100,4 +100,5 @@ public class GcExceptions {
     public static final String RESERVED_MATERIAL_MUST_CHECK_DOCUMENT = "gc.reserved_material_must_check_document";
     public static final String UNRESERVED_MATERIAL_DONOT_CHECK_DOCUMENT = "gc.reserved_material_donot_check_document";
     public static final String MATERIAL_TYPE_IS_NOT_SAME = "gc.material_type_is_not_same";
+    public static final String MATERIAL_TYPE_AND_MATERIAL_LOT_IS_NOT_SAME = "gc.material_type_and_material_lot_is_not_same";
 }
