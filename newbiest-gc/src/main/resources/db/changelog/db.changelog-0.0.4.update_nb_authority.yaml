@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_update_nb_authority_table_rrn.0.4
+      author: Guozhang Luo
+      comment: update_nb_authority table_rrn
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/update_nb_authority_0.0.4.sql
