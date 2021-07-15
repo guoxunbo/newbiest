@@ -9666,6 +9666,7 @@ public class GcServiceImpl implements GcService {
     private void saveMaterialLotTaggingInfoAndSaveHis(MaterialLot materialLot, String customerName, String abbreviation, String remarks) throws ClientException{
         try {
             materialLot.setCustomerId(customerName);
+            materialLot.setReserved54(MaterialLot.STOCKOUT_TYPE_4);
             materialLot.setReserved55(abbreviation);
             materialLot.setReserved57(remarks);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
