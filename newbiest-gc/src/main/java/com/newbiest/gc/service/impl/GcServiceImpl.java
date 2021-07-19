@@ -1464,7 +1464,7 @@ public class GcServiceImpl implements GcService {
             }
 
             //RW的来料发料之后自动打印RW发料标签
-            List<MaterialLot> rwMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getInnerLotId()) && MaterialLot.SCP_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
+            List<MaterialLot> rwMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getInnerLotId()) && MaterialLot.RW_TO_CP_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
             printService.printRwLotIssueLabel(rwMaterialLots, "");
 
             //将晶圆信息保存至Mes backendWaferReceive表中
