@@ -38,6 +38,7 @@ import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.service.PrintService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.mms.utils.CollectorsUtils;
 import freemarker.template.utility.StringUtil;
@@ -3064,6 +3065,35 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
 
+    }
+
+    @Override
+    public void cancelCheckMaterialLot(List<MaterialLot> materialLots, String cancelReason) throws ClientException {
+        for (MaterialLot materialLot : materialLots) {
+            String packageType = materialLot.getPackageType();
+            if (StringUtils.isNullOrEmpty(packageType)) {
+                materialLot = mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_UN_CHECK, MaterialStatus.STATUS_IN);
+            } else {
+                materialLot = mmsService.changeMaterialLotState(materialLot,  MaterialEvent.EVENT_UN_CHECK, MaterialStatus.STATUS_WAIT);
+                List<MaterialLot> materialLotList = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                for (MaterialLot lot : materialLotList) {
+                    lot.setReserved9(StringUtils.EMPTY);
+                    lot.setReserved10(StringUtils.EMPTY);
+                    materialLotRepository.save(lot);
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(lot, MaterialLotHistory.TRANS_TYPE_CANCEL_CHECK);
+                    history.setActionReason(cancelReason);
+                    materialLotHistoryRepository.save(history);
+                }
+            }
+            materialLot.setReserved9(StringUtils.EMPTY);
+            materialLot.setReserved10(StringUtils.EMPTY);
+
+            materialLotRepository.save(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_CANCEL_CHECK);
+            history.setActionReason(cancelReason);
+            materialLotHistoryRepository.save(history);
+        }
     }
 
     /**

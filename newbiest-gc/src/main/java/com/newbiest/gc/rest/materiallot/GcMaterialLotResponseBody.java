@@ -19,4 +19,6 @@ public class GcMaterialLotResponseBody extends ResponseBody {
 
 	List<MaterialLot> materialLotList;
 
+	MaterialLot materialLot;
+
 }
