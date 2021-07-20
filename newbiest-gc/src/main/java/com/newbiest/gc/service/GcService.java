@@ -139,6 +139,7 @@ public interface GcService {
     void unbindRelaxBox(List<MaterialLot> materialLots) throws ClientException;
 
     void judgePackedMaterialLot(List<MaterialLot> materialLots, List<StockOutCheck> checkList) throws ClientException;
+    void cancelCheckMaterialLot(List<MaterialLot> materialLots, String cancelReason) throws ClientException;
 
     List<NBOwnerReferenceList> getJudgePackCaseCheckList() throws ClientException;
     List<NBOwnerReferenceList> getWltJudgePackCaseCheckList() throws ClientException;
