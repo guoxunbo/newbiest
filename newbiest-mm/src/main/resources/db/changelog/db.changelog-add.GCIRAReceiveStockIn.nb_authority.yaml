@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCIRAReceiveStockIn_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCIRAReceiveStockIn to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCIRAReceiveStockIn
+              description: IRA接收入库
+              tableName: IRAReceiveStockIn
+              secondTableName: IRAWaitReceiveStockIn
+              mobileFlag: N
+              url: /GC/IRAReceiveStockIn
+              parentRrn: 2030
+              seqNo: 45
+              image: icon-rule
+              labelZh: IRA接收入库
+              labelEn: IRAReceiveStockIn
