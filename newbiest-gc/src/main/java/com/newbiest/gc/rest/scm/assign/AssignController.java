@@ -50,7 +50,8 @@ public class AssignController {
         }
         String actionType = requestBody.getActionType();
         if (AssignRequest.ACTION_TYPE_ASSIGN.equals(actionType)) {
-            scmService.scmAssign(requestBody.getLotId(), requestBody.getVendor(), requestBody.getPoId(), requestBody.getMaterialType(), requestBody.getRemarks());
+            scmService.scmAssign(requestBody.getLotId(), requestBody.getVendor(), requestBody.getPoId(), requestBody.getMaterialType(),
+                                        requestBody.getRemarks(), requestBody.getVendorAddress());
         } else if(AssignRequest.ACTION_TYPE_UN_ASSIGN.equals(actionType)) {
             scmService.scmUnAssign(requestBody.getLotId());
         } else {
