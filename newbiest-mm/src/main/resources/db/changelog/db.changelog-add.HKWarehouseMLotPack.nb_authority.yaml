@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseMLotPackManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKWarehouseMLotPackManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKWarehouseMLotPackManager
+              description: 香港仓装箱
+              tableName: GCHKWarehouseMLotPack
+              url: /HKWarehouse/HKPackMaterialLot
+              parentRrn: 2020
+              seqNo: 8
+              image: icon-rule
+              labelZh: 香港仓装箱
+              labelEn: HongKongWarehouseMLotPack
+

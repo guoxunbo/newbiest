@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFTWaferIssueOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCFTWaferIssueOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCFTWaferIssueOrder
+              description: FT晶圆发料单据
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: FT晶圆发料单据
+              label: GCFTWaferIssueOrder

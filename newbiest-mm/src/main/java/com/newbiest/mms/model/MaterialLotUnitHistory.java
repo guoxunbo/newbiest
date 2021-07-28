@@ -2,12 +2,15 @@ package com.newbiest.mms.model;
 
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.ThreadLocalContext;
 import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 物料批次的单元数据。比如接收以单元的方式进行。组装个一个materiLot。
@@ -20,6 +23,8 @@ import java.math.BigDecimal;
 public class MaterialLotUnitHistory extends NBHis {
 
     public static final String TRANS_TYPE_IN = "In";
+    public static final String TRANS_TYPE_STOCK_OUT = "Out";
+
 
     public static final String PRODUCT_TYPE = "PROD";
 
@@ -79,6 +84,12 @@ public class MaterialLotUnitHistory extends NBHis {
      */
     @Column(name="WORK_ORDER_ID")
     private String workOrderId;
+
+    /**
+     * 工单计划投入日期
+     */
+    @Column(name="WORK_ORDER_PLANPUT_TIME")
+    private String workOrderPlanputTime;
 
     /**
      * 物料主键
@@ -159,6 +170,36 @@ public class MaterialLotUnitHistory extends NBHis {
     private String productType = PRODUCT_TYPE;
 
     /**
+     * 入库备注
+     */
+    @Column(name = "TREASURY_NOTE")
+    private String treasuryNote;
+
+    /**
+     * 原产品号
+     */
+    @Column(name="SOURCE_PRODUCT_ID")
+    private String sourceProductId;
+
+    /**
+     * RW生成的内批号
+     */
+    @Column(name="INNER_LOT_ID")
+    private String innerLotId;
+
+    /**
+     * RW产线入库时的LotId
+     */
+    @Column(name="LOT_CST")
+    private String lotCst;
+
+    /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
+
+    /**
      * 二级代码
      */
     @Column(name="RESERVED1")
@@ -201,20 +242,14 @@ public class MaterialLotUnitHistory extends NBHis {
     private String reserved7;
 
     /**
-     * 生产订单
+     * 中转箱号
      */
     @Column(name="RESERVED8")
     private String reserved8;
 
-    /**
-     * 发票
-     */
     @Column(name="RESERVED9")
     private String reserved9;
 
-    /**
-     * 备注
-     */
     @Column(name="RESERVED10")
     private String reserved10;
 
@@ -431,4 +466,7 @@ public class MaterialLotUnitHistory extends NBHis {
     @Column(name="RESERVED50")
     private String reserved50;
 
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 }

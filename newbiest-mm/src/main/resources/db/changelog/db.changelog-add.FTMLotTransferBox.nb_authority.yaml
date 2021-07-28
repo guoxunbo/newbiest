@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFTMLotStockInManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCFTMLotStockInManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCFTMLotStockInManager
+              description: FT来料入中转箱
+              tableName: GCFTMLotStockInTransferBox
+              url: /FT/GCFTMateriLotStockIn
+              parentRrn: 2000
+              seqNo: 60
+              image: icon-delivery
+              labelZh: FT来料入中转箱
+              labelEn: FTMLotStockInTransferBox
+

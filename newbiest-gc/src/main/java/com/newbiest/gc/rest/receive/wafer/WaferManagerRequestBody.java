@@ -23,4 +23,18 @@ public class WaferManagerRequestBody extends RequestBody {
 	@ApiModelProperty(value = "单据")
 	private List<DocumentLine> documentLines;
 
+	@ApiModelProperty(value="动态表主键")
+	private Long tableRrn;
+
+	@ApiModelProperty(value = "查询条件")
+	private String whereClause;
+
+	@ApiModelProperty(value = "发料绑定单据")
+	private String issueWithDoc;
+
+	@ApiModelProperty(value = "发料计划投批")
+	private String unPlanLot;
+
+	@ApiModelProperty(value = "接收匹配单据")
+	private String receiveWithDoc;
 }

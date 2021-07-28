@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-unique-for-GC_PRODUCT_WEIGHT_RELATION-table-0.6
+      author: Guozhang Luo
+      comment: Apply unique constraint (ORG_RRN, PRODUCT_ID, PACKAGE_QTY) for GC_PRODUCT_WEIGHT_RELATION
+      changes:
+        - addUniqueConstraint:
+            tableName: GC_PRODUCT_WEIGHT_RELATION
+            columnNames: ORG_RRN, PRODUCT_ID, PACKAGE_QTY
+            constraintName: UK_PRODUCT_WEIGHT_RELATION

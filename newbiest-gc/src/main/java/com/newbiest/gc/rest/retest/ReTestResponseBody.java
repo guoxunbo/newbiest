@@ -4,7 +4,7 @@ import com.newbiest.msg.ResponseBody;
 import lombok.Data;
 
 @Data
-public class RetestResponseBody extends ResponseBody {
+public class ReTestResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 

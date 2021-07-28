@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCancelCheck_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCCancelCheck to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCCancelCheck
+              description: 取消检验
+              tableName: GCCancelCheck
+              mobileFlag: N
+              url: /GC/CancelCheck
+              parentRrn: 211
+              seqNo: 55
+              image: icon-rule
+              labelZh: 取消检验
+              labelEn: CancelCheck

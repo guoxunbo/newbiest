@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCComMaterialLotReserved_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCComMaterialLotReserved to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCOMReservedOrder
+              description: COM备货单据
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: COM备货单据
+              label: COMReservedOrder

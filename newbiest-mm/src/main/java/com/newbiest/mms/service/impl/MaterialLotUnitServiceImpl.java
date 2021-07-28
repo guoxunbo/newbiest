@@ -7,30 +7,39 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
+import com.newbiest.mms.SystemPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
+import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitHisRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
 import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
-import com.newbiest.mms.utils.CollectorsUtils;
+import com.newbiest.mms.thread.ImportMLotThread;
+import com.newbiest.mms.thread.ImportMLotThreadResult;
+import com.newbiest.msg.ResponseHeader;
+import freemarker.template.utility.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +49,8 @@ import java.util.stream.Collectors;
 @Transactional
 @Slf4j
 public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
+
+    private static final Integer DEFAULT_IMPORT_MLOT_POOL_SIZE = 30;
 
     @Autowired
     MmsService mmsService;
@@ -54,10 +65,25 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
     MaterialLotRepository materialLotRepository;
 
     @Autowired
+    MaterialLotHistoryRepository materialLotHistoryRepository;
+
+    @Autowired
     BaseService baseService;
 
     @Autowired
     GeneratorService generatorService;
+
+    private ExecutorService executorService;
+
+    @PostConstruct
+    public void init() {
+        Integer importMLotPoolSize = SystemPropertyUtils.getImportMLotPoolSize();
+        if (importMLotPoolSize == null) {
+            log.warn("System property import mlot pool size is not set. so use default pool size");
+            importMLotPoolSize = DEFAULT_IMPORT_MLOT_POOL_SIZE;
+        }
+        executorService = Executors.newFixedThreadPool(importMLotPoolSize);
+    }
 
     public List<MaterialLotUnit> getUnitsByMaterialLotId(String materialLotId) throws ClientException{
         return materialLotUnitRepository.findByMaterialLotId(materialLotId);
@@ -85,14 +111,14 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 materialLotUnitHisRepository.save(history);
                 materialLotUnitList.add(materialLotUnit);
             }
-            Long wherehouseRrn = warehouse.getObjectRrn();
+            Long warehouseRrn = warehouse.getObjectRrn();
             if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
-                wherehouseRrn = Long.parseLong(materialLot.getReserved13());
+                warehouseRrn = Long.parseLong(materialLot.getReserved13());
             }
 
             MaterialLotAction materialLotAction = new MaterialLotAction();
             materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
-            materialLotAction.setTargetWarehouseRrn(wherehouseRrn);
+            materialLotAction.setTargetWarehouseRrn(warehouseRrn);
             materialLotAction.setTransQty(materialLot.getCurrentQty());
             materialLotAction.setTransCount(materialLot.getCurrentSubQty());
             mmsService.stockIn(materialLot, materialLotAction);
@@ -125,85 +151,99 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 importCode = materialLotUnitList.get(0).getReserved48();
             }
             Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
+            List<Future<ImportMLotThreadResult>> importCallBackList = Lists.newArrayList();
             for (String materialName : materialUnitMap.keySet()) {
-                RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialName);
-                if (rawMaterial == null) {
-                    throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
+                Material material = mmsService.getRawMaterialByName(materialName);
+                if (material == null) {
+                    RawMaterial rawMaterial = new RawMaterial();
+                    rawMaterial.setName(materialName);
+                    material = mmsService.createRawMaterial(rawMaterial);
                 }
-                StatusModel statusModel = mmsService.getMaterialStatusModel(rawMaterial);
+                StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
-
-                for (String lotId : materialLotUnitMap.keySet()) {
-                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
+                for(String lotId : materialLotUnitMap.keySet()){
+                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialLot.STATUS_FIN);
                     if(materialLotInfo != null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
                     }
-
+                }
+                for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
-                    String materialLotId = materialLotUnits.get(0).getMaterialLotId();
 
-                    BigDecimal totalQty = materialLotUnits.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
-                    BigDecimal currentSubQty = new BigDecimal(materialLotUnits.size());
-                    Map<String, Object> propsMap = Maps.newHashMap();
-                    propsMap.put("category", MaterialLot.CATEGORY_UNIT);
-                    if(!StringUtils.isNullOrEmpty(materialLotUnits.get(0).getDurable())){
-                        propsMap.put("durable", materialLotUnits.get(0).getDurable().toUpperCase());
+                    //验证晶圆是否存在Eng晶圆
+                    String productType = MaterialLotUnit.PRODUCT_TYPE_PROD;
+                    List<MaterialLotUnit> engUnitList = materialLotUnits.stream().filter(materialLotUnit -> MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())).collect(Collectors.toList());
+                    if(CollectionUtils.isNotEmpty(engUnitList)){
+                        productType = MaterialLotUnit.PRODUCT_TYPE_ENG;
                     }
-                    propsMap.put("supplier", materialLotUnits.get(0).getSupplier());
-                    propsMap.put("shipper", materialLotUnits.get(0).getShipper());
-                    propsMap.put("grade", materialLotUnits.get(0).getGrade());
-                    propsMap.put("lotId", lotId);
+                    // 导入进行多线程处理 进行并行处理
+                    ImportMLotThread importMLotThread = new ImportMLotThread();
+                    importMLotThread.setMaterialLotRepository(materialLotRepository);
+                    importMLotThread.setMmsService(mmsService);
+                    importMLotThread.setBaseService(baseService);
+                    importMLotThread.setMaterialLotUnitRepository(materialLotUnitRepository);
+                    importMLotThread.setMaterialLotUnitHisRepository(materialLotUnitHisRepository);
+                    importMLotThread.setSessionContext(ThreadLocalContext.getSessionContext());
 
-                    propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
-                    propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());
-                    propsMap.put("reserved7",materialLotUnits.get(0).getReserved7());
-                    propsMap.put("reserved13",materialLotUnits.get(0).getReserved13());
-                    propsMap.put("reserved14",materialLotUnits.get(0).getReserved14());
-                    propsMap.put("reserved22",materialLotUnits.get(0).getReserved22());
-                    propsMap.put("reserved23",materialLotUnits.get(0).getReserved23());
-                    propsMap.put("reserved24",materialLotUnits.get(0).getReserved24());
-                    propsMap.put("reserved27",materialLotUnits.get(0).getReserved27());
-                    propsMap.put("reserved28",materialLotUnits.get(0).getReserved28());
-                    propsMap.put("reserved29",materialLotUnits.get(0).getReserved29());
-                    propsMap.put("reserved32",materialLotUnits.get(0).getReserved32());
-                    propsMap.put("reserved33",materialLotUnits.get(0).getReserved33());
-                    propsMap.put("reserved34",materialLotUnits.get(0).getReserved34());
-                    propsMap.put("reserved35",materialLotUnits.get(0).getReserved35());
-                    propsMap.put("reserved36",materialLotUnits.get(0).getReserved36());
-                    propsMap.put("reserved37",materialLotUnits.get(0).getReserved37());
-                    propsMap.put("reserved38",materialLotUnits.get(0).getReserved38());
-                    propsMap.put("reserved39",materialLotUnits.get(0).getReserved39());
-                    propsMap.put("reserved41",materialLotUnits.get(0).getReserved41());
-                    propsMap.put("reserved45",materialLotUnits.get(0).getReserved45());
-                    propsMap.put("reserved46",materialLotUnits.get(0).getReserved46());
-                    propsMap.put("reserved47",materialLotUnits.get(0).getReserved47());
-                    propsMap.put("reserved49",materialLotUnits.get(0).getReserved49());
-                    propsMap.put("reserved50",materialLotUnits.get(0).getReserved50());
-                    propsMap.put("reserved48",importCode);
+                    String materialLotId = materialLotUnits.get(0).getMaterialLotId();
+                    if (StringUtils.isNullOrEmpty(materialLotId)) {
+                        materialLotId = mmsService.generatorMLotId(material);
+                    }
+                    importMLotThread.setMaterialLotId(materialLotId);
+                    importMLotThread.setLotId(lotId);
+                    importMLotThread.setImportCode(importCode);
+                    importMLotThread.setMaterial(material);
+                    importMLotThread.setStatusModel(statusModel);
+                    importMLotThread.setMaterialLotUnits(materialLotUnits);
+                    importMLotThread.setProductType(productType);
 
-                    MaterialLot materialLot = mmsService.createMLot(rawMaterial, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap, currentSubQty);
-                    for (MaterialLotUnit materialLotUnit : materialLotUnits) {
-                        if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
-                            materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
+                    Future<ImportMLotThreadResult> importCallBack = executorService.submit(importMLotThread);
+                    importCallBackList.add(importCallBack);
+                }
+            }
+
+            // 最大等待返回次数 300*100最长30S
+            int maxWaitCount = 300;
+            String resultMessage = StringUtils.EMPTY;
+            for (Future<ImportMLotThreadResult> importCallBack : importCallBackList) {
+                if (!StringUtils.isNullOrEmpty(resultMessage) || maxWaitCount <= 0) {
+                    log.warn("There has some import error. please see log get more details.");
+                    break;
+                }
+                while (true) {
+                    if (importCallBack.isDone()) {
+                        ImportMLotThreadResult importResult = importCallBack.get();
+                        if (ResponseHeader.RESULT_SUCCESS.equals(importResult.getResult())) {
+                            materialLotUnitArrayList.addAll(importResult.getMaterialLotUnits());
+                        } else {
+                            resultMessage = importResult.getResultMessage();
                         }
-                        materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
-                        materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
-                        materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
-                        materialLotUnit.setLotId(materialLot.getLotId());
-                        materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
-                        materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
-                        materialLotUnit.setReserved18("0");
-                        materialLotUnit.setReserved7(StringUtils.EMPTY);//晶圆信息不保存产品型号
-                        materialLotUnit.setReserved48(importCode);
-                        materialLotUnit.setMaterial(rawMaterial);
-                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-                        materialLotUnitArrayList.add(materialLotUnit);
-
-                        MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
-                        history.setTransQty(materialLotUnit.getReceiveQty());
-                        materialLotUnitHisRepository.save(history);
+                        break;
+                    } else {
+                        // 如果没做好，等待100ms,防止系统将CPU用光
+                        Thread.sleep(100);
+                        maxWaitCount--;
+                        if (maxWaitCount == 0) {
+                            resultMessage = MmsException.MM_MATERIAL_LOT_IMPORT_TIME_OUT;
+                            break;
+                        }
                     }
                 }
+            }
+
+            if(!StringUtils.isNullOrEmpty(resultMessage)){
+                //停止线程
+                for(Future<ImportMLotThreadResult> importCallBack : importCallBackList){
+                    if(!importCallBack.isDone()){
+                        importCallBack.cancel(true);
+                    }
+                }
+                //根据导入编码删除导入数据
+                materialLotUnitRepository.deleteByImportCode(importCode);
+                materialLotRepository.deleteByImportType(importCode);
+                materialLotUnitHisRepository.deleteByImportCode(importCode);
+                materialLotHistoryRepository.deleteByImportCode(importCode);
+                throw new ClientParameterException(resultMessage, maxWaitCount * 0.1);
             }
             return materialLotUnitArrayList;
         } catch (Exception e) {
@@ -252,6 +292,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
                         materialLotUnitRepository.updateMLotUnitByUnitIdAndMLotId(materialLotUnit.getUnitId(), materialLotUnit.getMaterialLotId(), MaterialLotUnit.STATE_CREATE);
                     }
+                    materialLot.setCurrentQty(materialLot.getReceiveQty());
                     materialLot.setStatusCategory(MaterialLotUnit.STATE_CREATE);
                     materialLot.setStatus(MaterialLotUnit.STATE_CREATE);
                     materialLot.setPreStatus("");
@@ -282,12 +323,21 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      * @return
      * @throws ClientException
      */
-    public List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
+    public List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList, String importType) throws ClientException {
         try {
             List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
-            Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getReserved30));
+            Map<String, List<MaterialLotUnit>> materialLotUnitMap = Maps.newHashMap();
+
+            if(importType.equals(MaterialLotUnit.WLA_UNMEASURED)){
+                materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getDurable));
+            } else {
+                materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getReserved30));
+            }
             for(String fabLotId : materialLotUnitMap.keySet()){
                 List<MaterialLotUnit> mLotUnitList = materialLotUnitMap.get(fabLotId);
+                if (mLotUnitList.size() > MaterialLotUnit.THIRTEEN && importType.equals(MaterialLotUnit.WLA_UNMEASURED)){
+                    throw new ClientParameterException(MmsException.MM_WLA_IMPORT_MATERIAL_LOT_UNIT_SIZE_IS_OVER_THIRTEEN, fabLotId);
+                }
                 Integer minWaferId = 0;
                 for (MaterialLotUnit materialLotUnit : mLotUnitList) {
                     if(minWaferId == 0 || minWaferId > Integer.parseInt(materialLotUnit.getReserved31())){
@@ -295,13 +345,118 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     }
                 }
                 String waferId = minWaferId+"";
-                if(waferId.length() < 2){
-                    waferId = "0" + waferId;
-                }
+                waferId = StringUtil.leftPad(waferId , 2 , "0");
                 String lotId = fabLotId.split("\\.")[0] +"."+ waferId;
                 for(MaterialLotUnit materialLotUnit : mLotUnitList){
                     materialLotUnit.setLotId(lotId);
+                    materialLotUnit.setReserved30(fabLotId.split("\\.")[0]);
                     materialLotUnits.add(materialLotUnit);
+                }
+            }
+            return materialLotUnits;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取出货标注的物料批次的晶圆信息
+     * @param materialLotActions
+     * @return materialLotUnitList
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> queryStockOutTagMLotUnits(List<MaterialLotAction> materialLotActions) throws ClientException{
+        try{
+            List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            for(MaterialLot materialLot : materialLots){
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                materialLotUnitList.addAll(materialLotUnits);
+            }
+            return materialLotUnitList;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 创建FT的物料批次
+     * @param materialLotUnits
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> createFTMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException{
+        try {
+            String importCode = generatorMLotUnitImportCode(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+            Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
+            for(String materialName : materialUnitMap.keySet()){
+                Material material = mmsService.getRawMaterialByName(materialName);
+                StatusModel statusModel = mmsService.getMaterialStatusModel(material);
+                List<MaterialLotUnit> materialLotUnitList = materialUnitMap.get(materialName);
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    Map<String, Object> propsMap = Maps.newHashMap();
+                    propsMap.put("category", MaterialLot.CATEGORY_UNIT);
+                    if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
+                        propsMap.put("durable", materialLotUnit.getDurable().toUpperCase());
+                    }
+                    if(MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())){
+                        propsMap.put("productType", MaterialLotUnit.PRODUCT_TYPE_ENG);
+                    }
+                    propsMap.put("supplier", materialLotUnit.getSupplier());
+                    propsMap.put("shipper", materialLotUnit.getShipper());
+                    propsMap.put("grade", materialLotUnit.getGrade());
+                    propsMap.put("lotId", materialLotUnit.getUnitId().toUpperCase());
+                    propsMap.put("sourceProductId", materialLotUnit.getSourceProductId());
+
+                    propsMap.put("reserved1",materialLotUnit.getReserved1());
+                    propsMap.put("reserved6",materialLotUnit.getReserved4());
+                    propsMap.put("reserved7",materialLotUnit.getReserved7());
+                    propsMap.put("reserved13",materialLotUnit.getReserved13());
+                    propsMap.put("reserved14",materialLotUnit.getReserved14());
+                    propsMap.put("reserved22",materialLotUnit.getReserved22());
+                    propsMap.put("reserved23",materialLotUnit.getReserved23());
+                    propsMap.put("reserved24",materialLotUnit.getReserved24());
+                    propsMap.put("reserved25",materialLotUnit.getReserved25());
+                    propsMap.put("reserved26",materialLotUnit.getReserved26());
+                    propsMap.put("reserved27",materialLotUnit.getReserved27());
+                    propsMap.put("reserved28",materialLotUnit.getReserved28());
+                    propsMap.put("reserved29",materialLotUnit.getReserved29());
+                    propsMap.put("reserved32",materialLotUnit.getReserved32());
+                    propsMap.put("reserved33",materialLotUnit.getReserved33());
+                    propsMap.put("reserved34",materialLotUnit.getReserved34());
+                    propsMap.put("reserved35",materialLotUnit.getReserved35());
+                    propsMap.put("reserved36",materialLotUnit.getReserved36());
+                    propsMap.put("reserved37",materialLotUnit.getReserved37());
+                    propsMap.put("reserved38",materialLotUnit.getReserved38());
+                    propsMap.put("reserved39",materialLotUnit.getReserved39());
+                    propsMap.put("reserved40",materialLotUnit.getReserved40());
+                    propsMap.put("reserved41",materialLotUnit.getReserved41());
+                    propsMap.put("reserved45",materialLotUnit.getReserved45());
+                    propsMap.put("reserved46",materialLotUnit.getReserved46());
+                    propsMap.put("reserved47",materialLotUnit.getReserved47());
+                    propsMap.put("reserved49",materialLotUnit.getReserved49());
+                    propsMap.put("reserved50",materialLotUnit.getReserved50());
+                    propsMap.put("reserved48",importCode);
+
+                    MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotUnit.getUnitId().toUpperCase(), StringUtils.EMPTY, materialLotUnit.getCurrentQty(), propsMap, BigDecimal.ONE);
+
+                    if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
+                        materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
+                    }
+                    materialLotUnit.setReserved7(StringUtils.EMPTY);
+                    materialLotUnit.setLotId(materialLotUnit.getLotId().toUpperCase());
+                    materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
+                    materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
+                    materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotUnit.setLotId(materialLot.getLotId());
+                    materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
+                    materialLotUnit.setReserved48(importCode);
+                    materialLotUnit.setMaterial(material);
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                    MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
+                    history.setTransQty(materialLotUnit.getReceiveQty());
+                    materialLotUnitHisRepository.save(history);
                 }
             }
             return materialLotUnits;

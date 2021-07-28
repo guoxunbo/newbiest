@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_WorkOrderStation_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add WorkOrderStation to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: MMSWorkOrderStation
+              description: 工作站定义
+              tableName: MMS_WORK_STATION
+              modelName: WorkStation
+              modelClass: com.newbiest.mms.model.WorkStation
+              labelZh: 工作站定义
+              label: WorkOrderStation

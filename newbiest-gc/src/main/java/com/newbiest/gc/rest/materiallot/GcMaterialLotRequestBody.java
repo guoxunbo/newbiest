@@ -34,4 +34,13 @@ public class GcMaterialLotRequestBody extends RequestBody {
 	@ApiModelProperty("检查项")
 	private List<StockOutCheck> checkList;
 
+	@ApiModelProperty("物料批次号/箱号")
+	private String queryLotId;
+
+	@ApiModelProperty(value="动态表主键")
+	private Long tableRrn;
+
+	@ApiModelProperty(value="取消检验原因")
+	private String cancelReason;
+
 }

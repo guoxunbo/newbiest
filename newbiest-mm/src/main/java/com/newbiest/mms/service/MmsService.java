@@ -15,9 +15,18 @@ import java.util.Map;
 public interface MmsService {
 
     // rawMaterial
+    Material createRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial getRawMaterialByName(String name) throws ClientException;
-    String generatorMLotId(RawMaterial rawMaterial) throws  ClientException;
+    String generatorMLotId(Material material) throws  ClientException;
+
+    //product
+    Product saveProduct(Product product) throws ClientException;
+    Product getProductByName(String name) throws ClientException;
+    MaterialNameInfo saveMaterialName(String materialName) throws ClientException;
+
+    Parts saveParts(Parts parts) throws ClientException;
+    Parts getPartsByName(String name) throws ClientException;
 
     // MaterialLot
     MaterialLot getMLotByMLotId(String mLotId, boolean throwExceptionFlag) throws ClientException;
@@ -25,11 +34,11 @@ public interface MmsService {
     MaterialLot getMLotByObjectRrn(long materialLotRrn) throws ClientException;
     MaterialLot getMLotByMLotIdAndBindWorkOrderId(String mLotId, boolean throwExceptionFlag) throws ClientException;
 
-    StatusModel getMaterialStatusModel(RawMaterial rawMaterial) throws ClientException;
+    StatusModel getMaterialStatusModel(Material material) throws ClientException;
     List<MaterialLot> createMaterialLotList(RawMaterial rawMaterial, List<MaterialLotAction> materialLotImportActions) throws ClientException;
-    MaterialLot createMLot(RawMaterial rawMaterial, StatusModel statusModel, String mLotId, String grade, BigDecimal transQty, Map<String, Object> propsMap, BigDecimal currentSubQty) throws ClientException;
-    MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
-    List<MaterialLot> receiveMLotList2Warehouse(RawMaterial rawMaterial, List<MaterialLotAction> materialLotActions) throws ClientException;
+    MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, String grade, BigDecimal transQty, Map<String, Object> propsMap, BigDecimal currentSubQty) throws ClientException;
+    MaterialLot receiveMLot2Warehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
+    List<MaterialLot> receiveMLotList2Warehouse(Material material, List<MaterialLotAction> materialLotActions) throws ClientException;
 
     MaterialLot stockIn(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
@@ -41,6 +50,8 @@ public interface MmsService {
     void validationMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException;
     void saveMaterialLotInventory(MaterialLotInventory materialLotInventory, BigDecimal transQty) throws ClientException;
 
+    boolean validationMLotByMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException;
+
     MaterialLot holdMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot releaseMaterialLot(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
 
@@ -51,5 +62,4 @@ public interface MmsService {
 
     Warehouse getWarehouseByName(String name) throws ClientException;
     Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
-    MaterialLot getMLotByLotId(String lotId) throws ClientException;
 }

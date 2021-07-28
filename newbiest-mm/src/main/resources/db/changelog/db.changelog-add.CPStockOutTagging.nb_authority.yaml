@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCPStockOutTaggingManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCCPStockOutTagManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCCPStockOutTagManager
+              description: 晶圆出货标注
+              tableName: GCCPStockOutTagging
+              url: /CP/CPStockOutTagManager
+              parentRrn: 1010
+              seqNo: 46
+              image: icon-rule
+              labelZh: CP出货标注
+              labelEn: CPStockOutTagging

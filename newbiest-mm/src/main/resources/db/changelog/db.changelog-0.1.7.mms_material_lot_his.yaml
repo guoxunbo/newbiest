@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.1.7
+      author: Guozhang Luo
+      remarks: mms_material_lot_his add column WEIGHT_SEQ
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: VBOX_QRCODE_INFO
+                  type: varchar(256)
+                  remarks: 真空包二维码信息
+              - column:
+                  name: BOX_QRCODE_INFO
+                  type: varchar(256)
+                  remarks: 箱号二维码信息

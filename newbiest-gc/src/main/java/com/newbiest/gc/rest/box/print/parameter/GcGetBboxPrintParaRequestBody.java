@@ -18,4 +18,6 @@ public class GcGetBboxPrintParaRequestBody extends RequestBody {
 
 	private Long materialLotRrn;
 
+	private String printCount;
+
 }

@@ -1,9 +1,7 @@
 package com.newbiest.gc.express.dto;
 
-import com.newbiest.base.utils.DateUtils;
 import com.newbiest.gc.ExpressConfiguration;
 import lombok.Data;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +13,10 @@ import java.time.format.DateTimeFormatter;
 @Data
 public class OrderInfo implements Serializable {
 
+
+    public static final String ORDER_STATUS_UN_DISPATCH = "未调度";
+
+    public static final String RECEIVE_PAY_MODE = "20";
 
     /**
      * 快递单号 为空的话由跨越速递自动生成
@@ -74,6 +76,25 @@ public class OrderInfo implements Serializable {
 
     private String goodsTime = getDefaultGoodTime();
 
+    /**
+     * 下单公司
+     */
+    private String orderCompany;
+
+    /**
+     * 快递单状态
+     */
+    private String orderStatus;
+
+    /**
+     * 下单时间
+     */
+    private String orderTime = getDefaultGoodTime();
+
+    /**
+     * ERP单号
+     */
+    private String orderNumber;
 
     private String getDefaultGoodTime() {
         LocalDateTime ldt = LocalDateTime.now();

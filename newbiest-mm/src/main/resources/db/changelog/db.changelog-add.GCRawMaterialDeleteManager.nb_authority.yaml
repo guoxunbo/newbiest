@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RawMaterialDeleteManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add RawMaterialDeleteManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RawMaterialDeleteManager
+              description: 原材料删除
+              tableName: GCRawMaterialDelete
+              mobileFlag: N
+              url: /WMS/GCRawMaterialDeleteManager
+              parentRrn: 2030
+              seqNo: 15
+              image: icon-recipe
+              labelZh: 原材料删除
+              labelEn: RawMaterialDelete

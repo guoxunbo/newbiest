@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseMLotReleaseManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKWarehouseMLotReleaseManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKWarehouseMLotReleaseManager
+              description: 香港仓真空包释放
+              tableName: GCHKWarehouseMLotRelease
+              url: /HKWarehouse/GCMaterialLotRelease
+              parentRrn: 2020
+              seqNo: 25
+              image: icon-wuliao
+              labelZh: 香港仓真空包释放
+              labelEn: HongKongWarehouseMLotRelease
+

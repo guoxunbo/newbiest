@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.1.8
+      author: Guozhang Luo
+      remarks: mms_material_lot_his add column MATERIAL_CODE
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: MATERIAL_CODE
+                  type: varchar(64)
+                  remarks: 物料编码

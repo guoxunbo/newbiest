@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCPStockOutTagging_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCCPStockOutTagging to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCPStockOutTagging
+              description: CP出货标注
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: CP出货标注
+              label: CPStockOutTagging

@@ -1,5 +1,10 @@
 gc:
   openSchedule: true
+  scmUrl: https://gc-scm-beta.wochacha.cn
+  mScmUrl: https://beta-scm.wochacha.cn/
+  mScmUsername: gc_mes
+  mScmPassword: sZ9ia26Gkbb8eoz7ZHo8cEQrTsqEr21t1CWT6Rbi
+  mesUrl: http://10.181.160.18:7001/mycim2
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
@@ -24,9 +29,9 @@ spring:
       password: wmstest
       driver-class-name: oracle.jdbc.OracleDriver
       # 初始化连接池 最小 最大数量
-      initial-size: 1
-      min-idle: 20
-      max-active: 50
+      initial-size: 30
+      min-idle: 30
+      max-active: 100
       # 获取连接最大等待时间
       max-wait: 60000
       # 间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒

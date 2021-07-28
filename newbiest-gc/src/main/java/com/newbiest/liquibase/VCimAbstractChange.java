@@ -184,6 +184,9 @@ public abstract class VCimAbstractChange extends AbstractChange {
         if (persistFields != null) {
             for (Field persistField : persistFields) {
                 ColumnConfig columnConfig = new ColumnConfig();
+                if(persistField.getName().equals("fields") || persistField.getName().equals("tabs")){
+                    continue;
+                }
                 columnConfig.setName(persistField.getAnnotation(Column.class).name());
                 if (persistField.getAnnotation(Id.class) != null) {
                     columnConfig = generatorIdColumnConfig(persistField);

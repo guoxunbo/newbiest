@@ -27,6 +27,11 @@ public class StockOutCheckRequest extends Request {
 	 */
 	public static final String ACTION_JUDGE = "Judge";
 
+	/**
+	 * 获取检验的物料批次
+	 */
+	public static final String ACTION_GET_CHECK_MLOT = "GetCheckMLot";
+
 	private StockOutCheckRequestBody body;
 
 }

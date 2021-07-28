@@ -1,7 +1,9 @@
 package com.newbiest.mms.repository;
 
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.mms.model.MaterialLot;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,9 +24,23 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
     @Query("SELECT m FROM MaterialLot m, PackagedLotDetail p where p.materialLotRrn = m.objectRrn and p.packagedLotId in (:packagedLotId) and m.reserved16 is null")
     List<MaterialLot> getPackedDetailsAndNotReserved(@Param("packagedLotId")List<String> packagedLotId);
 
-    MaterialLot findByLotIdAndReserved7NotIn(@Param("lotId")String lotId, @Param("productType")String productType);
-
     List<MaterialLot> getByParentMaterialLotId(@Param("parentMaterialLotId")String parentMaterialLotId);
 
     List<MaterialLot> getByExpressNumber(String expressNumber) throws Exception;
+
+    @Query("SELECT distinct(m.grade) FROM MaterialLot m where  m.materialName = :materialName and  m.statusCategory not in(:statusCategory) and m.packageType is null")
+    List<String> getGradeByMaterialNameAndStatusCategory(@Param("materialName")String materialName, @Param("statusCategory")String statusCategory);
+
+    @Query("SELECT distinct(m.reserved1) FROM MaterialLot m where  m.materialName = :materialName and  m.statusCategory not in(:statusCategory) and m.packageType is null")
+    List<String> getSubcodeByMaterialNameAndStatusCategory(@Param("materialName")String materialName, @Param("statusCategory")String statusCategory);
+
+    MaterialLot findByLotIdAndStatusCategoryNotIn(@Param("lotId")String lotId, @Param("statusCategory") String statusCategory);
+
+    List<MaterialLot> findByLotIdAndMaterialCategoryAndMaterialType(@Param("lotId")String lotId, @Param("materialCategory")String materialCategory, @Param("materialType")String materialType);
+
+    @Modifying
+    @Query("DELETE FROM MaterialLot m where m.reserved48 = :importCode")
+    void deleteByImportType(@Param("importCode") String importCode) throws ClientException;
+
+    MaterialLot findByLotIdAndWorkOrderIdAndStatus(@Param("lotId")String lotId, @Param("workOrderId") String workOrderId, @Param("status")String status) throws ClientException;
 }

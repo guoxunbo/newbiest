@@ -76,4 +76,9 @@ public class MaterialLotAction extends Action {
      */
     private BigDecimal transCount;
 
+    /**
+     * 原产品型号（打印型号替换之前）
+     */
+    private String sourceModelId;
+
 }

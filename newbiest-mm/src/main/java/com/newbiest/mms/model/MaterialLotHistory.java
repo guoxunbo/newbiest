@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import lombok.Data;
 
@@ -19,15 +20,29 @@ import java.util.Date;
 @Data
 public class MaterialLotHistory extends NBHis {
 
+    public static final String TRANS_TYPE_WAFER_SOURCE_UPDATE = "WaferSourceUpdate";
     public static final String TRANS_TYPE_RECEIVE = "Receive";
     public static final String TRANS_TYPE_STOCK_IN = "StockIn";
     public static final String TRANS_TYPE_STOCK_OUT = "StockOut";
     public static final String TRANS_TYPE_SHIP = "Ship";
     public static final String TRANS_TYPE_RESERVED = "Reserved";
     public static final String TRANS_TYPE_UN_RESERVED = "UnReserved";
+    public static final String TRANS_TYPE_STOCK_OUT_TAG = "StockOutTag";
+    public static final String TRANS_TYPE_UN_STOCK_OUT_TAG = "UnStockOutTag";
+    public static final String TRANS_TYPE_THREE_SIDE = "ThreeSide";
+    public static final String TRANS_TYPE_RAW_SCRAP = "Scrap";
+    public static final String TRANS_TYPE_RAW_UN_SPARE = "UnSpare";
+    public static final String TRANS_TYPE_UPDATE = "Update";
+    public static final String TRANS_TYPE_ADD_SHIP_ORDER_ID = "AddShipOrderId";
+    public static final String TRANS_TYPE_MATERIAL_SPARE = "MaterialSpare";
+    public static final String TRANS_TYPE_CANCEL_MATERIAL_SPARE = "MaterialCancel";
+    public static final String TRANS_TYPE_TRANSFER_WAREHOUSE = "TransferWarehouse";
+    public static final String TRANS_TYPE_SCRAP_SHIP = "ScrapShip";
+    public static final String TRANS_TYPE_RAW_MATERIAL_ISSUE = "RawMaterialIssue";
 
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
+    public static final String TRANS_TYPE_TRANSFER_PARENT = "TransferParent";
     public static final String TRANS_TYPE_CHECK = "Check";
     public static final String TRANS_TYPE_CONSUME = "Consume";
 
@@ -36,6 +51,10 @@ public class MaterialLotHistory extends NBHis {
 
     public static final String TRANS_TYPE_RECORD_EXPRESS = "RecordExpress";
     public static final String TRANS_TYPE_CANCEL_EXPRESS = "CancelExpress";
+
+    public static final String TRANS_TYPE_WEIGHT = "Weight";
+
+    public static final String TRANS_TYPE_CANCEL_CHECK = "CancelCheck";
 
     /**
      * 因为包装产生的批次
@@ -161,6 +180,12 @@ public class MaterialLotHistory extends NBHis {
     private String workOrderId;
 
     /**
+     * 工单计划投入日期
+     */
+    @Column(name="WORK_ORDER_PLANPUT_TIME")
+    private String workOrderPlanputTime;
+
+    /**
      * 物料主键
      */
     @Column(name="MATERIAL_RRN")
@@ -254,6 +279,12 @@ public class MaterialLotHistory extends NBHis {
     private String expressNumber;
 
     /**
+     * 快递公司
+     */
+    @Column(name="EXPRESS_COMPANY")
+    private String expressCompany;
+
+    /**
      * 下单类型
      */
     @Column(name="PLAN_ORDER_TYPE")
@@ -320,6 +351,99 @@ public class MaterialLotHistory extends NBHis {
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date docDate;
+
+    /**
+     * 原产品号
+     */
+    @Column(name="SOURCE_PRODUCT_ID")
+    private String sourceProductId;
+
+    /**
+     * 箱称重流水号
+     */
+    @Column(name="WEIGHT_SEQ")
+    private String weightSeq;
+
+    /**
+     * 真空包二维码信息
+     */
+    @Column(name="VBOX_QRCODE_INFO")
+    private String vboxQrcodeInfo;
+
+    /**
+     * 箱号二维码信息
+     */
+    @Column(name="BOX_QRCODE_INFO")
+    private String boxQrcodeInfo;
+
+    /**
+     * 物料编码
+     */
+    @Column(name="MATERIAL_CODE")
+    private String materialCode;
+
+    /**
+     * 三方销售单
+     */
+    @Column(name="THREE_SIDE_ORDER")
+    private String threeSideOrder;
+
+    /**
+     * RW生成的内批号
+     */
+    @Column(name="INNER_LOT_ID")
+    private String innerLotId;
+
+    /**
+     * RW产线入库时的LotId
+     */
+    @Column(name="LOT_CST")
+    private String lotCst;
+
+    /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
+
+    /**
+     * 客户标识
+     */
+    @Column(name="CUSTOMER_ID")
+    private String customerId;
+
+    /**
+     * 原材料生产日期
+     */
+    @Column(name="MFG_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date mfgDate;
+
+    /**
+     * 原材料有效日期
+     */
+    @Column(name="EXP_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date expDate;
+
+    /**
+     * 原材料发货日期
+     */
+    @Column(name="SHIPPING_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date shippingDate;
+
+    /**
+     * 记录被产品打印型号替换的产品号
+     */
+    @Column(name="SOURCE_MODEL_ID")
+    private String sourceModelId;
+
+    @Column(name="VENDER_ADDRESS")
+    private String venderAddress;
 
     /**
      * GlaxyCore MES完成品的levelTwoCode
@@ -639,15 +763,27 @@ public class MaterialLotHistory extends NBHis {
     @Column(name="RESERVED53")
     private String reserved53;
 
+    /**
+     * shipperPhone 晶圆出货标记出货形态
+     */
     @Column(name="RESERVED54")
     private String reserved54;
 
+    /**
+     * shipperPhone 晶圆出货标记客户简称
+     */
     @Column(name="RESERVED55")
     private String reserved55;
 
+    /**
+     * shipperPhone 晶圆出货标记PO
+     */
     @Column(name="RESERVED56")
     private String reserved56;
 
+    /**
+     * shipperPhone 晶圆出货标记备注
+     */
     @Column(name="RESERVED57")
     private String reserved57;
 
@@ -674,4 +810,9 @@ public class MaterialLotHistory extends NBHis {
         this.setActionReason(materialLotAction.getActionReason());
         this.setActionComment(materialLotAction.getActionComment());
     }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
 }

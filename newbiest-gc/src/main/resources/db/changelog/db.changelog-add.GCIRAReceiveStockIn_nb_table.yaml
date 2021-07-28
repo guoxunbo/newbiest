@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCIRAReceiveStockIn_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCIRAReceiveStockIn to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: IRAReceiveStockIn
+              description: IRA接收入库
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: IRA接收入库
+              label: IRAReceiveStockIn

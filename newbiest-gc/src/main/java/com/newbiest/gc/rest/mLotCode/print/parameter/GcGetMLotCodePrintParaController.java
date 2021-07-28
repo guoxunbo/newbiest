@@ -39,7 +39,7 @@ public class GcGetMLotCodePrintParaController extends AbstractRestController {
         GcGetMLotCodePrintParaRequestBody requestBody = request.getBody();
         List<Map<String, String>> parameterMapList = Lists.newArrayList();
 
-        parameterMapList = gcService.getMlotCodePrintParameter(requestBody.getMaterialLotList(),  requestBody.getPrintType());
+        parameterMapList = gcService.getMlotCodePrintParameter(requestBody.getMaterialLot(),  requestBody.getPrintType());
 
         responseBody.setParameterMapList(parameterMapList);
         response.setBody(responseBody);

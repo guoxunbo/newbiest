@@ -6,7 +6,9 @@ import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
+import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.Parts;
 import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.msg.Request;
@@ -46,12 +48,20 @@ public class MaterialLotController extends AbstractRestController {
         MaterialLotAction materialLotAction = requestBody.getMaterialLotAction();
 
         if (MaterialLotRequest.ACTION_RECEIVE_2_WAREHOUSE.equals(actionType)) {
-            RawMaterial rawMaterial = mmsService.getRawMaterialByName(materialLot.getMaterialName());
-            if (rawMaterial == null) {
+            Material material = mmsService.getRawMaterialByName(materialLot.getMaterialName());
+            if (material == null) {
                 throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialLot.getMaterialName());
             }
             //TODO 当前不支持输入mLotId
-            materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, StringUtils.EMPTY, materialLotAction);
+            materialLot = mmsService.receiveMLot2Warehouse(material, StringUtils.EMPTY, materialLotAction);
+        } else if(MaterialLotRequest.ACTION_RECEIVE_PARTS_2_WAREHOUSE.equals(actionType)){
+            Parts parts = mmsService.getPartsByName(materialLot.getMaterialName());
+            if (parts == null) {
+                throw new ClientParameterException(MmsException.MM_PARTS_IS_NOT_EXIST, materialLot.getMaterialName());
+            }
+            Material material = mmsService.getPartsByName(materialLot.getMaterialName());
+            material.setParts(parts);
+            materialLot = mmsService.receiveMLot2Warehouse(material, StringUtils.EMPTY, materialLotAction);
         } else if (MaterialLotRequest.ACTION_HOLD.equals(actionType)) {
             materialLot = validationMaterialLot(materialLot);
             materialLot = mmsService.holdMaterialLot(materialLot, materialLotAction);

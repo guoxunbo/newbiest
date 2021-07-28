@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.2.4
+      author: Guozhang Lou
+      remarks: mms_material add columns LOT_CST, INNER_LOT_ID
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: LOT_CST
+                  type: varchar(64)
+                  remarks: Hold原因
+              - column:
+                  name: INNER_LOT_ID
+                  type: varchar(64)
+                  remarks: Hold原因

@@ -8,6 +8,6 @@ public class ReTestResponse extends Response {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private RetestResponseBody body;
+	private ReTestResponseBody body;
 	
 }

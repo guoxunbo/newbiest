@@ -1,5 +1,6 @@
 package com.newbiest.gc.rest.productSubcodeSet;
 
+import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.gc.model.GCProductSubcode;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -21,4 +22,6 @@ public class ProductSubcodeSetRequestBody extends RequestBody {
 	@ApiModelProperty(value = "操作产品二级代码信息")
 	private GCProductSubcode productSubcode;
 
+	@ApiModelProperty(example = "动态表")
+	private NBTable table;
 }

@@ -24,6 +24,16 @@ public class Material extends NBVersionControl {
     public static final String CLASS_RAW = "RAW";
 
     /**
+     * 产品型号
+     */
+    public static final String CLASS_PRODUCT = "PRODUCT";
+
+    /**
+     * 备件型号
+     */
+    public static final String CLASS_PARTS = "PARTS";
+
+    /**
      * 默认状态模型
      */
     public static final String DEFAULT_STATUS_MODEL = "Normal";
@@ -58,11 +68,37 @@ public class Material extends NBVersionControl {
      */
     public static final String TYPE_PRODUCT = "Product";
     public static final String TYPE_WAFER = "Wafer";
+    public static final String TYPE_MATERIAL = "Material";
+
+    public static final String MATERIAL_TYPE = "Wafer";
+    public static final String MATERIAL_TYPE_WIRE = "WIRE";
+    public static final String MATERIAL_TYPE_IR = "IR";
+
+    //RW辅料类型
+    public static final String MATERIAL_TYPE_TAPE = "TAPE";
+    public static final String MATERIAL_TYPE_BLADE = "BLADE";
+    public static final String MATERIAL_SHIPPER_NAME = "Lintec";
+    public static final String MATERIAL_DISCO = "DISCO";
+    public static final String MATERIAL_PO_EMPTY = "NO PO";
+
+    public static final String MATERIAL_TYPE_IRA = "IRA";
+    public static final String MATERIAL_TYPE_GOLD = "金线";
+    public static final String MATERIAL_TYPE_GLUE = "胶水";
+    public static final String IRA_MATERIAL_BOX_ID_START = "GCB";
+
+    /**
+     * 原材料产线退仓库标记
+     */
+    public static final String RAW_MATERIAL_RETURN_FLAD = "RETURN";
 
     public static final String QUERY_WAFERTYPEINFO = "queryWaferType";
     public static final String QUERY_PRODUCTINFO = "GETPRODUCTINFO";
     public static final String QUERY_PRODUCT_SUBCODE = "queryProductSubcode";
     public static final String QUERY_PRODUCT_MODEL_CONVERSION = "queryProductModelConversion";
+    public static final String QUERY_WAREHOUSE_PRODUCT_MODEL = "queryWareHouseProductModel";
+    public static final String QUERY_PRODUCT_PRINT_MODELID = "queryProductPrintModelId";
+    public static final String QUERY_MATERIAL_MODEL = "queryMaterialModelId";
+    public static final String QUERY_GLUE_TYPE = "queryGlueType";
 
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;
@@ -165,4 +201,28 @@ public class Material extends NBVersionControl {
 
     @Column(name="RESERVED10")
     private String reserved10;
+
+    /**
+     * 备件规格
+     */
+    @Transient
+    private String spareSpecs;
+
+    /**
+     * 备件型号
+     */
+    @Transient
+    private String spareModel;
+
+    /**
+     * 备件线别
+     */
+    @Transient
+    private String sparePartsLine;
+
+    public void setParts (Parts parts) {
+        this.setSpareModel(parts.getSpareModel());
+        this.setSparePartsLine(parts.getSparePartsLine());
+        this.setSpareSpecs(parts.getSpareSpecs());
+    }
 }

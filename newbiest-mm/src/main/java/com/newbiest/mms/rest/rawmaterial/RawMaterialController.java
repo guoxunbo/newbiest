@@ -53,7 +53,7 @@ public class RawMaterialController extends AbstractRestController {
         } else if (EntityRequest.ACTION_UPDATE.equals(actionType)) {
             validateEntity(material);
             material = mmsService.saveRawMaterial(material);
-        } else {
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
         responseBody.setMaterial(material);

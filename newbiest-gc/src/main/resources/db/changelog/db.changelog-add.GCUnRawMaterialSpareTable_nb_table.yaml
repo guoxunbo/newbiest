@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCUnRawMaterialSpareTable_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCUnRawMaterialSpareTable to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCUnRawMaterialSpareTable
+              description: 取消备料
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 取消备料
+              label: UnRawMaterialSpare

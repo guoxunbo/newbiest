@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRWAttributeChange_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCRWAttributeChange to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RWAttributeChange
+              description: RW属性转换
+              tableName: GCRWAttributeChange
+              url: /GC/GCRWAttributeChange
+              mobileFlag: N
+              parentRrn: 1010
+              seqNo: 52
+              image: icon-rule
+              labelZh: RW属性转换
+              labelEn: GCRWAttributeChange

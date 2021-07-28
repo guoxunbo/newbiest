@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by guoxunbo on 2019-08-21 13:15
@@ -52,18 +53,24 @@ public class WaferManagerController extends AbstractRestController {
 
         List<MaterialLotAction> materialLotActions = request.getBody().getMaterialLotActions();
         if (WaferManagerRequest.ACTION_TYPE_RECEIVE.equals(actionType)) {
-            gcService.validationAndReceiveWafer(documentLineList, materialLotActions);
+            gcService.validationAndReceiveWafer(documentLineList, materialLotActions, requestBody.getReceiveWithDoc());
         } else if (WaferManagerRequest.ACTION_TYPE_VALIDATION_ISSUE.equals(actionType)) {
             MaterialLot materialLot = mmsService.getMLotByMLotIdAndBindWorkOrderId(materialLotActions.get(0).getMaterialLotId(), true);
             gcService.validationDocLine(documentLineList, materialLot);
             responseBody.setWorkOrderId(materialLot.getWorkOrderId());
         } else if (WaferManagerRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
-            gcService.validationAndWaferIssue(documentLineList, materialLotActions);
+            gcService.validationAndWaferIssue(documentLineList, materialLotActions, requestBody.getIssueWithDoc(), requestBody.getUnPlanLot());
         } else if(WaferManagerRequest.ACTION_TYPE_VALIDATION_WAIT_ISSUE.equals(actionType)){
-            List<MaterialLot> materialLotList = gcService.validationAndGetWaitIssueWafer(materialLotActions);
+            List<MaterialLot> materialLotList = gcService.validationAndGetWaitIssueWafer(requestBody.getTableRrn(), requestBody.getWhereClause());
             responseBody.setMaterialLotList(materialLotList);
         } else if(WaferManagerRequest.ACTION_TYPE_PURCHASEOUTSOURE_RECEIVE.equals(actionType)){
             gcService.purchaseOutsourceWaferReceive(materialLotActions);
+        } else if(WaferManagerRequest.ACTION_TYPE_HK_MLOT_RECEIVE.equals(actionType)){
+            gcService.hongKongMLotReceive(materialLotActions);
+        } else if(WaferManagerRequest.ACTION_TYPE_COG_MLOT_RECEIVE.equals(actionType)){
+            gcService.validateAndReceiveCogMLot(documentLineList, materialLotActions);
+        } else if(WaferManagerRequest.ACTION_TYPE_OUTORDER_ISSUE.equals(actionType)){
+            gcService.waferOutOrderIssue(materialLotActions);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }

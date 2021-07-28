@@ -13,5 +13,6 @@ public interface GCProductModelConversionRepository extends IRepository<GCProduc
 
     GCProductModelConversion findByProductIdAndConversionModelId(@Param("productId") String productId, @Param("conversionModelId") String conversionModelId) throws ClientException;
 
+    GCProductModelConversion findByProductIdAndModelCategory(@Param("productId") String productId, @Param("modelCategory")String modelCategory) throws ClientException;
 
 }

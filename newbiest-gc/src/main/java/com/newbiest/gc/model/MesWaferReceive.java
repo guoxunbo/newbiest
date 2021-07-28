@@ -146,6 +146,12 @@ public class MesWaferReceive implements Serializable {
     @Column(name="IMPORT_TYPE")
     private String importType;
 
+    @Column(name="GROSS_DIES")
+    private String grossDies;
+
+    @Column(name="PRODUCT_TYPE")
+    private String productType;
+
     public void setMaterialLotUnit(MaterialLotUnit materialLotUnit){
         this.setFacilityRrn(FACILITY_RRN);
         this.setWaferId(materialLotUnit.getUnitId());
@@ -161,7 +167,7 @@ public class MesWaferReceive implements Serializable {
         this.setOperationTime(new Date());
         this.setOperationUser(ThreadLocalContext.getUsername());
         this.setPackageType(PACKAGR_TYPE);
-        this.setPcode(materialLotUnit.getReserved3());
+        this.setPcode(materialLotUnit.getReserved45());
         this.setPointId(POINT_ID);
         this.setPoNo(materialLotUnit.getReserved27());
         this.setProdStatus(PROD_STATUS);
@@ -177,6 +183,8 @@ public class MesWaferReceive implements Serializable {
         this.setWo(materialLotUnit.getReserved46());
         this.setWorkorderId(materialLotUnit.getWorkOrderId());
         this.setImportType(materialLotUnit.getReserved49());
+        this.setGrossDies(materialLotUnit.getReserved32());
+        this.setProductType(materialLotUnit.getProductType());
     }
 
 }

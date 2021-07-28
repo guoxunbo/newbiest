@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCErpDocLineMerge_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCErpDocLineMerge to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCErpDocLineMerge
+              description: ERP单据合并
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: ERP单据合并
+              label: ERPDocLineMerge

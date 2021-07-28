@@ -12,6 +12,9 @@ public class CheckRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "GCCheckInventory";
 
+	public static final String ACTION_QUERY  = "Query";
+	public static final String ACTION_CHECK  = "Check";
+
 	private CheckRequestBody body;
 
 }

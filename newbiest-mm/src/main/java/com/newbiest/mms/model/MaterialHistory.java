@@ -120,6 +120,24 @@ public class MaterialHistory extends NBVersionControlHis {
     @Column(name="RESERVED10")
     private String reserved10;
 
+    /**
+     * 备件规格
+     */
+    @Column(name="SPARE_SPECS")
+    private String spareSpecs;
+
+    /**
+     * 备件型号
+     */
+    @Column(name="SPARE_MODEL")
+    private String spareModel;
+
+    /**
+     * 备件线别
+     */
+    @Column(name="SPARE_PARTS_LINE")
+    private String sparePartsLine;
+
     @Override
     public void setNbBase(NBBase base) {
         super.setNbBase(base);

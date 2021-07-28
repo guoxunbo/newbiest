@@ -2,12 +2,14 @@ package com.newbiest.context.model;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
+import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.common.exception.ContextException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Matcher;
@@ -22,6 +24,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class MergeRuleContext implements Serializable {
 
     /**
@@ -75,6 +78,50 @@ public class MergeRuleContext implements Serializable {
                     }
                 }
             }
+        }
+    }
+
+    public boolean validateMLot() throws ClientException{
+        try {
+            boolean falg = true;
+            if (CollectionUtils.isNotEmpty(mergeRuleLines)) {
+                for (MergeRuleLine ruleLine : mergeRuleLines) {
+                    if(!falg){
+                        break;
+                    }
+                    Object compareValue;
+                    Object targetValue;
+                    try {
+                        compareValue = PropertyUtils.getProperty(baseObject, ruleLine.getFiledName());
+                    } catch (Exception e) {
+                        throw new ClientParameterException(ContextException.MERGE_BASIC_OBJ_GET_PROPERTY_ERROR, ruleLine.getFiledName());
+                    }
+                    for (Object compareObject : compareObjects) {
+                        try {
+                            targetValue = PropertyUtils.getProperty(compareObject, ruleLine.getFiledName());
+                        } catch (Exception e) {
+                            throw new ClientParameterException(ContextException.MERGE_CHECK_OBJ_GET_PROPERTY_ERROR, ruleLine.getFiledName());
+                        }
+                        if (MergeRuleLine.COMPARISON_OPERATORS_EQUALS.equals(ruleLine.getComparisonOperators())) {
+                            if (compareValue == null) {
+                                compareValue = "";
+                            }
+                            if(targetValue == null){
+                                targetValue = "";
+                            }
+                            if(!compareValue.equals(targetValue)){
+                                falg = false;
+                                break;
+                            }
+                        } else {
+                            throw new ClientParameterException(ContextException.MERGE_UN_SUPPORT_COMPARISON, ruleLine.getComparisonOperators());
+                        }
+                    }
+                }
+            }
+            return falg;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
         }
     }
 

@@ -38,20 +38,22 @@ public class CsvUtils {
                         boxhead = stringCode;
                         ++num;
                     } else {
-                        Object object = clazz.newInstance();
-                        for (int i = 0 ; i < stringCode.length ; i++){
-                            if(i < boxhead.length && !StringUtils.isNullOrEmpty(boxhead[i])){
-                                if (headersMapped.containsKey(boxhead[i])){
-                                    NBField nbField = fieldMap.get(boxhead[i]);
-                                    if(nbField.getRequiredFlag() && StringUtils.isNullOrEmpty(stringCode[i].trim())){
-                                        throw new ClientParameterException(MmsException.MM_IMPORT_FILE_CONTAINS_EMPTY_DATA, boxhead[i]);
-                                    } else {
-                                        PropertyUtils.setProperty(object,headersMapped.get(boxhead[i]),stringCode[i].trim() );
+                        if(stringCodeIsEmpty(stringCode)){
+                            Object object = clazz.newInstance();
+                            for (int i = 0 ; i < stringCode.length ; i++){
+                                if(i < boxhead.length && !StringUtils.isNullOrEmpty(boxhead[i].trim())){
+                                    if (headersMapped.containsKey(boxhead[i].trim())){
+                                        NBField nbField = fieldMap.get(boxhead[i].trim());
+                                        if(nbField.getRequiredFlag() && StringUtils.isNullOrEmpty(stringCode[i].trim())){
+                                            throw new ClientParameterException(MmsException.MM_IMPORT_FILE_CONTAINS_EMPTY_DATA, boxhead[i].trim());
+                                        } else {
+                                            PropertyUtils.setProperty(object,headersMapped.get(boxhead[i].trim()),stringCode[i].trim() );
+                                        }
                                     }
                                 }
                             }
+                            csvDataList.add(object);
                         }
-                        csvDataList.add(object);
                     }
                 }
             }
@@ -59,6 +61,26 @@ public class CsvUtils {
             throw ExceptionManager.handleException(e, log);
         }
         return csvDataList;
+    }
+
+    /**
+     * 验证是否为空行
+     * @param stringCode
+     * @return
+     */
+    private static boolean stringCodeIsEmpty(String[] stringCode) throws ClientException{
+        try {
+            boolean flag = false;
+            for(String code : stringCode){
+                if(!StringUtils.isNullOrEmpty(code.trim())){
+                    flag = true;
+                    break;
+                }
+            }
+            return flag;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
 
@@ -106,12 +128,14 @@ public class CsvUtils {
             for(String headerName : headersMapped.keySet()){
                 nbFieldNameList.add(headerName);
             }
-            nbFieldNameList.removeAll(fieldNameList);
+            for(String fileName : fieldNameList){
+                nbFieldNameList.remove(fileName.trim());
+            }
             if(nbFieldNameList != null){
                 for(String headerName : nbFieldNameList){
                     for(NBField nbField :nbTable.getFields() ){
                         if(nbField.getLabelZh().equals(headerName) && nbField.getRequiredFlag()){
-                            throw new ClientParameterException(MmsException.MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME);
+                            throw new ClientParameterException(MmsException.MM_IMPORT_FILE_AND_TYPE_IS_NOT_SAME, headerName);
                         }
                     }
                 }

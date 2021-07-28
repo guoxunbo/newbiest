@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_update_material_lot_inventory_stock_qty_column_dataType_0.1
+      author: Guozhang.Luo
+      comment: update mms_material_lot_inventory qty column dataType
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/update_mms_material_lot_inventory_column_type.sql

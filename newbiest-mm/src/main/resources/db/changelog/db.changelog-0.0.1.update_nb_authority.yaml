@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_update_nb_query_0.0.1
+      author: Guozhang Luo
+      comment: update nb_query
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/update_nb_authority.sql

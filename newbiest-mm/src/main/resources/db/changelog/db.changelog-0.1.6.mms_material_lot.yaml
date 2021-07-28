@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.1.6
+      author: Guozhang Luo
+      remarks: mms_material_lot add column WEIGHT_SEQ
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: WEIGHT_SEQ
+                  type: varchar(32)
+                  remarks: 称重流水

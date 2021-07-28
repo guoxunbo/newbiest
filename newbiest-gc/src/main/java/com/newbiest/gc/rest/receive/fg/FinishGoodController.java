@@ -1,5 +1,6 @@
 package com.newbiest.gc.rest.receive.fg;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.msg.Request;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by guoxunbo on 2019-08-21 13:15
@@ -36,9 +40,11 @@ public class FinishGoodController {
         FinishGoodRequestBody requestBody = request.getBody();
 
         if(FinishGoodRequest.ACTION_COM_RECEIVE.equals(requestBody.getActionType())){
-            gcService.receiveFinishGood(requestBody.getMesPackedLots(),false);
+            gcService.receiveFinishGood(requestBody.getMesPackedLots());
         } else if(FinishGoodRequest.ACTION_WLT_RECEIVE.equals(requestBody.getActionType())){
-            gcService.receiveWltFinishGood(requestBody.getMesPackedLots());
+            gcService.receiveWltFinishGood(requestBody.getMesPackedLots(), requestBody.getPrintLabel(), requestBody.getPrintCount());
+        } else if(FinishGoodRequest.ACTION_COB_RECEIVE.equals(requestBody.getActionType())){
+            gcService.receiveCOBFinishGood(requestBody.getMesPackedLots());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

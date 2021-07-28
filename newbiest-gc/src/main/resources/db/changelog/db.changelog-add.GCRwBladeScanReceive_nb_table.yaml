@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRwBladeScanReceive_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCRwBladeScanReceive to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRwBladeScanReceive
+              description: Blade扫描接收
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: Tape扫描接收
+              label: BladeScanReceive

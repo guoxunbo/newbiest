@@ -34,5 +34,16 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_UN_PACKAGE = "UnPackage";
 
+    public static final String EVENT_SCRAP = "Scrap";
+
+    public static final String EVENT_MES_RECEIVE = "MesReceive";
+
+    public static final String EVENT_TRANSFER = "Transfer";
+
+    public static final String EVENT_MATEREIAL_SPARE = "MaterialSpare";
+
+    public static final String EVENT_CANCEL_MATEREIAL_SPARE = "MaterialCancel";
+
+    public static final String EVENT_UN_CHECK = "UnCheck";
 
 }

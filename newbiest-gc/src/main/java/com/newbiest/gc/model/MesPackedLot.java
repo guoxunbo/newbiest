@@ -19,11 +19,24 @@ import java.util.Date;
 public class MesPackedLot implements Serializable {
 
     public static final String PACKED_STATUS_RECEIVED = "RECEIVED";
+    public static final String PACKED_STATUS_IN = "IN";
 
     public static final String PRODUCT_CATEGORY_FT = "FT";
+    public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
     public static final String PRODUCT_CATEGORY_WLT = "WLT";
     public static final String PRODUCT_CATEGORY_CP = "CP";
     public static final String PRODUCT_CATEGORY_COM = "COM";
+    public static final String PRODUCT_CATEGORY_LSP = "LSP";
+    public static final String PRODUCT_CATEGORY_LCP = "LCP";
+    public static final String PRODUCT_CATEGORY_SCP = "SCP";
+    public static final String PRODUCT_CATEGORY_COB = "COB";
+
+    public static final String REPLACE_FLAG = "true";
+
+    public static final String IN_FLAG_ONE = "1";
+    public static final String ZJ_SUB_NAME = "GCZJ";
+    public static final String SH_SUB_NAME = "GCSH";
+    public static final String ZH_WAREHOUSE = "8143";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -108,6 +121,12 @@ public class MesPackedLot implements Serializable {
     private String shipSerialNumber;
 
     /**
+     * 入库单号
+     */
+    @Column(name="SHIP_SEQUENCE_NUMBER")
+    private String shipSequenceNumber;
+
+    /**
      * 仓库号
      */
     @Column(name="STOCK")
@@ -135,32 +154,78 @@ public class MesPackedLot implements Serializable {
     @Column(name="WAFER_MARK")
     private String waferMark;
 
-    //下面五个字段用于从MesPackedLotRelation中传递数据
-    //物料编码
-    @Transient
-    private String materialCode;
+    @Column(name="IN_FLAG")
+    private String inFlag;
 
-    //物料数量
-    @Transient
-    private Integer materialQty;
+    /**
+     * 打印型号
+     */
+    @Column(name="PRINT_MODEL_ID")
+    private String printModelId;
 
-    //物料二级代码
-    @Transient
-    private String materialVersion;
+    /**
+     * 是否替换
+     */
+    @Column(name="REPLACE_FLAG")
+    private String replaceFlag;
 
-    //物料保税属性
-    @Transient
-    private String materialBonded;
+    /**
+     * 载具号
+     */
+    @Column(name="LOT_ID")
+    private String lotId;
 
-    //物料等级
-    @Transient
-    private String materialGrade;
+    /**
+     * 物料批次号
+     */
+    @Column(name="MATERIAL_LOT_NAME")
+    private String materialLotName;
 
-    //用于判断是否绑定过MesPackedLotRelation中的物料数据
-    @Transient
-    private boolean haveBindMaterialData = false;
+    /**
+     * 原产品型号
+     */
+    @Column(name="ORG_PRODUCT_ID")
+    private String orgProductId;
 
-    public boolean getHaveBindMaterialData(){
-        return this.haveBindMaterialData;
-    }
+    /**
+     * 原产品等级
+     */
+    @Column(name="BIN_TYPE")
+    private String binType;
+
+    /**
+     * 载具号
+     */
+    @Column(name="PCODE")
+    private String pcode;
+
+    /**
+     * 供应商
+     */
+    @Transient
+    private String subName;
+
+    /**
+     * FAB_DEVICE
+     */
+    @Transient
+    private String fabDevice;
+
+    /**
+     * PRODUCT_TYPE
+     */
+    @Transient
+    private String productType;
+
+    /**
+     * IMPORT_TYPE
+     */
+    @Transient
+    private String importType;
+
+    /**
+     * 扫描序号
+     */
+    @Transient
+    private String scanSeq;
 }

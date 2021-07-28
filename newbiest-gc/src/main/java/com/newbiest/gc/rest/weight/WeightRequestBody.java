@@ -23,4 +23,7 @@ public class WeightRequestBody extends RequestBody {
     @ApiModelProperty(value = "绑定箱重量")
     private List<WeightModel> weightModels;
 
+    @ApiModelProperty(value = "动态表主键")
+    private Long tableRrn;
+
 }

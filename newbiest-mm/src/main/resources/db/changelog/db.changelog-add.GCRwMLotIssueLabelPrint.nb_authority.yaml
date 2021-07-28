@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RwMLotIssueLabelPrintManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add RwMLotIssueLabelPrintManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RwMLotIssueLabelPrintManager
+              description: RW发料标签补打
+              tableName: GCRwMLotIssueLabelPrint
+              url: /GC/GCRwMLotIssueLabelPrint
+              parentRrn: 2000
+              seqNo: 80
+              image: icon-rule
+              labelZh: RW发料标签补打
+              labelEn: RwMLotIssueLabelPrint

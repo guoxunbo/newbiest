@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_His_0.0.2
+      author: Guozhang Luo
+      remarks: MMS_MATERIAL_HIS add column SPARE_SPECS and SPARE_MODEL and SPARE_PARTS_LINE.
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_HIS
+            columns:
+              - column:
+                  name: SPARE_SPECS
+                  type: varchar2(64)
+                  remarks: 备件规格
+              - column:
+                  name: SPARE_MODEL
+                  type: varchar2(64)
+                  remarks: 备件型号
+              - column:
+                  name: SPARE_PARTS_LINE
+                  type: varchar2(64)
+                  remarks: 备件线别

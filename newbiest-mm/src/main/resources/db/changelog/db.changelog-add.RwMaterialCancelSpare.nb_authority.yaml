@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RwMaterialCancelSpare_to_NB_AUTHORITY
+      author: Jason Zhou
+      comment: add RwMaterialCancelSpare to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RwMaterialCancelSpare
+              description: Rw材料取消备料
+              tableName: GCRwCancelSpareMaterial
+              mobileFlag: N
+              url: /GC/GCRwMaterialCancelSpareManager
+              parentRrn: 2030
+              seqNo: 80
+              image: icon-rule
+              labelZh: RW材料取消备料
+              labelEn: RwMaterialCancelSpare
+

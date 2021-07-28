@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_COBFinishGoodReceiveManager_nb_AUTHORITY
+      author: Tao Zhou
+      comment: add_COBFinishGoodReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: COBFinishGoodReceiveManager
+              description: COB成品产线入库
+              tableName: MesCobPackagedLotShow
+              url: /COB/COBFinishGoodManager
+              parentRrn: 24
+              seqNo: 35
+              image: icon-rule
+              labelZh: COB产线入库
+              labelEn: COBFinishGoodReceive

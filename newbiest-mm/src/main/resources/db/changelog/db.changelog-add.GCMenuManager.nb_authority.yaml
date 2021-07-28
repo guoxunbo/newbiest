@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GcMennuManager_to_NB_Authority
+      author: Guozhang Luo
+      comment: add GcMenuManager to NB_Authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GcMenuManager
+              description: 菜单管理
+              tableName: GCMenuManager
+              url: /GC/GcMenuManager
+              parentRrn: 3
+              seqNo: 5
+              image: icon-rule
+              labelZh: 菜单管理
+              labelEn: MenuManager

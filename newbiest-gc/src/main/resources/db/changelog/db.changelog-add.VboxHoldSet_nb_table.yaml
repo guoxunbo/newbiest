@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCVboxHoldSet_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCVboxHoldSet to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCVboxHoldSet
+              description: 真空包HOLD设置
+              tableName: GC_WORKORDER_RELATION
+              modelName: GCWorkorderRelation
+              modelClass: com.newbiest.gc.model.GCWorkorderRelation
+              labelZh: 真空包HOLD设置
+              label: VboxHoldSet

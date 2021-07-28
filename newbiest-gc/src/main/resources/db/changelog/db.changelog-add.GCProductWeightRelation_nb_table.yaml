@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCProductWeightRelation_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCProductWeightRelation to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCProductWeightRelation
+              description: 产品绑定重量关系
+              tableName: GC_PRODUCT_WEIGHT_RELATION
+              modelName: GCProductWeightRelation
+              modelClass: com.newbiest.gc.model.GCProductWeightRelation
+              labelZh: 产品绑定重量关系
+              label: ProductWeightRelation

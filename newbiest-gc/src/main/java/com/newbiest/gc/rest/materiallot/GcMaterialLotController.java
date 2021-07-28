@@ -55,6 +55,16 @@ public class GcMaterialLotController extends AbstractRestController {
             responseBody.setJudgeWltPackCaseItemList(judgeWltPackCaseItemList);
         } else if (GcMaterialLotRequest.ACTION_JUDGE_PACKED_LOT.equals(actionType)) {
             gcService.judgePackedMaterialLot(materialLots, requestBody.getCheckList());
+        } else if(GcMaterialLotRequest.ACTION_QUERY_MATERIALLOT.equals(actionType)){
+            String mLotId = requestBody.getQueryLotId();
+            long tableRrn = requestBody.getTableRrn();
+            List<MaterialLot> materialLotList = gcService.getMaterialLotByTableRrnAndMLotId(mLotId, tableRrn);
+            responseBody.setMaterialLotList(materialLotList);
+        } else if (GcMaterialLotRequest.ACTION_QUERY_MATERIALLOTID_OR_LOTID.equals(actionType)){
+            MaterialLot materialLot = gcService.getMaterialLotByTableRrnAndMaterialLotIdOrLotId(requestBody.getTableRrn(), requestBody.getQueryLotId());
+            responseBody.setMaterialLot(materialLot);
+        } else if (GcMaterialLotRequest.ACTION_CANCEL_CHECK.equals(actionType)){
+            gcService.cancelCheckMaterialLot(requestBody.getMaterialLots(), requestBody.getCancelReason());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

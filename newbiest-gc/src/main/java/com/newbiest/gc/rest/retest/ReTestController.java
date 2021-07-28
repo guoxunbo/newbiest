@@ -30,7 +30,7 @@ public class ReTestController {
         ReTestResponse response = new ReTestResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
 
-        RetestResponseBody responseBody = new RetestResponseBody();
+        ReTestResponseBody responseBody = new ReTestResponseBody();
         ReTestRequestBody requestBody = request.getBody();
 
         gcService.reTest(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());

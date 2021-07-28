@@ -29,4 +29,7 @@ public class StockInRequestBody extends RequestBody {
 	@ApiModelProperty(value = "直接绑定中转箱号，以及库位号")
 	private List<StockInModel> stockInModels;
 
+	@ApiModelProperty(value="动态表主键")
+	private Long tableRrn;
+
 }

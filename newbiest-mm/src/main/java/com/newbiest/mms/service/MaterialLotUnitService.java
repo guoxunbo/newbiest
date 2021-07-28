@@ -1,6 +1,7 @@
 package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 
@@ -12,6 +13,10 @@ import java.util.List;
  */
 public interface MaterialLotUnitService {
 
+    List<MaterialLotUnit> createFTMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException;
+
+    List<MaterialLotUnit> queryStockOutTagMLotUnits(List<MaterialLotAction> materialLotActions)throws ClientException;
+
     List<MaterialLotUnit> getUnitsByMaterialLotId(String materialLotId) throws ClientException;
 
     List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
@@ -20,5 +25,5 @@ public interface MaterialLotUnitService {
 
     String validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 
-    List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+    List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList, String importType) throws ClientException;
 }

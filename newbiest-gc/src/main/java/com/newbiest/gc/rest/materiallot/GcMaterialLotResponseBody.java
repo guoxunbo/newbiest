@@ -17,4 +17,8 @@ public class GcMaterialLotResponseBody extends ResponseBody {
 
 	List<NBOwnerReferenceList> judgeWltPackCaseItemList;
 
+	List<MaterialLot> materialLotList;
+
+	MaterialLot materialLot;
+
 }

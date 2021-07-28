@@ -1,11 +1,9 @@
 package com.newbiest.mms.service.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
@@ -18,6 +16,7 @@ import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
+import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
@@ -29,9 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -56,6 +56,12 @@ public class PackageServiceImpl implements PackageService{
     MaterialLotRepository materialLotRepository;
 
     @Autowired
+    MaterialLotUnitRepository materialLotUnitRepository;
+
+    @Autowired
+    MaterialLotUnitHisRepository materialLotUnitHisRepository;
+
+    @Autowired
     GeneratorService generatorService;
 
     @Autowired
@@ -72,6 +78,9 @@ public class PackageServiceImpl implements PackageService{
 
     @Autowired
     DeliveryOrderRepository deliveryOrderRepository;
+
+    @Autowired
+    MaterialLotUnitService materialLotUnitService;
 
     public MaterialLotPackageType getMaterialPackageTypeByName(String name) throws ClientException{
         List<MaterialLotPackageType> packageTypes = materialLotPackageTypeRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
@@ -108,7 +117,7 @@ public class PackageServiceImpl implements PackageService{
 
             packedMaterialLot = mmsService.getMLotByMLotId(packedMaterialLot.getMaterialLotId(), true);
             packedMaterialLot.isFinish();
-            packedMaterialLot.validateMLotHold();
+
             // 取第一个的materialAction作为所有者的actionCode
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
             List<MaterialLot> allMaterialLot = Lists.newArrayList();
@@ -212,9 +221,11 @@ public class PackageServiceImpl implements PackageService{
             BigDecimal packedQty = materialLotPackageType.getPackedQty(materialLotActions);
 
             packedMaterialLot.setCurrentQty(packedMaterialLot.getCurrentQty().subtract(packedQty));
-            packedMaterialLot.setReservedQty(packedMaterialLot.getReservedQty().subtract(packedQty));
+            if(!StringUtils.isNullOrEmpty(packedMaterialLot.getReserved16())){
+                packedMaterialLot.setReservedQty(packedMaterialLot.getReservedQty().subtract(packedQty));
+            }
             if(packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == -1){
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO, packedMaterialLot.getMaterialLotId());
             } else if (packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                 packedMaterialLot.setReservedQty(BigDecimal.ZERO);
                 packedMaterialLot.clearReservedInfo();
@@ -226,10 +237,6 @@ public class PackageServiceImpl implements PackageService{
                 packedMaterialLot.setReserved9(StringUtils.EMPTY);
                 packedMaterialLot.setReserved10(StringUtils.EMPTY);
             }
-
-            packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
-            MaterialLotHistory unPackagedHistory = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
-            materialLotHistoryRepository.save(unPackagedHistory);
 
             // 扣减库存 箱批次只会存在一个位置上
             List<MaterialLotInventory> materialLotInventories = mmsService.getMaterialLotInv(packedMaterialLot.getObjectRrn());
@@ -284,7 +291,40 @@ public class PackageServiceImpl implements PackageService{
                     materialLotHistoryRepository.save(history);
 
                 }
+                //拆包时将晶圆的状态恢复至In状态
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(waitToUnPackageMLot.getMaterialLotId());
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for(MaterialLotUnit materialLotUnit: materialLotUnitList){
+                        materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                        MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
+                        materialLotUnitHisRepository.save(unitHistory);
+                    }
+                }
             }
+
+            //拆箱结束，如果没有全部拆完，修改箱号上的备货标记
+            List<MaterialLot> packedMaterialLots = materialLotRepository.getPackageDetailLots(packedMaterialLot.getObjectRrn());
+            if(CollectionUtils.isNotEmpty(packedMaterialLots)){
+                packedMaterialLot.setReserved16(packedMaterialLots.get(0).getReserved16());
+                packedMaterialLot.setReserved17(packedMaterialLots.get(0).getReserved17());
+                packedMaterialLot.setReserved18(packedMaterialLots.get(0).getReserved18());
+
+                //如果箱号被Hold,箱中被Hold的真空包全部被拆除，Release箱号
+                if(MaterialLot.HOLD_STATE_ON.equals(packedMaterialLot.getHoldState())){
+                    List<MaterialLot> holdMLotList = packedMaterialLots.stream().filter(materialLot -> MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())).collect(Collectors.toList());
+                    if(CollectionUtils.isEmpty(holdMLotList)){
+                        packedMaterialLot.setHoldState(MaterialLot.HOLD_STATE_OFF);
+                        packedMaterialLot.setHoldReason(StringUtils.EMPTY);
+                    }
+                }
+            }
+
+            packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
+            MaterialLotHistory unPackagedHistory = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
+            materialLotHistoryRepository.save(unPackagedHistory);
+
             return packedMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -339,11 +379,15 @@ public class PackageServiceImpl implements PackageService{
         }
     }
 
+    public MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException{
+        return packageMLots(materialLotActions, StringUtils.EMPTY, packageType);
+    }
+
     /**
      * 对物料批次进行包装
      * @return
      */
-    public MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException{
+    public MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packedMaterialLotId, String packageType) throws ClientException{
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
@@ -351,6 +395,15 @@ public class PackageServiceImpl implements PackageService{
             MaterialLotAction firstMaterialAction = materialLotActions.get(0);
 
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+
+            //COB装箱只允许装一个lot，一个lot不允许超过13片
+            if(MaterialLot.COB_PACKCASE.equals(packageType)){
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLots.get(0).getMaterialLotId());
+                if (materialLotUnitList.size() > MaterialLot.COB_UNIT_SIZE){
+                    throw new  ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_SIZE_MORE_THAN_THIRTEEN, materialLots.get(0).getMaterialLotId());
+                }
+            }
+
             //格科要求装过箱的真空包也可以再次装箱，将等待装箱的真空包按照箱号分组，先进行拆箱操作
             materialLots = getWaitPackMaterialLots(materialLots);
 
@@ -358,15 +411,27 @@ public class PackageServiceImpl implements PackageService{
             validationPackageRule(materialLots, materialLotPackageType);
 
             MaterialLot packedMaterialLot = (MaterialLot) materialLots.get(0).clone();
-            String packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
+            if (StringUtils.isNullOrEmpty(packedMaterialLotId)) {
+                packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
+            }
             if (mmsService.getMLotByMLotId(packedMaterialLotId) != null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_IS_EXIST);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, packedMaterialLotId);
             }
             packedMaterialLot.setMaterialLotId(packedMaterialLotId);
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(materialLotActions));
             packedMaterialLot.setReceiveQty(packedMaterialLot.getCurrentQty());
             packedMaterialLot.buildPackageMaterialLot(packageType);
             packedMaterialLot.setMaterialType(StringUtils.isNullOrEmpty(materialLotPackageType.getTargetMaterialType()) ? packedMaterialLot.getMaterialType() : materialLotPackageType.getTargetMaterialType());
+
+            BigDecimal totalCurrentSubQty = BigDecimal.ZERO;
+            for(MaterialLot materialLot : materialLots){
+                if(materialLot.getCurrentSubQty() != null){
+                    totalCurrentSubQty = totalCurrentSubQty.add(materialLot.getCurrentSubQty());
+                }
+            }
+            if(totalCurrentSubQty.compareTo(BigDecimal.ZERO) > 0){
+                packedMaterialLot.setCurrentSubQty(totalCurrentSubQty);
+            }
 
             //GC要求包装的时候，也要进行包装数量的记录到箱子上以及相应的包装栏位也要有
             if (!StringUtils.isNullOrEmpty(materialLots.get(0).getReserved16())) {
@@ -378,6 +443,8 @@ public class PackageServiceImpl implements PackageService{
             // 记录创建历史
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE);
             history.buildByMaterialLotAction(firstMaterialAction);
+            history.setCreated(packedMaterialLot.getCreated());
+            history.setReceiveDate(packedMaterialLot.getReceiveDate());
             materialLotHistoryRepository.save(history);
 
             packageMaterialLots(packedMaterialLot, materialLots, materialLotActions, false, true);
@@ -391,7 +458,7 @@ public class PackageServiceImpl implements PackageService{
      * 格科要求装过箱的真空包也可以再次装箱
      * @return
      */
-    private List<MaterialLot> getWaitPackMaterialLots(List<MaterialLot> materialLots) throws ClientException {
+    public List<MaterialLot> getWaitPackMaterialLots(List<MaterialLot> materialLots) throws ClientException {
         try {
             List<MaterialLot> waitPackMaterialLots = Lists.newArrayList();
             List<MaterialLot> waitUnPackMaterialLots = Lists.newArrayList();
@@ -439,7 +506,7 @@ public class PackageServiceImpl implements PackageService{
                                         boolean subtractQtyFlag, boolean updateParentMLotFlag) throws ClientException {
         // 对物料批次做package事件处理 扣减物料批次数量
         for (MaterialLot materialLot : waitToPackingLot) {
-            materialLot.clearPackedMaterialLot();
+//            materialLot.clearPackedMaterialLot();
 
             String materialLotId = materialLot.getMaterialLotId();
             MaterialLotAction materialLotAction = materialLotActions.stream().filter(action -> materialLotId.equals(action.getMaterialLotId())).findFirst().get();
@@ -489,6 +556,18 @@ public class PackageServiceImpl implements PackageService{
             history.setActionReason(materialLotAction.getActionReason());
             history.setActionComment(materialLotAction.getActionComment());
             materialLotHistoryRepository.save(history);
+
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                for (MaterialLotUnit materialLotUnit: materialLotUnitList){
+                    materialLotUnit.setState(MaterialLotUnit.STATE_PACKAGE);
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                    MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_PACKAGE);
+                    unitHistory.setCreated(materialLotUnit.getCreated());
+                    materialLotUnitHisRepository.save(unitHistory);
+                }
+            }
         }
 
     }

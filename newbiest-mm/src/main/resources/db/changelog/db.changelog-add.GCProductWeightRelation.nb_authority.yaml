@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCProductWeightRelation_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCProductWeightRelation to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCProductWeightRelationManager
+              description: 产品数量绑定关系
+              tableName: GCProductWeightRelation
+              url: /GC/GCProductWeightRelationManager
+              parentRrn: 3
+              seqNo: 60
+              image: icon-rule
+              labelZh: 重量管控配置
+              labelEn: OutSourceManager
+

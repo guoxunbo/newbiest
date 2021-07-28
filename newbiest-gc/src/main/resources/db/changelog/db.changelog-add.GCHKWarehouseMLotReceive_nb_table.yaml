@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCHKWarehouseMLotReceive_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCHKWarehouseMLotReceive to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCHKWarehouseMLotReceive
+              description: 香港仓在途货物接收
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港在途仓货物接收
+              label: HKWarehouseMLotReceive

@@ -10,8 +10,6 @@ import com.newbiest.base.model.NBVersionControlHis;
 import com.newbiest.base.repository.custom.IRepository;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.service.VersionControlService;
-import com.newbiest.base.ui.exception.UIExceptions;
-import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.repository.TableRepository;
 import com.newbiest.base.utils.*;
 import com.newbiest.commom.sm.exception.StatusMachineExceptions;
@@ -61,6 +59,9 @@ public class MmsServiceImpl implements MmsService {
     RawMaterialRepository rawMaterialRepository;
 
     @Autowired
+    MaterialRepository materialRepository;
+
+    @Autowired
     MaterialLotRepository materialLotRepository;
 
     @Autowired
@@ -92,6 +93,17 @@ public class MmsServiceImpl implements MmsService {
 
     @Autowired
     private TableRepository tableRepository;
+
+    @Autowired
+    ProductRepository productRepository;
+
+    @Autowired
+    PartsRepository partsRepository;
+
+    @Autowired
+    MaterialNameInfoRepository materialNameInfoRepository;
+
+
     /**
      * 根据名称获取源物料。
      *  源物料不区分版本。故此处只会有1个
@@ -110,6 +122,43 @@ public class MmsServiceImpl implements MmsService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 根据名称产品信息
+     * @param name 名称
+     * @return
+     * @throws ClientException
+     */
+    public Product getProductByName(String name) throws ClientException {
+        try {
+            List<Product> productList = productRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isNotEmpty(productList)) {
+                return productList.get(0);
+            }
+            return null;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据名称查询备件信息
+     * @param name 名称
+     * @return
+     * @throws ClientException
+     */
+    public Parts getPartsByName(String name) throws ClientException {
+        try {
+            List<Parts> partsList = partsRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isNotEmpty(partsList)) {
+                return partsList.get(0);
+            }
+            return null;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 
     /**
      * 保存源物料。此处和versionControlService的save不同点在于
@@ -144,6 +193,7 @@ public class MmsServiceImpl implements MmsService {
                     nbHis.setNbBase(rawMaterial);
                     historyRepository.save(nbHis);
                 }
+                saveMaterialName(rawMaterial.getName());
             } else {
                 NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(rawMaterial.getObjectRrn());
                 // 不可改变状态
@@ -161,6 +211,146 @@ public class MmsServiceImpl implements MmsService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    public Material createRawMaterial(RawMaterial rawMaterial) throws ClientException{
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            if(StringUtils.isNullOrEmpty(rawMaterial.getMaterialCategory())){
+                rawMaterial.setMaterialCategory(Material.TYPE_WAFER);
+            }
+            if(StringUtils.isNullOrEmpty(rawMaterial.getMaterialType())){
+                rawMaterial.setMaterialType(Material.TYPE_WAFER);
+            }
+            rawMaterial = this.saveRawMaterial(rawMaterial);
+
+            List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
+            if (CollectionUtils.isNotEmpty(statusModels)) {
+                rawMaterial.setStatusModelRrn(statusModels.get(0).getObjectRrn());
+            } else {
+                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+            }
+            Material material = rawMaterialRepository.save(rawMaterial);
+            saveMaterialName(rawMaterial.getName());
+            return material;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 保存产品信息
+     * @param product
+     * @return
+     * @throws ClientException
+     */
+    public Product saveProduct(Product product) throws ClientException {
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            NBHis nbHis = NBHis.getHistoryBean(product);
+
+            IRepository modelRepository = baseService.getRepositoryByClassName(product.getClass().getName());
+            IRepository historyRepository = null;
+            if (nbHis != null) {
+                historyRepository = baseService.getRepositoryByClassName(nbHis.getClass().getName());
+            }
+
+            if (product.getObjectRrn() == null) {
+                product.setActiveTime(new Date());
+                product.setActiveUser(sc.getUsername());
+                product.setStatus(NBVersionControl.STATUS_ACTIVE);
+                Long version = versionControlService.getNextVersion(product);
+                product.setVersion(version);
+
+                product = (Product) modelRepository.saveAndFlush(product);
+                if (nbHis != null) {
+                    nbHis.setTransType(NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
+                    nbHis.setNbBase(product);
+                    historyRepository.save(nbHis);
+                }
+                saveMaterialName(product.getName());
+            } else {
+                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(product.getObjectRrn());
+                // 不可改变状态
+                product.setStatus(oldData.getStatus());
+                product = (Product) modelRepository.saveAndFlush(product);
+
+                if (nbHis != null) {
+                    nbHis.setTransType(NBHis.TRANS_TYPE_UPDATE);
+                    nbHis.setNbBase(product);
+                    historyRepository.save(nbHis);
+                }
+            }
+            return product;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 保存备件信息
+     * @param parts
+     * @return
+     * @throws ClientException
+     */
+    public Parts saveParts(Parts parts) throws ClientException {
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            NBHis nbHis = NBHis.getHistoryBean(parts);
+
+            IRepository modelRepository = baseService.getRepositoryByClassName(parts.getClass().getName());
+            IRepository historyRepository = null;
+            if (nbHis != null) {
+                historyRepository = baseService.getRepositoryByClassName(nbHis.getClass().getName());
+            }
+
+            if (parts.getObjectRrn() == null) {
+                parts.setActiveTime(new Date());
+                parts.setActiveUser(sc.getUsername());
+                parts.setStatus(NBVersionControl.STATUS_ACTIVE);
+                Long version = versionControlService.getNextVersion(parts);
+                parts.setVersion(version);
+
+                parts = (Parts) modelRepository.saveAndFlush(parts);
+                if (nbHis != null) {
+                    nbHis.setTransType(NBVersionControlHis.TRANS_TYPE_CREATE_AND_ACTIVE);
+                    nbHis.setNbBase(parts);
+                    historyRepository.save(nbHis);
+                }
+            } else {
+                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(parts.getObjectRrn());
+                // 不可改变状态
+                parts.setStatus(oldData.getStatus());
+                parts = (Parts) modelRepository.saveAndFlush(parts);
+
+                if (nbHis != null) {
+                    nbHis.setTransType(NBHis.TRANS_TYPE_UPDATE);
+                    nbHis.setNbBase(parts);
+                    historyRepository.save(nbHis);
+                }
+            }
+            return parts;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public MaterialNameInfo saveMaterialName(String materialName) throws ClientException{
+        try {
+            MaterialNameInfo materialNameInfo = new MaterialNameInfo();
+            List<MaterialNameInfo> materialNameInfoList = materialNameInfoRepository.findByNameAndOrgRrn(materialName, ThreadLocalContext.getOrgRrn());
+            if(CollectionUtils.isEmpty(materialNameInfoList)){
+                materialNameInfo.setName(materialName);
+                materialNameInfo = materialNameInfoRepository.saveAndFlush(materialNameInfo);
+            }
+            return materialNameInfo;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 
     /**
      * 批量创建批次
@@ -186,20 +376,20 @@ public class MmsServiceImpl implements MmsService {
     /**
      * 接收物料批次并入库指定物料批次号
      * 如果没有指定入的仓库，则直接入到物料上绑定的仓库
-     * @param rawMaterial 原物料
+     * @param  material 物料号
      * @param materialLotActions 操作物料批次的动作包括了操作数量以及原因
      * @return
      */
-    public List<MaterialLot> receiveMLotList2Warehouse(RawMaterial rawMaterial, List<MaterialLotAction> materialLotActions) throws ClientException {
+    public List<MaterialLot> receiveMLotList2Warehouse(Material material, List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
             List<MaterialLot> materialLots = Lists.newArrayList();
             Map<String, MaterialLotAction> materialLotActionMap = materialLotActions.stream().collect(Collectors.toMap(MaterialLotAction :: getMaterialLotId, Function.identity()));
-            List<MaterialLot> materialLotList = receiveMLots(rawMaterial, materialLotActions);
+            List<MaterialLot> materialLotList = receiveMLots(material, materialLotActions);
 
             for (MaterialLot materialLot : materialLotList) {
                 MaterialLotAction materialLotAction = materialLotActionMap.get(materialLot.getMaterialLotId());
                 if (materialLotAction.getTargetWarehouseRrn() == null) {
-                    materialLotAction.setTargetWarehouseRrn(rawMaterial.getWarehouseRrn());
+                    materialLotAction.setTargetWarehouseRrn(material.getWarehouseRrn());
                 }
                 materialLot = stockIn(materialLot, materialLotAction);
                 materialLots.add(materialLot);
@@ -213,17 +403,17 @@ public class MmsServiceImpl implements MmsService {
     /**
      * 接收物料批次并入库指定物料批次号
      * 如果没有指定入的仓库，则直接入到物料上绑定的仓库
-     * @param rawMaterial 原物料
+     * @param material 原物料/产品号
      * @param mLotId 物料批次号
      * @param materialLotAction 操作物料批次的动作包括了操作数量以及原因
      * @return
      */
-    public MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException {
+    public MaterialLot receiveMLot2Warehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException {
         try {
-            MaterialLot materialLot = receiveMLot(rawMaterial, mLotId, materialLotAction);
+            MaterialLot materialLot = receiveMLot(material, mLotId, materialLotAction);
 
             if (materialLotAction.getTargetWarehouseRrn() == null) {
-                materialLotAction.setTargetWarehouseRrn(rawMaterial.getWarehouseRrn());
+                materialLotAction.setTargetWarehouseRrn(material.getWarehouseRrn());
             }
             materialLot = stockIn(materialLot, materialLotAction);
             return materialLot;
@@ -323,7 +513,7 @@ public class MmsServiceImpl implements MmsService {
                         targetStorage.setWarehouseRrn(warehouse.getObjectRrn());
                         targetStorage = storageRepository.saveAndFlush(targetStorage);
                     } else {
-                        throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST);
+                        throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST, materialLotAction.getTargetStorageId());
 
                     }
                 }
@@ -370,13 +560,12 @@ public class MmsServiceImpl implements MmsService {
             sc.buildTransInfo();
 
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), "TargetWarehouseRrn");
-            materialLot.validateMLotHold();
             Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
             Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), targetWarehouse.getObjectRrn(), targetStorage.getObjectRrn());
             if (materialLotInventory != null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_SUPPORT_MULTI_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_SUPPORT_MULTI_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot.setCurrentSubQty(materialLotAction.getTransCount());
             // 变更物料库存并改变物料批次状态
@@ -418,7 +607,7 @@ public class MmsServiceImpl implements MmsService {
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             // 如果盘点为0 则表示物料批次被用完，则触发出库事件
@@ -469,12 +658,12 @@ public class MmsServiceImpl implements MmsService {
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_STOCK_OUT_ALL);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_MUST_STOCK_OUT_ALL, materialLot.getMaterialLotId());
             }
             // 变更物料库存并改变物料批次状态
             saveMaterialLotInventory(materialLot, fromWarehouse, fromStorage, materialLotAction.getTransQty().negate());
@@ -514,12 +703,12 @@ public class MmsServiceImpl implements MmsService {
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_PICK_ALL);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_MUST_PICK_ALL, materialLot.getMaterialLotId());
             }
             // 变更物料库存并改变物料批次状态
             saveMaterialLotInventory(materialLot, fromWarehouse, fromStorage, materialLotAction.getTransQty().negate());
@@ -551,7 +740,6 @@ public class MmsServiceImpl implements MmsService {
             PreConditionalUtils.checkNotNull(materialLotAction.getFromWarehouseRrn(), StringUtils.EMPTY);
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), StringUtils.EMPTY);
 
-            materialLot.validateMLotHold();
 
             Warehouse fromWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
             Storage fromStorage = getFromStorageByMaterialLotAction(materialLotAction, fromWarehouse);
@@ -565,12 +753,12 @@ public class MmsServiceImpl implements MmsService {
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), fromWarehouse.getObjectRrn(), fromStorage.getObjectRrn());
             if (materialLotInventory == null) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_NOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
 
             if (materialLot.getCurrentQty().compareTo(materialLotAction.getTransQty()) != 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_MUST_TRANSFER_ALL);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_MUST_TRANSFER_ALL, materialLot.getMaterialLotId());
             }
             materialLotInventory.setWarehouse(targetWarehouse).setStorage(targetStorage);
             materialLotInventoryRepository.saveAndFlush(materialLotInventory);
@@ -603,13 +791,13 @@ public class MmsServiceImpl implements MmsService {
 
             BigDecimal currentQty = materialLot.getCurrentQty().subtract(materialLotAction.getTransQty());
             if (currentQty.compareTo(BigDecimal.ZERO) < 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO, materialLot.getMaterialLotId());
             }
 
             // 当批次在库存中，无法进行消耗/反消耗 只能进行盘点
             List<MaterialLotInventory> materialLotInventories = getMaterialLotInv(materialLot.getObjectRrn());
             if (CollectionUtils.isNotEmpty(materialLotInventories)) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_IN_INVENTORY);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IN_INVENTORY, materialLot.getMaterialLotId());
             }
 
             String eventId = MaterialEvent.EVENT_CONSUME;
@@ -645,6 +833,7 @@ public class MmsServiceImpl implements MmsService {
 
             // 物料批次只会hold一次。多重Hold只会记录历史，并不会产生多重Hold记录
             materialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
+            materialLot.setHoldReason(materialLotAction.getActionReason());
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
@@ -668,6 +857,7 @@ public class MmsServiceImpl implements MmsService {
             sc.buildTransInfo();
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             materialLot.setHoldState(MaterialLot.HOLD_STATE_OFF);
+            materialLot.setHoldReason(StringUtils.EMPTY);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RELEASE);
@@ -687,7 +877,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             materialLotInventory.setStockQty(materialLotInventory.getStockQty().add(transQty));
             if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) < 0) {
-                throw new ClientException(MmsException.MM_MATERIAL_LOT_STOCK_QTY_CANOT_LESS_THEN_ZERO);
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_STOCK_QTY_CANOT_LESS_THEN_ZERO, materialLotInventory.getMaterialLotId());
             } else if (materialLotInventory.getStockQty().compareTo(BigDecimal.ZERO) == 0) {
                 if (materialLotInventory.getObjectRrn() != null) {
                     materialLotInventoryRepository.delete(materialLotInventory);
@@ -724,17 +914,18 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
-    public List<MaterialLot> receiveMLots(RawMaterial rawMaterial, List<MaterialLotAction> materialLotActionList) {
+    public List<MaterialLot> receiveMLots(Material material, List<MaterialLotAction> materialLotActionList) {
         try {
             List<MaterialLot> materialLots = Lists.newArrayList();
-            StatusModel statusModel = getMaterialStatusModel(rawMaterial);
+            StatusModel statusModel = getMaterialStatusModel(material);
 
             for (MaterialLotAction materialLotAction : materialLotActionList) {
-                MaterialLot materialLot = createMLot(rawMaterial, statusModel, materialLotAction.getMaterialLotId(), materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap(),materialLotAction.getTransCount());
+                MaterialLot materialLot = createMLot(material, statusModel, materialLotAction.getMaterialLotId(), materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap(),materialLotAction.getTransCount());
                 materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
                 history.buildByMaterialLotAction(materialLotAction);
+                history.setSourceModelId(materialLotAction.getSourceModelId());
                 materialLotHistoryRepository.save(history);
                 materialLots.add(materialLot);
             }
@@ -744,21 +935,21 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
-    public StatusModel getMaterialStatusModel(RawMaterial rawMaterial) throws ClientException{
+    public StatusModel getMaterialStatusModel(Material material) throws ClientException{
         try {
             StatusModel statusModel = null;
-            if (rawMaterial.getStatusModelRrn() == null) {
+            if (material.getStatusModelRrn() == null) {
                 List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, ThreadLocalContext.getOrgRrn());
                 if (CollectionUtils.isNotEmpty(statusModels)) {
                     statusModel = statusModels.get(0);
-                    rawMaterial.setStatusModelRrn(statusModel.getObjectRrn());
+                    material.setStatusModelRrn(statusModel.getObjectRrn());
                 } else {
                     throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
                 }
             }
-            rawMaterial = rawMaterialRepository.saveAndFlush(rawMaterial);
+            material = materialRepository.saveAndFlush(material);
             if (statusModel == null) {
-                statusModel = statusMachineService.getStatusModelByObjectRrn(rawMaterial.getStatusModelRrn());
+                statusModel = statusMachineService.getStatusModelByObjectRrn(material.getStatusModelRrn());
             }
             return statusModel;
         } catch (Exception e) {
@@ -767,16 +958,16 @@ public class MmsServiceImpl implements MmsService {
     }
     /**
      * 接收物料批次
-     * @param rawMaterial 原物料
+     * @param material 原物料/产品号
      * @param mLotId 物料批次号
      * @param materialLotAction 操作物料批次的动作包括了操作数量以及原因
      * @return
      */
-    public MaterialLot receiveMLot(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) {
+    public MaterialLot receiveMLot(Material material, String mLotId, MaterialLotAction materialLotAction) {
         try {
-            StatusModel statusModel = getMaterialStatusModel(rawMaterial);
+            StatusModel statusModel = getMaterialStatusModel(material);
 
-            MaterialLot materialLot = createMLot(rawMaterial, statusModel, mLotId, materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap(), materialLotAction.getTransCount());
+            MaterialLot materialLot = createMLot(material, statusModel, mLotId, materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap(), materialLotAction.getTransCount());
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
@@ -814,6 +1005,7 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+
     public MaterialLot getMLotByMLotIdAndBindWorkOrderId(String mLotId, boolean throwExceptionFlag) throws ClientException{
         try {
             MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId, ThreadLocalContext.getOrgRrn());
@@ -847,17 +1039,17 @@ public class MmsServiceImpl implements MmsService {
 
     /**
      * 创建物料批次
-     * @param rawMaterial 源物料
+     * @param material 源物料/产品号
      * @param  mLotId 物料批次号。当为空的时候，按照设定的物料批次号生成规则进行生成
      * @return
      * @throws ClientException
      */
-    public MaterialLot createMLot(RawMaterial rawMaterial, StatusModel statusModel, String mLotId, String grade, BigDecimal transQty, Map<String, Object> propsMap, BigDecimal currentSubQty) throws ClientException {
+    public MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, String grade, BigDecimal transQty, Map<String, Object> propsMap, BigDecimal currentSubQty) throws ClientException {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
             if (StringUtils.isNullOrEmpty(mLotId)) {
-                mLotId = generatorMLotId(rawMaterial);
+                mLotId = generatorMLotId(material);
             }
             MaterialLot materialLot = getMLotByMLotId(mLotId);
             if (materialLot != null) {
@@ -867,7 +1059,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setMaterialLotId(mLotId);
             materialLot.setGrade(grade);
 
-            materialLot.setStatusModelRrn(rawMaterial.getStatusModelRrn());
+            materialLot.setStatusModelRrn(material.getStatusModelRrn());
             materialLot.setStatusCategory(statusModel.getInitialStateCategory());
             materialLot.setStatus(statusModel.getInitialState());
 
@@ -876,16 +1068,19 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setCurrentQty(transQty);
             materialLot.setCurrentSubQty(currentSubQty);
 
-            materialLot.setMaterialRrn(rawMaterial.getObjectRrn());
-            materialLot.setMaterialName(rawMaterial.getName());
-            materialLot.setMaterialDesc(rawMaterial.getDescription());
-            materialLot.setMaterialVersion(rawMaterial.getVersion());
-            materialLot.setMaterialCategory(rawMaterial.getMaterialCategory());
-            materialLot.setMaterialType(rawMaterial.getMaterialType());
-            materialLot.setStoreUom(rawMaterial.getStoreUom());
-            materialLot.setEffectiveLife(rawMaterial.getEffectiveLife());
-            materialLot.setEffectiveUnit(rawMaterial.getEffectiveUnit());
-            materialLot.setWarningLife(rawMaterial.getWarningLife());
+            materialLot.setMaterialRrn(material.getObjectRrn());
+            materialLot.setMaterialName(material.getName());
+            materialLot.setMaterialDesc(material.getDescription());
+            materialLot.setMaterialVersion(material.getVersion());
+            materialLot.setMaterialCategory(material.getMaterialCategory());
+            materialLot.setMaterialType(material.getMaterialType());
+            materialLot.setStoreUom(material.getStoreUom());
+            materialLot.setEffectiveLife(material.getEffectiveLife());
+            materialLot.setEffectiveUnit(material.getEffectiveUnit());
+            materialLot.setWarningLife(material.getWarningLife());
+            materialLot.setReserved58(material.getSpareSpecs());
+            materialLot.setReserved59(material.getSpareModel());
+            materialLot.setReserved60(material.getSparePartsLine());
 
             if (propsMap != null && propsMap.size() > 0) {
                 for (String propName : propsMap.keySet()) {
@@ -897,6 +1092,7 @@ public class MmsServiceImpl implements MmsService {
             // 记录历史
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
             history.setTransQty(materialLot.getCurrentQty());
+            history.setCreated(materialLot.getCreated());
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
@@ -909,7 +1105,7 @@ public class MmsServiceImpl implements MmsService {
      * @return
      * @throws ClientException
      */
-    public String generatorMLotId(RawMaterial rawMaterial) throws ClientException{
+    public String generatorMLotId(Material material) throws ClientException{
         try {
             GeneratorContext generatorContext = new GeneratorContext();
             generatorContext.setRuleName(MaterialLot.GENERATOR_MATERIAL_LOT_ID_RULE);
@@ -965,12 +1161,23 @@ public class MmsServiceImpl implements MmsService {
         return null;
     }
 
-    public MaterialLot getMLotByLotId(String lotId) throws ClientException {
+
+    /**
+     * 验证物料批次规则信息是否一致，不一致返回false
+     */
+    public boolean validationMLotByMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException{
         try {
-            return materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLot.IMPORT_WLA);
+            List<MaterialLotMergeRule> mLotValidateRule = materialLotMergeRuleRepository.findByNameAndOrgRrn(ruleName, ThreadLocalContext.getOrgRrn());
+            if (CollectionUtils.isEmpty(mLotValidateRule)) {
+                throw new ClientParameterException(ContextException.MLOT_VALIDATE_RULE_IS_NOT_EXIST, ruleName);
+            }
+            MergeRuleContext mergeRuleContext = new MergeRuleContext();
+            mergeRuleContext.setBaseObject(materialLots.get(0));
+            mergeRuleContext.setCompareObjects(materialLots);
+            mergeRuleContext.setMergeRuleLines(mLotValidateRule.get(0).getLines());
+            return  mergeRuleContext.validateMLot();
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
-
 }

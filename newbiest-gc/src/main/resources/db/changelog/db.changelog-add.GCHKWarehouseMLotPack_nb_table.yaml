@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCHKWarehouseMLotPack_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCHKWarehouseMLotPack to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCHKWarehouseMLotPack
+              description: 香港仓装箱
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓装箱
+              label: HongKongWarehouseMLotPack

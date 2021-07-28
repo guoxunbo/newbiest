@@ -1,13 +1,15 @@
 package com.newbiest.mms.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 物料批次的具体单元数据。由一系列的单元组成一个物料批次。可以针对单元做操作。
@@ -27,8 +29,11 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String STATE_IN = "In";
     public static final String STATE_ISSUE = "Issue";
     public static final String STATE_SCRAP = "Scrap";
+    public static final String STATE_OUT = "Out";
+    public static final String STATE_PACKAGE = "Package";
 
-    public static final String PRODUCT_TYPE = "PROD";
+    public static final String PRODUCT_TYPE_PROD = "PROD";
+    public static final String PRODUCT_TYPE_ENG = "ENG";
 
     public static final String FAB_SENSOR = "GCFabSensor1Unmeasured";//FAB sensor(-1未测)
     public static final String FAB_SENSOR_2UNMEASURED = "GCFabSensor2Unmeasured";//FAB sensor(-2未测)
@@ -66,6 +71,17 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String PRODUCT_CLASSIFY_SOC = "SOC0";
 
     public static final String PRODUCT_CATEGORY_WLT = "WLT";
+    public static final String PRODUCT_CATEGORY_CP = "CP";
+    public static final String PRODUCT_CATEGORY_LCP = "LCP";
+    public static final String PRODUCT_CATEGORY_SCP = "SCP";
+    public static final String PRODUCT_CATEGORY_FT = "FT";
+    public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
+    public static final String PRODUCT_CATEGORY_FT_COB = "COB";
+    public static final String PRODUCT_CATEGORY_RW = "RW";
+
+    public static final String BOX_TYPE = "COB";
+
+    public static final Integer THIRTEEN = 13;
 
 
 
@@ -119,6 +135,12 @@ public class MaterialLotUnit extends NBUpdatable {
      */
     @Column(name="WORK_ORDER_ID")
     private String workOrderId;
+
+    /**
+     * 工单计划投入日期
+     */
+    @Column(name="WORK_ORDER_PLANPUT_TIME")
+    private String workOrderPlanputTime;
 
     /**
      * 物料主键
@@ -187,6 +209,14 @@ public class MaterialLotUnit extends NBUpdatable {
     private String shipper;
 
     /**
+     * 接收日期
+     */
+    @Column(name="RECEIVE_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
+    private Date receiveDate;
+
+    /**
      * 载具号aliasId
      */
     @Column(name="LOT_ID")
@@ -196,7 +226,37 @@ public class MaterialLotUnit extends NBUpdatable {
      * 产品分类 PROD/ENG
      */
     @Column(name="PRODUCT_TYPE")
-    private String productType = PRODUCT_TYPE;
+    private String productType = PRODUCT_TYPE_PROD;
+
+    /**
+     * 入库备注
+     */
+    @Column(name = "TREASURY_NOTE")
+    private String treasuryNote;
+
+    /**
+     * 原产品号
+     */
+    @Column(name="SOURCE_PRODUCT_ID")
+    private String sourceProductId;
+
+    /**
+     * RW生成的内批号
+     */
+    @Column(name="INNER_LOT_ID")
+    private String innerLotId;
+
+    /**
+     * RW产线入库时的LotId
+     */
+    @Column(name="LOT_CST")
+    private String lotCst;
+
+    /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
 
     /**
      * 二级代码
@@ -241,20 +301,14 @@ public class MaterialLotUnit extends NBUpdatable {
     private String reserved7;
 
     /**
-     * 生产订单
+     * 中转箱号
      */
     @Column(name="RESERVED8")
     private String reserved8;
 
-    /**
-     * 发票
-     */
     @Column(name="RESERVED9")
     private String reserved9;
 
-    /**
-     * 备注
-     */
     @Column(name="RESERVED10")
     private String reserved10;
 
@@ -460,7 +514,7 @@ public class MaterialLotUnit extends NBUpdatable {
     private String reserved48;
 
     /**
-     * GlaxyCore 导入型号
+     * GlaxyCore 导入类型 Import_TYPE
      */
     @Column(name="RESERVED49")
     private String reserved49;
@@ -470,6 +524,12 @@ public class MaterialLotUnit extends NBUpdatable {
      */
     @Column(name="RESERVED50")
     private String reserved50;
+
+    @Transient
+    private String relaxBoxId;
+
+    @Transient
+    private String storageId;
 
     public void setMaterial(Material material) {
         this.setMaterialRrn(material.getObjectRrn());
@@ -497,4 +557,56 @@ public class MaterialLotUnit extends NBUpdatable {
         this.setReserved41(materialLot.getReserved41());
         this.setReserved46(materialLot.getReserved46());
     }
+
+    public void setRmaMaterialLot(MaterialLot materialLot) {
+        this.setUnitId(materialLot.getMaterialLotId());
+        this.setMaterialLotRrn(materialLot.getObjectRrn());
+        this.setGrade(materialLot.getGrade());
+        this.setReceiveQty(materialLot.getReceiveQty());
+        this.setCurrentSubQty(BigDecimal.ONE);
+        this.setCurrentQty(materialLot.getCurrentQty());
+        this.setWorkOrderId(materialLot.getWorkOrderId());
+        this.setWorkOrderPlanputTime(materialLot.getWorkOrderPlanputTime());
+        this.setReserved4(materialLot.getReserved6());
+        this.setReserved13(materialLot.getReserved13());
+        this.setReserved14(materialLot.getReserved14());
+        this.setReserved18("0");
+        this.setDurable(materialLot.getDurable());
+        this.setReserved25(materialLot.getReserved25());
+        this.setReserved26(materialLot.getReserved26());
+        this.setReserved30(materialLot.getReserved30());
+        this.setReserved31(materialLot.getReserved31());
+        this.setReserved35(materialLot.getReserved35());
+        this.setReserved37(materialLot.getReserved37());
+        this.setReserved38(materialLot.getReserved38());
+        this.setReserved39(materialLot.getReserved39());
+        this.setReserved40(materialLot.getReserved40());
+        this.setReserved42(materialLot.getReserved42());
+        this.setReserved43(materialLot.getReserved43());
+        this.setReserved44(materialLot.getReserved44());
+        this.setReserved45(materialLot.getReserved45());
+        this.setReserved47(materialLot.getReserved47());
+        this.setReserved48(materialLot.getReserved48());
+        this.setReserved49(materialLot.getReserved49());
+        this.setReserved50(materialLot.getReserved50());
+        this.setProductType(materialLot.getProductType());
+        this.setTreasuryNote(materialLot.getReserved4());
+        this.setSourceProductId(materialLot.getSourceProductId());
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    @PrePersist
+    protected void prePersist() {
+        super.prePersist();
+        if (this.created == null) {
+            created = new Date();
+        }
+        updated = new Date();
+        createdBy = ThreadLocalContext.getUsername();
+        updatedBy = ThreadLocalContext.getUsername();
+    }
+
 }

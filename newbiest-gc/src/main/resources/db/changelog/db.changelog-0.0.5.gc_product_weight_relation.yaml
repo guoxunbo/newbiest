@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-unique-for-GC_PRODUCT_WEIGHT_RELATION-table
+      author: Guozhang Luo
+      comment: drop unique for GC_PRODUCT_WEIGHT_RELATION
+      changes:
+        - dropUniqueConstraint:
+            tableName: GC_PRODUCT_WEIGHT_RELATION
+            constraintName: UK_GC_PRODUCT_WEIGHT_RELATION

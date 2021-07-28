@@ -33,6 +33,16 @@ public class ErpSo implements Serializable {
     public static final String TYPE_TV = "TV";
 
     /**
+     * 晶圆接收单
+     */
+    public static final String TYPE_COG = "COG";
+
+    /**
+     * 原材料其他出库单
+     */
+    public static final String TYPE_MO = "MO";
+
+    /**
      * 未同步
      */
     public static final String SYNC_STATUS_NOT_ASYNC = "0";
@@ -56,6 +66,11 @@ public class ErpSo implements Serializable {
      * ERP修改过后
      */
     public static final String SYNC_STATUS_CHANGED = "4";
+
+    /**
+     * WMS合单之后
+     */
+    public static final String SYNC_STATUS_MERGE = "9";
 
     @Column(name="SEQ")
     @Id
@@ -141,6 +156,12 @@ public class ErpSo implements Serializable {
     private String other4;
 
     /**
+     * ERP发货账套
+     */
+    @Column(name="OTHER5")
+    private String other5;
+
+    /**
      * ODM
      */
     @Column(name="OTHER7")
@@ -169,6 +190,12 @@ public class ErpSo implements Serializable {
      */
     @Column(name="OTHER10")
     private String other10;
+
+    /**
+     * 客户联系电话
+     */
+    @Column(name="OTHER16")
+    private String other16;
 
     /**
      * 发货地址

@@ -57,6 +57,9 @@ public class StockOutCheckController extends AbstractRestController {
             List<MaterialLot> materialLots = requestBody.getMaterialLots();
             materialLots = materialLots.stream().map(materialLot -> mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true)).collect(Collectors.toList());
             gcService.stockOutCheck(materialLots, requestBody.getCheckList());
+        } else if (StockOutCheckRequest.ACTION_GET_CHECK_MLOT.equals(actionType)) {
+            MaterialLot materialLot = gcService.getMaterialLotByMaterialLotIdAndTableRrn(requestBody.getQueryMLotId(), requestBody.getTableRrn());
+            responseBody.setMaterialLot(materialLot);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

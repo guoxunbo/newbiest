@@ -22,4 +22,10 @@ public class FinishGoodRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "操作类型", example = "receive")
 	private String actionType;
+
+	@ApiModelProperty(value = "打印标签Flag")
+	private String printLabel;
+
+	@ApiModelProperty(value = "打印份数")
+	private String printCount;
 }

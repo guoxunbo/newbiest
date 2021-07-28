@@ -1,0 +1,1 @@
+insert into nb_query (OBJECT_RRN, ACTIVE_FLAG, ORG_RRN, NAME, DESCRIPTION, QUERY_TEXT) values (hibernate_sequence.nextval, 'Y', 1, 'queryWareHouseProductModel', '获取MES入库型号','select  distinct(n.IN_STORAGE_MODEL_ID) from GC_MODEL_MANAGEMENT@TO_MES n');

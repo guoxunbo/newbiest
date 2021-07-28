@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-GC_SUPPLIER-table
+      author: Guozhang Luo
+      comment: Create table GC_SUPPLIER
+      changes:
+        - createTable:
+            tableName: GC_SUPPLIER
+            remarks: GC Supplier Info
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: NAME
+                  type: varchar(64)
+                  remarks: 名称
+              - column:
+                  name: TYPE
+                  type: varchar(64)
+                  remarks: 类型

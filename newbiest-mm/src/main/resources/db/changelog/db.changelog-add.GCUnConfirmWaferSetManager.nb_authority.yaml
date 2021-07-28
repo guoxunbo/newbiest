@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCUnConfirmWaferSetManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCUnConfirmWaferSetManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCUnConfirmWaferSetManager
+              description:
+              tableName: GCUnConfirmWaferTrackSet
+              url: /GC/GCUnConfirmWaferTrackSet
+              parentRrn: 555
+              seqNo: 5
+              image: icon-rule
+              labelZh: 未确认晶圆追踪配置
+              labelEn: UnConfirmWaferTrackSet

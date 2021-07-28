@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_0.0.8
+      author: Guozhang Luo
+      remarks: mms_document_line add column
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT_LINE
+            columns:
+              - column:
+                  name: THREE_SIDE_TRANSACTION
+                  type: varchar2(64)
+                  remarks: 三方交易

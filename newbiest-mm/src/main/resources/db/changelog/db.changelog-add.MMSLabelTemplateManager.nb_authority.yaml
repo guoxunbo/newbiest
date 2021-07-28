@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MMSLabelTemplateManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MMSLabelTemplateManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MMSLabelTemplateManager
+              description: 标签模板参数管理
+              tableName: MMSLabelTemplate
+              mobileFlag: N
+              url: /MMS/MMSLabelTemplateManager
+              parentRrn: 25
+              seqNo: 20
+              image: icon-biaoqian
+              labelZh: 标签模板参数管理
+              labelEn: LabelTemplateManager

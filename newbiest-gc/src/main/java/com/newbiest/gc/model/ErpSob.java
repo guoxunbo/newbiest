@@ -46,6 +46,11 @@ public class ErpSob implements Serializable {
      */
     public static final String SYNC_STATUS_CHANGED = "4";
 
+    /**
+     * WMS合单之后
+     */
+    public static final String SYNC_STATUS_MERGE = "9";
+
     @Column(name="SEQ")
     @Id
     private Long seq;
@@ -124,6 +129,12 @@ public class ErpSob implements Serializable {
     private String other1;
 
     /**
+     * ERP发货账套
+     */
+    @Column(name="OTHER5")
+    private String other5;
+
+    /**
      * 客户名称
      */
     //@Column(name="CUSNAME")
@@ -191,5 +202,8 @@ public class ErpSob implements Serializable {
 
     @Column(name="OTHER15")
     private String other15;
+
+    @Column(name="CREATE_SEQ")
+    private String createSeq;
 
 }

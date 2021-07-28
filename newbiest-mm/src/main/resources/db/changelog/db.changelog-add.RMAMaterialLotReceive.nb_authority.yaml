@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRMAMaterialLotReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCRMAMaterialLotReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCRMAMaterialLotReceiveManager
+              description: RMA来料接收
+              tableName: GCRMAMaterialLotReceiveScan
+              url: /RMA/GCRMAMateriLotReceive
+              parentRrn: 2000
+              seqNo: 56
+              image: icon-delivery
+              labelZh: RMA来料接收
+              labelEn: RMAMLotReceive

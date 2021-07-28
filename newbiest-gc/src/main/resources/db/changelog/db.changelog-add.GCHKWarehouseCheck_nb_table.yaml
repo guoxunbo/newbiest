@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCHKWarehouseCheck_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCHKWarehouseCheck to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCHKWarehouseCheck
+              description: 香港仓成品管理
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓成品管理
+              label: HongKongWarehouseCheck

@@ -14,5 +14,6 @@ public class ContextException extends NewbiestException {
     public static final String MERGE_SOURCE_VALUE_IS_NOT_SAME_TARGET_VALUE = "com.source_value_is_not_same_target_value";
     public static final String MERGE_UN_SUPPORT_COMPARISON = "com.merge_un_support_comparison";
     public static final String MERGE_RULE_IS_NOT_EXIST = "com.merge_rule_is_not_exist";
+    public static final String MLOT_VALIDATE_RULE_IS_NOT_EXIST = "com.mlot_validate_rule_is_not_exist";
 
 }

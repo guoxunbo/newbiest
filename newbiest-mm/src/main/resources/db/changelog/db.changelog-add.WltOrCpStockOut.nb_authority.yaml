@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCWltOrCpStockOutManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCWltOrCpStockOutManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCWltOrCpStockOutManager
+              description: WLT/CP出货
+              tableName: GCWltOrCpStockOutOrder
+              url: /WLT/WltStockOutManager
+              parentRrn: 1010
+              seqNo: 40
+              image: icon-rule
+              labelZh: WLT/CP出货
+              labelEn: WLT/CPStockOut
+

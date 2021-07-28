@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.1.2
+      author: Guozhang Luo
+      remarks: mms_material_lot_unit add column TREASURY_NOTE
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: TREASURY_NOTE
+                  type: varchar(64)
+                  remarks: 入库备注

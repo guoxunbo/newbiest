@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCPrintWltCpLot_to_NB_AUTHORITY
+      author: Zhi Cao
+      comment: add GCPrintWltCpLot to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCPrintWltCpLot
+              description: 补打WLT/CP的LOT ID标签
+              tableName: GCPrintWltCpLot
+              url: /WLT/GCPrintWltCpLot
+              parentRrn: 1001
+              seqNo: 26
+              image: icon-rule
+              labelZh: 补打WLT/CP的LOT ID标签
+              labelEn: Print Wlt Cp Lot

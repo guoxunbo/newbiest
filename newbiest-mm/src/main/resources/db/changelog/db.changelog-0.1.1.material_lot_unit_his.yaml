@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_his_0.1.1
+      author: Guozhang Luo
+      remarks: mms_material_lot_unit_his add column WORK_ORDER_PLANPUT_TIME
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT_HIS
+            columns:
+              - column:
+                  name: WORK_ORDER_PLANPUT_TIME
+                  type: varchar(64)
+                  remarks: 工单投入日期

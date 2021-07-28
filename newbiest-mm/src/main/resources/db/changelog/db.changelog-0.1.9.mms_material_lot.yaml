@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.1.9
+      author: Tao Zhou
+      remarks: mms_material add column(MFG_DATE EXP_DATE SHIPPING_DATE)
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: MFG_DATE
+                  type: datetime
+                  remarks: 原材料生产日期
+              - column:
+                  name: EXP_DATE
+                  type: datetime
+                  remarks: 原材料有效日期
+              - column:
+                  name: SHIPPING_DATE
+                  type: datetime
+                  remarks: 原材料发货日期

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFTMaterialLotReceiveScan_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCFTMaterialLotReceiveScan to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCFTMaterialLotReceiveScan
+              description: FT来料接收扫描
+              tableName: MMS_MATERIAL_LOT_UNIT
+              modelName: MaterialLotUnit
+              modelClass: com.newbiest.mms.model.MaterialLotUnit
+              labelZh: FT来料接收扫描
+              label: FTMaterialLotReceiveScan

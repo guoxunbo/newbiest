@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_ProductManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add ProductManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCProductManager
+              description: 产品型号管理
+              tableName: GCProductManager
+              url: /MMS/ProductManager
+              parentRrn: 3
+              seqNo: 18
+              image: icon-wuliao
+              labelZh: 产品型号管理
+              labelEn: ProductManager

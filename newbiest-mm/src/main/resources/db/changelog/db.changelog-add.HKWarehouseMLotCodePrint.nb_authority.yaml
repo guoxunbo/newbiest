@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseMLotCodePrintManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKWarehouseMLotCodePrintManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKWarehouseMLotCodePrintManager
+              description: 香港仓物料编码打印
+              tableName: GCHKWarehouseMLotCodePrint
+              url: /HKWarehouse/GCMLotCodePrintManager
+              parentRrn: 2020
+              seqNo: 15
+              image: icon-rule
+              labelZh: 香港仓物料编码打印
+              labelEn: HongKongWarehouseMLotCodePrint
+

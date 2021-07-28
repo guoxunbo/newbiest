@@ -1,6 +1,5 @@
 package com.newbiest.mms.rest.rawmaterial;
 
-import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;

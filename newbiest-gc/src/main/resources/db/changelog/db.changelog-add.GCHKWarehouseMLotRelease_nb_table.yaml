@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCHKWarehouseMLotRelease_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCHKWarehouseMLotRelease to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCHKWarehouseMLotRelease
+              description: 香港仓真空包释放
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓真空包释放
+              label: HongKongWarehouseMLotRelease

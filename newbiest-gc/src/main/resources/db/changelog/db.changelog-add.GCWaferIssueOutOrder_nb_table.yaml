@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCWaferIssueOutOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCWaferIssueOutOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCWaferIssueOutOrder
+              description: WLA/CP无订单发料
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 晶圆发料
+              label: WaferIssueOutOrder
