@@ -680,3 +680,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCIRAReceiveStockIn.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileIRAReceiveStockIn.nb_authority.yaml
+      relativeToChangelogFile: true

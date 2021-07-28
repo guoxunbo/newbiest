@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileIRAReceiveStockIn_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCMobileIRAReceiveStockIn to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileIRAReceiveStockIn
+              description: 手持端IRA接收入库
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 手持端IRA接收入库
+              label: MobileIRAReceiveStockIn

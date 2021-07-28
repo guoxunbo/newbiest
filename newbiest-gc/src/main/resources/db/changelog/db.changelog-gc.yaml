@@ -608,4 +608,7 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCIRAWaitReceiveStockIn_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileIRAReceiveStockIn_nb_table.yaml
+      relativeToChangelogFile: true
 
