@@ -156,6 +156,7 @@ public interface GcService {
     void asyncOtherStockOutOrder() throws ClientException;
     void asyncOtherShipOrder() throws ClientException;
     void asyncMaterialIssueOrder() throws ClientException;
+    void asyncRawMaterialOtherShipOrder() throws ClientException;
 
     void asyncReTestOrder() throws ClientException;
     void asyncWaferIssueOrder() throws ClientException;
