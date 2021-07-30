@@ -683,3 +683,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileIRAReceiveStockIn.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileTransferBoxAndStockIn.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileTransferBoxChangeStorage.nb_authority.yaml
+      relativeToChangelogFile: true
