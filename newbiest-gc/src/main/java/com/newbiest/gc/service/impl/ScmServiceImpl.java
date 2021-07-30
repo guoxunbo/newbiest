@@ -138,16 +138,16 @@ public class ScmServiceImpl implements ScmService {
         return create().useSystemProperties().disableRedirectHandling().disableCookieManagement();
     }
 
-    public void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException{
+    public void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks, String vendorAddress) throws ClientException{
         try {
             MaterialLot materialLot = getMaterialLotByNbTableNameAndLotId(SCM_TAG_TABLE_NAEM, lotId);
 
-            scmAssignAndSaveHis(materialLot, materialType, vendor, poId, remarks);
+            scmAssignAndSaveHis(materialLot, materialType, vendor, poId, remarks, vendorAddress);
 
             //如果LOT已经装箱，验证箱中所有的LOT是否已经标注，如果全部标注，对箱号进行标注(箱中LOT的标注信息保持一致)
             if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
                 MaterialLot parentMaterialLot = mmsService.getMLotByMLotId(materialLot.getParentMaterialLotId(), true);
-                validateParentMLotScmAssign(parentMaterialLot, materialType, vendor, poId, remarks);
+                validateParentMLotScmAssign(parentMaterialLot, materialType, vendor, poId, remarks, vendorAddress);
             }
 
         } catch (Exception e) {
@@ -198,7 +198,7 @@ public class ScmServiceImpl implements ScmService {
      * @param remarks
      * @throws ClientException
      */
-    private void validateParentMLotScmAssign(MaterialLot parentMaterialLot, String materialType, String vendor, String poId, String remarks) throws ClientException{
+    private void validateParentMLotScmAssign(MaterialLot parentMaterialLot, String materialType, String vendor, String poId, String remarks, String vendorAddress) throws ClientException{
         try {
             List<MaterialLot> materialLotList = packageService.getPackageDetailLots(parentMaterialLot.getObjectRrn());
             List<MaterialLot> unTagMaterialLotList = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved54())).collect(Collectors.toList());
@@ -216,12 +216,17 @@ public class ScmServiceImpl implements ScmService {
                     } else {
                         key.append(mLot.getReserved54());
                     }
+                    if(StringUtils.isNullOrEmpty(mLot.getVenderAddress())){
+                        key.append(StringUtils.EMPTY);
+                    } else {
+                        key.append(mLot.getVenderAddress());
+                    }
                     return key.toString();
                 }));
                 if (mLotAssignMap != null &&  mLotAssignMap.size() > 1) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_INFO_IS_NOT_SAME, parentMaterialLot.getMaterialLotId());
                 }
-                scmAssignAndSaveHis(parentMaterialLot, materialType, vendor, poId, remarks);
+                scmAssignAndSaveHis(parentMaterialLot, materialType, vendor, poId, remarks, vendorAddress);
             }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -237,12 +242,13 @@ public class ScmServiceImpl implements ScmService {
      * @param remarks
      * @throws ClientException
      */
-    private void scmAssignAndSaveHis(MaterialLot materialLot, String materialType, String vendor, String poId, String remarks) throws ClientException{
+    private void scmAssignAndSaveHis(MaterialLot materialLot, String materialType, String vendor, String poId, String remarks, String vendorAddress) throws ClientException{
         try {
             materialLot.setReserved54(materialType);
             materialLot.setReserved55(vendor);
             materialLot.setReserved56(poId);
             materialLot.setReserved57(remarks);
+            materialLot.setVenderAddress(vendorAddress);
             materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMAssign");
@@ -297,6 +303,8 @@ public class ScmServiceImpl implements ScmService {
             materialLot.setReserved55(StringUtils.EMPTY);
             materialLot.setReserved56(StringUtils.EMPTY);
             materialLot.setReserved57(StringUtils.EMPTY);
+            materialLot.setVenderAddress(StringUtils.EMPTY);
+
             materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMUnAssign");

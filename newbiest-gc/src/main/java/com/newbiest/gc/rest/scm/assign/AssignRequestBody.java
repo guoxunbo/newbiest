@@ -29,4 +29,5 @@ public class AssignRequestBody extends RequestBody {
 
 	private String remarks;
 
+	private String vendorAddress;
 }

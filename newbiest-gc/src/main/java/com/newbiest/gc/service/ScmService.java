@@ -16,7 +16,7 @@ public interface ScmService {
 
     void retry() throws ClientException;
 
-    void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks) throws ClientException;
+    void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks, String vendorAddress) throws ClientException;
     void scmUnAssign(String lotId) throws ClientException;
 
     List<MaterialLotUnit> assignEngFlag(List<MaterialLotUnit> materialLotUnits) throws ClientException;

@@ -593,4 +593,22 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRWAttributeChange_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.3.update_nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.4.update_nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCCancelCheck_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCIRAReceiveStockIn_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCIRAWaitReceiveStockIn_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileIRAReceiveStockIn_nb_table.yaml
+      relativeToChangelogFile: true
 

@@ -952,7 +952,6 @@ public class PrintServiceImpl implements PrintService {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_LOT_ISSUE_LABEL, printCount);
             SimpleDateFormat formatter = new SimpleDateFormat("yyMMdd");
             String date = formatter.format(new Date());
-            String innerLotInfo = MLotCodePrint.COMPANY_INITIALS_G + date;
             for(MaterialLot materialLot : materialLotList){
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
                 Map<String, Object> parameter = Maps.newHashMap();
@@ -964,7 +963,7 @@ public class PrintServiceImpl implements PrintService {
                 parameter.put("INNERLOTID", materialLot.getInnerLotId());
                 parameter.put("WAFERQTY", materialLot.getCurrentQty().toString());
                 parameter.put("PLANTIME", materialLot.getWorkOrderPlanputTime());
-                innerLotInfo = innerLotInfo + materialLot.getInnerLotId();
+                String innerLotInfo = MLotCodePrint.COMPANY_INITIALS_G + date + materialLot.getInnerLotId();
                 parameter.put("INNERLOTINFO", innerLotInfo );
                 printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameter);
