@@ -2,6 +2,7 @@ package com.newbiest.mms.rest.doc.issue.mlot;
 
 import com.newbiest.base.msg.Request;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
@@ -12,12 +13,11 @@ public class IssueMLotByDocRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "IssueMLotByDoc";
 
-	public static final String ACTION_TYPE_ISSUE = "Issue";
-	public static final String ACTION_TYPE_GET_MATERIAL_LOT = "GetMaterialLot";
+	@ApiModelProperty("指定物料批次发料")
+	public static final String ACTION_TYPE_ISSUE_MLOT_BY_ORDER = "IssueMLotByOrder";
 
-	public static final String ACTION_TYPE_ISSUE_MLOT = "IssueMLot";
-	public static final String ACTION_TYPE_GET_WAIT_ISSUE_MLOT = "GetWaitIssueMLotByDocId";
-
+	@ApiModelProperty("指定批次以及数量发料")
+	public static final String ACTION_TYPE_ISSUE_MATERIAL_LOT_BY_ORDER= "IssueMaterialLotByOrder";
 	private IssueMLotByDocRequestBody body;
 
 }

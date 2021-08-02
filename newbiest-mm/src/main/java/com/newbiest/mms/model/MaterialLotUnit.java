@@ -85,7 +85,6 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name = "GRADE")
     private String grade;
 
-
     /**
      * PO NO
      */
@@ -110,6 +109,17 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name="RESERVED4")
     private String reserved4;
 
+    /**
+     * MRB1 (原料自带的MRB)
+     */
+    @Column(name="RESERVED5")
+    private String reserved5;
+
+    /**
+     * MRB2 (生产产生的MRB)
+     */
+    @Column(name="RESERVED6")
+    private String reserved6;
 
 
     public void setMaterialLot(MaterialLot materialLot){

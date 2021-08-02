@@ -32,4 +32,12 @@ public class MaterialStatus extends Status{
 
     public static final String STATUS_PACK_CHECK= "PackCkeck";
 
+    public static final String STATUS_ISSUE= "Issue";
+
+    public static final String STATUS_RETURN= "Return";
+    public static final String STATUS_SHIP= "Ship";
+
+    public static final String STATUS_IN2 = "In2";
+    public static final String STATUS_WAIT2 = "Wait2";
+
 }

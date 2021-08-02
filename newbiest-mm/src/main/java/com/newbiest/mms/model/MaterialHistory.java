@@ -212,6 +212,9 @@ public class MaterialHistory extends NBVersionControlHis {
     @Column(name="RESERVED15")
     private String reserved15;
 
+    /**
+     * 物料属性 自购/客供
+     */
     @Column(name="RESERVED16")
     private String reserved16;
 

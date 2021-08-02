@@ -11,6 +11,9 @@ import com.newbiest.vanchip.dto.mes.MesResponseHeader;
 import com.newbiest.vanchip.dto.mes.issue.IssueMLotRequest;
 import com.newbiest.vanchip.dto.mes.issue.IssueMLotRequestBody;
 import com.newbiest.vanchip.dto.mes.issue.IssueMLotRequestHeader;
+import com.newbiest.vanchip.dto.mes.receive.ReceiveMLotRequest;
+import com.newbiest.vanchip.dto.mes.receive.ReceiveMLotRequestBody;
+import com.newbiest.vanchip.dto.mes.receive.ReceiveMLotRequestHeader;
 import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequest;
 import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequestBody;
 import com.newbiest.vanchip.dto.mes.returnlot.ReturnMLotRequestHeader;
@@ -55,6 +58,8 @@ public class MesServiceImpl implements MesService {
 
     public static final String ISSUE_URL = "/wms/issueMLot.spring";
     public static final String RETURN_URL = "/wms/returnMLot.spring";
+    public static final String RECEIVE_URL = "/wms/shipVBox.spring";
+    public static final String RECEIVE_INFERIOR_PRODUCT_URL = "/wms/storageOfDefectiveProducts.spring";
 
     private RestTemplate restTemplate;
 
@@ -64,6 +69,40 @@ public class MesServiceImpl implements MesService {
         requestFactory.setConnectTimeout(MES_CONNECTION_TIME_OUT * 1000);
         requestFactory.setReadTimeout(MES_READ_TIME_OUT * 1000);
         restTemplate = new RestTemplate();
+    }
+
+    public void receiveInferiorProduct(List<String> materialLotIdList) throws ClientException{
+        try {
+            ReceiveMLotRequestHeader requestHeader = new ReceiveMLotRequestHeader();
+
+            ReceiveMLotRequest request = new ReceiveMLotRequest();
+            ReceiveMLotRequestBody requestBody = new ReceiveMLotRequestBody();
+
+            requestBody.setMaterialLotIds(materialLotIdList);
+            request.setBody(requestBody);
+            request.setHeader(requestHeader);
+
+            sendMesRequest(request, RECEIVE_INFERIOR_PRODUCT_URL, null);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void receiveFinishGood(List<String> materialLotIdList) throws ClientException{
+        try {
+            ReceiveMLotRequestHeader requestHeader = new ReceiveMLotRequestHeader();
+
+            ReceiveMLotRequest request = new ReceiveMLotRequest();
+            ReceiveMLotRequestBody requestBody = new ReceiveMLotRequestBody();
+
+            requestBody.setMaterialLotIds(materialLotIdList);
+            request.setBody(requestBody);
+            request.setHeader(requestHeader);
+
+            sendMesRequest(request, RECEIVE_URL, null);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     public void returnMLot(List<String> materialLotIdList) throws ClientException{

@@ -75,4 +75,8 @@ public class MaterialLotAction extends Action {
      */
     private String transDocId;
 
+    /**
+     * 预留数量
+     */
+    private BigDecimal reservedQty;
 }

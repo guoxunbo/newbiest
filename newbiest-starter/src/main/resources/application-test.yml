@@ -1,5 +1,6 @@
 vc:
   mesUrl: http://10.39.0.49/mycim2
+  openSchedule: false
 #设置server的基本信息
 server:
   servlet:

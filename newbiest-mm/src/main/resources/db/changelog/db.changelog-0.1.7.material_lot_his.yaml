@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.1.7
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column RESERVED52
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: RESERVED52
+                  type: varchar(64)
+                  remarks: MRB mes生产过程中产生

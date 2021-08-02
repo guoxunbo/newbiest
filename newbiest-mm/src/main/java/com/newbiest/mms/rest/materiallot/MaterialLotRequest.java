@@ -13,6 +13,7 @@ public class MaterialLotRequest extends Request {
 	public static final String MESSAGE_NAME = "MaterialLotManage";
 
 	public static final String ACTION_RECEIVE_2_WAREHOUSE = "Receive2Warehouse";
+	public static final String ACTION_RECEIVE_PARTS_2_WAREHOUSE = "ReceiveParts2Warehouse";
 	public static final String ACTION_CONSUME = "Consume";
 	public static final String ACTION_PRINT_LABEL = "PrintLabel";
 

@@ -5,7 +5,10 @@ import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.mms.model.Document;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.service.DocumentService;
+import com.newbiest.mms.service.MmsService;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -29,6 +32,12 @@ public class GetPrintParameterController extends AbstractRestController {
     @Autowired
     VanChipService vanChipService;
 
+    @Autowired
+    DocumentService documentService;
+
+    @Autowired
+    MmsService mmsService;
+
     @ApiOperation(value = "获取标签参数")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "GetPrintParameterRequest")
     @RequestMapping(value = "/printParameterManager", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -43,35 +52,12 @@ public class GetPrintParameterController extends AbstractRestController {
         List<Map<String, Object>> parameterList = Lists.newArrayList();
 
         if (GetPrintParameterRequest.ACTION_BOX.equals(actionType)){
-
             parameterMap = vanChipService.getBoxPrintParameter(requestBody.getMaterialLotId());
             responseBody.setParameterMap(parameterMap);
-        }else if(GetPrintParameterRequest.ACTION_COC.equals(actionType)){
-
-            parameterMap = vanChipService.getCOCPrintParameter(requestBody.getDocumentLineId());
-            responseBody.setParameterMap(parameterMap);
-        }else if (GetPrintParameterRequest.ACTION_PACKING_LIST.equals(actionType)){
-            parameterMap = vanChipService.getPackingListPrintParameter(requestBody.getDocumentLineId());
-            parameterList = vanChipService.getPackingListMLotParameter(requestBody.getDocumentLineId());
-
-            responseBody.setParameterList(parameterList);
-            responseBody.setParameterMap(parameterMap);
-        }else if (GetPrintParameterRequest.ACTION_SHIPPING_LIST.equals(actionType)){
-
-            parameterMap = vanChipService.getShippingListPrintParameter(requestBody.getDocumentLineId());
-            responseBody.setParameterMap(parameterMap);
-        }else if(GetPrintParameterRequest.ACTION_SHIPPING_LIST_MLOT.equals(actionType)){
-
-            parameterList = vanChipService.getShippingListPrintMLotParameter(requestBody.getDocumentLineId());
-            responseBody.setParameterList(parameterList);
-        }else if (GetPrintParameterRequest.ACTION_PKLIST.equals(actionType)){
-
-            parameterMap = vanChipService.getPKListParameter(requestBody.getDocumentLineId());
-            parameterList = vanChipService.getPKListMLotParameter(requestBody.getDocumentLineId());
-            responseBody.setParameterList(parameterList);
-            responseBody.setParameterMap(parameterMap);
         }else if (GetPrintParameterRequest.ACTION_ISSUE_ORDER.equals(actionType)){
-            List<MaterialLot> materialLots = vanChipService.getIssueOrderMLotParameter(requestBody.getDocumentId());
+            Document document = documentService.getDocumentByName(requestBody.getDocumentId(), true);
+            List<MaterialLot> materialLots = vanChipService.getMLotByOrderId(requestBody.getDocumentId());
+            responseBody.setDocument(document);
             responseBody.setMaterialLots(materialLots);
         }else{
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);

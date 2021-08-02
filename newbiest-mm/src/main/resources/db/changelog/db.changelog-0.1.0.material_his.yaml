@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_his_0.1.0
+      author: Tao Zhou
+      remarks: mms_material_his add colums RESERVED24, RESERVED25, RESERVED26, RESERVED27, RESERVED28, RESERVED29
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_HIS
+            columns:
+              - column:
+                  name: RESERVED24
+                  type: varchar(64)
+                  remarks: 防护要求
+              - column:
+                  name: RESERVED25
+                  type: varchar(64)
+                  remarks: Remark
+              - column:
+                  name: RESERVED26
+                  type: varchar(64)
+                  remarks: ABC标识
+              - column:
+                  name: RESERVED27
+                  type: varchar(64)
+                  remarks: 批次管理标识
+              - column:
+                  name: RESERVED28
+                  type: varchar(64)
+                  remarks: 默认仓库二
+              - column:
+                  name: RESERVED29
+                  type: varchar(64)
+                  remarks: 默认仓库二主键

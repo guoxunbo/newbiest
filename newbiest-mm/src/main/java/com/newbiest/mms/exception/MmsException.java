@@ -40,10 +40,23 @@ public class MmsException {
     public static final String MM_PRODUCT_IS_EXIST = "mm.product_is_exist";
     public static final String MM_PRODUCT_IS_NOT_EXIST = "mm.product_is_not_exist";
 
+    public static final String MM_PARTS_IS_EXIST = "mm.parts_is_exist";
+    public static final String MM_PARTS_IS_NOT_EXIST = "mm.parts_is_not_exist";
+
     public static final String MM_RECEIVE_QTY_OVER_INCOMING_QTY = "mm.receive_qty_over_incoming_qty";
 
     public static final String MM_WORK_STATION_IS_NOT_EXIST = "mm.work_station_is_not_exist";
     public static final String MM_LBL_TEMPLATE_IS_NOT_EXIST = "mm.lbl_template_is_not_exist";
     public static final String MM_LBL_TEMPLATE_TYPE_IS_NOT_ALLOW = "mm.lbl_template_is_not_allow";
+
+    public static final String MM_LAB_MATERIAL_IS_EXIST = "mm.lab_material_is_exist";
+    public static final String MM_LAB_MATERIAL_IS_NOT_EXIST = "mm.lab_material_is_not_exist";
+
+    public static final String MM_IQC_IS_NOT_EXIST = "mm.iqc_is_not_exist";
+    public static final String MM_WAREHOUSE_IS_NOT_EXIST = "mm.warehouse_is_not_exist";
+
+    public static final String MM_MATERIAL_IS_NOT_EXIST = "mm.material_is_not_exist";
+    public static final String MM_TARGET_WAREHOUSE_IS_NOT_DEFAULT_WAREHOUSE = "mm.target_warehouse_is_not_default_warehouse";
+    public static final String MM_TARGET_WAREHOUSE_IS_NOT_HOLD_WAREHOUSE = "mm.target_warehouse_is_not_hold_warehouse";
 
 }

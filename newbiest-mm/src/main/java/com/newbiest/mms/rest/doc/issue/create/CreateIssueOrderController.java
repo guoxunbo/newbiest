@@ -3,6 +3,8 @@ package com.newbiest.mms.rest.doc.issue.create;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.base.utils.StringUtils;
+import com.newbiest.mms.model.Document;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import io.swagger.annotations.Api;
@@ -36,19 +38,27 @@ public class CreateIssueOrderController extends AbstractRestController {
         CreateIssueOrderResponseBody responseBody = new CreateIssueOrderResponseBody();
         CreateIssueOrderRequestBody requestBody = request.getBody();
 
+        String docId = StringUtils.EMPTY;
         String actionType = requestBody.getActionType();
         if(CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_LOT_ORDER.equals(actionType)){
-            documentService.createIssueLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
+            docId = documentService.createIssueLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_MATERIAL_ORDER.equals(actionType)){
-            documentService.createIssueMaterialOrder(requestBody.getDocumentId(), true, requestBody.getRawMaterialQtyMap());
+            docId = documentService.createIssueMaterialOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_FINISH_GOOD_ORDER.equals(actionType)){
             documentService.createIssueFinishGoodOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
-        }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_MLOT_ORDER.equals(actionType)){
-            String documentId = documentService.createIssueMLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
-            responseBody.setDocumentId(documentId);
+        }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MATERIAL.equals(actionType)){
+            Document document = documentService.createIssueByMaterialOrder(requestBody.getDocumentId(), true, requestBody.getMaterials());
+            responseBody.setDocument(document);
+        }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MLOT.equals(actionType)){
+            Document document = documentService.createIssueMaterialLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLots());
+            responseBody.setDocument(document);
+        }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_PARTS_ORDER.equals(actionType)){
+
+            documentService.createIssuePartsOrder(requestBody.getDocumentId(), true, requestBody.getMaterialName(), requestBody.getQty(), requestBody.getCreator());
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }
+        responseBody.setDocumentId(docId);
         response.setBody(responseBody);
         return response;
     }

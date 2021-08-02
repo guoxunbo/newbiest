@@ -1,6 +1,7 @@
 vc:
-  mesUrl: http://192.168.34.133:7001/mycim2
-  openSchedule: true
+  mesUrl: http://10.39.0.49/mycim2
+  #mesUrl: http://192.168.34.17:7001/mycim2
+  openSchedule: false
 #设置server的基本信息
 server:
   servlet:
@@ -21,9 +22,12 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@127.0.0.1/newbiest
-      username: vcwms
-      password: vcwms
+      url: jdbc:oracle:thin:@127.0.0.1/orcl
+      username: wmstest6
+      password: wmstest6
+#      url: jdbc:oracle:thin:@10.39.0.49/orcl
+#      username: wmstest
+#      password: wmstest
       driver-class-name: oracle.jdbc.OracleDriver
       # 初始化连接池 最小 最大数量
       initial-size: 1
@@ -97,7 +101,7 @@ show:
 gateway:
   enable: true
 logging:
-  path: D:/g/newbiestLog/log
+  path: ../log
 management:
   server:
     servlet:
@@ -121,7 +125,6 @@ management:
 info:
   groupId: VCIM
   developer: XunboGuo
-
 vcim:
   snowflake:
     workCenterId: 2

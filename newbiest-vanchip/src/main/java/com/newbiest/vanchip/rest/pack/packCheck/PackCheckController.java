@@ -35,12 +35,8 @@ public class PackCheckController extends AbstractRestController {
         PackCheckResponseBody responseBody = new PackCheckResponseBody();
         PackCheckRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
-        if (PackCheckRequest.ACTION_TYPE_PACK_CHECK_PASS.equals(actionType)){
-
-            vanChipService.packCheckPass(requestBody.getMaterialLots());
-        }else if (PackCheckRequest.ACTION_TYPE_PACK_CHECK_NG.equals(actionType)){
-
-            vanChipService.packCheckNg(requestBody.getMaterialLotAction());
+        if (PackCheckRequest.ACTION_TYPE_PACK_CHECK.equals(actionType)) {
+            vanChipService.packCheck(requestBody.getMaterialLotAction());
         }else {
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);
         }

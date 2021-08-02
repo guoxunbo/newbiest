@@ -50,11 +50,17 @@ public class MobileController extends AbstractRestController {
             MaterialLot materialLot= vanChipService.stockInMLotMobile(requestBody.getMaterialLotAction());
             materialLots.add(materialLot);
             responseBody.setMaterialLots(materialLots);
+        } else if (MobileRequest.ACTION_STOCK_IN_FINISH_GOOD.equals(actionType)) {
+
+            vanChipService.stockInMLotMobile(requestBody.getMaterialLotAction());
         }else if (MobileRequest.ACTION_STOCK_OUT.equals(actionType)){
             List<MaterialLot> materialLots = Lists.newArrayList();
             MaterialLot materialLot = vanChipService.stockOutMLotMobile(requestBody.getMaterialLotAction());
             materialLots.add(materialLot);
             responseBody.setMaterialLots(materialLots);
+        }else if (MobileRequest.ACTION_STOCK_OUT_BY_ORDER.equals(actionType)){
+            vanChipService.stockOutMLotByOrder(requestBody.getDocumentId(), requestBody.getMaterialLotActions());
+
         }else if (MobileRequest.ACTION_QUERY_PACKAGE_MLOT.equals(actionType)){
             List<MaterialLot> materialLots = Lists.newArrayList();
             MaterialLot materialLot = vanChipService.queryPackageMLotMobile(requestBody.getMaterialLotAction());
@@ -67,10 +73,16 @@ public class MobileController extends AbstractRestController {
             responseBody.setMaterialLots(materialLots);
         }else if (MobileRequest.ACTION_QUERY_SHIP_MLOT_BY_DOC.equals(actionType)){
 
-        }else if (MobileRequest.ACTION_SHIP_MLOT.equals(actionType)){
-            vanChipService.shipOutMobile(requestBody.getDocumentId(), requestBody.getMaterialLotAction());
         }else if (MobileRequest.ACTION_CHECK_MLOT_INVENTORY.equals(actionType)){
-            vanChipService.checkMlotInventoryMobile(requestBody.getMaterialLotAction());
+            //vanChipService.checkMlotInventoryMobile(requestBody.getMaterialLotAction());
+        }else if (MobileRequest.ACTION_TRANSFER_INVENTORY.equals(actionType)){
+            vanChipService.transferInvMobile(requestBody.getMaterialLotAction());
+        }else if (MobileRequest.ACTION_VAILADATE_FROM_WAREHOUSE.equals(actionType)){
+            vanChipService.valiadateFromWarehouse(requestBody.getMaterialLotAction());
+        }else if (MobileRequest.ACTION_VAILADATE_TARGET_WAREHOUSE.equals(actionType)){
+            vanChipService.valiadateTargetWarehouse(requestBody.getMaterialLotAction());
+        }else if (MobileRequest.ACTION_TRANSFER_INVENTORY_MLOTS.equals(actionType)){
+            vanChipService.transferInvMLots(requestBody.getMaterialLotActions());
         }else {
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);
         }

@@ -23,7 +23,7 @@ public class VcTriggerConfigure implements SchedulingConfigurer {
     @Override
     public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
         scheduledTaskRegistrar.setScheduler(taskExecutor());
-        scheduledTaskRegistrar.addCronTask(new AsyncProductThread(vanChipService), AsyncProductThread.CRON_EXPRESS);
+        scheduledTaskRegistrar.addCronTask(new AsyncPreWaringThread(vanChipService), AsyncPreWaringThread.CRON_EXPRESS);
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.newbiest.mms.rest.materiallot.inv;
 
-import com.newbiest.mms.model.MaterialLotInventory;
 import com.newbiest.base.msg.ResponseBody;
+import com.newbiest.mms.model.MaterialLotInventory;
 import lombok.Data;
 
 /**

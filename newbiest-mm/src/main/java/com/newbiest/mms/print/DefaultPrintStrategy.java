@@ -1,7 +1,5 @@
 package com.newbiest.mms.print;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.DateUtils;
@@ -14,12 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -31,9 +30,11 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
  * @author guoxunbo
  * @date 4/6/21 3:07 PM
  */
-@Component("defaultPrintStrategy")
+@Component(DefaultPrintStrategy.DEFAULT_STRATEGY_NAME)
 @Slf4j
 public class DefaultPrintStrategy implements IPrintStrategy {
+
+    public static final String DEFAULT_STRATEGY_NAME = "defaultPrintStrategy";
 
     public static final int CONNECTION_TIME_OUT = 10;
 
@@ -67,7 +68,7 @@ public class DefaultPrintStrategy implements IPrintStrategy {
     }
 
     public Map<String, Object> buildParameters(PrintContext printContext) {
-        Map<String, Object> parameterMap = Maps.newHashMap();
+        Map<String, Object> parameterMap = printContext.getParameterMap();
         List<LabelTemplateParameter> labelTemplateParameters = printContext.getLabelTemplate().getLabelTemplateParameterList();
         if (CollectionUtils.isNotEmpty(labelTemplateParameters)) {
             for (LabelTemplateParameter parameter : labelTemplateParameters) {
@@ -82,16 +83,22 @@ public class DefaultPrintStrategy implements IPrintStrategy {
                         log.warn(e.getMessage(), e);
                     }
                 }
-                if (value != null) {
-                    if (value instanceof Date) {
-                        SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
-                        value = sdf.format(value);
-                    }
-                    value = String.valueOf(value);
-                } else {
+                if (value == null) {
                     value = parameter.getDefaultValue();
                 }
                 parameterMap.put(parameter.getName(), value);
+                log.debug("parameterName:" + parameter.getName() + ".value :" + value);
+            }
+        }
+
+        if (parameterMap != null && parameterMap.size() > 0) {
+            for (String key : parameterMap.keySet()) {
+                Object value = parameterMap.get(key);
+                if (value != null && value instanceof Date) {
+                    SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+                    value = sdf.format(value);
+                    parameterMap.put(key, value);
+                }
             }
         }
         parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());
@@ -99,24 +106,21 @@ public class DefaultPrintStrategy implements IPrintStrategy {
     }
 
     public void printWithBartender(PrintContext printContext) {
-
         String destination = printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation());
         Map<String, Object> params = buildParameters(printContext);
 
-        List<String> paramStr = Lists.newArrayList();
+        UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromHttpUrl(destination);
         for (String key : params.keySet()) {
-            paramStr.add(key + "=" + params.get(key));
+            urlBuilder.queryParam(key, params.get(key));
         }
+        URI url = urlBuilder.build(false).encode().toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity entity = new HttpEntity(headers);
-
-
+        String urlStr = url.toString();
         if (log.isDebugEnabled()) {
-            log.debug("Start to send print data to bartender. The destination is [ " + destination + "] and the parameter is [ " + params + "] ");
+            log.debug("Start to send print data to bartender. The destination is [ " + urlStr + "] ");
         }
-        destination = destination + "?" + StringUtils.join(paramStr, "&");
-        HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(destination, byte[].class);
+
+        HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(url, byte[].class);
         String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
         if (log.isDebugEnabled()) {
             log.debug(String.format("Get response from bartender. Response is [%s]", response));

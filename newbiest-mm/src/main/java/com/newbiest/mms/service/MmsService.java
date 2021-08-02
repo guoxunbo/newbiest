@@ -7,6 +7,7 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ public interface MmsService {
 
 
     MaterialStatusModel getStatusModelByRrn(String statusModelRrn) throws ClientException;
+    MaterialStatusModel getStatusModelByName(String statusModelName, boolean throwExceptionFlag) throws ClientException;
 
     MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, BigDecimal transQty, BigDecimal transSubQty, Map<String, Object> propsMap) throws ClientException;
     List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException;
@@ -24,9 +26,12 @@ public interface MmsService {
     MLotCheckSheet oqc(MaterialLotAction materialLotJudgeAction) throws ClientException;
     MaterialLot issue(MaterialLot materialLot) throws ClientException;
     MaterialLot returnMLot(MaterialLot materialLot) throws ClientException;
+    MaterialLot waitReturnMLot(MaterialLot materialLot) throws ClientException;
+    MaterialLot returnMaterialLot(MaterialLot materialLot) throws ClientException;
 
-    void holdMaterialLot(List<MaterialLotAction> materialLotActions) throws ClientException;
+    List<MaterialLot>  holdMaterialLot(List<MaterialLotAction> materialLotActions) throws ClientException;
     MaterialLot holdMaterialLot(String materialLotId, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void saveMaterialLotHold(MaterialLotHold materialLotHold) throws ClientException;
 
     void releaseMaterialLot(List<MaterialLotHold>  materialLotHolds, MaterialLotAction releaseLotAction) throws ClientException;
     void releaseMaterialLot(String materialLotId, List<MaterialLotHold>  materialLotHolds, MaterialLotAction releaseLotAction) throws ClientException;
@@ -37,6 +42,7 @@ public interface MmsService {
 
     // rawMaterial
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
+    RawMaterial saveRawMaterial(RawMaterial rawMaterial, String warehouseName,String iqcSheetName) throws ClientException;
     RawMaterial getRawMaterialByName(String name) throws ClientException;
 
     // MaterialLot
@@ -45,7 +51,7 @@ public interface MmsService {
     MaterialLot getMLotByObjectRrn(String materialLotRrn) throws ClientException;
     List<MaterialLot> getMLotByIncomingDocId(String incomingDocId) throws ClientException;
 
-    MaterialLot receiveMLot2Warehouse(RawMaterial rawMaterial, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
+    MaterialLot receiveMLot2Warehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot stockIn(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
     MaterialLot stockOut(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
@@ -61,14 +67,23 @@ public interface MmsService {
     List<MaterialLotInventory> getMaterialLotInv(String mLotRrn) throws ClientException;
     MaterialLotInventory getMaterialLotInv(String mLotRrn, String warehouseRrn, String storageRrn) throws ClientException;
 
-    Warehouse getWarehouseByName(String name) throws ClientException;
-    public Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
+    IqcCheckSheet getIqcSheetByName(String name, boolean throwExceptionFlag) throws ClientException;
 
-    MaterialLot holdByIqcNG(MaterialLot materialLot);
-
+    Warehouse getWarehouseByName(String name, boolean throwExceptionFlag) throws ClientException;
+    Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
     //product
     Product saveProduct(Product product) throws ClientException;
+    Product saveProduct(Product product, String warehouseName) throws ClientException;
     Product getProductByName(String name) throws ClientException;
 
-    void validateHoldMLotMatchedHoldWarehouse(MaterialLotAction materialLotAction) throws ClientException;
+    Parts saveParts(Parts parts) throws ClientException;
+    Parts saveParts(Parts parts, String warehouseName) throws ClientException;
+    Parts getPartsByName(String name, boolean throwExceptionFlag) throws ClientException;
+
+    void validatTargetWarehouse (String materialLotId, Warehouse targetWarehouse) throws ClientException;
+    Date calculateTargetDate (Date time, Double duration, String timeUnit) throws ClientException;
+
+    List<Material> getMaterialStockQty(List<Material> materials) throws ClientException;
+
+    Material getMaterialByName(String name, boolean throwExceptionFlag) throws ClientException;
 }

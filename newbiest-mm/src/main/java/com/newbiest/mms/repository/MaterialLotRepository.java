@@ -24,18 +24,25 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, String> 
     @Query("SELECT m FROM MaterialLot m, DocumentMLot d where d.materialLotId = m.materialLotId and d.documentId = :documentId")
     List<MaterialLot> findReservedLotsByDocId(String documentId) throws ClientException;
 
-    List<MaterialLot> findByReserved44(String docLineObjectRrn);
-    List<MaterialLot> findByBoxMaterialLotId(String materialLotId);
+    List<MaterialLot> findByReserved44(String docLineObjectRrn) throws ClientException;
+    List<MaterialLot> findByBoxMaterialLotId(String materialLotId) throws ClientException;
 
-    List<MaterialLot> findByReserved44AndCategory(String objectRrn, String category);
+    List<MaterialLot> findByReserved45AndCategory(String docLineId, String category) throws ClientException;
 
-    List<MaterialLot> findByMaterialNameAndStatusIn(String materialName, List<String> status);
+    List<MaterialLot> findByMaterialNameAndStatus(String materialName, String status) throws ClientException;
 
-    List<MaterialLot> findByReserved4(String controlLot);
+    List<MaterialLot> findByMaterialCategoryAndStatus(String materialCategory, String status) throws ClientException;
 
-    List<MaterialLot> findByMaterialCategory(String materialCategory);
+    List<MaterialLot> findByReserved45IsNullAndBoxMaterialLotIdIsNullAndStatusAndMaterialCategory(String statusIn, String typeProduct) throws ClientException;
 
-    List<MaterialLot> findByReserved45IsNullAndBoxMaterialLotIdIsNullAndStatusAndMaterialCategory(String statusIn, String typeProduct);
+    List<MaterialLot> findByReserved45AndBoxMaterialLotIdIsNullAndCategoryIsNull(String lineId)throws ClientException;
 
-    List<MaterialLot> findByReserved45AndBoxMaterialLotIdIsNull(String lineId) throws ClientException;
+    List<MaterialLot> findByIncomingDocIdAndReserved4(String incomingDocId, String controlLot)throws ClientException;
+
+
+    List<MaterialLot> findByStatus(String status) throws ClientException;
+
+    List<MaterialLot> findByWarningStatusNotOrWarningStatusNullAndStatus(String warningStatus, String status) throws ClientException;
+
+
 }

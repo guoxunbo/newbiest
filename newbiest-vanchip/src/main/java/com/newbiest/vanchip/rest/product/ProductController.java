@@ -1,14 +1,13 @@
 package com.newbiest.vanchip.rest.product;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.rest.entity.EntityRequest;
-import com.newbiest.mms.exception.MmsException;
+import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.Product;
-import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.repository.MaterialStatusModelRepository;
+import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -20,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/vc")
 @Slf4j
@@ -27,10 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController extends AbstractRestController {
 
     @Autowired
-    MmsService mmsService;
+    VanChipService vanChipService;
 
     @Autowired
-    VanChipService vanChipService;
+    MaterialStatusModelRepository materialStatusModelRepository;
 
     @ApiOperation(value = "对成品物料做操作", notes = "成品当前不考虑版本信息")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "ProductRequest")
@@ -42,24 +43,25 @@ public class ProductController extends AbstractRestController {
 
         ProductRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
-        Product material = requestBody.getMaterial();
+        List<Product> products = requestBody.getDataList();
 
-        if (ProductRequest.ACTION_CREATE.equals(actionType)) {
-            Material oldData = mmsService.getProductByName(material.getName());
-            if (oldData != null) {
-                throw new ClientParameterException(MmsException.MM_PRODUCT_IS_EXIST, material.getName());
+        if (ProductRequest.ACTION_IMPORT_SAVE.equals(actionType)){
+            MaterialStatusModel statusModel = materialStatusModelRepository.findOneByName(Material.DEFAULT_STATUS_MODEL);
+            if (statusModel == null) {
+                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
             }
-            material = mmsService.saveProduct(material);
-        }else if(ProductRequest.ACTION_IMPORT_SAVE.equals(actionType)){
 
-            vanChipService.saveProduct(requestBody.getDataList());
-        } else if (EntityRequest.ACTION_UPDATE.equals(actionType)) {
-            validateEntity(material);
-            material = mmsService.saveProduct(material);
-        } else {
+            for (Product product: products){
+                product.setStatusModelRrn(statusModel.getObjectRrn());
+                vanChipService.saveProduct(product);
+            }
+        }else if (ProductRequest.ACTION_MERGE.equals(actionType)){
+            Product product = products.get(0);
+            product = vanChipService.saveProduct(product);
+            responseBody.setMaterial(product);
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
-        responseBody.setMaterial(material);
         response.setBody(responseBody);
         return response;
     }

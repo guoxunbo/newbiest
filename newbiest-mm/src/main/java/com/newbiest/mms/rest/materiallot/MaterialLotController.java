@@ -2,14 +2,14 @@ package com.newbiest.mms.rest.materiallot;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
+import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.Parts;
 import com.newbiest.mms.model.RawMaterial;
 import com.newbiest.mms.service.MmsService;
-import com.newbiest.base.msg.Request;
 import com.newbiest.mms.service.PrintService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -55,7 +55,11 @@ public class MaterialLotController extends AbstractRestController {
                 throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, materialLot.getMaterialName());
             }
             materialLot = mmsService.receiveMLot2Warehouse(rawMaterial, materialLot.getMaterialLotId(), materialLotAction);
-        } else if (MaterialLotRequest.ACTION_CONSUME.equals(actionType)) {
+        } else if (MaterialLotRequest.ACTION_RECEIVE_PARTS_2_WAREHOUSE.equals(actionType)){
+            Parts parts = mmsService.getPartsByName(materialLot.getMaterialName(), true);
+
+            materialLot = mmsService.receiveMLot2Warehouse(parts, materialLot.getMaterialLotId(), materialLotAction);
+        }else if (MaterialLotRequest.ACTION_CONSUME.equals(actionType)) {
             materialLot = validationMaterialLot(materialLot);
             materialLot = mmsService.consumeMLot(materialLot, materialLotAction);
         } else if (MaterialLotRequest.ACTION_PRINT_LABEL.equals(actionType)) {

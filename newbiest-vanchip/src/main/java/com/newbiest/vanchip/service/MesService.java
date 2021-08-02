@@ -9,7 +9,12 @@ import java.util.List;
  */
 public interface MesService {
 
+    void receiveInferiorProduct(List<String> materialLotIdList) throws ClientException;
+    void receiveFinishGood(List<String> materialLotIdList) throws ClientException;
     void issueMLot(List<String> materialLotIdList) throws ClientException;
     void returnMLot(List<String> materialLotIdList) throws ClientException;
+
+
+
 
 }

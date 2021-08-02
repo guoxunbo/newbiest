@@ -4,6 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
+import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/vc")
@@ -40,8 +42,9 @@ public class ReceiveFinishGoodController {
         String actionType = requestBody.getActionType();
 
         if (ReceiveFinishGoodRequestBody.ACTION_TYPE_GET_MATERIALLOT.equals(actionType)){
-            List<MaterialLot> materialLot = documentService.getReservedMLotByDocId(requestBody.getDocumentId());
-            responseBody.setMaterialLotList(materialLot);
+            List<MaterialLot> materialLots = documentService.getReservedMLotByDocId(requestBody.getDocumentId());
+            materialLots = materialLots.stream().filter(mLot-> MaterialStatus.STATUS_CREATE.equals(mLot.getStatus())).collect(Collectors.toList());
+            responseBody.setMaterialLotList(materialLots);
         }else if (ReceiveFinishGoodRequestBody.ACTION_TYPE_FINISH_GOOD_RECEIVE.equals(actionType)){
             vanChipService.receiveFinishGood(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
         }else {

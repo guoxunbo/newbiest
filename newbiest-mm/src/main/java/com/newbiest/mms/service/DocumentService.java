@@ -2,13 +2,10 @@ package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.mms.model.Document;
-import com.newbiest.mms.model.DocumentLine;
-import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 单据相关service
@@ -23,13 +20,17 @@ public interface DocumentService {
 
     String generatorDocId(String generatorRule) throws ClientException;
 
+    void issueMaterialLotByDoc(String documentId, List<String> materialLotIdList);
+
     String createIssueLotOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
-    void createIssueMaterialOrder(String documentId, boolean approveFlag, Map<String, BigDecimal> rawMaterialQtyMap) throws ClientException;
     void issueMLotByDoc(String issueLotOrderId, List<String> materialLotIdList) throws ClientException;
-    void issueMLotByDocLine(DocumentLine documentLine, List<String> materialLotIdList) throws ClientException;
+
+    String createIssueMaterialOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
+    void issueMaterialByDoc(String issueMaterialOrderId, List<String> materialLotIdList)throws ClientException;
 
     void createReturnOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException;
-    void returnMLotByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
+    void returnMLotByDoc(String documentId, List<String> materialLotIdList, String returnTarget) throws ClientException;
+    Document createReturnMLotOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException ;
 
     List<MaterialLot> getReservedMLotByDocId(String documentId) throws ClientException;
 
@@ -40,7 +41,29 @@ public interface DocumentService {
     void createIssueFinishGoodOrder(String documentId, boolean approveFlag, List<String> materialLotIdList) throws ClientException;
     void issueFinishGoodByDoc(String documentId, List<String> materialLotIdList) throws ClientException;
 
-    String createIssueMLotOrder(String documentId,  boolean approveFlag, List<String> materialLotIds) throws ClientException;
-    void issueMaterialLotByDoc(String documentId, List<String> materialLotIdList)throws ClientException;
+    void changeDocMLotStatus(String documentId, List<String> materialLotIds, String status)throws ClientException;
+
+    Document createIssueByMaterialOrder(String documentId, boolean approveFlag, List<Material> materials) throws ClientException;
+    List<MaterialLot> recommendIssueByMaterialOrder(String documentId) throws ClientException;
+    void issueByMaterial(String documentId, List<String> materialLotIds) throws ClientException;
+
+    Document getDocumentByName(String documentId, boolean throwExceptionFlag) throws ClientException;
+
+    Document createIssueMaterialLotOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots) throws ClientException;
+    void issueMaterialLotByOrder(String documentId, List<String> materialLotIdList) throws ClientException;
+
+    List<MaterialLot> getMLotByDocumentId(String documentId) throws ClientException;
+    Document getDocumentByMLotIdAndDocumentCategory(String mLotId, String documentCategory)throws ClientException;
+    DocumentMLot createDocumentMLot(String documentId, String mLotId)throws ClientException;
+
+    void createReturnLotOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots)throws ClientException;
+    void returnLotOrder(String returnLotId, List<String> materialLotIds) throws ClientException;
+
+    void deleteDocument(String documentId) throws ClientException;
+
+    Document createDocument(Document document, String documentId, String idGeneratorRule, boolean approveFlag, BigDecimal qty);
+    Document saveDocument(String documentId, BigDecimal handleQty, String transType) throws ClientException;
+
+    void createIssuePartsOrder(String documentId, boolean approveFlag, String materialName, BigDecimal qty, String creator) throws ClientException;
 }
 

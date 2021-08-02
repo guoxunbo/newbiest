@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_0.0.8
+      author: Tao Zhou
+      remarks: mms_material add column STANDARD_PICK_QTY
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL
+            columns:
+              - column:
+                  name: STANDARD_PICK_QTY
+                  type: bigint
+                  remarks: 标准领料数量

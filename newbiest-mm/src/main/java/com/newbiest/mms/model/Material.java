@@ -24,9 +24,19 @@ public class Material extends NBVersionControl {
     public static final String CLASS_RAW = "RAW";
 
     /**
-     * 产品型号
+     * 成品
      */
     public static final String CLASS_PRODUCT = "PRODUCT";
+
+    /**
+     * 实验室材料
+     */
+    public static final String CLASS_LAB = "LAB";
+
+    /**
+     * 备品备件
+     */
+    public static final String CLASS_PARTS = "PARTS";
 
     /**
      * 默认状态模型
@@ -51,7 +61,21 @@ public class Material extends NBVersionControl {
     public static final String OQC_SHEET_NAME = "OQC出货检验记录";
 
     public static final String TYPE_PRODUCT = "Product";
+    public static final String TYPE_PARTS = "Parts";
+    public static final String TYPE_SPECIAL_PARTS = "SpecialParts";
 
+    //成品类型
+    public static final String MATERIAL_CATEGORY_PRODUCT = "Product";
+    //主材类型
+    public static final String MATERIAL_CATEGORY_MAIN_MATERIAL = "MainMaterial";
+    //包材类型
+    public static final String MATERIAL_CATEGORY_PACKING_MATERIAL = "PackingMaterial";
+    //辅材类型
+    public static final String MATERIAL_CATEGORY_MATERIAL = "Material";
+    //实验室类型
+    public static final String MATERIAL_CATEGORY_LABORATORY = "Laboratory";
+    //备件类型
+    public static final String MATERIAL_CATEGORY_PARTS = "Parts";
 
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;
@@ -248,27 +272,109 @@ public class Material extends NBVersionControl {
     @Column(name="RESERVED15")
     private String reserved15;
 
+    /**
+     * 物料属性 自购/客供
+     */
     @Column(name="RESERVED16")
     private String reserved16;
 
+    /**
+     * 采购单位
+     */
     @Column(name="RESERVED17")
     private String reserved17;
 
+    /**
+     *品牌
+     */
     @Column(name="RESERVED18")
     private String reserved18;
 
+    /**
+     *备件价格
+     */
     @Column(name="RESERVED19")
     private String reserved19;
 
+    /**
+     *备件编码
+     */
     @Column(name="RESERVED20")
     private String reserved20;
 
+    /**
+     * 是否特殊（是/否）
+     */
     @Column(name="RESERVED21")
     private String reserved21;
 
+    /**
+     * 环境要求
+     */
     @Column(name="RESERVED22")
     private String reserved22;
 
+    /**
+     * 图纸
+     */
     @Column(name="RESERVED23")
     private String reserved23;
+
+    /**
+     * 防护要求
+     */
+    @Column(name="RESERVED24")
+    private String reserved24;
+
+    /**
+     * Remark
+     */
+    @Column(name="RESERVED25")
+    private String reserved25;
+
+    /**
+     * ABC标识
+     */
+    @Column(name="RESERVED26")
+    private String reserved26;
+
+    /**
+     * 批次管理标识
+     */
+    @Column(name="RESERVED27")
+    private String reserved27;
+
+    /**
+     * 默认仓库二
+     */
+    @Column(name="RESERVED28")
+    private String reserved28;
+
+    /**
+     * 默认仓库二主键
+     */
+    @Column(name="RESERVED29")
+    private String reserved29;
+
+    @Transient
+    private BigDecimal materialStockQty;
+
+    @Transient
+    private BigDecimal pickQty;
+
+    /**
+     * 物料类型组
+     * A101001
+     * 1-2位是物料大类，2-3是中类，后面是小类
+     */
+    @Transient
+    private String materialTypeGroup;
+
+    /**
+     * 物料类型组描述
+     * "包材-非BOM内-背胶袋 ==> 大类描述-中类描述-小类描述"
+     */
+    @Transient
+    private String materialTypeGroupDesc;
+
 }

@@ -18,8 +18,7 @@ public class RawMaterialRequestBody extends RequestBody {
 	@ApiModelProperty(value = "操作类型")
 	private String actionType;
 
-
-	@ApiModelProperty(value = "待保存的数据")
+	@ApiModelProperty(value = "操作的物料对象")
 	private List<RawMaterial> dataList;
 
 }

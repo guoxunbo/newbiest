@@ -34,10 +34,21 @@ public class Storage extends NBUpdatable {
     private String warehouseName;
 
     /**
+     * 仓库描述
+     */
+    @Column(name="WAREHOUSE_DESC")
+    private String warehouseDesc;
+
+    /**
      * 父级节点
      */
     @Column(name="PARENT_RRN")
     private String parentRrn;
 
+    public void setWarehouse(Warehouse warehouse) {
+        setWarehouseRrn(warehouse.getObjectRrn());
+        setWarehouseName(warehouse.getName());
+        setWarehouseDesc(warehouse.getDescription());
+    }
 
 }

@@ -1,5 +1,6 @@
 vc:
   mesUrl: http://10.39.0.50/mycim2
+  openSchedule: false
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense
@@ -49,8 +50,6 @@ spring:
       stat-view-servlet:
         enabled: true
         reset-enable: true
-        allow: 127.0.0.1
-        deny: 192.168.1.73
       filter:
         # 慢SQL监控
         stat:
