@@ -2852,7 +2852,12 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved5", mesPackedLot.getProductionNote());
                     otherReceiveProps.put("reserved6", mesPackedLot.getBondedProperty());
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
-                    otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
+                    if(MaterialLotUnit.PRODUCT_CATEGORY_CP.equals(mesPackedLot.getProductCategory()) || MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(mesPackedLot.getProductCategory())
+                            || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(mesPackedLot.getProductCategory())){
+                        otherReceiveProps.put("workOrderId", StringUtils.EMPTY);
+                    } else {
+                        otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
+                    }
                     otherReceiveProps.put("productType", mesPackedLot.getProductType());
                     otherReceiveProps.put("reserved49", mesPackedLot.getImportType());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
@@ -4534,7 +4539,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
                     otherReceiveProps.put("lotCst", mesPackedLot.getLotId());
                     otherReceiveProps.put("pcode", mesPackedLot.getPcode());
-                    otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
+                    otherReceiveProps.put("workOrderId", "");//RW产线接收后清空工单号
                     otherReceiveProps.put("productType", mesPackedLot.getProductType());
                     otherReceiveProps.put("reserved1", mesPackedLot.getLevelTwoCode());
                     otherReceiveProps.put("reserved2", mesPackedLot.getWaferId());
@@ -8663,8 +8668,7 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    public String mesSaveMaterialLotHis(List<MaterialLot> materialLots, String transId) throws ClientException {
-        String errorMessage = "";
+    public void mesSaveMaterialLotHis(List<MaterialLot> materialLots, String transId) throws ClientException {
         try {
             List<MaterialLot> scmReportMLotList = Lists.newArrayList();
             for(MaterialLot materialLot : materialLots){
@@ -8685,26 +8689,22 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e) {
-            errorMessage = e.getMessage();
+            throw ExceptionManager.handleException(e, log);
         }
-        return errorMessage;
     }
 
-    public String mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException{
-        String errorMessage = "";
+    public void mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException{
         try {
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
                 materialLotUnitHisRepository.save(materialLotUnitHistory);
             }
         } catch (Exception e) {
-            errorMessage = e.getMessage();
+            throw ExceptionManager.handleException(e, log);
         }
-        return errorMessage;
     }
 
-    public String mesReceiveRawMaterialAndSaveHis(List<MaterialLot> materialLotList, String transType) throws ClientException{
-        String errorMessage = "";
+    public void mesReceiveRawMaterialAndSaveHis(List<MaterialLot> materialLotList, String transType) throws ClientException{
         try {
             for(MaterialLot materialLot : materialLotList){
                 materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
@@ -8714,9 +8714,8 @@ public class GcServiceImpl implements GcService {
                 materialLotHistoryRepository.save(materialLotHistory);
             }
         } catch (Exception e){
-            errorMessage = e.getMessage();
+            throw ExceptionManager.handleException(e, log);
         }
-        return errorMessage;
     }
 
     /**
@@ -8727,8 +8726,7 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    public String mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transType, String materialType) throws ClientException{
-        String errorMessage = "";
+    public void mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transType, String materialType) throws ClientException{
         try {
             SimpleDateFormat format = new SimpleDateFormat(DateUtils.DEFAULT_DATETIME_PATTERN);
             Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_ZJ);
@@ -8783,9 +8781,8 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e){
-            errorMessage = e.getMessage();
+            throw ExceptionManager.handleException(e, log);
         }
-        return errorMessage;
     }
 
     /**
