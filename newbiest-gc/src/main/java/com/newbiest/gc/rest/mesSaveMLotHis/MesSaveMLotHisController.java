@@ -1,6 +1,7 @@
 package com.newbiest.gc.rest.mesSaveMLotHis;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.Material;
@@ -42,28 +43,53 @@ public class MesSaveMLotHisController extends AbstractRestController {
         MesSaveMLotHisRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
         String transId = requestBody.getTransId();
+        String errorMessage = "";
         if (MesSaveMLotHisRequest.ACTION_SAVE_MLOT_HIS.equals(actionType)) {
             List<MaterialLot> materialLotList = requestBody.getMaterialLots();
-            String message = gcService.mesSaveMaterialLotHis(materialLotList, transId);
-            response.setMessage(message);
+            try {
+                gcService.mesSaveMaterialLotHis(materialLotList, transId);
+            } catch (Exception e){
+                errorMessage = e.getMessage();
+            }
+            response.setMessage(errorMessage);
         } else if (MesSaveMLotHisRequest.ACTION_SAVE_MLOTUNIT_HIS.equals(actionType)) {
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnits();
-            String message = gcService.mesSaveMaterialLotUnitHis(materialLotUnitList, transId);
-            response.setMessage(message);
+            try {
+                gcService.mesSaveMaterialLotUnitHis(materialLotUnitList, transId);
+            } catch (Exception e){
+                errorMessage = e.getMessage();
+            }
+            response.setMessage(errorMessage);
         } else if(MesSaveMLotHisRequest.ACTION_RECEIVE_RAW_MATERIAL.equals(actionType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLots();
-            String message = gcService.mesReceiveRawMaterialAndSaveHis(materialLotList, transId);
-            response.setMessage(message);
+            try {
+                gcService.mesReceiveRawMaterialAndSaveHis(materialLotList, transId);
+            } catch (Exception e){
+                errorMessage = e.getMessage();
+            }
+            response.setMessage(errorMessage);
         } else if(MesSaveMLotHisRequest.ACTION_IRA_RETURN.equals(actionType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLots();
-            String message = gcService.mesRawMaterialReturnWarehouse(materialLotList, transId, Material.MATERIAL_TYPE_IRA);
-            response.setMessage(message);
+            try {
+                gcService.mesRawMaterialReturnWarehouse(materialLotList, transId, Material.MATERIAL_TYPE_IRA);
+            } catch (Exception e){
+                errorMessage = e.getMessage();
+            }
+            response.setMessage(errorMessage);
         } else if(MesSaveMLotHisRequest.ACTION_GLUE_RETURN.equals(actionType)){
-            String message = gcService.mesRawMaterialReturnWarehouse(requestBody.getMaterialLots(), transId, Material.MATERIAL_TYPE_GLUE);
-            response.setMessage(message);
+            try {
+                gcService.mesRawMaterialReturnWarehouse(requestBody.getMaterialLots(), transId, Material.MATERIAL_TYPE_GLUE);
+            } catch (Exception e){
+                errorMessage = e.getMessage();
+            }
+            response.setMessage(errorMessage);
         } else if(MesSaveMLotHisRequest.ACTION_WIRE_RETURN.equals(actionType)){
-            String message = gcService.mesRawMaterialReturnWarehouse(requestBody.getMaterialLots(), transId, Material.MATERIAL_TYPE_GOLD);
-            response.setMessage(message);
+            try {
+                gcService.mesRawMaterialReturnWarehouse(requestBody.getMaterialLots(), transId, Material.MATERIAL_TYPE_GOLD);
+            } catch (Exception e){
+                errorMessage = e.getMessage();
+            }
+            response.setMessage(errorMessage);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
