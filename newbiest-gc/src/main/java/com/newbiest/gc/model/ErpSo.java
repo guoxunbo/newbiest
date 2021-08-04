@@ -38,6 +38,11 @@ public class ErpSo implements Serializable {
     public static final String TYPE_COG = "COG";
 
     /**
+     * 原材料其他出库单
+     */
+    public static final String TYPE_MO = "MO";
+
+    /**
      * 未同步
      */
     public static final String SYNC_STATUS_NOT_ASYNC = "0";

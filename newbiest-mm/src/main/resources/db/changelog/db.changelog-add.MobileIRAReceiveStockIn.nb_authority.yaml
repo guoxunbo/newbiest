@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileIRAReceiveStockInManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileIRAReceiveStockInManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileIRAReceiveStockInManager
+              description: 手持端IRA接收入库
+              tableName: GCMobileIRAReceiveStockIn
+              mobileFlag: Y
+              url: /Mobile/MobileIRAReceiveStockIn
+              parentRrn: 2
+              seqNo: 140
+              image: icon-rule
+              labelZh: IRA接收入库
+              labelEn: IRAReceiveStockIn

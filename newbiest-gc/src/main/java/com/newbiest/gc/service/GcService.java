@@ -66,10 +66,10 @@ public interface GcService {
     MaterialLot getHKWarehouseStockOutMLot(Long tableRrn, String queryLotId) throws ClientException;
     void hongKongMLotReceive(List<MaterialLotAction> materialLotActions) throws ClientException;
 
-    String mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
-    String mesSaveMaterialLotHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
-    String mesReceiveRawMaterialAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
-    String mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transId, String materialType) throws ClientException;
+    void mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
+    void mesSaveMaterialLotHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
+    void mesReceiveRawMaterialAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
+    void mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transId, String materialType) throws ClientException;
 
     List<MaterialLotUnit> validateAndChangeMaterialNameByImportType(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     List<GCProductNumberRelation> getProductNumberRelationByDocRrn(Long documentLineRrn) throws ClientException;
@@ -156,6 +156,7 @@ public interface GcService {
     void asyncOtherStockOutOrder() throws ClientException;
     void asyncOtherShipOrder() throws ClientException;
     void asyncMaterialIssueOrder() throws ClientException;
+    void asyncRawMaterialOtherShipOrder() throws ClientException;
 
     void asyncReTestOrder() throws ClientException;
     void asyncWaferIssueOrder() throws ClientException;

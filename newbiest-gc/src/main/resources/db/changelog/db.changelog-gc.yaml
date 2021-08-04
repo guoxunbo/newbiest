@@ -602,4 +602,19 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCCancelCheck_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCIRAReceiveStockIn_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCIRAWaitReceiveStockIn_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileIRAReceiveStockIn_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileTransferBoxAndStockIn_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileTransferBoxChangeStorage_nb_table.yaml
+      relativeToChangelogFile: true
 
