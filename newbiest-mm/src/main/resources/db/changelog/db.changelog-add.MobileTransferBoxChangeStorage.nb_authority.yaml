@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileTransferBoxChangeStorageManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileTransferBoxChangeStorageManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileTransferBoxChangeStorage
+              description: 手持端中转箱库位调整
+              tableName: GCMobileTransferBoxChangeStorage
+              mobileFlag: Y
+              url: /Mobile/MobileTransferBoxChangeStorage
+              parentRrn: 2
+              seqNo: 160
+              image: icon-rule
+              labelZh: 中转箱库位调整
+              labelEn: TransferBoxChangeStorage

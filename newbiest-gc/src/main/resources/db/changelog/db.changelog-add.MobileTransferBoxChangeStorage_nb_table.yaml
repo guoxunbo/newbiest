@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileTransferBoxChangeStorage_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCMobileTransferBoxChangeStorage to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileTransferBoxChangeStorage
+              description: 手持端中转箱库位调整
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 手持端中转箱库位调整
+              label: MobileTransferBoxChangeStorage
