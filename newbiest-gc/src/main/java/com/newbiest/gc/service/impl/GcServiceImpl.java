@@ -5290,7 +5290,7 @@ public class GcServiceImpl implements GcService {
     private String valiateMaterialNameAndGetWaferSource(String materialName) throws ClientException{
         try {
             String waferSource = StringUtils.EMPTY;
-            if(materialName.endsWith("-1") || materialName.endsWith("-2") || materialName.endsWith("-1.3")){
+            if(materialName.endsWith("-1") || materialName.endsWith("-2") || materialName.endsWith("-1.3")|| materialName.endsWith("-1.5")){
                 waferSource = MaterialLot.WAFER_SOURCE_END1;
             } else if(materialName.endsWith("-2.1") || materialName.endsWith("-1.1") || materialName.endsWith("-1.4")) {
                 waferSource = MaterialLot.WAFER_SOURCE_END2;
