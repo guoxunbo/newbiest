@@ -45,6 +45,7 @@ public interface GcService {
 
     String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws ClientException;
     void validateAndRawMaterialIssue(List<DocumentLine> documentLineList, List<MaterialLot> materialLots, String issueWithDoc) throws ClientException;
+    void mobileValidateAndRawMaterialIssue(List<MaterialLot> materialLots, String erpTime, String issueWithDoc) throws ClientException;
     void scrapRawMaterial(List<MaterialLot> materialLotList, String reason, String remarks) throws ClientException;
     void receiveRawMaterial(List<MaterialLot> materialLotList) throws ClientException;
     void deleteMaterialLotAndSaveHis(List<MaterialLot> materialLotList, String deleteNote) throws ClientException;

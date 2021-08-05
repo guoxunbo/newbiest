@@ -32,5 +32,9 @@ public class GCRawMaterialSaveRequest extends Request {
 
     public static final String ACTION_TYPE_GC_UN_RAW_MATERIAL_SPARE = "GCUnRawMaterialSpare";
 
+    public static final String ACTION_TYPE_MOBILE_ISSUE = "MobileRawIssue";
+
+    public static final String ISSUE_WITH_DOC = "issueWithDoc";
+
     private GCRawMaterialSaveRequestBody body;
 }

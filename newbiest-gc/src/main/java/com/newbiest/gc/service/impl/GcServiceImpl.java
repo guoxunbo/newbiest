@@ -7262,6 +7262,11 @@ public class GcServiceImpl implements GcService {
                     }else if (MaterialLot.SCP_WAFER_SOURCE.equals(waferSource)){
                         materialLot.setReserved50(MaterialLot.RW_TO_CP_WAFER_SOURCE);
                     }
+                    if (MaterialLot.RW_WAFER_SOURCE.equals(waferSource)) {
+                        materialLot.setReserved50(MaterialLot.COB_WAFER_SOURCE);
+                    } else if(MaterialLot.COB_WAFER_SOURCE.equals(waferSource)) {
+                        materialLot.setReserved50(MaterialLot.RW_WAFER_SOURCE);
+                    }
 
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_WAFER_SOURCE_UPDATE);
@@ -9456,6 +9461,31 @@ public class GcServiceImpl implements GcService {
                     rawMaterialIssueBySpareOrder(documentLineMap.get(key), materialLotMap.get(key));
                 }
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 手持端原材料发料
+     * @param materialLotList
+     * @param erpTime
+     * @throws ClientException
+     */
+    public void mobileValidateAndRawMaterialIssue(List<MaterialLot> materialLotList, String erpTime, String issueWithDoc) throws ClientException{
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_RAW_ISSUE_WHERE_CLAUSE);
+            String whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer(whereClause);
+            clauseBuffer.append(" and erpCreated = to_date('"+ erpTime +"', 'yyyy-MM-dd')");
+            whereClause = clauseBuffer.toString();
+            List<DocumentLine> documentLineList = documentLineRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            validateAndRawMaterialIssue(documentLineList, materialLotList, issueWithDoc);
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

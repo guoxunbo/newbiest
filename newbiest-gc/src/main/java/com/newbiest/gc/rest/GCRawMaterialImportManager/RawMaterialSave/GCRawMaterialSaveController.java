@@ -60,6 +60,8 @@ public class GCRawMaterialSaveController {
             gcService.scrapRawMaterialShip(requestBody.getDocumentLine(), requestBody.getMaterialLotList());
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_GC_UN_RAW_MATERIAL_SPARE.equals(actionType)){
             gcService.unRawMaterialSpare(requestBody.getMaterialLotList());
+        } else if (GCRawMaterialSaveRequest.ACTION_TYPE_MOBILE_ISSUE.equals(actionType)){
+            gcService.mobileValidateAndRawMaterialIssue(materialLotList, requestBody.getErpTime(), GCRawMaterialSaveRequest.ISSUE_WITH_DOC);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
