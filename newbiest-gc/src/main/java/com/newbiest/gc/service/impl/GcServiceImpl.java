@@ -5290,7 +5290,7 @@ public class GcServiceImpl implements GcService {
     private String valiateMaterialNameAndGetWaferSource(String materialName) throws ClientException{
         try {
             String waferSource = StringUtils.EMPTY;
-            if(materialName.endsWith("-1") || materialName.endsWith("-2") || materialName.endsWith("-1.3")){
+            if(materialName.endsWith("-1") || materialName.endsWith("-2") || materialName.endsWith("-1.3")|| materialName.endsWith("-1.5")){
                 waferSource = MaterialLot.WAFER_SOURCE_END1;
             } else if(materialName.endsWith("-2.1") || materialName.endsWith("-1.1") || materialName.endsWith("-1.4")) {
                 waferSource = MaterialLot.WAFER_SOURCE_END2;
@@ -8781,6 +8781,44 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * MES系统测试工单计划下达，记录工单号及工单计划时间
+     * 记录历史
+     * @param materialLotList
+     * @param transId
+     * @throws ClientException
+     */
+    @Override
+    public void mesMaterialLotBindWorkOrderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException {
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                String workOrderId = materialLot.getWorkOrderId();
+                String workOrderPlanputTime = materialLot.getWorkOrderPlanputTime();
+                String innerLotId = materialLot.getInnerLotId();
+                materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                materialLot.setWorkOrderId(workOrderId);
+                materialLot.setWorkOrderPlanputTime(workOrderPlanputTime);
+                materialLot.setInnerLotId(innerLotId);
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
+                materialLotHistoryRepository.save(history);
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setWorkOrderId(workOrderId);
+                    materialLotUnit.setWorkOrderPlanputTime(workOrderPlanputTime);
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                    MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
+                    materialLotUnitHisRepository.save(materialLotUnitHistory);
+                }
+            }
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
