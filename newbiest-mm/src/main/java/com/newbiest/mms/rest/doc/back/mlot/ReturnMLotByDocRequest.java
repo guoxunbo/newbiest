@@ -23,6 +23,9 @@ public class ReturnMLotByDocRequest extends Request {
 	@ApiModelProperty(value = "仓库退料")
 	public static final String ACTION_TYPE_RETURN_GOODS = "ReturnGoods";
 
+	@ApiModelProperty(value = "部门退料")
+	public static final String ACTION_TYPE_DEPT_RETURN_MLOT = "DeptReturnMLot";
+
 	private ReturnMLotByDocRequestBody body;
 
 }

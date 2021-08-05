@@ -1,6 +1,5 @@
 package com.newbiest.vanchip.rest.print.parameter;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.msg.Request;
@@ -9,6 +8,7 @@ import com.newbiest.mms.model.Document;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.service.PrintService;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -38,6 +38,9 @@ public class GetPrintParameterController extends AbstractRestController {
     @Autowired
     MmsService mmsService;
 
+    @Autowired
+    PrintService printService;
+
     @ApiOperation(value = "获取标签参数")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "GetPrintParameterRequest")
     @RequestMapping(value = "/printParameterManager", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -49,12 +52,18 @@ public class GetPrintParameterController extends AbstractRestController {
         String actionType = requestBody.getActionType();
 
         Map<String, Object> parameterMap = Maps.newHashMap();
-        List<Map<String, Object>> parameterList = Lists.newArrayList();
 
         if (GetPrintParameterRequest.ACTION_BOX.equals(actionType)){
-            parameterMap = vanChipService.getBoxPrintParameter(requestBody.getMaterialLotId());
+            MaterialLot boxMaterialLot = vanChipService.getBoxMLotBySubBoxMLotId(requestBody.getMaterialLotId());
+
+            parameterMap = printService.buildBoxParameterMap(boxMaterialLot);
             responseBody.setParameterMap(parameterMap);
-        }else if (GetPrintParameterRequest.ACTION_ISSUE_ORDER.equals(actionType)){
+        } else if (GetPrintParameterRequest.ACTION_RY_BOX.equals(actionType)){
+            MaterialLot boxMaterialLot = vanChipService.getBoxMLotBySubBoxMLotId(requestBody.getMaterialLotId());
+
+            parameterMap = printService.buildRYBoxParameterMap(boxMaterialLot);
+            responseBody.setParameterMap(parameterMap);
+        } else if (GetPrintParameterRequest.ACTION_ISSUE_ORDER.equals(actionType)){
             Document document = documentService.getDocumentByName(requestBody.getDocumentId(), true);
             List<MaterialLot> materialLots = vanChipService.getMLotByOrderId(requestBody.getDocumentId());
             responseBody.setDocument(document);

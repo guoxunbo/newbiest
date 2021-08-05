@@ -3,7 +3,6 @@ package com.newbiest.vanchip.rest.mlot.iqc;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
@@ -37,17 +36,19 @@ public class MaterialLotIqcController extends AbstractRestController {
 
         MaterialLotIqcRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
-        MaterialLotAction materialLotAction = requestBody.getMaterialLotAction();
         List<String> materialLotIds = requestBody.getMaterialLotIds();
 
 
         if (MaterialLotIqcRequest.ACTIONT_BATCH_IQC.equals(actionType)){
 
-            vanChipService.batchIqc(requestBody.getMaterialLotActions());
+            vanChipService.batchIqc(requestBody.getMaterialLotActions(), requestBody.getUrlRemark());
         }else if (MaterialLotIqcRequest.ACTION_VALIDATION_AND_GET_MLOT.equals(actionType)){
 
             List<MaterialLot> dataList = vanChipService.validationAndGetWaitIqcMLot(materialLotIds);
             responseBody.setDataList(dataList);
+        } else if (MaterialLotIqcRequest.ACTIONT_IQC_APPROVAL.equals(actionType)){
+
+            vanChipService.iqcApprove(requestBody.getMaterialLotActions());
         }else {
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);
         }

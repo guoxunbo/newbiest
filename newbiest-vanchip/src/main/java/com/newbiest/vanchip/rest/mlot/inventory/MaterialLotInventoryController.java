@@ -57,14 +57,18 @@ public class MaterialLotInventoryController extends AbstractRestController {
         }else if (MaterialLotInventoryRequest.ACTION_PICKS.equals(actionType)){
             vanChipService.picks(materialLotActions);
         }else if (MaterialLotInventoryRequest.ACTION_CHECK_INVENTORY.equals(actionType)){
-            vanChipService.checkMlotInventorys(materialLotActions);
+            vanChipService.checkMlotInventorys(null, materialLotActions);
         }else if (MaterialLotInventoryRequest.ACTION_CREATE_PARTS_WAREHOUSE.equals(actionType)){
             Parts parts = mmsService.getPartsByName(requestBody.getMaterialLot().getMaterialName(), true);
 
             vanChipService.createMLot2Warehouse(parts, requestBody.getMaterialLot().getMaterialLotId(), materialLotActions.get(0));
-        }else if (MaterialLotInventoryRequest.ACTION_STOCK_OUT_PARTS_MLOT.equals(actionType)){
+        }else if (MaterialLotInventoryRequest.ACTION_STOCK_OUT_PARTS_MLOT_BY_ORDER.equals(actionType)){
 
-            vanChipService.stockOutParts(requestBody.getDocumentId(), materialLotActions.get(0));
+            vanChipService.stockOutPartsByOrder(requestBody.getDocumentId(), materialLotActions.get(0));
+        }else if (MaterialLotInventoryRequest.ACTION_STOCK_OUT_PARTS_MLOT.equals(actionType)){
+            Parts parts = mmsService.getPartsByName(requestBody.getMaterialLot().getMaterialName(), true);
+
+            vanChipService.stockOutParts(parts, materialLotActions.get(0));
         }else if (MaterialLotInventoryRequest.ACTION_RETURN_PARTS_WAREHOUSE.equals(actionType)){
             Parts parts = mmsService.getPartsByName(requestBody.getMaterialLot().getMaterialName(), true);
 

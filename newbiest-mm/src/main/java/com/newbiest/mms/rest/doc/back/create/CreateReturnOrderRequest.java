@@ -19,6 +19,9 @@ public class CreateReturnOrderRequest extends Request {
 	@ApiModelProperty(value = "创建退货单据")
 	public static final String ACTION_TYPE_CREATE_RETURN_GOODS_ORDER = "CreateReturnGoodsOrder";
 
+	@ApiModelProperty(value = "创建部门退料单据")
+	public static final String ACTION_TYPE_CREATE_DEPT_RETURN_ORDER= "CreateDeptReturnOrder";
+
 	private CreateReturnOrderRequestBody body;
 
 }

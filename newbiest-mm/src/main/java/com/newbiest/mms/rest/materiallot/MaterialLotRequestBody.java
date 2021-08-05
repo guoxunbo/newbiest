@@ -25,4 +25,7 @@ public class MaterialLotRequestBody extends RequestBody {
 	@ApiModelProperty("物料操作，包含了数量仓库等")
 	private MaterialLotAction materialLotAction;
 
+	@ApiModelProperty(value = "是否验证打印次数", example = "true/false")
+	private Boolean validationPrintFlag;
+
 }

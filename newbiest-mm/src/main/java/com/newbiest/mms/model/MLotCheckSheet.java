@@ -25,6 +25,7 @@ public class MLotCheckSheet extends NBUpdatable {
 
     public static final String STATUS_OPEN = "Open";
     public static final String STATUS_CLOSE = "Close";
+    public static final String STATUS_IN_APPROVAL = "InApproval";
 
     @Column(name="MATERIAL_LOT_ID")
     private String materialLotId;

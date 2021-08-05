@@ -27,6 +27,8 @@ public class Document extends NBUpdatable {
     public static final String CATEGORY_ISSUE_LOT = "IssueLot";
     public static final String CATEGORY_ISSUE_MATERIAL = "IssueMaterial";
     public static final String CATEGORY_ISSUE_PARTS = "IssueParts";
+    public static final String CATEGORY_CHECK = "Check";
+    public static final String CATEGORY_SCRAP = "Scrap";
 
     /**
      * 指定物料发料以及数量，不管主辅材或实验室
@@ -47,6 +49,12 @@ public class Document extends NBUpdatable {
      * 仓库退料到供应商
      */
     public static final String CATEGORY_RETURN_MLOT = "ReturnMLot";
+
+    /**
+     * 部门退料
+     */
+    public static final String CATEGORY_DEPT_RETURN = "DeptReturn";
+
 
     /**
      * 客户退货
@@ -116,12 +124,18 @@ public class Document extends NBUpdatable {
     @Transient
     private List<DocumentLine> documentLines;
 
+    @Transient
+    private List<MaterialLot> materialLots ;
+
     /**
      * 领料人
      */
     @Column(name="RESERVED1")
     private String reserved1;
 
+    /**
+     * 成品中心
+     */
     @Column(name="RESERVED2")
     private String reserved2;
 

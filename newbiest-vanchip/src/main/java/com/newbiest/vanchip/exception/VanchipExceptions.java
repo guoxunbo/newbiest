@@ -30,5 +30,9 @@ public class VanchipExceptions {
 
     public static final String  NB_QUERY_IS_NOT_EXIST = "vc.nb_query_is_not_exist";
 
+    public static final String  MERGER_RULE_NOT_ALLOWED = "vc.merger_rule_not_allowed";
+
+    public static final String  MLOT_NOT_PACKED = "vc.mlot_not_packed";
+
 }
 

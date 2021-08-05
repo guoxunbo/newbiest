@@ -15,10 +15,13 @@ public class MaterialLotIqcRequestBody extends RequestBody {
 
 	private String actionType;
 
-	private MaterialLotAction materialLotAction;
-
 	private List<String> materialLotIds;
 
 	private List<MaterialLotAction> materialLotActions;
+
+	/**
+	 * 接收文件http链接
+	 */
+	private String urlRemark;
 
 }
