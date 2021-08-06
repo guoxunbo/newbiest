@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.0.4
+      author: Tao Zhou
+      remarks: mms_material_lot_unit drop unique constraint (org_rrn, UNIT_ID, MATERIAL_LOT_ID)
+      changes:
+        - dropUniqueConstraint:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            constraintName: UK_MLOTUNIT_LOT_UNIT_ID
+            uniqueColumns: ORG_RRN, MATERIAL_LOT_ID, UNIT_ID

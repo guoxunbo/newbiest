@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_mlot_0.0.3
+      author: Tao Zhou
+      remarks: mms_document_mlot add column materialLotLockVersion
+      changes:
+        - addColumn:
+            tableName: MATERIAL_LOT_LOCK_VERSION
+            columns:
+              - column:
+                  name: MATERIAL_LOT_LOCK_VERSION
+                  type: varchar2(64)
+                  remarks: 物料批次版本

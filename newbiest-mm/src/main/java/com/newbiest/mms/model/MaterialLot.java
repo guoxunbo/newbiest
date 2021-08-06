@@ -377,6 +377,18 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String warningStatusDesc;
 
     /**
+     * 项目号, 交货单+项目号, 可以确定一条数量。
+     */
+    @Column(name= "ITEM_ID")
+    private String itemId;
+
+    /**
+     * 打印次数
+     */
+    @Column(name= "PRINT_COUNT")
+    private BigDecimal printCount = BigDecimal.ZERO;
+
+    /**
      * LotNo
      */
     @Column(name="RESERVED1")
@@ -715,6 +727,30 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved56;
 
     /**
+     *供应商代码
+     */
+    @Column(name="RESERVED57")
+    private String reserved57;
+
+    /**
+     *Customer PN
+     */
+    @Column(name="RESERVED58")
+    private String reserved58;
+
+    /**
+     * 采购订单行项目
+     */
+    @Column(name="RESERVED59")
+    private String reserved59;
+
+    /**
+     * 采购订单号
+     */
+    @Column(name="RESERVED60")
+    private String reserved60;
+
+    /**
      * 成品接收传入Unit
      */
     @Transient
@@ -743,6 +779,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Transient
     private String iclDate;
+
+    @Transient
+    private String unitId;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

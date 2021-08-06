@@ -50,7 +50,9 @@ public class ReturnMLotByDocController extends AbstractRestController {
             documentService.returnMLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList(), DocumentServiceImpl.RETURN_SUPPLIER);
         } else if (ReturnMLotByDocRequest.ACTION_TYPE_RETURN_GOODS.equals(actionType)){
             documentService.returnLotOrder(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
-        }else {
+        } else if (ReturnMLotByDocRequest.ACTION_TYPE_DEPT_RETURN_MLOT.equals(actionType)){
+            documentService.deptReturnMLot(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
+        } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }
 

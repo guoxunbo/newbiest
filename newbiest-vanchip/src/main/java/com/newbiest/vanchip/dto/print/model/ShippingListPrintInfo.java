@@ -10,7 +10,7 @@ public class ShippingListPrintInfo implements Serializable {
 
     private String deliveryOrderLineId;
 
-    private String shipFrom;
+    private String shipAdd;
 
     private String shipTo;
 

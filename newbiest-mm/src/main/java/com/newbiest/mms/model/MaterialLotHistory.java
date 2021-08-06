@@ -43,8 +43,14 @@ public class MaterialLotHistory extends NBHis {
     //iqc绑定的操作
     public static final String TRANS_TYPE_IQC = "IQC";
 
+    //iqc判定之后对结果做一个审核
+    public static final String TRANS_TYPE_IQC_APPROVE = "IQCApprove";
+
     public static final String TRANS_TYPE_OQC = "OQC";
     public static final String TRANS_TYPE_WAIT_RETURN = "WaitReturn";
+
+    //预警状态修改
+    public static final String TRANS_TYPE_UPDATE_WARNING_STATUS = "UpdateWarningStatus";
 
     /**
      * 在ByReel发货单导入时
@@ -67,6 +73,11 @@ public class MaterialLotHistory extends NBHis {
      * 丢料
      */
     public static final String TRANS_TYPE_MISSING_MLOT = "Missing";
+
+    /**
+     * 打印
+     */
+    public static final String TRANS_TYPE_PRINT = "Print";
 
     /**
      * 物料批次号
@@ -412,16 +423,28 @@ public class MaterialLotHistory extends NBHis {
     private String inferiorProductsFlag;
 
     /**
+     * 丢料数量
+     */
+    @Column(name= "MISSING_QTY")
+    private BigDecimal missingQty;
+
+    /**
      * iqc数量
      */
     @Column(name= "IQC_QTY")
     private BigDecimal iqcQty;
 
     /**
-     * 丢料数量
+     * 项目号, 交货单+项目号, 可以确定一条数量。
      */
-    @Column(name= "MISSING_QTY")
-    private BigDecimal missingQty;
+    @Column(name= "ITEM_ID")
+    private String itemId;
+
+    /**
+     * 打印次数, 控制不能随便打印。
+     */
+    @Column(name= "PRINT_COUNT")
+    private BigDecimal printCount;
 
     /**
      * PackageSize
@@ -760,6 +783,30 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="RESERVED56")
     private String reserved56;
+
+    /**
+     *供应商代码
+     */
+    @Column(name="RESERVED57")
+    private String reserved57;
+
+    /**
+     *Customer PN
+     */
+    @Column(name="RESERVED58")
+    private String reserved58;
+
+    /**
+     * 采购订单行项目
+     */
+    @Column(name="RESERVED59")
+    private String reserved59;
+
+    /**
+     * 采购订单号
+     */
+    @Column(name="RESERVED60")
+    private String reserved60;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

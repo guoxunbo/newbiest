@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_0.1.1
+      author: Tao Zhou
+      remarks: mms_material modifyDataType colums RESERVED23
+      changes:
+        - modifyDataType:
+            columnName:  RESERVED23
+            newDataType:  varchar2(128)
+            tableName:  MMS_MATERIAL

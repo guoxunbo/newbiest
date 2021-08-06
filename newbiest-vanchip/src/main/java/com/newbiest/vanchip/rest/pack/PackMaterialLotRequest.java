@@ -14,6 +14,7 @@ public class PackMaterialLotRequest extends Request {
 
 	public static final String ACTION_PACKAGE_MLOT = "PackageMLot";
 	public static final String ACTION_PRINT_PACKAGE_MLOT = "PrintPackageMLot";
+	public static final String ACTION_PRINT_RY_BOX_MLOT = "PrintRYBoxMLot";
 
 
 	private PackMaterialLotRequestBody body;

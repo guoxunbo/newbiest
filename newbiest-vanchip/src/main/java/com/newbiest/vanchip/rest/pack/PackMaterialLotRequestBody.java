@@ -23,4 +23,7 @@ public class PackMaterialLotRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "批次号")
 	private String materialLotId;
+
+	@ApiModelProperty(value = "是否验证打印次数")
+	private Boolean validationPrintFlag;
 }

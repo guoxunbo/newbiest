@@ -22,7 +22,10 @@ public class DocumentMLot extends NBBase {
     public static final String STATUS_RETURN = "Return";
     public static final String STATUS_RECEIVE = "Receive";
     public static final String STATUS_STOCK_OUT = "StockOut";
+    public static final String STATUS_SCRAP = "Scrap";
 
+    public static final String STATUS_CHECK_CREATE = "CheckCreate";
+    public static final String STATUS_CHECK = "Check";
     /**
      * 当前的批次没有被发料 而是其子批进行发料
      */
@@ -37,4 +40,9 @@ public class DocumentMLot extends NBBase {
     @Column(name="STATUS")
     private String status;
 
+//    /**
+//     * 物料批次版本
+//     */
+//    @Column(name="MATERIAL_LOT_LOCK_VERSION")
+//    private String materialLotLockVersion;
 }

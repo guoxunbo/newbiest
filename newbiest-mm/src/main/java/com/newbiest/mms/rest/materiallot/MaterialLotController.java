@@ -64,7 +64,7 @@ public class MaterialLotController extends AbstractRestController {
             materialLot = mmsService.consumeMLot(materialLot, materialLotAction);
         } else if (MaterialLotRequest.ACTION_PRINT_LABEL.equals(actionType)) {
             materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
-            printService.printMLot(materialLot);
+            mmsService.printMLot(materialLot, materialLotAction, requestBody.getValidationPrintFlag());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

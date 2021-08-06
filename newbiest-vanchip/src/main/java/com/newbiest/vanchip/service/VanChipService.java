@@ -42,7 +42,7 @@ public interface VanChipService {
     List<MaterialLot> printReservedOrder(DocumentLine documentLine) throws ClientException;
 
     void issueFinishGoodByDoc(String documentId, List<String> materialLotIds) throws ClientException;
-    void batchIqc(List<MaterialLotAction> materialLotActions) throws ClientException;
+    void batchIqc(List<MaterialLotAction> materialLotActions, String urlRemark) throws ClientException;
     List<MaterialLot> validationAndGetWaitIqcMLot(List<String> materialLotIds) throws ClientException;
 
     void createFinishGoodOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots) throws ClientException;
@@ -93,12 +93,19 @@ public interface VanChipService {
     void preWarning() throws ClientException;
 
     Parts saveParts(Parts parts) throws ClientException;
-    void checkMlotInventorys(List<MaterialLotAction> materialLotActions) throws ClientException;
+    void checkMlotInventorys(DocumentLine documentLine,List<MaterialLotAction> materialLotActions) throws ClientException;
 
     MaterialLot createMLot2Warehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
-    void stockOutParts(String documentId, MaterialLotAction materialLotAction) throws ClientException;
+    void stockOutPartsByOrder(String documentId, MaterialLotAction materialLotAction) throws ClientException;
+    void stockOutParts(Material material, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot returnMLotWarehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
 
     void erpSaveMaterial(List<Material> materials) throws ClientException;
 
+    MaterialLot getBoxMLotBySubBoxMLotId(String subBoxMLotId) throws ClientException;
+    void printBoxMLot(String subBoxMaterialLotId, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException;
+    void printRYBoxMLot(String subBoxMaterialLotId, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException;
+    void iqcApprove(List<MaterialLotAction> materialLotActions) throws ClientException;
+
+    List<MaterialLot> getReservedMLotByOrder(String documentLineId)throws ClientException;
 }

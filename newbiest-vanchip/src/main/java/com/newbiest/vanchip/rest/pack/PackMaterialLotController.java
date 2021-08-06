@@ -46,7 +46,9 @@ public class PackMaterialLotController extends AbstractRestController {
             MaterialLot packagedMaterialLot = vanChipService.packageMaterialLots(requestBody.getMaterialLotActions(), requestBody.getPackageType());
             responseBody.setMaterialLot(packagedMaterialLot);
         }else if (PackMaterialLotRequest.ACTION_PRINT_PACKAGE_MLOT.equals(actionType)){
-            printService.printBoxMLot(requestBody.getMaterialLotId());
+            vanChipService.printBoxMLot(requestBody.getMaterialLotId(), requestBody.getMaterialLotActions().get(0), requestBody.getValidationPrintFlag());
+        }else if (PackMaterialLotRequest.ACTION_PRINT_RY_BOX_MLOT.equals(actionType)){
+            vanChipService.printRYBoxMLot(requestBody.getMaterialLotId(), requestBody.getMaterialLotActions().get(0), requestBody.getValidationPrintFlag());
         }else {
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);
         }

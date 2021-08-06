@@ -2,9 +2,7 @@ package com.newbiest.mms.rest.materiallot.iqc;
 
 import com.newbiest.base.msg.RequestBody;
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
@@ -15,4 +13,8 @@ public class MaterialLotIqcRequestBody extends RequestBody {
 
 	private MaterialLotAction materialLotAction;
 
+	/**
+	 * 接收文件http链接
+	 */
+	private String urlRemark;
 }
