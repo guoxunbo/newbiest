@@ -872,7 +872,7 @@ public class MmsServiceImpl implements MmsService {
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             List<MaterialLotHoldInfo> materialLotHoldInfos = materialLotHoldInfoRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-            if (CollectionUtils.isEmpty(materialLotHoldInfos)) {
+            if (CollectionUtils.isNotEmpty(materialLotHoldInfos)) {
                 // GC 暂时只有一重Hold。故直接从Hold用户上判断即可
                 MaterialLotHoldInfo materialLotHoldInfo = materialLotHoldInfos.get(0);
                 // 其他人不能解除SCM的Hold SCM不能解除其他的Hold
