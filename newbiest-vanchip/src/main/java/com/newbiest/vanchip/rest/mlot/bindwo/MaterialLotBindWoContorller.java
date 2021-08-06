@@ -1,12 +1,7 @@
 package com.newbiest.vanchip.rest.mlot.bindwo;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.msg.Request;
-import com.newbiest.mms.exception.MmsException;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.RawMaterial;
-import com.newbiest.mms.rest.materiallot.MaterialLotRequest;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -17,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/vc")
@@ -45,7 +38,12 @@ public class MaterialLotBindWoContorller {
             vanChipService.bindMesOrder(requestBody.getMaterialLotIdList(), requestBody.getWorkOrderId());
         } else if (MaterialLotBindWoRequest.ACTION_TYPE_UNBIND.equals(actionType)) {
             vanChipService.unbindMesOrder(requestBody.getMaterialLotIdList());
-        }  else {
+        } else if (MaterialLotBindWoRequest.ACTION_TYPE_UNBIND_AND_BIND.equals(actionType)){
+            vanChipService.unbindMesOrder(requestBody.getMaterialLotIdList());
+
+            vanChipService.bindMesOrder(requestBody.getMaterialLotIdExtList(), requestBody.getWorkOrderId());
+
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
         response.setBody(responseBody);

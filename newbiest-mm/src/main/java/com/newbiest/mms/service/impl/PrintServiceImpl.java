@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
+import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.exception.MmsException;
@@ -38,7 +39,6 @@ import java.util.stream.Collectors;
 @Transactional
 @BaseJpaFilter
 @Data
-@Async
 public class PrintServiceImpl implements PrintService {
 
     @Autowired
@@ -65,8 +65,92 @@ public class PrintServiceImpl implements PrintService {
     @Autowired
     MaterialLotRepository materialLotRepository;
 
+    private static final String LABEL_TEMPLATE_NAME_PRINT_RY_BOX_MLOT = "PrintRYBoxMLot";
     private static final String LABEL_TEMPLATE_NAME_PRINT_BOX_MLOT = "PrintBoxMLot";
     private static final String LABEL_TEMPLATE_NAME_PRINT_MLOT = "PrintMLot";
+
+    /**
+     * 荣耀外箱标签
+     * @param boxMaterialLot
+     * @throws ClientException
+     */
+    @Override
+    @Async
+    public void printRYBoxMLot(MaterialLot boxMaterialLot) throws ClientException {
+        try {
+            Map<String, Object> parameterMap = buildRYBoxParameterMap(boxMaterialLot);
+
+            PrintContext printContext = buildPrintContext(null, LABEL_TEMPLATE_NAME_PRINT_RY_BOX_MLOT, parameterMap);
+
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public Map<String, Object> buildRYBoxParameterMap(MaterialLot boxMaterialLot) throws ClientException {
+        try {
+            Map<String, Object> parameterMap = Maps.newHashMap();
+
+            List<MaterialLot> materialLots = materialLotRepository.findByBoxMaterialLotId(boxMaterialLot.getMaterialLotId());
+
+            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
+
+            DocumentLine deliveryOrderLine = documentLineRepository.findByObjectRrn(boxMaterialLot.getReserved44());
+
+            parameterMap.put("poNo", deliveryOrderLine.getReserved20());
+            parameterMap.put("poNoBarCode", "K"+deliveryOrderLine.getReserved20());
+
+            parameterMap.put("customerPn", boxMaterialLot.getReserved58());
+            parameterMap.put("customerPnBarCode", "P"+boxMaterialLot.getReserved58());
+
+            parameterMap.put("manufacturerPn", boxMaterialLot.getReserved2());
+            parameterMap.put("manufacturerPnBarCode", "1P"+boxMaterialLot.getReserved2());
+
+            parameterMap.put("qty", totalQty);
+            parameterMap.put("qtyBarCode", "Q"+totalQty);
+
+            parameterMap.put("vendorCode", boxMaterialLot.getReserved57());
+            parameterMap.put("vendorCodeBarCode", "V"+boxMaterialLot.getReserved57());
+
+            parameterMap.put("dateCode", boxMaterialLot.getReserved9());
+            parameterMap.put("dateCodeBarCode", "9D"+boxMaterialLot.getReserved9());
+
+            StringBuffer qRCode = new StringBuffer();
+            qRCode.append(parameterMap.get("customerPnBarCode"));
+            qRCode.append(StringUtils.BLANK_SPACE);
+            qRCode.append(parameterMap.get("manufacturerPnBarCode"));
+            qRCode.append(StringUtils.BLANK_SPACE);
+            qRCode.append(parameterMap.get("dateCodeBarCode"));
+            qRCode.append(StringUtils.BLANK_SPACE);
+            qRCode.append(parameterMap.get("vendorCode"));
+            qRCode.append(StringUtils.BLANK_SPACE);
+            qRCode.append(parameterMap.get("dateCodeBarCode"));
+            qRCode.append(StringUtils.BLANK_SPACE);
+
+            for (int i = 1; i <= 10; i++){
+                if (i > materialLots.size()){
+                    parameterMap.put("reel"+i, "");
+                    parameterMap.put("reelBarCode"+i, "");
+                }else {
+                    parameterMap.put("reel"+i, materialLots.get(i-1).getMaterialLotId());
+                    parameterMap.put("reelBarCode"+i, "1T"+materialLots.get(i-1).getMaterialLotId());
+                    qRCode.append("1T"+materialLots.get(i-1).getMaterialLotId());
+                    qRCode.append(StringUtils.BLANK_SPACE);
+                }
+
+            }
+
+            qRCode.append("MVanchip");
+            qRCode.append(StringUtils.BLANK_SPACE);
+            qRCode.append("4LCHINA");
+
+            parameterMap.put("qRCode", qRCode);
+            return parameterMap;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     PrintContext buildPrintContext(Object baseObject, String labelTemplateName, Map<String, Object> parameterMap) throws ClientException{
         try {
@@ -95,14 +179,14 @@ public class PrintServiceImpl implements PrintService {
 
     /**
      * 外箱标签打印
-     * @param subBoxMLotId
+     * @param boxMLotId
      * @throws ClientException
      */
     @Override
     @Async
-    public void printBoxMLot(String subBoxMLotId) throws ClientException {
+    public void printBoxMLot(MaterialLot boxMLotId) throws ClientException {
         try {
-            Map<String, Object> parameterMap = buildBoxParameterMap(subBoxMLotId);
+            Map<String, Object> parameterMap = buildBoxParameterMap(boxMLotId);
 
             PrintContext printContext = buildPrintContext(null, LABEL_TEMPLATE_NAME_PRINT_BOX_MLOT, parameterMap);
 
@@ -114,16 +198,13 @@ public class PrintServiceImpl implements PrintService {
 
     /**
      * 获得外箱标签参数
-     * @param subBoxMLotId
+     * @param boxMaterialLot
      * @return
      * @throws ClientException
      */
-    public Map<String, Object> buildBoxParameterMap(String subBoxMLotId) throws ClientException{
+    public Map<String, Object> buildBoxParameterMap(MaterialLot boxMaterialLot) throws ClientException{
         try {
             Map<String, Object> parameterMap = Maps.newHashMap();
-
-            MaterialLot materialLot = mmsService.getMLotByMLotId(subBoxMLotId,true);
-            MaterialLot boxMaterialLot = mmsService.getMLotByMLotId(materialLot.getBoxMaterialLotId(),true);
 
             DocumentLine deliveryOrderLine = documentLineRepository.findByObjectRrn(boxMaterialLot.getReserved44());
             String shippingDate = StringUtils.EMPTY;
@@ -160,9 +241,16 @@ public class PrintServiceImpl implements PrintService {
                 qRCode.append(reelMLot.getReserved9());
             }
 
+            List<MaterialLot> bin4MLots = reelMLots.stream().filter(reel -> "PASS_BIN4".equals(reel.getGrade())).collect(Collectors.toList());
+            String bin4Flag = StringUtils.NO;
+            if(bin4MLots.size() > 0){
+                bin4Flag = StringUtils.YES;
+            }
+
             BigDecimal netWeight = new BigDecimal(boxMaterialLot.getReserved12()).setScale(3, BigDecimal.ROUND_HALF_UP);
             BigDecimal grossWeight = new BigDecimal(boxMaterialLot.getReserved13()).setScale(3, BigDecimal.ROUND_HALF_UP);
 
+            //总箱数
             BigDecimal totalBoxQty = new BigDecimal(materialLots.size());
             parameterMap.put("partNumber", boxMaterialLot.getReserved2());
             parameterMap.put("quantity", boxMaterialLot.getCurrentQty().toPlainString());
@@ -173,8 +261,8 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("countOfOrigin", "China");
             parameterMap.put("boxId", boxMaterialLot.getMaterialLotId());
             parameterMap.put("qRCode", qRCode);
-            parameterMap.put("printNumber", 1 + StringUtils.EMPTY);
-
+            parameterMap.put("printNumber", 1);
+            //parameterMap.put("bin4Flag", bin4Flag);
             return parameterMap;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -185,7 +273,7 @@ public class PrintServiceImpl implements PrintService {
      * 打标签进行异步构建
      * @param materialLot
      * @throws ClientException
-     */
+     **/
     @Override
     @Async
     public void printMLot(MaterialLot materialLot) throws ClientException {
@@ -203,7 +291,6 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("iqcFlag", iqcFlag);
 
             PrintContext printContext = buildPrintContext(materialLot, LABEL_TEMPLATE_NAME_PRINT_MLOT, parameterMap);
-
             print(printContext);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

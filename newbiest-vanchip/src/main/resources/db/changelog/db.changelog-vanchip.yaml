@@ -62,3 +62,6 @@ databaseChangeLog:
   - include:
       file: modifyDataType-0.0.2.mms_document_line.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-vc-0.1.1.comments.yaml
+      relativeToChangelogFile: true

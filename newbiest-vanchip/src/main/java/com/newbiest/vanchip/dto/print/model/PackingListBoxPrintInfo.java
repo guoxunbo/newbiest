@@ -14,7 +14,11 @@ public class PackingListBoxPrintInfo implements Serializable{
      * 模板在进行list赋值时似乎不赞成驼峰命名法
      */
 
-    private String ctn_idx;
+    private Integer ctn_idx;
+
+    private String versionNumber;
+
+    private String controlLot;
 
     private String ctn_no;
     private String part_number;

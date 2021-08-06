@@ -22,7 +22,7 @@ public interface MmsService {
 
     MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, BigDecimal transQty, BigDecimal transSubQty, Map<String, Object> propsMap) throws ClientException;
     List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException;
-    MLotCheckSheet iqc(MaterialLotAction materialLotJudgeAction) throws ClientException;
+    MLotCheckSheet iqc(MaterialLotAction materialLotJudgeAction, String urlRemark) throws ClientException;
     MLotCheckSheet oqc(MaterialLotAction materialLotJudgeAction) throws ClientException;
     MaterialLot issue(MaterialLot materialLot) throws ClientException;
     MaterialLot returnMLot(MaterialLot materialLot) throws ClientException;
@@ -86,4 +86,8 @@ public interface MmsService {
     List<Material> getMaterialStockQty(List<Material> materials) throws ClientException;
 
     Material getMaterialByName(String name, boolean throwExceptionFlag) throws ClientException;
+
+    void printMLot(MaterialLot materialLot, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException;
+    void printMLot(MaterialLot materialLot) throws ClientException;
+    MaterialLot validationPrintAndAddPrintCount(MaterialLot materialLot, MaterialLotAction materialLotAction, Boolean validationPrintFlag)throws ClientException;
 }

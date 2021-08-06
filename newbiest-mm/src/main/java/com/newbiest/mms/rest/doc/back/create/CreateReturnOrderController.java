@@ -42,7 +42,10 @@ public class CreateReturnOrderController extends AbstractRestController {
             documentService.createReturnLotOrder(StringUtils.EMPTY,true, requestBody.getDataList());
         }else if (StringUtils.isNullOrEmpty(actionType)){
             documentService.createReturnOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotActionList());
-        } else {
+        } else if (CreateReturnOrderRequest.ACTION_TYPE_CREATE_DEPT_RETURN_ORDER.equals(actionType)){
+            Document document = documentService.createDeptReturnOrder(StringUtils.EMPTY,true, requestBody.getMaterialLotActionList());
+            responseBody.setDocument(document);
+        }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }
         response.setBody(responseBody);

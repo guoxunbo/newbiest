@@ -195,7 +195,7 @@ public class Material extends NBVersionControl {
     private String reserved2;
 
     /**
-     * 小类/物料组
+     * 中类/物料组
      */
     @Column(name="RESERVED3")
     private String reserved3;
@@ -249,7 +249,7 @@ public class Material extends NBVersionControl {
     private String reserved11;
 
     /**
-     *是否IQC
+     *所属部门
      */
     @Column(name="RESERVED12")
     private String reserved12;
@@ -285,7 +285,7 @@ public class Material extends NBVersionControl {
     private String reserved17;
 
     /**
-     *品牌
+     *供应商
      */
     @Column(name="RESERVED18")
     private String reserved18;
@@ -297,7 +297,7 @@ public class Material extends NBVersionControl {
     private String reserved19;
 
     /**
-     *备件编码
+     *内部编码
      */
     @Column(name="RESERVED20")
     private String reserved20;
@@ -309,7 +309,7 @@ public class Material extends NBVersionControl {
     private String reserved21;
 
     /**
-     * 环境要求
+     * 规格型号
      */
     @Column(name="RESERVED22")
     private String reserved22;
@@ -321,7 +321,7 @@ public class Material extends NBVersionControl {
     private String reserved23;
 
     /**
-     * 防护要求
+     * 备件KIT回填ERP物料代码
      */
     @Column(name="RESERVED24")
     private String reserved24;
@@ -345,13 +345,13 @@ public class Material extends NBVersionControl {
     private String reserved27;
 
     /**
-     * 默认仓库二
+     * 机器类别
      */
     @Column(name="RESERVED28")
     private String reserved28;
 
     /**
-     * 默认仓库二主键
+     * 交付周期
      */
     @Column(name="RESERVED29")
     private String reserved29;

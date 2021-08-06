@@ -49,10 +49,7 @@ public class ErpMaterialController {
         }else if (Request.ACTION_UPDATE.equals(actionType)){
             vanChipService.erpSaveMaterial(materialList);
         }else if (Request.ACTION_DELETE.equals(actionType)){
-            for (Material material : materialList) {
-                Material ordMaterial = mmsService.getMaterialByName(material.getName(), true);
-                baseService.delete(ordMaterial);
-            }
+            //vanchip客制化del不处理。
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }

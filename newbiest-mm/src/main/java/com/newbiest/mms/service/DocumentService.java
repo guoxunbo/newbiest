@@ -55,6 +55,7 @@ public interface DocumentService {
     List<MaterialLot> getMLotByDocumentId(String documentId) throws ClientException;
     Document getDocumentByMLotIdAndDocumentCategory(String mLotId, String documentCategory)throws ClientException;
     DocumentMLot createDocumentMLot(String documentId, String mLotId)throws ClientException;
+    DocumentMLot createDocumentMLot(String documentId, String materialLotId, String status) throws ClientException;
 
     void createReturnLotOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots)throws ClientException;
     void returnLotOrder(String returnLotId, List<String> materialLotIds) throws ClientException;
@@ -65,5 +66,11 @@ public interface DocumentService {
     Document saveDocument(String documentId, BigDecimal handleQty, String transType) throws ClientException;
 
     void createIssuePartsOrder(String documentId, boolean approveFlag, String materialName, BigDecimal qty, String creator) throws ClientException;
+
+    void createCheckOrder(Document document, List<MaterialLot> materialLotList) throws ClientException;
+    void createScrapOrder(Document document, List<MaterialLot> materialLotList) throws ClientException;
+
+    Document createDeptReturnOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void deptReturnMLot(String documentId, List<String> materialLotIdList) throws ClientException;
 }
 

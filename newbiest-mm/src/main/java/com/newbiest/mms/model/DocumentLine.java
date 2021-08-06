@@ -48,6 +48,7 @@ public class DocumentLine extends NBUpdatable {
 
     @Column(name="UN_RESERVED_QTY")
     private BigDecimal unReservedQty = BigDecimal.ZERO;
+
     /**
      *shipping Date
      */
@@ -212,6 +213,26 @@ public class DocumentLine extends NBUpdatable {
     private String reserved26;
 
     /**
+     * 发货类型
+     * 1.量产
+     * 2.客户样品
+     * 3.工程样品
+     */
+    @Column(name="RESERVED27")
+    private String reserved27;
+
+    /**
+     * 仓库代码
+     */
+    @Column(name="RESERVED28")
+    private String reserved28;
+
+    /**
+     * 采购订单号
+     */
+    @Column(name="RESERVED29")
+    private String reserved29;
+    /**
      * 导入时格式转换
      */
     @Transient
@@ -219,7 +240,7 @@ public class DocumentLine extends NBUpdatable {
 
     /**
      * 创建ByReelCode发料单时，接收ReelCode
-     * 一个Excel表示一个发货单
+     * 一个Excel表示一个发货单·
      */
     @Transient
     private String reelCodeId;

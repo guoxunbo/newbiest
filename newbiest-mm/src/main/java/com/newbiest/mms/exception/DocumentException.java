@@ -22,4 +22,6 @@ public class DocumentException {
     public static final String DOCUMENT_CATEGORY_IS_NOT_EXIST = "mms.document_category_is_not_exist";
     public static final String OPERATIONS_QTY_GREATER_THAN_ACTUAL_QTY = "mms.operations_qty_greater_than_actual_qty";
 
+    public static final String OPERATIONS_QTY_IS_NOT_EQUAL_STOCK_QTY= "mms.operations_quantity_is_not_equal_to_inventory_quantity";
+
 }

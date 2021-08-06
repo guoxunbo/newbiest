@@ -16,6 +16,9 @@ public class GetPrintParameterRequest extends Request {
 	@ApiModelProperty(value = "箱标签打印")
 	public static final String ACTION_BOX = "GetBoxParameter";
 
+	@ApiModelProperty(value = "荣耀外箱标签打印参数")
+	public static final String ACTION_RY_BOX = "GetRYBoxParameter";
+
 	@ApiModelProperty(value = "配料单打印")
 	public static final String ACTION_PKLIST = "GetPKListParameter";
 

@@ -76,6 +76,6 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_UN_PACKAGE = "UnPackage";
 
-    public static final String EVENT_ISSUE_CREATE= "IssueCreate";
+    public static final String EVENT_IQC_APPROVE = "IqcApprove";
 
 }

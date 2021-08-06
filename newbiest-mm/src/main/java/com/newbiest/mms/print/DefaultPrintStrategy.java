@@ -99,6 +99,10 @@ public class DefaultPrintStrategy implements IPrintStrategy {
                     value = sdf.format(value);
                     parameterMap.put(key, value);
                 }
+                if (value == null){
+                    value = StringUtils.BLANK_SPACE;
+                    parameterMap.put(key, value);
+                }
             }
         }
         parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());

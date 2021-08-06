@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: modifyData-mms_check_sheet_line-0.0.3
+      author: Tao Zhou
+      comment: modifyData mms_check_sheet_line,mms_mlot_check_sheet_line column name,description
+      changes:
+        - modifyDataType:
+            columnName: NAME
+            newDataType: varchar2(128)
+            tableName: MMS_CHECK_SHEET_LINE
+        - modifyDataType:
+            columnName: DESCRIPTION
+            newDataType: varchar2(128)
+            tableName: MMS_CHECK_SHEET_LINE
+        - modifyDataType:
+            columnName: NAME
+            newDataType: varchar2(128)
+            tableName: MMS_MLOT_CHECK_SHEET_LINE
+        - modifyDataType:
+            columnName: DESCRIPTION
+            newDataType: varchar2(128)
+            tableName: MMS_MLOT_CHECK_SHEET_LINE

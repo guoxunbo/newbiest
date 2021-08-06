@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.2.6
+      author: Tao Zhou
+      remarks: mms_material_lot add column PRINT_COUNT,ITEM_ID
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: PRINT_COUNT
+                  type: bigint
+                  remarks: 打印次数
+              - column:
+                  name: ITEM_ID
+                  type: varchar(64)
+                  remarks: 项目号

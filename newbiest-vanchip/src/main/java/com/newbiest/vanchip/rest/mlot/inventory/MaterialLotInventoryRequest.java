@@ -16,7 +16,8 @@ public class MaterialLotInventoryRequest extends Request {
 	public static final String ACTION_GET_STOCK_OUT_MLOT_BY_ORDER = "GetStockOutMLotByOrder";
 	public static final String ACTION_CHECK_INVENTORY = "CheckInventory";
 
-	public static final String ACTION_STOCK_OUT_PARTS_MLOT = "StockOutPartsMlot";
+	public static final String ACTION_STOCK_OUT_PARTS_MLOT = "StockOutPartsMLot";
+	public static final String ACTION_STOCK_OUT_PARTS_MLOT_BY_ORDER = "StockOutPartsMLotByOrder";
 	public static final String ACTION_RETURN_PARTS_WAREHOUSE = "ReturnPartsWarehouse";
 	public static final String ACTION_CREATE_PARTS_WAREHOUSE = "CreateParts2Warehouse";
 

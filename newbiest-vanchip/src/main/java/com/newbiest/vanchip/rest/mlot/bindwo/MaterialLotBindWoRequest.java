@@ -12,6 +12,7 @@ public class MaterialLotBindWoRequest extends Request {
 
     public static final String ACTION_TYPE_BIND = "Bind";
     public static final String ACTION_TYPE_UNBIND = "Unbind";
+    public static final String ACTION_TYPE_UNBIND_AND_BIND = "UnbindAndBind";
 
     private MaterialLotBindWoRequestBody body;
 }
