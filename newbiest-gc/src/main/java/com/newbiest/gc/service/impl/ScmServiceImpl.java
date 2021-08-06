@@ -12,10 +12,13 @@ import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.gc.GcExceptions;
+import com.newbiest.gc.model.GCFutureHoldConfig;
+import com.newbiest.gc.repository.GCFutureHoldConfigRepository;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequest;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
 import com.newbiest.gc.service.ScmService;
 import com.newbiest.gc.service.model.QueryEngResponse;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
@@ -125,6 +128,9 @@ public class ScmServiceImpl implements ScmService {
     @Autowired
     InterfaceHistoryRepository interfaceHistoryRepository;
 
+    @Autowired
+    GCFutureHoldConfigRepository gcFutureHoldConfigRepository;
+
     @PostConstruct
     public void init() {
         CloseableHttpClient client = createHttpClient().build();
@@ -136,6 +142,50 @@ public class ScmServiceImpl implements ScmService {
 
     protected HttpClientBuilder createHttpClient() {
         return create().useSystemProperties().disableRedirectHandling().disableCookieManagement();
+    }
+
+    public void scmHold(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
+        try {
+            for (String materialLotId : materialLotIdList) {
+                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, false);
+                if (materialLot == null) {
+                    materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(materialLotId, MaterialLot.STATUS_FIN);
+                }
+                if (materialLot == null) {
+                    // 不存在 则做预Hold
+                    GCFutureHoldConfig gcFutureHoldConfig = new GCFutureHoldConfig();
+                    gcFutureHoldConfig.setLotId(materialLotId);
+                    gcFutureHoldConfig.setHoldReason(actionReason);
+                    gcFutureHoldConfigRepository.save(gcFutureHoldConfig);
+                } else {
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setActionCode(actionCode);
+                    materialLotAction.setActionReason(actionReason);
+                    materialLotAction.setActionComment(actionRemarks);
+                    mmsService.holdMaterialLot(materialLot, materialLotAction);
+                }
+            }
+
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void scmRelease(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
+        for (String materialLotId : materialLotIdList) {
+            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, false);
+            if (materialLot == null) {
+                materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(materialLotId, MaterialLot.STATUS_FIN);
+            }
+            if (materialLot == null) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+            }
+            MaterialLotAction materialLotAction = new MaterialLotAction();
+            materialLotAction.setActionCode(actionCode);
+            materialLotAction.setActionReason(actionReason);
+            materialLotAction.setActionComment(actionRemarks);
+            mmsService.releaseMaterialLot(materialLot, materialLotAction);
+        }
     }
 
     public void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks, String vendorAddress) throws ClientException{
