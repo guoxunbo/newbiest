@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.scm.hold;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.ScmService;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
 import com.newbiest.security.model.NBUser;
 import com.newbiest.security.service.SecurityService;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/gc")
@@ -45,10 +49,11 @@ public class HoldController {
             securityService.saveUser(nbUser);
         }
         String actionType = requestBody.getActionType();
+        List<String> materialLotIds = requestBody.getMaterialLotList().stream().map(MaterialLot:: getMaterialLotId).collect(Collectors.toList());
         if (HoldRequest.ACTION_TYPE_HOLD.equals(actionType)) {
-
+            scmService.scmHold(materialLotIds, requestBody.getActionCode(), requestBody.getActionReason(), requestBody.getActionRemarks());
         } else if(HoldRequest.ACTION_TYPE_RELEASE.equals(actionType)) {
-
+            scmService.scmRelease(materialLotIds, requestBody.getActionCode(), requestBody.getActionReason(), requestBody.getActionRemarks());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

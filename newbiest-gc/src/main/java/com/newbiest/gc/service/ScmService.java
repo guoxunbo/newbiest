@@ -16,6 +16,9 @@ public interface ScmService {
 
     void retry() throws ClientException;
 
+    void scmHold(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException;
+    void scmRelease(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException;
+
     void scmAssign(String lotId, String vendor, String poId, String materialType, String remarks, String vendorAddress) throws ClientException;
     void scmUnAssign(String lotId) throws ClientException;
 
