@@ -15,7 +15,7 @@ import javax.persistence.Table;
  * @date 2021/8/6 4:47 下午
  */
 @Data
-@Table(name="MMS_MLOT_HOLD_INFO")
+@Table(name="MMS_MATERIAL_LOT_HOLD_INFO")
 @Entity
 public class MaterialLotHoldInfo extends NBUpdatable {
 
