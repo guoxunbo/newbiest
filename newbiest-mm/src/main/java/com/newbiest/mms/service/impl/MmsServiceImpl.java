@@ -885,7 +885,9 @@ public class MmsServiceImpl implements MmsService {
                         throw new ClientException(MmsException.MATERIAL_LOT_IS_HOLD_BY_SCM);
                     }
                 }
+                materialLotHoldInfoRepository.delete(materialLotHoldInfo);
             }
+
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RELEASE);
             history.buildByMaterialLotAction(materialLotAction);
             materialLotHistoryRepository.save(history);
