@@ -9424,7 +9424,7 @@ public class GcServiceImpl implements GcService {
             waferIssueWithOutDocument(materialLots);
 
             //将晶圆信息保存至Mes backendWaferReceive表中
-            //mesService.saveBackendWaferReceive(materialLots);
+            mesService.saveBackendWaferReceive(materialLots);
 
             boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
             log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
