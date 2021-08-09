@@ -49,7 +49,7 @@ public class IncomingMaterialImportController {
                 || MaterialLotUnit.SENSOR_CP.equals(importType) || MaterialLotUnit.SENSOR_UNMEASURED.equals(importType) || MaterialLotUnit.SAMSUING_PACKING_LIST.equals(importType)
                 || MaterialLotUnit.FAB_LCD_PTC.equals(importType) ||MaterialLotUnit.FAB_LCD_SILTERRA.equals(importType) ||MaterialLotUnit.LCD_CP_25UNMEASURED.equals(importType)
                 || MaterialLotUnit.LCD_CP.equals(importType) || MaterialLotUnit.WLT_PACK_RETURN.equals(importType) || MaterialLotUnit.SENSOR_PACK_RETURN_COGO.equals(importType)
-                || MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType) || MaterialLotUnit.SENSOR_TPLCC.equals(importType)){
+                || MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType) || MaterialLotUnit.SENSOR_TPLCC.equals(importType) || MaterialLotUnit.SOC_WAFER_UNMEASURED.equals(importType)){
             bondedProperty = gcService.validationAndGetBondedPropertyByFileName(requestBody.getFileName());
         }
 

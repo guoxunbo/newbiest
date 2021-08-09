@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCSOCWaferUnmeasured_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCSOCWaferUnmeasured to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCSOCWaferUnmeasured
+              description: SOC晶圆未测
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: SOC晶圆未测
+              label: GCSOCWaferUnmeasured

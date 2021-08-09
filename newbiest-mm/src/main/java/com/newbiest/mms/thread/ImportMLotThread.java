@@ -84,7 +84,13 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved22",materialLotUnits.get(0).getReserved22());
             propsMap.put("reserved23",materialLotUnits.get(0).getReserved23());
             propsMap.put("reserved24",materialLotUnits.get(0).getReserved24());
-            propsMap.put("reserved25",materialLotUnits.get(0).getReserved25());
+            String lotType = materialLotUnits.get(0).getReserved25();
+            if (!StringUtils.isNullOrEmpty(lotType) && MaterialLotUnit.STRING_NULL.equals(lotType.toUpperCase().trim())){
+                lotType = StringUtils.EMPTY;
+            } else {
+                lotType = materialLotUnits.get(0).getReserved25();
+            }
+            propsMap.put("reserved25",lotType);
             propsMap.put("reserved26",materialLotUnits.get(0).getReserved26());
             propsMap.put("reserved27",materialLotUnits.get(0).getReserved27());
             propsMap.put("reserved28",materialLotUnits.get(0).getReserved28());
@@ -120,6 +126,7 @@ public class ImportMLotThread implements Callable {
                 materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                 materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                 materialLotUnit.setReserved18("0");
+                materialLotUnit.setReserved25(materialLot.getReserved25());
                 materialLotUnit.setReserved6(StringUtils.EMPTY);//来料导入时reserved6不是报税属性，暂时清空
                 materialLotUnit.setReserved7(StringUtils.EMPTY);//晶圆信息不保存产品型号
                 materialLotUnit.setReserved48(importCode);
