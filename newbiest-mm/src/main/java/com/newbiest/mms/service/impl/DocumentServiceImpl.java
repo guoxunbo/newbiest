@@ -1195,7 +1195,7 @@ public class DocumentServiceImpl implements DocumentService {
             BigDecimal totalQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getReservedQty));
             checkOrder = (CheckOrder)createDocument(checkOrder, document.getName(), CheckOrder.GENERATOR_CHECK_ORDER_ID_RULE, true, totalQty);
 
-            createDocumentLine(checkOrder, materialLotList, DocumentMLot.STATUS_CHECK_CREATE);
+            createDocumentLine(checkOrder, materialLotList, DocumentMLot.STATUS_CHECK_CREATE, CheckOrder.DEFAULT_CHECK_RESERVED_RULE);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -1217,7 +1217,7 @@ public class DocumentServiceImpl implements DocumentService {
             scrapOrder.setReserved1(document.getReserved1());
             scrapOrder = (ScrapOrder)createDocument(scrapOrder, document.getName(), ScrapOrder.GENERATOR_SCRAP_ORDER_ID_RULE, true, totalQty);
 
-            createDocumentLine(scrapOrder,materialLotList, DocumentMLot.STATUS_CREATE);
+            createDocumentLine(scrapOrder, materialLotList, DocumentMLot.STATUS_CREATE, ScrapOrder.DEFAULT_SCRAP_RESERVED_RULE);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -1230,10 +1230,10 @@ public class DocumentServiceImpl implements DocumentService {
      * @param bindStatus
      * @throws ClientException
      */
-    public void createDocumentLine(Document document, List<MaterialLot> materialLotList, String bindStatus) throws ClientException{
+    public void createDocumentLine(Document document, List<MaterialLot> materialLotList, String bindStatus, String reservedRule) throws ClientException{
         try {
             //根据仓库和物料分组
-            Map<String, List<MaterialLot>> materialNameAndWarehouseNameMap = materialLotList.stream().filter(mLot -> StringUtils.isNullOrEmpty(mLot.getMaterialLotId()))
+            Map<String, List<MaterialLot>> materialNameAndWarehouseNameMap = materialLotList.stream().filter(mLot -> StringUtils.isNullOrEmpty(mLot.getMaterialLotId()) || !StringUtils.isNullOrEmpty(mLot.getUnitId()))
                     .collect(Collectors.groupingBy(d -> d.getMaterialName() + StringUtils.SPLIT_CODE + d.getLastWarehouseId()));
             for (String materialNameAndWarehouseName : materialNameAndWarehouseNameMap.keySet()) {
                 List<MaterialLot> materialLots = materialNameAndWarehouseNameMap.get(materialNameAndWarehouseName);
@@ -1244,7 +1244,7 @@ public class DocumentServiceImpl implements DocumentService {
                 documentLine.setDocument(document);
                 documentLine.setUnHandledQty(qty);
                 documentLine.setQty(qty);
-                documentLine.setReserved24(ScrapOrder.DEFAULT_SCRAP_RESERVED_RULE);
+                documentLine.setReserved24(reservedRule);
                 if (!StringUtils.isNullOrEmpty(materialLot.getMaterialName())){
                     Material material = mmsService.getMaterialByName(materialLot.getMaterialName(), true);
                     documentLine.setMaterial(material);
@@ -1267,7 +1267,7 @@ public class DocumentServiceImpl implements DocumentService {
                 documentLine.setDocument(document);
                 documentLine.setUnHandledQty(docLineQty);
                 documentLine.setQty(docLineQty);
-                documentLine.setReserved24("");
+                documentLine.setReserved24(StringUtils.EMPTY);
                 baseService.saveEntity(documentLine);
                 Map<String, List<MaterialLot>> materialLotIdMap = mLots.stream().collect(Collectors.groupingBy(MaterialLot::getMaterialLotId));
                 for (String materialLotId : materialLotIdMap.keySet()) {

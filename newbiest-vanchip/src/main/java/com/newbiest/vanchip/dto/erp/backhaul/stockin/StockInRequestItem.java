@@ -118,6 +118,11 @@ public class StockInRequestItem implements Serializable {
      */
     private String Z_BATCH_BONBOOK;
 
+    /**
+     * customer lot no
+     */
+    private String Z_BATCH_CUSLOTNO;
+
     private String FIELD1;
     private String FIELD2;
     private String FIELD3;
@@ -134,7 +139,7 @@ public class StockInRequestItem implements Serializable {
     public StockInRequestItem copyMainMaterialLotToStockInRequestItem(MaterialLot materialLot, StockInRequestItem requestItem){
         requestItem.setMENGE(materialLot.getCurrentQty());
         requestItem.setMEINS(materialLot.getStoreUom());
-        requestItem.setZ_BATCH_CUSPO("客户订单号");
+        requestItem.setZ_BATCH_CUSPO(materialLot.getReserved6());
         requestItem.setZ_BATCH_SO(materialLot.getReserved7());
         requestItem.setZ_BATCH_INTERORDOR(materialLot.getWorkOrderId());
         requestItem.setZ_BATCH_CONTROLLOT(materialLot.getReserved4());
@@ -151,6 +156,7 @@ public class StockInRequestItem implements Serializable {
 //        requestItem.setZ_BATCH_CUSTOMER("客户");
         requestItem.setZ_BATCH_REMARK(materialLot.getIncomingComment());
         requestItem.setZ_BATCH_BONBOOK(materialLot.getReserved19());
+        requestItem.setZ_BATCH_CUSLOTNO(materialLot.getReserved5());
         return requestItem;
     }
 

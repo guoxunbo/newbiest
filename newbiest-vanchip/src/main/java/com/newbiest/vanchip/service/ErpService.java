@@ -16,7 +16,7 @@ public interface ErpService {
 
     void asyncIncomingOrReturn() throws ClientException;
 
-    void backhaulIncomingOrReturn(String documentId, List<MaterialLot> materialLots) throws ClientException;
+    void backhaulIncomingOrReturn(DocumentLine documentLine, List<MaterialLot> materialLots) throws ClientException;
 
     void backhaulDepartmentIssueOrReturn(List<MaterialLot> materialLots, String bwart, String kostl)throws ClientException;
 
