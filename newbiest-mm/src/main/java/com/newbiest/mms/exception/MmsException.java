@@ -57,5 +57,7 @@ public class MmsException {
     public static final String MATERIALLOT_PACKED_DETIAL_IS_NULL = "gc.material_lot_packed_detial_is_null";
     public static final String MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN = "gc.material_lot_wafer_qty_more_than_thirteen";
 
+    public static final String MATERIAL_LOT_IS_HOLD_BY_SCM = "gc.material_lot_is_hold_by_scm";
+    public static final String MATERIAL_LOT_IS_HOLD_BY_OTHERS = "gc.material_lot_is_hold_by_others";
 
 }
