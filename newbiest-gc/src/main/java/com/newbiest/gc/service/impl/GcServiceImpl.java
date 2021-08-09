@@ -5203,7 +5203,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             } else if(MaterialLotUnit.FAB_SENSOR.equals(importType) || MaterialLotUnit.FAB_SENSOR_2UNMEASURED.equals(importType) || MaterialLotUnit.SENSOR_CP_KLT.equals(importType)
-                    || MaterialLotUnit.SENSOR_CP.equals(importType) || MaterialLotUnit.SENSOR_UNMEASURED.equals(importType)){
+                    || MaterialLotUnit.SENSOR_CP.equals(importType) || MaterialLotUnit.SENSOR_UNMEASURED.equals(importType) || MaterialLotUnit.SOC_WAFER_UNMEASURED.equals(importType)){
                 //根据页面是否勾选四位码检测flag，验证来料信息四位码是否符合，不符合不让导入
                 if(MaterialLot.PRINT_CHECK.equals(checkFourCodeFlag)){
                     validateMaterialLotUnitFourCode(materialLotUnitList);
@@ -5219,11 +5219,17 @@ public class GcServiceImpl implements GcService {
                         waferSource = valiateMaterialNameAndGetWaferSource(materialName);
 
                         List<MaterialLotUnit> materialLotUnits = mLotUnitMap.get(materialName);
+                        String productCategory = MaterialLotUnit.PRODUCT_CLASSIFY_CP;
+                        String importClass = MaterialLot.IMPORT_SENSOR_CP;
+                        if(MaterialLotUnit.SOC_WAFER_UNMEASURED.equals(importType)){
+                            productCategory = MaterialLotUnit.PRODUCT_CLASSIFY_SOC;
+                            importClass = MaterialLot.IMPORT_SOC;
+                        }
                         for(MaterialLotUnit materialLotUnit : materialLotUnits){
-                            materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_CP);
+                            materialLotUnit.setReserved7(productCategory);
                             materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());
                             materialLotUnit.setReserved50(waferSource);
-                            materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR_CP);
+                            materialLotUnit.setReserved49(importClass);
                         }
                     }
                 }
@@ -5294,6 +5300,10 @@ public class GcServiceImpl implements GcService {
                 waferSource = MaterialLot.WAFER_SOURCE_END1;
             } else if(materialName.endsWith("-2.1") || materialName.endsWith("-1.1") || materialName.endsWith("-1.4")) {
                 waferSource = MaterialLot.WAFER_SOURCE_END2;
+            } else if(materialName.endsWith("-2.5") || materialName.endsWith("-2.55")){
+                waferSource = MaterialLot.SOC_WAFER_SOURCE_UNMEASUREN;
+            } else if(materialName.endsWith("-2.6")) {
+                waferSource = MaterialLot.SOC_WAFER_SOURCE_MEASURE;
             } else {
                 throw new ClientParameterException(GcExceptions.MATERIALNAME_IS_ERROR, materialName);
             }
@@ -8617,7 +8627,8 @@ public class GcServiceImpl implements GcService {
         try {
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
             if(MaterialLotUnit.SENSOR_CP.equals(importType) || MaterialLotUnit.FAB_SENSOR.equals(importType) || MaterialLotUnit.SENSOR_CP_KLT.equals(importType)
-                    || MaterialLotUnit.SENSOR_UNMEASURED.equals(importType) || MaterialLotUnit.FAB_SENSOR_2UNMEASURED.equals(importType)){
+                    || MaterialLotUnit.SENSOR_UNMEASURED.equals(importType) || MaterialLotUnit.FAB_SENSOR_2UNMEASURED.equals(importType)
+                    || MaterialLotUnit.SOC_WAFER_UNMEASURED.equals(importType)){
                 changeMaterialNameByModelCategory(materialLotUnitMap, MaterialLot.IMPORT_SENSOR_CP);
             } else if(MaterialLotUnit.LCD_CP_25UNMEASURED.equals(importType) || MaterialLotUnit.FAB_LCD_PTC.equals(importType) || MaterialLotUnit.FAB_LCD_SILTERRA.equals(importType)
                     || MaterialLotUnit.LCD_CP.equals(importType)){

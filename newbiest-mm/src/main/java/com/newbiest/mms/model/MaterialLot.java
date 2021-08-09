@@ -197,6 +197,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
     public static final String RAW_MATERIAL_WAFER_SOURCE = "60";
     public static final String CP_CHANGGE_RW_WAFER_SOURCE = "21";
+    public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
+    public static final String SOC_WAFER_SOURCE_MEASURE = "14";
 
     /**
      * 根据产品结尾数字获取WaferSource
