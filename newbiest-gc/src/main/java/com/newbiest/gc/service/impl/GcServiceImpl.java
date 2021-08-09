@@ -5224,6 +5224,9 @@ public class GcServiceImpl implements GcService {
                         if(MaterialLotUnit.SOC_WAFER_UNMEASURED.equals(importType)){
                             productCategory = MaterialLotUnit.PRODUCT_CLASSIFY_SOC;
                             importClass = MaterialLot.IMPORT_SOC;
+                            if(materialName.endsWith("-1.1")) {
+                                waferSource = MaterialLot.SOC_WAFER_SOURCE_MEASURE;
+                            }
                         }
                         for(MaterialLotUnit materialLotUnit : materialLotUnits){
                             materialLotUnit.setReserved7(productCategory);
@@ -9421,7 +9424,7 @@ public class GcServiceImpl implements GcService {
             waferIssueWithOutDocument(materialLots);
 
             //将晶圆信息保存至Mes backendWaferReceive表中
-            mesService.saveBackendWaferReceive(materialLots);
+            //mesService.saveBackendWaferReceive(materialLots);
 
             boolean waferIssueToMesPlanLot = SystemPropertyUtils.getWaferIssueToMesPlanLot();
             log.info("wafer issue to mes plan lot flag is " + waferIssueToMesPlanLot);
