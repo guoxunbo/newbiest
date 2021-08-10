@@ -13,6 +13,8 @@ import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.GCFutureHoldConfig;
+import com.newbiest.gc.model.GCFutureHoldConfigHis;
+import com.newbiest.gc.repository.GCFutureHoldConfigHisRepository;
 import com.newbiest.gc.repository.GCFutureHoldConfigRepository;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequest;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
@@ -131,6 +133,9 @@ public class ScmServiceImpl implements ScmService {
     @Autowired
     GCFutureHoldConfigRepository gcFutureHoldConfigRepository;
 
+    @Autowired
+    GCFutureHoldConfigHisRepository gcFutureHoldConfigHisRepository;
+
     @PostConstruct
     public void init() {
         CloseableHttpClient client = createHttpClient().build();
@@ -153,10 +158,18 @@ public class ScmServiceImpl implements ScmService {
                 }
                 if (materialLot == null) {
                     // 不存在 则做预Hold
-                    GCFutureHoldConfig gcFutureHoldConfig = new GCFutureHoldConfig();
-                    gcFutureHoldConfig.setLotId(materialLotId);
-                    gcFutureHoldConfig.setHoldReason(actionReason);
-                    gcFutureHoldConfigRepository.save(gcFutureHoldConfig);
+                    GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(materialLotId);
+                    if(gcFutureHoldConfig == null){
+                        gcFutureHoldConfig = new GCFutureHoldConfig();
+                        gcFutureHoldConfig.setLotId(materialLotId);
+                        gcFutureHoldConfig.setHoldReason(actionReason);
+                        gcFutureHoldConfigRepository.save(gcFutureHoldConfig);
+
+                        GCFutureHoldConfigHis history = (GCFutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, GCFutureHoldConfigHis.SCM_ADD);
+                        gcFutureHoldConfigHisRepository.save(history);
+                    } else {
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, materialLotId);
+                    }
                 } else {
                     MaterialLotAction materialLotAction = new MaterialLotAction();
                     materialLotAction.setActionCode(actionCode);
@@ -178,13 +191,22 @@ public class ScmServiceImpl implements ScmService {
                 materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(materialLotId, MaterialLot.STATUS_FIN);
             }
             if (materialLot == null) {
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+                GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(materialLotId);
+                if(gcFutureHoldConfig == null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+                } else {
+                    gcFutureHoldConfigRepository.delete(gcFutureHoldConfig);
+
+                    GCFutureHoldConfigHis history = (GCFutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, GCFutureHoldConfigHis.SCM_DELETE);
+                    gcFutureHoldConfigHisRepository.save(history);
+                }
+            } else {
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setActionCode(actionCode);
+                materialLotAction.setActionReason(actionReason);
+                materialLotAction.setActionComment(actionRemarks);
+                mmsService.releaseMaterialLot(materialLot, materialLotAction);
             }
-            MaterialLotAction materialLotAction = new MaterialLotAction();
-            materialLotAction.setActionCode(actionCode);
-            materialLotAction.setActionReason(actionReason);
-            materialLotAction.setActionComment(actionRemarks);
-            mmsService.releaseMaterialLot(materialLot, materialLotAction);
         }
     }
 
