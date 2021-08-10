@@ -444,7 +444,13 @@ public class MaterialLotHistory extends NBHis {
      * 打印次数, 控制不能随便打印。
      */
     @Column(name= "PRINT_COUNT")
-    private BigDecimal printCount;
+    private BigDecimal printCount = BigDecimal.ZERO;
+
+    /**
+     * 重测标识
+     */
+    @Column(name= "RETEST_FLAG")
+    private String retestFlag;
 
     /**
      * PackageSize

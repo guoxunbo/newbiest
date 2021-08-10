@@ -9,6 +9,9 @@ import java.math.BigDecimal;
 @Data
 public class StockTransferRequestItem implements Serializable {
 
+    //调拨MES的目标仓库
+    private static final String TARGET_WAREHOUSE = "MATERIAL_BANK";
+
     //项目号
     private Integer ZEILE;
     //物料号
