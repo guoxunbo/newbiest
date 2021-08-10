@@ -7269,32 +7269,61 @@ public class GcServiceImpl implements GcService {
     @Override
     public void rWAttributeChange(List<MaterialLot> materialLots) throws ClientException {
         try {
-            for(MaterialLot materialLot : materialLots){
-                String waferSource = materialLot.getReserved50();
-                if (!StringUtils.isNullOrEmpty(waferSource)){
-                    if (MaterialLot.RW_TO_CP_WAFER_SOURCE.equals(waferSource)) {
-                        materialLot.setReserved50(MaterialLot.SCP_WAFER_SOURCE);
-                    }else if (MaterialLot.SCP_WAFER_SOURCE.equals(waferSource)){
-                        materialLot.setReserved50(MaterialLot.RW_TO_CP_WAFER_SOURCE);
+            List<MaterialLot> unPackedMLotList = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())).collect(Collectors.toList());
+            Map<String, List<MaterialLot>> packedMLotMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())).collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            if (packedMLotMap.size() > 0) {
+                for (String parentMaterialLotId : packedMLotMap.keySet()) {
+                    List<MaterialLot> packedMLotList = packedMLotMap.get(parentMaterialLotId);
+                    List<MaterialLot> materialLotList = materialLotRepository.getByParentMaterialLotId(parentMaterialLotId);
+                    if (packedMLotList.size() == materialLotList.size()){
+                        for (MaterialLot materialLot : materialLotList) {
+                            rwLotAttributeChange(materialLot);
+                        }
+                        MaterialLot packedMaterialLot = mmsService.getMLotByMLotId(parentMaterialLotId);
+                        rwLotAttributeChange(packedMaterialLot);
+                    } else {
+                        throw new ClientParameterException(GcExceptions.MATERIALLOT_PACKAGE_MUST_REMARK_ALL, parentMaterialLotId);
                     }
-                    if (MaterialLot.RW_WAFER_SOURCE.equals(waferSource)) {
-                        materialLot.setReserved50(MaterialLot.COB_WAFER_SOURCE);
-                    } else if(MaterialLot.COB_WAFER_SOURCE.equals(waferSource)) {
-                        materialLot.setReserved50(MaterialLot.RW_WAFER_SOURCE);
-                    }
+                }
+            }
+            for(MaterialLot materialLot : unPackedMLotList){
+                rwLotAttributeChange(materialLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
-                    materialLot = materialLotRepository.saveAndFlush(materialLot);
-                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_WAFER_SOURCE_UPDATE);
-                    materialLotHistoryRepository.save(history);
+    /**
+     * 修改单个materialLot的属性
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void rwLotAttributeChange(MaterialLot materialLot) throws ClientException {
+        try {
+            String waferSource = materialLot.getReserved50();
+            if (!StringUtils.isNullOrEmpty(waferSource)){
+                if (MaterialLot.RW_TO_CP_WAFER_SOURCE.equals(waferSource)) {
+                    materialLot.setReserved50(MaterialLot.SCP_WAFER_SOURCE);
+                }else if (MaterialLot.SCP_WAFER_SOURCE.equals(waferSource)){
+                    materialLot.setReserved50(MaterialLot.RW_TO_CP_WAFER_SOURCE);
+                }
+                if (MaterialLot.RW_WAFER_SOURCE.equals(waferSource)) {
+                    materialLot.setReserved50(MaterialLot.COB_WAFER_SOURCE);
+                } else if(MaterialLot.COB_WAFER_SOURCE.equals(waferSource)) {
+                    materialLot.setReserved50(MaterialLot.RW_WAFER_SOURCE);
+                }
 
-                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
-                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                        materialLotUnit.setReserved50(materialLot.getReserved50());
-                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_WAFER_SOURCE_UPDATE);
-                        materialLotUnitHisRepository.save(materialLotUnitHistory);
-                    }
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_WAFER_SOURCE_UPDATE);
+                materialLotHistoryRepository.save(history);
 
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setReserved50(materialLot.getReserved50());
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                    MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_WAFER_SOURCE_UPDATE);
+                    materialLotUnitHisRepository.save(materialLotUnitHistory);
                 }
             }
         } catch (Exception e) {
