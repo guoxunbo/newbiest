@@ -4398,18 +4398,20 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setMaterial(material);
                     materialLotUnit.setState(MaterialLotUnit.STATE_IN);
                     materialLotUnit.setGrade(packedLot.getGrade());
-                    materialLotUnit.setWorkOrderId(packedLot.getWorkorderId());
+                    materialLotUnit.setWorkOrderId(materialLot.getWorkOrderId());
+                    materialLotUnit.setPcode(materialLot.getPcode());
                     materialLotUnit.setCurrentQty(BigDecimal.valueOf(packedLot.getQuantity()));
                     materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                     materialLotUnit.setTreasuryNote(packedLot.getTreasuryNote());
                     materialLotUnit.setSourceProductId(packedLot.getOrgProductId());
                     materialLotUnit.setReceiveQty(BigDecimal.valueOf(packedLot.getQuantity()));
                     materialLotUnit.setReserved1(packedLot.getLevelTwoCode());
-                    materialLotUnit.setReserved3(String.valueOf(mesPackedLotList.size()));
+                    materialLotUnit.setReserved3(StringUtils.EMPTY);
                     materialLotUnit.setReserved4(packedLot.getBondedProperty());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved38(packedLot.getWaferMark());
+                    materialLotUnit.setReserved49(materialLot.getReserved49());
                     materialLotUnit.setReserved50(materialLot.getReserved50());
                     materialLotUnit.setReserved22(materialLot.getReserved22());
                     materialLotUnit.setReserved24(materialLot.getReserved24());
@@ -4635,7 +4637,7 @@ public class GcServiceImpl implements GcService {
                 packedLot.setSubName(MesPackedLot.SH_SUB_NAME);
             }
             packedLot.setProductType(materialLot.getProductType());
-            packedLot.setImportType(StringUtils.EMPTY);
+            packedLot.setImportType(MaterialLot.IMPORT_COB);
             packedLot.setWaferId(StringUtils.EMPTY);
             packedLot.setFabDevice(materialLot.getReserved24());
             packedLot.setQuantity(totalQuantity.intValue());

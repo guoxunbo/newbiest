@@ -15,6 +15,10 @@ import javax.persistence.Table;
 @Table(name="GC_FUTURE_HOLD_CONFIG_HIS")
 @Data
 public class GCFutureHoldConfigHis extends NBHis {
+
+    public static final String SCM_ADD = "SCMADD";
+    public static final String SCM_DELETE = "SCMDELETE";
+
     /**
      * LotId
      */
