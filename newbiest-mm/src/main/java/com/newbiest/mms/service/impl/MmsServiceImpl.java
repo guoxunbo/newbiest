@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.newbiest.mms.exception.MmsException.MATERIAL_LOT_IS_HOLD_BY_SCM;
+
 /**
  * Created by guoxunbo on 2019/2/13.
  */
@@ -48,6 +50,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class MmsServiceImpl implements MmsService {
+
+    public static final String USER_SCM = "SCM";
 
     @Autowired
     BaseService baseService;
@@ -103,6 +107,8 @@ public class MmsServiceImpl implements MmsService {
     @Autowired
     MaterialNameInfoRepository materialNameInfoRepository;
 
+    @Autowired
+    MaterialLotHoldInfoRepository materialLotHoldInfoRepository;
 
     /**
      * 根据名称获取源物料。
@@ -831,10 +837,15 @@ public class MmsServiceImpl implements MmsService {
             materialLot = getMLotByObjectRrn(materialLot.getObjectRrn());
             materialLot.validateMLotHold();
 
-            // 物料批次只会hold一次。多重Hold只会记录历史，并不会产生多重Hold记录
+            //GC 物料批次只会hold一次。多重Hold只会记录历史，并不会产生多重Hold记录
             materialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
             materialLot.setHoldReason(materialLotAction.getActionReason());
             materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHoldInfo materialLotHoldInfo = new MaterialLotHoldInfo();
+            materialLotHoldInfo.setMaterialLot(materialLot);
+            materialLotHoldInfo.setMaterialLotAction(materialLotAction);
+            materialLotHoldInfoRepository.save(materialLotHoldInfo);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
             history.buildByMaterialLotAction(materialLotAction);
@@ -859,6 +870,23 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setHoldState(MaterialLot.HOLD_STATE_OFF);
             materialLot.setHoldReason(StringUtils.EMPTY);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            List<MaterialLotHoldInfo> materialLotHoldInfos = materialLotHoldInfoRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            if (CollectionUtils.isNotEmpty(materialLotHoldInfos)) {
+                // GC 暂时只有一重Hold。故直接从Hold用户上判断即可
+                MaterialLotHoldInfo materialLotHoldInfo = materialLotHoldInfos.get(0);
+                // 其他人不能解除SCM的Hold SCM不能解除其他的Hold
+                if (USER_SCM.equals(ThreadLocalContext.getUsername())) {
+                    if (!USER_SCM.equals(materialLotHoldInfo.getCreatedBy())) {
+                        throw new ClientException(MmsException.MATERIAL_LOT_IS_HOLD_BY_OTHERS);
+                    }
+                } else {
+                    if (USER_SCM.equals(materialLotHoldInfo.getCreatedBy())) {
+                        throw new ClientException(MmsException.MATERIAL_LOT_IS_HOLD_BY_SCM);
+                    }
+                }
+                materialLotHoldInfoRepository.delete(materialLotHoldInfo);
+            }
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RELEASE);
             history.buildByMaterialLotAction(materialLotAction);

@@ -47,4 +47,7 @@ public class GCRawMaterialSaveRequestBody extends RequestBody {
 
     @ApiModelProperty(value = "发料绑定单据")
     private String issueWithDoc;
+
+    @ApiModelProperty(value = "手持端发料单据日期")
+    private String erpTime;
 }

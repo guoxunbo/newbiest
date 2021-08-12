@@ -58,6 +58,7 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String LCD_COG_DETIAL = "GCLcdCogDetial";//LCD(COG成品-明细)
     public static final String FINISH_PRODUCT_IMPORT = "GCFinishProductImport";//成品导入模板
     public static final String SOC_FINISH_PRODUCT = "GCSOCFinishProduct"; //COB（-4成品）
+    public static final String SOC_WAFER_UNMEASURED = "GCSOCWaferUnmeasured"; //SOC晶圆未测、已测
 
 
     //产品型号
@@ -83,7 +84,7 @@ public class MaterialLotUnit extends NBUpdatable {
 
     public static final Integer THIRTEEN = 13;
 
-
+    public static final String STRING_NULL = "NULL";
 
     @Column(name="UNIT_ID")
     private String unitId;

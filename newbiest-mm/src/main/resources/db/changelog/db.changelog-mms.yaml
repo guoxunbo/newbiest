@@ -689,3 +689,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileTransferBoxChangeStorage.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRawMaterialIssue.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.material_lot_hold_info.yaml
+      relativeToChangelogFile: true

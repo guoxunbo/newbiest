@@ -617,4 +617,10 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileTransferBoxChangeStorage_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRawMaterialIssue_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCSOCWaferUnmeasured_nb_table.yaml
+      relativeToChangelogFile: true
 

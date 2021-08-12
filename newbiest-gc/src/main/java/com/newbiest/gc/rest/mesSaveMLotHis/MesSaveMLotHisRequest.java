@@ -43,6 +43,11 @@ public class MesSaveMLotHisRequest extends Request {
 	 */
 	public static final String ACTION_GLUE_RETURN = "GlueReturnWarehouse";
 
+	/**
+	 * Mes排料绑工单
+	 */
+	public static final String ACTION_BIND_WORKORDER = "BindWorkorder";
+
 	private MesSaveMLotHisRequestBody body;
 
 }

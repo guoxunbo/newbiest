@@ -123,6 +123,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String MLOT_THREESIDE_DOC_VALIDATE_RULE_ID = "MLotThreeSideDocRule";  //三方销售单据验证规则
     public static final String RW_MLOT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "RwMLotStockOutDocRule";  //RW出货单据验证规则
     public static final String RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID = "RwMaterialScrapShipDocRule";  //原材料报废出库单据验证规则
+    public static final String MOBILE_RAW_ISSUE_WHERE_CLAUSE="GCRawMaterialIssueOrder";
 
     /**
      * 香港仓依订单出货
@@ -196,6 +197,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
     public static final String RAW_MATERIAL_WAFER_SOURCE = "60";
     public static final String CP_CHANGGE_RW_WAFER_SOURCE = "21";
+    public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
+    public static final String SOC_WAFER_SOURCE_MEASURE = "14";
 
     /**
      * 根据产品结尾数字获取WaferSource
