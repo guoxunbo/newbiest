@@ -37,4 +37,7 @@ public class WaferManagerRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "接收匹配单据")
 	private String receiveWithDoc;
+
+	@ApiModelProperty(value = "物料批次号")
+	private String lotId;
 }

@@ -623,4 +623,7 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCSOCWaferUnmeasured_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileWaferIssueOut_nb_table.yaml
+      relativeToChangelogFile: true
 
