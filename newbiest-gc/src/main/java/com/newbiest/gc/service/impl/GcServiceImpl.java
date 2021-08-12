@@ -4537,7 +4537,7 @@ public class GcServiceImpl implements GcService {
 
                     // 产地是空的话则是ZJ仓库
                     String warehouseName = WAREHOUSE_ZJ;
-                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty()) && MaterialLot.BONDED_PROPERTY_ZSH.equals(mesPackedLot.getBondedProperty())) {
+                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty()) && MaterialLot.LOCATION_SH.equals(mesPackedLot.getBondedProperty())) {
                         warehouseName = WAREHOUSE_SH;
                     }
 
@@ -5062,6 +5062,44 @@ public class GcServiceImpl implements GcService {
                 }
             }
             return materialLotList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 手持端获取晶圆
+     * @param tableRrn
+     * @param lotId
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot mobileValidationAndGetWait(Long tableRrn,String lotId) throws ClientException{
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.DEFAULT_REVERSE_DATA_PATTERN);
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String _whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+
+            MaterialLot materialLot = new MaterialLot();
+            if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
+                StringBuffer clauseBuffer = new StringBuffer(_whereClause);
+                if(!StringUtils.isNullOrEmpty(lotId)){
+                    clauseBuffer.append(" AND lotId = '" + lotId + "'");
+                }
+                _whereClause = clauseBuffer.toString();
+            }
+
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
+            if (CollectionUtils.isNotEmpty(materialLots)){
+                materialLot = materialLots.get(0);
+                String workOrderPlanTime = materialLot.getWorkOrderPlanputTime();
+                Date workOrderPlanPutTime = formatter.parse(workOrderPlanTime);
+                if(!workOrderPlanPutTime.before(new Date())){
+                    materialLot = new MaterialLot();
+                }
+            }
+            return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

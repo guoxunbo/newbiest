@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileWaferIssueOut_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileWaferIssueOut to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileWaferIssueOut
+              description: 手持端晶圆发料
+              tableName: GCMobileWaferIssueOut
+              mobileFlag: Y
+              url: /Mobile/MobileWaferIssueOut
+              parentRrn: 2
+              seqNo: 180
+              image: icon-rule
+              labelZh: 晶圆发料
+              labelEn: WaferIssueOut
