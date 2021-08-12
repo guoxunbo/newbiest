@@ -2954,7 +2954,6 @@ public class GcServiceImpl implements GcService {
                     }
                     String workOrderId = materialLot.getWorkOrderId();
                     String grade = materialLot.getGrade();
-                    String lotId = materialLot.getLotId();
                     GCWorkorderRelation workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGrade(workOrderId, grade);
                     if(workorderRelation == null){
                         workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNull(workOrderId);
@@ -2967,11 +2966,8 @@ public class GcServiceImpl implements GcService {
                         materialLotAction.setActionReason(workorderRelation.getHoldReason());
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
                     }
-                    GCFutureHoldConfig futureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
-                    if (futureHoldConfig != null){
-                        MaterialLotAction materialLotAction = new MaterialLotAction();
-                        materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
-                        mmsService.holdMaterialLot(materialLot, materialLotAction);
+                    if(StringUtils.isNullOrEmpty(materialLot.getLotId())){
+                        validateFutureHoldByLotId(materialLot.getLotId());
                     }
                 }
             };
@@ -2987,6 +2983,29 @@ public class GcServiceImpl implements GcService {
             }
             if(CollectionUtils.isNotEmpty(erpMoaList)){
                 erpMoaRepository.saveAll(erpMoaList);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据LotId验证物料批次是否需要预约Hold操作
+     * @param lotId
+     * @throws ClientException
+     */
+    private void validateFutureHoldByLotId(String lotId) throws ClientException{
+        try {
+            List<GCFutureHoldConfig> futureHoldConfigList = futureHoldConfigRepository.getByLotIdLike(lotId + "%");
+            if (CollectionUtils.isNotEmpty(futureHoldConfigList)){
+                for(GCFutureHoldConfig futureHoldConfig : futureHoldConfigList){
+                    MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(futureHoldConfig.getLotId(), MaterialLot.STATUS_FIN);
+                    if(materialLot != null && MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
+                        MaterialLotAction materialLotAction = new MaterialLotAction();
+                        materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
+                        mmsService.holdMaterialLot(materialLot, materialLotAction);
+                    }
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -5401,6 +5420,7 @@ public class GcServiceImpl implements GcService {
             }
 
             for(MaterialLot materialLot : materialLots){
+                validateFutureHoldByLotId(materialLot.getLotId());
                 warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                 log.info("insert materialLot to mte_in_stock");
                 saveErpInStock(materialLot, materialLot.getProductType(), warehouse.getName());
