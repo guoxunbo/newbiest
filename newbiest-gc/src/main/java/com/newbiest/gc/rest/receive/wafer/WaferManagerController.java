@@ -71,6 +71,9 @@ public class WaferManagerController extends AbstractRestController {
             gcService.validateAndReceiveCogMLot(documentLineList, materialLotActions);
         } else if(WaferManagerRequest.ACTION_TYPE_OUTORDER_ISSUE.equals(actionType)){
             gcService.waferOutOrderIssue(materialLotActions);
+        } else if (WaferManagerRequest.ACTION_TYPE_MOBILE_GET_WAFER.equals(actionType)){
+            MaterialLot materialLot = gcService.mobileValidationAndGetWait(requestBody.getTableRrn(), requestBody.getLotId());
+            responseBody.setMaterialLot(materialLot);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }

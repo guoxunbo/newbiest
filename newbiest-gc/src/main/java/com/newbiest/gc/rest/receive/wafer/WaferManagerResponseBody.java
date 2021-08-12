@@ -19,6 +19,8 @@ public class WaferManagerResponseBody extends ResponseBody {
 
 	private List<MaterialLot> materialLotList;
 
+	private MaterialLot materialLot;
+
 	private String workOrderId;
 
 	private List<java.util.Map<String, String>> parameterMapList = Lists.newArrayList();
