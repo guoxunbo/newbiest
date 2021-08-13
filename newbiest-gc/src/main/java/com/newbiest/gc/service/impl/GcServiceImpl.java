@@ -2966,7 +2966,7 @@ public class GcServiceImpl implements GcService {
                         materialLotAction.setActionReason(workorderRelation.getHoldReason());
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
                     }
-                    if(StringUtils.isNullOrEmpty(materialLot.getLotId())){
+                    if(!StringUtils.isNullOrEmpty(materialLot.getLotId())){
                         validateFutureHoldByLotId(materialLot.getLotId());
                     }
                 }
