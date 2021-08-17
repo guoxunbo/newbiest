@@ -151,31 +151,30 @@ public class ScmServiceImpl implements ScmService {
 
     public void scmHold(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
         try {
-            for (String materialLotId : materialLotIdList) {
-                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, false);
-                if (materialLot == null) {
-                    materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(materialLotId, MaterialLot.STATUS_FIN);
-                }
-                if (materialLot == null) {
+            for (String lotId : materialLotIdList) {
+                List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
+                if (CollectionUtils.isEmpty(materialLotList)) {
                     // 不存在 则做预Hold
-                    GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(materialLotId);
+                    GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(lotId);
                     if(gcFutureHoldConfig == null){
                         gcFutureHoldConfig = new GCFutureHoldConfig();
-                        gcFutureHoldConfig.setLotId(materialLotId);
+                        gcFutureHoldConfig.setLotId(lotId);
                         gcFutureHoldConfig.setHoldReason(actionReason);
                         gcFutureHoldConfigRepository.save(gcFutureHoldConfig);
 
                         GCFutureHoldConfigHis history = (GCFutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, GCFutureHoldConfigHis.SCM_ADD);
                         gcFutureHoldConfigHisRepository.save(history);
                     } else {
-                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, materialLotId);
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, lotId);
                     }
                 } else {
-                    MaterialLotAction materialLotAction = new MaterialLotAction();
-                    materialLotAction.setActionCode(actionCode);
-                    materialLotAction.setActionReason(actionReason);
-                    materialLotAction.setActionComment(actionRemarks);
-                    mmsService.holdMaterialLot(materialLot, materialLotAction);
+                    for(MaterialLot materialLot : materialLotList){
+                        MaterialLotAction materialLotAction = new MaterialLotAction();
+                        materialLotAction.setActionCode(actionCode);
+                        materialLotAction.setActionReason(actionReason);
+                        materialLotAction.setActionComment(actionRemarks);
+                        mmsService.holdMaterialLot(materialLot, materialLotAction);
+                    }
                 }
             }
 
@@ -185,15 +184,12 @@ public class ScmServiceImpl implements ScmService {
     }
 
     public void scmRelease(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
-        for (String materialLotId : materialLotIdList) {
-            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, false);
-            if (materialLot == null) {
-                materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(materialLotId, MaterialLot.STATUS_FIN);
-            }
-            if (materialLot == null) {
-                GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(materialLotId);
+        for (String lotId : materialLotIdList) {
+            List<MaterialLot> materialLots = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
+            if (CollectionUtils.isEmpty(materialLots)) {
+                GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(lotId);
                 if(gcFutureHoldConfig == null){
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
                 } else {
                     gcFutureHoldConfigRepository.delete(gcFutureHoldConfig);
 
@@ -201,11 +197,13 @@ public class ScmServiceImpl implements ScmService {
                     gcFutureHoldConfigHisRepository.save(history);
                 }
             } else {
-                MaterialLotAction materialLotAction = new MaterialLotAction();
-                materialLotAction.setActionCode(actionCode);
-                materialLotAction.setActionReason(actionReason);
-                materialLotAction.setActionComment(actionRemarks);
-                mmsService.releaseMaterialLot(materialLot, materialLotAction);
+                for(MaterialLot materialLot : materialLots){
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setActionCode(actionCode);
+                    materialLotAction.setActionReason(actionReason);
+                    materialLotAction.setActionComment(actionRemarks);
+                    mmsService.releaseMaterialLot(materialLot, materialLotAction);
+                }
             }
         }
     }
