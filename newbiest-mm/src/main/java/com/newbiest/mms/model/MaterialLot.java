@@ -157,6 +157,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public static final String BONDED_PROPERTY_LIST = "GCBondedPropertyList";
 
+    public static final String GC_RAW_MATERIAL_WAIT_ISSUE_MLOT = "GCRawMaterialWaitIssueMLot";
+
     public static final String PRINT_CHECK = "check";
     public static final String PRINT_DATE_PATTERN = "yyMMdd";
     public static final String PRODUCT_CATEGORY = "COM";
