@@ -4936,8 +4936,16 @@ public class GcServiceImpl implements GcService {
                 List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                 if(CollectionUtils.isNotEmpty(packageDetailLots)){
                     for(MaterialLot packageLot : packageDetailLots){
-                        materialLotAction.setTransQty(packageLot.getCurrentQty());
-                        mmsService.holdMaterialLot(packageLot,materialLotAction);
+                        if(MaterialLot.HOLD_STATE_OFF.equals(packageLot.getHoldState())){
+                            materialLotAction.setTransQty(packageLot.getCurrentQty());
+                            mmsService.holdMaterialLot(packageLot,materialLotAction);
+
+                            //对箱号Hold时，验证箱中的物料批次是否时CP的，判断是否做SCM报告
+                            if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
+                                    || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()))){
+                                scmReportMLotList.add(materialLot);
+                            }
+                        }
                     }
                 }
 
@@ -4963,8 +4971,10 @@ public class GcServiceImpl implements GcService {
                 }
             }
 
+            log.info("MaterialLots report scm status is" + scmReportMLotList);
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
                 scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
+                log.info("MaterialLots report scm status  hold end");
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -4990,6 +5000,12 @@ public class GcServiceImpl implements GcService {
                     for(MaterialLot packageLot : packageDetailLots){
                         materialLotAction.setTransQty(packageLot.getCurrentQty());
                         mmsService.releaseMaterialLot(packageLot,materialLotAction);
+
+                        //对箱号Release时，验证箱中的物料批次是否时CP的，判断是否做SCM报告
+                        if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
+                                || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()))){
+                            scmReleaseReportMLotList.add(materialLot);
+                        }
                     }
                 }
 
@@ -5018,8 +5034,10 @@ public class GcServiceImpl implements GcService {
                 }
             }
 
+            log.info("scm report materialLots release  status is " + scmReleaseReportMLotList);
             if(CollectionUtils.isNotEmpty(scmReleaseReportMLotList)){
                 scmService.sendMaterialStateReport(scmReleaseReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_RELEASE);
+                log.info("scm report materialLots release end");
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -8789,12 +8807,9 @@ public class GcServiceImpl implements GcService {
                 }
             }
 
+            log.info("scm materialLots is " + scmReportMLotList);
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
-                if(MaterialLot.TRANSTYPE_BIND_WORKORDER.equals(transId)){
-                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_PLAN);
-                } else if(MaterialLot.TRANSTYPE_UN_BIND_WORKORDER.equals(transId)){
-                    scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_UN_PLAN);
-                }
+                sendMaterialStateToScmReport(scmReportMLotList, transId);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -8903,6 +8918,7 @@ public class GcServiceImpl implements GcService {
     @Override
     public void mesMaterialLotBindWorkOrderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException {
         try {
+            List<MaterialLot> scmReportMLotList = Lists.newArrayList();
             for(MaterialLot materialLot : materialLotList){
                 String workOrderId = materialLot.getWorkOrderId();
                 String workOrderPlanputTime = materialLot.getWorkOrderPlanputTime();
@@ -8916,6 +8932,11 @@ public class GcServiceImpl implements GcService {
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
                 materialLotHistoryRepository.save(history);
 
+                if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
+                        || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()))){
+                    scmReportMLotList.add(materialLot);
+                }
+
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                     materialLotUnit.setWorkOrderId(workOrderId);
@@ -8926,10 +8947,36 @@ public class GcServiceImpl implements GcService {
                     materialLotUnitHisRepository.save(materialLotUnitHistory);
                 }
             }
+
+            log.info("scm materialLots is " + scmReportMLotList);
+            if(CollectionUtils.isNotEmpty(scmReportMLotList)){
+                sendMaterialStateToScmReport(scmReportMLotList, transId);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 发送物料批次状态报告给SCM
+     * @param scmReportMLotList
+     * @param transId
+     * @throws ClientException
+     */
+    private void sendMaterialStateToScmReport(List<MaterialLot> scmReportMLotList, String transId) throws ClientException{
+        try{
+            log.info("materialLot send to scm  start report materialLots is " + scmReportMLotList);
+            if(MaterialLot.TRANSTYPE_BIND_WORKORDER.equals(transId)){
+                scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_PLAN);
+            } else if(MaterialLot.TRANSTYPE_UN_BIND_WORKORDER.equals(transId)){
+                scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_UN_PLAN);
+            }
+            log.info("materialLot send to scm  report request end");
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 
     /**
      * HongKong仓接收物料批次（暂时只做接收入库，不对晶圆做eng验证，不写入中间表）
