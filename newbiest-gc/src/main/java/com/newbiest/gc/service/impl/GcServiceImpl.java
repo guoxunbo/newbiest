@@ -9537,6 +9537,19 @@ public class GcServiceImpl implements GcService {
     public void validateAndRawMaterialIssue(List<DocumentLine> documentLineList, List<MaterialLot> materialLotList, String issueWithDoc) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotList.stream().map(materialLot -> mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true)).collect(Collectors.toList());
+
+            List<MaterialLot> glueMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_GLUE.equals(materialLot.getMaterialType())).collect(Collectors.toList());
+            List<MaterialLot> goldMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_GOLD.equals(materialLot.getMaterialType())).collect(Collectors.toList());
+            List<MaterialLot> IRAMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_IRA.equals(materialLot.getMaterialType())).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(glueMLots)) {
+                validateRawIssueExpDate(glueMLots);
+            }
+            if (CollectionUtils.isNotEmpty(goldMLots)) {
+                validateRawIssueExpDate(goldMLots);
+            }
+            if (CollectionUtils.isNotEmpty(IRAMLots)) {
+                validateRawIssueExpDate(IRAMLots);
+            }
             validateIssueWithDocFlag(materialLots,issueWithDoc);
             if (StringUtils.isNullOrEmpty(issueWithDoc)){
                 for(MaterialLot materialLot : materialLots){
@@ -9589,6 +9602,34 @@ public class GcServiceImpl implements GcService {
             }
             validateAndRawMaterialIssue(documentLineList, materialLotList, issueWithDoc);
 
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证发料是否都是最早日期
+     * @param materialLots
+     * @throws ClientException
+     */
+    private void validateRawIssueExpDate(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+            Date maxExpDate = materialLots.get(materialLots.size()-1).getExpDate();
+            List<MaterialLot> scanMaterialLotList = materialLots.stream().filter(materialLot -> materialLot.getExpDate().before(maxExpDate)).collect(Collectors.toList());
+            SimpleDateFormat formats = new SimpleDateFormat(MaterialLot.DEFAULT_DATE_PATTERN);
+            String maxDate = formats.format(maxExpDate);
+
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.GC_RAW_MATERIAL_WAIT_ISSUE_MLOT);
+            String whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer(whereClause);
+            clauseBuffer.append(" and expDate < to_date('"+ maxDate +"', 'yyyy-MM-dd hh24:mi:ss')");
+            whereClause = clauseBuffer.toString();
+            List<MaterialLot> waitIssueMLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+            if (waitIssueMLots.size() > scanMaterialLotList.size()) {
+                throw new ClientException(GcExceptions.PLEASE_ISSUE_MATERIAL_LOT_EXP_DATE_EARLIER);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
