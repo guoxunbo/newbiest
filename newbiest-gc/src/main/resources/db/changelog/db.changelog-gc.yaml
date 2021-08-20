@@ -626,4 +626,13 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileWaferIssueOut_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.add.mobile_menu_nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.WltOrCpOtherStockOutOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCWltOtherStockOutMLotScan_nb_table.yaml
+      relativeToChangelogFile: true
 
