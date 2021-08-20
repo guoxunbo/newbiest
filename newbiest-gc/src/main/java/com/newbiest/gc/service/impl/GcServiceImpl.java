@@ -7466,6 +7466,27 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    public void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            List<DocumentLine> otherStockOutLines = documentLineList.stream().filter(documentLine -> ErpSob.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())).collect(Collectors.toList());
+            if(CollectionUtils.isEmpty(otherStockOutLines)){
+                throw new ClientParameterException(GcExceptions.CHOOSE_STOCK_OUT_ORDER_PLEASE, ErpSob.SOURCE_TABLE_NAME);
+            }
+            documentLineList = otherStockOutLines.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
+
+            for (String key : materialLotMap.keySet()) {
+                validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(key, materialLotMap, documentLineMap);
+                wltCpStockOut(documentLineMap.get(key), materialLotMap.get(key));
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 物料批次（WLT）按照 物料名称+二级代码+保税属性+客户名称分类
      * CP : 物料名称(去掉最后一个'-' + 标注形态)+二级代码+保税属性+客户名称分类
@@ -9589,13 +9610,13 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> goldMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_GOLD.equals(materialLot.getMaterialType())).collect(Collectors.toList());
             List<MaterialLot> IRAMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_IRA.equals(materialLot.getMaterialType())).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(glueMLots)) {
-                validateRawIssueExpDate(glueMLots);
+                validateRawIssueExpDate(glueMLots, Material.MATERIAL_TYPE_GLUE);
             }
             if (CollectionUtils.isNotEmpty(goldMLots)) {
-                validateRawIssueExpDate(goldMLots);
+                validateRawIssueExpDate(goldMLots, Material.MATERIAL_TYPE_GOLD);
             }
             if (CollectionUtils.isNotEmpty(IRAMLots)) {
-                validateRawIssueExpDate(IRAMLots);
+                validateRawIssueExpDate(IRAMLots, Material.MATERIAL_TYPE_IRA);
             }
             validateIssueWithDocFlag(materialLots,issueWithDoc);
             if (StringUtils.isNullOrEmpty(issueWithDoc)){
@@ -9659,7 +9680,7 @@ public class GcServiceImpl implements GcService {
      * @param materialLots
      * @throws ClientException
      */
-    private void validateRawIssueExpDate(List<MaterialLot> materialLots) throws ClientException {
+    private void validateRawIssueExpDate(List<MaterialLot> materialLots, String materialType) throws ClientException {
         try {
             materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
             Date maxExpDate = materialLots.get(materialLots.size()-1).getExpDate();
@@ -9672,6 +9693,7 @@ public class GcServiceImpl implements GcService {
             String orderBy = nbTable.getOrderBy();
             StringBuffer clauseBuffer = new StringBuffer(whereClause);
             clauseBuffer.append(" and expDate < to_date('"+ maxDate +"', 'yyyy-MM-dd hh24:mi:ss')");
+            clauseBuffer.append(" and materialType = '"+ materialType +"'");
             whereClause = clauseBuffer.toString();
             List<MaterialLot> waitIssueMLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
             if (waitIssueMLots.size() > scanMaterialLotList.size()) {
