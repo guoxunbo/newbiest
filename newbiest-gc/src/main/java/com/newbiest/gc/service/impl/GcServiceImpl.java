@@ -8962,6 +8962,7 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                     materialLotUnit.setWorkOrderId(workOrderId);
                     materialLotUnit.setWorkOrderPlanputTime(workOrderPlanputTime);
+                    materialLotUnit.setReserved18("1");//WLT下达需修改给定投批标记1
                     materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);

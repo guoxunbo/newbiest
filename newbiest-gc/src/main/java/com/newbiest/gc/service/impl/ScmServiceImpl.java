@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
@@ -88,6 +89,8 @@ public class ScmServiceImpl implements ScmService {
     public static final String MSCM_TOKEN_API = "/api/?r=Api/Token/AccessToken";
     public static final String MSCM_ADD_TRACKING_API = "/api/?r=Api/Logistics/AddTracking";
 
+    public static final String SCM_RETRY_VALIDATE_MATERIAL_LOT_ENG = "https://gc-scm.wochacha.com/api/wip/sync-eng/query";
+
     private RestTemplate restTemplate;
 
     @Value("${gc.scmUrl}")
@@ -108,9 +111,11 @@ public class ScmServiceImpl implements ScmService {
     @Autowired
     MaterialLotHistoryRepository materialLotHistoryRepository;
 
-
     @Autowired
     MaterialLotUnitRepository materialLotUnitRepository;
+
+    @Autowired
+    MaterialLotUnitHisRepository materialLotUnitHisRepository;
 
     @Autowired
     UIService uiService;
@@ -353,11 +358,70 @@ public class ScmServiceImpl implements ScmService {
                 for (InterfaceFail interfaceFail : interfaceFails) {
                     String response = sendHttpRequest(interfaceFail.getDestination(), interfaceFail.getRequestTxt(), Maps.newHashMap(), InterfaceHistory.TRANS_TYPE_RETRY);
                     if (!StringUtils.isNullOrEmpty(response)) {
+                        //对SCM验证Eng的物料批次做Update
+                        validateAndUpdateMaterialLotEng(interfaceFail, response);
                         interfaceFailRepository.delete(interfaceFail);
                     }
                 }
             }
         } catch(Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证retry请求是否是验证晶圆Eng
+     * 修改并记录历史
+     * @param interfaceFail
+     * @param response
+     * @throws ClientException
+     */
+    private void validateAndUpdateMaterialLotEng(InterfaceFail interfaceFail, String response) throws ClientException {
+        try {
+            if(SCM_RETRY_VALIDATE_MATERIAL_LOT_ENG.equals(interfaceFail.getDestination())){
+                log.info("scm validate Eng retry start");
+                QueryEngResponse queryEngResponse = DefaultParser.getObjectMapper().readerFor(QueryEngResponse.class).readValue(response);
+                if (!QueryEngResponse.SUCCESS_CODE.equals(queryEngResponse.getCode())) {
+                    throw new ClientException(queryEngResponse.getMessage());
+                }
+                List<Map> responseDataList = queryEngResponse.getData();
+                if (CollectionUtils.isNotEmpty(responseDataList)) {
+                    List<MaterialLotUnit> engMaterialLotUnitList = Lists.newArrayList();
+                    for (Map responseData : responseDataList) {
+                        String lotId = (String) responseData.get("lot_no");
+                        String waferId = (String) responseData.get("wafer_id");
+                        boolean engFlag = (boolean) responseData.get("is_eng");
+                        if (engFlag) {
+                            String unitId = lotId + StringUtils.SPLIT_CODE + waferId;
+                            List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByUnitIdAndStateInAndReserved48IsNotNull(unitId, Lists.newArrayList(MaterialLotUnit.STATE_IN, MaterialLotUnit.STATE_CREATE));
+                            //unitId只能存在一笔在制晶圆，故取第一笔
+                            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                                MaterialLotUnit materialLotUnit = materialLotUnitList.get(0);
+                                materialLotUnit.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                                engMaterialLotUnitList.add(materialLotUnit);
+
+                                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, "SCMEng");
+                                materialLotUnitHisRepository.save(materialLotUnitHistory);
+                            }
+                        }
+                    }
+                    log.info("scm validate Eng retry materialLotUnitList is " + engMaterialLotUnitList);
+                    if(CollectionUtils.isNotEmpty(engMaterialLotUnitList)){
+                        Map<String, List<MaterialLotUnit>> engMaterialLotMap = engMaterialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit :: getMaterialLotId));
+                        for(String materialLotId : engMaterialLotMap.keySet()){
+                            MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
+                            materialLot.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMEng");
+                            materialLotHistoryRepository.save(history);
+                        }
+                    }
+                }
+                log.info("scm validate Eng retry end ");
+            }
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
