@@ -698,3 +698,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileWaferIssueOut.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.WltOrCpOtherStockOut.nb_authority.yaml
+      relativeToChangelogFile: true

@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCWltOrCpOtherStockOutManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCWltOrCpOtherStockOutManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCWltOrCpOtherStockOutManager
+              description: WLT/CP其它出
+              tableName: GCWltOrCpOtherStockOutOrder
+              secondTableName: GCWltOtherStockOutMLotScan
+              mobileFlag: N
+              url: /WLT/WltOtherStockOutManager
+              parentRrn: 1010
+              seqNo: 41
+              image: icon-rule
+              labelZh: WLT/CP其它出
+              labelEn: WLT/CPOtherStockOut
+
