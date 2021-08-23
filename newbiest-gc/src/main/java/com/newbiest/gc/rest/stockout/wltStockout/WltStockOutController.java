@@ -48,6 +48,8 @@ public class WltStockOutController {
 
         if (WltStockOutRequest.ACTION_WLTSTOCKOUT.equals(actionType)) {
             gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode());
+        } else if(WltStockOutRequest.ACTION_WLTOTHERSTOCKOUT.equals(actionType)) {
+            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
         } else if(WltStockOutRequest.ACTION_VALIDATION_WLTMLOT.equals(actionType)){
             boolean falg = gcService.validateMLotByPackageRule(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
