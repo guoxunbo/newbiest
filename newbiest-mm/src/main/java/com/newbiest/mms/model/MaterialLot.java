@@ -95,6 +95,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String COB_PACKCASE = "COBPackCase";
 
     /**
+     * RW装箱规则
+     */
+    public static final String RW_PACKCASE = "CSTPackCase";
+
+    /**
      * WLT/CP出货物料批次验证规则
      */
     public static final String WLT_SHIP_MLOT_MERGE_RULE = "WltCPShipCase";
@@ -1145,8 +1150,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         //TODO 此处为GC客制化
         // 清除中转箱号以及库位号 清空场外LOTID号
         this.setReserved8(StringUtils.EMPTY);
-        this.setReserved14(StringUtils.EMPTY);
         this.setLotId(StringUtils.EMPTY);
+        if(!RW_PACKCASE.equals(packageType)){
+            this.setReserved14(StringUtils.EMPTY);
+        }
 
         // 清空备货相关信息
         //this.setReserved16(StringUtils.EMPTY);
