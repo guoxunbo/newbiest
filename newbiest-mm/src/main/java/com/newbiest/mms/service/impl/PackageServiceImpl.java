@@ -460,33 +460,28 @@ public class PackageServiceImpl implements PackageService{
      */
     public List<MaterialLot> getWaitPackMaterialLots(List<MaterialLot> materialLots) throws ClientException {
         try {
-            List<MaterialLot> waitPackMaterialLots = Lists.newArrayList();
-            List<MaterialLot> waitUnPackMaterialLots = Lists.newArrayList();
-            for(MaterialLot materialLot : materialLots){
-                if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
-                    waitUnPackMaterialLots.add(materialLot);
-                } else {
-                    waitPackMaterialLots.add(materialLot);
-                }
-            }
+            List<MaterialLot> waitPackMaterialLots = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())).collect(Collectors.toList());
+            List<MaterialLot> waitUnPackMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())).collect(Collectors.toList());
             //将已经包装的真空包按照箱号分组拆包
-            Map<String, List<MaterialLot>> waitUnPackMaterialLotMap = waitUnPackMaterialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
-            for(String boxId : waitUnPackMaterialLotMap.keySet()){
-                List<MaterialLotAction> materialLotActions = Lists.newArrayList();
-                //箱中待拆箱的真空包
-                List<MaterialLot> materialLotList = waitUnPackMaterialLotMap.get(boxId);
-                MaterialLot packagedLot = mmsService.getMLotByMLotId(materialLotList.get(0).getParentMaterialLotId(), true);
-                for (MaterialLot materialLot : materialLotList){
-                    MaterialLotAction materialLotAction = new MaterialLotAction();
-                    materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
-                    materialLotAction.setTransQty(materialLot.getCurrentQty());
-                    materialLotActions.add(materialLotAction);
-                }
-                unPack(packagedLot, materialLotList, materialLotActions);
+            if(CollectionUtils.isNotEmpty(waitUnPackMaterialLots)){
+                Map<String, List<MaterialLot>> waitUnPackMaterialLotMap = waitUnPackMaterialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+                for(String boxId : waitUnPackMaterialLotMap.keySet()){
+                    List<MaterialLotAction> materialLotActions = Lists.newArrayList();
+                    //箱中待拆箱的真空包
+                    List<MaterialLot> materialLotList = waitUnPackMaterialLotMap.get(boxId);
+                    MaterialLot packagedLot = mmsService.getMLotByMLotId(materialLotList.get(0).getParentMaterialLotId(), true);
+                    for (MaterialLot materialLot : materialLotList){
+                        MaterialLotAction materialLotAction = new MaterialLotAction();
+                        materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                        materialLotAction.setTransQty(materialLot.getCurrentQty());
+                        materialLotActions.add(materialLotAction);
+                    }
+                    unPack(packagedLot, materialLotList, materialLotActions);
 
-                //拆包之后的真空包添加到待装箱真空包列表中
-                List<MaterialLot> materialLotInfo = materialLotList.stream().map(MaterialLot -> mmsService.getMLotByMLotId(MaterialLot.getMaterialLotId(), true)).collect(Collectors.toList());
-                waitPackMaterialLots.addAll(materialLotInfo);
+                    //拆包之后的真空包添加到待装箱真空包列表中
+                    List<MaterialLot> materialLotInfo = materialLotList.stream().map(MaterialLot -> mmsService.getMLotByMLotId(MaterialLot.getMaterialLotId(), true)).collect(Collectors.toList());
+                    waitPackMaterialLots.addAll(materialLotInfo);
+                }
             }
             return waitPackMaterialLots;
         } catch (Exception e){
@@ -560,6 +555,11 @@ public class PackageServiceImpl implements PackageService{
             List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
             if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                 for (MaterialLotUnit materialLotUnit: materialLotUnitList){
+                    //RW(COB)的装箱晶圆将箱号记录到lotId栏位，LotId信息记录到Durable栏位上
+                    if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
+                        materialLotUnit.setLotId(materialLot.getParentMaterialLotId());
+                        materialLotUnit.setDurable(materialLot.getLotId());
+                    }
                     materialLotUnit.setState(MaterialLotUnit.STATE_PACKAGE);
                     materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
