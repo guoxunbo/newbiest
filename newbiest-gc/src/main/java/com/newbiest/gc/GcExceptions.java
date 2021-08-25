@@ -104,4 +104,5 @@ public class GcExceptions {
     public static final String MATERIAL_TYPE_AND_MATERIAL_LOT_IS_NOT_SAME = "gc.material_type_and_material_lot_is_not_same";
     public static final String RAW_DOCUMENT_LINE_IS_EMPTY = "gc.raw_document_line_is_empty";
     public static final String PLEASE_ISSUE_MATERIAL_LOT_EXP_DATE_EARLIER = "gc.please_issue_material_lot_exp_date_earlier";
+    public static final String GLUE_MATERIAL_HAS_EXPIRED = "gc.glue_material_has_expired";
 }
