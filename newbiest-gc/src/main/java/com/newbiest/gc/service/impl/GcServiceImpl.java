@@ -715,13 +715,13 @@ public class GcServiceImpl implements GcService {
             if(Material.MATERIAL_TYPE_IRA.equals(materialType)){
                 Map<Date, List<MaterialLot>> mLotDateMap = Maps.newHashMap();
                 for(MaterialLot materialLot: materialLotList){
-                    if(mLotDateMap.containsKey(materialLot.getMfgDate())){
-                        mLotDateMap.get(materialLot.getMfgDate()).add(materialLot);
+                    if(mLotDateMap.containsKey(materialLot.getEarlierExpDate())){
+                        mLotDateMap.get(materialLot.getEarlierExpDate()).add(materialLot);
                     } else {
                         List<MaterialLot> materialLots = Lists.newArrayList();
                         materialLots.add(materialLot);
-                        mLotDateMap.put(materialLot.getMfgDate(), materialLots);
-                        dateList.add(materialLot.getMfgDate());
+                        mLotDateMap.put(materialLot.getEarlierExpDate(), materialLots);
+                        dateList.add(materialLot.getEarlierExpDate());
                     }
                 }
                 Collections.sort(dateList);
@@ -8682,6 +8682,13 @@ public class GcServiceImpl implements GcService {
                         if(CollectionUtils.isNotEmpty(mLotList)){
                             throw new ClientParameterException(GcExceptions.IRA_RAW_MATERIAL_BOX_ID_IS_EXISTS, lotId);
                         }
+                        //对同一箱IRA的物料批次生产日期校验并取最小时间保存
+                        List<MaterialLot> lotList = materialLotMap.get(lotId);
+                        lotList = lotList.stream().sorted(Comparator.comparing(MaterialLot::getMfgDateValue)).collect(Collectors.toList());
+                        String mfgDateValue = formats.format(simpleDateFormat.parse(lotList.get(0).getMfgDateValue()));
+                        for (MaterialLot materialLot : lotList) {
+                            materialLot.setEarlierExpDate(formats.parse(mfgDateValue));
+                        }
                     }
                 }
             }
@@ -9686,6 +9693,13 @@ public class GcServiceImpl implements GcService {
      */
     private void validateRawIssueExpDate(List<MaterialLot> materialLots, String materialType) throws ClientException {
         try {
+            if (materialType.equals(Material.MATERIAL_TYPE_GLUE)) {
+                for (MaterialLot glueMLot : materialLots) {
+                    if (glueMLot.getExpDate().before(new Date())) {
+                        throw new ClientParameterException(GcExceptions.GLUE_MATERIAL_HAS_EXPIRED, glueMLot.getMaterialLotId());
+                    }
+                }
+            }
             materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
             Date maxExpDate = materialLots.get(materialLots.size()-1).getExpDate();
             List<MaterialLot> scanMaterialLotList = materialLots.stream().filter(materialLot -> materialLot.getExpDate().before(maxExpDate)).collect(Collectors.toList());
