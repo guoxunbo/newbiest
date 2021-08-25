@@ -306,6 +306,9 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="RESERVED31")
     private String reserved31;
 
+    @Column(name="MATERIAL_TYPE")
+    private String materialType;
+
     @Transient
     private Integer erpSeq;
 

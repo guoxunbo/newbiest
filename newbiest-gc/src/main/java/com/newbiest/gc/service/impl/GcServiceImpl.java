@@ -2479,6 +2479,7 @@ public class GcServiceImpl implements GcService {
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
                             documentLine.setUnReservedQty(documentLine.getQty().subtract(documentLine.getReservedQty()));
+                            documentLine.setMaterialType(erpSo.getCfree4());
                             documentLines.add(documentLine);
 
                             rawMaterialOtherOutOrder.setSupplierName(erpSo.getCusname());// 同一个单据下，所有的客户都是一样的。
@@ -6372,6 +6373,7 @@ public class GcServiceImpl implements GcService {
             documentLine.setReserved5(erpMaterialOutaOrder.getCmaker());
             documentLine.setReserved6(erpMaterialOutaOrder.getChandler());
             documentLine.setReserved7(erpMaterialOutaOrder.getOther1());
+            documentLine.setMaterialType(erpMaterialOutaOrder.getCfree4());
             documentLine.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
         } catch (Exception e) {
             throw  ExceptionManager.handleException(e, log);
