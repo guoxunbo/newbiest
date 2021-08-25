@@ -97,6 +97,20 @@ public class MesSaveMLotHisController extends AbstractRestController {
                 errorMessage = e.getMessage();
             }
             response.setMessage(errorMessage);
+        } else if(MesSaveMLotHisRequest.ACTION_BIND_WAFER_WORKORDER.equals(actionType)){
+            try {
+                gcService.mesMaterialLotUnitBindWorkorderAndSaveHis(requestBody.getMaterialLotUnits(), transId);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+            response.setMessage(errorMessage);
+        } else if(MesSaveMLotHisRequest.ACTION_UN_BIND_WAFER_WORKORDER.equals(actionType)){
+            try {
+                gcService.mesMaterialLotUnitUnBindWorkorderAndSaveHis(requestBody.getMaterialLotUnits(), transId);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+            response.setMessage(errorMessage);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
