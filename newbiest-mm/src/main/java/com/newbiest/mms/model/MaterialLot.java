@@ -595,6 +595,14 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private Date expDate;
 
     /**
+     * 最小原材料有效日期
+     */
+    @Column(name="EARLIER_EXP_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
+    private Date earlierExpDate;
+
+    /**
      * 原材料发货日期
      */
     @Column(name="SHIPPING_DATE")
