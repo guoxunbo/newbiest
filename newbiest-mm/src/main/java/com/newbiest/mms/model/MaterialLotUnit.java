@@ -31,6 +31,7 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String STATE_SCRAP = "Scrap";
     public static final String STATE_OUT = "Out";
     public static final String STATE_PACKAGE = "Package";
+    public static final String STATUS_MERGED = "MERGED";
 
     public static final String PRODUCT_TYPE_PROD = "PROD";
     public static final String PRODUCT_TYPE_ENG = "ENG";
