@@ -9040,6 +9040,47 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 晶圆Recon
+     * @param materialLotUnitList
+     * @param transId
+     * @throws ClientException
+     */
+    @Override
+    public void reconMaterialLotUnitAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException {
+        try {
+            Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                materialLotUnit = materialLotUnitRepository.findByMaterialLotIdAndUnitId(materialLotUnit.getMaterialLotId(), materialLotUnit.getUnitId());
+                materialLotUnit.setWorkOrderPlanputTime(null);
+                materialLotUnit.setWorkOrderId(null);
+                materialLotUnit.setState(MaterialLotUnit.STATUS_MERGED);
+                materialLotUnit.setCurrentQty(BigDecimal.ZERO);
+                materialLotUnit.setReceiveQty(BigDecimal.ZERO);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
+            }
+
+            for(String materialLotId : materialLotUnitMap.keySet()) {
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLotId);
+                List<MaterialLotUnit> bindWorkOrderIdMLotUnits = materialLotUnits.stream().filter(materialLotUnit -> !StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderId())).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(bindWorkOrderIdMLotUnits)) {
+                    materialLot.setWorkOrderPlanputTime(null);
+                    materialLot.setWorkOrderId(null);
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
+                    materialLotHistoryRepository.save(history);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 晶圆工单解绑并记录历史
      * @param materialLotUnitList
      * @param transId

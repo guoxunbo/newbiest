@@ -111,6 +111,13 @@ public class MesSaveMLotHisController extends AbstractRestController {
                 errorMessage = e.getMessage();
             }
             response.setMessage(errorMessage);
+        } else if(MesSaveMLotHisRequest.ACTION_UN_RECON_MLOT_UNIT.equals(actionType)){
+            try {
+                gcService.reconMaterialLotUnitAndSaveHis(requestBody.getMaterialLotUnits(), transId);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+            response.setMessage(errorMessage);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
