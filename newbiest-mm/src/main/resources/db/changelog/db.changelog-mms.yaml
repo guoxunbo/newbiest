@@ -719,3 +719,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileRMAMaterialReceive.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialSpareOutDoc.nb_authority.yaml
+      relativeToChangelogFile: true

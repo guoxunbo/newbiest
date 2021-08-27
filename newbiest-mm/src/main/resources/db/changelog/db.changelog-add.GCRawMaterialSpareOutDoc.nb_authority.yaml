@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialSpareOutDoc_to_NB_AUTHORITY
+      author: abc
+      comment: add GCRawMaterialSpareOutDoc to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RawMaterialSpareOutDoc
+              description: 原材料备料（无单据）
+              tableName: RawMaterialSpareOutDoc
+              url: /GC/GCRawMaterialSpareOutDocManager
+              parentRrn: 2030
+              mobileFlag: N
+              seqNo: 30
+              image: icon-rule
+              labelZh: 原材料备料（无单据）
+              labelEn: RawMaterialSpareOutDoc
