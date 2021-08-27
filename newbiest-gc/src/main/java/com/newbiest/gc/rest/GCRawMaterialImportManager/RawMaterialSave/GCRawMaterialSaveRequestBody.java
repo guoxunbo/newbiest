@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -50,4 +51,8 @@ public class GCRawMaterialSaveRequestBody extends RequestBody {
 
     @ApiModelProperty(value = "手持端发料单据日期")
     private String erpTime;
+
+    @ApiModelProperty(value = "数量")
+    private BigDecimal pickQty;
+
 }
