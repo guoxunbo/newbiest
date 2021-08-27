@@ -95,6 +95,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String COB_PACKCASE = "COBPackCase";
 
     /**
+     * RW装箱规则
+     */
+    public static final String RW_PACKCASE = "CSTPackCase";
+
+    /**
      * WLT/CP出货物料批次验证规则
      */
     public static final String WLT_SHIP_MLOT_MERGE_RULE = "WltCPShipCase";
@@ -123,6 +128,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String MLOT_THREESIDE_DOC_VALIDATE_RULE_ID = "MLotThreeSideDocRule";  //三方销售单据验证规则
     public static final String RW_MLOT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "RwMLotStockOutDocRule";  //RW出货单据验证规则
     public static final String RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID = "RwMaterialScrapShipDocRule";  //原材料报废出库单据验证规则
+    public static final String WLT_OTHER_STOCK_OUT_RULE_ID = "WltOtherStockOutRule";  //WLT/CP其它出单据验证规则
+    public static final String MOBILE_RAW_ISSUE_WHERE_CLAUSE="GCRawMaterialIssueOrder";
 
     /**
      * 香港仓依订单出货
@@ -155,6 +162,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String INCOMING_MLOT_IMPORTTYPE = "GCMaterialLotImportType";
 
     public static final String BONDED_PROPERTY_LIST = "GCBondedPropertyList";
+
+    public static final String GC_RAW_MATERIAL_WAIT_ISSUE_MLOT = "GCRawMaterialWaitIssueMLot";
 
     public static final String PRINT_CHECK = "check";
     public static final String PRINT_DATE_PATTERN = "yyMMdd";
@@ -196,6 +205,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
     public static final String RAW_MATERIAL_WAFER_SOURCE = "60";
     public static final String CP_CHANGGE_RW_WAFER_SOURCE = "21";
+    public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
+    public static final String SOC_WAFER_SOURCE_MEASURE = "14";
 
     /**
      * 根据产品结尾数字获取WaferSource
@@ -582,6 +593,14 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
     private Date expDate;
+
+    /**
+     * 最小原材料有效日期
+     */
+    @Column(name="EARLIER_EXP_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
+    private Date earlierExpDate;
 
     /**
      * 原材料发货日期
@@ -1139,8 +1158,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         //TODO 此处为GC客制化
         // 清除中转箱号以及库位号 清空场外LOTID号
         this.setReserved8(StringUtils.EMPTY);
-        this.setReserved14(StringUtils.EMPTY);
         this.setLotId(StringUtils.EMPTY);
+        if(!RW_PACKCASE.equals(packageType)){
+            this.setReserved14(StringUtils.EMPTY);
+        }
 
         // 清空备货相关信息
         //this.setReserved16(StringUtils.EMPTY);

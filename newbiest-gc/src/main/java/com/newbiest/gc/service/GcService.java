@@ -45,6 +45,7 @@ public interface GcService {
 
     String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws ClientException;
     void validateAndRawMaterialIssue(List<DocumentLine> documentLineList, List<MaterialLot> materialLots, String issueWithDoc) throws ClientException;
+    void mobileValidateAndRawMaterialIssue(List<MaterialLot> materialLots, String erpTime, String issueWithDoc) throws ClientException;
     void scrapRawMaterial(List<MaterialLot> materialLotList, String reason, String remarks) throws ClientException;
     void receiveRawMaterial(List<MaterialLot> materialLotList) throws ClientException;
     void deleteMaterialLotAndSaveHis(List<MaterialLot> materialLotList, String deleteNote) throws ClientException;
@@ -70,6 +71,10 @@ public interface GcService {
     void mesSaveMaterialLotHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesReceiveRawMaterialAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transId, String materialType) throws ClientException;
+    void mesMaterialLotBindWorkOrderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
+    void mesMaterialLotUnitBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
+    void mesMaterialLotUnitUnBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
+    void reconMaterialLotUnitAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
 
     List<MaterialLotUnit> validateAndChangeMaterialNameByImportType(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     List<GCProductNumberRelation> getProductNumberRelationByDocRrn(Long documentLineRrn) throws ClientException;
@@ -89,6 +94,7 @@ public interface GcService {
     void waferUnStockOutTagging(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferStockOutTagging(List<MaterialLotAction> materialLotActions, String stockTagNote, String customerName, String stockOutType, String poId, String address) throws ClientException;
     void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException;
+    void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
     boolean validationWltStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     boolean validateStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
@@ -99,6 +105,7 @@ public interface GcService {
     void deleteCogEcretive(List<MaterialLot> lcdCogEcretiveList, String deleteNote) throws ClientException;
     String saveLCDCOGDetailList(List<MaterialLot> materialLots, String importType)throws ClientException;
     List<MaterialLot> validationAndGetWaitIssueWafer(Long tableRrn,String whereClause) throws ClientException;
+    MaterialLot mobileValidationAndGetWait(Long tableRrn,String lotId) throws ClientException;
 
     void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException;
     void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException;
@@ -179,7 +186,7 @@ public interface GcService {
 
     void validationDocLine(List<DocumentLine> documentLineList, MaterialLot materialLot) throws ClientException;
     void validationDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException;
-    
+
     void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;

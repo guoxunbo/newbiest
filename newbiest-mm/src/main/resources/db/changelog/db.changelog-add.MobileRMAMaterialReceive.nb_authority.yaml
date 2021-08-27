@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileRMAMaterialReceiveManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileRMAMaterialReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileRMAMaterialReceiveManager
+              description: 手持端RMA来料接收
+              tableName: GCMobileRMAMaterialReceive
+              mobileFlag: Y
+              url: /Mobile/RMAMaterialReceive
+              parentRrn: 22
+              seqNo: 190
+              image: icon-rule
+              labelZh: RMA来料接收
+              labelEn: RMAMaterialReceive

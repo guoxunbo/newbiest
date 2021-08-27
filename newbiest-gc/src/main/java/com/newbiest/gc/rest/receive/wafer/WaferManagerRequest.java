@@ -41,6 +41,11 @@ public class WaferManagerRequest extends Request {
 	 */
 	public static final String ACTION_TYPE_OUTORDER_ISSUE = "OutOrderIssue";
 
+	/**
+	 * 手持端晶圆发料
+	 */
+	public static final String ACTION_TYPE_MOBILE_GET_WAFER = "MobileGetWafer";
+
 	private WaferManagerRequestBody body;
 
 }

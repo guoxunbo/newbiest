@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: update_document_line_and_his_column_remarks_0.0.1
+      author: Youqing Huang
+      remarks: set Column QTY HANDLED_QTY UN_HANDLE_QTY RESERVED_QTY UN_RESERVED_QTY Remarks In MMS_DOCUMENT_LINE And MMS_DOCUMENT_LINE_HIS
+      changes:
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE
+            columnName: QTY
+            remarks: 总数量
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE
+            columnName: HANDLED_QTY
+            remarks: 处理数量
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE
+            columnName: UN_HANDLE_QTY
+            remarks: 未处理数量
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE
+            columnName: RESERVED_QTY
+            remarks: 备货数量
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE
+            columnName: UN_RESERVED_QTY
+            remarks: 未备货数量
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE_HIS
+            columnName: QTY
+            remarks: 总数量
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE_HIS
+            columnName: HANDLED_QTY
+            remarks: 处理数量
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE_HIS
+            columnName: UN_HANDLE_QTY
+            remarks: 未处理数量
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE_HIS
+            columnName: RESERVED_QTY
+            remarks: 备货数量
+        - setColumnRemarks:
+            tableName: MMS_DOCUMENT_LINE_HIS
+            columnName: UN_RESERVED_QTY
+            remarks: 未备货数量

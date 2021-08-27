@@ -19,6 +19,10 @@ public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, 
 
     List<MaterialLotUnit> findByUnitIdAndWorkOrderIdAndState(@Param("unitId") String unitId, @Param("workOrderId") String workOrderId, @Param("state") String state) throws ClientException;
 
+    List<MaterialLotUnit> findByUnitIdAndStateInAndReserved48IsNotNull(String unitId, List<String> stateList) throws ClientException;
+
+    MaterialLotUnit findByMaterialLotIdAndUnitId(String materialLotId, String unitId) throws ClientException;
+
     @Modifying
     @Query("update MaterialLotUnit m set m.state = :state where m.unitId = :unitId and m.materialLotId = :materialLotId")
     void updateMLotUnitByUnitIdAndMLotId(@Param("unitId") String unitId, @Param("materialLotId")  String materialLotId, @Param("state") String state) throws ClientException;

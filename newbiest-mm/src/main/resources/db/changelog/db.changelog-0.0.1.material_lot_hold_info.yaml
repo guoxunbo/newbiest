@@ -1,0 +1,95 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-mms_material_lot_hold_info-table
+      author: Xunbo Guo
+      comment: Create table MMS_MATERIAL_LOT_HOLD_INFO
+      changes:
+        - createTable:
+            tableName: MMS_MATERIAL_LOT_HOLD_INFO
+            remarks: Material Lot Hold Info
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: CREATED
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 创建时间
+              - column:
+                  name: CREATED_BY
+                  type: varchar(32)
+                  remarks: 创建者
+              - column:
+                  name: UPDATED
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 更新时间
+              - column:
+                  name: UPDATED_BY
+                  type: varchar(32)
+                  remarks: 更新者
+              - column:
+                  name: LOCK_VERSION
+                  type: bigint
+                  defaultValueNumeric: 1
+                  remarks: 乐观锁版本 程序自己更新 不可人为改变
+              - column:
+                  name: MATERIAL_LOT_ID
+                  type: varchar(64)
+                  remarks: 物料批次号
+              - column:
+                  name: MATERIAL_RRN
+                  type: bigint
+                  remarks: 物料主键
+              - column:
+                  name: MATERIAL_NAME
+                  type: varchar(64)
+                  remarks: 物料名称
+              - column:
+                  name: MATERIAL_VERSION
+                  type: bigint
+                  remarks: 物料版本
+              - column:
+                  name: MATERIAL_DESC
+                  type: varchar(64)
+                  remarks: 物料描述
+              - column:
+                  name: MATERIAL_CATEGORY
+                  type: varchar(64)
+                  remarks: 物料类别
+              - column:
+                  name: MATERIAL_TYPE
+                  type: varchar(64)
+                  remarks: 物料类型
+              - column:
+                  name: STORE_UOM
+                  type: varchar(64)
+                  remarks: 库存单位
+              - column:
+                  name: ACTION_CODE
+                  type: varchar(64)
+                  remarks: 动作码
+              - column:
+                  name: ACTION_REASON
+                  type: varchar(64)
+                  remarks: 原因
+              - column:
+                  name: ACTION_COMMENT
+                  type: varchar(64)
+                  remarks: 备注

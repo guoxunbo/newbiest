@@ -46,6 +46,7 @@ public class GcExceptions {
     public static final String MLOT_DOC_VALIDATE_RULE_IS_NOT_EXIST = "gc.mlot_doc_validate_rule_is_not_exist";
     public static final String MATERIALLOT_MATERIAL_NAME_IS_NOT_SAME = "gc.material_lot_material_name_is_not_same";
     public static final String MATERIALLOT_PACKAGE_RULE_IS_ERROR = "gc.material_lot_package_rule_is_error";
+    public static final String MATERIALLOT_PACKAGE_MUST_REMARK_ALL = "gc.material_lot_package_must_remark_all";
     public static final String MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME = "gc.material_lot_reserved_docId_is_not_same";
     public static final String MATERIALLOT_RESERVED_ORDER_IS_NULL = "gc.material_lot_reserved_order_is_null";
     public static final String WAFER_ID__IS_NOT_EXIST = "gc.wafer_id_is_not_exist";
@@ -101,4 +102,7 @@ public class GcExceptions {
     public static final String UNRESERVED_MATERIAL_DONOT_CHECK_DOCUMENT = "gc.reserved_material_donot_check_document";
     public static final String MATERIAL_TYPE_IS_NOT_SAME = "gc.material_type_is_not_same";
     public static final String MATERIAL_TYPE_AND_MATERIAL_LOT_IS_NOT_SAME = "gc.material_type_and_material_lot_is_not_same";
+    public static final String RAW_DOCUMENT_LINE_IS_EMPTY = "gc.raw_document_line_is_empty";
+    public static final String PLEASE_ISSUE_MATERIAL_LOT_EXP_DATE_EARLIER = "gc.please_issue_material_lot_exp_date_earlier";
+    public static final String GLUE_MATERIAL_HAS_EXPIRED = "gc.glue_material_has_expired";
 }

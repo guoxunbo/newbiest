@@ -43,6 +43,26 @@ public class MesSaveMLotHisRequest extends Request {
 	 */
 	public static final String ACTION_GLUE_RETURN = "GlueReturnWarehouse";
 
+	/**
+	 * Mes排料绑工单
+	 */
+	public static final String ACTION_BIND_WORKORDER = "BindWorkorder";
+
+	/**
+	 * Mes晶圆绑工单
+	 */
+	public static final String ACTION_BIND_WAFER_WORKORDER = "BindWaferWorkOrder";
+
+	/**
+	 * Mes晶圆解绑工单
+	 */
+	public static final String ACTION_UN_BIND_WAFER_WORKORDER = "UnBindWaferWorkOrder";
+
+	/**
+	 * 晶圆Recon
+	 */
+	public static final String ACTION_UN_RECON_MLOT_UNIT = "ReconMLotUnit";
+
 	private MesSaveMLotHisRequestBody body;
 
 }
