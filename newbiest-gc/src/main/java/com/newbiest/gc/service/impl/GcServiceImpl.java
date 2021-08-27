@@ -698,6 +698,90 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 根据数量获取等待备料的批次条码信息
+     * 不用根据单据号获取
+     * @param materialLotList
+     * @param pickQty
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> getSpareRawMaterialLotListOutDocByQty(List<MaterialLot> materialLotList,BigDecimal pickQty) throws ClientException{
+        try {
+            List<MaterialLot> waitSpareRawMLotList = Lists.newArrayList();
+            BigDecimal unReservedQty = pickQty;
+            String materialType = materialLotList.get(0).getMaterialType();
+            List<Date> dateList = Lists.newArrayList();
+            if(Material.MATERIAL_TYPE_IRA.equals(materialType)){
+                Map<Date, List<MaterialLot>> mLotDateMap = Maps.newHashMap();
+                for(MaterialLot materialLot: materialLotList){
+                    if(mLotDateMap.containsKey(materialLot.getMfgDate())){
+                        mLotDateMap.get(materialLot.getMfgDate()).add(materialLot);
+                    } else {
+                        List<MaterialLot> materialLots = Lists.newArrayList();
+                        materialLots.add(materialLot);
+                        mLotDateMap.put(materialLot.getMfgDate(), materialLots);
+                        dateList.add(materialLot.getMfgDate());
+                    }
+                }
+                Collections.sort(dateList);
+                //同一天的原材料可能包含多个箱子，整箱数量可能存在相同的，先挑整箱数量少的，数量不够的，从整箱中挑选部分
+                for(Date mfgDate : dateList){
+                    List<MaterialLot> materialLots = mLotDateMap.get(mfgDate);
+                    Map<Long, List<MaterialLot>> boxQtyMap = Maps.newHashMap();
+                    List<Long> totalQtyList = Lists.newArrayList();
+                    Map<String, List<MaterialLot>> mLotIdMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
+                    for(String lotId : mLotIdMap.keySet()){
+                        List<MaterialLot> iraLotList = mLotIdMap.get(lotId);
+                        Long totalQty = iraLotList.stream().collect(Collectors.summingLong(mLot -> mLot.getCurrentQty().longValue()));
+                        if(boxQtyMap.containsKey(totalQty)){
+                            boxQtyMap.get(totalQty).addAll(iraLotList);
+                        } else {
+                            boxQtyMap.put(totalQty, iraLotList);
+                            totalQtyList.add(totalQty);
+                        }
+                    }
+                    Collections.sort(totalQtyList);
+                    for(Long totalQty : totalQtyList){
+                        Map<String, List<MaterialLot>> lotIdMap = boxQtyMap.get(totalQty).stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
+                        for(String lotId : lotIdMap.keySet()){
+                            List<MaterialLot> iraLotList = lotIdMap.get(lotId);
+                            Long boxQty = iraLotList.stream().collect(Collectors.summingLong(mLot -> mLot.getCurrentQty().longValue()));
+                            if(unReservedQty.compareTo(new BigDecimal(boxQty)) >= 0){
+                                waitSpareRawMLotList.addAll(iraLotList);
+                                unReservedQty = unReservedQty.subtract(new BigDecimal(boxQty));
+                            } else {
+                                iraLotList = iraLotList.stream().sorted(Comparator.comparing(MaterialLot :: getCurrentQty)).collect(Collectors.toList());
+                                for(MaterialLot materialLot : iraLotList){
+                                    if(unReservedQty.compareTo(materialLot.getCurrentQty()) >= 0){
+                                        waitSpareRawMLotList.add(materialLot);
+                                        unReservedQty = unReservedQty.subtract(materialLot.getCurrentQty());
+                                    }
+                                }
+                            }
+                            if(unReservedQty.compareTo(BigDecimal.ZERO) <= 0){
+                                break;
+                            }
+                        }
+                    }
+                    if(unReservedQty.compareTo(BigDecimal.ZERO) <= 0){
+                        break;
+                    }
+                }
+            } else {
+                for(MaterialLot materialLot : materialLotList){
+                    if(unReservedQty.compareTo(materialLot.getCurrentQty()) >= 0){
+                        waitSpareRawMLotList.add(materialLot);
+                        unReservedQty = unReservedQty.subtract(materialLot.getCurrentQty());
+                    }
+                }
+            }
+            return waitSpareRawMLotList;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 获取等待备料的批次条码信息
      * 原材料信息只会是IRA、胶水、金线其中一种，不会出现多种类型的数据出现
      * @param materialLotList
@@ -781,7 +865,31 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-    
+
+    /**
+     * 原材料备料 无单据 确认备料
+     * @param materialLotList
+     * @param pickQty
+     * @throws ClientException
+     */
+    public void spareRawMLotOutDoc(List<MaterialLot> materialLotList,BigDecimal pickQty) throws ClientException {
+        try {
+            Double totalMLotQty = materialLotList.stream().collect(Collectors.summingDouble(mLot -> mLot.getCurrentQty().doubleValue()));
+            if (pickQty.compareTo(new BigDecimal(totalMLotQty)) < 0) {
+                throw new ClientException(GcExceptions.OVER_DOC_QTY);
+            }
+
+            for (MaterialLot materialLot : materialLotList) {
+                materialLot.setReservedQty(materialLot.getCurrentQty());
+                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_MATEREIAL_SPARE, StringUtils.EMPTY);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_MATERIAL_SPARE);
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 原材料备料
      * @param materialLotList

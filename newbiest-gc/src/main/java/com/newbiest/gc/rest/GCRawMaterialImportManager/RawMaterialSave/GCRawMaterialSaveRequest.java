@@ -24,7 +24,11 @@ public class GCRawMaterialSaveRequest extends Request {
 
     public static final String ACTION_TYPE_GET_SPARE_RAW_MLOT = "GetSpareRawMLot";
 
+    public static final String ACTION_TYPE_GET_SPARE_RWA_OUT_DOC="GetSpareRawOutDoc";
+
     public static final String ACTION_TYPE_SPARE_RAW_MLOT = "SpareRawMLot";
+
+    public static final String ACTION_TYPE_SPARE_RAW_OUT_DOC = "RawMaterialSpareOutDoc";
 
     public static final String ACTION_TYPE_QUERY_ISSUE_RAW_MATERIAL_LOT = "QueryIssueRawMaterialLot";
 
