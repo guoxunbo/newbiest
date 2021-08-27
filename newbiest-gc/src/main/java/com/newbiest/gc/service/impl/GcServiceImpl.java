@@ -8928,35 +8928,6 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    /**
-     * mes记录物料批次历史
-     * @param materialLots
-     * @param transId
-     * @return
-     * @throws ClientException
-     */
-    public void mesSaveMaterialLotHis(List<MaterialLot> materialLots, String transId) throws ClientException {
-        try {
-            List<MaterialLot> scmReportMLotList = Lists.newArrayList();
-            for(MaterialLot materialLot : materialLots){
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
-                materialLotHistoryRepository.save(history);
-
-                if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
-                        || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()))){
-                    scmReportMLotList.add(materialLot);
-                }
-            }
-
-            log.info("scm materialLots is " + scmReportMLotList);
-            if(CollectionUtils.isNotEmpty(scmReportMLotList)){
-                sendMaterialStateToScmReport(scmReportMLotList, transId);
-            }
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
     public void mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException{
         try {
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
@@ -9117,6 +9088,7 @@ public class GcServiceImpl implements GcService {
                 materialLotUnit = materialLotUnitRepository.findByMaterialLotIdAndUnitId(materialLotUnit.getMaterialLotId(), materialLotUnit.getUnitId());
                 materialLotUnit.setWorkOrderPlanputTime(workOrderPlanTime);
                 materialLotUnit.setWorkOrderId(workOrderId);
+                materialLotUnit.setReserved18("1");
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                 MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
@@ -9141,6 +9113,31 @@ public class GcServiceImpl implements GcService {
             log.info("scm materialLots is " + scmReportMLotList);
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
                 sendMaterialStateToScmReport(scmReportMLotList, transId);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 线边仓晶圆接收EngHold验证
+     * 暂时不对MaterialLot做修改
+     * @param materialLotUnitList
+     * @param transId
+     * @throws ClientException
+     */
+    @Override
+    public void lswMaterialLotUnitEngHoldAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException {
+        try {
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                materialLotUnit = materialLotUnitRepository.findByMaterialLotIdAndUnitId(materialLotUnit.getMaterialLotId(), materialLotUnit.getUnitId());
+                materialLotUnit.setState(MaterialLotUnit.STATUS_ENGHOLD);
+                materialLotUnit.setWorkOrderId(null);
+                materialLotUnit.setWorkOrderPlanputTime(null);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -9203,6 +9200,8 @@ public class GcServiceImpl implements GcService {
                 materialLotUnit = materialLotUnitRepository.findByMaterialLotIdAndUnitId(materialLotUnit.getMaterialLotId(), materialLotUnit.getUnitId());
                 materialLotUnit.setWorkOrderId(null);
                 materialLotUnit.setWorkOrderPlanputTime(null);
+                materialLotUnit.setInnerLotId(null);
+                materialLotUnit.setReserved18("0");
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                 MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
@@ -9216,6 +9215,7 @@ public class GcServiceImpl implements GcService {
                 if(CollectionUtils.isEmpty(bindWorkOrderIdMLotUnits)){
                     materialLot.setWorkOrderPlanputTime(null);
                     materialLot.setWorkOrderId(null);
+                    materialLot.setInnerLotId(null);
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                     if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())

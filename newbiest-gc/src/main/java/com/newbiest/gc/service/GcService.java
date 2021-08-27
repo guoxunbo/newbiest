@@ -70,13 +70,13 @@ public interface GcService {
     void hongKongMLotReceive(List<MaterialLotAction> materialLotActions) throws ClientException;
 
     void mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
-    void mesSaveMaterialLotHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesReceiveRawMaterialAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transId, String materialType) throws ClientException;
     void mesMaterialLotBindWorkOrderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesMaterialLotUnitBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     void mesMaterialLotUnitUnBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     void reconMaterialLotUnitAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
+    void lswMaterialLotUnitEngHoldAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
 
     List<MaterialLotUnit> validateAndChangeMaterialNameByImportType(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     List<GCProductNumberRelation> getProductNumberRelationByDocRrn(Long documentLineRrn) throws ClientException;
