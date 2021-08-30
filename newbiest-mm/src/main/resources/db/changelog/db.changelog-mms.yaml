@@ -722,3 +722,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCRawMaterialSpareOutDoc.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileWltOrCpWaferReceive.nb_authority.yaml
+      relativeToChangelogFile: true
