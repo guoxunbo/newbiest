@@ -52,12 +52,10 @@ public class GCRawMaterialSaveController {
             List<MaterialLot> materialLots = gcService.getSpareRawMaterialLotListByDocLineRrrn(materialLotList, requestBody.getDocLineRrn());
             responseBody.setMaterialLotList(materialLots);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_GET_SPARE_RWA_OUT_DOC.equals(actionType)){
-            //无单据备料
-            List<MaterialLot> materialLots = gcService.getSpareRawMaterialLotListOutDocByQty(materialLotList, requestBody.getPickQty());
+            List<MaterialLot> materialLots = gcService.getWaitSpareRawMaterialByReservedQty(materialLotList, requestBody.getPickQty());
             responseBody.setMaterialLotList(materialLots);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SPARE_RAW_OUT_DOC.equals(actionType)){
-            //无单据确认备料
-            gcService.spareRawMLotOutDoc(materialLotList,requestBody.getPickQty());
+            gcService.spareRawMLotOutDoc(materialLotList);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SPARE_RAW_MLOT.equals(actionType)){
             gcService.rawMaterialMLotSpare(materialLotList, requestBody.getDocLineRrn());
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_QUERY_ISSUE_RAW_MATERIAL_LOT.equals(actionType)){

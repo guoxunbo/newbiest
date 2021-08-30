@@ -52,9 +52,9 @@ public interface GcService {
     List<MaterialLot> queryRawMaterialByMaterialLotOrLotIdAndTableRrn(String mLotId, Long tableRrn) throws ClientException;
     List<MaterialLot> getWaitSpareRawMaterialLotListByOrderAndTableRrn(Long docLineRrn, Long tableRrn) throws ClientException;
     List<MaterialLot> getSpareRawMaterialLotListByDocLineRrrn(List<MaterialLot> materialLots, Long docLineRrn) throws ClientException;
-    List<MaterialLot> getSpareRawMaterialLotListOutDocByQty(List<MaterialLot> materialListLots, BigDecimal pickQty) throws ClientException;
+    List<MaterialLot> getWaitSpareRawMaterialByReservedQty(List<MaterialLot> materialListLots, BigDecimal pickQty) throws ClientException;
     void rawMaterialMLotSpare(List<MaterialLot> materialLotList, Long docLineRrn) throws ClientException;
-    void spareRawMLotOutDoc(List<MaterialLot> materialLotList,BigDecimal pickQty) throws ClientException;
+    void spareRawMLotOutDoc(List<MaterialLot> materialLotList) throws ClientException;
     void scrapRawMaterialShip(DocumentLine documentLine, List<MaterialLot> materialLotList) throws ClientException;
     void unRawMaterialSpare(List<MaterialLot> materialLotList) throws ClientException;
 
