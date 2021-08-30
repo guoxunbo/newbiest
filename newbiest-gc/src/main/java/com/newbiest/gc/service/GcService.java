@@ -52,9 +52,9 @@ public interface GcService {
     List<MaterialLot> queryRawMaterialByMaterialLotOrLotIdAndTableRrn(String mLotId, Long tableRrn) throws ClientException;
     List<MaterialLot> getWaitSpareRawMaterialLotListByOrderAndTableRrn(Long docLineRrn, Long tableRrn) throws ClientException;
     List<MaterialLot> getSpareRawMaterialLotListByDocLineRrrn(List<MaterialLot> materialLots, Long docLineRrn) throws ClientException;
-    List<MaterialLot> getSpareRawMaterialLotListOutDocByQty(List<MaterialLot> materialListLots, BigDecimal pickQty) throws ClientException;
+    List<MaterialLot> getWaitSpareRawMaterialByReservedQty(List<MaterialLot> materialListLots, BigDecimal pickQty) throws ClientException;
     void rawMaterialMLotSpare(List<MaterialLot> materialLotList, Long docLineRrn) throws ClientException;
-    void spareRawMLotOutDoc(List<MaterialLot> materialLotList,BigDecimal pickQty) throws ClientException;
+    void spareRawMLotOutDoc(List<MaterialLot> materialLotList) throws ClientException;
     void scrapRawMaterialShip(DocumentLine documentLine, List<MaterialLot> materialLotList) throws ClientException;
     void unRawMaterialSpare(List<MaterialLot> materialLotList) throws ClientException;
 
@@ -70,13 +70,13 @@ public interface GcService {
     void hongKongMLotReceive(List<MaterialLotAction> materialLotActions) throws ClientException;
 
     void mesSaveMaterialLotUnitHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
-    void mesSaveMaterialLotHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesReceiveRawMaterialAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesRawMaterialReturnWarehouse(List<MaterialLot> materialLotList, String transId, String materialType) throws ClientException;
     void mesMaterialLotBindWorkOrderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesMaterialLotUnitBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     void mesMaterialLotUnitUnBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     void reconMaterialLotUnitAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
+    void lswMaterialLotUnitEngHoldAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
 
     List<MaterialLotUnit> validateAndChangeMaterialNameByImportType(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     List<GCProductNumberRelation> getProductNumberRelationByDocRrn(Long documentLineRrn) throws ClientException;
