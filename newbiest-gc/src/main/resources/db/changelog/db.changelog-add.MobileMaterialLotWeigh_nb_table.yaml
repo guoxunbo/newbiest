@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileMaterialLotWeigh_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCMobileMaterialLotWeigh to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileMaterialLotWeigh
+              description: 手持端称重
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 手持端称重
+              label: MobileMaterialLotWeigh
