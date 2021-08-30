@@ -14,11 +14,6 @@ public class MesSaveMLotHisRequest extends Request {
 	public static final String MESSAGE_NAME = "mesSaveMLotHisManager";
 
 	/**
-	 * 保存物料批次历史
-	 */
-	public static final String ACTION_SAVE_MLOT_HIS = "SaveMLotHis";
-
-	/**
 	 * 保存晶圆历史
 	 */
 	public static final String ACTION_SAVE_MLOTUNIT_HIS = "SaveMLotUnitHis";
@@ -62,6 +57,11 @@ public class MesSaveMLotHisRequest extends Request {
 	 * 晶圆Recon
 	 */
 	public static final String ACTION_UN_RECON_MLOT_UNIT = "ReconMLotUnit";
+
+	/**
+	 * 线边仓晶圆ENGHold
+	 */
+	public static final String ACTION_LSW_MLOT_UNIT_ENDHOLD_ = "LswMLotUnitEngHold";
 
 	private MesSaveMLotHisRequestBody body;
 
