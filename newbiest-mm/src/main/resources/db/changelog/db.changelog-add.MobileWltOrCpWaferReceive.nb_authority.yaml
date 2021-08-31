@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileWltOrCpWaferReceiveManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileWltOrCpWaferReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileWltOrCpWaferReceiveManager
+              description: 手持端WLT/CP晶圆接收
+              tableName: GCMobileWltOrCpWaferReceive
+              mobileFlag: Y
+              url: /Mobile/WltOrCpWaferReceive
+              parentRrn: 22
+              seqNo: 200
+              image: icon-rule
+              labelZh: WLT/CP晶圆接收
+              labelEn: WLT/CPWaferReceive
