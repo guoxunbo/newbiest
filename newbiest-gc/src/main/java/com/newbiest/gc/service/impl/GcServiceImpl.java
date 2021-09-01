@@ -8919,6 +8919,7 @@ public class GcServiceImpl implements GcService {
                         oldMLot.setReserved16(StringUtils.EMPTY);
                         oldMLot.setReserved17(StringUtils.EMPTY);
                         oldMLot.setReserved46(Material.RAW_MATERIAL_RETURN_FLAD);
+                        oldMLot.setEarlierExpDate(oldMLot.getMfgDate());
                         oldMLot = materialLotRepository.saveAndFlush(oldMLot);
                         MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(oldMLot, transType);
                         materialLotHistoryRepository.save(materialLotHistory);
@@ -8934,6 +8935,7 @@ public class GcServiceImpl implements GcService {
                         materialLot.setReserved50(MaterialLot.RAW_MATERIAL_WAFER_SOURCE);
                         materialLot.setMfgDate(format.parse(materialLot.getMfgDateValue()));
                         materialLot.setExpDate(format.parse(materialLot.getExpDateValue()));
+                        materialLot.setEarlierExpDate(materialLot.getMfgDate());
                         if(!StringUtils.isNullOrEmpty(materialLot.getShippingDateValue())){
                             materialLot.setShippingDate(format.parse(materialLot.getShippingDateValue()));
                         }
