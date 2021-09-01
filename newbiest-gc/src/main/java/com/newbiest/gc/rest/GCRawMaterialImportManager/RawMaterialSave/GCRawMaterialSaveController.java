@@ -55,7 +55,8 @@ public class GCRawMaterialSaveController {
             List<MaterialLot> materialLots = gcService.getWaitSpareRawMaterialByReservedQty(materialLotList, requestBody.getPickQty());
             responseBody.setMaterialLotList(materialLots);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SPARE_RAW_OUT_DOC.equals(actionType)){
-            gcService.spareRawMLotOutDoc(materialLotList);
+            String spareRuleId = gcService.spareRawMLotOutDoc(materialLotList);
+            responseBody.setSpareCode(spareRuleId);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SPARE_RAW_MLOT.equals(actionType)){
             gcService.rawMaterialMLotSpare(materialLotList, requestBody.getDocLineRrn());
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_QUERY_ISSUE_RAW_MATERIAL_LOT.equals(actionType)){

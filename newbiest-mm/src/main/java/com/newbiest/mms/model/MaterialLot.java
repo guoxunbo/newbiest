@@ -46,6 +46,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String GENERATOR_MATERIAL_LOT_WEIGHT_RULE = "BoxsWeight";
 
     /**
+     * 生成多箱称重事物号规则
+     */
+    public static final String GENERATOR_RAW_MATERIAL_SPARE_RULE = "RawMaterialSpare";
+
+    /**
      * 生成物料子批号的规则
      */
     public static final String GENERATOR_SUB_MATERIAL_LOT_ID_RULE = "CreateSubMLot";
