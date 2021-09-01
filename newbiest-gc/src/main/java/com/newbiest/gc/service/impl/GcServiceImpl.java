@@ -8781,6 +8781,12 @@ public class GcServiceImpl implements GcService {
                             dateMap.put(materialLot.getShippingDateValue(), materialLot.getShippingDate());
                         }
                     }
+                    if (materialLot.getMfgDate().after(new Date())){
+                        throw new ClientParameterException(GcExceptions.RAW_MATERIAL_LOT_MFG_DATE_IS_AFTER_CURRENT_TIME, materialLot.getMaterialLotId());
+                    }
+                    if (materialLot.getMfgDate().after(materialLot.getExpDate())){
+                        throw new ClientParameterException(GcExceptions.RAW_MATERIAL_LOT_MFG_DATE_IS_AFTER_EXP_DATE, materialLot.getMaterialLotId());
+                    }
                     //验证原材料有效时间，超出有效时间不允许导入(默认有效时间单位为天)
                     if(rawMaterial.getWarningLife() != null && rawMaterial.getWarningLife() > 0){
                         Long warningLife = rawMaterial.getWarningLife();
@@ -9799,16 +9805,13 @@ public class GcServiceImpl implements GcService {
 
             List<MaterialLot> glueMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_GLUE.equals(materialLot.getMaterialType())).collect(Collectors.toList());
             List<MaterialLot> goldMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_GOLD.equals(materialLot.getMaterialType())).collect(Collectors.toList());
-            List<MaterialLot> IRAMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_IRA.equals(materialLot.getMaterialType())).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(glueMLots)) {
                 validateRawIssueExpDate(glueMLots, Material.MATERIAL_TYPE_GLUE);
             }
             if (CollectionUtils.isNotEmpty(goldMLots)) {
                 validateRawIssueExpDate(goldMLots, Material.MATERIAL_TYPE_GOLD);
             }
-            if (CollectionUtils.isNotEmpty(IRAMLots)) {
-                validateRawIssueExpDate(IRAMLots, Material.MATERIAL_TYPE_IRA);
-            }
+
             if (StringUtils.isNullOrEmpty(issueWithDoc)){
                 for(MaterialLot materialLot : materialLots){
                     materialLot.setCurrentQty(BigDecimal.ZERO);
