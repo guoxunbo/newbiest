@@ -10161,6 +10161,51 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 根据导入文件获取等待Hold的物料批次
+     * @param materialLotList
+     * @param nbTable
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> getMaterialLotsByImportFileAndNbTable(List<MaterialLot> materialLotList, NBTable nbTable) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = Lists.newArrayList();
+            String orderBy = nbTable.getOrderBy();
+            String queryLotId = StringUtils.EMPTY;
+            for(MaterialLot materialLot : materialLotList){
+                String whereClause = nbTable.getWhereClause();
+                StringBuffer clauseBuffer = new StringBuffer(whereClause);
+                if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                    queryLotId = materialLot.getParentMaterialLotId();
+                    clauseBuffer.append(" AND materialLotId = ");
+                    clauseBuffer.append("'" + queryLotId + "'");
+                } else if(!StringUtils.isNullOrEmpty(materialLot.getMaterialLotId())){
+                    queryLotId = materialLot.getMaterialLotId();
+                    clauseBuffer.append(" AND materialLotId = ");
+                    clauseBuffer.append("'" + queryLotId + "'");
+                } else if(!StringUtils.isNullOrEmpty(materialLot.getLotId())){
+                    queryLotId = materialLot.getLotId();
+                    clauseBuffer.append(" AND lotId = ");
+                    clauseBuffer.append("'" + materialLot.getLotId() + "'");
+                } else {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_IMPORT_FILE_IS_ERRROR);
+                }
+                whereClause = clauseBuffer.toString();
+                List<MaterialLot> mLotList = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
+                if(CollectionUtils.isEmpty(mLotList)){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, queryLotId);
+                } else {
+                    materialLot = mLotList.get(0);
+                    materialLots.add(materialLot);
+                }
+            }
+            return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 单据合并
      * @param documentLines
      * @throws ClientException

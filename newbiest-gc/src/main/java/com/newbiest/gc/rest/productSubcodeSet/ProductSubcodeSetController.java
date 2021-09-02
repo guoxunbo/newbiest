@@ -35,7 +35,7 @@ public class ProductSubcodeSetController extends AbstractRestController {
     GcService gcService;
 
     @ApiOperation(value = "productSubcodeSetting", notes = "产品二级代码设定")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "ProductSubcodeSetRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotImportSearchRequest")
     @RequestMapping(value = "/productSubcodeSet", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public ProductSubcodeSetResponse execute(@RequestBody ProductSubcodeSetRequest request) throws Exception {
         ProductSubcodeSetResponse response = new ProductSubcodeSetResponse();
@@ -52,7 +52,7 @@ public class ProductSubcodeSetController extends AbstractRestController {
         return response;
     }
 
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "ProductSubcodeSetRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotImportSearchRequest")
     @RequestMapping(value = "/productSubcodeImport", method = RequestMethod.POST)
     public ProductSubcodeSetResponse excute(@RequestParam MultipartFile file, @RequestParam String request) throws Exception {
         ProductSubcodeSetRequest productSubcodeSetRequest = DefaultParser.getObjectMapper().readerFor(ProductSubcodeSetRequest.class).readValue(request);
