@@ -193,6 +193,7 @@ public interface GcService {
 
     void stockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void mobileReTest(List<MaterialLotAction> materialLotActions, String erpTime) throws ClientException;
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
 
     List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;

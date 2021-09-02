@@ -1833,6 +1833,19 @@ public class GcServiceImpl implements GcService {
 
     }
 
+    public void mobileReTest(List<MaterialLotAction> materialLotActions, String erpTime) throws ClientException{
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_RETEST_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            reTest(documentLineList, materialLotActions);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 重测发料。更新单据信息。
      * @param documentLines
@@ -9852,17 +9865,32 @@ public class GcServiceImpl implements GcService {
     public void mobileValidateAndRawMaterialIssue(List<MaterialLot> materialLotList, String erpTime, String issueWithDoc) throws ClientException{
         try {
             NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_RAW_ISSUE_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            validateAndRawMaterialIssue(documentLineList, materialLotList, issueWithDoc);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 通过时间来匹配单据
+     * @param nbTable
+     * @param erpTime
+     * @return
+     * @throws ClientException
+     */
+    private List<DocumentLine> findDocumentLineByTime(NBTable nbTable, String erpTime) throws ClientException {
+        try {
             String whereClause = nbTable.getWhereClause();
             String orderBy = nbTable.getOrderBy();
             StringBuffer clauseBuffer = new StringBuffer(whereClause);
             clauseBuffer.append(" and erpCreated = to_date('"+ erpTime +"', 'yyyy-MM-dd')");
             whereClause = clauseBuffer.toString();
             List<DocumentLine> documentLineList = documentLineRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
-            if (CollectionUtils.isEmpty(documentLineList)){
-                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
-            }
-            validateAndRawMaterialIssue(documentLineList, materialLotList, issueWithDoc);
-
+            return documentLineList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

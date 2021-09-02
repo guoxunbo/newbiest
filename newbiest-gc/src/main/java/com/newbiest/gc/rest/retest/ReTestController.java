@@ -32,8 +32,13 @@ public class ReTestController {
 
         ReTestResponseBody responseBody = new ReTestResponseBody();
         ReTestRequestBody requestBody = request.getBody();
+        String actionType = requestBody.getActionType();
 
-        gcService.reTest(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
+        if (ReTestRequest.ACTION_MOBILE_RETEST.equals(actionType)){
+            gcService.mobileReTest(requestBody.getMaterialLotActions(), requestBody.getErpTime());
+        } else {
+            gcService.reTest(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
+        }
 
         response.setBody(responseBody);
         return response;

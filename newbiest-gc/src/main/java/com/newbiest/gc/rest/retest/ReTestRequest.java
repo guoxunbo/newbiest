@@ -12,6 +12,8 @@ public class ReTestRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "GCReTest";
 
+	public static final String ACTION_MOBILE_RETEST = "MobileRetest";
+
 	private ReTestRequestBody body;
 
 }

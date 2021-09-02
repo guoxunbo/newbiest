@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileMaterialLotReTestOrderManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileMaterialLotReTestOrderManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileMLotReTestOrderManager
+              description: 手持端COM真空包重测发料
+              tableName: GCMobileMaterialLotReTestOrder
+              mobileFlag: Y
+              url: /Mobile/MaterialLotReTestOrder
+              parentRrn: 2
+              seqNo: 220
+              image: icon-rule
+              labelZh: COM真空包重测发料
+              labelEn: MaterialLotReTestOrder
