@@ -46,9 +46,13 @@ public class MaterialLotUnitController extends AbstractRestController {
         MaterialLotUnitResponseBody responseBody = new MaterialLotUnitResponseBody();
 
         MaterialLotUnitRequestBody requestBody = request.getBody();
-
-        String message = materialLotUnitService.validateAndCreateMLotUnit(requestBody.getMaterialLotUnits());
-        response.setMessage(message);
+        String errorMessage = "";
+        try{
+            materialLotUnitService.validateAndCreateMLotUnit(requestBody.getMaterialLotUnits());
+        } catch(Exception e) {
+            errorMessage = e.getMessage();
+        }
+        response.setMessage(errorMessage);
         return response;
     }
 
