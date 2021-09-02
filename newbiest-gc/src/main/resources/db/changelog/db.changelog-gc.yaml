@@ -635,4 +635,15 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCWltOtherStockOutMLotScan_nb_table.yaml
       relativeToChangelogFile: true
-
+  - include:
+      file: db.changelog-add.MobileRMAMaterialReceive_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCRawMaterialSpareOutDoc_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileWltOrCpWaferReceive_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotWeigh_nb_table.yaml
+      relativeToChangelogFile: true

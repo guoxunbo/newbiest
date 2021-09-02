@@ -280,4 +280,7 @@ public class DocumentLineHistory extends NBHis {
     @Column(name="RESERVED31")
     private String reserved31;
 
+    @Column(name="MATERIAL_TYPE")
+    private String materialType;
+
 }

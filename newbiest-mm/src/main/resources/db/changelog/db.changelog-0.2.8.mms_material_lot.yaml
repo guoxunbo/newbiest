@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.2.8
+      author: Youqing Huang
+      remarks: mms_material add column EARLIER_EXP_DATE
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: EARLIER_EXP_DATE
+                  type: timestamp(6)
+                  remarks: 最小原材料有效日期

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRawMaterialSpareOutDoc_to_NB_TABLE
+      author: abc
+      comment: add RawMaterialSpareOutDoc to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: RawMaterialSpareOutDoc
+              description: 原材料备料（无单据）
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 原材料备料（无单据）
+              label: RawMaterialSpareOutDoc

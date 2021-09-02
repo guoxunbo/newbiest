@@ -44,22 +44,13 @@ public class MesSaveMLotHisController extends AbstractRestController {
         String actionType = requestBody.getActionType();
         String transId = requestBody.getTransId();
         String errorMessage = "";
-        if (MesSaveMLotHisRequest.ACTION_SAVE_MLOT_HIS.equals(actionType)) {
-            List<MaterialLot> materialLotList = requestBody.getMaterialLots();
-            try {
-                gcService.mesSaveMaterialLotHis(materialLotList, transId);
-            } catch (Exception e){
-                errorMessage = e.getMessage();
-            }
-            response.setMessage(errorMessage);
-        } else if (MesSaveMLotHisRequest.ACTION_SAVE_MLOTUNIT_HIS.equals(actionType)) {
+        if (MesSaveMLotHisRequest.ACTION_SAVE_MLOTUNIT_HIS.equals(actionType)) {
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnits();
             try {
                 gcService.mesSaveMaterialLotUnitHis(materialLotUnitList, transId);
             } catch (Exception e){
                 errorMessage = e.getMessage();
             }
-            response.setMessage(errorMessage);
         } else if(MesSaveMLotHisRequest.ACTION_RECEIVE_RAW_MATERIAL.equals(actionType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLots();
             try {
@@ -67,7 +58,6 @@ public class MesSaveMLotHisController extends AbstractRestController {
             } catch (Exception e){
                 errorMessage = e.getMessage();
             }
-            response.setMessage(errorMessage);
         } else if(MesSaveMLotHisRequest.ACTION_IRA_RETURN.equals(actionType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLots();
             try {
@@ -75,31 +65,51 @@ public class MesSaveMLotHisController extends AbstractRestController {
             } catch (Exception e){
                 errorMessage = e.getMessage();
             }
-            response.setMessage(errorMessage);
         } else if(MesSaveMLotHisRequest.ACTION_GLUE_RETURN.equals(actionType)){
             try {
                 gcService.mesRawMaterialReturnWarehouse(requestBody.getMaterialLots(), transId, Material.MATERIAL_TYPE_GLUE);
             } catch (Exception e){
                 errorMessage = e.getMessage();
             }
-            response.setMessage(errorMessage);
         } else if(MesSaveMLotHisRequest.ACTION_WIRE_RETURN.equals(actionType)){
             try {
                 gcService.mesRawMaterialReturnWarehouse(requestBody.getMaterialLots(), transId, Material.MATERIAL_TYPE_GOLD);
             } catch (Exception e){
-                errorMessage = e.getMessage();
             }
-            response.setMessage(errorMessage);
         } else if(MesSaveMLotHisRequest.ACTION_BIND_WORKORDER.equals(actionType)){
             try {
                 gcService.mesMaterialLotBindWorkOrderAndSaveHis(requestBody.getMaterialLots(), transId);
             } catch (Exception e){
                 errorMessage = e.getMessage();
             }
-            response.setMessage(errorMessage);
+        } else if(MesSaveMLotHisRequest.ACTION_BIND_WAFER_WORKORDER.equals(actionType)){
+            try {
+                gcService.mesMaterialLotUnitBindWorkorderAndSaveHis(requestBody.getMaterialLotUnits(), transId);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+        } else if(MesSaveMLotHisRequest.ACTION_UN_BIND_WAFER_WORKORDER.equals(actionType)){
+            try {
+                gcService.mesMaterialLotUnitUnBindWorkorderAndSaveHis(requestBody.getMaterialLotUnits(), transId);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+        } else if(MesSaveMLotHisRequest.ACTION_UN_RECON_MLOT_UNIT.equals(actionType)){
+            try {
+                gcService.reconMaterialLotUnitAndSaveHis(requestBody.getMaterialLotUnits(), transId);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+        } else if(MesSaveMLotHisRequest.ACTION_LSW_MLOT_UNIT_ENDHOLD_.equals(actionType)){
+            try {
+                gcService.lswMaterialLotUnitEngHoldAndSaveHis(requestBody.getMaterialLotUnits(), transId);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
+        response.setMessage(errorMessage);
         return response;
     }
 

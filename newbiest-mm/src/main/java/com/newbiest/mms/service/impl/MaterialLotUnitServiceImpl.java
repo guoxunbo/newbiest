@@ -272,8 +272,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      * 晶圆换箱号则修改原箱号中的晶圆状态
      * @param materialLotUnitList
      */
-    public String validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
-        String errorMessage = "";
+    public void validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
         try {
             Warehouse warehouse;
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
@@ -312,9 +311,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 }
             }
         } catch (Exception e) {
-            errorMessage = e.getMessage();
+            throw ExceptionManager.handleException(e, log);
         }
-        return errorMessage;
     }
 
     /**

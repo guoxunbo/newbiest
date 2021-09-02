@@ -23,7 +23,7 @@ public interface MaterialLotUnitService {
 
     List<MaterialLotUnit> receiveMLotWithUnit(MaterialLot materialLots, String warehouseName) throws ClientException;
 
-    String validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+    void validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 
     List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList, String importType) throws ClientException;
 }
