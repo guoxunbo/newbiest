@@ -726,6 +726,7 @@ public class GcServiceImpl implements GcService {
     public List<MaterialLot> getWaitSpareRawMaterialByReservedQty(List<MaterialLot> materialLotList, BigDecimal unReservedQty) throws ClientException{
         try {
             List<MaterialLot> waitSpareRawMLotList = Lists.newArrayList();
+            boolean unPackedFlag = false;
             String materialType = materialLotList.get(0).getMaterialType();
             List<Date> dateList = Lists.newArrayList();
             if(Material.MATERIAL_TYPE_IRA.equals(materialType)){
@@ -743,6 +744,9 @@ public class GcServiceImpl implements GcService {
                 Collections.sort(dateList);
                 //同一天的原材料可能包含多个箱子，整箱数量可能存在相同的，先挑整箱数量少的，数量不够的，从整箱中挑选部分
                 for(Date mfgDate : dateList){
+                    if(unPackedFlag){
+                        break;
+                    }
                     List<MaterialLot> materialLots = mLotDateMap.get(mfgDate);
                     Map<Long, List<MaterialLot>> boxQtyMap = Maps.newHashMap();
                     List<Long> totalQtyList = Lists.newArrayList();
@@ -759,6 +763,9 @@ public class GcServiceImpl implements GcService {
                     }
                     Collections.sort(totalQtyList);
                     for(Long totalQty : totalQtyList){
+                        if(unPackedFlag){
+                            break;
+                        }
                         Map<String, List<MaterialLot>> lotIdMap = boxQtyMap.get(totalQty).stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
                         for(String lotId : lotIdMap.keySet()){
                             List<MaterialLot> iraLotList = lotIdMap.get(lotId);
@@ -772,10 +779,11 @@ public class GcServiceImpl implements GcService {
                                     if(unReservedQty.compareTo(materialLot.getCurrentQty()) >= 0){
                                         waitSpareRawMLotList.add(materialLot);
                                         unReservedQty = unReservedQty.subtract(materialLot.getCurrentQty());
+                                        unPackedFlag = true;
                                     }
                                 }
                             }
-                            if(unReservedQty.compareTo(BigDecimal.ZERO) == 0){
+                            if(unPackedFlag || unReservedQty.compareTo(BigDecimal.ZERO) == 0){
                                 break;
                             }
                         }
@@ -9815,16 +9823,19 @@ public class GcServiceImpl implements GcService {
     public void validateAndRawMaterialIssue(List<DocumentLine> documentLineList, List<MaterialLot> materialLotList, String issueWithDoc) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotList.stream().map(materialLot -> mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true)).collect(Collectors.toList());
+            Map<String, List<MaterialLot>> materialNameMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getMaterialName));
+            for (String materialName : materialNameMap.keySet()) {
+                List<MaterialLot> materialNameList = materialNameMap.get(materialName);
+                List<MaterialLot> glueMLots = materialNameList.stream().filter(materialLot -> Material.MATERIAL_TYPE_GLUE.equals(materialLot.getMaterialType())).collect(Collectors.toList());
+                List<MaterialLot> goldMLots = materialNameList.stream().filter(materialLot -> Material.MATERIAL_TYPE_GOLD.equals(materialLot.getMaterialType())).collect(Collectors.toList());
 
-            List<MaterialLot> glueMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_GLUE.equals(materialLot.getMaterialType())).collect(Collectors.toList());
-            List<MaterialLot> goldMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_GOLD.equals(materialLot.getMaterialType())).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(glueMLots)) {
-                validateRawIssueExpDate(glueMLots, Material.MATERIAL_TYPE_GLUE);
+                if (CollectionUtils.isNotEmpty(glueMLots)) {
+                    validateRawIssueExpDate(glueMLots, materialName, Material.MATERIAL_TYPE_GLUE);
+                }
+                if (CollectionUtils.isNotEmpty(goldMLots)) {
+                    validateRawIssueExpDate(goldMLots, materialName, Material.MATERIAL_TYPE_GOLD);
+                }
             }
-            if (CollectionUtils.isNotEmpty(goldMLots)) {
-                validateRawIssueExpDate(goldMLots, Material.MATERIAL_TYPE_GOLD);
-            }
-
             if (StringUtils.isNullOrEmpty(issueWithDoc)){
                 for(MaterialLot materialLot : materialLots){
                     materialLot.setCurrentQty(BigDecimal.ZERO);
@@ -9901,7 +9912,7 @@ public class GcServiceImpl implements GcService {
      * @param materialLots
      * @throws ClientException
      */
-    private void validateRawIssueExpDate(List<MaterialLot> materialLots, String materialType) throws ClientException {
+    private void validateRawIssueExpDate(List<MaterialLot> materialLots, String materialName, String materialType) throws ClientException {
         try {
             if (materialType.equals(Material.MATERIAL_TYPE_GLUE)) {
                 for (MaterialLot glueMLot : materialLots) {
@@ -9921,6 +9932,7 @@ public class GcServiceImpl implements GcService {
             String orderBy = nbTable.getOrderBy();
             StringBuffer clauseBuffer = new StringBuffer(whereClause);
             clauseBuffer.append(" and expDate < to_date('"+ maxDate +"', 'yyyy-MM-dd hh24:mi:ss')");
+            clauseBuffer.append(" and materialName = '"+ materialName +"'");
             clauseBuffer.append(" and materialType = '"+ materialType +"'");
             whereClause = clauseBuffer.toString();
             List<MaterialLot> waitIssueMLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
