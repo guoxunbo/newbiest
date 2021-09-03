@@ -135,6 +135,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID = "RwMaterialScrapShipDocRule";  //原材料报废出库单据验证规则
     public static final String WLT_OTHER_STOCK_OUT_RULE_ID = "WltOtherStockOutRule";  //WLT/CP其它出单据验证规则
     public static final String MOBILE_RAW_ISSUE_WHERE_CLAUSE="GCRawMaterialIssueOrder";
+    public static final String MOBILE_RETEST_WHERE_CLAUSE = "GCReTestManager";
 
     /**
      * 香港仓依订单出货

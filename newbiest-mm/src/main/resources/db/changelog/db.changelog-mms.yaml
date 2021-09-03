@@ -728,3 +728,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileMaterialLotWeigh.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileMaterialLotReTestOrder.nb_authority.yaml
+      relativeToChangelogFile: true

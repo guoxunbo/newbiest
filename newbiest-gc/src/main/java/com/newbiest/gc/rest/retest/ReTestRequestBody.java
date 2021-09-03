@@ -23,4 +23,10 @@ public class ReTestRequestBody extends RequestBody {
 	@ApiModelProperty(value = "单据")
 	private List<DocumentLine> documentLines;
 
+	@ApiModelProperty(value = "操作类型")
+	private String actionType;
+
+	@ApiModelProperty(value = "手持端发料单据日期")
+	private String erpTime;
+
 }
