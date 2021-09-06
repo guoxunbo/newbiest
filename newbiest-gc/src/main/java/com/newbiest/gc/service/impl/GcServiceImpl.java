@@ -774,21 +774,24 @@ public class GcServiceImpl implements GcService {
                                 waitSpareRawMLotList.addAll(iraLotList);
                                 unReservedQty = unReservedQty.subtract(new BigDecimal(boxQty));
                             } else {
-                                iraLotList = iraLotList.stream().sorted(Comparator.comparing(MaterialLot :: getCurrentQty)).collect(Collectors.toList());
+                                //需要拆箱时，按照箱子中materialLotId进行排序，拆箱多拆一包，防止出现拆多箱情况
+                                iraLotList = iraLotList.stream().sorted(Comparator.comparing(MaterialLot :: getMaterialLotId)).collect(Collectors.toList());
                                 for(MaterialLot materialLot : iraLotList){
-                                    if(unReservedQty.compareTo(materialLot.getCurrentQty()) >= 0){
+                                    if(unReservedQty.compareTo(BigDecimal.ZERO) > 0){
                                         waitSpareRawMLotList.add(materialLot);
                                         unReservedQty = unReservedQty.subtract(materialLot.getCurrentQty());
                                         unPackedFlag = true;
+                                    } else {
+                                        break;
                                     }
                                 }
                             }
-                            if(unPackedFlag || unReservedQty.compareTo(BigDecimal.ZERO) == 0){
+                            if(unPackedFlag || unReservedQty.compareTo(BigDecimal.ZERO) <= 0){
                                 break;
                             }
                         }
                     }
-                    if(unReservedQty.compareTo(BigDecimal.ZERO) == 0){
+                    if(unReservedQty.compareTo(BigDecimal.ZERO) <= 0){
                         break;
                     }
                 }
