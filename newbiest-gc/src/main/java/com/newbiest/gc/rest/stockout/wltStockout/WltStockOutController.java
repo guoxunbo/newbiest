@@ -73,6 +73,10 @@ public class WltStockOutController {
             gcService.wltCpMaterialLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode());
         } else if (WltStockOutRequest.ACTION_GC_RW_ATTRIBUTE_CHANGE.equals(actionType)){
             gcService.rWAttributeChange(requestBody.getMaterialLots());
+        } else if (WltStockOutRequest.ACTION_MOBILE_WLT_STOCK_OUT.equals(actionType)){
+            gcService.mobileWltStockOut(requestBody.getMaterialLotActions(), requestBody.getErpTime(), requestBody.getCheckSubCode());
+        } else if (WltStockOutRequest.ACTION_MOBILE_SALE_SHIP.equals(actionType)){
+            gcService.mobileWltCpMaterialLotSaleShip(requestBody.getMaterialLotActions(), requestBody.getErpTime(), requestBody.getCheckSubCode());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

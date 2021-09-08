@@ -1540,6 +1540,19 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    public void mobileValidationAndWaferIssue(String erpTime, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_COM_WAFER_ISSUE_MANAGER_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            validationAndWaferIssue(documentLineList, materialLotActions, issueWithDoc, unPlanLot);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 晶圆发料 但是不和单据挂钩
      * @param materialLots
@@ -7404,6 +7417,19 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    public void mobileWltCpMaterialLotSaleShip(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            wltCpMaterialLotSaleShip(documentLineList, materialLotActions, checkSubCode);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * RW属性转换
      * @param materialLots
@@ -7528,6 +7554,19 @@ public class GcServiceImpl implements GcService {
                 validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(key, materialLotMap, documentLineMap);
                 wltCpStockOut(documentLineMap.get(key), materialLotMap.get(key));
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void mobileWltStockOut(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            wltStockOut(documentLineList, materialLotActions, checkSubCode);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
