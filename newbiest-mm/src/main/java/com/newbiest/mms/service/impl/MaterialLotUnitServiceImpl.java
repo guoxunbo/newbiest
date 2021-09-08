@@ -323,6 +323,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      */
     public List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList, String importType) throws ClientException {
         try {
+            List<String> cpImportList = Lists.newArrayList(MaterialLotUnit.FAB_SENSOR, MaterialLotUnit.FAB_SENSOR_2UNMEASURED, MaterialLotUnit.SENSOR_CP_KLT,
+                    MaterialLotUnit.SENSOR_CP, MaterialLotUnit.SENSOR_UNMEASURED, MaterialLotUnit.LCD_CP_25UNMEASURED, MaterialLotUnit.LCD_CP);
             List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = Maps.newHashMap();
 
@@ -336,22 +338,48 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 if (mLotUnitList.size() > MaterialLotUnit.THIRTEEN && importType.equals(MaterialLotUnit.WLA_UNMEASURED)){
                     throw new ClientParameterException(MmsException.MM_WLA_IMPORT_MATERIAL_LOT_UNIT_SIZE_IS_OVER_THIRTEEN, fabLotId);
                 }
-                Integer minWaferId = 0;
-                for (MaterialLotUnit materialLotUnit : mLotUnitList) {
-                    if(minWaferId == 0 || minWaferId > Integer.parseInt(materialLotUnit.getReserved31())){
-                        minWaferId = Integer.parseInt(materialLotUnit.getReserved31());
+                //CP的晶圆同一个FabLotId的需要按照CartonNo进行分组，构建多个Lot
+                if(cpImportList.contains(importType)){
+                    Map<String, List<MaterialLotUnit>> cartonNoMap = mLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit :: getReserved39));
+                    for(String cartonNo : cartonNoMap.keySet()){
+                        List<MaterialLotUnit> cartonMLotUnitList = cartonNoMap.get(cartonNo);
+                        cartonMLotUnitList = getImportMaterialLotUnitByFabLotIdAndMinWaferId(cartonMLotUnitList, fabLotId);
+                        materialLotUnits.addAll(cartonMLotUnitList);
                     }
-                }
-                String waferId = minWaferId+"";
-                waferId = StringUtil.leftPad(waferId , 2 , "0");
-                String lotId = fabLotId.split("\\.")[0] +"."+ waferId;
-                for(MaterialLotUnit materialLotUnit : mLotUnitList){
-                    materialLotUnit.setLotId(lotId);
-                    materialLotUnit.setReserved30(fabLotId.split("\\.")[0]);
-                    materialLotUnits.add(materialLotUnit);
+                } else {
+                    mLotUnitList = getImportMaterialLotUnitByFabLotIdAndMinWaferId(mLotUnitList, fabLotId);
+                    materialLotUnits.addAll(mLotUnitList);
                 }
             }
             return materialLotUnits;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 来了导入按照FabLotId分组，取最小的waferId与FablotId做拼接为LotId
+     * 如果是CP的批次，则再按照CartonNo分组，同一个FabLotId的批次分成多个Lot
+     * @param mLotUnitList
+     * @return
+     * @throws ClientException
+     */
+    private List<MaterialLotUnit> getImportMaterialLotUnitByFabLotIdAndMinWaferId(List<MaterialLotUnit> mLotUnitList, String fabLotId) throws ClientException{
+        try {
+            Integer minWaferId = 0;
+            for (MaterialLotUnit materialLotUnit : mLotUnitList) {
+                if(minWaferId == 0 || minWaferId > Integer.parseInt(materialLotUnit.getReserved31())){
+                    minWaferId = Integer.parseInt(materialLotUnit.getReserved31());
+                }
+            }
+            String waferId = minWaferId+"";
+            waferId = StringUtil.leftPad(waferId , 2 , "0");
+            String lotId = fabLotId.split("\\.")[0] +"."+ waferId;
+            for(MaterialLotUnit materialLotUnit : mLotUnitList){
+                materialLotUnit.setLotId(lotId);
+                materialLotUnit.setReserved30(fabLotId.split("\\.")[0]);
+            }
+            return mLotUnitList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
