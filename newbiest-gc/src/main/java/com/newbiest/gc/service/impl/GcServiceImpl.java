@@ -1540,6 +1540,14 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 手持端 “COB晶圆发料”
+     * @param erpTime
+     * @param materialLotActions
+     * @param issueWithDoc
+     * @param unPlanLot
+     * @throws ClientException
+     */
     public void mobileValidationAndWaferIssue(String erpTime, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException {
         try {
             NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_COM_WAFER_ISSUE_MANAGER_WHERE_CLAUSE);
@@ -1825,7 +1833,7 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     *
+     * COM真空包重测发料
      * @param documentLineList
      * @param materialLotActions
      * @throws ClientException
@@ -1857,6 +1865,12 @@ public class GcServiceImpl implements GcService {
 
     }
 
+    /**
+     * 手持端 “COM真空包重测发料”
+     * @param materialLotActions
+     * @param erpTime
+     * @throws ClientException
+     */
     public void mobileReTest(List<MaterialLotAction> materialLotActions, String erpTime) throws ClientException{
         try {
             NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_RETEST_WHERE_CLAUSE);
@@ -7417,6 +7431,13 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 手持端 “WLT/CP销售出货”
+     * @param materialLotActions
+     * @param erpTime
+     * @param checkSubCode
+     * @throws ClientException
+     */
     public void mobileWltCpMaterialLotSaleShip(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode) throws ClientException {
         try {
             NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE);
@@ -7559,6 +7580,13 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 手持端 WLT/CP出货 “材料/其他出”
+     * @param materialLotActions
+     * @param erpTime
+     * @param checkSubCode
+     * @throws ClientException
+     */
     public void mobileWltStockOut(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode) throws ClientException {
         try {
             NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE);
