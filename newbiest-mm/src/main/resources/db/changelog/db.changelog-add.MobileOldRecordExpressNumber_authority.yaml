@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileOldRecordExpressNumberManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileOldRecordExpressNumberManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileOldRecordExpressNumber
+              description: 手持端老记录快递单号
+              tableName: GCMobileOldRecordExpressNumber
+              mobileFlag: Y
+              url: /Mobile/OldRecordExpressNumber
+              parentRrn: 2
+              seqNo: 240
+              image: icon-rule
+              labelZh: 老记录快递单号
+              labelEn: OldRecordExpressNumber

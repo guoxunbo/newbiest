@@ -734,3 +734,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileWltOrCpStockOut.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileOldRecordExpressNumber_authority.yaml
+      relativeToChangelogFile: true
