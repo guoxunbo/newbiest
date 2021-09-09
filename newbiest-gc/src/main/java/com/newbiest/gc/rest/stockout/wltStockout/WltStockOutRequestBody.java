@@ -58,5 +58,8 @@ public class WltStockOutRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "选择的物料批次")
 	private List<MaterialLot> materialLots;
+
+	@ApiModelProperty(value = "手持端发料单据日期")
+	private String erpTime;
   
 }

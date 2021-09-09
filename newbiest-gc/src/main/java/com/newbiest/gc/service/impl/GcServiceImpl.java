@@ -726,6 +726,7 @@ public class GcServiceImpl implements GcService {
     public List<MaterialLot> getWaitSpareRawMaterialByReservedQty(List<MaterialLot> materialLotList, BigDecimal unReservedQty) throws ClientException{
         try {
             List<MaterialLot> waitSpareRawMLotList = Lists.newArrayList();
+            boolean unPackedFlag = false;
             String materialType = materialLotList.get(0).getMaterialType();
             List<Date> dateList = Lists.newArrayList();
             if(Material.MATERIAL_TYPE_IRA.equals(materialType)){
@@ -743,6 +744,9 @@ public class GcServiceImpl implements GcService {
                 Collections.sort(dateList);
                 //同一天的原材料可能包含多个箱子，整箱数量可能存在相同的，先挑整箱数量少的，数量不够的，从整箱中挑选部分
                 for(Date mfgDate : dateList){
+                    if(unPackedFlag){
+                        break;
+                    }
                     List<MaterialLot> materialLots = mLotDateMap.get(mfgDate);
                     Map<Long, List<MaterialLot>> boxQtyMap = Maps.newHashMap();
                     List<Long> totalQtyList = Lists.newArrayList();
@@ -759,6 +763,9 @@ public class GcServiceImpl implements GcService {
                     }
                     Collections.sort(totalQtyList);
                     for(Long totalQty : totalQtyList){
+                        if(unPackedFlag){
+                            break;
+                        }
                         Map<String, List<MaterialLot>> lotIdMap = boxQtyMap.get(totalQty).stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
                         for(String lotId : lotIdMap.keySet()){
                             List<MaterialLot> iraLotList = lotIdMap.get(lotId);
@@ -767,20 +774,24 @@ public class GcServiceImpl implements GcService {
                                 waitSpareRawMLotList.addAll(iraLotList);
                                 unReservedQty = unReservedQty.subtract(new BigDecimal(boxQty));
                             } else {
-                                iraLotList = iraLotList.stream().sorted(Comparator.comparing(MaterialLot :: getCurrentQty)).collect(Collectors.toList());
+                                //需要拆箱时，按照箱子中materialLotId进行排序，拆箱多拆一包，防止出现拆多箱情况
+                                iraLotList = iraLotList.stream().sorted(Comparator.comparing(MaterialLot :: getMaterialLotId)).collect(Collectors.toList());
                                 for(MaterialLot materialLot : iraLotList){
-                                    if(unReservedQty.compareTo(materialLot.getCurrentQty()) >= 0){
+                                    if(unReservedQty.compareTo(BigDecimal.ZERO) > 0){
                                         waitSpareRawMLotList.add(materialLot);
                                         unReservedQty = unReservedQty.subtract(materialLot.getCurrentQty());
+                                        unPackedFlag = true;
+                                    } else {
+                                        break;
                                     }
                                 }
                             }
-                            if(unReservedQty.compareTo(BigDecimal.ZERO) == 0){
+                            if(unPackedFlag || unReservedQty.compareTo(BigDecimal.ZERO) <= 0){
                                 break;
                             }
                         }
                     }
-                    if(unReservedQty.compareTo(BigDecimal.ZERO) == 0){
+                    if(unReservedQty.compareTo(BigDecimal.ZERO) <= 0){
                         break;
                     }
                 }
@@ -1529,6 +1540,19 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    public void mobileValidationAndWaferIssue(String erpTime, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_COM_WAFER_ISSUE_MANAGER_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            validationAndWaferIssue(documentLineList, materialLotActions, issueWithDoc, unPlanLot);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 晶圆发料 但是不和单据挂钩
      * @param materialLots
@@ -1831,6 +1855,19 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
 
+    }
+
+    public void mobileReTest(List<MaterialLotAction> materialLotActions, String erpTime) throws ClientException{
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_RETEST_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            reTest(documentLineList, materialLotActions);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     /**
@@ -7380,6 +7417,19 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    public void mobileWltCpMaterialLotSaleShip(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            wltCpMaterialLotSaleShip(documentLineList, materialLotActions, checkSubCode);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * RW属性转换
      * @param materialLots
@@ -7504,6 +7554,19 @@ public class GcServiceImpl implements GcService {
                 validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(key, materialLotMap, documentLineMap);
                 wltCpStockOut(documentLineMap.get(key), materialLotMap.get(key));
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void mobileWltStockOut(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            wltStockOut(documentLineList, materialLotActions, checkSubCode);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -9802,16 +9865,19 @@ public class GcServiceImpl implements GcService {
     public void validateAndRawMaterialIssue(List<DocumentLine> documentLineList, List<MaterialLot> materialLotList, String issueWithDoc) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotList.stream().map(materialLot -> mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true)).collect(Collectors.toList());
+            Map<String, List<MaterialLot>> materialNameMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getMaterialName));
+            for (String materialName : materialNameMap.keySet()) {
+                List<MaterialLot> materialNameList = materialNameMap.get(materialName);
+                List<MaterialLot> glueMLots = materialNameList.stream().filter(materialLot -> Material.MATERIAL_TYPE_GLUE.equals(materialLot.getMaterialType())).collect(Collectors.toList());
+                List<MaterialLot> goldMLots = materialNameList.stream().filter(materialLot -> Material.MATERIAL_TYPE_GOLD.equals(materialLot.getMaterialType())).collect(Collectors.toList());
 
-            List<MaterialLot> glueMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_GLUE.equals(materialLot.getMaterialType())).collect(Collectors.toList());
-            List<MaterialLot> goldMLots = materialLots.stream().filter(materialLot -> Material.MATERIAL_TYPE_GOLD.equals(materialLot.getMaterialType())).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(glueMLots)) {
-                validateRawIssueExpDate(glueMLots, Material.MATERIAL_TYPE_GLUE);
+                if (CollectionUtils.isNotEmpty(glueMLots)) {
+                    validateRawIssueExpDate(glueMLots, materialName, Material.MATERIAL_TYPE_GLUE);
+                }
+                if (CollectionUtils.isNotEmpty(goldMLots)) {
+                    validateRawIssueExpDate(goldMLots, materialName, Material.MATERIAL_TYPE_GOLD);
+                }
             }
-            if (CollectionUtils.isNotEmpty(goldMLots)) {
-                validateRawIssueExpDate(goldMLots, Material.MATERIAL_TYPE_GOLD);
-            }
-
             if (StringUtils.isNullOrEmpty(issueWithDoc)){
                 for(MaterialLot materialLot : materialLots){
                     materialLot.setCurrentQty(BigDecimal.ZERO);
@@ -9852,17 +9918,32 @@ public class GcServiceImpl implements GcService {
     public void mobileValidateAndRawMaterialIssue(List<MaterialLot> materialLotList, String erpTime, String issueWithDoc) throws ClientException{
         try {
             NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_RAW_ISSUE_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
+            }
+            validateAndRawMaterialIssue(documentLineList, materialLotList, issueWithDoc);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 通过时间来匹配单据
+     * @param nbTable
+     * @param erpTime
+     * @return
+     * @throws ClientException
+     */
+    private List<DocumentLine> findDocumentLineByTime(NBTable nbTable, String erpTime) throws ClientException {
+        try {
             String whereClause = nbTable.getWhereClause();
             String orderBy = nbTable.getOrderBy();
             StringBuffer clauseBuffer = new StringBuffer(whereClause);
             clauseBuffer.append(" and erpCreated = to_date('"+ erpTime +"', 'yyyy-MM-dd')");
             whereClause = clauseBuffer.toString();
             List<DocumentLine> documentLineList = documentLineRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
-            if (CollectionUtils.isEmpty(documentLineList)){
-                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
-            }
-            validateAndRawMaterialIssue(documentLineList, materialLotList, issueWithDoc);
-
+            return documentLineList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -9873,7 +9954,7 @@ public class GcServiceImpl implements GcService {
      * @param materialLots
      * @throws ClientException
      */
-    private void validateRawIssueExpDate(List<MaterialLot> materialLots, String materialType) throws ClientException {
+    private void validateRawIssueExpDate(List<MaterialLot> materialLots, String materialName, String materialType) throws ClientException {
         try {
             if (materialType.equals(Material.MATERIAL_TYPE_GLUE)) {
                 for (MaterialLot glueMLot : materialLots) {
@@ -9893,6 +9974,7 @@ public class GcServiceImpl implements GcService {
             String orderBy = nbTable.getOrderBy();
             StringBuffer clauseBuffer = new StringBuffer(whereClause);
             clauseBuffer.append(" and expDate < to_date('"+ maxDate +"', 'yyyy-MM-dd hh24:mi:ss')");
+            clauseBuffer.append(" and materialName = '"+ materialName +"'");
             clauseBuffer.append(" and materialType = '"+ materialType +"'");
             whereClause = clauseBuffer.toString();
             List<MaterialLot> waitIssueMLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
