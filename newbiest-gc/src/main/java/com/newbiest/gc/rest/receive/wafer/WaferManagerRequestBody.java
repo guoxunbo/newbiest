@@ -40,4 +40,7 @@ public class WaferManagerRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "物料批次号")
 	private String lotId;
+
+	@ApiModelProperty(value = "手持端发料单据日期")
+	private String erpTime;
 }
