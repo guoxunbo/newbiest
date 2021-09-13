@@ -1,0 +1,1 @@
+update nb_authority n set n.table_rrn = n.parameter1, n.parameter1 = null where n.name = 'MobileMaterialLotIssueManager';

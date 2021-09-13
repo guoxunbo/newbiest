@@ -46,6 +46,11 @@ public class WaferManagerRequest extends Request {
 	 */
 	public static final String ACTION_TYPE_MOBILE_GET_WAFER = "MobileGetWafer";
 
+	/**
+	 * 手持端COB晶圆发料
+	 */
+	public static final String ACTION_TYPE_MOBILE_ISSUE = "MobileIssue";
+
 	private WaferManagerRequestBody body;
 
 }
