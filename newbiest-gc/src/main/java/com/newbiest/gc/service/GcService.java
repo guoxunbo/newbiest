@@ -98,7 +98,7 @@ public interface GcService {
     void waferUnStockOutTagging(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferStockOutTagging(List<MaterialLotAction> materialLotActions, String stockTagNote, String customerName, String stockOutType, String poId, String address) throws ClientException;
     void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException;
-    void mobileWltStockOut(List<MaterialLotAction> materialLotActions,String empTime, String checkSubCode) throws ClientException;
+    void mobileWltStockOut(List<MaterialLotAction> materialLotActions,String erpTime, String checkSubCode) throws ClientException;
     void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
     boolean validationWltStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
