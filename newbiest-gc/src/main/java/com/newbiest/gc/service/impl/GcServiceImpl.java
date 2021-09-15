@@ -2920,8 +2920,12 @@ public class GcServiceImpl implements GcService {
                         }
                     } else if (!StringUtils.isNullOrEmpty(mesPackedLot.getLocation()) && mesPackedLot.getLocation().equalsIgnoreCase(MaterialLot.LOCATION_SH)) {
                         warehouseName = WAREHOUSE_SH;
-                    } else if (MesPackedLot.PRODUCT_CATEGORY_COB.equals(mesPackedLot.getProductCategory()) && MesPackedLot.LEVEL_TWO_CODE_FFFFF.equals(mesPackedLot.getLevelTwoCode()) && MesPackedLot.GRADE_F3.equals(mesPackedLot.getGrade())) {
-                        warehouseName = WAREHOUSE_SH;
+                    }
+                    if (MesPackedLot.PACKED_TYPE.equals(mesPackedLot.getType()) && MesPackedLot.LEVEL_TWO_CODE_FFFFF.equals(mesPackedLot.getLevelTwoCode())
+                            && MesPackedLot.GRADE_F3.equals(mesPackedLot.getGrade()) && !StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty())) {
+                        if (MaterialLot.LOCATION_SH.equals(mesPackedLot.getBondedProperty())) {
+                            warehouseName = WAREHOUSE_SH;
+                        }
                     }
 
                     Warehouse warehouse;
@@ -2945,11 +2949,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved3", mesPackedLot.getSalesNote());
                     otherReceiveProps.put("reserved4", mesPackedLot.getTreasuryNote());
                     otherReceiveProps.put("reserved5", mesPackedLot.getProductionNote());
-                    if (MesPackedLot.PRODUCT_CATEGORY_COB.equals(mesPackedLot.getProductCategory()) && MesPackedLot.LEVEL_TWO_CODE_FFFFF.equals(mesPackedLot.getLevelTwoCode()) && MesPackedLot.GRADE_F3.equals(mesPackedLot.getGrade())) {
-                        otherReceiveProps.put("reserved6", MaterialLot.LOCATION_SH);
-                    } else {
-                        otherReceiveProps.put("reserved6", mesPackedLot.getBondedProperty());
-                    }
+                    otherReceiveProps.put("reserved6", mesPackedLot.getBondedProperty());
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
                     if(MaterialLotUnit.PRODUCT_CATEGORY_CP.equals(mesPackedLot.getProductCategory()) || MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(mesPackedLot.getProductCategory())
                             || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(mesPackedLot.getProductCategory())){
@@ -4636,9 +4636,7 @@ public class GcServiceImpl implements GcService {
 
                     // 产地是空的话则是ZJ仓库
                     String warehouseName = WAREHOUSE_ZJ;
-                    if (MaterialLot.LOCATION_SH.equals(mesPackedLot.getBondedProperty()) ||
-                            ( MesPackedLot.LEVEL_TWO_CODE_FFFFF.equals(mesPackedLot.getLevelTwoCode())
-                            && MesPackedLot.GRADE_F3.equals(mesPackedLot.getGrade()))) {
+                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty()) && MaterialLot.LOCATION_SH.equals(mesPackedLot.getBondedProperty())) {
                         warehouseName = WAREHOUSE_SH;
                     }
 
@@ -4668,12 +4666,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved3", mesPackedLot.getSalesNote());
                     otherReceiveProps.put("reserved4", mesPackedLot.getTreasuryNote());
                     otherReceiveProps.put("reserved5", mesPackedLot.getProductionNote());
-                    if (MesPackedLot.LEVEL_TWO_CODE_FFFFF.equals(mesPackedLot.getLevelTwoCode())
-                            && MesPackedLot.GRADE_F3.equals(mesPackedLot.getGrade())){
-                        otherReceiveProps.put("reserved6", MaterialLot.LOCATION_SH);
-                    } else {
-                        otherReceiveProps.put("reserved6", mesPackedLot.getBondedProperty());
-                    }
+                    otherReceiveProps.put("reserved6", mesPackedLot.getBondedProperty());
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     otherReceiveProps.put("reserved22", mesPackedLot.getSubName());
@@ -7320,7 +7313,7 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-    
+
     /**
      * 验证单据是否合单，并更新中间表ERP_SOA的数量信息
      * @param documentLine
@@ -10902,7 +10895,7 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-
+    
     /**
      * 查询原材料批次信息，批次号位GCB开头时，当做LotId做查询，其余的当作物料批次做查询
      * @param queryLotId
