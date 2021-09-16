@@ -33,6 +33,7 @@ public class MesPackedLot implements Serializable {
 
     public static final String REPLACE_FLAG = "true";
 
+    public static final String PACKED_TYPE = "VBOX";
     public static final String LEVEL_TWO_CODE_FFFFF = "FFFFF";
 
     public static final String GRADE_F3 = "F3";
