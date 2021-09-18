@@ -4536,6 +4536,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setGrade(packedLot.getGrade());
                     materialLotUnit.setWorkOrderId(materialLot.getWorkOrderId());
                     materialLotUnit.setPcode(materialLot.getPcode());
+                    materialLotUnit.setDurable(materialLot.getDurable());
                     materialLotUnit.setCurrentQty(BigDecimal.valueOf(packedLot.getQuantity()));
                     materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                     materialLotUnit.setTreasuryNote(packedLot.getTreasuryNote());
@@ -4678,6 +4679,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("lotId", mesPackedLot.getCstId());
                     otherReceiveProps.put("lotCst", mesPackedLot.getLotId());
                     otherReceiveProps.put("pcode", mesPackedLot.getPcode());
+                    otherReceiveProps.put("durable", mesPackedLot.getCstId());
                     otherReceiveProps.put("workOrderId", "");//RW产线接收后清空工单号
                     otherReceiveProps.put("productType", mesPackedLot.getProductType());
                     otherReceiveProps.put("reserved1", mesPackedLot.getLevelTwoCode());
