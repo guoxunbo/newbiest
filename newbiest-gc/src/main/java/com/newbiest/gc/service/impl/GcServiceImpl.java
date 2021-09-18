@@ -4547,6 +4547,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved38(packedLot.getWaferMark());
+                    materialLotUnit.setReserved45(materialLot.getReserved45());
                     materialLotUnit.setReserved49(materialLot.getReserved49());
                     materialLotUnit.setReserved50(materialLot.getReserved50());
                     materialLotUnit.setReserved22(materialLot.getReserved22());
@@ -4689,6 +4690,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     otherReceiveProps.put("reserved22", mesPackedLot.getSubName());
                     otherReceiveProps.put("reserved24", mesPackedLot.getFabDevice());
+                    otherReceiveProps.put("reserved45", mesPackedLot.getPcode());
                     otherReceiveProps.put("reserved49", mesPackedLot.getImportType());
                     otherReceiveProps.put("reserved7", mesPackedLot.getProductCategory());
                     otherReceiveProps.put("reserved50", MaterialLot.RW_WAFER_SOURCE);
