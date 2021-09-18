@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCWaferUnpackMLotManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCWaferUnpackMLotManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCWaferUnpackMLotManager
+              description: Wafer拆箱
+              tableName: GCWaferUnpackMLot
+              url: /Wafer/WaferUnpackMLot
+              parentRrn: 1001
+              seqNo: 53
+              mobileFlag: N
+              image: icon-rule
+              labelZh: Wafer拆箱
+              labelEn: WaferUnpackMLot

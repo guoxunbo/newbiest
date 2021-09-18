@@ -13,6 +13,7 @@ import java.util.Map;
  */
 public interface PrintService {
 
+    void printWaferCstAndLotLabel(List<MaterialLot> materialLotList) throws ClientException;
     void printReceiveWltCpLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
     void printWltOrCpLabel(MaterialLot materialLot, String printCount) throws ClientException;
     void printWltBoxLabel(MaterialLot materialLot, String printCount) throws ClientException;

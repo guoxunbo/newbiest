@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_add_mms_lbl_template_0.0.1
+      author: Youqing Huang
+      comment: add mms_lbl_template for PrintWaferLotLable
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/insert_mms_lbl_template__0.0.1.sql

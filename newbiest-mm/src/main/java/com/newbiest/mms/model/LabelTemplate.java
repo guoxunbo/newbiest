@@ -40,6 +40,7 @@ public class LabelTemplate extends NBBase {
     public static final String PRINT_IR_LABEL = "PrintIRLabel";//IR单包标签打印
     public static final String PRINT_GLUE_LABEL = "PrintGlueLabel";//胶水标签打印
     public static final String PRINT_IRA_BOX_LABEL = "PrintIRABoxLabel";//IR箱号标签打印
+    public static final String PRINT_WAFER_LOT_LABEL = "PrintWaferLotLabel";//wafer拆箱箱号标签打印
 
     @Column(name="NAME")
     private String name;

@@ -76,6 +76,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String TAPE_MATERIAL_LOT_ID_RULE = "CreateTapeLotId";
 
     /**
+     * wafer拆箱的lotId生成规则
+     */
+    public static final String CREATE_WAFER_LOT_ID_RULE = "CreateWaferLotId";
+
+    /**
+     * wafer拆箱的cstId生成规则
+     */
+    public static final String CREATE_WAFER_CST_ID_RULE = "CreateWaferCstId";
+
+    /**
      * 手动快递下单
      */
     public static final String PLAN_ORDER_TYPE_MANUAL  = "ManualOrder";
