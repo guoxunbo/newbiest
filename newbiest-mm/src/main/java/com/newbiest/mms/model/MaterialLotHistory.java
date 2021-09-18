@@ -21,6 +21,7 @@ import java.util.Date;
 public class MaterialLotHistory extends NBHis {
 
     public static final String TRANS_TYPE_WAFER_SOURCE_UPDATE = "WaferSourceUpdate";
+    public static final String TRANS_TYPE_WAFER_UNPACK = "WaferUnpack";
     public static final String TRANS_TYPE_RECEIVE = "Receive";
     public static final String TRANS_TYPE_STOCK_IN = "StockIn";
     public static final String TRANS_TYPE_STOCK_OUT = "StockOut";

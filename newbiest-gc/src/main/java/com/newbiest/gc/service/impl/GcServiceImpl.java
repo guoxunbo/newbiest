@@ -4035,6 +4035,24 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 通过对象和ID生成规则 来生成包号
+     * @param object
+     * @param ruleId
+     * @return
+     * @throws ClientException
+     */
+    private String generatorByObjectAndRule(Object object, String ruleId) throws ClientException {
+        try {
+            GeneratorContext generatorContext = new GeneratorContext();
+            generatorContext.setObject(object);
+            generatorContext.setRuleName(ruleId);
+            return generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 获取到可以入库的批次
      * @param relayBoxId
      * @return
@@ -9012,8 +9030,8 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLot materialLot : materialLots){
                     MaterialLot oldMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
                     if(oldMLot != null){
-                        oldMLot.setReceiveQty(materialLot.getReceiveQty());
-                        oldMLot.setCurrentQty(materialLot.getReceiveQty());
+                        oldMLot.setReceiveQty(materialLot.getCurrentQty());
+                        oldMLot.setCurrentQty(materialLot.getCurrentQty());
                         oldMLot.setReservedQty(BigDecimal.ZERO);
                         oldMLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         oldMLot.setStatus(MaterialStatus.STATUS_CREATE);
@@ -10895,7 +10913,91 @@ public class GcServiceImpl implements GcService {
             throw ExceptionManager.handleException(e, log);
         }
     }
-    
+
+    /**
+     * wafer拆箱
+     * @param materialLotUnits
+     * @throws ClientException
+     */
+    @Override
+    public void waferUnpackMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException {
+        try {
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            String materialLotId = materialLotUnits.get(0).getMaterialLotId();
+            MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
+            Integer totalCurrentSubQty = materialLotUnits.size();
+            Long totalCurrentQty = materialLotUnits.stream().collect(Collectors.summingLong(materialLotUnit -> materialLotUnit.getCurrentQty().longValue()));
+            Long totalReceiveQty = materialLotUnits.stream().collect(Collectors.summingLong(materialLotUnit -> materialLotUnit.getReceiveQty().longValue()));
+
+            materialLot = updateMaterialLotQtyAndSaveHis(materialLot, totalCurrentSubQty, totalCurrentQty, totalReceiveQty);
+            materialLotList.add(materialLot);
+            if (!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())) {
+                MaterialLot parentMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getParentMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                updateMaterialLotQtyAndSaveHis(parentMLot, totalCurrentSubQty, totalCurrentQty, totalReceiveQty);
+            }
+
+            MaterialLot targetMaterialLot = new MaterialLot();
+            PropertyUtils.copyProperties(materialLot, targetMaterialLot);
+            //生成新的箱号、LotId、CstId
+            String targetMLotId = generatorMLotsTransId(MaterialLot.GENERATOR_MATERIAL_LOT_ID_RULE);
+            String targetLotId = generatorByObjectAndRule(targetMaterialLot, MaterialLot.CREATE_WAFER_LOT_ID_RULE);
+            String targetCstId = generatorByObjectAndRule(targetMaterialLot, MaterialLot.CREATE_WAFER_CST_ID_RULE);
+
+            targetMaterialLot.setMaterialLotId(targetMLotId);
+            targetMaterialLot.setLotId(targetLotId);
+            targetMaterialLot.setDurable(targetCstId);
+            targetMaterialLot.setCurrentSubQty(BigDecimal.valueOf(totalCurrentSubQty));
+            targetMaterialLot.setCurrentQty(new BigDecimal(totalCurrentQty));
+            targetMaterialLot.setReceiveQty(new BigDecimal(totalReceiveQty));
+            targetMaterialLot = materialLotRepository.saveAndFlush(targetMaterialLot);
+            materialLotList.add(targetMaterialLot);
+
+            MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(targetMaterialLot, NBHis.TRANS_TYPE_CREATE);
+            materialLotHistoryRepository.save(materialLotHistory);
+
+            for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                materialLotUnit.setMaterialLotId(targetMLotId);
+                materialLotUnit.setLotId(targetLotId);
+                materialLotUnit.setDurable(targetCstId);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory mLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
+                materialLotUnitHisRepository.save(mLotUnitHistory);
+            }
+
+            printService.printWaferCstAndLotLabel(materialLotList);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 修改currentSubQty、currentQty、receiveQty，并存储历史
+     * @param materialLot
+     * @param currentSubQty
+     * @param currentQty
+     * @param receiveQty
+     * @throws ClientException
+     */
+    private MaterialLot updateMaterialLotQtyAndSaveHis(MaterialLot materialLot, Integer currentSubQty, Long currentQty, Long receiveQty) throws ClientException {
+        try {
+            BigDecimal remainCurrentSubQty = materialLot.getCurrentSubQty().subtract(BigDecimal.valueOf(currentSubQty));
+            BigDecimal remainCurrentQty = materialLot.getCurrentQty().subtract(new BigDecimal(currentQty));
+            BigDecimal remainReceiveQty = materialLot.getReceiveQty().subtract(new BigDecimal(receiveQty));
+
+            materialLot.setCurrentSubQty(remainCurrentSubQty);
+            materialLot.setCurrentQty(remainCurrentQty);
+            materialLot.setReceiveQty(remainReceiveQty);
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_WAFER_UNPACK);
+            materialLotHistoryRepository.save(history);
+            return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 查询原材料批次信息，批次号位GCB开头时，当做LotId做查询，其余的当作物料批次做查询
      * @param queryLotId
