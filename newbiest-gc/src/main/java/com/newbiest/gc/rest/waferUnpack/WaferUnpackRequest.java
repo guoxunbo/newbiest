@@ -13,6 +13,8 @@ public class WaferUnpackRequest extends Request {
 
 	public static final String ACTION_WAFER_UNPACK = "WaferUnpack";
 
+	public static final String ACTION_GET_PRINT_LABEL = "GetPrintLabel";
+
 	private WaferUnpackRequestBody body;
 
 }

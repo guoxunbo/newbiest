@@ -1,9 +1,11 @@
 package com.newbiest.gc.rest.waferUnpack;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.gc.model.GCWorkorderRelation;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
+import com.newbiest.mms.service.PrintService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +30,9 @@ public class WaferUnpackController extends AbstractRestController {
     @Autowired
     GcService gcService;
 
+    @Autowired
+    PrintService printService;
+
     @ApiOperation(value = "waferUnpack", notes = "wafer拆箱")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "WaferUnpackRequest")
     @RequestMapping(value = "/waferUnpack", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -41,6 +46,8 @@ public class WaferUnpackController extends AbstractRestController {
         List<MaterialLotUnit> materialLotUnits = requestBody.getMaterialLotUnits();
         if (WaferUnpackRequest.ACTION_WAFER_UNPACK.equals(actionType)){
             gcService.waferUnpackMLot(materialLotUnits);
+        } else if (WaferUnpackRequest.ACTION_GET_PRINT_LABEL.equals(actionType)) {
+            printService.printCobRetestLabel(requestBody.getMaterialLot(), requestBody.getPrintCount(), requestBody.getPrintType());
         }
 
         response.setBody(responseBody);
