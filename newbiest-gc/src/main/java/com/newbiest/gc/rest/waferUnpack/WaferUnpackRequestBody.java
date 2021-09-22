@@ -1,5 +1,6 @@
 package com.newbiest.gc.rest.waferUnpack;
 
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
@@ -21,4 +22,12 @@ public class WaferUnpackRequestBody extends RequestBody {
 	@ApiModelProperty(value = "操作的materialLotUnit")
 	private List<MaterialLotUnit> materialLotUnits;
 
+	@ApiModelProperty(value = "操作的materialLot")
+	private MaterialLot materialLot;
+
+	@ApiModelProperty(value = "打印的份数")
+	private String printCount;
+
+	@ApiModelProperty(value = "打印的标签种类")
+	private String printType;
 }

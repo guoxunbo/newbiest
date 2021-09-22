@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCobRetestLabelAndMakeUp_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCCobRetestLabelAndMakeUp to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCobRetestLabelAndMakeUp
+              description: COB重测标签补打
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: COB重测标签补打
+              label: CobRetestLabelAndMakeUp

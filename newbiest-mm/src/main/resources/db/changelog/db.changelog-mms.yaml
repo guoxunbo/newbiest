@@ -740,3 +740,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.WaferUnpackMLot.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.CobRetestLabelAndMakeUp.nb_authority.yaml
+      relativeToChangelogFile: true

@@ -143,6 +143,26 @@ public class PrintServiceImpl implements PrintService {
     }
 
     /**
+     * 补打COB虚拟重测箱标签
+     * @param materialLot
+     * @param printCount
+     * @param printType
+     * @throws ClientException
+     */
+    @Override
+    public void printCobRetestLabel(MaterialLot materialLot, String printCount, String printType) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WAFER_LOT_LABEL, printCount);
+            Map<String, Object> parameterMap = buildWaferCstAndLotPrintParameter(materialLot, printType);
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 打印wafer拆箱  lotId和cstId的标签
      * @param materialLotList
      * @throws ClientException
