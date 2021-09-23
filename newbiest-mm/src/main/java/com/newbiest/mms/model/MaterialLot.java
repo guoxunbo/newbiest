@@ -389,6 +389,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private BigDecimal printCount = BigDecimal.ZERO;
 
     /**
+     * 重测标识。重测1、否0
+     */
+    @Column(name= "RETEST_FLAG")
+    private String retestFlag;
+
+    /**
      * LotNo
      */
     @Column(name="RESERVED1")

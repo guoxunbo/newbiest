@@ -20,7 +20,7 @@ public class ReturnMLotByDocRequest extends Request {
 	@ApiModelProperty(value = "仓库退料")
 	public static final String ACTION_TYPE_RETURN_MATERIAL_LOT = "ReturnMaterialLot";
 
-	@ApiModelProperty(value = "仓库退料")
+	@ApiModelProperty(value = "RMA 退回")
 	public static final String ACTION_TYPE_RETURN_GOODS = "ReturnGoods";
 
 	@ApiModelProperty(value = "部门退料")

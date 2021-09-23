@@ -308,6 +308,7 @@ public class ErpServiceImpl implements ErpService {
                     documentLine.setUnHandledQty(docLinetotalQty);
                     documentLine.setQty(docLinetotalQty);
                     documentLine.setReserved24(ReturnMLotOrder.DEFAULT_RETURN_MLOT_RESERVED_RULE);
+                    documentLine.setReserved30(incomingResponseItems.get(0).getPOSNR());
                     baseService.saveEntity(documentLine);
                 }
             }
@@ -320,12 +321,14 @@ public class ErpServiceImpl implements ErpService {
     /**
      * 来料/退料 过账（入库节点/退料节点） 辅材
      * 返回失败不回滚
-     * @param documentId
+     * @param documentLine
      * @param materialLots
      * @throws ClientException
      */
-    public void backhaulIncomingOrReturn(String documentId, List<MaterialLot> materialLots)throws ClientException{
+    public void backhaulIncomingOrReturn(DocumentLine documentLine, List<MaterialLot> materialLots)throws ClientException{
         try {
+            SimpleDateFormat formatter = new SimpleDateFormat(ERP_DEFAULT_DATE_FORMAT);
+
             ErpRequest request = new ErpRequest();
             IncomingOrReturnRequestHeader requestHeader = new IncomingOrReturnRequestHeader();
             String stockInDate = this.erpDateFormat();
@@ -338,12 +341,26 @@ public class ErpServiceImpl implements ErpService {
                 IncomingOrReturnRequestItem requestItem = new IncomingOrReturnRequestItem();
                 itemId++;
                 requestItem.setZEILE(itemId + "");
-                requestItem.setVBELN_IM(documentId);
+
                 requestItem = requestItem.copyMaterialLotToRequestItem(requestItem, materialLot);
+                if (documentLine != null){
+                    requestItem.setVBELN_IM(documentLine.getDocId());
+                    requestItem.setPOSNR(documentLine.getReserved30());
+                    requestItem.setEBELP("");
+                    requestItem.setEBELN("");
+                }
 
                 IncomingOrReturnRequestTXItem requestTXItem = new IncomingOrReturnRequestTXItem();
-                requestTXItem.setZ_BATCH_TYPEDES(material.getReserved1());
+                requestTXItem.setZ_BATCH_TYPEDES(material.getReserved4());
+                requestTXItem.setZ_BATCH_MADATE(formatter.format(materialLot.getProductionDate()));
+                requestTXItem.setZ_BATCH_OVERDATE(formatter.format(materialLot.getExpireDate()));
+                requestTXItem.setZ_BATCH_POSTEDATE(erpDateFormat());
                 requestTXItem.copyMaterialLotToRequestTXItem(requestTXItem, materialLot);
+
+                //分批给出母批号
+                if (materialLot.getSubMaterialLotFlag()){
+                    requestTXItem.setZ_BATCH_WMSBATCH(materialLot.getParentMaterialLotId());
+                }
                 requestItem.setTXItem(requestTXItem);
 
                 requestItems.add(requestItem);
