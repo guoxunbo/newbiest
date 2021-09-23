@@ -4,6 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Document;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
@@ -47,10 +48,10 @@ public class CreateIssueOrderController extends AbstractRestController {
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_FINISH_GOOD_ORDER.equals(actionType)){
             documentService.createIssueFinishGoodOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MATERIAL.equals(actionType)){
-            Document document = documentService.createIssueByMaterialOrder(requestBody.getDocumentId(), true, requestBody.getMaterials());
+            Document document = documentService.createIssueByMaterialOrder(requestBody.getDocumentId(), true, requestBody.getMaterials(),requestBody.getMaterialLotAction());
             responseBody.setDocument(document);
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MLOT.equals(actionType)){
-            Document document = documentService.createIssueMaterialLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLots());
+            Document document = documentService.createIssueMaterialLotOrder(StringUtils.EMPTY,true, requestBody.getMaterialLots(),requestBody.getMaterialLotAction());
             responseBody.setDocument(document);
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_PARTS_ORDER.equals(actionType)){
 

@@ -43,13 +43,13 @@ public interface DocumentService {
 
     void changeDocMLotStatus(String documentId, List<String> materialLotIds, String status)throws ClientException;
 
-    Document createIssueByMaterialOrder(String documentId, boolean approveFlag, List<Material> materials) throws ClientException;
+    Document createIssueByMaterialOrder(String documentId, boolean approveFlag, List<Material> materials,MaterialLotAction materialLotAction) throws ClientException;
     List<MaterialLot> recommendIssueByMaterialOrder(String documentId) throws ClientException;
     void issueByMaterial(String documentId, List<String> materialLotIds) throws ClientException;
 
     Document getDocumentByName(String documentId, boolean throwExceptionFlag) throws ClientException;
 
-    Document createIssueMaterialLotOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots) throws ClientException;
+    Document createIssueMaterialLotOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots,MaterialLotAction materialLotAction) throws ClientException;
     void issueMaterialLotByOrder(String documentId, List<String> materialLotIdList) throws ClientException;
 
     List<MaterialLot> getMLotByDocumentId(String documentId) throws ClientException;

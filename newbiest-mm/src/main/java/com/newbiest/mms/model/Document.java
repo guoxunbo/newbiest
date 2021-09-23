@@ -139,6 +139,10 @@ public class Document extends NBUpdatable {
     @Column(name="RESERVED2")
     private String reserved2;
 
+    /**
+     * 退回原因
+     */
+
     @Column(name="RESERVED3")
     private String reserved3;
 
