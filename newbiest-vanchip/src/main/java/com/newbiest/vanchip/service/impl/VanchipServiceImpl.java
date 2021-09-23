@@ -977,6 +977,8 @@ public class VanchipServiceImpl implements VanChipService {
                     materialLotParaMap.put("reserved57", materialLot.getReserved57());
                     materialLotParaMap.put("reserved58", materialLot.getReserved58());
                     materialLotParaMap.put("inferiorProductsFlag", materialLot.getInferiorProductsFlag());
+                    materialLotParaMap.put("retestFlag", materialLot.getRetestFlag());
+
                     if (!StringUtils.isNullOrEmpty(materialLot.getIclDate())){
                         Date productionDate = formatter.parse(materialLot.getIclDate());
                         materialLotParaMap.put("productionDate", productionDate);
@@ -2561,17 +2563,15 @@ public class VanchipServiceImpl implements VanChipService {
                     }else {
                         if (Material.MATERIAL_CATEGORY_PRODUCT.equals(materialModelConversion.getConversionMaterialCategory())){
                             material = new Product();
+                            PropertyUtils.copyProperties(erpMaterial, material);
+                            material.setStatusModelRrn(materialStatusModel.getObjectRrn());
+                            material = mmsService.saveProduct((Product)material, material.getWarehouseName());
                         }else {
                             material = new RawMaterial();
+                            PropertyUtils.copyProperties(erpMaterial, material);
+                            material.setStatusModelRrn(materialStatusModel.getObjectRrn());
+                            material = mmsService.saveRawMaterial((RawMaterial)material, material.getWarehouseName(), material.getIqcSheetName());
                         }
-                        PropertyUtils.copyProperties(erpMaterial, material);
-                        material.setStatusModelRrn(materialStatusModel.getObjectRrn());
-                    }
-
-                    if (material instanceof RawMaterial){
-                        material = mmsService.saveRawMaterial((RawMaterial)material, material.getWarehouseName(), material.getIqcSheetName());
-                    }else if (material instanceof Product){
-                        material = mmsService.saveProduct((Product)material, material.getWarehouseName());
                     }
                 }
             }
@@ -2815,9 +2815,6 @@ public class VanchipServiceImpl implements VanChipService {
             String materialCategory = materialLotList.get(0).getMaterialCategory();
             if (Material.MATERIAL_CATEGORY_MAIN_MATERIAL.equals(materialCategory)){
                 //TODO 交货单状态同步接口
-            } else {
-                //采购退货接口
-                erpService.backhaulIncomingOrReturn(documentId, materialLotList);
             }
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -2885,4 +2882,58 @@ public class VanchipServiceImpl implements VanChipService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    /**
+     * 仓库退供应商/ERP
+     * @param documentLineId
+     * @param materialLotIdList
+     * @throws ClientException
+     */
+    public void returnMLotByDocLine(String documentLineId, List<String> materialLotIdList) throws ClientException {
+        try {
+            DocumentLine documentLine = documentLineRepository.findByLineId(documentLineId);
+            if (documentLine == null){
+                throw new ClientParameterException(DOCUMENT_IS_NOT_EXIST, documentLineId);
+            }
+
+            List<MaterialLot> materialLots = Lists.newArrayList();
+            String reservedRule = documentLine.getReserved24();
+            if (!StringUtils.isNullOrEmpty(reservedRule)){
+                materialLots = materialLotIdList.stream().map(materialLotId -> mmsService.getMLotByMLotId(materialLotId, true)).collect(Collectors.toList());
+            }else {
+                materialLots = documentService.validationDocReservedMLot(documentLine.getDocId(), materialLotIdList);
+            }
+            BigDecimal handleQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
+            //更新document数量
+            documentService.saveDocument(documentLine.getDocId(), handleQty, DocumentHistory.TRANS_TYPE_RETURN);
+
+            documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
+            documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(handleQty));
+            baseService.saveEntity(documentLine);
+
+            if (!StringUtils.isNullOrEmpty(reservedRule)){
+                //更改documentMLot状态
+                documentService.changeDocMLotStatus(documentLine.getDocId(), materialLotIdList, DocumentMLot.STATUS_RETURN);
+            }
+
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            for (MaterialLot materialLot : materialLots) {
+                if (!StringUtils.isNullOrEmpty(reservedRule)){
+                    validateMLotAndDocLineByRule(documentLine, materialLot, reservedRule);
+                }else {
+                    documentService.createDocumentMLot(documentLine.getDocId(), materialLot.getMaterialLotId(), DocumentMLot.STATUS_RETURN);
+                }
+                BigDecimal transQty = materialLot.getCurrentQty();
+                mmsService.returnMaterialLot(materialLot);
+
+                materialLot.setCurrentQty(transQty);
+                materialLotList.add(materialLot);
+            }
+            //采购退货接口
+            erpService.backhaulIncomingOrReturn(documentLine, materialLotList);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
 }

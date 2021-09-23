@@ -16,7 +16,7 @@ public class ReturnMLotOrder extends Document {
     /**
      * 默认的备货规则
      */
-    public static final String DEFAULT_RETURN_MLOT_RESERVED_RULE = "DefaultReturnMLotReservedRule";
+    public static final String DEFAULT_RETURN_MLOT_RESERVED_RULE = "ReturnMLotReservedRule";
 
     @Override
     public String getCategory(){

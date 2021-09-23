@@ -57,6 +57,11 @@ public class IncomingOrReturnRequestItem implements Serializable {
     private String VBELN_IM;
 
     /**
+     * 交货行项目号
+     */
+    private String POSNR;
+
+    /**
      * 批次号
      */
     private String CHARG;

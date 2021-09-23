@@ -232,6 +232,13 @@ public class DocumentLine extends NBUpdatable {
      */
     @Column(name="RESERVED29")
     private String reserved29;
+
+    /**
+     * 行项目号
+     */
+    @Column(name="RESERVED30")
+    private String reserved30;
+
     /**
      * 导入时格式转换
      */

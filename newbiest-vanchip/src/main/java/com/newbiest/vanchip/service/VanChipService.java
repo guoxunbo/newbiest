@@ -108,4 +108,6 @@ public interface VanChipService {
     void iqcApprove(List<MaterialLotAction> materialLotActions) throws ClientException;
 
     List<MaterialLot> getReservedMLotByOrder(String documentLineId)throws ClientException;
+
+    void returnMLotByDocLine(String documentId, List<String> materialLotIdList) throws ClientException;
 }

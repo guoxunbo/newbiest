@@ -86,7 +86,7 @@ public class IncomingOrReturnRequestTXItem implements Serializable {
     private String Z_BATCH_TBATCH;
 
     /**
-     * 大类描述
+     * 小类描述
      */
     private String Z_BATCH_TYPEDES;
 
@@ -105,6 +105,35 @@ public class IncomingOrReturnRequestTXItem implements Serializable {
      */
     private String Z_BATCH_VADDRESS;
 
+    /**
+     * IQC检验结果
+     */
+    private String Z_BATCH_IQC;
+
+    /**
+     * WMS批次
+     */
+    private String Z_BATCH_WMSBATCH;
+
+    /**
+     * 工程/量产
+     */
+    private String Z_BATCH_ENGIN;
+
+    /**
+     * 生产日期
+     */
+    private String Z_BATCH_MADATE;
+
+    /**
+     * 超期日期
+     */
+    private String Z_BATCH_OVERDATE;
+
+    /**
+     * 入库日期
+     */
+    private String Z_BATCH_POSTEDATE;
 
     public IncomingOrReturnRequestTXItem copyMaterialLotToRequestTXItem(IncomingOrReturnRequestTXItem requestTXItem, MaterialLot materialLot){
         requestTXItem.setZ_BATCH_PONUMBER(materialLot.getReserved20());
@@ -118,8 +147,8 @@ public class IncomingOrReturnRequestTXItem implements Serializable {
         requestTXItem.setZ_BATCH_MRB_CODE(materialLot.getReserved16());
         requestTXItem.setZ_BATCH_MARING(materialLot.getLetteringInfo());
         requestTXItem.setZ_BATCH_VBATCH(materialLot.getMaterialLotId());
+        requestTXItem.setZ_BATCH_WMSBATCH(materialLot.getMaterialLotId());
         requestTXItem.setZ_BATCH_VNAME(materialLot.getReserved48());
-        //大类描述 外面赋值
 
         //requestTXItem.setZ_BATCH_SOITEM("销售订单号");
         //销售订单号项目号

@@ -12,7 +12,7 @@ public class ScrapOrder extends Document {
     /**
      * 默认的报废 备货规则
      */
-    public static final String DEFAULT_SCRAP_RESERVED_RULE = "DefaultScrapReservedRule";
+    public static final String DEFAULT_SCRAP_RESERVED_RULE = "ScrapReservedRule";
 
 
     @Override

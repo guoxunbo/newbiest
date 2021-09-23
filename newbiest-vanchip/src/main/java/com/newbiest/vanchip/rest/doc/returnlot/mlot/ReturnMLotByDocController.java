@@ -1,6 +1,8 @@
 package com.newbiest.vanchip.rest.doc.returnlot.mlot;
 
 import com.newbiest.base.rest.AbstractRestController;
+import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.service.DocumentService;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController("VCReturnMLotByDocController")
 @RequestMapping("/vc")
 @Slf4j
@@ -21,6 +25,9 @@ public class ReturnMLotByDocController extends AbstractRestController {
     @Autowired
     VanChipService vanChipService;
 
+    @Autowired
+    DocumentService documentService;
+
     @ApiOperation(value = "退料")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "ReturnMLotByDocRequest")
     @RequestMapping(value = "/returnMLotByDoc", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -29,7 +36,17 @@ public class ReturnMLotByDocController extends AbstractRestController {
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         ReturnMLotByDocResponseBody responseBody = new ReturnMLotByDocResponseBody();
         ReturnMLotByDocRequestBody requestBody = request.getBody();
-        vanChipService.returnMLotByDoc(requestBody.getDocumentId(),requestBody.getMaterialLotIdList());
+
+        String actionType = requestBody.getActionType();
+        if(ReturnMLotByDocRequest.ACTION_RETURN_MLOT.equals(actionType)){
+            //产线退料
+            vanChipService.returnMLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
+        }else if (ReturnMLotByDocRequest.ACTION_TYPE_RETURN_MATERIAL_LOT.equals(actionType)){
+            vanChipService.returnMLotByDocLine(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
+        }else if (ReturnMLotByDocRequest.ACTION_GET_RESERVED_MLOT.equals(actionType)){
+            List<MaterialLot> materialLots = vanChipService.getReservedMLotByOrder(requestBody.getDocumentId());
+            responseBody.setMaterialLotList(materialLots);
+        }
 
         response.setBody(responseBody);
         return response;
