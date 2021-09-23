@@ -23,6 +23,9 @@ public class StockOutRequestBody extends RequestBody {
 	@ApiModelProperty(value = "单据详情")
 	private DocumentLine documentLine;
 
+	@ApiModelProperty(value = "单据信息")
+	private List<DocumentLine> documentLineList;
+
 	@ApiModelProperty(value = "箱信息")
 	private MaterialLot queryMaterialLot;
 
