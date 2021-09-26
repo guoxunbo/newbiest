@@ -7292,6 +7292,12 @@ public class GcServiceImpl implements GcService {
                 } catch (AssertionError e) {
                     falg = false;
                 }
+
+                try {
+                    Assert.assertEquals(waitValidationMLot.getReserved16(), validatedMLot.getReserved16());
+                } catch (AssertionError e) {
+                    falg = false;
+                }
             }
             return falg;
         } catch (Exception e) {
