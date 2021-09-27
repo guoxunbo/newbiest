@@ -50,6 +50,8 @@ public class GcMaterialLotRequest extends Request {
 
 	public static final String ACTION_QUERY_MATERIALLOTID_OR_LOTID = "QueryMaterialLotIdOrLotId";
 
+	public static final String ACTION_QUERY_DATA = "QueryData";
+
 	private GcMaterialLotRequestBody body;
 
 }
