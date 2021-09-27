@@ -668,3 +668,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.CobRetestLabelAndMakeUp_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.COBRawMaterialProduct_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCMaskFinishProduct_nb_table.yaml
+      relativeToChangelogFile: true
