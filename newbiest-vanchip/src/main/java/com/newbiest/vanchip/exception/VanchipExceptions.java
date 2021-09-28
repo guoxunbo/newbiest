@@ -34,5 +34,7 @@ public class VanchipExceptions {
 
     public static final String  MLOT_NOT_PACKED = "vc.mlot_not_packed";
 
+    public static final String  REQUIRED_FIELD_IS_EMPTY = "vc.required_field_is_empty";
+
 }
 

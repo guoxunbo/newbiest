@@ -22,12 +22,13 @@ public interface MmsService {
 
     MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, BigDecimal transQty, BigDecimal transSubQty, Map<String, Object> propsMap) throws ClientException;
     List<MaterialLot> receiveMLot(Material material, List<MaterialLot> materialLotList) throws ClientException;
-    MLotCheckSheet iqc(MaterialLotAction materialLotJudgeAction, String urlRemark) throws ClientException;
+    MLotCheckSheet iqc(MaterialLotAction materialLotJudgeAction, String urlRemark, List<MLotCheckSheetLine> mLotCheckSheetLines) throws ClientException;
     MLotCheckSheet oqc(MaterialLotAction materialLotJudgeAction) throws ClientException;
     MaterialLot issue(MaterialLot materialLot) throws ClientException;
     MaterialLot returnMLot(MaterialLot materialLot) throws ClientException;
     MaterialLot waitReturnMLot(MaterialLot materialLot) throws ClientException;
     MaterialLot returnMaterialLot(MaterialLot materialLot) throws ClientException;
+    MaterialLot scrapMLot(MaterialLot materialLot) throws ClientException;
 
     List<MaterialLot>  holdMaterialLot(List<MaterialLotAction> materialLotActions) throws ClientException;
     MaterialLot holdMaterialLot(String materialLotId, List<MaterialLotAction> materialLotActions) throws ClientException;
@@ -58,6 +59,8 @@ public interface MmsService {
     MaterialLot pick(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLotInventory transfer(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLotInventory checkMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
+    MaterialLotInventory recheckMaterialInventory(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
+
     MaterialLot changeMaterialLotState(MaterialLot mLot, String eventId, String targetStatus) throws ClientException;
     void validationMergeRule(String ruleName, List<MaterialLot> materialLots) throws ClientException;
     void saveMaterialLotInventory(MaterialLotInventory materialLotInventory, BigDecimal transQty) throws ClientException;
@@ -73,7 +76,7 @@ public interface MmsService {
     Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
     //product
     Product saveProduct(Product product) throws ClientException;
-    Product saveProduct(Product product, String warehouseName) throws ClientException;
+    Product saveProduct(Product product, String warehouseName, String iqcSheetName) throws ClientException;
     Product getProductByName(String name) throws ClientException;
 
     Parts saveParts(Parts parts) throws ClientException;

@@ -5,6 +5,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.msg.DefaultParser;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.vanchip.dto.mes.MesRequest;
 import com.newbiest.vanchip.dto.mes.MesResponse;
 import com.newbiest.vanchip.dto.mes.MesResponseHeader;
@@ -60,6 +61,7 @@ public class MesServiceImpl implements MesService {
     public static final String RETURN_URL = "/wms/returnMLot.spring";
     public static final String RECEIVE_URL = "/wms/shipVBox.spring";
     public static final String RECEIVE_INFERIOR_PRODUCT_URL = "/wms/storageOfDefectiveProducts.spring";
+    public static final String ISSUE_PARTS_URL = "/wms/partsApplyAlreadyQty.spring";
 
     private RestTemplate restTemplate;
 
@@ -69,6 +71,23 @@ public class MesServiceImpl implements MesService {
         requestFactory.setConnectTimeout(MES_CONNECTION_TIME_OUT * 1000);
         requestFactory.setReadTimeout(MES_READ_TIME_OUT * 1000);
         restTemplate = new RestTemplate();
+    }
+
+    public void issuePartsMLot(DocumentLine documentLine) throws ClientException{
+        try {
+            IssueMLotRequestHeader requestHeader = new IssueMLotRequestHeader();
+
+            IssueMLotRequest request = new IssueMLotRequest();
+            IssueMLotRequestBody requestBody = new IssueMLotRequestBody();
+
+            requestBody.setDocumentLine(documentLine);
+            request.setBody(requestBody);
+            request.setHeader(requestHeader);
+
+            sendMesRequest(request, ISSUE_PARTS_URL, null);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     public void receiveInferiorProduct(List<String> materialLotIdList) throws ClientException{
@@ -143,7 +162,7 @@ public class MesServiceImpl implements MesService {
         try {
             String requestString = DefaultParser.getObjectMapper().writeValueAsString(mesRequest);
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Send data. RequestString is [%s]", requestString));
+                log.debug(String.format("Send data mes. RequestString is [%s]", requestString));
             }
             HttpHeaders headers = new HttpHeaders();
             headers.put(HttpHeaders.CONTENT_TYPE, Lists.newArrayList("application/json"));

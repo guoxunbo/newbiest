@@ -47,14 +47,14 @@ public class CreateIssueOrderController extends AbstractRestController {
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_FINISH_GOOD_ORDER.equals(actionType)){
             documentService.createIssueFinishGoodOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MATERIAL.equals(actionType)){
-            Document document = documentService.createIssueByMaterialOrder(requestBody.getDocumentId(), true, requestBody.getMaterials());
+            Document document = documentService.createIssueByMaterialOrder(requestBody.getDocumentId(), true, requestBody.getMaterials(), requestBody.getMaterialLotAction());
             responseBody.setDocument(document);
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MLOT.equals(actionType)){
-            Document document = documentService.createIssueMaterialLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLots());
+            Document document = documentService.createIssueMaterialLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLots(), requestBody.getMaterialLotAction());
             responseBody.setDocument(document);
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_PARTS_ORDER.equals(actionType)){
 
-            documentService.createIssuePartsOrder(requestBody.getDocumentId(), true, requestBody.getMaterialName(), requestBody.getQty(), requestBody.getCreator());
+            documentService.createIssuePartsOrder(requestBody.getDocumentId(), true, requestBody.getMaterialName(), requestBody.getQty(), requestBody.getCreator(), requestBody.getPartComments());
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }

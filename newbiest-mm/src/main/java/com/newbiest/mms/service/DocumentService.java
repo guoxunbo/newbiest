@@ -19,6 +19,7 @@ public interface DocumentService {
     void approveDocument(String documentId) throws ClientException;
 
     String generatorDocId(String generatorRule) throws ClientException;
+    String generatorDocId(String generatorRule, Document document) throws ClientException;
 
     void issueMaterialLotByDoc(String documentId, List<String> materialLotIdList);
 
@@ -43,13 +44,14 @@ public interface DocumentService {
 
     void changeDocMLotStatus(String documentId, List<String> materialLotIds, String status)throws ClientException;
 
-    Document createIssueByMaterialOrder(String documentId, boolean approveFlag, List<Material> materials) throws ClientException;
+    Document createIssueByMaterialOrder(String documentId, boolean approveFlag, List<Material> materials, MaterialLotAction materialLotAction) throws ClientException;
     List<MaterialLot> recommendIssueByMaterialOrder(String documentId) throws ClientException;
     void issueByMaterial(String documentId, List<String> materialLotIds) throws ClientException;
 
     Document getDocumentByName(String documentId, boolean throwExceptionFlag) throws ClientException;
+    DocumentLine getDocumentLineByLineId(String documentLineId, boolean throwExceptionFlag) throws ClientException;
 
-    Document createIssueMaterialLotOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots) throws ClientException;
+    Document createIssueMaterialLotOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots, MaterialLotAction materialLotAction) throws ClientException;
     void issueMaterialLotByOrder(String documentId, List<String> materialLotIdList) throws ClientException;
 
     List<MaterialLot> getMLotByDocumentId(String documentId) throws ClientException;
@@ -61,14 +63,19 @@ public interface DocumentService {
     void returnLotOrder(String returnLotId, List<String> materialLotIds) throws ClientException;
 
     void deleteDocument(String documentId) throws ClientException;
+    Document createDocument(Document document) throws ClientException;
+    DocumentLine createDocLineByDocument(DocumentLine documentLine) throws ClientException;
 
-    Document createDocument(Document document, String documentId, String idGeneratorRule, boolean approveFlag, BigDecimal qty);
+    Document createDocument(Document document, String documentId, String idGeneratorRule, boolean approveFlag, BigDecimal qty) throws ClientException;
     Document saveDocument(String documentId, BigDecimal handleQty, String transType) throws ClientException;
+    Document saveDocument(String documentId, BigDecimal handleQty, String transType, String docStatus) throws ClientException;
 
-    void createIssuePartsOrder(String documentId, boolean approveFlag, String materialName, BigDecimal qty, String creator) throws ClientException;
+    void createIssuePartsOrder(String documentId, boolean approveFlag, String materialName, BigDecimal qty, String creator, String comments) throws ClientException;
 
     void createCheckOrder(Document document, List<MaterialLot> materialLotList) throws ClientException;
     void createScrapOrder(Document document, List<MaterialLot> materialLotList) throws ClientException;
+    void deleteScrapOrder(Document document) throws ClientException;
+    //void scrapMLot(String docId, List<MaterialLot> materialLotList) throws ClientException;
 
     Document createDeptReturnOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException;
     void deptReturnMLot(String documentId, List<String> materialLotIdList) throws ClientException;

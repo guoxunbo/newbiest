@@ -1,6 +1,7 @@
 package com.newbiest.vanchip.dto.erp.backhaul.deliverystatus;
 
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotUnit;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -88,6 +89,18 @@ public class DeliveryStatusRequestItem implements Serializable {
         requestItem.setVender_batch(materialLot.getMaterialLotId());
         //大类描述
         //销售订单项目号
+        return requestItem;
+    }
+
+    public DeliveryStatusRequestItem copyMaterialLotUnitToDeliveryStatusRequestItem(DeliveryStatusRequestItem requestItem, MaterialLotUnit materialLotUnit){
+        requestItem.setMaterial(materialLotUnit.getMaterialName());
+        requestItem.setPo_number(materialLotUnit.getReserved2());
+        requestItem.setControl_lot(materialLotUnit.getReserved4());
+        requestItem.setDc(materialLotUnit.getReserved2());
+        requestItem.setMrb_code(materialLotUnit.getReserved5());
+        requestItem.setBin_type(materialLotUnit.getGrade());
+        requestItem.setCustomer_po(materialLotUnit.getReserved1());
+        requestItem.setTest_batch(materialLotUnit.getUnitId());
         return requestItem;
     }
 }

@@ -24,4 +24,7 @@ public class DocumentException {
 
     public static final String OPERATIONS_QTY_IS_NOT_EQUAL_STOCK_QTY= "mms.operations_quantity_is_not_equal_to_inventory_quantity";
 
+    public static final String SHIP_TYPE_IS_NOT_EXIST = "mms.ship_type_is_not_exist";
+
+    public static final String DOC_CAN_NOT_BE_MODIFIED = "mms.doc_can_not_be_modified";
 }

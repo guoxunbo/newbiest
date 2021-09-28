@@ -11,10 +11,7 @@ import com.newbiest.vanchip.dto.mes.MesResponse;
 import com.newbiest.vanchip.dto.mes.MesResponseHeader;
 import com.newbiest.vanchip.dto.print.PrintExcelRequest;
 import com.newbiest.vanchip.dto.print.PrintExcelRequestBody;
-import com.newbiest.vanchip.dto.print.model.CocPrintInfo;
-import com.newbiest.vanchip.dto.print.model.PKListPrintInfo;
-import com.newbiest.vanchip.dto.print.model.PackingListPrintInfo;
-import com.newbiest.vanchip.dto.print.model.ShippingListPrintInfo;
+import com.newbiest.vanchip.dto.print.model.*;
 import com.newbiest.vanchip.service.PrintExcelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -52,6 +49,19 @@ public class PrintExcelServiceImpl implements PrintExcelService {
         requestFactory.setConnectTimeout(MES_CONNECTION_TIME_OUT * 1000);
         requestFactory.setReadTimeout(MES_READ_TIME_OUT * 1000);
         restTemplate = new RestTemplate();
+    }
+
+    public void printExcel(ExcelPrintInfo excelPrintInfo) throws ClientException{
+        try {
+            PrintExcelRequest request = new PrintExcelRequest();
+            PrintExcelRequestBody requestBody = new PrintExcelRequestBody();
+
+            requestBody.setExcelPrintInfo(excelPrintInfo);
+            request.setBody(requestBody);
+            sendPrintRequest(request, PRINT_URL, null);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
     }
 
     public void printExcel(CocPrintInfo cocPrintInfo, PackingListPrintInfo packingListPrintInfo, ShippingListPrintInfo shippingListPrintInfo, PKListPrintInfo pKListPrintInfo, String actionType) throws ClientException{

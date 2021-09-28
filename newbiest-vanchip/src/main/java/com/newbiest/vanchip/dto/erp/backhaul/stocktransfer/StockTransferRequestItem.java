@@ -1,5 +1,7 @@
 package com.newbiest.vanchip.dto.erp.backhaul.stocktransfer;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
 import lombok.Data;
 
@@ -7,13 +9,12 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
+@JsonAutoDetect(fieldVisibility= JsonAutoDetect.Visibility.ANY,getterVisibility= JsonAutoDetect.Visibility.NONE)
 public class StockTransferRequestItem implements Serializable {
 
-    //调拨MES的目标仓库
-    private static final String TARGET_WAREHOUSE = "MATERIAL_BANK";
 
     //项目号
-    private Integer ZEILE;
+    private String ZEILE;
     //物料号
     private String MATNR;
     //当前仓库
@@ -50,4 +51,10 @@ public class StockTransferRequestItem implements Serializable {
         return requestItem;
     }
 
+    public StockTransferRequestItem copyMaterialLotActionToStockTransferRequestItem(StockTransferRequestItem requestItem, MaterialLotAction materialLotAction){
+        requestItem.setUMLGO(materialLotAction.getTargetWarehouseId());
+        requestItem.setLGORT(materialLotAction.getFromWarehouseId());
+        requestItem.setERFMG(materialLotAction.getTransQty());
+        return requestItem;
+    }
 }

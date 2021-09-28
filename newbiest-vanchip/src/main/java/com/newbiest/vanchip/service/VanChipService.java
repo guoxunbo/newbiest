@@ -4,10 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.model.NBQuery;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
-import com.newbiest.vanchip.dto.print.model.CocPrintInfo;
-import com.newbiest.vanchip.dto.print.model.PKListPrintInfo;
-import com.newbiest.vanchip.dto.print.model.PackingListPrintInfo;
-import com.newbiest.vanchip.dto.print.model.ShippingListPrintInfo;
+import com.newbiest.vanchip.dto.print.model.*;
 
 import javax.persistence.Query;
 import java.math.BigDecimal;
@@ -42,7 +39,7 @@ public interface VanChipService {
     List<MaterialLot> printReservedOrder(DocumentLine documentLine) throws ClientException;
 
     void issueFinishGoodByDoc(String documentId, List<String> materialLotIds) throws ClientException;
-    void batchIqc(List<MaterialLotAction> materialLotActions, String urlRemark) throws ClientException;
+    void batchIqc(List<MaterialLotAction> materialLotActions, String urlRemark, List<MLotCheckSheetLine> mLotCheckSheetLines) throws ClientException;
     List<MaterialLot> validationAndGetWaitIqcMLot(List<String> materialLotIds) throws ClientException;
 
     void createFinishGoodOrder(String documentId, boolean approveFlag, List<MaterialLot> materialLots) throws ClientException;
@@ -65,11 +62,15 @@ public interface VanChipService {
     ShippingListPrintInfo getShippingListPrintParameter(String documentLineId) throws ClientException;
     PKListPrintInfo getPKListParameter(String documentLineId) throws ClientException;
     Map<String, Object> getBoxPrintParameter(String materialLotId) throws ClientException;
-
+    DeliveryPrintInfo getDeliveryOrderParameter(String documentLineId) throws ClientException;
+    RSAndScrapInfo getReturnSuppleOrderAndScrapOrderPrintInfo(String documentId) throws ClientException;
 
     void packCheck(MaterialLotAction materialLotAction) throws ClientException;
 
-    MaterialLot stockInMLotMobile(MaterialLotAction materialLotAction)throws ClientException;
+    void validataStockInByOrder(String docId, List<MaterialLotAction> materialLotAction) throws ClientException;
+    MaterialLot stockInMLotMobile(MaterialLotAction materialLotAction) throws ClientException;
+    void stockInMLotByOrderMobile(String docId, List<MaterialLotAction> materialLotAction) throws ClientException;
+
     MaterialLot stockOutMLotMobile(MaterialLotAction materialLotAction) throws ClientException;
     void stockOutMLotByOrder(String documentId, List<MaterialLotAction> materialLotAction) throws ClientException;
     MaterialLot queryPackageMLotMobile(MaterialLotAction materialLotAction) throws ClientException;
@@ -93,9 +94,10 @@ public interface VanChipService {
     void preWarning() throws ClientException;
 
     Parts saveParts(Parts parts) throws ClientException;
-    void checkMlotInventorys(DocumentLine documentLine,List<MaterialLotAction> materialLotActions) throws ClientException;
+    void checkMLotInventorys(DocumentLine documentLine,List<MaterialLotAction> materialLotActions) throws ClientException;
+    void recheckMLotInventorys(DocumentLine documentLine,List<MaterialLotAction> materialLotActions) throws ClientException;
+    List<MaterialLot> getRecheckMLots(DocumentLine documentLine)throws ClientException;
 
-    MaterialLot createMLot2Warehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
     void stockOutPartsByOrder(String documentId, MaterialLotAction materialLotAction) throws ClientException;
     void stockOutParts(Material material, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot returnMLotWarehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
@@ -108,6 +110,12 @@ public interface VanChipService {
     void iqcApprove(List<MaterialLotAction> materialLotActions) throws ClientException;
 
     List<MaterialLot> getReservedMLotByOrder(String documentLineId)throws ClientException;
+    void stockUpMLot(String documentLineId, List<MaterialLot> materialLots)throws ClientException;
+    List<MaterialLot> getStockUpMLot(String docId)throws ClientException;
+    MaterialLot validateReservedMLot(String docLineId, String materialLotId) throws ClientException;
 
-    void returnMLotByDocLine(String documentId, List<String> materialLotIdList) throws ClientException;
+    void updateERPSo(List<MaterialLot> materialLots) throws ClientException;
+    void returnMLotByDocLine(String documentId, List<MaterialLot> materialLotList) throws ClientException;
+    void scrapMLot(String docId, List<MaterialLot> materialLotList)throws ClientException;
+    void updateProductionDate(String materialLotId, String iclDateValue) throws ClientException;
 }

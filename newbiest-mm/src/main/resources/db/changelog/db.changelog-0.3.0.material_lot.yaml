@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.3.0
+      author: Tao Zhou
+      remarks: mms_material_lot add column RMA_FLAG,RESERVED61,RESERVED62
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: RMA_FLAG
+                  type: varchar(64)
+                  remarks: RMA品标识
+              - column:
+                  name: RESERVED61
+                  type: varchar(64)
+                  remarks: 精测RMA号
+              - column:
+                  name: RESERVED62
+                  type: varchar(64)
+                  remarks: 唯捷RMA号

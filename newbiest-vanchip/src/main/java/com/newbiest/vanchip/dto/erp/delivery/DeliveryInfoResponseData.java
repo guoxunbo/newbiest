@@ -26,6 +26,11 @@ public class DeliveryInfoResponseData implements Serializable {
     /**
      * 发货类型
      */
+    private String ship_type;
+
+    /**
+     * 发货类型
+     */
     private String type;
     private String type_desc;
 
@@ -50,7 +55,7 @@ public class DeliveryInfoResponseData implements Serializable {
     private String incoterms;
 
     /**
-     * 国际贸易条款位置
+     * 国际贸易条款位置-发运港
      */
     private String inco_loc1;
 
@@ -74,6 +79,9 @@ public class DeliveryInfoResponseData implements Serializable {
      */
     private String cust_id;
 
+    /**
+     * 客户简称
+     */
     private String cust_short;
 
     /**
@@ -85,6 +93,10 @@ public class DeliveryInfoResponseData implements Serializable {
      * 售达方
      */
     private String seller_id;
+
+    /**
+     * 客户简称
+     */
     private String seller_short;
 
     /**
@@ -172,12 +184,12 @@ public class DeliveryInfoResponseData implements Serializable {
      * @return
      */
     public DocumentLine copyDeliveryInfoToDcoumentLine(DeliveryInfoResponseData responseData, DocumentLine documentLine){
-        documentLine.setReserved2(responseData.getCust_id());
+        documentLine.setReserved2(responseData.getCust_short());
         documentLine.setReserved11(responseData.getCust_name());
-        documentLine.setReserved12(responseData.getSeller_id());//售达方
+        documentLine.setReserved12(responseData.getSeller_name());//售达方
         documentLine.setReserved13(responseData.getSeller_addr());//街道
         documentLine.setReserved14(responseData.getSeller_contact()+"&"+responseData.getSeller_telno());
-        documentLine.setReserved15(responseData.getShipto_id());
+        documentLine.setReserved15(responseData.getShipto_name());
         documentLine.setReserved16(responseData.getShipto_addr());
         documentLine.setReserved17(responseData.getShipto_contact());
         documentLine.setReserved18(responseData.getShipto_telno());
@@ -186,16 +198,19 @@ public class DeliveryInfoResponseData implements Serializable {
         documentLine.setReserved21(responseData.getNote_no());//送货号
         documentLine.setReserved6(responseData.getNotes());
         documentLine.setReserved7(responseData.getShipper_name());
-        documentLine.setReserved25("");//Delivery Term:
-        documentLine.setReserved10("是否保税");
-        documentLine.setReserved9("关务手册号");
-        documentLine.setReserved8("物流信息");
-        documentLine.setReserved1("PID");
-        documentLine.setReserved22("客户产品");
-        documentLine.setReserved3("客户版本");
-        documentLine.setReserved4("等级");
-        documentLine.setReserved5("MRB");
-
+        documentLine.setQty(responseData.getTotal());
+        documentLine.setReserved27(responseData.getShip_type());
+        documentLine.setUnHandledQty(responseData.getTotal());
+        documentLine.setReserved25(responseData.getIncoterms());//Delivery Term:
+        documentLine.setReserved31(responseData.getInco_loc1());
+//        documentLine.setReserved10("是否保税");
+//        documentLine.setReserved9("关务手册号");
+//        documentLine.setReserved8("物流信息");
+//        documentLine.setReserved1("PID");
+//        documentLine.setReserved22("客户产品");
+//        documentLine.setReserved3("客户版本");
+//        documentLine.setReserved4("等级");
+//        documentLine.setReserved5("MRB");
         //发货日期20210728 需进行转换
         return documentLine;
     }
@@ -207,7 +222,7 @@ public class DeliveryInfoResponseData implements Serializable {
      * @return
      */
     public MaterialLot copyDeliveryInfoToMaterialLot(DeliveryInfoResponseData responseData, MaterialLot materialLot){
-        materialLot.setIncomingComment(responseData.getNotes());
+        materialLot.setReserved62(responseData.getNote_no());
         return materialLot;
     }
 }

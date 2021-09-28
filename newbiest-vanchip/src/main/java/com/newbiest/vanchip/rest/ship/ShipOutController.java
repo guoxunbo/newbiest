@@ -27,7 +27,7 @@ public class ShipOutController extends AbstractRestController {
     VanChipService vanChipService;
 
     @ApiOperation(value = "发货", notes = "发货")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "ShipOutRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "RetryInterfaceRequest")
     @RequestMapping(value = "/shipOut", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public ShipOutResponse execute(@RequestBody ShipOutRequest request) throws Exception {
         ShipOutResponse response = new ShipOutResponse();

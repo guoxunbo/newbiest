@@ -3,10 +3,7 @@ package com.newbiest.vanchip.rest.print;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
-import com.newbiest.vanchip.dto.print.model.CocPrintInfo;
-import com.newbiest.vanchip.dto.print.model.PKListPrintInfo;
-import com.newbiest.vanchip.dto.print.model.PackingListPrintInfo;
-import com.newbiest.vanchip.dto.print.model.ShippingListPrintInfo;
+import com.newbiest.vanchip.dto.print.model.*;
 import com.newbiest.vanchip.service.PrintExcelService;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
@@ -59,8 +56,25 @@ public class PrintExcelController extends AbstractRestController {
         }else if (PrintExcelRequest.ACTION_PRINT_PACKING_LIST_AND_COC.equals(actionType)){
             CocPrintInfo cocPrintParameter = vanChipService.getCOCPrintParameter(requestBody.getDocumentLineId());
             PackingListPrintInfo packingListPrintInfo = vanChipService.getPackingListPrintParameter(requestBody.getDocumentLineId());
+            ExcelPrintInfo excelPrintInfo = new ExcelPrintInfo();
+            excelPrintInfo.setCocPrintInfo(cocPrintParameter);
+            excelPrintInfo.setPackingListPrintInfo(packingListPrintInfo);
 
             printExcelService.printExcel(cocPrintParameter, packingListPrintInfo, null, null, PrintExcelRequest.ACTION_PRINT_PACKING_LIST_AND_COC);
+        }else if (PrintExcelRequest.ACTION_PRINT_DELIVERY_ORDER.equals(actionType)){
+            DeliveryPrintInfo deliveryPrintInfo = vanChipService.getDeliveryOrderParameter(requestBody.getDocumentLineId());
+
+            ExcelPrintInfo excelPrintInfo = new ExcelPrintInfo();
+            excelPrintInfo.setDeliveryPrintInfo(deliveryPrintInfo);
+            excelPrintInfo.setActionType(actionType);
+            printExcelService.printExcel(excelPrintInfo);
+
+        }else if (PrintExcelRequest.ACTION_PRINT_RS_AND_SCRAP_ORDER.equals(actionType)){
+            RSAndScrapInfo rsAndScrapInfo = vanChipService.getReturnSuppleOrderAndScrapOrderPrintInfo(requestBody.getDocumentLineId());
+            ExcelPrintInfo excelPrintInfo = new ExcelPrintInfo();
+            excelPrintInfo.setRSAndScrapInfo(rsAndScrapInfo);
+            excelPrintInfo.setActionType(actionType);
+            printExcelService.printExcel(excelPrintInfo);
         }else{
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);
 

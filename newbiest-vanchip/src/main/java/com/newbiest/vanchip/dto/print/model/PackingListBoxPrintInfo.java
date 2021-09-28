@@ -19,6 +19,7 @@ public class PackingListBoxPrintInfo implements Serializable{
     private String versionNumber;
 
     private String controlLot;
+    private String contromerLotNo;
 
     private String ctn_no;
     private String part_number;
@@ -31,4 +32,5 @@ public class PackingListBoxPrintInfo implements Serializable{
     private String carton_qty;
     private String nw;
     private String gw;
+
 }

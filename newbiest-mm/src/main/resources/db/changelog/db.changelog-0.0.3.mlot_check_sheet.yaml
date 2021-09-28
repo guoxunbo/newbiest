@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_mlot_check_sheet_0.0.3
+      author: Tao Zhou
+      remarks: MMS_MLOT_CHECK_SHEET add column MATERIAL_NAME,MATERIAL_DESC, RESERVED1
+      changes:
+        - addColumn:
+            tableName: MMS_MLOT_CHECK_SHEET
+            columns:
+              - column:
+                  name: MATERIAL_NAME
+                  type: varchar2(64)
+                  remarks: 物料代码
+              - column:
+                  name: MATERIAL_DESC
+                  type: varchar2(64)
+                  remarks: 物料描述
+              - column:
+                  name: RESERVED1
+                  type: varchar2(64)
+                  remarks: 客户版本

@@ -1,0 +1,138 @@
+vc:
+  mesUrl: http://10.39.0.111/mycim2
+  erpUrl:
+  erpPo:
+    userName:
+    password:
+  openSchedule: true
+#设置server的基本信息
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+  port: 8080
+license:
+  subject: newbiest_product_license
+  publicAlias: nbPublicLicense
+  storePass: newbiest123
+  licensePath: /app_wms/license/newbiest.lic
+  publicKeysStorePath: /app_wms/license/nb_public.keystore
+publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJSZc2o/TmlSCcIIwEBeG1gYLgQsKEKG83zwnzGg/Vk+pY8xKFuCfdWI8p2V0ly06I7+URG+MfUukX2+Y8rda4MCAwEAAQ==
+spring:
+  application:
+    name: vcim
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.Oracle10gDialect
+        hbm2ddl:
+          auto: none
+  datasource:
+    druid:
+      url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 10.39.0.114)(PORT = 1521))(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = vcbackdb)))
+      username: wmsprod
+      password: wmsprod
+      driver-class-name: oracle.jdbc.OracleDriver
+      # 初始化连接池 最小 最大数量
+      initial-size: 20
+      min-idle: 20
+      max-active: 50
+      # 获取连接最大等待时间
+      max-wait: 60000
+      # 间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 30000
+      # 检查连接的SQL
+      validation-query: select 'x' from dual
+      # 检查连接的场景
+      test-on-return: false
+      test-on-borrow: false
+      test-while-idle: true
+      # 打开PSCache，并且指定每个连接上PSCache的大小 Oracle建议打开。Mysql建议关闭
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      # 监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙(检测SQL注入)
+      filters: stat,slf4j,config
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: '*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*'
+      stat-view-servlet:
+        enabled: true
+        reset-enable: true
+      filter:
+        # 慢SQL监控
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 3000
+          merge-sql: false
+        # 数据库密码加密
+        config:
+          enabled: true
+      # 配置密码的公钥 默认使用druid的ConfigTool进行加密
+      connection-properties: config.decrypt=false;config.decrypt.key=${publickey}
+  mail:
+    host: smtp.163.com
+    username: taozhou0311@163.com
+    password: CYORWSWNLEXZVSNJ
+    from: taozhou0311@163.com
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  boot:
+    admin:
+      client:
+        url: http://localhost:8081
+        username: admin
+        password: admin123
+        instance:
+          management-base-url: http://localhost:${server.port}
+          prefer-ip: true
+          service-base-url: http://localhost:${server.port}
+  servlet:
+    multipart:
+      max-request-size: 40MB
+      max-file-size: 40MB
+      enabled: true
+# actuator配置
+show:
+  swagger: true
+gateway:
+  enable: true
+logging:
+  path: /Users/guoxunbo/Documents/newbiest/log
+management:
+  server:
+    servlet:
+      context-path: /
+    ssl:
+      enabled: false
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    redis:
+      enabled: false
+    mail:
+      enabled: false
+info:
+  groupId: VCIM
+  developer: XunboGuo
+
+vcim:
+  snowflake:
+    workCenterId: 2
+    machineId: 3

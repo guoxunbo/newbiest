@@ -25,7 +25,7 @@ public class StockInController extends AbstractRestController {
     MmsService mmsService;
 
     @ApiOperation(value = "物料批次入库", notes = "入库")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "StockInRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "StockUpRequest")
     @RequestMapping(value = "/stockIn", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public StockInResponse execute(@RequestBody StockInRequest request) throws Exception {
         StockInResponse response = new StockInResponse();

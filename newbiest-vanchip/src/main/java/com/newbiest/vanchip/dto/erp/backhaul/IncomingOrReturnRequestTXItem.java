@@ -135,6 +135,11 @@ public class IncomingOrReturnRequestTXItem implements Serializable {
      */
     private String Z_BATCH_POSTEDATE;
 
+    /**
+     * 产地
+     */
+    private String Z_BATCH_MADEADD;
+
     public IncomingOrReturnRequestTXItem copyMaterialLotToRequestTXItem(IncomingOrReturnRequestTXItem requestTXItem, MaterialLot materialLot){
         requestTXItem.setZ_BATCH_PONUMBER(materialLot.getReserved20());
         requestTXItem.setZ_BATCH_VENDOR(materialLot.getReserved57());
@@ -146,17 +151,12 @@ public class IncomingOrReturnRequestTXItem implements Serializable {
         requestTXItem.setZ_BATCH_CUSLOTNO(materialLot.getReserved5());
         requestTXItem.setZ_BATCH_MRB_CODE(materialLot.getReserved16());
         requestTXItem.setZ_BATCH_MARING(materialLot.getLetteringInfo());
-        requestTXItem.setZ_BATCH_VBATCH(materialLot.getMaterialLotId());
         requestTXItem.setZ_BATCH_WMSBATCH(materialLot.getMaterialLotId());
+        requestTXItem.setZ_BATCH_VBATCH(materialLot.getReserved46());
         requestTXItem.setZ_BATCH_VNAME(materialLot.getReserved48());
-
-        //requestTXItem.setZ_BATCH_SOITEM("销售订单号");
-        //销售订单号项目号
-
-        //BOX NO 无需处理
-        //Z_BATCH_REEL
-        //测试批次
-        //供应商地址
+        requestTXItem.setZ_BATCH_SOITEM(materialLot.getReserved7());
+        requestTXItem.setZ_BATCH_SOITEM(materialLot.getReserved15());
+        requestTXItem.setZ_BATCH_MADEADD(materialLot.getReserved51());
         return requestTXItem;
     }
 }

@@ -26,6 +26,9 @@ public class DocumentMLot extends NBBase {
 
     public static final String STATUS_CHECK_CREATE = "CheckCreate";
     public static final String STATUS_CHECK = "Check";
+    public static final String STATUS_WAIT_RECHECK = "WaitRecheck";
+    public static final String STATUS_RECHECK = "Recheck";
+
     /**
      * 当前的批次没有被发料 而是其子批进行发料
      */
@@ -40,9 +43,9 @@ public class DocumentMLot extends NBBase {
     @Column(name="STATUS")
     private String status;
 
-//    /**
-//     * 物料批次版本
-//     */
-//    @Column(name="MATERIAL_LOT_LOCK_VERSION")
-//    private String materialLotLockVersion;
+    /**
+     * 行号
+     */
+    @Column(name="ITEM_ID")
+    private String itemId;
 }

@@ -32,6 +32,8 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
     public static final String TRANS_TYPE_CHECK = "Check";
+    public static final String TRANS_TYPE_RECHECK = "Recheck";
+
     public static final String TRANS_TYPE_CONSUME = "Consume";
 
     public static final String TRANS_TYPE_PACKAGE = "Package";
@@ -57,6 +59,13 @@ public class MaterialLotHistory extends NBHis {
      * 物料绑定单据
      */
     public static final String TRANS_TYPE_PRE_RESERVED = "PreReserved";
+
+    /**
+     * 在ByReel发货单导入时
+     * 取消绑定单据
+     */
+    public static final String TRANS_TYPE_UN_PRE_RESERVED = "UnPreReserved";
+
     public static final String TRANS_TYPE_RESERVED = "Reserved";
     public static final String TRANS_TYPE_UNRESERVED = "unReserved";
     public static final String TRANS_TYPE_WEIGHT = "Weight";
@@ -78,6 +87,11 @@ public class MaterialLotHistory extends NBHis {
      * 打印
      */
     public static final String TRANS_TYPE_PRINT = "Print";
+
+    /**
+     * 报废
+     */
+    public static final String TRANS_TYPE_SCRAP = "Scrap";
 
     /**
      * 物料批次号
@@ -351,28 +365,16 @@ public class MaterialLotHistory extends NBHis {
     private String incomingLogInfo;
 
     /**
-     * 出货单据主键
+     * 最近一次关联的单据主键
      */
-    @Column(name="SHIP_DOC_RRN")
-    private String shipDocRrn;
+    @Column(name="LAST_DOC_RRN")
+    private String lastDocRrn;
 
     /**
-     * 出货单据Id
+     * 最近一次关联的单据
      */
-    @Column(name="SHIP_DOC_ID")
-    private String shipDocId;
-
-    /**
-     * 出货备注
-     */
-    @Column(name="SHIP_COMMENT")
-    private String shipComment;
-
-    /**
-     * 出货物流信息
-     */
-    @Column(name="SHIP_LOG_INFO")
-    private String shipLogInfo;
+    @Column(name="LAST_DOC_ID")
+    private String lastDocId;
 
     /**
      * 印字信息
@@ -453,7 +455,19 @@ public class MaterialLotHistory extends NBHis {
     private String retestFlag;
 
     /**
-     * PackageSize
+     * RMA标识
+     */
+    @Column(name= "RMA_FLAG")
+    private String rmaFlag;
+
+    /**
+     * 盘点数量
+     */
+    @Column(name= "CHECK_QTY")
+    private BigDecimal checkQty;
+
+    /**
+     * LotNo
      */
     @Column(name="RESERVED1")
     private String reserved1;
@@ -515,7 +529,7 @@ public class MaterialLotHistory extends NBHis {
     private String reserved10;
 
     /**
-     * Carton QTY
+     * ctnNo
      */
     @Column(name="RESERVED11")
     private String reserved11;
@@ -533,13 +547,13 @@ public class MaterialLotHistory extends NBHis {
     private String reserved13;
 
     /**
-     * 终端客户
+     * RAMAEK
      */
     @Column(name="RESERVED14")
     private String reserved14;
 
     /**
-     * wire Type
+     * 销售订单行项目
      */
     @Column(name="RESERVED15")
     private String reserved15;
@@ -599,7 +613,7 @@ public class MaterialLotHistory extends NBHis {
     private String reserved24;
 
     /**
-     * 预计送达时间
+     * 客户销售订单号
      */
     @Column(name="RESERVED25")
     private String reserved25;
@@ -725,7 +739,7 @@ public class MaterialLotHistory extends NBHis {
     private String reserved45;
 
     /**
-     * 预留字段46
+     * 供应商批次
      */
     @Column(name="RESERVED46")
     private String reserved46;
@@ -813,6 +827,18 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="RESERVED60")
     private String reserved60;
+
+    /**
+     * 精测RMA号，
+     */
+    @Column(name="RESERVED61")
+    private String reserved61;
+
+    /**
+     * 唯捷RMA号。
+     */
+    @Column(name="RESERVED62")
+    private String reserved62;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

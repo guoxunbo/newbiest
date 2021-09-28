@@ -32,7 +32,7 @@ public class QueryOrderController extends AbstractRestController {
     DocumentService documentService;
 
     @ApiOperation(value = "单据查询")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "QueryOrderRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "CreateOrderRequest")
     @RequestMapping(value = "/queryOrderManager", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public QueryOrderResponse execute(@RequestBody QueryOrderRequest request) throws Exception {
         QueryOrderResponse response = new QueryOrderResponse();

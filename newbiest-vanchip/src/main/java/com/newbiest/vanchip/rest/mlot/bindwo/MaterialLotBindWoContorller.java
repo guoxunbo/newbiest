@@ -24,7 +24,7 @@ public class MaterialLotBindWoContorller {
     VanChipService vanChipService;
 
     @ApiOperation(value = "物料批次绑定WO")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotBindWoRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "UpdateMaterialLotRequest")
     @RequestMapping(value = "/mlotBindWo", method = RequestMethod.POST)
     public MaterialLotBindWoResponse excute(@RequestBody MaterialLotBindWoRequest request)throws Exception {
         MaterialLotBindWoRequestBody requestBody = request.getBody();

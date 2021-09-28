@@ -1,11 +1,11 @@
 package com.newbiest.vanchip.dto.erp.backhaul.scrap;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.newbiest.vanchip.dto.erp.ErpRequestHeader;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
+@JsonAutoDetect(fieldVisibility= JsonAutoDetect.Visibility.ANY,getterVisibility= JsonAutoDetect.Visibility.NONE)
 public class ScrapRequestHeader extends ErpRequestHeader {
 
     //过账日期
@@ -22,5 +22,4 @@ public class ScrapRequestHeader extends ErpRequestHeader {
     private String FIELD3;
     private String FIELD4;
 
-    private List<ScrapRequestItem> Item;
 }

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.3.2
+      author: Tao Zhou
+      remarks: mms_material_lot add column CHECK_QTY
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: CHECK_QTY
+                  type: bigint
+                  remarks: 盘点数量

@@ -1,6 +1,7 @@
 package com.newbiest.vanchip.rest.doc.returnlot.mlot;
 
 import com.newbiest.base.msg.RequestBody;
+import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
@@ -18,4 +19,5 @@ public class ReturnMLotByDocRequestBody extends RequestBody {
 
 	private List<String> materialLotIdList;
 
+	private List<MaterialLot> materialLotList;
 }

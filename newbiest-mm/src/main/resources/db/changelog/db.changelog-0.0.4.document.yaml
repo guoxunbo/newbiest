@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_0.0.4
+      author: Tao Zhou
+      remarks: mms_document add shipping_date columns
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT
+            columns:
+              - column:
+                  name: SHIPPING_DATE
+                  type: datetime
+                  remarks: 出货日期

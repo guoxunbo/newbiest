@@ -86,7 +86,13 @@ public class MaterialLotUnit extends NBUpdatable {
     private String grade;
 
     /**
-     * PO NO
+     * 行号
+     */
+    @Column(name="ITEM_ID")
+    private String itemId;
+
+    /**
+     * 唯捷生产订单号（唯捷测试订单号）
      */
     @Column(name="RESERVED1")
     private String reserved1;
@@ -110,17 +116,118 @@ public class MaterialLotUnit extends NBUpdatable {
     private String reserved4;
 
     /**
-     * MRB1 (原料自带的MRB)
+     * MRB1 (原料自带的MRB)客户MRB
      */
     @Column(name="RESERVED5")
     private String reserved5;
 
     /**
-     * MRB2 (生产产生的MRB)
+     * MRB2 (生产产生的MRB)精测MRB
      */
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     * 测试机台
+     */
+    @Column(name="RESERVED7")
+    private String reserved7;
+
+    /**
+     * 测试程序
+     */
+    @Column(name="RESERVED8")
+    private String reserved8;
+
+    /**
+     * Handler型号
+     */
+    @Column(name="RESERVED9")
+    private String reserved9;
+
+    /**
+     * 来料工厂
+     */
+    @Column(name="RESERVED10")
+    private String reserved10;
+
+    /**
+     * 客户
+     */
+    @Column(name="RESERVED11")
+    private String reserved11;
+
+    /**
+     * 客户销售订单
+     */
+    @Column(name="RESERVED12")
+    private String reserved12;
+
+    /**
+     * version
+     */
+    @Column(name="RESERVED13")
+    private String reserved13;
+
+    /**
+     * contromer lot no
+     */
+    @Column(name="RESERVED14")
+    private String reserved14;
+
+    /**
+     * Marking
+     */
+    @Column(name="RESERVED15")
+    private String reserved15;
+
+    /**
+     * 客户RMA号
+     */
+    @Column(name="RESERVED16")
+    private String reserved16;
+
+    /**
+     * 精测RMA号
+     */
+    @Column(name="RESERVED17")
+    private String reserved17;
+
+    /**
+     * 客户订单编码(来料封装订单号)
+     */
+    @Column(name="RESERVED18")
+    private String reserved18;
+
+    /**
+     * remark
+     */
+    @Column(name="RESERVED19")
+    private String reserved19;
+
+    /**
+     * 保税手册号
+     */
+    @Column(name="RESERVED20")
+    private String reserved20;
+
+    /**
+     * 销售订单号(内部销售订单号)
+     */
+    @Column(name="RESERVED21")
+    private String reserved21;
+
+    /**
+     * 销售订单行号
+     */
+    @Column(name="RESERVED22")
+    private String reserved22;
+
+//    /**
+//     * 来料批次号
+//     */
+//    @Column(name="INCOMING_MLOT_ID")
+//    private String incomingMLotId;
 
     public void setMaterialLot(MaterialLot materialLot){
         this.setMaterialLotRrn(materialLot.getObjectRrn());

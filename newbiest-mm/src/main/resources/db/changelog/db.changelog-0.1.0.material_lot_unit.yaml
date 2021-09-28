@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.1.0
+      author: Tao Zhou
+      remarks: mms_material_lot_unit add column reserved21, reserved22
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: RESERVED21
+                  type: varchar(64)
+                  remarks: 销售订单号
+              - column:
+                  name: RESERVED22
+                  type: varchar(64)
+                  remarks: 销售订单行号

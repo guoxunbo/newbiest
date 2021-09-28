@@ -3,6 +3,7 @@ package com.newbiest.vanchip.dto.print.model;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 发货单
@@ -16,11 +17,16 @@ public class DeliveryPrintInfo implements Serializable {
 
     private String shipTo;
 
-    private String shippingDate;
+    private String shipAdd;
 
     private String contact;
 
     private String tel;
+
+    private String shippingDate;
+    private String customerPO;
+    private String invNo;
+    private String soNo;
 
     //总箱数
     private String totalBoxQty;
@@ -34,4 +40,5 @@ public class DeliveryPrintInfo implements Serializable {
     //物流信息
     private String logisticsInfo;
 
+    private List<DeliveryMLotPrintInfo> deliveryMLotPrintInfoList;
 }

@@ -151,9 +151,6 @@ public class IncomingResponseHeader implements Serializable {
         materialLot.setReserved36(header.getZTOTAL());
         materialLot.setReserved37(header.getZTRADE());
         materialLot.setReserved51(header.getZORIGIN());
-
-        //Qty of Carton
-        //预计到达时间
         return materialLot;
     }
 }

@@ -61,7 +61,7 @@ public class MaterialLotInvController extends AbstractRestController {
         } else if (MaterialLotInvRequest.ACTION_PICK.equals(actionType)) {
             mmsService.pick(materialLot, materialLotAction);
         } else if (MaterialLotInvRequest.ACTION_CHECK.equals(actionType)) {
-            materialLotInventory = mmsService.checkMaterialInventory(materialLot, materialLotAction);
+            //materialLotInventory = mmsService.checkMaterialInventory(materialLot, materialLotAction);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

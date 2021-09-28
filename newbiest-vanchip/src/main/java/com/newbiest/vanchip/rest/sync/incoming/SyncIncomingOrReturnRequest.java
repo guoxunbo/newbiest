@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @ApiModel
 public class SyncIncomingOrReturnRequest extends Request {
-
+    private static final long serialVersionUID = 1L;
 
     public static final String MESSAGE_NAME = "SyncIncomingOrReturn";
 

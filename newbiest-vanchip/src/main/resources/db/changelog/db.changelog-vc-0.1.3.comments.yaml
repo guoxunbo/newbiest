@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: vanchip_add_reserved_comments_0.1.3
+      author: Tao Zhou
+      comment: add commments for mms_material_lot and mms_material_lot_his reserved column
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/comments_0.1.3.sql

@@ -13,6 +13,14 @@ public class MobileRequest extends Request {
 	public static final String MESSAGE_NAME = "PackMaterialLot";
 
 	public static final String ACTION_STOCK_IN = "stockIn";
+
+	public static final String ACTION_VALIDATE_STOCK_IN_BY_ORDER = "validateStockInByOrder";
+
+	/**
+	 * by单据来料入库
+	 */
+	public static final String ACTION_STOCK_IN_BY_ORDER = "stockInByOrder";
+
 	public static final String ACTION_STOCK_OUT = "stockOut";
 	public static final String ACTION_STOCK_OUT_BY_ORDER = "stockOutByOrder";
 
@@ -29,6 +37,10 @@ public class MobileRequest extends Request {
 
 	public static final String ACTION_VAILADATE_TARGET_WAREHOUSE = "vailadateTargetWarehouse";
 	public static final String ACTION_VAILADATE_FROM_WAREHOUSE = "vailadateFromWarehouse";
+
+	/**
+	 * 转库 支持批量操作
+	 */
 	public static final String ACTION_TRANSFER_INVENTORY_MLOTS = "transferInvMLots";
 
 	private MobileRequestBody body;

@@ -10,9 +10,11 @@ import java.io.Serializable;
 @JsonAutoDetect(fieldVisibility= JsonAutoDetect.Visibility.ANY,getterVisibility= JsonAutoDetect.Visibility.NONE)
 public class DeliveryStatus implements Serializable {
 
-    //1-读取；2-删除；3-发货过账
+    //1-读取;
     public final static String READ_DELIVERY_STATUS = "1";
+    //2-删除;
     public final static String DEL_DELIVERY_STATUS = "2";
+    //3-发货过账;
     public final static String POSTING_DELIVERY_STATUS = "3";
 
     /**

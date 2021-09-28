@@ -1,9 +1,9 @@
 vc:
   mesUrl: http://10.39.0.49/mycim2
-  erpUrl: http://192.168.12.101:50000/RESTAdapter/
+  erpUrl: http://shsappoqas01.vanchip.com:50000/RESTAdapter/
   erpPo:
-    userName: WMS_PO
-    password: Wms!Dev2021
+    userName: MES_PO
+    password: Mes!Po1234
   openSchedule: true
 #设置server的基本信息
 server:

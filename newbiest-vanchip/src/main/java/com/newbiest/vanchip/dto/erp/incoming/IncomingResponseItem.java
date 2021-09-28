@@ -21,6 +21,9 @@ public class IncomingResponseItem implements Serializable {
     @ApiModelProperty("物料代码")
     private String MATNR;
 
+    @ApiModelProperty("库位")
+    private String LGORT;
+
     @ApiModelProperty("批次管理标识")
     private String XCHPF;
 
@@ -57,6 +60,27 @@ public class IncomingResponseItem implements Serializable {
     @ApiModelProperty("物料组")
     private String MATKL;
 
+    @ApiModelProperty("申请人")
+    private String ZPERSON;
+
+    @ApiModelProperty("联系人")
+    private String CONTACT;
+
+    @ApiModelProperty("联系人电话")
+    private String TELNUMBER;
+
+    @ApiModelProperty("退货RMA号")
+    private String ZRETURNMRA;
+
+    @ApiModelProperty("国贸条款")
+    private String INCO1;
+
+    @ApiModelProperty("物料信息")
+    private String INCO2_L;
+
+    @ApiModelProperty("REMARK")
+    private String REMARK;
+
     private String FIELD1;
     private String FIELD2;
     private String FIELD3;
@@ -70,8 +94,8 @@ public class IncomingResponseItem implements Serializable {
         materialLot.setIncomingQty(item.getLGMNG());
         materialLot.setReserved49(item.getLFIMG());
         materialLot.setReserved50(item.getVRKME());
-
-        materialLot.setReserved60(item.getVGBEL());
+        materialLot.setReserved20(item.getVGBEL());
+        //materialLot.setReserved60(item.getVGBEL());
         materialLot.setReserved59(item.getVGPOS());
 
         materialLot.setMaterialLotId(item.getLICHN());

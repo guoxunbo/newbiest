@@ -16,7 +16,13 @@ public class CheckMLotRequest extends Request {
 	public static final String ACTION_TYPE_GET_RESERVED_MLOT = "GetReservedMLot";
 
 	@ApiModelProperty("盘点")
-	public static final String ACTION_TYPE_CHECK = "Check";
+	public static final String ACTION_TYPE_CHECK_MLOT = "CheckMLot";
+	public static final String ACTION_TYPE_CHECK_MLOT_BY_ORDER = "CheckMLotByOrder";
+
+	@ApiModelProperty("获取需复盘批次的动作")
+	public static final String ACTION_TYPE_GET_RECHECK_MLOT = "GetRecheckMLot";
+	@ApiModelProperty("复盘")
+	public static final String ACTION_TYPE_RECHECK_MLOT_BY_ORDER = "RecheckMLotByOrder";
 
 	private CheckMLotRequestBody body;
 

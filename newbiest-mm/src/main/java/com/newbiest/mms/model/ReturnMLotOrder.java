@@ -14,7 +14,12 @@ public class ReturnMLotOrder extends Document {
     public static final String GENERATOR_RETURN_MLOT_ORDER_RULE = "CreateReturnMLotOrder";
 
     /**
-     * 默认的备货规则
+     * 子单生成规则
+     */
+    public static final String GENERATOR_RETURN_MLOT_ORDER_LINE_RULE = "CreateReturnMLotOrderLineId";
+
+    /**
+     * 默认的单据匹配规则
      */
     public static final String DEFAULT_RETURN_MLOT_RESERVED_RULE = "ReturnMLotReservedRule";
 

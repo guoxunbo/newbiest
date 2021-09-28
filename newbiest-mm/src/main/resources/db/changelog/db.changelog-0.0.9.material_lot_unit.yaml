@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.0.9
+      author: Tao Zhou
+      remarks: mms_material_lot_unit add column reserved18, reserved19, reserved20
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: RESERVED18
+                  type: varchar(64)
+                  remarks: 客户订单编码(来料封装订单号)
+              - column:
+                  name: RESERVED19
+                  type: varchar(64)
+                  remarks: remark
+              - column:
+                  name: RESERVED20
+                  type: varchar(64)
+                  remarks: 保税手册号

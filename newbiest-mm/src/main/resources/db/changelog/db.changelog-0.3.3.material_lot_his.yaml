@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id:  mms_material_lot_his_0.3.3
+      author:  Tao Zhou
+      remarks: MMS_MATERIAL_LOT_HIS modifyDataType action_comment,action_reason
+      changes:
+        -  modifyDataType:
+             columnName: ACTION_COMMENT
+             newDataType: varchar(512)
+             tableName: MMS_MATERIAL_LOT_HIS
+        - modifyDataType:
+            columnName: ACTION_REASON
+            newDataType: varchar(512)
+            tableName: MMS_MATERIAL_LOT_HIS

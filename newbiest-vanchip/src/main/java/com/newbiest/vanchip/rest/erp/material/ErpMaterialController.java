@@ -2,6 +2,7 @@ package com.newbiest.vanchip.rest.erp.material;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
+import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.service.MmsService;
@@ -22,7 +23,7 @@ import java.util.List;
 @RequestMapping("/erp")
 @Slf4j
 @Api(value="/erp", tags="VanChip客制化ERP接口", description = "ERP物料主数据接口")
-public class ErpMaterialController {
+public class ErpMaterialController extends AbstractRestController {
 
     @Autowired
     VanChipService vanChipService;

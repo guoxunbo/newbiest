@@ -2,7 +2,9 @@ package com.newbiest.vanchip.rest.mlot.iqc;
 
 import com.newbiest.base.msg.RequestBody;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.model.MLotCheckSheetLine;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
@@ -24,4 +26,6 @@ public class MaterialLotIqcRequestBody extends RequestBody {
 	 */
 	private String urlRemark;
 
+	@ApiModelProperty("检查项")
+	private List<MLotCheckSheetLine> checkSheetLineList;
 }

@@ -53,6 +53,12 @@ public class MobileController extends AbstractRestController {
         } else if (MobileRequest.ACTION_STOCK_IN_FINISH_GOOD.equals(actionType)) {
 
             vanChipService.stockInMLotMobile(requestBody.getMaterialLotAction());
+        } else if (MobileRequest.ACTION_VALIDATE_STOCK_IN_BY_ORDER.equals(actionType)){
+            vanChipService.validataStockInByOrder(requestBody.getDocumentId(), requestBody.getMaterialLotActions());
+
+        } else if (MobileRequest.ACTION_STOCK_IN_BY_ORDER.equals(actionType)){
+
+            vanChipService.stockInMLotByOrderMobile(requestBody.getDocumentId(), requestBody.getMaterialLotActions());
         }else if (MobileRequest.ACTION_STOCK_OUT.equals(actionType)){
             List<MaterialLot> materialLots = Lists.newArrayList();
             MaterialLot materialLot = vanChipService.stockOutMLotMobile(requestBody.getMaterialLotAction());
