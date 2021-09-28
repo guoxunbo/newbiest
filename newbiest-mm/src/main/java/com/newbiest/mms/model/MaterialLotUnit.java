@@ -56,12 +56,13 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String RMA_RETURN = "GCRMACustomerReturnFinishProduct";//RMA_客户退货_成品
     public static final String RMA_PURE = "GCRMAPureFinishProduct";//RMA纯_成品-4
     public static final String COB_FINISH_PRODUCT = "GCCOBFinishProduct"; //COB（-4成品）
+    public static final String COB_RAW_MATERIAL_PRODUCT = "GCCOBRawMaterialProduct"; //COM原料导入
     public static final String LCD_COG_FINISH_PRODUCT = "GCLCDCOGFinishProductEcretive";//LCD（COG成品-ECRETIVE）
     public static final String LCD_COG_DETIAL = "GCLcdCogDetial";//LCD(COG成品-明细)
     public static final String FINISH_PRODUCT_IMPORT = "GCFinishProductImport";//成品导入模板
-    public static final String SOC_FINISH_PRODUCT = "GCSOCFinishProduct"; //COB（-4成品）
+    public static final String SOC_FINISH_PRODUCT = "GCSOCFinishProduct"; //SOC成品
     public static final String SOC_WAFER_UNMEASURED = "GCSOCWaferUnmeasured"; //SOC晶圆未测、已测
-
+    public static final String MASK_FINISH_PRODUCT= "GCMaskFinishProduct"; //MASK成品
 
     //产品型号
     public static final String PRODUCT_CLASSIFY_CP = "CP0";
@@ -72,6 +73,7 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String PRODUCT_CLASSIFY_COB = "COB0";
     public static final String PRODUCT_CLASSIFY_COG = "COG0";
     public static final String PRODUCT_CLASSIFY_SOC = "SOC0";
+    public static final String PRODUCT_CLASSIFY_MASK = "MASK0";
 
     public static final String PRODUCT_CATEGORY_WLT = "WLT";
     public static final String PRODUCT_CATEGORY_CP = "CP";

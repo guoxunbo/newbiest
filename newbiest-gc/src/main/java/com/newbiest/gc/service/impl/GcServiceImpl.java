@@ -5508,7 +5508,7 @@ public class GcServiceImpl implements GcService {
                         materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
                         materialLotUnit.setReserved50(MaterialLot.WLT_PACK_RETURN_WAFER_SOURCE);
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
-                    } else if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType)){
+                    } else if(MaterialLotUnit.COB_RAW_MATERIAL_PRODUCT.equals(importType)){
                         materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_COB);
                         materialLotUnit.setReserved50(MaterialLot.COB_WAFER_SOURCE);
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_COB);
@@ -5516,6 +5516,14 @@ public class GcServiceImpl implements GcService {
                         materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_SOC);
                         materialLotUnit.setReserved50(MaterialLot.SOC_WAFER_SOURCE);
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_SOC);
+                    } else if (MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType)) {
+                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_COB);
+                        materialLotUnit.setReserved50(MaterialLot.RW_WAFER_SOURCE);
+                        materialLotUnit.setReserved49(MaterialLot.IMPORT_COB);
+                    } else if (MaterialLotUnit.MASK_FINISH_PRODUCT.equals(importType)) {
+                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_MASK);
+                        materialLotUnit.setReserved50(MaterialLot.MASK_WAFER_SOURCE);
+                        materialLotUnit.setReserved49(MaterialLot.IMPORT_MASK);
                     }
                 }
             }
@@ -7772,7 +7780,9 @@ public class GcServiceImpl implements GcService {
                 Iterator<MaterialLot> iterator = materialLots.iterator();
                 while (iterator.hasNext()) {
                     MaterialLot materialLot = iterator.next();
-                    if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54())){
+                    String materialName = materialLot.getMaterialName();
+                    Integer length = materialName.length();
+                    if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54()) || MaterialLot.STOCKOUT_TYPE_4.equals(materialName.substring(length - 2, length))){
                         BigDecimal currentQty = materialLot.getCurrentQty();
                         if (unhandedQty.compareTo(currentQty) >= 0) {
                             unhandedQty = unhandedQty.subtract(currentQty);
