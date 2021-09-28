@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCOBRawMaterialProduct_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCCOBRawMaterialProduct to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCOBRawMaterialProduct
+              description: COB原料导入
+              tableName: MMS_MATERIAL_LOT_UNIT
+              modelName: MaterialLotUnit
+              modelClass: com.newbiest.mms.model.MaterialLotUnit
+              labelZh: COB原料导入
+              label: COBRawMaterialProduct
