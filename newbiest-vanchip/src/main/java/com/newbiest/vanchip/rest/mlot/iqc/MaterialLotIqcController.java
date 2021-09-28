@@ -38,10 +38,9 @@ public class MaterialLotIqcController extends AbstractRestController {
         String actionType = requestBody.getActionType();
         List<String> materialLotIds = requestBody.getMaterialLotIds();
 
-
         if (MaterialLotIqcRequest.ACTIONT_BATCH_IQC.equals(actionType)){
 
-            vanChipService.batchIqc(requestBody.getMaterialLotActions(), requestBody.getUrlRemark());
+            vanChipService.batchIqc(requestBody.getMaterialLotActions(), requestBody.getUrlRemark(), requestBody.getCheckSheetLineList());
         }else if (MaterialLotIqcRequest.ACTION_VALIDATION_AND_GET_MLOT.equals(actionType)){
 
             List<MaterialLot> dataList = vanChipService.validationAndGetWaitIqcMLot(materialLotIds);

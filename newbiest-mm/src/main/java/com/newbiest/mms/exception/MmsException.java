@@ -58,7 +58,7 @@ public class MmsException {
     public static final String MM_MATERIAL_IS_NOT_EXIST = "mm.material_is_not_exist";
     public static final String MM_TARGET_WAREHOUSE_IS_NOT_DEFAULT_WAREHOUSE = "mm.target_warehouse_is_not_default_warehouse";
     public static final String MM_TARGET_WAREHOUSE_IS_NOT_HOLD_WAREHOUSE = "mm.target_warehouse_is_not_hold_warehouse";
-    public static final String MM_TARGET_WAREHOUSE_IS_NOT_APPOINT_WAREHOUSE = "mm。target_warehouse_is_not_appoint_warehouse";
+    public static final String MM_TARGET_WAREHOUSE_IS_NOT_APPOINT_WAREHOUSE = "mm.target_warehouse_is_not_appoint_warehouse";
 
     public static final String MM_PERMISSION_NOT_ALLOWED = "mm.permission_not_allowed";
 

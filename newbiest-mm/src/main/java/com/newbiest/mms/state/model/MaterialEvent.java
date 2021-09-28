@@ -78,4 +78,6 @@ public class MaterialEvent extends Event {
 
     public static final String EVENT_IQC_APPROVE = "IqcApprove";
 
+    public static final String EVENT_SCRAP= "Scrap";
+
 }

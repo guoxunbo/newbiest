@@ -55,7 +55,6 @@ public class Document extends NBUpdatable {
      */
     public static final String CATEGORY_DEPT_RETURN = "DeptReturn";
 
-
     /**
      * 客户退货
      */
@@ -63,9 +62,22 @@ public class Document extends NBUpdatable {
 
     public static final String CATEGORY_FINISH_GOOD = "FinishGood";
 
+    /**
+     * RMA来料  自身原因,由SAP导入
+     */
+    public static final String CATEGORY_RMA_INCOMING = "RmaIncoming";
+
+    /**
+     * RMA来料2  非自身原因,由WMS导入
+     */
+    public static final String CATEGORY_RMA_INCOMING2 = "RmaIncoming2";
+
     public static final String STATUS_CREATE = "Create";
     public static final String STATUS_APPROVE = "Approve";
     public static final String STATUS_Reject = "Reject";
+
+    public static final String STATUS_CLOSE = "Close";
+    public static final String STATUS_WAIT_RECHECK = "WaitRecheck";
 
     @Column(name="NAME")
     private String name;
@@ -121,6 +133,9 @@ public class Document extends NBUpdatable {
     @Column(name="APPROVE_TIME")
     private Date approveTime;
 
+    @Column(name = "SHIPPING_DATE")
+    private Date shippingDate;
+
     @Transient
     private List<DocumentLine> documentLines;
 
@@ -139,18 +154,33 @@ public class Document extends NBUpdatable {
     @Column(name="RESERVED2")
     private String reserved2;
 
+    /**
+     * RMA号码
+     */
     @Column(name="RESERVED3")
     private String reserved3;
 
+    /**
+     * 物料信息
+     */
     @Column(name="RESERVED4")
     private String reserved4;
 
+    /**
+     * 地址
+     */
     @Column(name="RESERVED5")
     private String reserved5;
 
+    /**
+     * 电话
+     */
     @Column(name="RESERVED6")
     private String reserved6;
 
+    /**
+     * 联系人
+     */
     @Column(name="RESERVED7")
     private String reserved7;
 

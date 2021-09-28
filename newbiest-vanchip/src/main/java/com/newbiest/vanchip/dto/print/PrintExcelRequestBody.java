@@ -1,10 +1,7 @@
 package com.newbiest.vanchip.dto.print;
 
 import com.newbiest.vanchip.dto.mes.MesRequestBody;
-import com.newbiest.vanchip.dto.print.model.CocPrintInfo;
-import com.newbiest.vanchip.dto.print.model.PKListPrintInfo;
-import com.newbiest.vanchip.dto.print.model.PackingListPrintInfo;
-import com.newbiest.vanchip.dto.print.model.ShippingListPrintInfo;
+import com.newbiest.vanchip.dto.print.model.*;
 import lombok.Data;
 
 @Data
@@ -21,5 +18,7 @@ public class PrintExcelRequestBody extends MesRequestBody {
     private ShippingListPrintInfo shippingListPrintInfo;
 
     private PKListPrintInfo pKListPrintInfo;
+
+    private ExcelPrintInfo excelPrintInfo;
 
 }

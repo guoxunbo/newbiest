@@ -16,6 +16,11 @@ import java.util.Date;
 @Entity
 public class DocumentLine extends NBUpdatable {
 
+    //发货类型
+    public static final String MP_SHIPPING_TYPE = "量产";
+    public static final String ES_SHIPPING_TYPE = "工程样品";
+    public static final String CS_SHIPPING_TYPE = "客户样品";
+
     @Column(name="DOC_RRN")
     private String docRrn;
 
@@ -55,6 +60,11 @@ public class DocumentLine extends NBUpdatable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "SHIPPING_DATE")
     private Date shippingDate;
+
+    /**
+     * 状态
+     */
+    private String status;
 
     /**
      *PID
@@ -215,8 +225,8 @@ public class DocumentLine extends NBUpdatable {
     /**
      * 发货类型
      * 1.量产
-     * 2.客户样品
-     * 3.工程样品
+     * 2.工程样品
+     * 3.客户样品
      */
     @Column(name="RESERVED27")
     private String reserved27;
@@ -239,6 +249,35 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="RESERVED30")
     private String reserved30;
 
+    /**
+     * 发运港
+     */
+    @Column(name="RESERVED31")
+    private String reserved31;
+
+    /**
+     * RMA号
+     */
+    @Column(name="RESERVED32")
+    private String reserved32;
+
+    /**
+     * 领料人
+     */
+    @Column(name="RESERVED33")
+    private String reserved33;
+
+    /**
+     * 产品描述
+     */
+    @Column(name="RESERVED34")
+    private String reserved34;
+
+    /**
+     * 位置描述
+     */
+    @Column(name="RESERVED35")
+    private String reserved35;
     /**
      * 导入时格式转换
      */

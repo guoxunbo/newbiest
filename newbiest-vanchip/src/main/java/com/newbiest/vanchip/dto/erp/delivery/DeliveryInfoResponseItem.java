@@ -147,6 +147,21 @@ public class DeliveryInfoResponseItem implements Serializable {
      */
     private String d_number;
 
+    /**
+     * Ctn No
+     */
+    private String ctnno;
+
+    /**
+     * 生产订单，委外订单
+     */
+    private String subno;
+
+    /**
+     * 物料描述
+     */
+    private String material_desc;
+
     private String field1;
     private String field2;
     private String field3;
@@ -159,7 +174,7 @@ public class DeliveryInfoResponseItem implements Serializable {
      * @return
      */
     public MaterialLot copyDeliveryInfoResponseItemToMaterialLot(DeliveryInfoResponseItem responseItem, MaterialLot materialLot){
-        materialLot.setBoxMaterialLotId(responseItem.getBox_no());
+        materialLot.setMaterialLotId(responseItem.getBox_no());
         materialLot.setMaterialName(responseItem.getMaterial());
         materialLot.setItemId(responseItem.getLine_no());
         materialLot.setIncomingQty(responseItem.getQuantity());
@@ -173,6 +188,7 @@ public class DeliveryInfoResponseItem implements Serializable {
         materialLot.setGrade(responseItem.getBin_type());
         materialLot.setReserved3(responseItem.getVersion());
         materialLot.setReserved7(responseItem.getSo());
+        materialLot.setReserved15(responseItem.getSo_item());
         materialLot.setReserved4(responseItem.getControl_lot());
         materialLot.setReserved5(responseItem.getCustomer_lot_no());
         materialLot.setReserved16(responseItem.getMrb_code());
@@ -185,11 +201,12 @@ public class DeliveryInfoResponseItem implements Serializable {
         materialLot.setReserved18(responseItem.getBonded());
         materialLot.setReserved19(responseItem.getManual());
         materialLot.setReserved10(responseItem.getCarton2());
-        //reserved11 ctn no
+        materialLot.setReserved11(responseItem.getCtnno());
+        materialLot.setReserved8(responseItem.getSubno());
+        materialLot.setIncomingComment(responseItem.getRemark());
+
         //reserved1 lot no
-        //委外订单号
         //物料信息不在此赋值
-        //wms新增 销售订单项目号
         return materialLot;
     }
 

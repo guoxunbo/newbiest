@@ -44,5 +44,9 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, String> 
 
     List<MaterialLot> findByWarningStatusNotOrWarningStatusNullAndStatus(String warningStatus, String status) throws ClientException;
 
+    List<MaterialLot> findByReserved45(String docLineId) throws ClientException;
+
+    //根据control lot查询
+    List<MaterialLot> findByReserved4In(List<String> controlLotList)throws ClientException;
 
 }

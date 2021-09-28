@@ -21,6 +21,9 @@ public class ReturnMLotByDocRequest extends Request {
 	@ApiModelProperty(value = "仓库退料，退供应商/ERP")
 	public static final String ACTION_TYPE_RETURN_MATERIAL_LOT = "ReturnMaterialLot";
 
+	@ApiModelProperty(value = "获取已经备货得批次")
+	public static final String ACTION_GET_STOCK_UP_MLOT = "GetStockUpMLot";
+
 	private ReturnMLotByDocRequestBody body;
 
 }

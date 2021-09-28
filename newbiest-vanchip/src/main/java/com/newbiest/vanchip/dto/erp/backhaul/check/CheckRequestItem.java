@@ -1,5 +1,6 @@
 package com.newbiest.vanchip.dto.erp.backhaul.check;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.newbiest.mms.model.MaterialLot;
 import lombok.Data;
 
@@ -7,6 +8,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
+@JsonAutoDetect(fieldVisibility= JsonAutoDetect.Visibility.ANY,getterVisibility= JsonAutoDetect.Visibility.NONE)
 public class CheckRequestItem implements Serializable {
 
     /**
@@ -34,10 +36,6 @@ public class CheckRequestItem implements Serializable {
      */
     private String MAKTX;
 
-    /**
-     * 仓库代码
-     */
-    private String LGORT;
 
     /**
      * 库存类型
@@ -88,12 +86,12 @@ public class CheckRequestItem implements Serializable {
     public CheckRequestItem copyMaterialLotToCheckRequestItem(CheckRequestItem requestItem, MaterialLot materialLot){
         requestItem.setMATNR(materialLot.getMaterialName());
         requestItem.setMAKTX(materialLot.getMaterialDesc());
-        requestItem.setLGORT(materialLot.getLastWarehouseId());
         requestItem.setERFME(materialLot.getStoreUom());
         requestItem.setERFMG(materialLot.getCurrentQty());
         requestItem.setZ_BATCH_WMSBATCH(materialLot.getMaterialLotId());
-        //ZCOUNT 二次计数
-        //批次栏位。
+        if (materialLot.getSubMaterialLotFlag()){
+            requestItem.setZ_BATCH_WMSBATCH(materialLot.getParentMaterialLotId());
+        }
         return requestItem;
     }
 }

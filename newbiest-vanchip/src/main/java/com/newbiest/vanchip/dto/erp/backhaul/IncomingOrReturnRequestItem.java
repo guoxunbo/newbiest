@@ -83,11 +83,8 @@ public class IncomingOrReturnRequestItem implements Serializable {
         requestItem.setMEINS(materialLot.getStoreUom());
         requestItem.setVBELN_IM(materialLot.getIncomingDocId());
         requestItem.setSGTXT(materialLot.getIncomingComment());
-        requestItem.setEBELN(materialLot.getReserved60());
         requestItem.setEBELP(materialLot.getReserved59());
-
-        //requestItem.setCHARG("批次");
-        //requestItem.setWERKS("工厂");
+        requestItem.setEBELN(materialLot.getReserved20());
         return requestItem;
     }
 }

@@ -57,10 +57,28 @@ public class MLotCheckSheet extends NBUpdatable {
     @Column(name="STATUS")
     private String status = STATUS_OPEN;
 
+    /**
+     * 物料名称
+     */
+    @Column(name="MATERIAL_NAME")
+    private String materialName;
+
+    /**
+     * 物料描述
+     */
+    @Column(name="MATERIAL_DESC")
+    private String materialDesc;
+
+    /**
+     * 客户版本
+     */
+    @Column(name="RESERVED1")
+    private String reserved1;
+
     @PreUpdate
     protected void preUpdate() {
         super.preUpdate();
-        if (!StringUtils.isNullOrEmpty(checkResult)) {
+        if (!StringUtils.isNullOrEmpty(checkResult) && MLotCheckSheet.STATUS_IN_APPROVAL.equals(status)) {
             checkTime = DateUtils.now();
             checkOwner = ThreadLocalContext.getUsername();
         }

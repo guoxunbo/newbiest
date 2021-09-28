@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.0.8
+      author: Tao Zhou
+      remarks: mms_material_lot_unit add column reserved13, reserved14, reserved15, reserved16, reserved17
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: RESERVED13
+                  type: varchar(64)
+                  remarks: version
+              - column:
+                  name: RESERVED14
+                  type: varchar(64)
+                  remarks: contromer lot no
+              - column:
+                  name: RESERVED15
+                  type: varchar(64)
+                  remarks: Marking
+              - column:
+                  name: RESERVED16
+                  type: varchar(64)
+                  remarks: 客户RMA号
+              - column:
+                  name: RESERVED17
+                  type: varchar(64)
+                  remarks: 精测RMA号

@@ -15,6 +15,8 @@ public class ErpCreateOrderRequest extends Request {
     @ApiModelProperty("创建报废单")
     public static final String ACTION_TYPE_CREATE_SCRAP_ORDER = "createScrapOrder";
 
+    @ApiModelProperty("删除报废单")
+    public static final String ACTION_TYPE_DELETE_SCRAP_ORDER = "delScrapOrder";
 
     private ErpCreateOrderRequestBody body;
 }

@@ -1,5 +1,7 @@
 package com.newbiest.vanchip.rest.doc.returnlot.mlot;
 
+import com.newbiest.base.exception.ClientParameterException;
+import com.newbiest.base.msg.Request;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
@@ -42,12 +44,17 @@ public class ReturnMLotByDocController extends AbstractRestController {
             //产线退料
             vanChipService.returnMLotByDoc(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
         }else if (ReturnMLotByDocRequest.ACTION_TYPE_RETURN_MATERIAL_LOT.equals(actionType)){
-            vanChipService.returnMLotByDocLine(requestBody.getDocumentId(), requestBody.getMaterialLotIdList());
+
+            vanChipService.returnMLotByDocLine(requestBody.getDocumentId(), requestBody.getMaterialLotList());
         }else if (ReturnMLotByDocRequest.ACTION_GET_RESERVED_MLOT.equals(actionType)){
             List<MaterialLot> materialLots = vanChipService.getReservedMLotByOrder(requestBody.getDocumentId());
             responseBody.setMaterialLotList(materialLots);
+        }else if (ReturnMLotByDocRequest.ACTION_GET_STOCK_UP_MLOT.equals(actionType)){
+            List<MaterialLot> materialLots = vanChipService.getStockUpMLot(requestBody.getDocumentId());
+            responseBody.setMaterialLotList(materialLots);
+        }else {
+            throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);
         }
-
         response.setBody(responseBody);
         return response;
     }

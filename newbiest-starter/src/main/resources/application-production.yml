@@ -2,9 +2,9 @@ vc:
   mesUrl: http://10.39.0.50/mycim2
   erpUrl:
   erpPo:
-    userName:
-    password:
-  openSchedule: false
+    userName: WMS_PO
+    password: Wms!Prd2021
+  openSchedule: true
 license:
   subject: newbiest_product_license
   publicAlias: nbPublicLicense

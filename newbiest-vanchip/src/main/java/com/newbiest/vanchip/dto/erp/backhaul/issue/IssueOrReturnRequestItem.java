@@ -57,9 +57,7 @@ public class IssueOrReturnRequestItem implements Serializable {
         requestItem.setLGORT(materialLot.getLastWarehouseId());
         requestItem.setMEINS(materialLot.getStoreUom());
         requestItem.setZ_BATCH_WMSBATCH(materialLot.getMaterialLotId());
-        if (materialLot.getSubMaterialLotFlag()){
-            requestItem.setZ_BATCH_WMSBATCH(materialLot.getParentMaterialLotId());
-        }
+
         return requestItem;
     }
 

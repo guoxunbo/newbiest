@@ -28,7 +28,7 @@ public class CheckMLotController extends AbstractRestController {
 
     @ApiOperation(value = "盘点")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "CheckMLotRequest")
-    @RequestMapping(value = "/checkMLot", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/checkMLotManager", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public CheckMLotResponse execute(@RequestBody CheckMLotRequest request) throws Exception {
         CheckMLotResponse response = new CheckMLotResponse();
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
@@ -40,8 +40,16 @@ public class CheckMLotController extends AbstractRestController {
             List<MaterialLot> materialLotList = vanChipService.getReservedMLotByOrder(requestBody.getDocumentLine().getLineId());
 
             responseBody.setMaterialLotList(materialLotList);
-        } else if (CheckMLotRequest.ACTION_TYPE_CHECK.equals(actionTyep)){
-            vanChipService.checkMlotInventorys(requestBody.getDocumentLine(), requestBody.getMaterialLotActionList());
+        } else if (CheckMLotRequest.ACTION_TYPE_RECHECK_MLOT_BY_ORDER.equals(actionTyep)){
+            vanChipService.recheckMLotInventorys(requestBody.getDocumentLine(), requestBody.getMaterialLotActionList());
+
+        } else if (CheckMLotRequest.ACTION_TYPE_GET_RECHECK_MLOT.equals(actionTyep)){
+            List<MaterialLot> materialLotList = vanChipService.getRecheckMLots(requestBody.getDocumentLine());
+
+            responseBody.setMaterialLotList(materialLotList);
+        }else if (CheckMLotRequest.ACTION_TYPE_CHECK_MLOT_BY_ORDER.equals(actionTyep)){
+
+            vanChipService.checkMLotInventorys(requestBody.getDocumentLine(), requestBody.getMaterialLotActionList());
         } else {
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionTyep);
         }

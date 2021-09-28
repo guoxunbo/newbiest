@@ -2,6 +2,7 @@ package com.newbiest.vanchip.rest.erp.order;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
+import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.model.Document;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.DocumentService;
@@ -21,7 +22,7 @@ import java.util.List;
 @RequestMapping("/erp")
 @Slf4j
 @Api(value="/erp", tags="VanChip客制化ERP接口", description = "ERP创建盘点单据接口")
-public class ErpCreateOrderController {
+public class ErpCreateOrderController extends AbstractRestController {
 
     @Autowired
     DocumentService documentService;
@@ -42,6 +43,8 @@ public class ErpCreateOrderController {
             documentService.createCheckOrder(document, materialLotList);
         }else if (ErpCreateOrderRequest.ACTION_TYPE_CREATE_SCRAP_ORDER.equals(actionType)){
             documentService.createScrapOrder(document, materialLotList);
+        }else if (ErpCreateOrderRequest.ACTION_TYPE_DELETE_SCRAP_ORDER.equals(actionType)){
+            documentService.deleteScrapOrder(document);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + actionType);
         }

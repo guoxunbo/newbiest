@@ -19,6 +19,7 @@ public class DocumentHistory extends NBUpdatable {
     public static final String TRANS_TYPE_RETURN = "Return";
     public static final String TRANS_TYPE_STOCK_OUT = "StockOut";
     public static final String TRANS_TYPE_CHECK = "Check";
+    public static final String TRANS_TYPE_SCRAP= "Scrap";
 
     @Column(name="NAME")
     private String name;

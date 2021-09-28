@@ -30,7 +30,7 @@ public class IssueMLotByDocController extends AbstractRestController {
     VanChipService vanChipService;
 
     @ApiOperation(value = "发料,指定物料批次")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "CheckMLotRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "ScrapMLotRequest")
     @RequestMapping(value = "/issueMLotByDoc", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public IssueMLotByDocResponse execute(@RequestBody IssueMLotByDocRequest request) throws Exception {
         IssueMLotByDocResponse response = new IssueMLotByDocResponse();

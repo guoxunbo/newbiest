@@ -275,28 +275,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String incomingLogInfo;
 
     /**
-     * 出货单据主键
+     * 最近一次关联的单据主键
      */
-    @Column(name="SHIP_DOC_RRN")
-    private String shipDocRrn;
+    @Column(name="LAST_DOC_RRN")
+    private String lastDocRrn;
 
     /**
-     * 出货单据Id
+     * 最近一次关联的单据
      */
-    @Column(name="SHIP_DOC_ID")
-    private String shipDocId;
-
-    /**
-     * 出货备注
-     */
-    @Column(name="SHIP_COMMENT")
-    private String shipComment;
-
-    /**
-     * 出货物流信息
-     */
-    @Column(name="SHIP_LOG_INFO")
-    private String shipLogInfo;
+    @Column(name="LAST_DOC_ID")
+    private String lastDocId;
 
     /**
      * 印字信息
@@ -347,7 +335,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String materialProperties;
 
     /**
-     * 次品标识
+     * 次品标识 Y是次品 N是成品 R为RA批次
      */
     @Column(name= "INFERIOR_PRODUCTS_FLAG")
     private String inferiorProductsFlag;
@@ -389,10 +377,22 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private BigDecimal printCount = BigDecimal.ZERO;
 
     /**
-     * 重测标识。重测1、否0
+     * 重测标识。重测Y、否N
      */
     @Column(name= "RETEST_FLAG")
     private String retestFlag;
+
+    /**
+     * RMA类型  RMA自身原因 || RMA非自身原因
+     */
+    @Column(name= "RMA_FLAG")
+    private String rmaFlag;
+
+    /**
+     * 盘点数量
+     */
+    @Column(name= "CHECK_QTY")
+    private BigDecimal checkQty;
 
     /**
      * LotNo
@@ -427,13 +427,13 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved5;
 
     /**
-     * 唯捷生产订单号
+     * 唯捷生产订单号（唯捷测试订单号）
      */
     @Column(name="RESERVED6")
     private String reserved6;
 
     /**
-     * 内部订单编码
+     * 内部订单编码（销售订单）
      */
     @Column(name="RESERVED7")
     private String reserved7;
@@ -481,7 +481,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved14;
 
     /**
-     * 空
+     * 销售订单行项目
      */
     @Column(name="RESERVED15")
     private String reserved15;
@@ -493,7 +493,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved16;
 
     /**
-     * 发货单位
+     * 发货单位（来料工厂）
      */
     @Column(name="RESERVED17")
     private String reserved17;
@@ -511,7 +511,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved19;
 
     /**
-     * PO Number
+     * PO Number(采购订单号)
      */
     @Column(name="RESERVED20")
     private String reserved20;
@@ -541,7 +541,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved24;
 
     /**
-     * 预计送达时间
+     * 客户销售订单号
      */
     @Column(name="RESERVED25")
     private String reserved25;
@@ -667,7 +667,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved45;
 
     /**
-     * 预留字段
+     * 供应商批次
      */
     @Column(name="RESERVED46")
     private String reserved46;
@@ -703,7 +703,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved51;
 
     /**
-     * MRB mes生产过程中产生
+     * MRB mes生产过程中产生(精测MRB)
      */
     @Column(name="RESERVED52")
     private String reserved52;
@@ -715,7 +715,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved53;
 
     /**
-     *客户订单编码
+     *客户订单编码(来料封装订单号)
      */
     @Column(name="RESERVED54")
     private String reserved54;
@@ -751,10 +751,22 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved59;
 
     /**
-     * 采购订单号
+     * 预留字段
      */
     @Column(name="RESERVED60")
     private String reserved60;
+
+    /**
+     * 精测RMA号（精测RMA NO）
+     */
+    @Column(name="RESERVED61")
+    private String reserved61;
+
+    /**
+     * 唯捷RMA号（客户RMA NO）
+     */
+    @Column(name="RESERVED62")
+    private String reserved62;
 
     /**
      * 成品接收传入Unit
@@ -882,6 +894,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         setLastStorageRrn(StringUtils.EMPTY);
         setLastWarehouseId(StringUtils.EMPTY);
         setLastWarehouseRrn(StringUtils.EMPTY);
+    }
+
+    public void setLastDocumentInfo(Document document) {
+        setLastDocRrn(document.getObjectRrn());
+        setLastDocId(document.getName());
     }
 
 }

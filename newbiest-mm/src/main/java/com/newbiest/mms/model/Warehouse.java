@@ -34,6 +34,8 @@ public class Warehouse extends NBUpdatable{
     public static final String WAREHOUSE_TYPE_PARTS = "Parts";
     //RA仓库类型
     public static final String WAREHOUSE_TYPE_RA = "RA";
+    //RMA来料仓库类型
+    public static final String WAREHOUSE_TYPE_RMA = "RMA";
 
     @Column(name="NAME")
     private String name;

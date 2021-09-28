@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, String> {
 
-    List<MaterialLotUnit> findByMaterialLotIdIn(List<String> boxMaterialLotIds);
+    List<MaterialLotUnit> findByMaterialLotIdIn(List<String> materialLotIds);
 
     List<MaterialLotUnit> findByMaterialLotId(String materialLotId);
 

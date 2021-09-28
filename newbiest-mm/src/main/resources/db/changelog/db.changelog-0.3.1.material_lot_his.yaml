@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.3.1
+      author: Tao Zhou
+      remarks: mms_material_lot_his raname columnNames ship_doc_id and ship_doc_rrn; drop column ship_comment,ship_log_info
+      changes:
+        - renameColumn:
+            newColumnName: LAST_DOC_RRN
+            oldColumnName: SHIP_DOC_RRN
+            remarks: 最近一次关联的单据主键
+            tableName: MMS_MATERIAL_LOT_HIS
+        - renameColumn:
+            newColumnName: LAST_DOC_ID
+            oldColumnName: SHIP_DOC_ID
+            remarks: 最近一次关联的单据号
+            tableName: MMS_MATERIAL_LOT_HIS
+        - dropColumn:
+            columnName: SHIP_LOG_INFO
+            tableName: MMS_MATERIAL_LOT_HIS
+        - dropColumn:
+            columnName: SHIP_COMMENT
+            tableName: MMS_MATERIAL_LOT_HIS

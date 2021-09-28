@@ -28,6 +28,12 @@ public class PrintExcelRequest extends Request {
 	@ApiModelProperty(value = "装箱清单打印 和 coc标签打印")
 	public static final String ACTION_PRINT_PACKING_LIST_AND_COC = "PrintPackingListAndCoc";
 
+	@ApiModelProperty(value = "发货单通知单打印")
+	public static final String ACTION_PRINT_DELIVERY_ORDER = "PrintDeliveryOrder";
+
+	@ApiModelProperty(value = "打印退供应商单据和报废单据")
+	public static final String ACTION_PRINT_RS_AND_SCRAP_ORDER = "PrintRSAndScrapOrder";
+
 	private PrintExcelRequestBody body;
 
 }

@@ -1,1 +1,19 @@
-您好：单据号为[${parameterMap.documentId}],有待Release的ReelCode,具体的ReelNo为[${parameterMap.reelNo}]
+<!DOCTYPE html>
+<html>
+<head>
+	<title>RMA</title>
+</head>
+<body>
+    <h4>交货单号:${documentId}</h4>
+	<table border="1" cellpadding="0">
+		<tbody>
+			<tr>
+				<td>Reel NO</td>
+				<td>数量</td>
+				<td>仓库</td>
+			</tr>
+			${value}
+		</tbody>
+	</table>
+</body>
+</html>

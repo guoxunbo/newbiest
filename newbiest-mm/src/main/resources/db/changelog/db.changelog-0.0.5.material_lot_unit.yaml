@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.0.5
+      author: Tao Zhou
+      remarks: mms_material_lot_unit add column reserved7,reserved8,reserved9,reserved10,reserved11
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: RESERVED7
+                  type: varchar(64)
+                  remarks: 测试机台
+              - column:
+                  name: RESERVED8
+                  type: varchar(64)
+                  remarks: 测试程序
+              - column:
+                  name: RESERVED9
+                  type: varchar(64)
+                  remarks: Handler型号
+              - column:
+                  name: RESERVED10
+                  type: varchar(64)
+                  remarks: 来料工厂
+              - column:
+                  name: RESERVED11
+                  type: varchar(64)
+                  remarks: 客户

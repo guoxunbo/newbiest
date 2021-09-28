@@ -9,13 +9,13 @@ import java.util.UUID;
 @Data
 public class DeliveryStatusRequest extends ErpRequest {
 
-    private String GUID;
+    private String guid;
 
     private List<DeliveryStatusRequestHeader> data;
 
     private List<DeliveryStatusRequestItem> item;
 
     public DeliveryStatusRequest(){
-        this.GUID = "WMS" + UUID.randomUUID().toString();
+        this.guid = "WMS" + UUID.randomUUID().toString();
     }
 }

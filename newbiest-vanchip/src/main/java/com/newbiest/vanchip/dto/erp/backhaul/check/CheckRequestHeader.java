@@ -1,11 +1,13 @@
 package com.newbiest.vanchip.dto.erp.backhaul.check;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.newbiest.vanchip.dto.erp.ErpRequestHeader;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@JsonAutoDetect(fieldVisibility= JsonAutoDetect.Visibility.ANY,getterVisibility= JsonAutoDetect.Visibility.NONE)
 public class CheckRequestHeader extends ErpRequestHeader {
 
     /**
@@ -17,6 +19,12 @@ public class CheckRequestHeader extends ErpRequestHeader {
      * 建单日期
      */
     private String BLDAT;
+
+    /**
+     * 仓库代码
+     */
+    private String LGORT;
+
 
     private String FIELD1;
     private String FIELD2;

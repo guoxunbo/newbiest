@@ -2,12 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: mms_document_mlot_0.0.3
       author: Tao Zhou
-      remarks: mms_document_mlot add column materialLotLockVersion
+      remarks: mms_document_mlot add column ITEM_ID
       changes:
         - addColumn:
-            tableName: MATERIAL_LOT_LOCK_VERSION
+            tableName: MMS_DOCUMENT_MLOT
             columns:
               - column:
-                  name: MATERIAL_LOT_LOCK_VERSION
+                  name: ITEM_ID
                   type: varchar2(64)
-                  remarks: 物料批次版本
+                  remarks: 行号
