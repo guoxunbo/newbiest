@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_update_nb_table_table_rrn.0.1
+      author: Youqing Huang
+      comment: add update_nb_table table_rrn
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/update_nb_table_0.0.1.sql
