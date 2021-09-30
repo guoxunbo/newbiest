@@ -1,4 +1,4 @@
-package com.newbiest.gc.model;
+package com.newbiest.mms.model;
 
 import com.newbiest.base.model.NBUpdatable;
 import lombok.Data;
