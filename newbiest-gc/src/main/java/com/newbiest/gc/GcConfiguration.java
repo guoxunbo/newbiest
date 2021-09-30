@@ -66,7 +66,7 @@ public class GcConfiguration {
         ModelFactory.registerModelClassLoader(NBQuery.class.getName(), NBQuery.class.getClassLoader());
         ModelFactory.registerModelClassLoader(NBAuthority.class.getName(), NBAuthority.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GcUnConfirmWaferSet.class.getName(), GcUnConfirmWaferSet.class.getClassLoader());
-        ModelFactory.registerModelClassLoader(GCFutureHoldConfig.class.getName(), GCFutureHoldConfig.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(FutureHoldConfig.class.getName(), FutureHoldConfig.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCVenderAddressRelation.class.getName(),GCVenderAddressRelation.class.getClassLoader());
         ModelFactory.registerModelClassLoader(WaferHoldRelation.class.getName(),WaferHoldRelation.class.getClassLoader());
 
@@ -107,8 +107,8 @@ public class GcConfiguration {
         ModelFactory.registerHistoryModelClassLoader(GcUnConfirmWaferSet.class.getName(), GCUnConfirmWaferSetHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(GcUnConfirmWaferSet.class.getName(), GCUnConfirmWaferSetHis.class.getName());
 
-        ModelFactory.registerHistoryModelClassLoader(GCFutureHoldConfig.class.getName(), GCFutureHoldConfigHis.class.getClassLoader());
-        ModelFactory.registerHistoryClassName(GCFutureHoldConfig.class.getName(), GCFutureHoldConfigHis.class.getName());
+        ModelFactory.registerHistoryModelClassLoader(FutureHoldConfig.class.getName(), FutureHoldConfigHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(FutureHoldConfig.class.getName(), FutureHoldConfigHis.class.getName());
 
     }
 }

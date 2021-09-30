@@ -41,8 +41,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.newbiest.mms.exception.MmsException.MATERIAL_LOT_IS_HOLD_BY_SCM;
-
 /**
  * Created by guoxunbo on 2019/2/13.
  */
@@ -109,6 +107,12 @@ public class MmsServiceImpl implements MmsService {
 
     @Autowired
     MaterialLotHoldInfoRepository materialLotHoldInfoRepository;
+
+    @Autowired
+    WaferHoldRelationRepository waferHoldRelationRepository;
+
+    @Autowired
+    FutureHoldConfigRepository futureHoldConfigRepository;
 
     /**
      * 根据名称获取源物料。
@@ -1123,6 +1127,50 @@ public class MmsServiceImpl implements MmsService {
             history.setCreated(materialLot.getCreated());
             materialLotHistoryRepository.save(history);
             return materialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据LotId验证物料批次是否需要预约Hold操作
+     * @param lotId
+     * @throws ClientException
+     */
+    public void validateFutureHoldByLotId(String lotId) throws ClientException{
+        try {
+            List<FutureHoldConfig> futureHoldConfigList = futureHoldConfigRepository.getByLotIdLike(lotId + "%");
+            if (CollectionUtils.isNotEmpty(futureHoldConfigList)){
+                for(FutureHoldConfig futureHoldConfig : futureHoldConfigList){
+                    MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(futureHoldConfig.getLotId(), MaterialLot.STATUS_FIN);
+                    if(materialLot != null && MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
+                        MaterialLotAction materialLotAction = new MaterialLotAction();
+                        materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
+                        holdMaterialLot(materialLot, materialLotAction);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据 waferId(unitId) 和 materialLot 验证物料批次是否需要预约Hold操作
+     * @param waferId
+     * @param materialLot
+     * @throws ClientException
+     */
+    @Override
+    public void validateFutureHoldByWaferId(String waferId, MaterialLot materialLot) throws ClientException {
+        try {
+            WaferHoldRelation waferHoldRelation = waferHoldRelationRepository.findByWaferId(waferId);
+            materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+            if (waferHoldRelation != null && MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())) {
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setActionReason(waferHoldRelation.getHoldReason());
+                holdMaterialLot(materialLot, materialLotAction);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
