@@ -3067,12 +3067,16 @@ public class GcServiceImpl implements GcService {
                     }
                     String workOrderId = materialLot.getWorkOrderId();
                     String grade = materialLot.getGrade();
-                    GCWorkorderRelation workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGrade(workOrderId, grade);
+                    String boxId = materialLot.getMaterialLotId();
+                    GCWorkorderRelation workorderRelation = workorderRelationRepository.findByBoxIdAndWorkOrderIdIsNullAndGradeIsNull(boxId);
                     if(workorderRelation == null){
-                        workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNull(workOrderId);
+                        workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNullAndBoxIdIsNull(workOrderId);
                     }
                     if(workorderRelation == null){
-                        workorderRelation = workorderRelationRepository.findByGradeAndWorkOrderIdIsNull(grade);
+                        workorderRelation = workorderRelationRepository.findByGradeAndWorkOrderIdIsNullAndBoxIdIsNull(grade);
+                    }
+                    if(workorderRelation == null) {
+                        workorderRelation = workorderRelationRepository.findByBoxIdAndWorkOrderIdAndGrade(boxId, workOrderId, grade);
                     }
                     if(workorderRelation != null){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
@@ -8340,7 +8344,7 @@ public class GcServiceImpl implements GcService {
 
     public GCWorkorderRelation saveWorkorderGradeHoldInfo(GCWorkorderRelation workorderRelation, String transType) throws ClientException{
         try {
-            GCWorkorderRelation oldWorkorderRelation = workorderRelationRepository.findByWorkOrderIdAndGrade(workorderRelation.getWorkOrderId(), workorderRelation.getGrade());
+            GCWorkorderRelation oldWorkorderRelation = workorderRelationRepository.findByBoxIdAndWorkOrderIdAndGrade(workorderRelation.getBoxId(), workorderRelation.getWorkOrderId(), workorderRelation.getGrade());
             if(NBHis.TRANS_TYPE_CREATE.equals(transType)){
                 if(oldWorkorderRelation == null){
                     workorderRelation = workorderRelationRepository.saveAndFlush(workorderRelation);

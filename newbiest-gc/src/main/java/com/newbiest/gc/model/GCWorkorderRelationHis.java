@@ -35,4 +35,10 @@ public class GCWorkorderRelationHis extends NBHis {
     @Column(name="HOLD_REASON")
     private String holdReason;
 
+    /**
+     * 包装盒号
+     */
+    @Column(name = "BOX_ID")
+    private String boxId;
+
 }
