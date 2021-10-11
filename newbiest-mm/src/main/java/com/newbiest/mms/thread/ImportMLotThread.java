@@ -18,8 +18,6 @@ import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.utils.CollectorsUtils;
 import com.newbiest.msg.ResponseHeader;
 import lombok.Data;
-import org.hibernate.Session;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +112,14 @@ public class ImportMLotThread implements Callable {
             propsMap.put("productType",productType);
 
             MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap, currentSubQty);
+
+            if (MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49())) {
+                mmsService.validateFutureHoldByLotId(materialLot.getLotId());
+            }
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                if (MaterialLot.IMPORT_WLA.equals(materialLotUnit.getReserved49())) {
+                    mmsService.validateFutureHoldByWaferId(materialLotUnit.getUnitId(), materialLot);
+                }
                 if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                     materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                 }

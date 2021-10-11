@@ -142,6 +142,86 @@ public class PrintServiceImpl implements PrintService {
         }
     }
 
+    /**
+     * 补打COB虚拟重测箱标签
+     * @param materialLot
+     * @param printCount
+     * @param printType
+     * @throws ClientException
+     */
+    @Override
+    public void printCobRetestLabel(MaterialLot materialLot, String printCount, String printType) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WAFER_LOT_LABEL, printCount);
+            Map<String, Object> parameterMap = buildWaferCstAndLotPrintParameter(materialLot, printType);
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 打印wafer拆箱  lotId和cstId的标签
+     * @param materialLotList
+     * @throws ClientException
+     */
+    @Override
+    public void printWaferCstAndLotLabel(List<MaterialLot> materialLotList) throws ClientException {
+        try {
+            for (MaterialLot materialLot : materialLotList) {
+                PrintContext lotPrintContext = buildPrintContext(LabelTemplate.PRINT_WAFER_LOT_LABEL, "1");
+                Map<String, Object> lotParameterMap = buildWaferCstAndLotPrintParameter(materialLot, "");
+                lotPrintContext.setBaseObject(materialLot);
+                lotPrintContext.setParameterMap(lotParameterMap);
+                print(lotPrintContext);
+
+                PrintContext cstPrintContext = buildPrintContext(LabelTemplate.PRINT_WAFER_LOT_LABEL, "2");
+                Map<String, Object> cstParameterMap = buildWaferCstAndLotPrintParameter(materialLot, "PRINT_LOT");
+                cstPrintContext.setBaseObject(materialLot);
+                cstPrintContext.setParameterMap(cstParameterMap);
+                print(cstPrintContext);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Map<String, Object> buildWaferCstAndLotPrintParameter(MaterialLot materialLot, String type) throws ClientException {
+        try {
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("deviceID", materialLot.getMaterialName());
+            if ("PRINT_LOT".equals(type)) {
+                parameterMap.put("boxID",materialLot.getDurable());
+            } else {
+                parameterMap.put("boxID",materialLot.getLotId());
+            }
+            parameterMap.put("frameQty", materialLot.getCurrentSubQty().toString());
+            parameterMap.put("location", materialLot.getReserved6());
+            parameterMap.put("subCode", materialLot.getReserved1() + materialLot.getGrade());
+            parameterMap.put("cstID", materialLot.getDurable());
+            parameterMap.put("chipNum", materialLot.getCurrentQty().toString());
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+
+            if (CollectionUtils.isNotEmpty(materialLotUnitList)) {
+                for (int i = 1; i <  materialLotUnitList.size() + 1; i++) {
+                    parameterMap.put("frameID" + i, materialLotUnitList.get(i - 1).getUnitId());
+                    parameterMap.put("chipQty" + i, materialLotUnitList.get(i - 1).getCurrentQty());
+                }
+                if (materialLotUnitList.size() < 13) {
+                    for (int i = materialLotUnitList.size() + 1; i < 14 ; i++) {
+                        parameterMap.put("frameID" + i, StringUtils.EMPTY);
+                        parameterMap.put("chipQty" + i, StringUtils.EMPTY);
+                    }
+                }
+            }
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     @Override
     public void printReceiveWltCpLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException {
         try {

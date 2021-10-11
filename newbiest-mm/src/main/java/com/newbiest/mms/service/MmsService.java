@@ -14,6 +14,9 @@ import java.util.Map;
  */
 public interface MmsService {
 
+    void validateFutureHoldByLotId(String lotId) throws ClientException;
+    void validateFutureHoldByWaferId(String waferId, MaterialLot materialLot) throws ClientException;
+
     // rawMaterial
     Material createRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;

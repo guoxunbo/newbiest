@@ -76,6 +76,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String TAPE_MATERIAL_LOT_ID_RULE = "CreateTapeLotId";
 
     /**
+     * wafer拆箱的lotId生成规则
+     */
+    public static final String CREATE_WAFER_LOT_ID_RULE = "CreateWaferLotId";
+
+    /**
+     * wafer拆箱的cstId生成规则
+     */
+    public static final String CREATE_WAFER_CST_ID_RULE = "CreateWaferCstId";
+
+    /**
      * 手动快递下单
      */
     public static final String PLAN_ORDER_TYPE_MANUAL  = "ManualOrder";
@@ -190,6 +200,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String IMPORT_COG = "COG";
     public static final String IMPORT_SOC = "SOC";
     public static final String IMPORT_FT = "FT";
+    public static final String IMPORT_MASK = "MASK";
 
     /**
      * Wafer Source
@@ -215,6 +226,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String CP_CHANGGE_RW_WAFER_SOURCE = "21";
     public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
     public static final String SOC_WAFER_SOURCE_MEASURE = "14";
+    public static final String MASK_WAFER_SOURCE = "99";
 
     /**
      * 根据产品结尾数字获取WaferSource

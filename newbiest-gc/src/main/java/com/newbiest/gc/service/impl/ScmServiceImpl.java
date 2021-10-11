@@ -13,10 +13,10 @@ import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.gc.GcExceptions;
-import com.newbiest.gc.model.GCFutureHoldConfig;
-import com.newbiest.gc.model.GCFutureHoldConfigHis;
-import com.newbiest.gc.repository.GCFutureHoldConfigHisRepository;
-import com.newbiest.gc.repository.GCFutureHoldConfigRepository;
+import com.newbiest.mms.model.FutureHoldConfig;
+import com.newbiest.mms.model.FutureHoldConfigHis;
+import com.newbiest.mms.repository.FutureHoldConfigHisRepository;
+import com.newbiest.mms.repository.FutureHoldConfigRepository;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequest;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
 import com.newbiest.gc.service.ScmService;
@@ -136,10 +136,10 @@ public class ScmServiceImpl implements ScmService {
     InterfaceHistoryRepository interfaceHistoryRepository;
 
     @Autowired
-    GCFutureHoldConfigRepository gcFutureHoldConfigRepository;
+    FutureHoldConfigRepository futureHoldConfigRepository;
 
     @Autowired
-    GCFutureHoldConfigHisRepository gcFutureHoldConfigHisRepository;
+    FutureHoldConfigHisRepository futureHoldConfigHisRepository;
 
     @PostConstruct
     public void init() {
@@ -160,15 +160,15 @@ public class ScmServiceImpl implements ScmService {
                 List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
                 if (CollectionUtils.isEmpty(materialLotList)) {
                     // 不存在 则做预Hold
-                    GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(lotId);
+                    FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
                     if(gcFutureHoldConfig == null){
-                        gcFutureHoldConfig = new GCFutureHoldConfig();
+                        gcFutureHoldConfig = new FutureHoldConfig();
                         gcFutureHoldConfig.setLotId(lotId);
                         gcFutureHoldConfig.setHoldReason(actionReason);
-                        gcFutureHoldConfigRepository.save(gcFutureHoldConfig);
+                        futureHoldConfigRepository.save(gcFutureHoldConfig);
 
-                        GCFutureHoldConfigHis history = (GCFutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, GCFutureHoldConfigHis.SCM_ADD);
-                        gcFutureHoldConfigHisRepository.save(history);
+                        FutureHoldConfigHis history = (FutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, FutureHoldConfigHis.SCM_ADD);
+                        futureHoldConfigHisRepository.save(history);
                     } else {
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, lotId);
                     }
@@ -192,14 +192,14 @@ public class ScmServiceImpl implements ScmService {
         for (String lotId : materialLotIdList) {
             List<MaterialLot> materialLots = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
             if (CollectionUtils.isEmpty(materialLots)) {
-                GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(lotId);
+                FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
                 if(gcFutureHoldConfig == null){
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
                 } else {
-                    gcFutureHoldConfigRepository.delete(gcFutureHoldConfig);
+                    futureHoldConfigRepository.delete(gcFutureHoldConfig);
 
-                    GCFutureHoldConfigHis history = (GCFutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, GCFutureHoldConfigHis.SCM_DELETE);
-                    gcFutureHoldConfigHisRepository.save(history);
+                    FutureHoldConfigHis history = (FutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, FutureHoldConfigHis.SCM_DELETE);
+                    futureHoldConfigHisRepository.save(history);
                 }
             } else {
                 for(MaterialLot materialLot : materialLots){
