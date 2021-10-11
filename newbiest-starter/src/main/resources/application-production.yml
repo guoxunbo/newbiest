@@ -23,7 +23,7 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@10.181.160.25:1521:MESDB1
+      url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 10.181.160.22)(PORT = 1521))(ADDRESS = (PROTOCOL = TCP)(HOST = 10.181.160.24)(PORT = 1521))(LOAD_BALANCE = yes)(FAILOVER = yes)(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = MESDB1)(FAILOVER_MODE=(TYPE = SELECT)(METHOD = BASIC)(RETIRES = 180)(DELAY = 15))))
       username: wmsprod
       password: wmsprod
       driver-class-name: oracle.jdbc.OracleDriver
