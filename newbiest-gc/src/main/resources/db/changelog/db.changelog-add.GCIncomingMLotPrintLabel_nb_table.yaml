@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCIncomingMLotPrintLabel_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCIncomingMLotPrintLabel to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCIncomingMLotPrintLabel
+              description: 来料打印标签
+              tableName: MMS_MATERIAL_LOT_UNIT
+              modelName: MaterialLotUnit
+              modelClass: com.newbiest.mms.model.MaterialLotUnit
+              labelZh: 来料打印标签
+              label: IncomingMLotPrintLabel

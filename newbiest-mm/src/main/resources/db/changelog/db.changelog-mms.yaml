@@ -743,3 +743,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.CobRetestLabelAndMakeUp.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCIncomingMLotPrintLabel.nb_authority.yaml
+      relativeToChangelogFile: true
