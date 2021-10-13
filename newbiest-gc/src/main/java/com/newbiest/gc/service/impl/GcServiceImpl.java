@@ -4662,6 +4662,7 @@ public class GcServiceImpl implements GcService {
                     materialLotAction.setGrade(mesPackedLot.getGrade());
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
                     materialLotAction.setSourceModelId(mesPackedLot.getProductId());
+                    materialLotAction.setReturnMaterialFlag(mesPackedLot.getInFlag());
 
                     // 产地是空的话则是ZJ仓库
                     String warehouseName = WAREHOUSE_ZJ;
@@ -4746,8 +4747,10 @@ public class GcServiceImpl implements GcService {
                 }
                 List<MaterialLot> materialLots = mmsService.receiveMLotList2Warehouse(material, materialLotActions);
 
-                for(MaterialLot materialLot : materialLots){
-                    if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6())){
+                //退料入库的物料批次不需要转仓库
+                for(MaterialLotAction materialLotAction : materialLotActions){
+                    MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotAction.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                    if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6()) && !MesPackedLot.IN_FLAG_ONE.equals(materialLotAction.getReturnMaterialFlag())){
                         Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_SH);
                         materialLotTransferWareHouse(materialLot, MaterialLot.LOCATION_SH, warehouse);
                     }

@@ -81,4 +81,9 @@ public class MaterialLotAction extends Action {
      */
     private String sourceModelId;
 
+    /**
+     * RW退料入库标记
+     */
+    private String returnMaterialFlag;
+
 }
