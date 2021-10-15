@@ -539,6 +539,10 @@ public class ScmServiceImpl implements ScmService {
             List<Map<String, String>> reportDataList = Lists.newArrayList();
             for (MaterialLot materialLot : materialLots) {
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("scm reportStatus materialLotId is [%s]", materialLot.getMaterialLotId()));
+                    log.debug(String.format("scm report materialLot status materialLotUnitList is [%s]", materialLotUnitList));
+                }
                 for(MaterialLotUnit materialLotUnit: materialLotUnitList){
                     Map<String, String> reportData = Maps.newHashMap();
                     reportData.put("lotId", materialLotUnit.getLotId());
@@ -546,6 +550,9 @@ public class ScmServiceImpl implements ScmService {
                     reportData.put("waferId", waferId);
                     reportDataList.add(reportData);
                 }
+            }
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("report materialLot state reportDataList is [%s]", reportDataList));
             }
             requestBody.setActionType(action);
             requestBody.setMaterialLotList(reportDataList);

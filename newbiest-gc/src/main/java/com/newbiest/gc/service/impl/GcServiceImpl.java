@@ -4483,6 +4483,7 @@ public class GcServiceImpl implements GcService {
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
 
             if(CollectionUtils.isNotEmpty(scmReportHoldMLotList)){
+                log.info("scmReportHold MLotList is -----> " + scmReportHoldMLotList);
                 scmService.sendMaterialStateReport(scmReportHoldMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
             }
 
