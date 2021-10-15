@@ -148,6 +148,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String MOBILE_RETEST_WHERE_CLAUSE = "GCReTestManager";
     public static final String MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE = "GCWltOrCpStockOutOrder";
     public static final String MOBILE_COM_WAFER_ISSUE_MANAGER_WHERE_CLAUSE = "GCCOMWaferIssueManager";
+    public static final String GC_SCM_LOT_QUERY_WHERE_CLAUSE = "GCScmLotQuery";
 
     /**
      * 香港仓依订单出货
@@ -224,8 +225,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
     public static final String RAW_MATERIAL_WAFER_SOURCE = "60";
     public static final String CP_CHANGGE_RW_WAFER_SOURCE = "21";
-    public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
-    public static final String SOC_WAFER_SOURCE_MEASURE = "14";
+    public static final String SOC_WAFER_SOURCE_UNMEASUREN = "1";
+    public static final String SOC_WAFER_SOURCE_MEASURE = "2";
     public static final String MASK_WAFER_SOURCE = "99";
 
     /**
