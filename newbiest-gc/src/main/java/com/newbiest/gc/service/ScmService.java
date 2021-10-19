@@ -6,6 +6,7 @@ import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 连接SCM的服务相关
@@ -15,6 +16,8 @@ import java.util.List;
 public interface ScmService {
 
     void retry() throws ClientException;
+
+    List<Map<String, String>> scmLotQuery(List<Map<String, String>> lotIdList) throws ClientException;
 
     void scmHold(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException;
     void scmRelease(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException;

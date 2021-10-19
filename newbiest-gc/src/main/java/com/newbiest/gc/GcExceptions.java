@@ -95,6 +95,7 @@ public class GcExceptions {
     public static final String IRA_RAW_MATERIAL_BOX_ID_CANNOT_EMPTY = "gc.ira_raw_material_box_id_cannot_empty";
     public static final String IRA_RAW_MATERIAL_BOX_ID_IS_EXISTS = "gc.ira_raw_material_box_id_is_exists";
     public static final String TAPE_MATERIAL_LOT_ID_IS_REPEAT = "gc.tape_material_lot_id_is_repeat";
+    public static final String LOT_ID_IS_NOT_EXIST = "gc.lot_id_is_not_exist";
     public static final String RAW_MATERIAL_WARNING_LIFE_TIME_IS_NOT_SET = "gc.raw_material_warning_life_time_is_not_set";
     public static final String RAW_MATERIAL_LOT_EXPDATE_LESS_THAN_WARNING_LIFE = "gc.raw_material_lot_expdate_less_than_warning_life";
     public static final String IRA_MATERIAL_LOT_BOX_MUST_SATRT_WITH_GCB = "gc.ira_material_lot_box_must_start_with_GCB";

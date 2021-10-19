@@ -349,6 +349,43 @@ public class ScmServiceImpl implements ScmService {
     }
 
     /**
+     * scm 来料批次查询
+     * @param lotIdList
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public List<Map<String, String>> scmLotQuery(List<Map<String, String>> lotIdList) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.GC_SCM_LOT_QUERY_WHERE_CLAUSE);
+            String whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+
+            List<Map<String, String>> materialLots = Lists.newArrayList();
+            for (Map<String, String> lotIdMap : lotIdList) {
+                String lotId = lotIdMap.get("lotId");
+                if (!StringUtils.isNullOrEmpty(lotId)) {
+                    StringBuffer clauseBuffer = new StringBuffer(whereClause);
+                    clauseBuffer.append(" and lot_id = '" + lotId + "'");
+                    List<MaterialLot> mLotList = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), clauseBuffer.toString(), orderBy);
+                    if (CollectionUtils.isNotEmpty(mLotList)) {
+                        Map<String, String> mLotMap = Maps.newHashMap();
+                        mLotMap.put("lotId", mLotList.get(0).getLotId());
+                        mLotMap.put("boxId", mLotList.get(0).getParentMaterialLotId() == null ? StringUtils.EMPTY : mLotList.get(0).getParentMaterialLotId());
+                        mLotMap.put("waferCount", mLotList.get(0).getCurrentSubQty().toString());
+                        materialLots.add(mLotMap);
+                    } else {
+                        throw new ClientParameterException(GcExceptions.LOT_ID_IS_NOT_EXIST, lotId);
+                    }
+                }
+            }
+            return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 做接口的重试x
      */
     public void retry() throws ClientException{
