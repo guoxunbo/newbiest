@@ -1,12 +1,14 @@
 package com.newbiest.vanchip.dto.erp.incoming;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.google.common.collect.Maps;
 import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Data
 @JsonAutoDetect(fieldVisibility= JsonAutoDetect.Visibility.ANY,getterVisibility= JsonAutoDetect.Visibility.NONE)
@@ -49,10 +51,10 @@ public class IncomingResponseItem implements Serializable {
     private String VGPOS;
 
     @ApiModelProperty("供应商批次")
-    private String LICHN;
+    private String LICHN;//字段不同步
 
     @ApiModelProperty("生产日期")
-    private String HSDAT;
+    private String HSDAT;//字段不同步
 
     @ApiModelProperty("总货架寿命")
     private String MHDHB;
@@ -95,12 +97,21 @@ public class IncomingResponseItem implements Serializable {
         materialLot.setReserved49(item.getLFIMG());
         materialLot.setReserved50(item.getVRKME());
         materialLot.setReserved20(item.getVGBEL());
-        //materialLot.setReserved60(item.getVGBEL());
         materialLot.setReserved59(item.getVGPOS());
-
-        materialLot.setMaterialLotId(item.getLICHN());
-
-        //生产日期
         return materialLot;
+    }
+
+    public Map<String, Object> convertMLotMap(){
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("incomingDocId", VBELN);
+        map.put("itemId", POSNR);
+        map.put("materialName", MATNR);
+        map.put("currentQty", LGMNG);
+        map.put("incomingQty", LGMNG);
+        map.put("reserved49", LFIMG);
+        map.put("reserved50", VRKME);
+        map.put("reserved20", VGBEL);
+        map.put("reserved59", VGPOS);
+        return map;
     }
 }

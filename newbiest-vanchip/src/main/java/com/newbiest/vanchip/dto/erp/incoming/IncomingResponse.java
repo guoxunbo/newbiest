@@ -14,4 +14,6 @@ public class IncomingResponse extends ErpResponse {
 
     private List<IncomingResponseItem> Item;
 
+    private String Status;
+
 }

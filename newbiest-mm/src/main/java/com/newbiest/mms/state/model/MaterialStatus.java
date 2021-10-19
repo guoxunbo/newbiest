@@ -29,6 +29,7 @@ public class MaterialStatus extends Status{
     public static final String STATUS_NG = "NG";
 
     public static final String STATUS_PACKAGE= "Package";
+    public static final String STATUS_UNPACKAGE= "UnPackage";
 
     public static final String STATUS_PACK_CHECK= "PackCkeck";
 

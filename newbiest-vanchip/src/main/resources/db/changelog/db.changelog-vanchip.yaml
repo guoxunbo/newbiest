@@ -74,3 +74,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-vc-0.1.4.comments.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-customer_product.yaml
+      relativeToChangelogFile: true

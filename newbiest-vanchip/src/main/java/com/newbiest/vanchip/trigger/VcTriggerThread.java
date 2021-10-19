@@ -16,14 +16,17 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public abstract class VcTriggerThread implements Runnable{
 
+    private static final Long ORG_RRN = 1L;
+
     protected VanChipService vanChipService;
 
-    private static final Long ORG_RRN = 1L;
+    public String messageName;
 
     @Override
     public void run() {
         generatorThreadLocalContext();
         execute();
+        ThreadLocalContext.remove();
     }
 
     public abstract void execute();
@@ -32,8 +35,12 @@ public abstract class VcTriggerThread implements Runnable{
         try {
             ThreadLocalContext threadLocalContext = new ThreadLocalContext();
             TriggerRequest triggerRequest = new TriggerRequest();
-            triggerRequest.setHeader(new TriggerRequestHeader());
+            triggerRequest.setHeader(new TriggerRequestHeader(messageName));
+
             String requestString = DefaultParser.getObjectMapper().writeValueAsString(triggerRequest);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Vanchip Trigger Thread. TriggerRequestString is [%s]", requestString));
+            }
             threadLocalContext.putRequest(requestString,"","", Maps.newHashMap());
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);

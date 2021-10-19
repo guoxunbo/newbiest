@@ -282,6 +282,8 @@ public class MmsServiceImpl implements MmsService {
 
             if (materialLot.getCurrentQty().compareTo(materialLot.getReservedQty()) == 0) {
                 //全部退料 批次结束
+                materialLot.setCurrentQty(BigDecimal.ZERO);
+                materialLot.setReservedQty(BigDecimal.ZERO);
                 materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RETURN, MaterialStatus.STATUS_RETURN);
                 baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_RETURN, materialLotAction);
             } else {
@@ -375,6 +377,7 @@ public class MmsServiceImpl implements MmsService {
     public MaterialLot splitMLot(String parentMaterialLotId, MaterialLotAction materialLotAction, String generatorSubMLotIdRule) throws ClientException {
         try {
             MaterialLot parentMaterialLot = getMLotByMLotId(parentMaterialLotId, true);
+            parentMaterialLot.validateMLotHold();
             BigDecimal splitQty = materialLotAction.getTransQty();
             if (parentMaterialLot.getCurrentQty().compareTo(splitQty) <= 0) {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_QTY_CANT_LESS_THEN_ZERO);
@@ -1161,7 +1164,9 @@ public class MmsServiceImpl implements MmsService {
             mLotCheckSheet.setCheckResult(materialLotAction.getActionCode());
 
             if (CheckSheet.CATEGORY_OQC.equals(mLotCheckSheet.getSheetCategory())){
-                mLotCheckSheet.setStatus(MLotCheckSheet.STATUS_CLOSE);
+                if (MaterialStatus.STATUS_OK.equals(materialLotAction.getActionCode())){
+                    mLotCheckSheet.setStatus(MLotCheckSheet.STATUS_CLOSE);
+                }
             } else if (CheckSheet.CATEGORY_IQC.equals(mLotCheckSheet.getSheetCategory())){
                 //iqc 需审核
                 mLotCheckSheet.setStatus(MLotCheckSheet.STATUS_IN_APPROVAL);
@@ -1643,14 +1648,11 @@ public class MmsServiceImpl implements MmsService {
                 return;
             }
             //RA品前面3位 'RA-'
-            if (materialLotId.length() >= 3){
-                String raFlag = materialLotId.substring(0, 3);
-                if ("RA-".equals(raFlag)){
-                    if (!Warehouse.WAREHOUSE_TYPE_RA.equals(targetWarehouse.getWarehouseType())){
-                        throw new ClientParameterException(MmsException.MM_TARGET_WAREHOUSE_IS_NOT_APPOINT_WAREHOUSE, targetWarehouse.getName());
-                    }
-                    return;
+            if ("R".equals(materialLot.getInferiorProductsFlag())){
+                if (!Warehouse.WAREHOUSE_TYPE_RA.equals(targetWarehouse.getWarehouseType())){
+                    throw new ClientParameterException(MmsException.MM_TARGET_WAREHOUSE_IS_NOT_APPOINT_WAREHOUSE, targetWarehouse.getName());
                 }
+                return;
             }
 
             if (!targetWarehouse.getName().equals(material.getWarehouseName())) {

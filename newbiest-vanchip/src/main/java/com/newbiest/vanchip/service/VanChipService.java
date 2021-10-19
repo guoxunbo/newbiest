@@ -94,6 +94,8 @@ public interface VanChipService {
     void preWarning() throws ClientException;
 
     Parts saveParts(Parts parts) throws ClientException;
+
+    void sendMLotInvByErp(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     void checkMLotInventorys(DocumentLine documentLine,List<MaterialLotAction> materialLotActions) throws ClientException;
     void recheckMLotInventorys(DocumentLine documentLine,List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLot> getRecheckMLots(DocumentLine documentLine)throws ClientException;
@@ -118,4 +120,10 @@ public interface VanChipService {
     void returnMLotByDocLine(String documentId, List<MaterialLot> materialLotList) throws ClientException;
     void scrapMLot(String docId, List<MaterialLot> materialLotList)throws ClientException;
     void updateProductionDate(String materialLotId, String iclDateValue) throws ClientException;
+
+    void sendMailByPackingList() throws ClientException;
+    void asyncIncomingOrReturn() throws ClientException;
+    void asyncDeliveryInfo() throws ClientException;
+
+    DocumentLine deleteDeliveryOrder(String deliveryOrderLineId) throws ClientException;
 }

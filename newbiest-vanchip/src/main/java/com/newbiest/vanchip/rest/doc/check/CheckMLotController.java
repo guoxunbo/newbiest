@@ -50,7 +50,10 @@ public class CheckMLotController extends AbstractRestController {
         }else if (CheckMLotRequest.ACTION_TYPE_CHECK_MLOT_BY_ORDER.equals(actionTyep)){
 
             vanChipService.checkMLotInventorys(requestBody.getDocumentLine(), requestBody.getMaterialLotActionList());
-        } else {
+        } else if (CheckMLotRequest.ACTION_TYPE_SEND_MLOT_INV_BY_ERP.equals(actionTyep)){
+
+            vanChipService.sendMLotInvByErp(requestBody.getDocumentLine(), requestBody.getMaterialLotActionList());
+        }else {
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionTyep);
         }
 

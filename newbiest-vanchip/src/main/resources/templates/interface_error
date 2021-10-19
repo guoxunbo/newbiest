@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>erp_wms interface error</title>
+</head>
+<body>
+    <h3>info:${interfaceInfo}</h3>
+    <P>ERROR_MESSAGE:${msg}</P>
+</body>
+</html>

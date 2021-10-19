@@ -229,7 +229,6 @@ public class StockInRequestItem implements Serializable {
         requestItem.setZ_BATCH_HANDER(materialLotUnit.getReserved9());
         requestItem.setZ_BATCH_INCOMING(materialLotUnit.getReserved10());
         requestItem.setZ_BATCH_CUSTOMER(materialLotUnit.getReserved11());
-        requestItem.setZ_BATCH_WMSBATCH(materialLotUnit.getMaterialLotId());
         requestItem.setZ_BATCH_CUSSO(materialLotUnit.getReserved12());
         requestItem.setZ_BATCH_CUSRMA(materialLotUnit.getReserved16());
         requestItem.setZ_BATCH_PLANTRMA(materialLotUnit.getReserved17());

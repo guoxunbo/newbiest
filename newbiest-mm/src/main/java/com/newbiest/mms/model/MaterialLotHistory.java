@@ -22,6 +22,7 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_STOCK_IN = "StockIn";
     public static final String TRANS_TYPE_STOCK_OUT = "StockOut";
     public static final String TRANS_TYPE_SHIP = "Ship";
+    public static final String TRANS_TYPE_UN_SHIP = "UnShip";
     public static final String TRANS_TYPE_ISSUE = "Issue";
     public static final String TRANS_TYPE_RETURN = "Return";
     public static final String TRANS_TYPE_CREATE_RETURN_ORDER = "CreateReturnOrder";

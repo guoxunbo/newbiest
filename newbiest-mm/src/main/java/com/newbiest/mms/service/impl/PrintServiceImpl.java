@@ -65,9 +65,85 @@ public class PrintServiceImpl implements PrintService {
     @Autowired
     MaterialLotRepository materialLotRepository;
 
+    /**
+     * VIVO外箱标签
+     */
+    private static final String LABEL_TEMPLATE_NAME_PRINT_VIVO_BOX_MLOT = "PrintVIVOBoxMLot";
+
+    /**
+     * OPPO外箱标签
+     */
+    private static final String LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_MLOT = "PrintOPPOBoxMLot";
+
+    /**
+     * OPPO外箱标识贴
+     */
+    private static final String LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_TAB_MLOT = "PrintOPPOBoxTabMLot";
+
+    /**
+     * 荣耀外箱标签
+     */
     private static final String LABEL_TEMPLATE_NAME_PRINT_RY_BOX_MLOT = "PrintRYBoxMLot";
+
+    /**
+     * 打印正常外箱标签
+     */
     private static final String LABEL_TEMPLATE_NAME_PRINT_BOX_MLOT = "PrintBoxMLot";
+
+    /**
+     * 打印一般来料标签
+     */
     private static final String LABEL_TEMPLATE_NAME_PRINT_MLOT = "PrintMLot";
+
+    @Async
+    public void printVIVOBoxMLot(MaterialLot boxMaterialLot) throws ClientException {
+        try {
+            Map<String, Object> parameterMap = buildBoxParameterMap(boxMaterialLot);
+            parameterMap.put("custVender", "xxcv");
+            parameterMap.put("custMaterialDesc", "xxcmd");
+            parameterMap.put("custMC", "xxcmc");
+            parameterMap.put("custBoxId", "xxcbi");
+            PrintContext printContext = buildPrintContext(null, LABEL_TEMPLATE_NAME_PRINT_VIVO_BOX_MLOT, parameterMap);
+
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 打印OPPO外箱标识贴标签
+     * @param boxMaterialLot
+     * @throws ClientException
+     */
+    @Async
+    public void printOPPOBoxMLot(MaterialLot boxMaterialLot) throws ClientException {
+        try {
+            Map<String, Object> parameterMap = buildBoxParameterMap(boxMaterialLot);
+
+            PrintContext printContext = buildPrintContext(boxMaterialLot, LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_TAB_MLOT, parameterMap);
+
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 打印OPPO外箱标签
+     * @param boxMaterialLot
+     * @throws ClientException
+     */
+    @Async
+    public void printOPPOBoxTabMLot(MaterialLot boxMaterialLot,  Map<String, Object> parameterMap) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(boxMaterialLot, LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_TAB_MLOT, parameterMap);
+
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     /**
      * 荣耀外箱标签
@@ -278,6 +354,7 @@ public class PrintServiceImpl implements PrintService {
     @Async
     public void printMLot(MaterialLot materialLot) throws ClientException {
         try {
+            Thread.sleep(100);
             Material material = materialRepository.findOneByName(materialLot.getMaterialName());
             String iqcFlag = "检验";
             if (StringUtils.isNullOrEmpty(material.getIqcSheetName())){

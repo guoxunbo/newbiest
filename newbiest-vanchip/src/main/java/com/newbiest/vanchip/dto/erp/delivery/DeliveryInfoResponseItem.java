@@ -205,8 +205,6 @@ public class DeliveryInfoResponseItem implements Serializable {
         materialLot.setReserved8(responseItem.getSubno());
         materialLot.setIncomingComment(responseItem.getRemark());
 
-        //reserved1 lot no
-        //物料信息不在此赋值
         return materialLot;
     }
 
