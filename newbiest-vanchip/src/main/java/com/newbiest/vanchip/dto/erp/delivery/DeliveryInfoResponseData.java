@@ -214,7 +214,7 @@ public class DeliveryInfoResponseData implements Serializable {
         documentLine.setReserved25(responseData.getIncoterms());//Delivery Term:
         documentLine.setReserved31(responseData.getInco_loc1());
         documentLine.setReserved36(responseData.getEnd_custname());
-
+      
 //        documentLine.setReserved10("是否保税");
 //        documentLine.setReserved9("关务手册号");
 //        documentLine.setReserved8("物流信息");

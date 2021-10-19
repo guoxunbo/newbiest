@@ -989,7 +989,7 @@ public class ErpServiceImpl implements ErpService {
         try {
             SimpleDateFormat erpFormatter = new SimpleDateFormat(ERP_DEFAULT_DATE_FORMAT);
             Date now = DateUtils.now();
-            Date beginDate = DateUtils.minus(now, ASYNC_QUERY_DATE_UNTIL, ChronoUnit.DAYS);
+            Date beginDate = DateUtils.minus(now, 50, ChronoUnit.DAYS);
             String beginDateStr = erpFormatter.format(beginDate);
             String endingDateStr = erpFormatter.format(now);
 
