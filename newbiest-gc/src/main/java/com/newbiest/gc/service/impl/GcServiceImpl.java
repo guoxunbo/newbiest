@@ -4261,15 +4261,6 @@ public class GcServiceImpl implements GcService {
                         materialLot.setReserved50("17");
                         materialLot = materialLotRepository.saveAndFlush(materialLot);
 
-//                        //存入库存中
-//                        PackagedLotDetail packagedLotDetail = new PackagedLotDetail();
-//                        packagedLotDetail.setPackagedLotRrn(parentMaterialLot.getObjectRrn());
-//                        packagedLotDetail.setPackagedLotId(parentMaterialLot.getMaterialLotId());
-//                        packagedLotDetail.setMaterialLotRrn(materialLot.getObjectRrn());
-//                        packagedLotDetail.setMaterialLotId(materialLot.getMaterialLotId());
-//                        packagedLotDetail.setQty(materialLot.getCurrentQty());
-//                        packagedLotDetailRepository.save(packagedLotDetail);
-
                         history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
                         history.setTransQty(materialLot.getCurrentQty());
                         materialLotHistoryRepository.save(history);
@@ -4338,6 +4329,34 @@ public class GcServiceImpl implements GcService {
                 }
             }
             return importCode;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证RMA导入的物料批次是否已经存在、Hold、装箱
+     * @param materialLotList
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public boolean validateRmaImportMaterialLot(List<MaterialLot> materialLotList) throws ClientException {
+        try {
+            boolean importFlag = false;
+            for(MaterialLot materialLot : materialLotList){
+                materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                if(materialLot != null){
+                    if(MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, materialLot.getMaterialLotId());
+                    } else if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                        throw new ClientParameterException(MmsException.MATERIALLOT_HAS_BEEN_PACKED, materialLot.getMaterialLotId());
+                    } else {
+                        importFlag = true;
+                    }
+                }
+            }
+            return importFlag;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -4484,6 +4503,7 @@ public class GcServiceImpl implements GcService {
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
 
             if(CollectionUtils.isNotEmpty(scmReportHoldMLotList)){
+                log.info("scmReportHold MLotList is -----> " + scmReportHoldMLotList);
                 scmService.sendMaterialStateReport(scmReportHoldMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
             }
 
