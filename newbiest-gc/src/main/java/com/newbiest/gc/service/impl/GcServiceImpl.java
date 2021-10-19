@@ -3173,7 +3173,8 @@ public class GcServiceImpl implements GcService {
                 }
                 if(productId.endsWith("-0") || productId.endsWith("-1") || productId.endsWith("-1.3") || productId.endsWith("-1.5") || productId.endsWith("-1.6") || productId.endsWith("-2")){
                     otherReceiveProps.put("reserved50", MaterialLot.SCP_IN_FLAG_WAFER_SOURCE);
-                } else if(productId.endsWith("-1.1") || productId.endsWith("-1.4") || productId.endsWith("-2.1")){
+                } else if(productId.endsWith("-1.1") || productId.endsWith("-1.4") || productId.endsWith("-2.1") ||
+                        productId.endsWith("-2.5") || productId.endsWith("-2.55") || productId.endsWith("-2.6")){
                     otherReceiveProps.put("reserved50", MaterialLot.SCP_WAFER_SOURCE);
                 } else {
                     otherReceiveProps.put("reserved50", MaterialLot.ERROR_WAFER_SOUCE);
@@ -5391,6 +5392,14 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 来料导入设置waferSource
+     * @param importType
+     * @param checkFourCodeFlag
+     * @param materialLotUnitList
+     * @return
+     * @throws ClientException
+     */
     public List<MaterialLotUnit> validateAndSetWaferSource(String importType, String checkFourCodeFlag, List<MaterialLotUnit> materialLotUnitList) throws ClientException{
         try {
             //按照载具号分组，相同载具号的产品型号、晶圆数量必须一致(暂时只对WLA未测（-2.5）模板做特殊验证处理)
