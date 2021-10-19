@@ -40,5 +40,26 @@ public class DeliveryPrintInfo implements Serializable {
     //物流信息
     private String logisticsInfo;
 
+    //ship Channels
+    private String shipChannels;
+
+    //发货产品类型
+    private String shipPartNumber;
+
+    //物料编码
+    private String materialCode;
+
+    //预约送货日期
+    private String expectationDeliveryDate;
+
+    //pk类型
+    private String pkType;
+
+    //创建人
+    private String createdBy;
+
+    //客户代码
+    private String customerCode;
+
     private List<DeliveryMLotPrintInfo> deliveryMLotPrintInfoList;
 }

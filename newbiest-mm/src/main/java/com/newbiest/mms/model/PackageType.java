@@ -78,7 +78,17 @@ public abstract class PackageType extends NBUpdatable {
     @Column(name="MAX_QTY")
     protected BigDecimal maxQty;
 
+    /**
+     *by control lot 规则
+     */
+    @Column(name="RESERVED1")
+    protected String reserved1;
 
+    /**
+     *by dc 规则
+     */
+    @Column(name="RESERVED2")
+    protected String reserved2;
     /**
      * 验证是否包装
      * @param packageChildren 待验证的物料批次、批次

@@ -24,6 +24,9 @@ public class CheckMLotRequest extends Request {
 	@ApiModelProperty("复盘")
 	public static final String ACTION_TYPE_RECHECK_MLOT_BY_ORDER = "RecheckMLotByOrder";
 
+	@ApiModelProperty("将批次库存信息同步到ERP")
+	public static final String ACTION_TYPE_SEND_MLOT_INV_BY_ERP = "SendMLotInvByERP";
+
 	private CheckMLotRequestBody body;
 
 }

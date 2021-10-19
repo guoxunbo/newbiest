@@ -27,4 +27,7 @@ public class DocumentException {
     public static final String SHIP_TYPE_IS_NOT_EXIST = "mms.ship_type_is_not_exist";
 
     public static final String DOC_CAN_NOT_BE_MODIFIED = "mms.doc_can_not_be_modified";
+
+    public static final String DOC_ALREADY_DELETED = "mms.doc_already_deleted";
+
 }

@@ -172,6 +172,16 @@ public class DeliveryInfoResponseData implements Serializable {
      */
     private BigDecimal total;
 
+    /**
+     *终端客户编码
+     */
+    private String end_custno;
+
+    /**
+     * 终端客户名称
+     */
+    private String end_custname;
+
     private String field1;
     private String field2;
     private String field3;
@@ -203,6 +213,8 @@ public class DeliveryInfoResponseData implements Serializable {
         documentLine.setUnHandledQty(responseData.getTotal());
         documentLine.setReserved25(responseData.getIncoterms());//Delivery Term:
         documentLine.setReserved31(responseData.getInco_loc1());
+        documentLine.setReserved36(responseData.getEnd_custname());
+      
 //        documentLine.setReserved10("是否保税");
 //        documentLine.setReserved9("关务手册号");
 //        documentLine.setReserved8("物流信息");

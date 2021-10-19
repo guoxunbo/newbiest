@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-vc_customer_product_table
+      author: Tao Zhou
+      comment: Create table VC_CUSTOMER_PRODUCT
+      changes:
+        - createTable:
+            tableName: VC_CUSTOMER_PRODUCT
+            remarks: vc_customer_product Info
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: varchar(32)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: PART_NUMBER
+                  type: varchar(64)
+                  remarks: 产品型号
+              - column:
+                  name: VENDOR_CODE
+                  type: varchar(64)
+                  remarks: 供应商代码
+              - column:
+                  name: MATERIAL_CODE
+                  type: varchar(64)
+                  remarks: 客户物料代码
+              - column:
+                  name: MATERIAL_DESCRIPTION
+                  type: varchar(64)
+                  remarks: 客户物料描述
+              - column:
+                  name: CUSTOMER_NAME
+                  type: varchar(64)
+                  remarks: 客户名称

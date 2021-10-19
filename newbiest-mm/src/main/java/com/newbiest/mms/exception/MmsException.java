@@ -61,5 +61,7 @@ public class MmsException {
     public static final String MM_TARGET_WAREHOUSE_IS_NOT_APPOINT_WAREHOUSE = "mm.target_warehouse_is_not_appoint_warehouse";
 
     public static final String MM_PERMISSION_NOT_ALLOWED = "mm.permission_not_allowed";
+    public static final String MM_PACKAGE_OVER_MAX_DC_QTY = "mm.package_over_max_dc_qty";
+    public static final String MM_PACKAGE_OVER_MAX_CONTROL_LOT_QTY = "mm.package_over_max_control_lot_qty";
 
 }

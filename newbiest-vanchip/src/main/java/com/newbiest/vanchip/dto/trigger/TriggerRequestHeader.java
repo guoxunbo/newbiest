@@ -3,11 +3,13 @@ package com.newbiest.vanchip.dto.trigger;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.base.utils.StringUtils;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
 public class TriggerRequestHeader implements Serializable {
 
     public static final String DEFAULT_ORG_NAME = "1";
@@ -26,8 +28,8 @@ public class TriggerRequestHeader implements Serializable {
 
     private String language;
 
-    public TriggerRequestHeader() {
-        this.messageName = DEFAULT_MESSAGE_NAME;
+    public TriggerRequestHeader(String messageName) {
+        this.messageName = StringUtils.isNullOrEmpty(messageName) ? DEFAULT_MESSAGE_NAME : messageName;
         this.orgRrn = DEFAULT_ORG_NAME;
         this.username = DEFAULT_USER_NAME;
         this.transactionId = UUID.randomUUID().toString();

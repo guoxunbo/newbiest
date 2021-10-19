@@ -59,7 +59,6 @@ public class MaterialLotInventoryController extends AbstractRestController {
         }else if (MaterialLotInventoryRequest.ACTION_CREATE_PARTS_WAREHOUSE.equals(actionType)){
             Parts parts = mmsService.getPartsByName(requestBody.getMaterialLot().getMaterialName(), true);
             mmsService.receiveMLot2Warehouse(parts, requestBody.getMaterialLot().getMaterialLotId(), materialLotActions.get(0));
-            //vanChipService.createMLot2Warehouse(parts, requestBody.getMaterialLot().getMaterialLotId(), materialLotActions.get(0));
         }else if (MaterialLotInventoryRequest.ACTION_STOCK_OUT_PARTS_MLOT_BY_ORDER.equals(actionType)){
 
             vanChipService.stockOutPartsByOrder(requestBody.getDocumentId(), materialLotActions.get(0));

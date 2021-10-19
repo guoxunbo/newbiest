@@ -11,7 +11,10 @@ import java.io.Serializable;
 public class DeliveryType implements Serializable {
 
     //交货单类型
-    //ZTLF-精测正向交货单 发货
+
+    /**
+     * ZTLF-精测正向交货单 发货
+     */
     public static final String DELIVERY_TYPE_SHIP = "ZTLF";
 
     //ZRL-精测客供料出库 退货。
@@ -20,7 +23,9 @@ public class DeliveryType implements Serializable {
     //ZTL2-精测不良品交货、
     public static final String DELIVERY_TYPE_REJ_SHIP = "ZTL2";
 
-    //ZTLR-精测RMA-自身原因、
+    /**
+     * ZTLR-精测RMA-自身原因、
+     */
     public static final String DELIVERY_TYPE_RMA_INCOMING = "ZTLR";
 
     //ZTR2-精测RMA-非自身原因、

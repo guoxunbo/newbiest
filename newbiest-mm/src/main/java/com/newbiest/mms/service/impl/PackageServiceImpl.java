@@ -4,11 +4,9 @@ import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.base.threadlocal.ThreadLocalContext;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.mms.MmsPropertyUtils;
@@ -16,6 +14,7 @@ import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
+import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
@@ -26,9 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,6 +60,12 @@ public class PackageServiceImpl implements PackageService{
 
     @Autowired
     MaterialLotInventoryRepository materialLotInventoryRepository;
+
+    @Autowired
+    MaterialLotUnitRepository materialLotUnitRepository;
+
+    @Autowired
+    DocumentService documentService;
 
     public MaterialLotPackageType getMaterialPackageTypeByName(String name) throws ClientException{
         List<MaterialLotPackageType> packageTypes = materialLotPackageTypeRepository.findByName(name);
@@ -283,6 +286,14 @@ public class PackageServiceImpl implements PackageService{
             if (!StringUtils.isNullOrEmpty(materialLotPackageType.getMergeRule())) {
                 mmsService.validationMergeRule(materialLotPackageType.getMergeRule(), materialLots);
             }
+
+            //vanchip客制化规则
+            MaterialLot materialLot = mmsService.getMLotByMLotId(materialLots.get(0).getMaterialLotId());
+            DocumentLine documentLine = documentService.getDocumentLineByLineId(materialLot.getReserved45(), true);
+
+            List<String> mLotIdList = materialLots.stream().map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toList());
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotIdIn(mLotIdList);
+            materialLotPackageType.validationCustomizationPackageRule(documentLine, materialLotUnits);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

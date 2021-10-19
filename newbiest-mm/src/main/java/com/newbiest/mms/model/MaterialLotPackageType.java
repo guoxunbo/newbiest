@@ -4,16 +4,19 @@ import com.newbiest.base.dto.Action;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.state.model.MaterialStatusCategory;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.*;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +27,24 @@ import java.util.stream.Collectors;
 @DiscriminatorValue(PackageType.CLASS_MATERIAL_LOT)
 @Slf4j
 public class MaterialLotPackageType extends PackageType {
+
+    /**
+     *荣耀
+     */
+    public static final String TERMINAL_CUSTOMER_HONOR = "HONOR";
+    /**
+     *小米
+     */
+    public static final String TERMINAL_CUSTOMER_MI = "小米";
+    /**
+     *oppo
+     */
+    public static final String TERMINAL_CUSTOMER_OPPO = "OPPO";
+
+    /**
+     *VIVO
+     */
+    public static final String TERMINAL_CUSTOMER_VIVO = "VIVO";
 
     @Override
     public void validationPacking(List<? extends NBUpdatable> packageChildren) {
@@ -89,5 +110,52 @@ public class MaterialLotPackageType extends PackageType {
         }
         return BigDecimal.ZERO;
     }
+
+    /**
+     * vanChip 客制化验证
+     * 终端客户 => HONOR 验证DC
+     * 终端客户 => 小米 验证CONTROL LOT
+     */
+    public void validationCustomizationPackageRule(DocumentLine documentLine, List<MaterialLotUnit> materialLotUnits){
+        if (StringUtils.isNullOrEmpty(documentLine.getReserved36())) {
+            return;
+        }
+        String terminalCustomer = documentLine.getReserved36().toUpperCase();
+        if (terminalCustomer.contains(TERMINAL_CUSTOMER_HONOR)){
+            this.validationControlLot(materialLotUnits);
+        }else if (terminalCustomer.contains(TERMINAL_CUSTOMER_MI)){
+            this.validationDC(materialLotUnits);
+        }
+    }
+
+    /**
+     * 验证control Lot规则
+     */
+    public void validationControlLot(List<MaterialLotUnit> materialLotUnits){
+        if (StringUtils.isNullOrEmpty(reserved1) || CollectionUtils.isEmpty(materialLotUnits)){
+            return;
+        }
+        Integer maxControlLotQty = Integer.valueOf(reserved1);
+        Set<String> controlLotSet = materialLotUnits.stream().map(unit -> unit.getReserved4()).collect(Collectors.toSet());
+        if (controlLotSet.size() > maxControlLotQty){
+            throw new ClientParameterException(MmsException.MM_PACKAGE_OVER_MAX_CONTROL_LOT_QTY, maxControlLotQty);
+        }
+
+    }
+
+    /**
+     * 验证DC规则
+     */
+    public void validationDC(List<MaterialLotUnit> materialLotUnits){
+        if (StringUtils.isNullOrEmpty(reserved2) || CollectionUtils.isEmpty(materialLotUnits)){
+            return;
+        }
+        Integer maxDCQty = Integer.valueOf(reserved2);
+        Set<String> dcSet = materialLotUnits.stream().map(unit -> unit.getReserved2()).collect(Collectors.toSet());
+        if (dcSet.size() > maxDCQty){
+            throw new ClientParameterException(MmsException.MM_PACKAGE_OVER_MAX_DC_QTY, maxDCQty);
+        }
+    }
+
 
 }

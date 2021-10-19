@@ -1,11 +1,13 @@
 package com.newbiest.vanchip.dto.erp.incoming;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.google.common.collect.Maps;
 import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @Data
 @JsonAutoDetect(fieldVisibility= JsonAutoDetect.Visibility.ANY,getterVisibility= JsonAutoDetect.Visibility.NONE)
@@ -153,4 +155,36 @@ public class IncomingResponseHeader implements Serializable {
         materialLot.setReserved51(header.getZORIGIN());
         return materialLot;
     }
+
+    public Map<String, Object> convertMLotMap(){
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("incomingDocId", VBELN);
+        map.put("reserved48", NAME1);
+        map.put("reserved57", LIFNR);
+        map.put("incomingComment", REMARK);
+
+        map.put("reserved22", ZPERSON);
+        map.put("reserved23", ZCOMPANY);
+        map.put("reserved24", ZDNUMBER);
+        map.put("reserved26", ZPICES);
+        map.put("reserved38", ZINVOICE);
+        map.put("reserved10", ZCARTON);
+        map.put("reserved12", ZNW);
+        map.put("reserved13", ZGW);
+        map.put("reserved27", ZHS);
+        map.put("reserved28", ZECCN);
+
+        map.put("reserved19", ZTAX);
+        map.put("reserved30", ZTAX2);
+        map.put("reserved31", ZTAXRMB);
+        map.put("reserved32", ZCUSTOMS);
+        map.put("reserved33", ZLOGISTIC);
+        map.put("reserved34", ZINSURANCE);
+        map.put("reserved35", ZOTHER);
+        map.put("reserved36", ZTOTAL);
+        map.put("reserved37", ZTRADE);
+        map.put("reserved51", ZORIGIN);
+        return map;
+    }
+
 }

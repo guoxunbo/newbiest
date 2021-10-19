@@ -40,7 +40,7 @@ public class CheckRequestItem implements Serializable {
     /**
      * 库存类型
      */
-    private String BSTAR = BSTAR_1;
+    private String BSTAR;
 
 
     /**
@@ -89,9 +89,7 @@ public class CheckRequestItem implements Serializable {
         requestItem.setERFME(materialLot.getStoreUom());
         requestItem.setERFMG(materialLot.getCurrentQty());
         requestItem.setZ_BATCH_WMSBATCH(materialLot.getMaterialLotId());
-        if (materialLot.getSubMaterialLotFlag()){
-            requestItem.setZ_BATCH_WMSBATCH(materialLot.getParentMaterialLotId());
-        }
+        requestItem.setBSTAR(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState()) ? BSTAR_1 : BSTAR_4);
         return requestItem;
     }
 }

@@ -1,6 +1,7 @@
 package com.newbiest.vanchip.dto.erp.split;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.dto.erp.ErpRequestHeader;
@@ -76,6 +77,10 @@ public class SplitRequestHeader extends ErpRequestHeader {
         if (Material.MATERIAL_CATEGORY_MAIN_MATERIAL.equals(materiallot.getMaterialCategory())) {
             requestHeader.setZ_BATCH_BOXNO(materiallot.getParentMaterialLotId());
             requestHeader.setZ_BATCH_BOXNO2(materiallot.getMaterialLotId());
+        }
+        if (!StringUtils.isNullOrEmpty(materiallot.getRmaFlag())) {
+            requestHeader.setZ_BATCH_REEL(materiallot.getParentMaterialLotId());
+            requestHeader.setZ_BATCH_REEL2(materiallot.getMaterialLotId());
         }
         requestHeader.setZ_BATCH_WMSBATCH(materiallot.getParentMaterialLotId());
         requestHeader.setZ_BATCH_WMSBATCH2(materiallot.getMaterialLotId());

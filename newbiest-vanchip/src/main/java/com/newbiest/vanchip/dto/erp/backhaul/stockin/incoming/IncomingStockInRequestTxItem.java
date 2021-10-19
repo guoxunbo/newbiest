@@ -1,6 +1,7 @@
 package com.newbiest.vanchip.dto.erp.backhaul.stockin.incoming;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import lombok.Data;
@@ -177,7 +178,6 @@ public class IncomingStockInRequestTxItem implements Serializable {
     private String FIELD4;
 
     public IncomingStockInRequestTxItem copyMaterialLotToRequestTxItem(MaterialLot materialLot, IncomingStockInRequestTxItem requestTxItem){
-        //requestTxItem.setZ_BATCH_PONUMBER(materialLot.getReserved6());
         requestTxItem.setZ_BATCH_CUSPO(materialLot.getReserved6());
         requestTxItem.setZ_BATCH_REMARK(materialLot.getIncomingComment());
         requestTxItem.setZ_BATCH_DC(materialLot.getReserved9());
@@ -192,7 +192,8 @@ public class IncomingStockInRequestTxItem implements Serializable {
 
         if (materialLot.getMaterialCategory().equals(Material.MATERIAL_CATEGORY_MAIN_MATERIAL)) {
             requestTxItem.setZ_BATCH_BOXNO(materialLot.getMaterialLotId());
-        }else if (materialLot.getMaterialCategory().equals(Material.MATERIAL_CATEGORY_PRODUCT)){
+        }
+        if (!StringUtils.isNullOrEmpty(materialLot.getRmaFlag())){
             requestTxItem.setZ_BATCH_REEL(materialLot.getMaterialLotId());
         }
         requestTxItem.setZ_BATCH_CONTROLLOT(materialLot.getReserved4());

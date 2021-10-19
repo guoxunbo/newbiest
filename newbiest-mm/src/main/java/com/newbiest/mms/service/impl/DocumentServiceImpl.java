@@ -323,7 +323,11 @@ public class DocumentServiceImpl implements DocumentService {
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId(), true)).collect(Collectors.toList());
 
             BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
-            Document returnMLotOrder = createDocument(new ReturnMLotOrder(), documentId, ReturnMLotOrder.GENERATOR_RETURN_MLOT_ORDER_RULE, approveFlag, totalQty);
+            ReturnMLotOrder returnMLotOrder = new ReturnMLotOrder();
+            documentId = generatorDocId(ReturnMLotOrder.GENERATOR_RETURN_MLOT_ORDER_RULE);
+            returnMLotOrder.setReserved3(documentId);
+            returnMLotOrder.setName(documentId);
+            returnMLotOrder = (ReturnMLotOrder)createDocument(returnMLotOrder, documentId, ReturnMLotOrder.GENERATOR_RETURN_MLOT_ORDER_RULE, approveFlag, totalQty);
 
             //验证批次是否被create状态的单据绑定
             List<String> materialLotIds = materialLotActions.stream().map(materialLotAction -> materialLotAction.getMaterialLotId()).collect(Collectors.toList());
@@ -1262,53 +1266,45 @@ public class DocumentServiceImpl implements DocumentService {
             BigDecimal totalQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getReservedQty));
             checkOrder = (CheckOrder)createDocument(checkOrder, document.getName(), CheckOrder.GENERATOR_CHECK_ORDER_ID_RULE, true, totalQty);
 
+            DocumentLine documentLine = new DocumentLine();
+            documentLine.setDocument(checkOrder);
+            documentLine.setStatus(checkOrder.getStatus());
+            if (StringUtils.isNullOrEmpty(documentLine.getLineId())) {
+                String docLineId = generatorDocId(GENERATOR_DOC_LINE_ID_BY_DOC_ID_RULE, checkOrder);
+                documentLine.setLineId(docLineId);
+            }
+            documentLine = (DocumentLine)baseService.saveEntity(documentLine);
+
             //根据仓库和物料分组
             Map<String, List<MaterialLot>> materialNameAndWarehouseNameMap = materialLotList.stream().filter(mLot -> StringUtils.isNullOrEmpty(mLot.getMaterialLotId()) && StringUtils.isNullOrEmpty(mLot.getUnitId()))
                     .collect(Collectors.groupingBy(d -> d.getMaterialName() + StringUtils.SPLIT_CODE + d.getLastWarehouseId()));
             for (String materialNameAndWarehouseName : materialNameAndWarehouseNameMap.keySet()) {
                 List<MaterialLot> materialLots = materialNameAndWarehouseNameMap.get(materialNameAndWarehouseName);
-                BigDecimal qty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getReservedQty));
                 MaterialLot materialLot = materialLots.get(0);
+                String warehouseName = materialLot.getLastWarehouseId();
+                String materialName = materialLot.getMaterialName();
 
-                DocumentLine documentLine = new DocumentLine();
-                documentLine.setDocument(checkOrder);
-                documentLine.setUnHandledQty(qty);
-                documentLine.setQty(qty);
-                documentLine.setStatus(checkOrder.getStatus());
-                documentLine.setReserved24(MLOT_DOC_RULE_MATERIA_NAME_AND_WAREHOUSE_NAME);
-
-                Material material = mmsService.getMaterialByName(materialLot.getMaterialName(), true);
-                documentLine.setMaterial(material);
-                Warehouse warehouse = mmsService.getWarehouseByName(materialLot.getLastWarehouseId(), true);
-                documentLine.setReserved28(warehouse.getName());
-
-                if (StringUtils.isNullOrEmpty(documentLine.getLineId())) {
-                    String docLineId = generatorDocId(GENERATOR_DOC_LINE_ID_BY_DOC_ID_RULE, checkOrder);
-                    documentLine.setLineId(docLineId);
+                List<MaterialLotInventory> materialLotInventorys = materialLotInventoryRepository.findByWarehouseIdInAndMaterialName(warehouseName, materialName);
+                if (CollectionUtils.isNotEmpty(materialLotInventorys)){
+                    for (MaterialLotInventory materialLotInventory :materialLotInventorys) {
+                        createDocumentMLot(documentLine.getLineId(), materialLotInventory.getMaterialLotId(), DocumentMLot.STATUS_CHECK);
+                    }
                 }
-                documentLine = (DocumentLine)baseService.saveEntity(documentLine);
             }
-
             //指定批次
-            List<String> materialLotIdList = materialLotList.stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getMaterialLotId()) || !StringUtils.isNullOrEmpty(mLot.getUnitId()))
-                    .map(mLot -> (StringUtils.isNullOrEmpty(mLot.getMaterialLotId()) || mLot.getMaterialLotId() == "") ? mLot.getUnitId() : mLot.getMaterialLotId())
-                    .collect(Collectors.toList());
+            List<String> materialLotIdList = Lists.newArrayList();
+            Set<String> mLotIdSet = materialLotList.stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getMaterialLotId())).map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toSet());
+            Set<String> unitIdSet = materialLotList.stream().filter(mLot -> StringUtils.isNullOrEmpty(mLot.getMaterialLotId()) && !StringUtils.isNullOrEmpty(mLot.getUnitId())).map(mLot -> mLot.getUnitId()).collect(Collectors.toSet());
+            if (CollectionUtils.isNotEmpty(mLotIdSet)){
+                materialLotIdList.addAll(mLotIdSet);
+            }
+            if (CollectionUtils.isNotEmpty(unitIdSet)){
+                materialLotIdList.addAll(unitIdSet);
+            }
             if (CollectionUtils.isNotEmpty(materialLotIdList)){
-
-                validationMLotBoundOrder(materialLotIdList);
-
-                DocumentLine documentLine = new DocumentLine();
-                documentLine.setReserved24(StringUtils.EMPTY);
-                documentLine.setDocument(checkOrder);
-                documentLine.setStatus(checkOrder.getStatus());
-                if (StringUtils.isNullOrEmpty(documentLine.getLineId())) {
-                    String docLineId = generatorDocId(GENERATOR_DOC_LINE_ID_BY_DOC_ID_RULE, checkOrder);
-                    documentLine.setLineId(docLineId);
-                }
-                documentLine = (DocumentLine)baseService.saveEntity(documentLine);
-
                 for (String materialLotId :materialLotIdList) {
-                    createDocumentMLot(documentLine.getLineId(), materialLotId);
+                    mmsService.getMLotByMLotId(materialLotId, true);
+                    createDocumentMLot(documentLine.getLineId(), materialLotId, DocumentMLot.STATUS_CHECK);
                 }
             }
         }catch (Exception e){
@@ -1511,7 +1507,7 @@ public class DocumentServiceImpl implements DocumentService {
     public DocumentLine createDocLineByDocument(DocumentLine documentLine) throws ClientException{
         try {
             Document document = getDocumentByName(documentLine.getDocId(), true);
-            createDocLineByDocument(documentLine, document);
+            documentLine = createDocLineByDocument(documentLine, document);
             return documentLine;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -1532,5 +1528,6 @@ public class DocumentServiceImpl implements DocumentService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
 
 }

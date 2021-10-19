@@ -22,7 +22,7 @@ public class SyncIncomingOrReturnController extends AbstractRestController {
     @Autowired
     ErpService erpService;
 
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "SyncIncomingOrReturnRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "UploadFileRequest")
     @RequestMapping(value = "/syncERPMaterialLot", method = RequestMethod.POST)
     public SyncIncomingOrReturnResponse excute(@RequestBody SyncIncomingOrReturnRequest request)throws Exception {
         SyncIncomingOrReturnResponse response = new SyncIncomingOrReturnResponse();

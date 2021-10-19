@@ -2,12 +2,16 @@ package com.newbiest.vanchip.service.impl;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.model.NBBase;
 import com.newbiest.base.msg.DefaultParser;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
+import com.newbiest.main.MailService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.DocumentException;
 import com.newbiest.mms.exception.MmsException;
@@ -16,8 +20,10 @@ import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.impl.DocumentServiceImpl;
+import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.state.model.MaterialStatusModel;
+import com.newbiest.ui.model.NBReferenceList;
 import com.newbiest.vanchip.dto.erp.ErpRequest;
 import com.newbiest.vanchip.dto.erp.ErpResponse;
 import com.newbiest.vanchip.dto.erp.ErpResponseReturn;
@@ -115,9 +121,9 @@ public class ErpServiceImpl implements ErpService {
     public static final String ERP_DEFAULT_DATE_FORMAT= "yyyyMMdd";
 
     /**
-     * 同步查询的时间间隔 3
+     * 同步查询的时间间隔 5;单位:天
      */
-    public static final Integer ASYNC_QUERY_DATE_UNTIL= 3;
+    public static final Integer ASYNC_QUERY_DATE_UNTIL = 5;
 
     /**
      * 来料/退料 信息同步批次
@@ -175,17 +181,28 @@ public class ErpServiceImpl implements ErpService {
     public static final String SPLIT_MLOT_URL = "ZFMMM042";
 
     //发货模式
-    //01-Reel
+    /**
+     * 01-Reel
+     */
     public final static String REEL_SHIP_MODE = "01";
-    //02-产品型号
+
+    /**
+     * 02-产品型号
+     */
     public final static String PRODUCT_SHIP_MODE = "02";
-    //03-版本号
+
+    /**
+     * 03-版本号
+     */
     public final static String VERSION_SHIP_MODE = "03";
 
     //交货单状态
     //未读 新增/修改
     public final static String CFM_DELIVERY_STATUS = "CFM";
-    //整单删除
+
+    /**
+     * 单据删除
+     */
     public final static String DEL_DELIVERY_STATUS = "DEL";
     //已读
     public final static String RED_DELIVERY_STATUS = "RED";
@@ -200,15 +217,30 @@ public class ErpServiceImpl implements ErpService {
      */
     private static final String BWART_RETURN_MLOT = "512";
 
-    //量产
+    /**
+     * 量产
+     */
     private static final String MP_SHIPPING_TYPE = "01";
 
-    //工程样品
+    /**
+     * 工程样品
+     */
     private static final String ES_SHIPPING_TYPE = "02";
 
-    //客户样品
+    /**
+     * 客户样品
+     */
     private static final String CS_SHIPPING_TYPE = "03";
 
+    /**
+     * 荣耀的packingList
+     */
+    private static final String RY_SHIPPING_TYPE = "04";
+
+    /**
+     * 接口处理失败时发送邮件的地址raferen
+     */
+    private static final String INTERFACE_ERROR_SEND_EMAIL_ADDRESS = "ERPInterfaceErrEmail";
 
 
     private RestTemplate restTemplate;
@@ -246,6 +278,12 @@ public class ErpServiceImpl implements ErpService {
     @Autowired
     VanChipService  vanChipService;
 
+    @Autowired
+    MailService mailService;
+
+    @Autowired
+    UIService uiService;
+
     @PostConstruct
     public void init() {
         CloseableHttpClient client = createHttpClient().build();
@@ -270,6 +308,7 @@ public class ErpServiceImpl implements ErpService {
             String endingDateStr = erpFormatter.format(now);
             incomingOrReturn(beginDateStr, endingDateStr);
         }catch (Exception e){
+            sendMailERPInterfaceErr(INCOMING_OR_RETURN_URL, e.getMessage());
             throw ExceptionManager.handleException(e,log);
         }
     }
@@ -277,8 +316,8 @@ public class ErpServiceImpl implements ErpService {
     /**
      * 获取来料/退料信息，信息同步接口， 辅材
      * 自动拉取,手动拉取
-     * @param beginDate 20210701
-     * @param endingDate 20210709
+     * @param beginDate yyyyMMdd
+     * @param endingDate yyyyMMdd
      * @throws ClientException
      */
     public List<MaterialLot> incomingOrReturn(String beginDate, String endingDate) throws ClientException{
@@ -293,80 +332,223 @@ public class ErpServiceImpl implements ErpService {
             IncomingResponse response = (IncomingResponse)DefaultParser.getObjectMapper()
                     .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                     .readValue(responseStr, IncomingResponse.class);
-
+            if (ErpResponseReturn.FAIL_STATUS.equals(response.getStatus())) {
+                return null;
+            }
             List<IncomingResponseHeader> responeHeaders = response.getHeader();
             List<IncomingResponseItem> responeItems = response.getItem();
-            SimpleDateFormat formatter = new SimpleDateFormat(ERP_DEFAULT_DATE_FORMAT);
+            if(CollectionUtils.isEmpty(responeHeaders) || CollectionUtils.isEmpty(responeItems)){
+                return null;
+            }
 
             for (IncomingResponseHeader responeHeader : responeHeaders) {
-                //获得单据下的物料信息；
-                List<IncomingResponseItem> incomingResponseItems = responeItems.stream().filter(item -> item.getVBELN().equals(responeHeader.getVBELN())).collect(Collectors.toList());
                 String docCategory = responeHeader.getLFART();
-                BigDecimal totalQty = incomingResponseItems.stream().collect(CollectorsUtils.summingBigDecimal(IncomingResponseItem::getLGMNG));
+                List<IncomingResponseItem> incomingResponseItems = responeItems.stream().filter(item -> item.getVBELN().equals(responeHeader.getVBELN())).collect(Collectors.toList());
                 if (IncomingResponseHeader.INCOMING_LFART.equals(docCategory)){
-                    IncomingOrder erpIncomingOrder = new IncomingOrder();
-                    erpIncomingOrder.setName(responeHeader.getVBELN());
-                    erpIncomingOrder.setQty(totalQty);
-                    erpIncomingOrder.setUnHandledQty(totalQty);
 
-                    Date expectedDeliveryDate = null ;
-                    if (!StringUtils.isNullOrEmpty(responeHeader.getLFDAT())){
-                        expectedDeliveryDate = formatter.parse(responeHeader.getLFDAT());
-                    }
-                    List<MaterialLot> erpMaterialLotList = Lists.newArrayList();
-                    for (IncomingResponseItem responseItem : incomingResponseItems) {
-                        MaterialLot materialLot = new MaterialLot();
-                        materialLot = responeHeader.copyIncomingHeaderToMaterialLot(materialLot, responeHeader);
-                        materialLot = responseItem.copyIncomingItemToMaterialLot(materialLot, responseItem);
-                        if (!StringUtils.isNullOrEmpty(responseItem.getHSDAT())){
-                            materialLot.setProductionDate(formatter.parse(responseItem.getHSDAT()));
-                        }
-                        if (expectedDeliveryDate != null){
-                            materialLot.setExpectedDeliveryDate(expectedDeliveryDate);
-                        }
-                        materialLot.setMaterialName(responseItem.getMATNR());
-                        erpMaterialLotList.add(materialLot);
-                    }
-
-                    IncomingOrder incomingOrder = (IncomingOrder)documentService.getDocumentByName(responeHeader.getVBELN(), false);
-                    List<MaterialLot> materialLots = mmsService.getMLotByIncomingDocId(responeHeader.getVBELN());
-
-                    asyncIncomingInfo(erpIncomingOrder, erpMaterialLotList, incomingOrder, materialLots);
+                    asyncIncomingMLot(responeHeader, incomingResponseItems);
                 }else if (IncomingResponseHeader.RETURN_LFART.equals(docCategory)){
-                    //退料
-                    ReturnMLotOrder returnMLotOrder = (ReturnMLotOrder)documentService.getDocumentByName(responeHeader.getVBELN(), false);
 
-                    ReturnMLotOrder erpReturnMLotOrder = new ReturnMLotOrder();
-                    erpReturnMLotOrder.setName(responeHeader.getVBELN());
-                    erpReturnMLotOrder.setReserved1(responeHeader.getERNAM());
-                    erpReturnMLotOrder.setQty(totalQty);
-                    erpReturnMLotOrder.setUnHandledQty(totalQty);
-                    erpReturnMLotOrder.setReserved5(responeHeader.getSTRAS());
-
-                    if (!StringUtils.isNullOrEmpty(responeHeader.getLFDAT())){
-                        erpReturnMLotOrder.setShippingDate(formatter.parse(responeHeader.getLFDAT()));
-                    }
-
-                    List<MaterialLot> erpMaterialLotList = Lists.newArrayList();
-                    for (IncomingResponseItem responseItem : incomingResponseItems) {
-                        erpReturnMLotOrder.setReserved3(responseItem.getZRETURNMRA());
-                        erpReturnMLotOrder.setReserved4(responseItem.getINCO2_L());
-                        erpReturnMLotOrder.setReserved6(responseItem.getTELNUMBER());
-                        erpReturnMLotOrder.setReserved7(responseItem.getCONTACT());
-
-                        MaterialLot materialLot = new MaterialLot();
-                        materialLot = responeHeader.copyIncomingHeaderToMaterialLot(materialLot, responeHeader);
-                        materialLot = responseItem.copyIncomingItemToMaterialLot(materialLot, responseItem);
-
-                        materialLot.setLastWarehouseId(responseItem.getLGORT());
-                        materialLot.setMaterialName(responseItem.getMATNR());
-                        materialLot.setMaterialLotId(responseItem.getLICHN());
-                        erpMaterialLotList.add(materialLot);
-                    }
-                    asyncReturnInfo(erpReturnMLotOrder, erpMaterialLotList, returnMLotOrder);
+                    asyncReturnMLot(responeHeader, incomingResponseItems);
                 }
             }
             return null;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 采购到货
+     * @param responeHeader
+     * @param incomingResponseItems
+     * @throws ClientException
+     */
+    public void asyncIncomingMLot(IncomingResponseHeader responeHeader, List<IncomingResponseItem> incomingResponseItems) throws ClientException {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat(ERP_DEFAULT_DATE_FORMAT);
+            IncomingOrder incomingOrder = (IncomingOrder)documentService.getDocumentByName(responeHeader.getVBELN(), false);
+            BigDecimal totalQty = incomingResponseItems.stream().collect(CollectorsUtils.summingBigDecimal(IncomingResponseItem::getLGMNG));
+
+            List<MaterialLot> materialLots = mmsService.getMLotByIncomingDocId(responeHeader.getVBELN());
+            if (incomingOrder != null){
+                if (BigDecimal.ZERO.compareTo(incomingOrder.getHandledQty()) != 0){
+                    //TODO 等待后续处理。
+                    return;
+                }
+                if (incomingOrder.getQty().compareTo(totalQty) != 0){
+                    incomingOrder.setQty(totalQty);
+                    incomingOrder.setUnHandledQty(totalQty);
+                    baseService.saveEntity(incomingOrder);
+                }
+            }else {
+                incomingOrder = new IncomingOrder();
+                incomingOrder.setName(responeHeader.getVBELN());
+                incomingOrder.setQty(totalQty);
+                incomingOrder.setUnHandledQty(totalQty);
+                incomingOrder = (IncomingOrder)documentService.createDocument(incomingOrder, responeHeader.getVBELN(), IncomingOrder.GENERATOR_INCOMING_ORDER_ID_RULE, true, totalQty);
+            }
+
+            Map<String, Object> mapHeader = responeHeader.convertMLotMap();
+            for (IncomingResponseItem responseItem : incomingResponseItems) {
+                Material material = mmsService.getMaterialByName(responseItem.getMATNR(), true);
+                MaterialStatusModel materialStatusModel = mmsService.getStatusModelByRrn(material.getStatusModelRrn());
+
+                Map<String, Object> propsMap = Maps.newHashMap();
+                propsMap.putAll(mapHeader);
+                propsMap.putAll(responseItem.convertMLotMap());
+
+                propsMap.put("incomingDocRrn", incomingOrder.getObjectRrn());
+                propsMap.put("incomingDocId", incomingOrder.getName());
+                if (!StringUtils.isNullOrEmpty(responeHeader.getLFDAT())){
+                    propsMap.put("expectedDeliveryDate", formatter.parse(responeHeader.getLFDAT()));
+                }
+
+                if (CollectionUtils.isEmpty(materialLots)) {
+                    MaterialLot mLot = mmsService.createMLot(material, materialStatusModel, null, responseItem.getLGMNG(), BigDecimal.ZERO, propsMap);
+                }else {
+                    List<MaterialLot> mLots = materialLots.stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getItemId()) && mLot.getItemId().equals(responseItem.getPOSNR())).collect(Collectors.toList());
+                    if (mLots.size() == 0){
+                        MaterialLot mLot = mmsService.createMLot(material, materialStatusModel, null, responseItem.getLGMNG(), BigDecimal.ZERO, propsMap);
+                    } else if (mLots.size() > 1){
+                        //批次已进行分批。
+                        return;
+                    }
+                    MaterialLot ordMaterialLot = mLots.get(0);
+                    if (!MaterialStatus.STATUS_CREATE.equals(ordMaterialLot.getStatus()) || !MaterialStatus.STATUS_CREATE.equals(ordMaterialLot.getStatusCategory())) {
+                        //批次非创建状态 不能修改。
+                        return;
+                    }
+                    //用户会在接收前填入了供应商批次信息，此时也不能修改信息.
+                    if (!StringUtils.isNullOrEmpty(ordMaterialLot.getReserved46()) || ordMaterialLot.getProductionDate() != null){
+                        return;
+                    }
+                    Boolean updateMLotFlag = false;
+                    for (String propsName : propsMap.keySet()) {
+                        Boolean updateFlag = judgePropsValueEquality(ordMaterialLot, propsName, propsMap.get(propsName));
+                        if (updateFlag){
+                            updateMLotFlag = true;
+                            PropertyUtils.setProperty(ordMaterialLot, propsName, propsMap.get(propsName));
+                        }
+                   }
+                    materialLots.remove(ordMaterialLot);
+                    if (updateMLotFlag){
+                        ordMaterialLot.setMaterial(material);
+                        baseService.saveEntity(ordMaterialLot);
+                    }
+                }
+            }
+
+            if (CollectionUtils.isNotEmpty(materialLots)){
+                materialLots.forEach(mLot -> baseService.delete(mLot));
+            }
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void asyncReturnMLot(IncomingResponseHeader responeHeader, List<IncomingResponseItem> incomingResponseItems) throws ClientException{
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat(ERP_DEFAULT_DATE_FORMAT);
+
+            ReturnMLotOrder returnMLotOrder = (ReturnMLotOrder)documentService.getDocumentByName(responeHeader.getVBELN(), false);
+            List<DocumentLine> documentLineList = documentLineRepository.findByDocId(responeHeader.getVBELN());
+            BigDecimal totalQty = incomingResponseItems.stream().collect(CollectorsUtils.summingBigDecimal(IncomingResponseItem::getLGMNG));
+            IncomingResponseItem incomingResponseItem = incomingResponseItems.get(0);
+
+            if (returnMLotOrder != null){
+                if(returnMLotOrder.getHandledQty().compareTo(BigDecimal.ZERO) != 0){
+                    //如果单据已进行操作，不能修改。
+                    return;
+                }
+                Map<String, Object> headerMap = Maps.newHashMap();
+                headerMap.put("name", responeHeader.getVBELN());
+                headerMap.put("reserved1", responeHeader.getERNAM());
+                headerMap.put("qty", totalQty);
+                headerMap.put("unHandledQty", totalQty);
+                headerMap.put("reserved3", incomingResponseItem.getZRETURNMRA());
+                headerMap.put("reserved4", incomingResponseItem.getINCO2_L());
+                headerMap.put("reserved5", responeHeader.getSTRAS());
+                headerMap.put("reserved6", incomingResponseItem.getTELNUMBER());
+                headerMap.put("reserved7", incomingResponseItem.getCONTACT());
+                headerMap.put("shippingDate", StringUtils.isNullOrEmpty(responeHeader.getLFDAT()) ? null : formatter.parse(responeHeader.getLFDAT()) );
+
+                Boolean updateDocFlag = false;
+                for (String propsName : headerMap.keySet()) {
+                    Boolean updateFlag = judgePropsValueEquality(returnMLotOrder, propsName, headerMap.get(propsName));
+                    if (updateFlag){
+                        updateDocFlag = true;
+                        PropertyUtils.setProperty(returnMLotOrder, propsName, headerMap.get(propsName));
+                    }
+                }
+                if (updateDocFlag){
+                    returnMLotOrder = (ReturnMLotOrder)baseService.saveEntity(returnMLotOrder);
+                }
+            }else {
+                returnMLotOrder = new ReturnMLotOrder();
+                returnMLotOrder.setName(responeHeader.getVBELN());
+                returnMLotOrder.setReserved1(responeHeader.getERNAM());
+                returnMLotOrder.setQty(totalQty);
+                returnMLotOrder.setUnHandledQty(totalQty);
+                returnMLotOrder.setReserved3(incomingResponseItem.getZRETURNMRA());
+                returnMLotOrder.setReserved5(responeHeader.getSTRAS());
+                returnMLotOrder.setReserved4(incomingResponseItem.getINCO2_L());
+                returnMLotOrder.setReserved6(incomingResponseItem.getTELNUMBER());
+                returnMLotOrder.setReserved7(incomingResponseItem.getCONTACT());
+                if (!StringUtils.isNullOrEmpty(responeHeader.getLFDAT())){
+                    returnMLotOrder.setShippingDate(formatter.parse(responeHeader.getLFDAT()));
+                }
+                returnMLotOrder = (ReturnMLotOrder)documentService.createDocument(returnMLotOrder, responeHeader.getVBELN(), ReturnMLotOrder.GENERATOR_RETURN_MLOT_ORDER_RULE, true, totalQty);
+            }
+            for (IncomingResponseItem responseItem : incomingResponseItems) {
+                Material material = mmsService.getMaterialByName(responseItem.getMATNR(), true);
+                Optional<DocumentLine> documentLinefirst = documentLineList.stream().filter(docLine -> docLine.getReserved30().equals(responseItem.getPOSNR()) && !StringUtils.isNullOrEmpty(docLine.getReserved24())).findFirst();
+                if (!documentLinefirst.isPresent()){
+                    DocumentLine documentLine = new DocumentLine();
+                    String docLineId = documentService.generatorDocId("CreateDocLineIdByDocIdRule", returnMLotOrder);
+                    documentLine.setLineId(docLineId);
+                    documentLine.setMaterial(material);
+                    documentLine.setDocument(returnMLotOrder);
+                    documentLine.setReserved32(returnMLotOrder.getReserved3());
+                    documentLine.setReserved24(ReturnMLotOrder.DEFAULT_RETURN_MLOT_RESERVED_RULE);
+
+                    documentLine.setQty(responseItem.getLGMNG());
+                    documentLine.setUnHandledQty(responseItem.getLGMNG());
+                    documentLine.setUnReservedQty(responseItem.getLGMNG());
+                    documentLine.setReserved28(responseItem.getLGORT());
+                    documentLine.setReserved29(responseItem.getVGBEL());
+                    documentLine.setReserved30(responseItem.getPOSNR());
+                    baseService.saveEntity(documentLine);
+                }else {
+                    DocumentLine documentLine = documentLinefirst.get();
+                    if (documentLine.getReservedQty().compareTo(BigDecimal.ZERO) != 0){
+                        //如果单据已进行操作，不能修改。
+                        return;
+                    }
+                    Map<String, Object> documentLineMap = Maps.newHashMap();
+                    documentLineMap.put("materialName", responseItem.getMATNR());
+                    documentLineMap.put("qty", responseItem.getLGMNG());
+                    documentLineMap.put("unHandledQty", responseItem.getLGMNG());
+                    documentLineMap.put("unReservedQty", responseItem.getLGMNG());
+                    documentLineMap.put("reserved28", responseItem.getLGORT());
+                    documentLineMap.put("reserved29", responseItem.getVGBEL());
+                    documentLineMap.put("reserved30", responseItem.getPOSNR());
+                    documentLineMap.put("reserved32", returnMLotOrder.getReserved3());
+
+                    Boolean documentLineFlag = false;
+                    for (String propsName : documentLineMap.keySet()) {
+                        Boolean updateFlag = judgePropsValueEquality(documentLine, propsName, documentLineMap.get(propsName));
+                        if (updateFlag){
+                            documentLineFlag = true;
+                            PropertyUtils.setProperty(documentLine, propsName, documentLineMap.get(propsName));
+                        }
+                    }
+                    if (documentLineFlag){
+                        documentLine.setMaterial(material);
+                        baseService.saveEntity(documentLine);
+                    }
+                }
+            }
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -386,18 +568,24 @@ public class ErpServiceImpl implements ErpService {
             requestHeader.setBUDAT(stockInDate);
 
             List<IncomingOrReturnRequestItem> requestItems = Lists.newArrayList();
-            for (MaterialLot materialLot : materialLots) {
-                IncomingOrReturnRequestItem requestItem = new IncomingOrReturnRequestItem();
-                requestItem.setVBELN_IM(docId);
-                requestItem.setPOSNR(materialLot.getItemId());
-                requestItem.setMENGE(materialLot.getCurrentQty());
-                requestItem.setMATNR(materialLot.getMaterialName());
-                requestItem.setLGORT(materialLot.getLastWarehouseId());
-                IncomingOrReturnRequestTXItem requestTXItem = new IncomingOrReturnRequestTXItem();
-                requestTXItem.copyMaterialLotToRequestTXItem(requestTXItem, materialLot);
-                requestTXItem.setZ_BATCH_POSTEDATE(stockInDate);
-                requestItem.setTXItem(requestTXItem);
-                requestItems.add(requestItem);
+
+            List<DocumentLine> documentLines = documentLineRepository.findByDocId(docId);
+            for (DocumentLine documentLine : documentLines) {
+                List<MaterialLot> materialLotList = materialLots.stream().filter(mLot -> documentLine.getMaterialName().equals(mLot.getMaterialName()) && documentLine.getReserved29().equals(mLot.getReserved20())).collect(Collectors.toList());
+                for (MaterialLot materialLot : materialLotList) {
+                    IncomingOrReturnRequestItem requestItem = new IncomingOrReturnRequestItem();
+                    requestItem.setVBELN_IM(docId);
+                    requestItem.setPOSNR(documentLine.getReserved30());
+                    requestItem.setMENGE(materialLot.getCurrentQty());
+                    requestItem.setMATNR(materialLot.getMaterialName());
+                    requestItem.setLGORT(materialLot.getLastWarehouseId());
+
+                    IncomingOrReturnRequestTXItem requestTXItem = new IncomingOrReturnRequestTXItem();
+                    requestTXItem.copyMaterialLotToRequestTXItem(requestTXItem, materialLot);
+                    requestTXItem.setZ_BATCH_POSTEDATE(stockInDate);
+                    requestItem.setTXItem(requestTXItem);
+                    requestItems.add(requestItem);
+                }
             }
             requestHeader.setItem(requestItems);
             request.setHeader(requestHeader);
@@ -561,6 +749,9 @@ public class ErpServiceImpl implements ErpService {
                             itemId++;
                             requestItem.setZEILI(itemId.toString());
                             requestItem = requestItem.copyMaterialLotToCheckRequestItem(requestItem, materialLot);
+                            requestItem.setZ_BATCH_REEL(materialLot.getMaterialLotId());
+                            requestItem.setZ_BATCH_TBATCH(materialLot.getMaterialLotId());
+                            requestItem.setZ_BATCH_WMSBATCH(StringUtils.EMPTY);
                             requestItems.add(requestItem);
                         }else {
                             List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
@@ -571,7 +762,9 @@ public class ErpServiceImpl implements ErpService {
                                 requestItem.setZEILI(itemId.toString());
                                 requestItem.setZ_BATCH_REEL(materialLot.getMaterialLotId());
                                 requestItem.setZ_BATCH_TBATCH(materialLotUnit.getUnitId());
+                                requestItem.setZ_BATCH_WMSBATCH(StringUtils.EMPTY);
                                 requestItem.setERFMG(materialLotUnit.getQty());
+                                requestItem.setMATNR(materialLotUnit.getMaterialName());
                                 requestItems.add(requestItem);
                             }
                         }
@@ -579,8 +772,8 @@ public class ErpServiceImpl implements ErpService {
                         CheckRequestItem requestItem = new CheckRequestItem();
                         itemId++;
                         requestItem.setZEILI(itemId.toString());
-                        requestItem.setZ_BATCH_BOXNO(materialLot.getMaterialLotId());
                         requestItem = requestItem.copyMaterialLotToCheckRequestItem(requestItem, materialLot);
+                        requestItem.setZ_BATCH_BOXNO(materialLot.getMaterialLotId());
                         requestItems.add(requestItem);
                     } else {
                         CheckRequestItem requestItem = new CheckRequestItem();
@@ -619,26 +812,30 @@ public class ErpServiceImpl implements ErpService {
                 MaterialLotAction firstMaterialLotAction = OptionalMaterialLotAction.get();
 
                 if (Material.MATERIAL_CATEGORY_PRODUCT.equals(materialLot.getMaterialCategory())){
-                    if ((!StringUtils.isNullOrEmpty(materialLot.getInferiorProductsFlag()) && StringUtils.YES.equals(materialLot.getInferiorProductsFlag())) || (!StringUtils.isNullOrEmpty(materialLot.getRmaFlag()))){
+                    if ((!StringUtils.isNullOrEmpty(materialLot.getInferiorProductsFlag()) && (StringUtils.YES.equals(materialLot.getInferiorProductsFlag()) || "R".equals(materialLot.getInferiorProductsFlag())) ) || (!StringUtils.isNullOrEmpty(materialLot.getRmaFlag()))){
                         StockTransferRequestItem requestItem = new StockTransferRequestItem();
                         itemId++;
                         requestItem.setZEILE(itemId + "");
                         requestItem = requestItem.copyMaterialLotToStockTransferRequestItem(requestItem, materialLot);
                         requestItem = requestItem.copyMaterialLotActionToStockTransferRequestItem(requestItem, firstMaterialLotAction);
+
                         requestItem.setZ_BATCH_REEL(materialLot.getMaterialLotId());
+                        requestItem.setZ_BATCH_TBATCH(materialLot.getMaterialLotId());
                         requestItem.setZ_BATCH_BOXNO("");
                         items.add(requestItem);
                     }else {
-                        // List<MaterialLotUnit> materialLotUnits = materialLot.getMaterialLotUnits();
                         List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
                         for (MaterialLotUnit materialLotUnit : materialLotUnits) {
                             StockTransferRequestItem requestItem = new StockTransferRequestItem();
                             itemId++;
                             requestItem.setZEILE(itemId + "");
-                            requestItem = requestItem.copyMaterialLotToStockTransferRequestItem(requestItem, materialLot);
                             requestItem = requestItem.copyMaterialLotActionToStockTransferRequestItem(requestItem, firstMaterialLotAction);
 
-                            requestItem.setZ_BATCH_REEL(materialLot.getMaterialLotId());
+                            requestItem.setMATNR(materialLotUnit.getMaterialName());
+                            requestItem.setERFMG(materialLotUnit.getQty());
+                            requestItem.setMEINS(materialLotUnit.getStoreUom());
+                            requestItem.setZ_BATCH_WMSBATCH(materialLotUnit.getMaterialLotId());
+                            requestItem.setZ_BATCH_REEL(materialLotUnit.getMaterialLotId());
                             requestItem.setZ_BATCH_TBATCH(materialLotUnit.getUnitId());
                             items.add(requestItem);
                         }
@@ -796,31 +993,21 @@ public class ErpServiceImpl implements ErpService {
             String beginDateStr = erpFormatter.format(beginDate);
             String endingDateStr = erpFormatter.format(now);
 
+            //其他条件不处理，只根据时间段去处理。
             List<Delivery> deliverys = Lists.newArrayList();
-            Delivery delivery = new Delivery();
-            delivery.setDelivery("8000000209");
-            deliverys.add(delivery);
-
             List<DeliveryStatus> deliveryStatus = Lists.newArrayList();
-//            DeliveryStatus deliveryStatu = new DeliveryStatus();
-//            deliveryStatu.setStatu("DEL");
-//            deliveryStatus.add(deliveryStatu);
-
             List<DeliveryType> deliveryTypes = Lists.newArrayList();
-//            DeliveryType deliveryType = new DeliveryType();
-//            deliveryType.setType("ZTLR");
-//            deliveryTypes.add(deliveryType);
 
             deliveryInfo(beginDateStr, endingDateStr, deliverys, deliveryStatus, deliveryTypes);
         }catch (Exception e){
+            sendMailERPInterfaceErr(DELIVERY_INFO_URL, e.getMessage());
             throw ExceptionManager.handleException(e,log);
         }
     }
 
     /**
-     *  同步 采购到货通知单（待测品）/退货通知
-     * 发货通知单，不良品发货通知单/RMA退货通知单
-     * @param beginDateStr 开始日期 20210729
+     * 同步发货通知单,不良品发货通知单/RMA退货通知单。
+     * @param beginDateStr 开始日期
      * @param endingDateStr 结束日期
      * @param deliveryList 交货单号
      * @param statusList 交货状态
@@ -847,97 +1034,104 @@ public class ErpServiceImpl implements ErpService {
             if(!ErpResponseReturn.SUCCESS_STATUS.equals(responseReturn.getSTATUS())){
                 return;
             }
-            List<String> documentIds = Lists.newArrayList();
-            if(CollectionUtils.isNotEmpty(responseDataList)){
-                for (DeliveryInfoResponseData responseData : responseDataList) {
-                    List<DeliveryInfoResponseItem> items = responseData.getItems();
+            List<String> redStatusDocumentIds = Lists.newArrayList();
+            List<String> delStatusDocumentIds = Lists.newArrayList();
+            for (DeliveryInfoResponseData responseData : responseDataList) {
+                String shippingDateStr = responseData.getPlan_ship_date();
+                Date shippingDate = new Date();
+                if (!StringUtils.isNullOrEmpty(shippingDateStr)){
+                    shippingDate = formatter.parse(shippingDateStr);
+                }
 
-                    String shippingDateStr = responseData.getPlan_ship_date();
-                    Date shippingDate = new Date();
-                    if (!StringUtils.isNullOrEmpty(shippingDateStr)){
-                        shippingDate = formatter.parse(shippingDateStr);
+                List<DeliveryInfoResponseItem> items = responseData.getItems();
+                if (DeliveryType.DELIVERY_TYPE_SHIP.equals(responseData.getType()) || DeliveryType.DELIVERY_TYPE_REJ_SHIP.equals(responseData.getType())){
+                    DocumentLine erpDocumentLine = new DocumentLine();
+                    erpDocumentLine = responseData.copyDeliveryInfoToDcoumentLine(responseData, erpDocumentLine);
+                    erpDocumentLine.setShippingDate(shippingDate);
+                    erpDocumentLine.setLineId(responseData.getDelivery());
+
+                    List<MaterialLot> reelMLotList = Lists.newArrayList();
+                    for (DeliveryInfoResponseItem responseItem : items) {
+                        MaterialLot materialLot = new MaterialLot();
+                        materialLot.setMaterialName(responseItem.getMaterial());
+                        materialLot.setMaterialLotId(responseItem.getReel());
+                        materialLot.setCurrentQty(responseItem.getQuantity());
+                        materialLot.setUnitId(responseItem.getTest_batch());
+                        reelMLotList.add(materialLot);
+
+                        erpDocumentLine.setReserved34(responseItem.getMaterial_desc());
                     }
 
-                    List<MaterialLot> erpMaterialLotList = Lists.newArrayList();
+                    DocumentLine documentLine = documentLineRepository.findByLineId(responseData.getDelivery());
+                    if(DEL_DELIVERY_STATUS.equals(responseData.getStatu())){
+                        if (documentLine != null){
+                            if ("Ship".equals(documentLine.getStatus())) {
+                                List<MaterialLot> materialLotList = materialLotRepository.findByReserved45(documentLine.getLineId());
+                                for (MaterialLot materialLot : materialLotList) {
+                                    String materialLotId = materialLot.getMaterialLotId();
+                                    List<MaterialLot> materialLots = reelMLotList.stream().filter(reelMLot -> reelMLot.getMaterialLotId().equals(materialLotId)).collect(Collectors.toList());
+                                    BigDecimal reelTotayQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
+
+                                    materialLot.setCurrentQty(reelTotayQty);
+                                    materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_UN_SHIP, StringUtils.EMPTY);
+                                    baseService.saveHistoryEntity(materialLot, MaterialLotHistory.TRANS_TYPE_UN_PRE_RESERVED);
+                                }
+                            }
+
+                            documentLine.setStatus(DocumentLine.STATUS_WAIT_DELETE);
+                            baseService.saveEntity(documentLine);
+
+                           if(BigDecimal.ZERO.compareTo(documentLine.getReservedQty()) == 0){
+                               List<MaterialLot> materialLots = materialLotRepository.findByReserved45(documentLine.getLineId());
+                               for (MaterialLot materialLot : materialLots) {
+                                   materialLot.setReserved45("");
+                                   baseService.saveEntity(materialLot, MaterialLotHistory.TRANS_TYPE_UN_PRE_RESERVED);
+                               }
+                           }
+                           //此处给单据一个状态，不将删除信息回传ERP
+                            //delStatusDocumentIds.add(responseData.getDelivery());
+                            continue;
+                        }
+                    }
+
+                    createDeliveryOrder(erpDocumentLine, reelMLotList, documentLine, responseData.getShip_mode());
+                }else if (DeliveryType.DELIVERY_TYPE_RMA_INCOMING.equals(responseData.getType())){
+                    //ZTLR-精测RMA-自身原因
+                    RMAIncomingOrder erpRMAIncomingOrder = new RMAIncomingOrder();
+                    erpRMAIncomingOrder.setQty(responseData.getTotal());
+                    erpRMAIncomingOrder.setName(responseData.getDelivery());
+
+                    List<MaterialLot> erpMaterialLots = Lists.newArrayList();
                     for (DeliveryInfoResponseItem responseItem : items) {
                         MaterialLot materialLot = new MaterialLot();
                         materialLot = responseData.copyDeliveryInfoToMaterialLot(responseData, materialLot);
                         materialLot = responseItem.copyDeliveryInfoResponseItemToMaterialLot(responseItem, materialLot);
-                        erpMaterialLotList.add(materialLot);
+                        materialLot.setMaterialLotId(responseItem.getReel());
+                        materialLot.setReserved61(responseData.getDelivery());
+                        materialLot.setRmaFlag(DeliveryType.DELIVERY_TYPE_RMA_INCOMING);
+
+                        erpMaterialLots.add(materialLot);
                     }
 
-                    //交货类型
-                    String deliveryType = responseData.getType();
+                    RMAIncomingOrder rmaIncomingOrder = (RMAIncomingOrder)documentService.getDocumentByName(responseData.getDelivery(), false);
+                    if (DEL_DELIVERY_STATUS.equals(responseData.getStatu())) {
+                        if (rmaIncomingOrder.getHandledQty().compareTo(BigDecimal.ZERO) == 0) {
+                            List<MaterialLot> mLotByIncomingDocId = mmsService.getMLotByIncomingDocId(rmaIncomingOrder.getName());
+                            mLotByIncomingDocId.forEach(mLot -> baseService.delete(mLot));
 
-                    //发货类型
-                    String shipMode = responseData.getShip_mode();
-                    if (DeliveryType.DELIVERY_TYPE_SHIP.equals(deliveryType) || DeliveryType.DELIVERY_TYPE_REJ_SHIP.equals(deliveryType)){
-                        //ZTLF-精测正向交货单、发货单 / ZTL2-精测不良品交货
-                        if(responseData.getStatu().equals(DEL_DELIVERY_STATUS)){
-                            //删除
-                            DocumentLine documentLine = documentLineRepository.findByLineId(responseData.getDelivery());
-                            if (documentLine != null){
-                                documentLine.setStatus("Delete");
-                                baseService.saveEntity(documentLine);
-                                //this.backhaulDeliveryStatus(responseData.getDelivery(), null, null, DeliveryStatus.DEL_DELIVERY_STATUS, null);
-                                continue;
-                            }
+                            baseService.delete(rmaIncomingOrder);
+                            delStatusDocumentIds.add(responseData.getDelivery());
+                            continue;
                         }
-                        DocumentLine erpDocumentLine = new DocumentLine();
-                        erpDocumentLine = responseData.copyDeliveryInfoToDcoumentLine(responseData, erpDocumentLine);
-                        erpDocumentLine.setShippingDate(shippingDate);
-                        erpDocumentLine.setLineId(responseData.getDelivery());
-
-                        List<MaterialLot> reelMLotList = Lists.newArrayList();
-                        for (DeliveryInfoResponseItem responseItem : items) {
-                            MaterialLot materialLot = new MaterialLot();
-
-                            materialLot.setMaterialName(responseItem.getMaterial());
-                            materialLot.setMaterialLotId(responseItem.getReel());
-                            materialLot.setCurrentQty(responseItem.getQuantity());
-                            materialLot.setUnitId(responseItem.getTest_batch());
-
-                            reelMLotList.add(materialLot);
-
-                            erpDocumentLine.setReserved34(responseItem.getMaterial_desc());
-                        }
-
-                        createDeliveryOrder(erpDocumentLine, reelMLotList, shipMode);
-                    }else if (DeliveryType.DELIVERY_TYPE_RMA_INCOMING.equals(deliveryType)){
-                        //ZTLR-精测RMA-自身原因
-                        List<MaterialLot> erpMaterialLots = Lists.newArrayList();
-                        for (DeliveryInfoResponseItem responseItem : items) {
-                            MaterialLot materialLot = new MaterialLot();
-                            materialLot = responseData.copyDeliveryInfoToMaterialLot(responseData, materialLot);
-                            materialLot = responseItem.copyDeliveryInfoResponseItemToMaterialLot(responseItem, materialLot);
-                            materialLot.setMaterialLotId(responseItem.getReel());
-                            materialLot.setReserved61(responseData.getDelivery());
-                            materialLot.setRmaFlag("ZTLR");
-
-                            erpMaterialLots.add(materialLot);
-                        }
-                        RMAIncomingOrder rmaIncomingOrder = (RMAIncomingOrder)documentService.getDocumentByName(responseData.getDelivery(), false);
-                        if (responseData.getStatu().equals(DEL_DELIVERY_STATUS)) {
-                            //删除
-                            if (rmaIncomingOrder.getHandledQty().compareTo(BigDecimal.ZERO) == 0) {
-                                baseService.delete(rmaIncomingOrder);
-                                this.backhaulDeliveryStatus(responseData.getDelivery(), null, null, DeliveryStatus.DEL_DELIVERY_STATUS, null);
-                                continue;
-                            }
-                        }
-
-                        RMAIncomingOrder erpRMAIncomingOrder = new RMAIncomingOrder();
-                        erpRMAIncomingOrder.setQty(responseData.getTotal());
-                        erpRMAIncomingOrder.setName(responseData.getDelivery());
-
-                        createRAMIncomingMLotOrder(erpRMAIncomingOrder, erpMaterialLots, rmaIncomingOrder);
                     }
-                    documentIds.add(responseData.getDelivery());
+
+                    createRAMIncomingMLotOrder(erpRMAIncomingOrder, erpMaterialLots, rmaIncomingOrder);
                 }
-                documentIds.forEach(docId -> {
-                    this.backhaulDeliveryStatus(docId, null, null, DeliveryStatus.READ_DELIVERY_STATUS, null);
-                });
+                redStatusDocumentIds.add(responseData.getDelivery());
             }
+
+            redStatusDocumentIds.forEach(docId -> this.backhaulDeliveryStatus(docId, null, null, DeliveryStatus.READ_DELIVERY_STATUS, null));
+            delStatusDocumentIds.forEach(docId -> this.backhaulDeliveryStatus(docId, null, null, DeliveryStatus.DEL_DELIVERY_STATUS, null));
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -950,11 +1144,8 @@ public class ErpServiceImpl implements ErpService {
      * @param shipMode
      * @throws ClientException
      */
-    public void createDeliveryOrder(DocumentLine erpDocumentLine, List<MaterialLot> erpMaterialLots, String shipMode) throws ClientException{
+    public void createDeliveryOrder(DocumentLine erpDocumentLine, List<MaterialLot> erpMaterialLots, DocumentLine documentLine, String shipMode) throws ClientException{
         try {
-            Boolean updateFlag = false;
-            DocumentLine documentLine = documentLineRepository.findByLineId(erpDocumentLine.getLineId());
-
             if (REEL_SHIP_MODE.equals(shipMode)){
                 erpDocumentLine.setReserved24("");
             }else if (PRODUCT_SHIP_MODE.equals(shipMode)){
@@ -971,60 +1162,41 @@ public class ErpServiceImpl implements ErpService {
                 erpDocumentLine.setReserved27(DocumentLine.ES_SHIPPING_TYPE);
             }else if (CS_SHIPPING_TYPE.equals(erpDocumentLine.getReserved27())){
                 erpDocumentLine.setReserved27(DocumentLine.CS_SHIPPING_TYPE);
+            }else if (RY_SHIPPING_TYPE.equals(erpDocumentLine.getReserved27())){
+                erpDocumentLine.setReserved27(DocumentLine.RY_SHIPPING_TYPE);
             }
 
+            Boolean updateFlag = false;
             if (documentLine == null){
-                DeliveryOrder deliveryOrder = (DeliveryOrder)documentService.createDocument(new DeliveryOrder(), erpDocumentLine.getDocId(), DeliveryOrder.GENERATOR_DELIVERY_ORDER_ID_RULE, false, erpDocumentLine.getQty());
-                documentLine = new DocumentLine();
+                DeliveryOrder deliveryOrder = (DeliveryOrder)documentService.createDocument(new DeliveryOrder(), erpDocumentLine.getDocId(), DeliveryOrder.GENERATOR_DELIVERY_ORDER_ID_RULE, true, erpDocumentLine.getQty());
 
-                Map<String, Object> propsMap = PropertyUtils.convertObj2Map(erpDocumentLine);
-                if (propsMap != null && propsMap.size() > 0) {
-                    for (String propName : propsMap.keySet()) {
-                        Object propValue = propsMap.get(propName);
-                        if (propValue == null || StringUtils.isNullOrEmpty(propValue.toString())) {
-                            continue;
-                        }
-                        PropertyUtils.setProperty(documentLine, propName, propsMap.get(propName));
-                    }
-                }
                 erpDocumentLine.setDocument(deliveryOrder);
                 erpDocumentLine.setReservedQty(BigDecimal.ZERO);
-                erpDocumentLine.setUnReservedQty(documentLine.getQty());
-
-                baseService.saveEntity(erpDocumentLine);
-
+                documentLine.setStatus(deliveryOrder.getStatus());
+                erpDocumentLine.setUnReservedQty(erpDocumentLine.getQty());
+                documentLine = (DocumentLine) baseService.saveEntity(erpDocumentLine);
             }else {
                 updateFlag = true;
                 //如果单据已经备货，不能修改
                 if (BigDecimal.ZERO.compareTo(documentLine.getReservedQty()) != 0){
                     throw new ClientParameterException(DocumentException.DOC_CAN_NOT_BE_MODIFIED, documentLine.getLineId());
                 }
-                Map<String, Object> propsMap = PropertyUtils.convertObj2Map(erpDocumentLine);
-                if (propsMap != null && propsMap.size() > 0) {
-                    for (String propName : propsMap.keySet()) {
-                        Object propValue = propsMap.get(propName);
-                        if (propValue == null || StringUtils.isNullOrEmpty(propValue.toString())) {
-                            continue;
-                        }
-                        PropertyUtils.setProperty(documentLine, propName, propsMap.get(propName));
-                    }
-                }
-                documentLine.setReservedQty(BigDecimal.ZERO);
-                documentLine.setUnReservedQty(documentLine.getQty());
-                documentLine.setStatus("Create");
-                baseService.saveEntity(documentLine);
-
                 Document deliveryOrder = documentService.getDocumentByName(documentLine.getDocId(), false);
                 deliveryOrder.setQty(documentLine.getQty());
                 deliveryOrder.setUnHandledQty(documentLine.getQty());
                 baseService.saveEntity(deliveryOrder);
+
+                PropertyUtils.copyProperties(erpDocumentLine, documentLine);
+                documentLine.setReservedQty(BigDecimal.ZERO);
+                documentLine.setUnReservedQty(documentLine.getQty());
+                documentLine.setStatus(deliveryOrder.getStatus());
+                documentLine.setDocument(deliveryOrder);
+                baseService.saveEntity(documentLine);
             }
             List<MaterialLot> materialLots = materialLotRepository.findByMaterialCategoryAndStatus(Material.TYPE_PRODUCT, MaterialStatus.STATUS_IN);
-
             if (updateFlag){
                 Map<String, List<MaterialLot>> materialLotIdMap = erpMaterialLots.stream().collect(Collectors.groupingBy(materialLot -> materialLot.getMaterialLotId()));
                 for (String materialLotId : materialLotIdMap.keySet()) {
-
                     Optional<MaterialLot> materialLotFirst = materialLots.stream().filter(mLot -> mLot.getMaterialLotId().equals(materialLotId)).findFirst();
                     if (materialLotFirst.isPresent()){
                         MaterialLot materialLot = materialLotFirst.get();
@@ -1050,10 +1222,13 @@ public class ErpServiceImpl implements ErpService {
             }else {
                 Map<String, List<MaterialLot>> materialLotIdMap = erpMaterialLots.stream().filter(mLot-> !StringUtils.isNullOrEmpty(mLot.getMaterialLotId())).collect(Collectors.groupingBy(materialLot -> materialLot.getMaterialLotId()));
                 for (String materialLotId : materialLotIdMap.keySet()) {
-
                     Optional<MaterialLot> materialLotFirst = materialLots.stream().filter(mLot -> mLot.getMaterialLotId().equals(materialLotId)).findFirst();
                     if (materialLotFirst.isPresent()){
                         MaterialLot materialLot = materialLotFirst.get();
+                        if(!StringUtils.isNullOrEmpty(materialLot.getReserved45())){
+                            throw new ClientParameterException(DocumentException.MATERIAL_LOT_ALREADY_BOUND_ORDER, materialLotId);
+                        }
+
                         materialLot.setReserved45(documentLine.getLineId());
                         baseService.saveEntity(materialLot, MaterialLotHistory.TRANS_TYPE_PRE_RESERVED);
                     }else {
@@ -1104,15 +1279,16 @@ public class ErpServiceImpl implements ErpService {
         try {
             if (returnMLotOrder == null) {
                 returnMLotOrder = (ReturnMLotOrder)documentService.createDocument(erpReturnMLotOrder, erpReturnMLotOrder.getName(), ReturnMLotOrder.GENERATOR_RETURN_MLOT_ORDER_RULE, true, erpReturnMLotOrder.getQty());
+                //TODO 等待处理；
+                return;
             } else {
                 if(returnMLotOrder.getHandledQty().compareTo(BigDecimal.ZERO) != 0){
                     //如果单据已进行操作，不能修改
                     return;
                 }
                 if (!returnMLotOrder.getQty().equals(erpReturnMLotOrder.getQty())){
-                    BigDecimal differQty = erpReturnMLotOrder.getQty().subtract(returnMLotOrder.getQty());
                     returnMLotOrder.setQty(erpReturnMLotOrder.getQty());
-                    returnMLotOrder.setUnHandledQty(returnMLotOrder.getUnHandledQty().add(differQty));
+                    returnMLotOrder.setUnHandledQty(erpReturnMLotOrder.getQty());
                     baseService.saveEntity(returnMLotOrder);
                 }
             }
@@ -1123,7 +1299,7 @@ public class ErpServiceImpl implements ErpService {
                 DocumentLine documentLine = new DocumentLine();
                 Optional<DocumentLine> documentLinefirst = documentLineList.stream().filter(docLine -> docLine.getReserved30().equals(materialLot.getItemId()) && !StringUtils.isNullOrEmpty(docLine.getReserved24())).findFirst();
                 if (!documentLinefirst.isPresent()){
-                    String docLineId = documentService.generatorDocId("CreateDocLineIdByDocIdRule", returnMLotOrder);
+                    String docLineId = documentService.generatorDocId(DocumentServiceImpl.GENERATOR_DOC_LINE_ID_BY_DOC_ID_RULE, returnMLotOrder);
                     documentLine.setLineId(docLineId);
                 }else {
                     documentLine = documentLinefirst.get();
@@ -1164,7 +1340,6 @@ public class ErpServiceImpl implements ErpService {
                 baseService.saveEntity(documentLine);
 
                 for (MaterialLot materialLot :erpMLots) {
-                    //Optional<MaterialLot> mLot = materialLotList.stream().filter(mLot -> mLot.getMaterialLotId().).findFirst();
                     if (CollectionUtils.isNotEmpty(documentMLots)){
                         Optional<DocumentMLot> documentMLotFirst = documentMLots.stream().filter(docMLot -> docMLot.getMaterialLotId().equals(materialLot.getMaterialLotId())).findFirst();
                         if (documentMLotFirst.isPresent()){
@@ -1177,40 +1352,8 @@ public class ErpServiceImpl implements ErpService {
                     documentMLot.setStatus(DocumentMLot.STATUS_CREATE);
                     documentMLot.setItemId(materialLot.getItemId());
                     documentMLot = documentMLotRepository.save(documentMLot);
-                    //documentService.validationMLotBoundOrder();
                 }
             }
-        }catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 同步来料信息
-     * @param erpIncomingOrder erp单据信息 name,qty
-     * @param erpMaterialLotList erp批次信息
-     * @param incomingOrder wms单据信息 IncomingOrder
-     * @param materialLotList 来料单下的批次信息
-     * @throws ClientException
-     */
-    public void asyncIncomingInfo(IncomingOrder erpIncomingOrder, List<MaterialLot> erpMaterialLotList, IncomingOrder incomingOrder,List<MaterialLot> materialLotList) throws ClientException{
-        try {
-            //来料单据
-            if (incomingOrder == null) {
-                incomingOrder = (IncomingOrder)documentService.createDocument(erpIncomingOrder, erpIncomingOrder.getName(), IncomingOrder.GENERATOR_INCOMING_ORDER_ID_RULE, true, erpIncomingOrder.getQty());
-            } else {
-                if (incomingOrder.getHandledQty().compareTo(BigDecimal.ZERO) != 0 ){
-                    return;
-                }
-                if(erpIncomingOrder.getQty().compareTo(incomingOrder.getQty()) != 0){
-                    BigDecimal differQty = erpIncomingOrder.getQty().subtract(incomingOrder.getQty());
-                    incomingOrder.setQty(erpIncomingOrder.getQty());
-                    incomingOrder.setUnHandledQty(incomingOrder.getUnHandledQty().add(differQty));
-                    baseService.saveEntity(incomingOrder);
-                }
-            }
-
-            asyncIncomingMLot(incomingOrder, erpMaterialLotList, materialLotList);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -1300,10 +1443,10 @@ public class ErpServiceImpl implements ErpService {
                 if (materialLot.getExpireDate() != null){
                     expireDate = formatter.format(materialLot.getExpireDate());
                 }
-                if (Material.MATERIAL_CATEGORY_PRODUCT.equals(materialLot.getMaterialCategory())){
+                if (Material.MATERIAL_CATEGORY_PRODUCT.equals(materialLot.getMaterialCategory())){//wms批次不传
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-                    //次品
-                    if (!StringUtils.isNullOrEmpty(materialLot.getInferiorProductsFlag()) && StringUtils.YES.equals(materialLot.getInferiorProductsFlag())){
+                    //次品和RA
+                    if (!StringUtils.isNullOrEmpty(materialLot.getInferiorProductsFlag()) && (StringUtils.YES.equals(materialLot.getInferiorProductsFlag())|| "R".equals(materialLot.getInferiorProductsFlag()))){
                         MaterialLotUnit materialLotUnit = materialLotUnits.get(0);
                         StockInRequestItem requestItem = new StockInRequestItem();
                         requestItem = requestItem.copyProductMLotToStockInRequestItem(materialLot, requestItem);
@@ -1579,6 +1722,8 @@ public class ErpServiceImpl implements ErpService {
             }
             interfaceHistory.setActionCode(errorMessage);
             interfaceHistory.setResult(InterfaceHistory.RESULT_FAIL);
+
+            sendMailERPInterfaceErr(interfaceHistory.getDestination(), errorMessage);
         }
         interfaceHistory.setResponseTxt(responseString);
         if (InterfaceHistory.RESULT_FAIL.equals(interfaceHistory.getResult()) && !InterfaceHistory.TRANS_TYPE_RETRY.equals(transType)) {
@@ -1593,6 +1738,72 @@ public class ErpServiceImpl implements ErpService {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat(ERP_DEFAULT_DATE_FORMAT);
             return formatter.format(DateUtils.now());
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void sendMailERPInterfaceErr(String interfaceInfo, String errMessage) throws ClientException{
+        try {
+            List<NBReferenceList> nbReferenceList = (List<NBReferenceList>) uiService.getReferenceList(INTERFACE_ERROR_SEND_EMAIL_ADDRESS, "Owner");
+            if (CollectionUtils.isEmpty(nbReferenceList)) {
+                return;
+            }
+            List<String> emailTo = nbReferenceList.stream().map(nbReference -> nbReference.getKey()).collect(Collectors.toList());
+
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("interfaceInfo", interfaceInfo);
+            parameterMap.put("msg", errMessage);
+            mailService.sendTemplateMessage(emailTo, "interface error", "interface_error", parameterMap);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
+    /**
+     *判断属性值是否相等。暂时支持String,Date,BigDecimal
+     * @param nbBase
+     * @param propsName 属性名称
+     * @param propsValueObj 属性值
+     * @return
+     * @throws ClientException
+     */
+    public Boolean judgePropsValueEquality(NBBase nbBase, String propsName, Object propsValueObj) throws ClientException{
+        try {
+            Boolean updateFlag = false;
+            Class propertyType = PropertyUtils.getPropertyType(nbBase, propsName);
+
+            Object ordValueObj = PropertyUtils.getProperty(nbBase, propsName);
+            if (propsValueObj == null && ordValueObj != null){
+                return true;
+            }
+            if (propsValueObj == null && ordValueObj == null){
+                return false;
+            }
+            if (String.class.getName().equalsIgnoreCase(propertyType.getName())) {
+                String propsValue = (String)propsValueObj;
+                String ordValue = (String)ordValueObj;
+
+                if (!propsValue.equals(ordValue)){
+                    updateFlag = true;
+                }
+            }else if (Date.class.getName().equalsIgnoreCase(propertyType.getName())){
+                Date propsValue = (Date)propsValueObj;
+                Date ordValue = (Date)ordValueObj;
+
+                if (!propsValue.equals(ordValue)){
+                    updateFlag = true;
+                }
+            }else if (BigDecimal.class.getName().equalsIgnoreCase(propertyType.getName())){
+                BigDecimal propsValue = (BigDecimal)propsValueObj;
+                BigDecimal ordValue = (BigDecimal)ordValueObj;
+
+                if (propsValue.compareTo(ordValue) != 0){
+                    updateFlag = true;
+                }
+            }
+            return updateFlag;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }

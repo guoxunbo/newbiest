@@ -1,10 +1,11 @@
 vc:
   mesUrl: http://10.39.0.111/mycim2
-  erpUrl:
+  erpUrl: http://shsapwdprd01.vanchip.com:50000/RESTAdapter/
   erpPo:
-    userName:
-    password:
+    userName: WMS_PO
+    password: Wms!Prd2021
   openSchedule: true
+  packingListPath: ../packingList
 #设置server的基本信息
 server:
   servlet:
@@ -75,17 +76,19 @@ spring:
       # 配置密码的公钥 默认使用druid的ConfigTool进行加密
       connection-properties: config.decrypt=false;config.decrypt.key=${publickey}
   mail:
-    host: smtp.163.com
-    username: taozhou0311@163.com
-    password: CYORWSWNLEXZVSNJ
-    from: taozhou0311@163.com
+    host: mail.vanchip.com
+    port: 25
+    username: MES@vanchip.com
+    from: MES@vanchip.com
     properties:
       mail:
         smtp:
-          auth: true
+          auth:
+            enable: true
           starttls:
             enable: true
-            required: true
+          ssl:
+            trust: mail.vanchip.com
   boot:
     admin:
       client:

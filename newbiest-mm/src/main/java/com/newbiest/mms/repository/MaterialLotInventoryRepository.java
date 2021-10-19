@@ -36,4 +36,5 @@ public interface MaterialLotInventoryRepository extends IRepository<MaterialLotI
 
     MaterialLotInventory findByMaterialLotId(String materialLotId);
 
+    List<MaterialLotInventory> findByWarehouseIdInAndMaterialName(String warehouseName, String materialName);
 }

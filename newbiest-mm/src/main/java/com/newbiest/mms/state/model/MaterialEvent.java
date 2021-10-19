@@ -63,6 +63,7 @@ public class MaterialEvent extends Event {
     public static final String EVENT_ISSUE = "Issue";
 
     public static final String EVENT_SHIP = "Ship";
+    public static final String EVENT_UN_SHIP = "UnShip";
 
     public static final String EVENT_PICK = "Pick";
 
