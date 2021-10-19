@@ -1,7 +1,5 @@
 package com.newbiest.gc.rest.IncomingMaterialImport;
 
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.msg.ResponseBody;
 import lombok.Data;
 
@@ -15,4 +13,6 @@ public class IncomingMaterialImportResponseBody extends ResponseBody {
     private List dataList;
 
     private String bondedProperty;
+
+    private boolean importFlag;
 }

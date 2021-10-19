@@ -2,22 +2,23 @@ package com.newbiest.gc.rest.IncomingMaterialImport;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.factory.ModelFactory;
 import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.utils.CsvUtils;
 import com.newbiest.msg.DefaultParser;
+import com.newbiest.msg.Request;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -66,6 +67,28 @@ public class IncomingMaterialImportController {
         List dataList = (List) CsvUtils.importCsv(nbTable, classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), ",");
         responseBody.setDataList(dataList);
         responseBody.setBondedProperty(bondedProperty);
+        response.setBody(responseBody);
+        return response;
+    }
+
+    @ApiOperation(value = "importValidate", notes = "来料导入验证")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "IncomingMaterialImportRequest")
+    @RequestMapping(value = "/IncomingImportValidate", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    public IncomingMaterialImportResponse execute(@RequestBody IncomingMaterialImportRequest request) throws Exception {
+        IncomingMaterialImportResponse response = new IncomingMaterialImportResponse();
+        response.getHeader().setTransactionId(request.getHeader().getTransactionId());
+        IncomingMaterialImportResponseBody responseBody = new IncomingMaterialImportResponseBody();
+
+        IncomingMaterialImportRequestBody requestBody = request.getBody();
+        String actionType = requestBody.getActionType();
+        if (IncomingMaterialImportRequest.ACTION_VALIDATE_RMA.equals(actionType)) {
+            List<MaterialLot> materialLots = requestBody.getMaterialLotList();
+            boolean importFlag = gcService.validateRmaImportMaterialLot(materialLots);
+            responseBody.setImportFlag(importFlag);
+        } else {
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+        }
+
         response.setBody(responseBody);
         return response;
     }
