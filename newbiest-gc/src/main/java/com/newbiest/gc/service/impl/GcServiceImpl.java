@@ -4504,7 +4504,12 @@ public class GcServiceImpl implements GcService {
 
             if(CollectionUtils.isNotEmpty(scmReportHoldMLotList)){
                 log.info("scmReportHold MLotList is -----> " + scmReportHoldMLotList);
-                scmService.sendMaterialStateReport(scmReportHoldMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
+                List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+                for(MaterialLot materialLot : scmReportHoldMLotList){
+                    List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotUnitList.addAll(materialLotUnits);
+                }
+                scmService.sendMaterialStateReport(materialLotUnitList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
             }
 
             if(!StringUtils.isNullOrEmpty(printLabel)){
@@ -5134,7 +5139,12 @@ public class GcServiceImpl implements GcService {
 
             log.info("MaterialLots report scm status is" + scmReportMLotList);
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
-                scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
+                List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+                for(MaterialLot materialLot : scmReportMLotList){
+                    List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotUnitList.addAll(materialLotUnits);
+                }
+                scmService.sendMaterialStateReport(materialLotUnitList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
                 log.info("MaterialLots report scm status  hold end");
             }
         } catch (Exception e) {
@@ -5197,7 +5207,12 @@ public class GcServiceImpl implements GcService {
 
             log.info("scm report materialLots release  status is " + scmReleaseReportMLotList);
             if(CollectionUtils.isNotEmpty(scmReleaseReportMLotList)){
-                scmService.sendMaterialStateReport(scmReleaseReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_RELEASE);
+                List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+                for(MaterialLot materialLot : scmReleaseReportMLotList){
+                    List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotUnitList.addAll(materialLotUnits);
+                }
+                scmService.sendMaterialStateReport(materialLotUnitList, MaterialLotStateReportRequestBody.ACTION_TYPE_RELEASE);
                 log.info("scm report materialLots release end");
             }
         } catch (Exception e) {
@@ -9355,10 +9370,15 @@ public class GcServiceImpl implements GcService {
     private void sendMaterialStateToScmReport(List<MaterialLot> scmReportMLotList, String transId) throws ClientException{
         try{
             log.info("materialLot send to scm  start report materialLots is " + scmReportMLotList);
+            List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+            for(MaterialLot materialLot : scmReportMLotList){
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                materialLotUnitList.addAll(materialLotUnits);
+            }
             if(MaterialLot.TRANSTYPE_BIND_WORKORDER.equals(transId)){
-                scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_PLAN);
+                scmService.sendMaterialStateReport(materialLotUnitList, MaterialLotStateReportRequestBody.ACTION_TYPE_PLAN);
             } else if(MaterialLot.TRANSTYPE_UN_BIND_WORKORDER.equals(transId)){
-                scmService.sendMaterialStateReport(scmReportMLotList, MaterialLotStateReportRequestBody.ACTION_TYPE_UN_PLAN);
+                scmService.sendMaterialStateReport(materialLotUnitList, MaterialLotStateReportRequestBody.ACTION_TYPE_UN_PLAN);
             }
             log.info("materialLot send to scm  report request end");
         } catch (Exception e){
@@ -9578,16 +9598,16 @@ public class GcServiceImpl implements GcService {
                 Iterator<MaterialLot> iterator = materialLots.iterator();
                 while (iterator.hasNext()) {
                     MaterialLot materialLot = iterator.next();
-                    BigDecimal currentSubQty = materialLot.getCurrentSubQty();
-                    if (unhandedQty.compareTo(currentSubQty) >= 0) {
-                        unhandedQty = unhandedQty.subtract(currentSubQty);
-                        currentSubQty = BigDecimal.ZERO;
+                    BigDecimal currentQty = materialLot.getCurrentQty();
+                    if (unhandedQty.compareTo(currentQty) >= 0) {
+                        unhandedQty = unhandedQty.subtract(currentQty);
+                        currentQty = BigDecimal.ZERO;
                     } else {
-                        currentSubQty = currentSubQty.subtract(unhandedQty);
+                        currentQty = currentQty.subtract(unhandedQty);
                         unhandedQty = BigDecimal.ZERO;
                     }
-                    materialLot.setCurrentSubQty(currentSubQty);
-                    if (materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) == 0) {
+                    materialLot.setCurrentQty(currentQty);
+                    if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                         saveDocLineRrnAndChangeStatus(materialLot, documentLine);
                         iterator.remove();
                     }
