@@ -30,7 +30,7 @@ public interface ScmService {
     void addTracking(String orderId, String expressNumber, boolean isKuayueExprress) throws ClientException;
     void addScmTracking(String orderId, List<MaterialLot> materialLotList) throws ClientException;
 
-    void sendMaterialStateReport(List<MaterialLot> materialLots, String action) throws ClientException;
+    void sendMaterialStateReport(List<MaterialLotUnit> materialLotUnitList, String action) throws ClientException;
 
 
 }
