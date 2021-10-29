@@ -1134,19 +1134,37 @@ public class MmsServiceImpl implements MmsService {
 
     /**
      * 根据LotId验证物料批次是否需要预约Hold操作
+     * 此处做预约Hold传的值都是已经拼接好的LotId包含“.”
      * @param lotId
      * @throws ClientException
      */
     public void validateFutureHoldByLotId(String lotId) throws ClientException{
         try {
-            List<FutureHoldConfig> futureHoldConfigList = futureHoldConfigRepository.getByLotIdLike(lotId + "%");
-            if (CollectionUtils.isNotEmpty(futureHoldConfigList)){
-                for(FutureHoldConfig futureHoldConfig : futureHoldConfigList){
-                    MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(futureHoldConfig.getLotId(), MaterialLot.STATUS_FIN);
-                    if(materialLot != null && MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
-                        MaterialLotAction materialLotAction = new MaterialLotAction();
-                        materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
-                        holdMaterialLot(materialLot, materialLotAction);
+            log.info("future Hold lotId is " + lotId);
+            FutureHoldConfig futureHoldConfigSet = futureHoldConfigRepository.findByLotId(lotId);
+            if(futureHoldConfigSet != null){
+                log.info("future HoldConfigSet is " + futureHoldConfigSet);
+                MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(futureHoldConfigSet.getLotId(), MaterialLot.STATUS_FIN);
+                if(materialLot != null && MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setActionReason(futureHoldConfigSet.getHoldReason());
+                    holdMaterialLot(materialLot, materialLotAction);
+                }
+            } else {
+                String fabLotId = lotId.split("\\.")[0];
+                List<FutureHoldConfig> futureHoldConfigList = futureHoldConfigRepository.getByLotIdLike(fabLotId + "%");
+                if (CollectionUtils.isNotEmpty(futureHoldConfigList)){
+                    log.info("future Hold futureHoldConfigList is " + futureHoldConfigList);
+                    for(FutureHoldConfig futureHoldConfig : futureHoldConfigList){
+                        List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
+                        log.info("Hold materialLotList is " + materialLotList);
+                        for(MaterialLot materialLot : materialLotList){
+                            if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())) {
+                                MaterialLotAction materialLotAction = new MaterialLotAction();
+                                materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
+                                holdMaterialLot(materialLot, materialLotAction);
+                            }
+                        }
                     }
                 }
             }
