@@ -16,4 +16,10 @@ public interface GCWorkorderRelationRepository extends IRepository<GCWorkorderRe
     GCWorkorderRelation findByBoxIdAndWorkOrderIdAndGrade(@Param("boxId")String boxId, @Param("workOrderId")String workOrderId, @Param("grade")String grade) throws ClientException;
 
     GCWorkorderRelation findByBoxIdAndWorkOrderIdIsNullAndGradeIsNull(@Param("boxId")String boxId) throws ClientException;
+
+    GCWorkorderRelation findByWorkOrderIdAndGradeAndBoxIdIsNull(@Param("workOrderId")String workOrderId, @Param("grade")String grade) throws ClientException;
+
+    GCWorkorderRelation findByWorkOrderIdAndBoxIdAndGradeIsNull(@Param("workOrderId")String workOrderId, @Param("boxId")String boxId) throws ClientException;
+
+    GCWorkorderRelation findByBoxIdAndGradeAndWorkOrderIdIsNull(@Param("boxId")String boxId, @Param("grade")String grade) throws ClientException;
 }
