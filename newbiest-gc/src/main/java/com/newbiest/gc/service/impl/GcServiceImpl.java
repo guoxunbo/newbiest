@@ -3068,16 +3068,7 @@ public class GcServiceImpl implements GcService {
                     String workOrderId = materialLot.getWorkOrderId();
                     String grade = materialLot.getGrade();
                     String boxId = materialLot.getMaterialLotId();
-                    GCWorkorderRelation workorderRelation = workorderRelationRepository.findByBoxIdAndWorkOrderIdIsNullAndGradeIsNull(boxId);
-                    if(workorderRelation == null){
-                        workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNullAndBoxIdIsNull(workOrderId);
-                    }
-                    if(workorderRelation == null){
-                        workorderRelation = workorderRelationRepository.findByGradeAndWorkOrderIdIsNullAndBoxIdIsNull(grade);
-                    }
-                    if(workorderRelation == null) {
-                        workorderRelation = workorderRelationRepository.findByBoxIdAndWorkOrderIdAndGrade(boxId, workOrderId, grade);
-                    }
+                    GCWorkorderRelation workorderRelation = findWorkorderRelationByBoxIdOrWorkOrderIdOrGrade(boxId, workOrderId, grade);
                     if(workorderRelation != null){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
                         materialLotAction.setActionReason(workorderRelation.getHoldReason());
@@ -3101,6 +3092,41 @@ public class GcServiceImpl implements GcService {
             if(CollectionUtils.isNotEmpty(erpMoaList)){
                 erpMoaRepository.saveAll(erpMoaList);
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 通过boxId或workOrderId或grade来查询预约hold的条件
+     * @param boxId
+     * @param workOrderId
+     * @param grade
+     * @return
+     * @throws ClientException
+     */
+    private GCWorkorderRelation findWorkorderRelationByBoxIdOrWorkOrderIdOrGrade(String boxId, String workOrderId, String grade) throws ClientException {
+        try {
+            GCWorkorderRelation workorderRelation = workorderRelationRepository.findByBoxIdAndWorkOrderIdIsNullAndGradeIsNull(boxId);
+            if(workorderRelation == null){
+                workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNullAndBoxIdIsNull(workOrderId);
+            }
+        /*    if(workorderRelation == null){
+                workorderRelation = workorderRelationRepository.findByGradeAndWorkOrderIdIsNullAndBoxIdIsNull(grade);
+            }*/
+            if(workorderRelation == null){
+                workorderRelation = workorderRelationRepository.findByBoxIdAndGradeAndWorkOrderIdIsNull(boxId, grade);
+            }
+            if(workorderRelation == null){
+                workorderRelation = workorderRelationRepository.findByWorkOrderIdAndBoxIdAndGradeIsNull(workOrderId, boxId);
+            }
+            if(workorderRelation == null){
+                workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeAndBoxIdIsNull(workOrderId, grade);
+            }
+            if(workorderRelation == null) {
+                workorderRelation = workorderRelationRepository.findByBoxIdAndWorkOrderIdAndGrade(boxId, workOrderId, grade);
+            }
+            return workorderRelation;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
