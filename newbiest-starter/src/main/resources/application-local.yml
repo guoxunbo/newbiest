@@ -6,6 +6,10 @@ vc:
     password: Mes!Po1234
   openSchedule: false
   packingListPath: ../packingList
+  vlm:
+    vlmUrl: https://middle-mes.vivo.xyz:401/ReelAPI.asmx
+    pOper: JW1006U
+    pOperPWD: 94IVviq6
 #设置server的基本信息
 server:
   servlet:

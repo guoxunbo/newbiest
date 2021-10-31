@@ -3,6 +3,7 @@ package com.newbiest.mms.service;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.mms.model.MaterialLot;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,6 +12,7 @@ import java.util.Map;
  */
 public interface PrintService {
     void printMLot(MaterialLot materialLot) throws ClientException;
+    void printMLotList(List<MaterialLot> materialLots) throws ClientException;
 
     void printBoxMLot(MaterialLot boxMaterialLot) throws ClientException;
     Map<String, Object> buildBoxParameterMap(MaterialLot boxMaterialLot) throws ClientException;

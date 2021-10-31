@@ -238,6 +238,11 @@ public class ErpServiceImpl implements ErpService {
     private static final String RY_SHIPPING_TYPE = "04";
 
     /**
+     * TKY客户的packingList
+     */
+    private static final String TKY_SHIPPING_TYPE = "05";
+
+    /**
      * 接口处理失败时发送邮件的地址raferen
      */
     private static final String INTERFACE_ERROR_SEND_EMAIL_ADDRESS = "ERPInterfaceErrEmail";
@@ -516,7 +521,7 @@ public class ErpServiceImpl implements ErpService {
                     documentLine.setUnHandledQty(responseItem.getLGMNG());
                     documentLine.setUnReservedQty(responseItem.getLGMNG());
                     documentLine.setReserved28(responseItem.getLGORT());
-                    documentLine.setReserved29(responseItem.getVGBEL());
+                    documentLine.setReserved29(responseItem.getREF_DOC_NR());
                     documentLine.setReserved30(responseItem.getPOSNR());
                     baseService.saveEntity(documentLine);
                 }else {
@@ -531,7 +536,7 @@ public class ErpServiceImpl implements ErpService {
                     documentLineMap.put("unHandledQty", responseItem.getLGMNG());
                     documentLineMap.put("unReservedQty", responseItem.getLGMNG());
                     documentLineMap.put("reserved28", responseItem.getLGORT());
-                    documentLineMap.put("reserved29", responseItem.getVGBEL());
+                    documentLineMap.put("reserved29", responseItem.getREF_DOC_NR());
                     documentLineMap.put("reserved30", responseItem.getPOSNR());
                     documentLineMap.put("reserved32", returnMLotOrder.getReserved3());
 
@@ -1081,7 +1086,7 @@ public class ErpServiceImpl implements ErpService {
                             documentLine.setStatus(DocumentLine.STATUS_WAIT_DELETE);
                             baseService.saveEntity(documentLine);
 
-                           if(BigDecimal.ZERO.compareTo(documentLine.getReservedQty()) == 0){
+                           if(BigDecimal.ZERO.compareTo(documentLine.getReservedQty()) == 0 && BigDecimal.ZERO.compareTo(documentLine.getHandledQty()) == 0){
                                List<MaterialLot> materialLots = materialLotRepository.findByReserved45(documentLine.getLineId());
                                for (MaterialLot materialLot : materialLots) {
                                    materialLot.setReserved45("");
@@ -1164,6 +1169,8 @@ public class ErpServiceImpl implements ErpService {
                 erpDocumentLine.setReserved27(DocumentLine.CS_SHIPPING_TYPE);
             }else if (RY_SHIPPING_TYPE.equals(erpDocumentLine.getReserved27())){
                 erpDocumentLine.setReserved27(DocumentLine.RY_SHIPPING_TYPE);
+            }else if (TKY_SHIPPING_TYPE.equals(erpDocumentLine.getReserved27())){
+                erpDocumentLine.setReserved27(DocumentLine.TKY_SHIPPING_TYPE);
             }
 
             Boolean updateFlag = false;
@@ -1172,7 +1179,7 @@ public class ErpServiceImpl implements ErpService {
 
                 erpDocumentLine.setDocument(deliveryOrder);
                 erpDocumentLine.setReservedQty(BigDecimal.ZERO);
-                documentLine.setStatus(deliveryOrder.getStatus());
+                erpDocumentLine.setStatus(deliveryOrder.getStatus());
                 erpDocumentLine.setUnReservedQty(erpDocumentLine.getQty());
                 documentLine = (DocumentLine) baseService.saveEntity(erpDocumentLine);
             }else {

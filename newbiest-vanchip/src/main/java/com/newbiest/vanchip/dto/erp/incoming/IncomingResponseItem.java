@@ -83,6 +83,9 @@ public class IncomingResponseItem implements Serializable {
     @ApiModelProperty("REMARK")
     private String REMARK;
 
+    @ApiModelProperty("原采购订单")
+    private String REF_DOC_NR;
+
     private String FIELD1;
     private String FIELD2;
     private String FIELD3;

@@ -55,6 +55,7 @@ import com.newbiest.vanchip.repository.MLotDocRuleRepository;
 import com.newbiest.vanchip.repository.MaterialModelConversionRepository;
 import com.newbiest.vanchip.service.ErpService;
 import com.newbiest.vanchip.service.MesService;
+import com.newbiest.vanchip.service.VLMService;
 import com.newbiest.vanchip.service.VanChipService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.transform.Transformers;
@@ -89,6 +90,9 @@ public class VanchipServiceImpl implements VanChipService {
 
     public static final String TRANS_TYPE_BIND_WO = "BindWo";
     public static final String TRANS_TYPE_UNBIND_WO = "UnbindWo";
+
+    //开始IQC
+    public static final String TRANS_TYPE_START_IQC = "StartIqc";
 
     //修改生产日期
     public static final String TRANS_TYPE_UPDATE_PRODUCTION_DATE = "UpdatePD";
@@ -139,10 +143,37 @@ public class VanchipServiceImpl implements VanChipService {
      */
     public static final String RETURN_HOLD_CODE = "TL_HOLD";
 
-    public static final String GENERATOR_RESERVED_ORDER_ID = "CreateReservedOrderId" ;
+    public static final String GENERATOR_RESERVED_ORDER_ID = "CreateReservedOrderId";
 
-    //最终客户 荣耀
-    public static final String FINAL_CUSTOMER_RY = "RY" ;
+    /**
+     * 最终客户 荣耀
+     */
+    public static final String FINAL_CUSTOMER_RY = "RY";
+
+    /**
+     * 最终客户 OPPO
+     */
+    public static final String FINAL_CUSTOMER_OPPO = "OPPO";
+
+    /**
+     * 最终客户 XM
+     */
+    public static final String FINAL_CUSTOMER_XM = "XM";
+
+    /**
+     * 最终客户 VIVO
+     */
+    public static final String FINAL_CUSTOMER_VIVO = "VIVO";
+
+    /**
+     * 最终客户 TKY
+     */
+    public static final String FINAL_CUSTOMER_TKY = "TKY";
+
+    /**
+     * bin3等级
+     */
+    public static final String GRADE_BIN_3 = "PASS_BIN3";
 
     public static final String ERP_EFFECTIVE_LIFE_YEARS = "Y";
     public static final String ERP_EFFECTIVE_LIFE_WEEKS = "W";
@@ -160,16 +191,6 @@ public class VanchipServiceImpl implements VanChipService {
 
     //RMA非自身原因
     public static final String RMA_TYPE_NOT_SELF_REASON = "ZTR2";
-
-    /**
-     * 发货单终端客户字段包含荣耀字符,使用荣耀包装规则
-     */
-    public static final String SOLD_TO_RY = "荣耀";
-
-    /**
-     * 发货单终端客户字段包含荣耀字符,使用小米包装规则
-     */
-    public static final String SOLD_TO_XM = "UNITED WIRELESS TECHNOLOGY (HONG KONG) LIMITED";
 
     @Value("&{vc.packingListPath}")
     private String packingListFilePath;
@@ -305,6 +326,9 @@ public class VanchipServiceImpl implements VanChipService {
 
     @Autowired
     CustomerProductRepository customerProductRepository;
+
+    @Autowired
+    VLMService vlmService;
 
     public void bindMesOrder(List<String> materialLotIdList, String workOrderId) throws ClientException{
         try {
@@ -1088,6 +1112,7 @@ public class VanchipServiceImpl implements VanChipService {
                             materialLotUnitParaMap.put("reserved12", materialLotUnit.getReserved12());
                             materialLotUnitParaMap.put("reserved21", materialLotUnit.getReserved21());
                             materialLotUnitParaMap.put("reserved22", materialLotUnit.getReserved22());
+                            materialLotUnitParaMap.put("workOrderType", materialLotUnit.getWorkOrderType());
 
                             if (!StringUtils.isNullOrEmpty(materialLotUnit.getReserved4())) {
                                 Optional<MaterialLot> materialLotOptional = incomingMLotByControlLotList.stream()
@@ -1732,46 +1757,59 @@ public class VanchipServiceImpl implements VanChipService {
             PackingListPrintInfo packingListPrintInfo = new PackingListPrintInfo();
             List<PackingListBoxPrintInfo> packingListBoxPrintInfos = Lists.newArrayList();
 
-            Map<String, List<MaterialLotUnit>> reelMap = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit::getMaterialLotId));
-            for (MaterialLot reelMLot:reelMaterialLots){
-                List<MaterialLotUnit> units = reelMap.get(reelMLot.getMaterialLotId());
+            //正常 PackingList的批次信息
+            packingListBoxPrintInfos = buildPackingListBoxPrintInfo(deliveryOrderLine, materialLotUnits, boxMaterialLots, reelMaterialLots);
 
-                Map<String, List<MaterialLotUnit>> controlLotMap = units.stream().collect(Collectors.groupingBy(MaterialLotUnit::getReserved4));
-                for (String controlLot : controlLotMap.keySet()) {
-                    PackingListBoxPrintInfo packingListBoxPrintInfo = new PackingListBoxPrintInfo();
-                    List<MaterialLotUnit> unitsBycontrolLot = controlLotMap.get(controlLot);
-                    MaterialLotUnit materialLotUnit = unitsBycontrolLot.get(0);
-                    BigDecimal qty = unitsBycontrolLot.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit::getQty));
-
-                    //unit属性
-                    packingListBoxPrintInfo.setPart_number(materialLotUnit.getReserved3());
-                    packingListBoxPrintInfo.setReel_code(materialLotUnit.getMaterialLotId());
-                    packingListBoxPrintInfo.setLot_no(materialLotUnit.getReserved4());
-                    packingListBoxPrintInfo.setQty(qty.toPlainString());
-                    packingListBoxPrintInfo.setPo_no(materialLotUnit.getReserved1());
-                    packingListBoxPrintInfo.setDc(materialLotUnit.getReserved2());
-                    packingListBoxPrintInfo.setVersionNumber(materialLotUnit.getReserved13());
-                    packingListBoxPrintInfo.setControlLot(materialLotUnit.getReserved4());
-                    packingListBoxPrintInfo.setContromerLotNo(materialLotUnit.getReserved14());
-                    //外箱属性
-                    List<MaterialLot> boxMLotsbyReel = boxMaterialLots.stream().filter(boxMLot -> boxMLot.getMaterialLotId().equals(reelMLot.getBoxMaterialLotId())).collect(Collectors.toList());
-                    MaterialLot boxMLot = boxMLotsbyReel.get(0);
-
-                    //保留三位小数，
-                    BigDecimal netWeight = new BigDecimal(boxMLot.getReserved12()).setScale(3, BigDecimal.ROUND_HALF_UP);
-                    BigDecimal grossWeight = new BigDecimal(boxMLot.getReserved13()).setScale(3, BigDecimal.ROUND_HALF_UP);
-
-                    packingListBoxPrintInfo.setCtn_no(boxMLot.getMaterialLotId());
-                    packingListBoxPrintInfo.setCarton_size(boxMLot.getReserved10());
-                    packingListBoxPrintInfo.setCarton_qty(boxMLot.getCurrentQty().toPlainString());
-                    packingListBoxPrintInfo.setNw(netWeight.toPlainString());
-                    packingListBoxPrintInfo.setGw(grossWeight.toPlainString());
-                    String ctnIdx = boxMLot.getMaterialLotId().substring(0, boxMLot.getMaterialLotId().indexOf(StringUtils.SPLIT_CODE));
-                    packingListBoxPrintInfo.setCtn_idx(Integer.valueOf(ctnIdx));
-
-                    packingListBoxPrintInfos.add(packingListBoxPrintInfo);
-                }
+            //RY PackingList的批次信息
+            if (DocumentLine.RY_SHIPPING_TYPE.equals(deliveryOrderLine.getReserved27())) {
+                packingListBoxPrintInfos = buildRYPackingListBoxPrintInfo(deliveryOrderLine, materialLotUnits, boxMaterialLots, reelMaterialLots);
             }
+
+            //TKY正常模板,DC栏位为空。
+            if (DocumentLine.TKY_SHIPPING_TYPE.equals(deliveryOrderLine.getReserved27())) {
+                packingListBoxPrintInfos.forEach(packingListBoxPrintInfo -> packingListBoxPrintInfo.setDc(StringUtils.EMPTY));
+            }
+
+//            Map<String, List<MaterialLotUnit>> reelMap = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit::getMaterialLotId));
+//            for (MaterialLot reelMLot:reelMaterialLots){
+//                List<MaterialLotUnit> units = reelMap.get(reelMLot.getMaterialLotId());
+//
+//                Map<String, List<MaterialLotUnit>> controlLotMap = units.stream().collect(Collectors.groupingBy(MaterialLotUnit::getReserved4));
+//                for (String controlLot : controlLotMap.keySet()) {
+//                    PackingListBoxPrintInfo packingListBoxPrintInfo = new PackingListBoxPrintInfo();
+//                    List<MaterialLotUnit> unitsBycontrolLot = controlLotMap.get(controlLot);
+//                    MaterialLotUnit materialLotUnit = unitsBycontrolLot.get(0);
+//                    BigDecimal qty = unitsBycontrolLot.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit::getQty));
+//
+//                    //unit属性
+//                    packingListBoxPrintInfo.setPart_number(reelMLot.getReserved2());
+//                    packingListBoxPrintInfo.setReel_code(materialLotUnit.getMaterialLotId());
+//                    packingListBoxPrintInfo.setLot_no(materialLotUnit.getReserved4());
+//                    packingListBoxPrintInfo.setQty(qty.toPlainString());
+//                    packingListBoxPrintInfo.setPo_no(materialLotUnit.getReserved1());
+//                    packingListBoxPrintInfo.setDc(materialLotUnit.getReserved2());
+//                    packingListBoxPrintInfo.setVersionNumber(materialLotUnit.getReserved13());
+//                    packingListBoxPrintInfo.setControlLot(materialLotUnit.getReserved4());
+//                    packingListBoxPrintInfo.setContromerLotNo(materialLotUnit.getReserved14());
+//                    //外箱属性
+//                    List<MaterialLot> boxMLotsbyReel = boxMaterialLots.stream().filter(boxMLot -> boxMLot.getMaterialLotId().equals(reelMLot.getBoxMaterialLotId())).collect(Collectors.toList());
+//                    MaterialLot boxMLot = boxMLotsbyReel.get(0);
+//
+//                    //保留三位小数，
+//                    BigDecimal netWeight = new BigDecimal(boxMLot.getReserved12()).setScale(3, BigDecimal.ROUND_HALF_UP);
+//                    BigDecimal grossWeight = new BigDecimal(boxMLot.getReserved13()).setScale(3, BigDecimal.ROUND_HALF_UP);
+//
+//                    packingListBoxPrintInfo.setCtn_no(boxMLot.getMaterialLotId());
+//                    packingListBoxPrintInfo.setCarton_size(boxMLot.getReserved10());
+//                    packingListBoxPrintInfo.setCarton_qty(boxMLot.getCurrentQty().toPlainString());
+//                    packingListBoxPrintInfo.setNw(netWeight.toPlainString());
+//                    packingListBoxPrintInfo.setGw(grossWeight.toPlainString());
+//                    String ctnIdx = boxMLot.getMaterialLotId().substring(0, boxMLot.getMaterialLotId().indexOf(StringUtils.SPLIT_CODE));
+//                    packingListBoxPrintInfo.setCtn_idx(Integer.valueOf(ctnIdx));
+//
+//                    packingListBoxPrintInfos.add(packingListBoxPrintInfo);
+//                }
+//            }
 
             packingListBoxPrintInfos = packingListBoxPrintInfos.stream().sorted(Comparator.comparing(PackingListBoxPrintInfo::getReel_code)).sorted(Comparator.comparingInt(PackingListBoxPrintInfo::getCtn_idx)).collect(Collectors.toList());
             packingListPrintInfo.setPackingListBoxPrintInfos(packingListBoxPrintInfos);
@@ -1801,6 +1839,120 @@ public class VanchipServiceImpl implements VanChipService {
             packingListPrintInfo.setPackingListType(deliveryOrderLine.getReserved27());
 
             return packingListPrintInfo;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据reel + 测试批次上的control Lot分行
+     * @param documentLine
+     * @param materialLotUnits
+     * @param boxMaterialLots
+     * @param reelMaterialLots
+     * @return List<PackingListBoxPrintInfo>
+     * @throws ClientException
+     */
+    public List<PackingListBoxPrintInfo> buildPackingListBoxPrintInfo(DocumentLine documentLine, List<MaterialLotUnit> materialLotUnits, List<MaterialLot> boxMaterialLots, List<MaterialLot> reelMaterialLots) throws ClientException{
+        try {
+            List<PackingListBoxPrintInfo> packingListBoxPrintInfos = Lists.newArrayList();
+
+            Map<String, List<MaterialLotUnit>> reelMap = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit::getMaterialLotId));
+            for (MaterialLot reelMLot:reelMaterialLots){
+                List<MaterialLotUnit> units = reelMap.get(reelMLot.getMaterialLotId());
+
+                Map<String, List<MaterialLotUnit>> controlLotMap = units.stream().collect(Collectors.groupingBy(MaterialLotUnit::getReserved4));
+                for (String controlLot : controlLotMap.keySet()) {
+                    PackingListBoxPrintInfo packingListBoxPrintInfo = new PackingListBoxPrintInfo();
+                    List<MaterialLotUnit> unitsBycontrolLot = controlLotMap.get(controlLot);
+                    MaterialLotUnit materialLotUnit = unitsBycontrolLot.get(0);
+                    BigDecimal qty = unitsBycontrolLot.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit::getQty));
+
+                    //unit属性
+                    packingListBoxPrintInfo.setPart_number(reelMLot.getReserved2());
+                    packingListBoxPrintInfo.setReel_code(materialLotUnit.getMaterialLotId());
+                    packingListBoxPrintInfo.setLot_no(materialLotUnit.getReserved4());
+                    packingListBoxPrintInfo.setQty(qty.toPlainString());
+                    packingListBoxPrintInfo.setPo_no(materialLotUnit.getReserved1());
+                    packingListBoxPrintInfo.setDc(materialLotUnit.getReserved2());
+                    packingListBoxPrintInfo.setVersionNumber(materialLotUnit.getReserved13());
+                    packingListBoxPrintInfo.setControlLot(materialLotUnit.getReserved4());
+                    packingListBoxPrintInfo.setContromerLotNo(materialLotUnit.getReserved14());
+                    //外箱属性
+                    List<MaterialLot> boxMLotsbyReel = boxMaterialLots.stream().filter(boxMLot -> boxMLot.getMaterialLotId().equals(reelMLot.getBoxMaterialLotId())).collect(Collectors.toList());
+                    MaterialLot boxMLot = boxMLotsbyReel.get(0);
+
+                    //保留三位小数，
+                    BigDecimal netWeight = new BigDecimal(boxMLot.getReserved12()).setScale(3, BigDecimal.ROUND_HALF_UP);
+                    BigDecimal grossWeight = new BigDecimal(boxMLot.getReserved13()).setScale(3, BigDecimal.ROUND_HALF_UP);
+
+                    packingListBoxPrintInfo.setCtn_no(boxMLot.getMaterialLotId());
+                    packingListBoxPrintInfo.setCarton_size(boxMLot.getReserved10());
+                    packingListBoxPrintInfo.setCarton_qty(boxMLot.getCurrentQty().toPlainString());
+                    packingListBoxPrintInfo.setNw(netWeight.toPlainString());
+                    packingListBoxPrintInfo.setGw(grossWeight.toPlainString());
+                    String ctnIdx = boxMLot.getMaterialLotId().substring(0, boxMLot.getMaterialLotId().indexOf(StringUtils.SPLIT_CODE));
+                    packingListBoxPrintInfo.setCtn_idx(Integer.valueOf(ctnIdx));
+
+                    packingListBoxPrintInfos.add(packingListBoxPrintInfo);
+                }
+            }
+            return packingListBoxPrintInfos;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * RY的根据reel + 测试批次上的DC分行
+     * @param documentLine
+     * @param materialLotUnits
+     * @param boxMaterialLots
+     * @param reelMaterialLots
+     * @return
+     * @throws ClientException
+     */
+    public List<PackingListBoxPrintInfo> buildRYPackingListBoxPrintInfo(DocumentLine documentLine, List<MaterialLotUnit> materialLotUnits, List<MaterialLot> boxMaterialLots, List<MaterialLot> reelMaterialLots) throws ClientException{
+        try {
+            List<PackingListBoxPrintInfo> packingListBoxPrintInfos = Lists.newArrayList();
+
+            Map<String, List<MaterialLotUnit>> unitMapList = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit::getMaterialLotId));
+            for (MaterialLot reelMLot:reelMaterialLots){
+                List<MaterialLotUnit> unitList = unitMapList.get(reelMLot.getMaterialLotId());
+
+                Map<String, List<MaterialLotUnit>> dcMap = unitList.stream().collect(Collectors.groupingBy(MaterialLotUnit::getReserved2));
+                for (String dc : dcMap.keySet()) {
+                    PackingListBoxPrintInfo packingListBoxPrintInfo = new PackingListBoxPrintInfo();
+                    List<MaterialLotUnit> unitsByDc = dcMap.get(dc);
+                    MaterialLotUnit materialLotUnit = unitsByDc.get(0);
+                    BigDecimal qty = unitsByDc.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit::getQty));
+
+                    packingListBoxPrintInfo.setPart_number(reelMLot.getReserved2());
+                    packingListBoxPrintInfo.setLot_no(materialLotUnit.getMaterialLotId());
+                    packingListBoxPrintInfo.setReel_code(materialLotUnit.getMaterialLotId());
+                    packingListBoxPrintInfo.setQty(qty.toPlainString());
+                    packingListBoxPrintInfo.setPo_no(documentLine.getReserved20());
+                    packingListBoxPrintInfo.setDc(dc);
+
+                    List<MaterialLot> boxMLotsbyReel = boxMaterialLots.stream().filter(boxMLot -> boxMLot.getMaterialLotId().equals(reelMLot.getBoxMaterialLotId())).collect(Collectors.toList());
+                    MaterialLot boxMLot = boxMLotsbyReel.get(0);
+
+                    //保留三位小数，
+                    BigDecimal netWeight = new BigDecimal(boxMLot.getReserved12()).setScale(3, BigDecimal.ROUND_HALF_UP);
+                    BigDecimal grossWeight = new BigDecimal(boxMLot.getReserved13()).setScale(3, BigDecimal.ROUND_HALF_UP);
+
+                    packingListBoxPrintInfo.setCtn_no(boxMLot.getMaterialLotId());
+                    packingListBoxPrintInfo.setCarton_size(boxMLot.getReserved10());
+                    packingListBoxPrintInfo.setCarton_qty(boxMLot.getCurrentQty().toPlainString());
+                    packingListBoxPrintInfo.setNw(netWeight.toPlainString());
+                    packingListBoxPrintInfo.setGw(grossWeight.toPlainString());
+                    String ctnIdx = boxMLot.getMaterialLotId().substring(0, boxMLot.getMaterialLotId().indexOf(StringUtils.SPLIT_CODE));
+                    packingListBoxPrintInfo.setCtn_idx(Integer.valueOf(ctnIdx));
+
+                    packingListBoxPrintInfos.add(packingListBoxPrintInfo);
+                }
+            }
+            return packingListBoxPrintInfos;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -1957,6 +2109,8 @@ public class VanchipServiceImpl implements VanChipService {
             deliveryPrintInfo.setPkType(deliveryOrderLine.getReserved27());
             deliveryPrintInfo.setCreatedBy(deliveryOrderLine.getCreatedBy());
             deliveryPrintInfo.setCustomerCode(deliveryOrderLine.getReserved2());
+            deliveryPrintInfo.setTotalQty(deliveryOrderLine.getQty().toPlainString());
+            deliveryPrintInfo.setTerminalCustomer(deliveryOrderLine.getReserved36());
 
             if (!StringUtils.isNullOrEmpty(deliveryOrderLine.getReserved24())) {
                 DeliveryMLotPrintInfo deliveryMLotPrintInfo = new DeliveryMLotPrintInfo();
@@ -1966,20 +2120,26 @@ public class VanchipServiceImpl implements VanChipService {
                 deliveryMLotPrintInfo.setMrb(deliveryOrderLine.getReserved5());
                 deliveryMLotPrintInfo.setQty(deliveryOrderLine.getQty() + "");
                 deliveryMLotPrintInfo.setRemark(deliveryOrderLine.getReserved6());
-
+                deliveryMLotPrintInfo.setSeqNo("1");
                 deliveryMLotPrintInfoList.add(deliveryMLotPrintInfo);
             }else {
                 List<MaterialLot> reelAndBoxMLots = materialLotRepository.findByReserved45(deliveryOrderLine.getLineId());
                 List<MaterialLot> reelMaterialLots = reelAndBoxMLots.stream().filter(mlot-> (StringUtils.isNullOrEmpty(mlot.getCategory()))).collect(Collectors.toList());
-                Map<String, List<MaterialLot>> partNumberAndVersionMap = reelMaterialLots.stream().collect(Collectors.groupingBy(reelMLot -> reelMLot.getReserved2() + StringUtils.SPLIT_CODE + reelMLot.getReserved3()));
+
+                List<String> materialLotIds = reelMaterialLots.stream().map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toList());
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotIdIn(materialLotIds);
+                Map<String, List<MaterialLotUnit>> partNumberAndVersionMap = materialLotUnitList.stream().collect(Collectors.groupingBy(materialLotUnit -> materialLotUnit.getReserved3() + StringUtils.SPLIT_CODE + materialLotUnit.getReserved13()));
+                Integer seqNo = 0;
                 for (String partNumberAndVersion : partNumberAndVersionMap.keySet()) {
-                    List<MaterialLot> materialLots = partNumberAndVersionMap.get(partNumberAndVersion);
-                    BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
+                    List<MaterialLotUnit> materialLotUnits = partNumberAndVersionMap.get(partNumberAndVersion);
+                    BigDecimal totalQty = materialLotUnits.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit::getQty));
                     DeliveryMLotPrintInfo deliveryMLotPrintInfo = new DeliveryMLotPrintInfo();
-                    MaterialLot materialLot = materialLots.get(0);
-                    deliveryMLotPrintInfo.setPartNumber(materialLot.getReserved2());
-                    deliveryMLotPrintInfo.setPartVersion(materialLot.getReserved3());
-                    deliveryMLotPrintInfo.setQty(totalQty+"");
+                    MaterialLotUnit materialLotUnit = materialLotUnits.get(0);
+                    deliveryMLotPrintInfo.setPartNumber(materialLotUnit.getReserved3());
+                    deliveryMLotPrintInfo.setPartVersion(materialLotUnit.getReserved13());
+                    deliveryMLotPrintInfo.setQty(totalQty.toPlainString());
+                    deliveryMLotPrintInfo.setSeqNo(seqNo++ + StringUtils.EMPTY);
                     deliveryMLotPrintInfoList.add(deliveryMLotPrintInfo);
                 }
             }
@@ -3031,42 +3191,36 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
-
+    /**
+     * 打印外箱标签
+     * @param subBoxMLotId
+     * @param materialLotAction
+     * @param validationPrintFlag
+     * @throws ClientException
+     */
     public void printBoxMLot(String subBoxMLotId, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException{
         try {
             MaterialLot boxMaterialLot = getBoxMLotBySubBoxMLotId(subBoxMLotId);
 
             boxMaterialLot = mmsService.validationPrintAndAddPrintCount(boxMaterialLot, materialLotAction, validationPrintFlag);
 
-            //printService.printBoxMLot(boxMaterialLot);
-
             //TODO 荣耀需要删除。新增oppo,vivo,根据发货单终端客户栏位判断。
-            //printOPPOBoxMLot(subBoxMLotId, materialLotAction, validationPrintFlag);
-            printOPPOBoxTabMLot(subBoxMLotId, materialLotAction, validationPrintFlag);
-
             //判断是否需要打印荣耀标签
-//            String finalCustomer = boxMaterialLot.getReserved53();
 //            if (!StringUtils.isNullOrEmpty(finalCustomer) && FINAL_CUSTOMER_RY.equals(finalCustomer)){
 //                printRYBoxMLot(subBoxMLotId, materialLotAction, validationPrintFlag);
 //            }
+            String finalCustomer = boxMaterialLot.getReserved53();
+            if(FINAL_CUSTOMER_OPPO.equals(finalCustomer) && GRADE_BIN_3.equals(boxMaterialLot.getGrade())){
 
-            if (StringUtils.isNullOrEmpty(boxMaterialLot.getReserved45())){
-                return;
-            }
-            DocumentLine documentLine = documentService.getDocumentLineByLineId(boxMaterialLot.getReserved45(), true);
-            if (StringUtils.isNullOrEmpty(documentLine.getReserved36())){
-                return;
-            }
-            String terminalCustomer = documentLine.getReserved36().toUpperCase();
-
-            if(MaterialLotPackageType.TERMINAL_CUSTOMER_OPPO.contains(terminalCustomer)){
-
-                printOPPOBoxMLot(subBoxMLotId, materialLotAction, validationPrintFlag);
+                printService.printBoxMLot(boxMaterialLot);
 
                 printOPPOBoxTabMLot(subBoxMLotId, materialLotAction, validationPrintFlag);
-            }else if(MaterialLotPackageType.TERMINAL_CUSTOMER_VIVO.contains(terminalCustomer)){
+            }else if(FINAL_CUSTOMER_VIVO.equals(finalCustomer) && GRADE_BIN_3.equals(boxMaterialLot.getGrade())){
 
                 printVIVOBoxMLot(subBoxMLotId, materialLotAction, validationPrintFlag);
+            }else {
+
+                printService.printBoxMLot(boxMaterialLot);
             }
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -3080,6 +3234,7 @@ public class VanchipServiceImpl implements VanChipService {
      * @param validationPrintFlag
      * @throws ClientException
      */
+    @Deprecated
     public void printOPPOBoxMLot(String subBoxMLotId, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException{
         try{
             MaterialLot boxMaterialLot = getBoxMLotBySubBoxMLotId(subBoxMLotId);
@@ -3105,11 +3260,12 @@ public class VanchipServiceImpl implements VanChipService {
 
             boxMaterialLot = mmsService.validationPrintAndAddPrintCount(boxMaterialLot, materialLotAction, validationPrintFlag);
 
-            CustomerProduct customerProduct = customerProductRepository.findByPartNumberAndCustomerName(boxMaterialLot.getReserved2(), MaterialLotPackageType.TERMINAL_CUSTOMER_OPPO);
+            CustomerProduct customerProduct = customerProductRepository.findByPartNumberAndCustomerName(boxMaterialLot.getReserved2(), "OPPO");
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("vendorCode", customerProduct.getVendorCode());
             parameterMap.put("materialCode", customerProduct.getMaterialCode());
             parameterMap.put("materialDescription", customerProduct.getMaterialDescription());
+            //parameterMap.put("dc", customerProduct.getVendorCode());
             printService.printOPPOBoxTabMLot(boxMaterialLot, parameterMap);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -3135,6 +3291,7 @@ public class VanchipServiceImpl implements VanChipService {
         }
     }
 
+    @Deprecated
     public void printRYBoxMLot(String subBoxMLotId, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException{
         try {
             MaterialLot boxMaterialLot = getBoxMLotBySubBoxMLotId(subBoxMLotId);
@@ -3142,6 +3299,22 @@ public class VanchipServiceImpl implements VanChipService {
             boxMaterialLot = mmsService.validationPrintAndAddPrintCount(boxMaterialLot, materialLotAction, validationPrintFlag);
 
             printService.printRYBoxMLot(boxMaterialLot);
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 记录IQC开始的时间
+     * @param materialLotIds
+     * @throws ClientException
+     */
+    public void startIqc(List<String> materialLotIds)throws ClientException{
+        try {
+            for (String materialLotId : materialLotIds) {
+                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId, true);
+                baseService.saveHistoryEntity(materialLot, TRANS_TYPE_START_IQC);
+            }
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -3304,10 +3477,11 @@ public class VanchipServiceImpl implements VanChipService {
                             if (validateReTest(materialLot.getRetestFlag())){
                                 continue;
                             }
-                            //根据RA根据生产订单
-//                            if (validateRaLot(materialLot.getInferiorProductsFlag())){
-//                                continue;
-//                            }
+                            //RA生产订单类型不上报
+                            MaterialLotUnit materialLotUnit = materialLotUnits.get(0);
+                            if (!StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderType()) && MaterialLotUnit.WORK_ORDER_TYPE_RA.equals(materialLotUnit.getWorkOrderType())){
+                                continue;
+                            }
                             procutMLots.add(materialLot);
                         }else if (!StringUtils.isNullOrEmpty(materialLot.getRmaFlag()) && RMA_TYPE_NOT_SELF_REASON.equals(materialLot.getRmaFlag()) &&
                                 (MaterialStatus.STATUS_CREATE.equals(materialLot.getPreStatusCategory()) && (MaterialStatus.STATUS_RECEIVE.equals(materialLot.getPreStatus()))||
@@ -3567,35 +3741,28 @@ public class VanchipServiceImpl implements VanChipService {
         try {
             BigDecimal handleQty = materialLotList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
             Document document = documentService.saveDocument(documentId, handleQty, DocumentHistory.TRANS_TYPE_RETURN, Document.STATUS_APPROVE);
-
             List<MaterialLot> mLotList = Lists.newArrayList();
 
             for (MaterialLot materialLot : materialLotList) {
                 materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
-                mLotList.add(materialLot);
+                mLotList.add((MaterialLot)materialLot.clone());
                 materialLot.setReservedQty(materialLot.getCurrentQty());
                 materialLot.setLastDocumentInfo(document);
                 mmsService.returnMaterialLot(materialLot);
             }
-//            List<DocumentLine> documentLines = documentLineRepository.findByDocId(documentId);
-//            for (DocumentLine documentLine : documentLines) {
-//                List<String> materialLotIdList = materialLotList.stream().map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toList());
-//                List<MaterialLot> materialLots = documentService.getReservedMLotByDocId(documentLine.getLineId());
-//
-//                BigDecimal docLineQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getCurrentQty));
-//                documentLine.setHandledQty(documentLine.getHandledQty().add(docLineQty));
-//                documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(docLineQty));
-//                baseService.saveEntity(documentLine);
-//
-//                List<String> materialLotIds = materialLots.stream().map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toList());
-//                documentService.changeDocMLotStatus(documentLine.getLineId(), materialLotIds, DocumentMLot.STATUS_RETURN);
-//            }
+            List<String> materialLotIds = materialLotList.stream().map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toList());
 
             MaterialLot materialLot = mLotList.get(0);
             if(Material.MATERIAL_CATEGORY_MAIN_MATERIAL.equals(materialLot.getMaterialCategory()) || Material.MATERIAL_CATEGORY_PRODUCT.equals(materialLot.getMaterialCategory())){
+                documentService.changeDocMLotStatus(document.getName(), materialLotIds, DocumentMLot.STATUS_RETURN);
+
                 //客供料退或接口-待测品
                 erpService.backhaulReturnMainMaterial(document.getName(), mLotList);
             }else {
+                for (String materialLotId : materialLotIds) {
+                    documentService.createDocumentMLot(document.getName(), materialLotId, DocumentMLot.STATUS_RETURN);
+                }
+
                 //采购退货接口-辅材
                 erpService.backhaulReturnMLot(document.getName(), mLotList);
             }
@@ -3644,35 +3811,39 @@ public class VanchipServiceImpl implements VanChipService {
                     .filter(mLot -> Material.MATERIAL_CATEGORY_PRODUCT.equals(mLot.getMaterialCategory()) && validateProductLot(mLot.getInferiorProductsFlag()))
                     .map(MaterialLot::getMaterialLotId).collect(Collectors.toList());
             List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotIdIn(productMLotIdList);
-
             List<DocumentLine> documentLines = documentLineRepository.findByDocId(document.getName());
-            BigDecimal handledQty = BigDecimal.ZERO;
-            for (DocumentLine documentLine : documentLines) {
-                List<MaterialLot> reservedMaterialLots = documentService.getReservedMLotByDocId(documentLine.getLineId());
-                List<String> materialLotIdList = reservedMaterialLots.stream().map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toList());
-                documentService.changeDocMLotStatus(documentLine.getLineId(), materialLotIdList, DocumentMLot.STATUS_SCRAP);
+            List<DocumentMLot> documentMLots = documentMLotRepository.findByDocumentId(docId);
 
-                for (MaterialLot materialLot : materialLotList) {
-                    Optional<MaterialLot> materialLotOptional = reservedMaterialLots.stream().filter(mLot -> mLot.getMaterialLotId().equals(materialLot.getMaterialLotId())).findFirst();
-                    if (!materialLotOptional.isPresent()) {
-                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLot.getMaterialLotId());
-                    }
-                    MaterialLot mLot = materialLotOptional.get();
+            List<String> materialLotIds = materialLotList.stream().map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toList());
+            documentService.changeDocMLotStatus(document.getName(), materialLotIds, DocumentMLot.STATUS_SCRAP);
 
-                    handledQty = handledQty.add(mLot.getCurrentQty());
-                    List<MaterialLotUnit> materialLotUnitList = materialLotUnits.stream().filter(unit -> unit.getMaterialLotId().equals(materialLot.getMaterialLotId())).collect(Collectors.toList());
-                    mLot.setMaterialLotUnits(materialLotUnitList);
-                    MaterialLot materialLotClone = (MaterialLot)mLot.clone();
-                    mLotList.add(materialLotClone);
+            for (MaterialLot materialLot : materialLotList) {
+                MaterialLot mLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId(), true);
 
-                    mLot.setLastDocumentInfo(document);
-                    mmsService.scrapMLot(mLot);
+                Optional<DocumentLine> documentLineFirst = documentLines.stream()
+                        .filter(documentLine -> documentLine.getMaterialName().equals(mLot.getMaterialName()) && documentLine.getReserved28().equals(mLot.getLastWarehouseId()))
+                        .findFirst();
+                if (documentLineFirst.isPresent()) {
+                    mLot.setItemId(documentLineFirst.get().getReserved30());
                 }
 
-                documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(handledQty));
-                documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
-                baseService.saveEntity(documentLine);
+                if (CollectionUtils.isNotEmpty(documentMLots)) {
+                    Optional<DocumentMLot> documentMLotfirst = documentMLots.stream().filter(docMLot -> docMLot.getMaterialLotId().equals(mLot.getMaterialLotId())).findFirst();
+                    if (!documentMLotfirst.isPresent()) {
+                        documentService.createDocumentMLot(document.getName(), materialLot.getMaterialLotId(), DocumentMLot.STATUS_SCRAP);
+                    }
+                }
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnits.stream().filter(unit -> unit.getMaterialLotId().equals(mLot.getMaterialLotId())).collect(Collectors.toList());
+                mLot.setMaterialLotUnits(materialLotUnitList);
+                mLot.setLastDocumentInfo(document);
+
+                MaterialLot materialLotClone = (MaterialLot)mLot.clone();
+                mLotList.add(materialLotClone);
+
+                mmsService.scrapMLot(mLot);
             }
+
             erpService.backhaulScrap(docId, mLotList);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -3680,7 +3851,7 @@ public class VanchipServiceImpl implements VanChipService {
     }
 
     @EventListener
-    public void SplitMLotEventListener(SplitMLotApplicationEvent applicationEvent) throws ClientException{
+    public void splitMLotEventListener(SplitMLotApplicationEvent applicationEvent) throws ClientException{
         try {
             MaterialLot materialLot = applicationEvent.getMaterialLot();
             //实验室或备件管理物料
@@ -3731,8 +3902,8 @@ public class VanchipServiceImpl implements VanChipService {
 
     /**
      * 验证是否RA信息
-     * @param materialName
-     * @param inferiorProductsFlag
+     * @param materialName 来料验证物料编码
+     * @param inferiorProductsFlag mes入库验证'R'
      * @return
      * @throws ClientException
      */
@@ -3743,7 +3914,7 @@ public class VanchipServiceImpl implements VanChipService {
             if (!StringUtils.isNullOrEmpty(materialName) && materialName.contains(MATERIAL_NAME_RA)) {
                 raFlag = true;
             }
-            //2.物料批次名称包含"RA-"
+            //2.成品验证 inferiorProductsFlag = 'R'
             if (!StringUtils.isNullOrEmpty(inferiorProductsFlag)) {
                 return INFERIOR_PRODUCTS_FLAG_R.equals(inferiorProductsFlag);
             }

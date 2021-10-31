@@ -110,6 +110,7 @@ public interface VanChipService {
     void printBoxMLot(String subBoxMaterialLotId, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException;
     void printRYBoxMLot(String subBoxMaterialLotId, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException;
     void iqcApprove(List<MaterialLotAction> materialLotActions) throws ClientException;
+    void startIqc(List<String> materialLotIds)throws ClientException;
 
     List<MaterialLot> getReservedMLotByOrder(String documentLineId)throws ClientException;
     void stockUpMLot(String documentLineId, List<MaterialLot> materialLots)throws ClientException;

@@ -61,5 +61,8 @@ public class DeliveryPrintInfo implements Serializable {
     //客户代码
     private String customerCode;
 
+    //终端客户
+    private String terminalCustomer;
+
     private List<DeliveryMLotPrintInfo> deliveryMLotPrintInfoList;
 }

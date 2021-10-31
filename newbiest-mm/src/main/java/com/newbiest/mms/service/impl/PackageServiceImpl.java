@@ -289,11 +289,10 @@ public class PackageServiceImpl implements PackageService{
 
             //vanchip客制化规则
             MaterialLot materialLot = mmsService.getMLotByMLotId(materialLots.get(0).getMaterialLotId());
-            DocumentLine documentLine = documentService.getDocumentLineByLineId(materialLot.getReserved45(), true);
 
             List<String> mLotIdList = materialLots.stream().map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toList());
             List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotIdIn(mLotIdList);
-            materialLotPackageType.validationCustomizationPackageRule(documentLine, materialLotUnits);
+            materialLotPackageType.validationCustomizationPackageRule(materialLot.getReserved53(), materialLot.getGrade(), materialLotUnits);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

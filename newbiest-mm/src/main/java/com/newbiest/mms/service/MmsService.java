@@ -40,6 +40,7 @@ public interface MmsService {
     List<MaterialLot> splitStandardMLot(String parentMaterialLotId, BigDecimal standardQty) throws ClientException;
 
     MaterialLot splitMLot(String parentMaterialLotId, MaterialLotAction materialLotAction) throws ClientException;
+    MaterialLot splitAndPrintMLot(String parentMaterialLotId, MaterialLotAction materialLotAction) throws ClientException;
 
     // rawMaterial
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;

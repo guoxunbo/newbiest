@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.1.1
+      author: Tao Zhou
+      remarks: mms_material_lot_unit add column WORK_ORDER_TYPE
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: WORK_ORDER_TYPE
+                  type: varchar(64)
+                  remarks: 生产订单类型

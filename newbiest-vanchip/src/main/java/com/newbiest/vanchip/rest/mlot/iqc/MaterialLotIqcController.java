@@ -48,6 +48,9 @@ public class MaterialLotIqcController extends AbstractRestController {
         } else if (MaterialLotIqcRequest.ACTIONT_IQC_APPROVAL.equals(actionType)){
 
             vanChipService.iqcApprove(requestBody.getMaterialLotActions());
+        } else if (MaterialLotIqcRequest.ACTIONT_START_IQC.equals(actionType)){
+
+            vanChipService.startIqc(materialLotIds);
         }else {
             throw new ClientParameterException(Request.NON_SUPPORT_ACTION_TYPE, actionType);
         }

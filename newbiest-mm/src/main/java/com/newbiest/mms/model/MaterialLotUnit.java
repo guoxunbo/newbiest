@@ -13,6 +13,26 @@ import java.math.BigDecimal;
 @Data
 public class MaterialLotUnit extends NBUpdatable {
 
+    /**
+     * RA生产订单
+     */
+    public static final String WORK_ORDER_TYPE_RA = "RA";
+
+    /**
+     * DETAPE生产订单
+     */
+    private static final String WORK_ORDER_TYPE_DETAPE = "DETAPE";
+
+    /**
+     * FT生产订单
+     */
+    private static final String WORK_ORDER_TYPE_FT = "FT";
+
+    /**
+     * REELABEL生产订单
+     */
+    private static final String WORK_ORDER_TYPE_REELABEL = "REELABEL";
+
     @Column(name="UNIT_ID")
     private String unitId;
 
@@ -90,6 +110,12 @@ public class MaterialLotUnit extends NBUpdatable {
      */
     @Column(name="ITEM_ID")
     private String itemId;
+
+    /**
+     * 工单类型
+     */
+    @Column(name="WORK_ORDER_TYPE")
+    private String workOrderType;
 
     /**
      * 唯捷生产订单号（唯捷测试订单号）

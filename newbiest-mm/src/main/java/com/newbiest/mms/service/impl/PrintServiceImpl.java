@@ -255,15 +255,19 @@ public class PrintServiceImpl implements PrintService {
 
     /**
      * 外箱标签打印
-     * @param boxMLotId
+     * @param boxMLot
      * @throws ClientException
      */
     @Override
     @Async
-    public void printBoxMLot(MaterialLot boxMLotId) throws ClientException {
+    public void printBoxMLot(MaterialLot boxMLot) throws ClientException {
         try {
-            Map<String, Object> parameterMap = buildBoxParameterMap(boxMLotId);
+            Map<String, Object> parameterMap = buildBoxParameterMap(boxMLot);
 
+            //TKY shippingData为空
+            if("TKY".equals(boxMLot.getReserved53()) && "PASS_BIN3".equals(boxMLot.getGrade())){
+                parameterMap.put("shippingDate", StringUtils.EMPTY);
+            }
             PrintContext printContext = buildPrintContext(null, LABEL_TEMPLATE_NAME_PRINT_BOX_MLOT, parameterMap);
 
             print(printContext);
@@ -343,6 +347,18 @@ public class PrintServiceImpl implements PrintService {
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
+    }
+
+    @Async
+    public void printMLotList(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            materialLots.forEach(mLot -> {
+                printMLot(mLot);
+            });
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+
     }
 
     /**
