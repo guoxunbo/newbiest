@@ -28,7 +28,6 @@ import javax.annotation.PostConstruct;
 import java.net.URI;
 
 
-@Deprecated
 @Transactional
 @Component
 @Slf4j

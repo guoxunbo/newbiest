@@ -16,4 +16,5 @@ public class DeliveryMLotPrintInfo implements Serializable {
     private String mrb;
     private String qty;
     private String remark;
+    private String seqNo;
 }

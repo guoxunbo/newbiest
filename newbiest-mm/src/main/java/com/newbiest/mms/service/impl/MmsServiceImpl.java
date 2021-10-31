@@ -325,7 +325,6 @@ public class MmsServiceImpl implements MmsService {
 
     /**
      * 根据标准数量将物料批次分批
-     *
      * @param parentMaterialLotId
      * @param standardQty
      * @return
@@ -334,6 +333,7 @@ public class MmsServiceImpl implements MmsService {
     @Override
     public List<MaterialLot> splitStandardMLot(String parentMaterialLotId, BigDecimal standardQty) throws ClientException {
         try {
+            List<MaterialLot> waitPrintMaterialLots = Lists.newArrayList();
             List<MaterialLot> subMaterialLots = Lists.newArrayList();
             MaterialLot parentMaterialLot = getMLotByMLotId(parentMaterialLotId, true);
             if (parentMaterialLot.getCurrentQty().compareTo(standardQty) <= 0) {
@@ -345,14 +345,42 @@ public class MmsServiceImpl implements MmsService {
             while (currentQty.compareTo(standardQty) > 0) {
                 MaterialLot subMaterialLot = splitMLot(parentMaterialLotId, materialLotAction);
                 subMaterialLots.add(subMaterialLot);
+                waitPrintMaterialLots.add(subMaterialLot);
                 currentQty = currentQty.subtract(standardQty);
             }
             // 如果没有分完，则需要重新打标签
             if (currentQty.compareTo(BigDecimal.ZERO) > 0) {
                 parentMaterialLot = getMLotByMLotId(parentMaterialLotId, true);
-                printMLot(parentMaterialLot);
+                //printMLot(parentMaterialLot);
+                waitPrintMaterialLots.add(parentMaterialLot);
             }
+
+            printMLotList(waitPrintMaterialLots);
             return subMaterialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 分批并且打印
+     * @param parentMaterialLotId
+     * @param materialLotAction
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot splitAndPrintMLot(String parentMaterialLotId, MaterialLotAction materialLotAction) throws ClientException {
+        try {
+            List<MaterialLot> waitPrintMaterialLots = Lists.newArrayList();
+
+            MaterialLot subMaterialLot = splitMLot(parentMaterialLotId, materialLotAction, MaterialLot.GENERATOR_SUB_MATERIAL_LOT_ID_RULE);
+            MaterialLot parentMaterialLot = getMLotByMLotId(parentMaterialLotId);
+
+            waitPrintMaterialLots.add(subMaterialLot);
+            waitPrintMaterialLots.add(parentMaterialLot);
+
+            printMLotList(waitPrintMaterialLots);
+            return subMaterialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -431,7 +459,7 @@ public class MmsServiceImpl implements MmsService {
 
             }
 
-            printMLot(subMaterialLot);
+            //printMLot(subMaterialLot);
             return subMaterialLot;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -1072,11 +1100,15 @@ public class MmsServiceImpl implements MmsService {
             BigDecimal ngQty = materialLotAction.getReservedQty();
             if (ngQty != null){
                 materialLotAction.setTransQty(ngQty);
+                List<MaterialLot> waitPrintMaterialLots = Lists.newArrayList();
                 MaterialLot ngSubMaterialLot = splitMLot(materialLot.getMaterialLotId(), materialLotAction, MaterialLot.GENERATOR_NG_SUB_MATERIAL_LOT_ID_RULE);
-
-                //主批两次打印
-                printMLot(materialLot);
-                printMLot(materialLot);
+                waitPrintMaterialLots.add(ngSubMaterialLot);
+                waitPrintMaterialLots.add(materialLot);
+                waitPrintMaterialLots.add(materialLot);
+                printMLotList(waitPrintMaterialLots);
+//                //主批两次打印
+//                printMLot(materialLot);
+//                printMLot(materialLot);
 
                 ngSubMaterialLot.setIqcQty(ngSubMaterialLot.getCurrentQty());
                 materialLotRepository.save(ngSubMaterialLot);
@@ -1647,7 +1679,6 @@ public class MmsServiceImpl implements MmsService {
                 }
                 return;
             }
-            //RA品前面3位 'RA-'
             if ("R".equals(materialLot.getInferiorProductsFlag())){
                 if (!Warehouse.WAREHOUSE_TYPE_RA.equals(targetWarehouse.getWarehouseType())){
                     throw new ClientParameterException(MmsException.MM_TARGET_WAREHOUSE_IS_NOT_APPOINT_WAREHOUSE, targetWarehouse.getName());
@@ -1721,6 +1752,14 @@ public class MmsServiceImpl implements MmsService {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_IS_NOT_EXIST, name);
             }
             return material;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    public void printMLotList(List<MaterialLot> materialLots) throws ClientException{
+        try {
+            printService.printMLotList(materialLots);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }

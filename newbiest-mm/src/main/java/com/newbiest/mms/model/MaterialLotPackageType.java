@@ -29,22 +29,14 @@ import java.util.stream.Collectors;
 public class MaterialLotPackageType extends PackageType {
 
     /**
-     *荣耀
+     *最终客户 荣耀
      */
-    public static final String TERMINAL_CUSTOMER_HONOR = "HONOR";
-    /**
-     *小米
-     */
-    public static final String TERMINAL_CUSTOMER_MI = "小米";
-    /**
-     *oppo
-     */
-    public static final String TERMINAL_CUSTOMER_OPPO = "OPPO";
+    public static final String FINAL_CUSTOMER_RY = "RY" ;
 
     /**
-     *VIVO
+     *最终客户 小米
      */
-    public static final String TERMINAL_CUSTOMER_VIVO = "VIVO";
+    public static final String FINAL_CUSTOMER_XM = "XM" ;
 
     @Override
     public void validationPacking(List<? extends NBUpdatable> packageChildren) {
@@ -113,17 +105,16 @@ public class MaterialLotPackageType extends PackageType {
 
     /**
      * vanChip 客制化验证
-     * 终端客户 => HONOR 验证DC
-     * 终端客户 => 小米 验证CONTROL LOT
+     * bin3 + 最终客户 => RY 验证DC
+     * bin3 + 最终客户 => XM 验证CONTROL LOT
      */
-    public void validationCustomizationPackageRule(DocumentLine documentLine, List<MaterialLotUnit> materialLotUnits){
-        if (StringUtils.isNullOrEmpty(documentLine.getReserved36())) {
+    public void validationCustomizationPackageRule(String finalCustomer, String grade, List<MaterialLotUnit> materialLotUnits){
+        if (StringUtils.isNullOrEmpty(finalCustomer) || StringUtils.isNullOrEmpty(grade)) {
             return;
         }
-        String terminalCustomer = documentLine.getReserved36().toUpperCase();
-        if (terminalCustomer.contains(TERMINAL_CUSTOMER_HONOR)){
+        if (FINAL_CUSTOMER_XM.equals(finalCustomer) && "PASS_BIN3".equals(grade)){
             this.validationControlLot(materialLotUnits);
-        }else if (terminalCustomer.contains(TERMINAL_CUSTOMER_MI)){
+        }else if (FINAL_CUSTOMER_RY.equals(finalCustomer) && "PASS_BIN3".equals(grade)){
             this.validationDC(materialLotUnits);
         }
     }

@@ -27,7 +27,8 @@ public class DocumentLine extends NBUpdatable {
     public static final String MP_SHIPPING_TYPE = "量产";
     public static final String ES_SHIPPING_TYPE = "工程样品";
     public static final String CS_SHIPPING_TYPE = "客户样品";
-    public static final String RY_SHIPPING_TYPE = "荣耀";
+    public static final String RY_SHIPPING_TYPE = "RY";
+    public static final String TKY_SHIPPING_TYPE = "TKY";
 
     @Column(name="DOC_RRN")
     private String docRrn;
@@ -235,6 +236,8 @@ public class DocumentLine extends NBUpdatable {
      * 1.量产
      * 2.工程样品
      * 3.客户样品
+     * 4.RY
+     * 5.TKY
      */
     @Column(name="RESERVED27")
     private String reserved27;
@@ -292,6 +295,12 @@ public class DocumentLine extends NBUpdatable {
      */
     @Column(name="RESERVED36")
     private String reserved36;
+
+    /**
+     * 货架位
+     */
+    @Column(name="RESERVED37")
+    private String reserved37;
 
     /**
      * 导入时格式转换

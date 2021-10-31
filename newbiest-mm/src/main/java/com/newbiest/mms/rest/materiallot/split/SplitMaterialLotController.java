@@ -30,10 +30,12 @@ public class SplitMaterialLotController extends AbstractRestController {
         response.getHeader().setTransactionId(request.getHeader().getTransactionId());
         SplitMaterialLotResponseBody responseBody = new SplitMaterialLotResponseBody();
         SplitMaterialLotRequestBody requestBody = request.getBody();
-        MaterialLot subMaterialLot = mmsService.splitMLot(requestBody.getMaterialLotAction().getMaterialLotId(), requestBody.getMaterialLotAction());
+//        MaterialLot subMaterialLot = mmsService.splitMLot(requestBody.getMaterialLotAction().getMaterialLotId(), requestBody.getMaterialLotAction());
+//
+//        MaterialLot mLotByMLotId = mmsService.getMLotByMLotId(requestBody.getMaterialLotAction().getMaterialLotId());
+//        mmsService.printMLot(mLotByMLotId);
 
-        MaterialLot mLotByMLotId = mmsService.getMLotByMLotId(requestBody.getMaterialLotAction().getMaterialLotId());
-        mmsService.printMLot(mLotByMLotId);
+        MaterialLot subMaterialLot = mmsService.splitAndPrintMLot(requestBody.getMaterialLotAction().getMaterialLotId(), requestBody.getMaterialLotAction());
 
         responseBody.setMaterialLot(subMaterialLot);
         response.setBody(responseBody);

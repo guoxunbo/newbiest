@@ -16,6 +16,7 @@ public class MaterialLotIqcRequest extends Request {
 	public static final String ACTION_VALIDATION_AND_GET_MLOT = "ValidationAndGetWaitIqcMLot";
 	public static final String ACTION_GET_CHECK_SHEET_LINE = "GetCheckSheetLine";
 	public static final String ACTIONT_IQC_APPROVAL = "IqcApproval";
+	public static final String ACTIONT_START_IQC = "StartIqc";
 
 	private MaterialLotIqcRequestBody body;
 

@@ -333,17 +333,17 @@ public class DocumentServiceImpl implements DocumentService {
             List<String> materialLotIds = materialLotActions.stream().map(materialLotAction -> materialLotAction.getMaterialLotId()).collect(Collectors.toList());
             validationMLotBoundOrder(materialLotIds);
 
-            DocumentLine documentLine = new DocumentLine();
-            String lineId = generatorDocId(ReturnMLotOrder.GENERATOR_RETURN_MLOT_ORDER_LINE_RULE, returnMLotOrder);
-            documentLine.setLineId(lineId);
-            documentLine.setDocument(returnMLotOrder);
-            documentLine.setUnHandledQty(totalQty);
-            documentLine.setUnReservedQty(totalQty);
-            documentLine.setQty(totalQty);
-            baseService.saveEntity(documentLine);
+//            DocumentLine documentLine = new DocumentLine();
+//            String lineId = generatorDocId(ReturnMLotOrder.GENERATOR_RETURN_MLOT_ORDER_LINE_RULE, returnMLotOrder);
+//            documentLine.setLineId(lineId);
+//            documentLine.setDocument(returnMLotOrder);
+//            documentLine.setUnHandledQty(totalQty);
+//            documentLine.setUnReservedQty(totalQty);
+//            documentLine.setQty(totalQty);
+//            baseService.saveEntity(documentLine);
 
             for (MaterialLot materialLot : materialLots) {
-                createDocumentMLot(lineId, materialLot.getMaterialLotId());
+                createDocumentMLot(returnMLotOrder.getName(), materialLot.getMaterialLotId());
             }
             return returnMLotOrder;
         } catch (Exception e) {
@@ -1449,16 +1449,12 @@ public class DocumentServiceImpl implements DocumentService {
                     .map(mLot -> (StringUtils.isNullOrEmpty(mLot.getMaterialLotId()) || mLot.getMaterialLotId() == "") ? mLot.getUnitId() : mLot.getMaterialLotId())
                     .collect(Collectors.toSet());
             List<MaterialLot> invMaterialLot = materialLotIdSet.stream().map(mLotId -> mmsService.getMLotByMLotId(mLotId, true)).collect(Collectors.toList());
+            List<String> invMaterialLotIds = invMaterialLot.stream().map(mLot -> mLot.getMaterialLotId()).collect(Collectors.toList());
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotIdIn(invMaterialLotIds);
+
             if (CollectionUtils.isNotEmpty(invMaterialLot)) {
                 validationMLotBoundOrder(materialLotIdSet.stream().collect(Collectors.toList()));
 
-                DocumentLine documentLine = new DocumentLine();
-                BigDecimal docLineQty = invMaterialLot.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
-                documentLine.setUnHandledQty(docLineQty);
-                documentLine.setUnReservedQty(docLineQty);
-                documentLine.setQty(docLineQty);
-                documentLine.setReserved32(document.getDescription());
-                documentLine = createDocLineByDocument(documentLine, scrapOrder);
 
                 for (MaterialLot materialLot : invMaterialLot) {
                     List<MaterialLot> materialLotCollect = materialLotList.stream().filter(mLot -> mLot.getMaterialLotId().equals(materialLot.getMaterialLotId())).collect(Collectors.toList());
@@ -1469,8 +1465,20 @@ public class DocumentServiceImpl implements DocumentService {
                     materialLot.setItemId(materialLotCollect.get(0).getItemId());
                     materialLotRepository.save(materialLot);
 
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnits.stream().filter(unit -> unit.getMaterialLotId().equals(materialLot.getMaterialLotId())).collect(Collectors.toList());
+                    if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                        for (MaterialLotUnit materialLotUnit : materialLotUnitList) {
+                            Optional<MaterialLot> first = materialLotCollect.stream().filter(mLot -> materialLotUnit.getUnitId().equals(mLot.getUnitId())).findFirst();
+                            if (first.isPresent()) {
+                                MaterialLot mLot = first.get();
+                                materialLotUnit.setItemId(mLot.getItemId());
+                                baseService.saveEntity(materialLotUnit);
+                            }
+                        }
+                    }
+
                     DocumentMLot documentMLot = new DocumentMLot();
-                    documentMLot.setDocumentId(documentLine.getLineId());
+                    documentMLot.setDocumentId(document.getName());
                     documentMLot.setMaterialLotId(materialLot.getMaterialLotId());
                     documentMLot.setStatus(DocumentMLot.STATUS_CREATE);
                     documentMLot.setItemId(materialLot.getItemId());
