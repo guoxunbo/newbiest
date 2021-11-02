@@ -1152,18 +1152,15 @@ public class MmsServiceImpl implements MmsService {
                 }
             } else {
                 String fabLotId = lotId.split("\\.")[0];
-                List<FutureHoldConfig> futureHoldConfigList = futureHoldConfigRepository.getByLotIdLike(fabLotId + "%");
-                if (CollectionUtils.isNotEmpty(futureHoldConfigList)){
-                    log.info("future Hold futureHoldConfigList is " + futureHoldConfigList);
-                    for(FutureHoldConfig futureHoldConfig : futureHoldConfigList){
-                        List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
-                        log.info("Hold materialLotList is " + materialLotList);
-                        for(MaterialLot materialLot : materialLotList){
-                            if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())) {
-                                MaterialLotAction materialLotAction = new MaterialLotAction();
-                                materialLotAction.setActionReason(futureHoldConfig.getHoldReason());
-                                holdMaterialLot(materialLot, materialLotAction);
-                            }
+                FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByLotId(fabLotId);
+                if (gcFutureHoldConfig != null){
+                    List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
+                    log.info("Hold materialLotList is " + materialLotList);
+                    for(MaterialLot materialLot : materialLotList){
+                        if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())) {
+                            MaterialLotAction materialLotAction = new MaterialLotAction();
+                            materialLotAction.setActionReason(gcFutureHoldConfig.getHoldReason());
+                            holdMaterialLot(materialLot, materialLotAction);
                         }
                     }
                 }

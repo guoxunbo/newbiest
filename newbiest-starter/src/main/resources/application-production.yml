@@ -78,6 +78,11 @@ spring:
           starttls:
             enable: true
             required: true
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 10MB
+      enabled: true
 #设置server的基本信息
 server:
   servlet:
