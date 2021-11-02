@@ -5569,7 +5569,7 @@ public class GcServiceImpl implements GcService {
                         materialLotUnit.setReserved50(MaterialLot.SOC_WAFER_SOURCE);
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_SOC);
                     } else if (MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType)) {
-                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_COB);
+                        materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_FT_COB);
                         materialLotUnit.setReserved50(MaterialLot.RW_WAFER_SOURCE);
                         materialLotUnit.setReserved49(MaterialLot.IMPORT_COB);
                     } else if (MaterialLotUnit.MASK_FINISH_PRODUCT.equals(importType)) {
