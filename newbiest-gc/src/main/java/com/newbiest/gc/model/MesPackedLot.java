@@ -34,6 +34,7 @@ public class MesPackedLot implements Serializable {
     public static final String REPLACE_FLAG = "true";
 
     public static final String PACKED_TYPE = "VBOX";
+    public static final String PACKED_TYPE_CPCST_PREIN = "CPCST_PREIN";
     public static final String LEVEL_TWO_CODE_FFFFF = "FFFFF";
 
     public static final String GRADE_F3 = "F3";
@@ -203,6 +204,12 @@ public class MesPackedLot implements Serializable {
      */
     @Column(name="PCODE")
     private String pcode;
+
+    /**
+     * 预入前工单号
+     */
+    @Column(name="SOURCE_WORKORDER_ID")
+    private String sourceWorkorderId;
 
     /**
      * 供应商
