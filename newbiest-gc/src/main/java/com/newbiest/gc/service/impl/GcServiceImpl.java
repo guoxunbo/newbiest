@@ -1391,7 +1391,12 @@ public class GcServiceImpl implements GcService {
      */
     public void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String receiveWithDoc) throws ClientException{
         try {
-            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            List<MaterialLot> materialLots = Lists.newArrayList();
+            for(MaterialLotAction materialLotAction : materialLotActions){
+                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true);
+                materialLot.setReserved4(materialLotAction.getReserved4());
+                materialLots.add(materialLot);
+            }
             if(!StringUtils.isNullOrEmpty(receiveWithDoc)){
                 List<MaterialLot> materialLotList = new ArrayList<>();
                 List<MaterialLot> fGradeMLotList = new ArrayList<>();
@@ -5360,6 +5365,88 @@ public class GcServiceImpl implements GcService {
                 }
             }
             return materialLotUnitList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取COB晶圆接收信息
+     * @param tableRrn
+     * @param lotId
+     * @return
+     * @throws ClientException
+     */
+    public MaterialLot queryCOBReceiveMaterialLotByTabRrnAndLotId(Long tableRrn, String lotId) throws ClientException{
+        try {
+            MaterialLot materialLot = new MaterialLot();
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String _whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer(nbTable.getWhereClause());
+            clauseBuffer.append(" AND lotId = ");
+            clauseBuffer.append("'" + lotId+ "'");
+            _whereClause = clauseBuffer.toString();
+            List<MaterialLot> materialLotList = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
+            if(CollectionUtils.isNotEmpty(materialLotList)){
+                materialLot = materialLotList.get(0);
+                List<GcUnConfirmWaferSet> confirmWaferSetArrayList = Lists.newArrayList();
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved46())){
+                    List<Map<String, String>> workNoMapList = scmService.queryScmWaferByWorkOrderNo(materialLot.getReserved46());
+                    if(CollectionUtils.isNotEmpty(workNoMapList)){
+                        List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                        List<String> lotNumberList = Lists.newArrayList();
+                        for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                            String lotNumber = materialLotUnit.getUnitId().split("-")[1].split("\\.")[0];
+                            if(!lotNumberList.contains(lotNumber)){
+                                lotNumberList.add(lotNumber);
+                            }
+                        }
+                        //scm返回的晶圆信息可能包含多个lot的，按照lotNo做分组
+                        List<ScmQueryInfo> scmQueryInfoList = Lists.newArrayList();
+                        for(Map waferMap : workNoMapList){
+                            String lotNo = (String)waferMap.get("lot_no");
+                            String waferId = (String)waferMap.get("wafer_id");
+                            String woNo = (String)waferMap.get("wo_no");
+                            ScmQueryInfo scmQueryInfo = new ScmQueryInfo();
+                            scmQueryInfo.setLotNo(lotNo.split("\\.")[0]);
+                            scmQueryInfo.setWaferSeq(StringUtil.leftPad(waferId , 2 , "0"));
+                            scmQueryInfo.setWoNo(woNo);
+                            scmQueryInfoList.add(scmQueryInfo);
+                        }
+                        Map<String, List<ScmQueryInfo>> scmQueryInfoMap = scmQueryInfoList.stream().collect(Collectors.groupingBy(ScmQueryInfo:: getLotNo));
+                        for(String lotNumber : lotNumberList){
+                            if (scmQueryInfoMap.keySet().contains(lotNumber)) {
+                                GcUnConfirmWaferSet unConfirmWaferSet = unConfirmWaferSetRepository.findByLotId(lotNumber);
+                                if(unConfirmWaferSet != null){
+                                    List<ScmQueryInfo> scmQueryInfos = scmQueryInfoMap.get(lotNumber);
+                                    String waferInfo = unConfirmWaferSet.getWaferId();
+                                    String[] waferSeqArray = waferInfo.split(",");
+                                    List<String> waferIdList = Arrays.asList(waferSeqArray);
+                                    for(ScmQueryInfo scmQueryInfo : scmQueryInfos){
+                                        if(waferIdList.contains(scmQueryInfo.getWaferSeq())){
+                                            confirmWaferSetArrayList.add(unConfirmWaferSet);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                String treasuryNote = materialLot.getReserved4();
+                if(CollectionUtils.isNotEmpty(confirmWaferSetArrayList)){
+                    confirmWaferSetArrayList = confirmWaferSetArrayList.stream().sorted(Comparator.comparing(GcUnConfirmWaferSet :: getRiskGrade).reversed()).collect(Collectors.toList());
+                    if(StringUtils.isNullOrEmpty(treasuryNote)){
+                        treasuryNote = confirmWaferSetArrayList.get(0).getRiskGrade() + "类_" + confirmWaferSetArrayList.get(0).getExceptionClassify();
+                    } else {
+                        treasuryNote =  treasuryNote + StringUtils.SEMICOLON_CODE + confirmWaferSetArrayList.get(0).getRiskGrade() + "类_" + confirmWaferSetArrayList.get(0).getExceptionClassify();
+                    }
+                }
+                materialLotRepository.getEntityManager().detach(materialLot);
+                materialLot.setReserved4(treasuryNote);
+            }
+            return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

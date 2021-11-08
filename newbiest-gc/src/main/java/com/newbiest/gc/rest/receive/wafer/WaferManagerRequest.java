@@ -51,6 +51,11 @@ public class WaferManagerRequest extends Request {
 	 */
 	public static final String ACTION_TYPE_MOBILE_ISSUE = "MobileIssue";
 
+	/**
+	 * 查询COB接收晶圆
+	 */
+	public static final String ACTION_TYPE_QUERY_COB_RECEIVE_MLOT = "QueryCOBReceiveMLot";
+
 	private WaferManagerRequestBody body;
 
 }
