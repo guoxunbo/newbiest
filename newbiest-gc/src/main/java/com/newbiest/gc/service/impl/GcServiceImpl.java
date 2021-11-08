@@ -9133,12 +9133,35 @@ public class GcServiceImpl implements GcService {
                         for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                             materialLotUnit.setSourceProductId(materialName);
                             materialLotUnit.setMaterialName(conversionModelId);
+                            //Sensor封装回货的物料批次验证数量是否正确
+                            if(MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)){
+                                validateMaterialLotUnitQty(materialLotUnit);
+                            }
                         }
                     }
                 }
             }
             return  materialLotUnits;
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证导入的晶圆信息数量是否正确
+     * @param materialLotUnit
+     * @return
+     * @throws ClientException
+     */
+    public void validateMaterialLotUnitQty(MaterialLotUnit materialLotUnit) throws ClientException{
+        try {
+            BigDecimal passDieQty = new BigDecimal(materialLotUnit.getReserved34());
+            BigDecimal ngDieQty = new BigDecimal(materialLotUnit.getReserved35());
+            BigDecimal totalQty = passDieQty.add(ngDieQty);
+            if(materialLotUnit.getCurrentQty().compareTo(totalQty) != 0){
+                throw new ClientParameterException(GcExceptions.MATERIAL_LOT_UNIT_QTY_IS_ERROR, materialLotUnit.getUnitId());
+            }
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
