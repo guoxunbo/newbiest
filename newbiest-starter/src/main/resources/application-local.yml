@@ -2,6 +2,7 @@ gc:
   openSchedule: false
   scmUrl: https://gc-scm-beta.wochacha.cn
   mScmUrl: https://beta-scm.wochacha.cn/
+  wScmUrl: https://gc-scm-alpha.wochacha.cn
   mScmUsername: gc_mes
   mScmPassword: sZ9ia26Gkbb8eoz7ZHo8cEQrTsqEr21t1CWT6Rbi
   mesUrl: http://localhost:7001/mycim2
@@ -24,7 +25,7 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@127.0.0.1:1521:newbiest
+      url: jdbc:oracle:thin:@10.181.160.18:1521:testdb
       username: wmstest
       password: wmstest
       driver-class-name: oracle.jdbc.OracleDriver
@@ -100,7 +101,7 @@ server:
 show:
   swagger: true
 logging:
-  path: /Users/guoxunbo/Documents/newbiest/log
+  path: D:/Design/wmsLog/log
 management:
   endpoints:
     web:
@@ -115,3 +116,5 @@ management:
   endpoint:
     health:
       show-details: always
+newbiest:
+  query-max-count: 99999

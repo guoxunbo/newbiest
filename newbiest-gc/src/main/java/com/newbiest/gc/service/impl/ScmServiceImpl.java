@@ -13,6 +13,7 @@ import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.gc.GcExceptions;
+import com.newbiest.gc.service.model.QueryWaferResponse;
 import com.newbiest.mms.model.FutureHoldConfig;
 import com.newbiest.mms.model.FutureHoldConfigHis;
 import com.newbiest.mms.repository.FutureHoldConfigHisRepository;
@@ -46,10 +47,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.http.impl.client.HttpClientBuilder.create;
@@ -89,6 +87,11 @@ public class ScmServiceImpl implements ScmService {
     public static final String MSCM_TOKEN_API = "/api/?r=Api/Token/AccessToken";
     public static final String MSCM_ADD_TRACKING_API = "/api/?r=Api/Logistics/AddTracking";
 
+    public static final String MSCM_QUERY_WAFER_BY_WONO_API = "/api/wip/wipdata-wo/get-details";
+    public static final String APP_KEY = "5128e6b9-759a-47e8-8341-d0ca552ac10b";
+    public static final String SYSTEM_ID = "2";
+    public static final String VERSION = "v1";
+
     public static final String SCM_RETRY_VALIDATE_MATERIAL_LOT_ENG = "https://gc-scm.wochacha.com/api/wip/sync-eng/query";
 
     private RestTemplate restTemplate;
@@ -99,11 +102,21 @@ public class ScmServiceImpl implements ScmService {
     @Value("${gc.mScmUrl}")
     private String mScmUrl;
 
+    @Value("${gc.wScmUrl}")
+    private String wScmUrl;
+
     @Value("${gc.mScmUsername}")
     private String mScmUsername;
 
     @Value("${gc.mScmPassword}")
     private String mScmPassword;
+
+    @Value("${spring.profiles.active}")
+    private String profiles;
+
+    private boolean isProdEnv() {
+        return "production".equalsIgnoreCase(profiles);
+    }
 
     @Autowired
     MaterialLotRepository materialLotRepository;
@@ -380,6 +393,51 @@ public class ScmServiceImpl implements ScmService {
                 }
             }
             return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 通过物料批次生产订单号查询SCM晶圆信息
+     * @param workOrderNo
+     * @return
+     * @throws ClientException
+     */
+    public List<Map<String, String>> queryScmWaferByWorkOrderNo(String workOrderNo) throws ClientException{
+        try {
+            Long timeStamp = System.currentTimeMillis();
+            Map<String, Object> requestMap = Maps.newHashMap();
+            requestMap.put("format", "json");
+            requestMap.put("wo_codes", workOrderNo);
+            requestMap.put("app_key", APP_KEY);
+            requestMap.put("timestamp", timeStamp.toString());
+            requestMap.put("system_id", SYSTEM_ID);
+            requestMap.put("version", VERSION);
+
+            List<String> paramStr = Lists.newArrayList();
+            for (String key : requestMap.keySet()) {
+                paramStr.add(key + "=" + requestMap.get(key));
+            }
+            String url = isProdEnv() ? scmUrl : wScmUrl + MSCM_QUERY_WAFER_BY_WONO_API;
+            String destination = url + "?" + StringUtils.join(paramStr, "&");
+
+            log.info("query waferInfo by wono requestString is " + destination);
+
+            HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(destination, byte[].class);
+            String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Get response from bartender. Response is [%s]", response));
+            }
+            List<Map<String, String>> mapList = Lists.newArrayList();
+            if (!StringUtils.isNullOrEmpty(response)) {
+                QueryWaferResponse queryWaferResponse = DefaultParser.getObjectMapper().readerFor(QueryWaferResponse.class).readValue(response);
+                if (!QueryEngResponse.SUCCESS_CODE.equals(queryWaferResponse.getCode())) {
+                    throw new ClientException(queryWaferResponse.getMessage());
+                }
+                mapList = queryWaferResponse.getData();
+            }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
