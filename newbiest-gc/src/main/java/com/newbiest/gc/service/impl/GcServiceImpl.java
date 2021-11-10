@@ -3154,6 +3154,16 @@ public class GcServiceImpl implements GcService {
             materialLot.setReserved13(warehouse.getObjectRrn().toString());
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                materialLotUnit.setReserved4(bondedProperty);
+                materialLotUnit.setReserved13(warehouse.getObjectRrn().toString());
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory materialLotUnitHistory =  (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_TRANSFER_WAREHOUSE);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
+            }
+
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_TRANSFER_WAREHOUSE);
             materialLotHistoryRepository.save(history);
         } catch (Exception e) {
@@ -9688,6 +9698,17 @@ public class GcServiceImpl implements GcService {
             materialLot.setReserved6(location);
             materialLot.setReserved14(StringUtils.EMPTY);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                materialLotUnit.setReserved4(location);
+                materialLotUnit.setReserved13(warehouse.getObjectRrn().toString());
+                materialLotUnit.setReserved14(StringUtils.EMPTY);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory materialLotUnitHistory =  (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_TRANSFER_WAREHOUSE);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
+            }
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_TRANSFER_WAREHOUSE);
             materialLotHistoryRepository.save(history);
