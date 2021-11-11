@@ -184,6 +184,10 @@ public class PrintServiceImpl implements PrintService {
     public void printBoxMLot(MaterialLot boxMLot) throws ClientException {
         try {
             Map<String, Object> parameterMap = buildBoxParameterMap(boxMLot);
+            //TKY shippingData为空
+            if("TKY".equals(boxMLot.getReserved53()) && "PASS_BIN3".equals(boxMLot.getGrade())){
+                parameterMap.put("shippingDate", StringUtils.EMPTY);
+            }
 
             PrintContext printContext = buildPrintContext(null, LABEL_TEMPLATE_NAME_PRINT_BOX_MLOT, parameterMap);
 
@@ -217,10 +221,6 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("shippingDate", shippingDate);
             parameterMap.put("poNumber", deliveryOrderLine.getReserved20());
 
-            //TKY shippingData为空
-            if("TKY".equals(deliveryOrderLine.getReserved27())){
-                parameterMap.put("shippingDate", StringUtils.EMPTY);
-            }
             String boxMaterialLotId = boxMaterialLot.getMaterialLotId();
             String boxNumber = boxMaterialLotId.substring(0, boxMaterialLotId.indexOf(StringUtils.SPLIT_CODE));
 
