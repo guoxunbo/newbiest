@@ -28,6 +28,11 @@ public class MaterialLotAction extends Action {
     private String grade;
 
     /**
+     * 入库备注
+     */
+    private String reserved4;
+
+    /**
      * 来源仓库主键
      */
     private Long fromWarehouseRrn;

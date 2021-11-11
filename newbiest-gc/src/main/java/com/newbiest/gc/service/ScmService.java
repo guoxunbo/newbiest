@@ -18,6 +18,7 @@ public interface ScmService {
     void retry() throws ClientException;
 
     List<Map<String, String>> scmLotQuery(List<Map<String, String>> lotIdList) throws ClientException;
+    List<Map<String, String>> queryScmWaferByWorkOrderNo(String workOrderNo) throws ClientException;
 
     void scmHold(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException;
     void scmRelease(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException;
