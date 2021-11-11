@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_mlot_check_sheet_0.0.5
+      author: Tao Zhou
+      remarks: MMS_MLOT_CHECK_SHEET add column RESERVED2
+      changes:
+        - addColumn:
+            tableName: MMS_MLOT_CHECK_SHEET
+            columns:
+              - column:
+                  name: RESERVED2
+                  type: varchar2(64)
+                  remarks: control lot

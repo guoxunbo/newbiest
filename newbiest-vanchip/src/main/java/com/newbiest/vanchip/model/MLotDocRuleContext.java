@@ -1,5 +1,6 @@
 package com.newbiest.vanchip.model;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
@@ -170,6 +171,46 @@ public class MLotDocRuleContext implements Serializable {
                     throw new ClientParameterException(ContextException.MERGE_UN_SUPPORT_COMPARISON, ruleLine.getComparisonOperators());
                 }
             }
+        }
+    }
+
+    public List<MaterialLot> getMLotsByDocRule() throws ClientException {
+        try {
+            DocumentLine documentLine = documentLineList.get(0);
+            if (documentLine == null || CollectionUtils.isNotEmpty(mLotDocRuleLines)){
+                return null;
+            }
+            for (MLotDocRuleLine ruleLine : mLotDocRuleLines) {
+                String docLineFileName = ruleLine.getTargetFiledName();
+                String docLineFileValue = (String)PropertyUtils.getProperty(documentLine, docLineFileName);
+
+                String mLotFiledName = ruleLine.getSourceFiledName();
+                List<MaterialLot> materialLots = Lists.newArrayList();
+
+                for (MaterialLot materialLot: materialLotList){
+                    String mLotFileValue = (String)PropertyUtils.getProperty(materialLot, mLotFiledName);
+                    if (MLotDocRuleLine.COMPARISON_OPERATORS_EQUALS.equals(ruleLine.getComparisonOperators())) {
+                        if (mLotFileValue.equals(docLineFileValue)){
+
+                            materialLots.add(materialLot);
+                        }
+                    } else if (MLotDocRuleLine.COMPARISON_OPERATORS_CONTAINS.equals(ruleLine.getComparisonOperators())){
+                        if (mLotFileValue.contains(docLineFileValue)){
+
+                            materialLots.add(materialLot);
+                        }
+                    }else {
+                        throw new ClientParameterException(ContextException.MERGE_UN_SUPPORT_COMPARISON, ruleLine.getComparisonOperators());
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(materialLots)){
+                    return materialLots;
+                }
+                materialLotList = materialLots;
+            }
+            return materialLotList;
+        }catch (Exception e){
+            throw new ClientException(e);
         }
     }
 

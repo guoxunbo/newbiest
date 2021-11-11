@@ -5,6 +5,9 @@ vc:
   erpPo:
     userName: MES_PO
     password: Mes!Po1234
+  #设置同步ERP系统的数据的天数
+  erpQuery:
+    until: 10
   openSchedule: true
   vlm:
     vlmUrl: https://middle-mes.vivo.xyz:401/ReelAPI.asmx

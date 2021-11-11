@@ -75,6 +75,12 @@ public class MLotCheckSheet extends NBUpdatable {
     @Column(name="RESERVED1")
     private String reserved1;
 
+    /**
+     * control lot
+     */
+    @Column(name="RESERVED2")
+    private String reserved2;
+
     @PreUpdate
     protected void preUpdate() {
         super.preUpdate();

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: interface_fail_0.0.2
+      author: Tao Zhou
+      comment: com_if_fail add colum system_name
+      changes:
+        - addColumn:
+            tableName: COM_IF_FAIL
+            columns:
+              - column:
+                  name: SYSTEM_NAME
+                  type: varchar2(64)
+                  remarks: 系统名称/系统类型

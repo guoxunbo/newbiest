@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
+import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
@@ -19,6 +20,7 @@ import com.newbiest.mms.service.DocumentService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
+import com.newbiest.ui.model.NBReferenceList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -107,6 +109,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Autowired
     MaterialLotInventoryRepository materialLotInventoryRepository;
+
+    @Autowired
+    UIService uiService;
 
     //BY客户版本备货 reserved5+reserved4+reserved3
     public static final String CREATE_BY_CUSTOMER_VERSION_RESERVED_RULE = "createByCustomerVersionReservedRule";
@@ -1242,6 +1247,7 @@ public class DocumentServiceImpl implements DocumentService {
             documentLine.setMaterialName(parts.getName());
             documentLine.setReserved6(comments);
             documentLine.setReserved33(creator);
+            documentLine.setReserved35(parts.getReserved12());
             documentLine.setReserved26(parts.getReserved20());
             documentLine.setHandledQty(BigDecimal.ZERO);
             documentLine.setUnHandledQty(qty);
@@ -1537,5 +1543,20 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    public String getCostCenterValueByDoc(Document document) throws ClientException{
+        try {
+            String costCenterValue = StringUtils.EMPTY;
+            List<? extends NBReferenceList> referenceList = uiService.getReferenceList("CostCenter", "Owner");
+
+            Map<String, List<NBReferenceList>> referenceListMap = referenceList.stream().collect(Collectors.groupingBy(NBReferenceList::getKey));
+            List<NBReferenceList> nbReferenceLists = referenceListMap.get(document.getReserved2());
+
+            costCenterValue = nbReferenceLists.get(0).getValue();
+
+            return costCenterValue;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
 }

@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.3.4
+      author: Tao Zhou
+      remarks: mms_material_lot_his add column RESERVED63,RESERVED64,RESERVED65
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: RESERVED63
+                  type: varchar2(64)
+                  remarks: 客户的箱号
+              - column:
+                  name: RESERVED64
+                  type: varchar2(64)
+                  remarks: 客户物料编码
+              - column:
+                  name: RESERVED65
+                  type: varchar2(64)
+                  remarks: 客户物料描述

@@ -751,7 +751,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved59;
 
     /**
-     * 预留字段
+     * 客户的外箱号
      */
     @Column(name="RESERVED60")
     private String reserved60;
@@ -767,6 +767,24 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name="RESERVED62")
     private String reserved62;
+
+    /**
+     * 客户的箱号,可以看成是客户的REEl号
+     */
+    @Column(name="RESERVED63")
+    private String reserved63;
+
+    /**
+     * 客户物料编码
+     */
+    @Column(name="RESERVED64")
+    private String reserved64;
+
+    /**
+     * 客户物料描述
+     */
+    @Column(name="RESERVED65")
+    private String reserved65;
 
     /**
      * 成品接收传入Unit

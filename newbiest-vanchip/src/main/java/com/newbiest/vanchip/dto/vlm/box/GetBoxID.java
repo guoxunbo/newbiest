@@ -1,12 +1,9 @@
-package com.newbiest.vanchip.dto.vlm;
+package com.newbiest.vanchip.dto.vlm.box;
 
+import com.newbiest.vanchip.dto.vlm.VLMModel;
 import lombok.Data;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
+import javax.xml.bind.annotation.*;
 
 /**
  * 生成外箱号。
@@ -14,9 +11,7 @@ import java.io.Serializable;
 @Data
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name ="getBoxID_20190403")
-public class GetBoxID implements Serializable {
-
-    //"http://tempuri.org/
+public class GetBoxID extends VLMModel {
 
     /**
      * 供应商编码，必填；
@@ -25,7 +20,7 @@ public class GetBoxID implements Serializable {
     private String manufacturer;
 
     /**
-     * 物料编码，必填；
+     * 客户物料编码，必填；
      */
     @XmlElement(name = "compname")
     private String compname;
@@ -45,6 +40,7 @@ public class GetBoxID implements Serializable {
      * 备注，非必填；
      */
     private String remark;
+
     /**
      * 用户账号，必填；
      */
