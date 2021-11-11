@@ -16,6 +16,7 @@ import javax.persistence.Table;
 public class MLotDocRuleLine extends NBBase {
 
     public static final String COMPARISON_OPERATORS_EQUALS = "Equals";
+    public static final String COMPARISON_OPERATORS_CONTAINS = "Contains";
 
     @Column(name = "RULE_RRN")
     private String ruleRrn;

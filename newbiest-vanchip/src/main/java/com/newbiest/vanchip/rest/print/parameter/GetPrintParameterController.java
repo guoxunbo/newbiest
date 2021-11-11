@@ -56,13 +56,10 @@ public class GetPrintParameterController extends AbstractRestController {
         if (GetPrintParameterRequest.ACTION_BOX.equals(actionType)){
             MaterialLot boxMaterialLot = vanChipService.getBoxMLotBySubBoxMLotId(requestBody.getMaterialLotId());
 
-            parameterMap = printService.buildBoxParameterMap(boxMaterialLot);
+            parameterMap = vanChipService.buildBoxParameterMap(boxMaterialLot);
             responseBody.setParameterMap(parameterMap);
         } else if (GetPrintParameterRequest.ACTION_RY_BOX.equals(actionType)){
-            MaterialLot boxMaterialLot = vanChipService.getBoxMLotBySubBoxMLotId(requestBody.getMaterialLotId());
 
-            parameterMap = printService.buildRYBoxParameterMap(boxMaterialLot);
-            responseBody.setParameterMap(parameterMap);
         } else if (GetPrintParameterRequest.ACTION_ISSUE_ORDER.equals(actionType)){
             Document document = documentService.getDocumentByName(requestBody.getDocumentId(), true);
             List<MaterialLot> materialLots = vanChipService.getMLotByOrderId(requestBody.getDocumentId());

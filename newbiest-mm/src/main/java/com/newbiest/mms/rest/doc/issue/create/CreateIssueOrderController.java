@@ -48,10 +48,16 @@ public class CreateIssueOrderController extends AbstractRestController {
             documentService.createIssueFinishGoodOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLotIdList());
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MATERIAL.equals(actionType)){
             Document document = documentService.createIssueByMaterialOrder(requestBody.getDocumentId(), true, requestBody.getMaterials(), requestBody.getMaterialLotAction());
+            String costCenterValue = documentService.getCostCenterValueByDoc(document);
+
             responseBody.setDocument(document);
+            responseBody.setCostCenter(costCenterValue);
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_ORDER_BY_MLOT.equals(actionType)){
             Document document = documentService.createIssueMaterialLotOrder(requestBody.getDocumentId(), true, requestBody.getMaterialLots(), requestBody.getMaterialLotAction());
+            String costCenterValue = documentService.getCostCenterValueByDoc(document);
+
             responseBody.setDocument(document);
+            responseBody.setCostCenter(costCenterValue);
         }else if (CreateIssueOrderRequest.ACTION_TYPE_CREATE_ISSUE_PARTS_ORDER.equals(actionType)){
 
             documentService.createIssuePartsOrder(requestBody.getDocumentId(), true, requestBody.getMaterialName(), requestBody.getQty(), requestBody.getCreator(), requestBody.getPartComments());

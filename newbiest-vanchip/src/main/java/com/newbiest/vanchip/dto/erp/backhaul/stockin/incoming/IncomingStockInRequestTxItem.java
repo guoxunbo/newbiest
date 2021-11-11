@@ -186,15 +186,16 @@ public class IncomingStockInRequestTxItem implements Serializable {
         requestTxItem.setZ_BATCH_MRB_CODE(materialLot.getReserved16());
         requestTxItem.setZ_BATCH_BONBOOK(materialLot.getReserved19());
         requestTxItem.setZ_BATCH_ABNO(materialLot.getReserved54());
-        requestTxItem.setZ_BATCH_WMSBATCH(materialLot.getMaterialLotId());
         requestTxItem.setZ_BATCH_GFNO(materialLot.getIncomingDocId());
         requestTxItem.setZ_BATCH_INTERORDOR(materialLot.getReserved8());
 
         if (materialLot.getMaterialCategory().equals(Material.MATERIAL_CATEGORY_MAIN_MATERIAL)) {
             requestTxItem.setZ_BATCH_BOXNO(materialLot.getMaterialLotId());
+            requestTxItem.setZ_BATCH_WMSBATCH(materialLot.getMaterialLotId());
         }
         if (!StringUtils.isNullOrEmpty(materialLot.getRmaFlag())){
             requestTxItem.setZ_BATCH_REEL(materialLot.getMaterialLotId());
+            requestTxItem.setZ_BATCH_TBATCH(materialLot.getMaterialLotId());
         }
         requestTxItem.setZ_BATCH_CONTROLLOT(materialLot.getReserved4());
         requestTxItem.setZ_BATCH_CUSLOTNO(materialLot.getReserved5());

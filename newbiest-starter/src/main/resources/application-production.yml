@@ -4,6 +4,9 @@ vc:
   erpPo:
     userName: WMS_PO
     password: Wms!Prd2021
+  #设置同步ERP系统的数据的天数
+  erpQuery:
+    until: 10
   openSchedule: true
   packingListPath: ../packingList
   vlm:

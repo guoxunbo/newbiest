@@ -1,6 +1,7 @@
 package com.newbiest.vanchip.rest.mlot.update;
 
 import com.newbiest.base.msg.RequestBody;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,4 +26,7 @@ public class UpdateMaterialLotRequestBody extends RequestBody {
 
     @ApiModelProperty(value = "打印日期")
     private String iclDateValue;
+
+    @ApiModelProperty(value = "物料批次动作")
+    private MaterialLotAction materialLotAction;
 }

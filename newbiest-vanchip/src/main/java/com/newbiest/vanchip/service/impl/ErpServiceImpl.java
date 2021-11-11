@@ -115,15 +115,19 @@ public class ErpServiceImpl implements ErpService {
 
     @Value("${vc.erpPo.password}")
     private String erpPassword;
+
+    /**
+     * 查询的时间间隔 单位:天
+     */
+    @Value("${vc.erpQuery.until}")
+    private Integer QUERY_DATE_UNTIL;
+
     /**
      * ERP默认的日期格式
      */
     public static final String ERP_DEFAULT_DATE_FORMAT= "yyyyMMdd";
 
-    /**
-     * 同步查询的时间间隔 5;单位:天
-     */
-    public static final Integer ASYNC_QUERY_DATE_UNTIL = 5;
+
 
     /**
      * 来料/退料 信息同步批次
@@ -307,7 +311,7 @@ public class ErpServiceImpl implements ErpService {
         try {
             SimpleDateFormat erpFormatter = new SimpleDateFormat(ERP_DEFAULT_DATE_FORMAT);
             Date now = DateUtils.now();
-            Date beginDate = DateUtils.minus(now, ASYNC_QUERY_DATE_UNTIL, ChronoUnit.DAYS);
+            Date beginDate = DateUtils.minus(now, QUERY_DATE_UNTIL, ChronoUnit.DAYS);
 
             String beginDateStr = erpFormatter.format(beginDate);
             String endingDateStr = erpFormatter.format(now);
@@ -827,6 +831,7 @@ public class ErpServiceImpl implements ErpService {
                         requestItem.setZ_BATCH_REEL(materialLot.getMaterialLotId());
                         requestItem.setZ_BATCH_TBATCH(materialLot.getMaterialLotId());
                         requestItem.setZ_BATCH_BOXNO("");
+                        requestItem.setZ_BATCH_WMSBATCH("");
                         items.add(requestItem);
                     }else {
                         List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
@@ -842,6 +847,8 @@ public class ErpServiceImpl implements ErpService {
                             requestItem.setZ_BATCH_WMSBATCH(materialLotUnit.getMaterialLotId());
                             requestItem.setZ_BATCH_REEL(materialLotUnit.getMaterialLotId());
                             requestItem.setZ_BATCH_TBATCH(materialLotUnit.getUnitId());
+                            requestItem.setZ_BATCH_BOXNO("");
+                            requestItem.setZ_BATCH_WMSBATCH("");
                             items.add(requestItem);
                         }
                     }
@@ -950,7 +957,6 @@ public class ErpServiceImpl implements ErpService {
                             item.setTest_batch(materialLot.getMaterialLotId());
                         }else{
                             List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-                            //List<MaterialLotUnit> materialLotUnits = materialLot.getMaterialLotUnits();
                             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
                                 DeliveryStatusRequestItem item = new DeliveryStatusRequestItem();
                                 item = item.copyMaterialLotToDeliveryStatusRequestItem(item, materialLot);
@@ -994,7 +1000,7 @@ public class ErpServiceImpl implements ErpService {
         try {
             SimpleDateFormat erpFormatter = new SimpleDateFormat(ERP_DEFAULT_DATE_FORMAT);
             Date now = DateUtils.now();
-            Date beginDate = DateUtils.minus(now, 50, ChronoUnit.DAYS);
+            Date beginDate = DateUtils.minus(now, QUERY_DATE_UNTIL, ChronoUnit.DAYS);
             String beginDateStr = erpFormatter.format(beginDate);
             String endingDateStr = erpFormatter.format(now);
 
@@ -1674,6 +1680,7 @@ public class ErpServiceImpl implements ErpService {
     public String sendErpRequest(Object requestInfo, String url, Class responseClass, String transType, Boolean failBackFlag) throws ClientException{
         InterfaceHistory interfaceHistory = new InterfaceHistory();
         interfaceHistory.setDestination(url);
+        interfaceHistory.setSystemName(InterfaceHistory.SYSTEM_NAME_ERP_SAP);
         interfaceHistory.setTransType(transType);
         String responseString = StringUtils.EMPTY;
         try {

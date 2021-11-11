@@ -79,5 +79,7 @@ public interface DocumentService {
 
     Document createDeptReturnOrder(String documentId, boolean approveFlag, List<MaterialLotAction> materialLotActions) throws ClientException;
     void deptReturnMLot(String documentId, List<String> materialLotIdList) throws ClientException;
+
+    String getCostCenterValueByDoc(Document document) throws ClientException;
 }
 

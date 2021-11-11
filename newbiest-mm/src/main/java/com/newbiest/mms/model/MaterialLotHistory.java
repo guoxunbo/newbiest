@@ -824,7 +824,7 @@ public class MaterialLotHistory extends NBHis {
     private String reserved59;
 
     /**
-     * 采购订单号
+     * 客户的外箱号
      */
     @Column(name="RESERVED60")
     private String reserved60;
@@ -840,6 +840,24 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="RESERVED62")
     private String reserved62;
+
+    /**
+     * 客户的箱号类似于REEl号
+     */
+    @Column(name="RESERVED63")
+    private String reserved63;
+
+    /**
+     * 客户物料编码
+     */
+    @Column(name="RESERVED64")
+    private String reserved64;
+
+    /**
+     * 客户物料描述
+     */
+    @Column(name="RESERVED65")
+    private String reserved65;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

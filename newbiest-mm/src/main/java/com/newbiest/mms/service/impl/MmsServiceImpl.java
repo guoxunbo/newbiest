@@ -1087,6 +1087,7 @@ public class MmsServiceImpl implements MmsService {
         try {
             MaterialLot materialLot = getMLotByMLotId(materialLotAction.getMaterialLotId(), true);
             String checkResult = materialLotAction.getActionCode();
+            List<MaterialLot> waitPrintMaterialLots = Lists.newArrayList();
 
             //iqc丢料数量
             BigDecimal missingQty = materialLotAction.getTransQty();
@@ -1094,21 +1095,18 @@ public class MmsServiceImpl implements MmsService {
                 MaterialLotAction action = new MaterialLotAction();
                 action.setTransQty(missingQty);
                 materialLot = missingMLot(materialLot, action);
+
+                waitPrintMaterialLots.add(materialLot);
             }
 
             //iqc不合格数量
             BigDecimal ngQty = materialLotAction.getReservedQty();
             if (ngQty != null){
                 materialLotAction.setTransQty(ngQty);
-                List<MaterialLot> waitPrintMaterialLots = Lists.newArrayList();
                 MaterialLot ngSubMaterialLot = splitMLot(materialLot.getMaterialLotId(), materialLotAction, MaterialLot.GENERATOR_NG_SUB_MATERIAL_LOT_ID_RULE);
                 waitPrintMaterialLots.add(ngSubMaterialLot);
+                waitPrintMaterialLots.add(materialLot);//主批两次打印
                 waitPrintMaterialLots.add(materialLot);
-                waitPrintMaterialLots.add(materialLot);
-                printMLotList(waitPrintMaterialLots);
-//                //主批两次打印
-//                printMLot(materialLot);
-//                printMLot(materialLot);
 
                 ngSubMaterialLot.setIqcQty(ngSubMaterialLot.getCurrentQty());
                 materialLotRepository.save(ngSubMaterialLot);
@@ -1131,6 +1129,11 @@ public class MmsServiceImpl implements MmsService {
 
             if (MaterialStatus.STATUS_NG.equals(materialLotAction.getActionCode())) {
                 holdByQcNG(materialLotAction.getMaterialLotId(), MaterialLotHold.IQC_HOLD);
+            }
+
+            //打印标签
+            if (CollectionUtils.isEmpty(waitPrintMaterialLots)) {
+                printMLotList(waitPrintMaterialLots);
             }
             return mLotCheckSheet;
         } catch (Exception e) {
@@ -1265,7 +1268,7 @@ public class MmsServiceImpl implements MmsService {
             mLotCheckSheet.setSheetCategory(iqcCheckSheet.getCategory());
             mLotCheckSheet.setMaterialName(material.getName());
             mLotCheckSheet.setMaterialDesc(material.getDescription());
-            mLotCheckSheet.setReserved1(materialLot.getReserved1());
+            mLotCheckSheet.setReserved1(materialLot.getReserved3());
             mLotCheckSheet = mLotCheckSheetRepository.save(mLotCheckSheet);
 
             List<CheckSheetLine> checkSheetLines = checkSheetLineRepository.findByCheckSheetRrn(material.getIqcSheetRrn());

@@ -32,6 +32,12 @@ public class InterfaceFail extends NBHis {
     @Column(name="RESPONSE_TXT")
     private String responseTxt;
 
+    /**
+     * 接口系统名称/系统类型
+     */
+    @Column(name="SYSTEM_NAME")
+    private String systemName;
+
     public InterfaceFail(InterfaceHistory interfaceHistory) {
         this.result = interfaceHistory.getResult();
         this.requestType = interfaceHistory.getRequestType();
@@ -40,5 +46,6 @@ public class InterfaceFail extends NBHis {
         this.responseTxt = interfaceHistory.getResponseTxt();
         this.transType = interfaceHistory.getTransType();
         this.actionCode = interfaceHistory.getActionCode();
+        this.systemName = interfaceHistory.getSystemName();
     }
 }

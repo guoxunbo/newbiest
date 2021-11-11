@@ -6,7 +6,6 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.threadlocal.ThreadLocalContext;
-import com.newbiest.base.utils.CollectorsUtils;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.mms.exception.MmsException;
@@ -71,19 +70,9 @@ public class PrintServiceImpl implements PrintService {
     private static final String LABEL_TEMPLATE_NAME_PRINT_VIVO_BOX_MLOT = "PrintVIVOBoxMLot";
 
     /**
-     * OPPO外箱标签
-     */
-    private static final String LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_MLOT = "PrintOPPOBoxMLot";
-
-    /**
      * OPPO外箱标识贴
      */
-    private static final String LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_TAB_MLOT = "PrintOPPOBoxTabMLot";
-
-    /**
-     * 荣耀外箱标签
-     */
-    private static final String LABEL_TEMPLATE_NAME_PRINT_RY_BOX_MLOT = "PrintRYBoxMLot";
+    private static final String LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_TAG_MLOT = "PrintOPPOBoxTag";
 
     /**
      * 打印正常外箱标签
@@ -95,15 +84,19 @@ public class PrintServiceImpl implements PrintService {
      */
     private static final String LABEL_TEMPLATE_NAME_PRINT_MLOT = "PrintMLot";
 
+    /**
+     * 打印VIVO外箱标签
+     * @param boxMaterialLot
+     * @throws ClientException
+     */
     @Async
     public void printVIVOBoxMLot(MaterialLot boxMaterialLot) throws ClientException {
         try {
             Map<String, Object> parameterMap = buildBoxParameterMap(boxMaterialLot);
-            parameterMap.put("custVender", "xxcv");
-            parameterMap.put("custMaterialDesc", "xxcmd");
-            parameterMap.put("custMC", "xxcmc");
-            parameterMap.put("custBoxId", "xxcbi");
-            PrintContext printContext = buildPrintContext(null, LABEL_TEMPLATE_NAME_PRINT_VIVO_BOX_MLOT, parameterMap);
+            Map<String, Object> vivoOtherParameterMap = buildBoxParameterMap(boxMaterialLot);
+            parameterMap.putAll(vivoOtherParameterMap);
+
+            PrintContext printContext = buildPrintContext(boxMaterialLot, LABEL_TEMPLATE_NAME_PRINT_VIVO_BOX_MLOT, parameterMap);
 
             print(printContext);
         } catch (Exception e) {
@@ -112,122 +105,50 @@ public class PrintServiceImpl implements PrintService {
     }
 
     /**
-     * 打印OPPO外箱标识贴标签
+     * 构建VIVO外箱除正常外箱参数的其他参数
      * @param boxMaterialLot
+     * @return
      * @throws ClientException
      */
-    @Async
-    public void printOPPOBoxMLot(MaterialLot boxMaterialLot) throws ClientException {
+    public Map<String, Object> buildVIVOBoxOtherParameterMap(MaterialLot boxMaterialLot) throws ClientException{
         try {
             Map<String, Object> parameterMap = buildBoxParameterMap(boxMaterialLot);
-
-            PrintContext printContext = buildPrintContext(boxMaterialLot, LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_TAB_MLOT, parameterMap);
-
-            print(printContext);
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 打印OPPO外箱标签
-     * @param boxMaterialLot
-     * @throws ClientException
-     */
-    @Async
-    public void printOPPOBoxTabMLot(MaterialLot boxMaterialLot,  Map<String, Object> parameterMap) throws ClientException {
-        try {
-            PrintContext printContext = buildPrintContext(boxMaterialLot, LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_TAB_MLOT, parameterMap);
-
-            print(printContext);
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 荣耀外箱标签
-     * @param boxMaterialLot
-     * @throws ClientException
-     */
-    @Override
-    @Async
-    public void printRYBoxMLot(MaterialLot boxMaterialLot) throws ClientException {
-        try {
-            Map<String, Object> parameterMap = buildRYBoxParameterMap(boxMaterialLot);
-
-            PrintContext printContext = buildPrintContext(null, LABEL_TEMPLATE_NAME_PRINT_RY_BOX_MLOT, parameterMap);
-
-            print(printContext);
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    public Map<String, Object> buildRYBoxParameterMap(MaterialLot boxMaterialLot) throws ClientException {
-        try {
-            Map<String, Object> parameterMap = Maps.newHashMap();
-
-            List<MaterialLot> materialLots = materialLotRepository.findByBoxMaterialLotId(boxMaterialLot.getMaterialLotId());
-
-            BigDecimal totalQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot::getCurrentQty));
-
-            DocumentLine deliveryOrderLine = documentLineRepository.findByObjectRrn(boxMaterialLot.getReserved44());
-
-            parameterMap.put("poNo", deliveryOrderLine.getReserved20());
-            parameterMap.put("poNoBarCode", "K"+deliveryOrderLine.getReserved20());
-
-            parameterMap.put("customerPn", boxMaterialLot.getReserved58());
-            parameterMap.put("customerPnBarCode", "P"+boxMaterialLot.getReserved58());
-
-            parameterMap.put("manufacturerPn", boxMaterialLot.getReserved2());
-            parameterMap.put("manufacturerPnBarCode", "1P"+boxMaterialLot.getReserved2());
-
-            parameterMap.put("qty", totalQty);
-            parameterMap.put("qtyBarCode", "Q"+totalQty);
-
-            parameterMap.put("vendorCode", boxMaterialLot.getReserved57());
-            parameterMap.put("vendorCodeBarCode", "V"+boxMaterialLot.getReserved57());
-
-            parameterMap.put("dateCode", boxMaterialLot.getReserved9());
-            parameterMap.put("dateCodeBarCode", "9D"+boxMaterialLot.getReserved9());
-
-            StringBuffer qRCode = new StringBuffer();
-            qRCode.append(parameterMap.get("customerPnBarCode"));
-            qRCode.append(StringUtils.BLANK_SPACE);
-            qRCode.append(parameterMap.get("manufacturerPnBarCode"));
-            qRCode.append(StringUtils.BLANK_SPACE);
-            qRCode.append(parameterMap.get("dateCodeBarCode"));
-            qRCode.append(StringUtils.BLANK_SPACE);
-            qRCode.append(parameterMap.get("vendorCode"));
-            qRCode.append(StringUtils.BLANK_SPACE);
-            qRCode.append(parameterMap.get("dateCodeBarCode"));
-            qRCode.append(StringUtils.BLANK_SPACE);
-
-            for (int i = 1; i <= 10; i++){
-                if (i > materialLots.size()){
-                    parameterMap.put("reel"+i, "");
-                    parameterMap.put("reelBarCode"+i, "");
-                }else {
-                    parameterMap.put("reel"+i, materialLots.get(i-1).getMaterialLotId());
-                    parameterMap.put("reelBarCode"+i, "1T"+materialLots.get(i-1).getMaterialLotId());
-                    qRCode.append("1T"+materialLots.get(i-1).getMaterialLotId());
-                    qRCode.append(StringUtils.BLANK_SPACE);
-                }
-
-            }
-
-            qRCode.append("MVanchip");
-            qRCode.append(StringUtils.BLANK_SPACE);
-            qRCode.append("4LCHINA");
-
-            parameterMap.put("qRCode", qRCode);
+            parameterMap.put("custVender", boxMaterialLot.getReserved57());
+            parameterMap.put("custMaterialDesc", boxMaterialLot.getReserved65());
+            parameterMap.put("custMC", boxMaterialLot.getReserved64());
+            parameterMap.put("custBoxId", boxMaterialLot.getReserved60());
             return parameterMap;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
 
+
+    /**
+     * 打印OPPO外箱标识贴标签
+     * @param boxMaterialLot 外箱批次
+     * @param parameterMap  参数MAP
+     * @throws ClientException
+     */
+    @Async
+    public void printOPPOBoxTagMLot(MaterialLot boxMaterialLot, Map<String, Object> parameterMap) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(boxMaterialLot, LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_TAG_MLOT, parameterMap);
+
+            print(printContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 构建打印容器。
+     * @param baseObject
+     * @param labelTemplateName
+     * @param parameterMap
+     * @return
+     * @throws ClientException
+     */
     PrintContext buildPrintContext(Object baseObject, String labelTemplateName, Map<String, Object> parameterMap) throws ClientException{
         try {
             WorkStation workStation = workStationRepository.findByIpAddress(ThreadLocalContext.getTransactionIp());
@@ -263,11 +184,11 @@ public class PrintServiceImpl implements PrintService {
     public void printBoxMLot(MaterialLot boxMLot) throws ClientException {
         try {
             Map<String, Object> parameterMap = buildBoxParameterMap(boxMLot);
-
             //TKY shippingData为空
             if("TKY".equals(boxMLot.getReserved53()) && "PASS_BIN3".equals(boxMLot.getGrade())){
                 parameterMap.put("shippingDate", StringUtils.EMPTY);
             }
+
             PrintContext printContext = buildPrintContext(null, LABEL_TEMPLATE_NAME_PRINT_BOX_MLOT, parameterMap);
 
             print(printContext);

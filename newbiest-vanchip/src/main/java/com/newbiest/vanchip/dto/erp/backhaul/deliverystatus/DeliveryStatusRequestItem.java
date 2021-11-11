@@ -21,6 +21,11 @@ public class DeliveryStatusRequestItem implements Serializable {
     //物料
     private String material;
 
+    /**
+     * 库存地点
+     */
+    private String location;
+
     //PO号
     private String po_number;
 
@@ -84,7 +89,7 @@ public class DeliveryStatusRequestItem implements Serializable {
         requestItem.setBin_type(materialLot.getGrade());
         requestItem.setCustomer_po(materialLot.getReserved54());
         requestItem.setSo(materialLot.getReserved7());
-
+        requestItem.setLocation(materialLot.getLastWarehouseId());
         requestItem.setBatch(materialLot.getMaterialLotId());
         requestItem.setVender_batch(materialLot.getMaterialLotId());
         //大类描述

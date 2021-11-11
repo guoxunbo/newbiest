@@ -108,7 +108,6 @@ public interface VanChipService {
 
     MaterialLot getBoxMLotBySubBoxMLotId(String subBoxMLotId) throws ClientException;
     void printBoxMLot(String subBoxMaterialLotId, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException;
-    void printRYBoxMLot(String subBoxMaterialLotId, MaterialLotAction materialLotAction, Boolean validationPrintFlag) throws ClientException;
     void iqcApprove(List<MaterialLotAction> materialLotActions) throws ClientException;
     void startIqc(List<String> materialLotIds)throws ClientException;
 
@@ -127,4 +126,8 @@ public interface VanChipService {
     void asyncDeliveryInfo() throws ClientException;
 
     DocumentLine deleteDeliveryOrder(String deliveryOrderLineId) throws ClientException;
+    Map<String, Object> buildBoxParameterMap(MaterialLot boxMaterialLot) throws ClientException;
+
+    List<MaterialLot> updateRmaNo(List<MaterialLot> materialLots, MaterialLotAction materialLotAction) throws ClientException;
+
 }

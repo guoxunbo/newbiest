@@ -17,10 +17,7 @@ public interface PrintService {
     void printBoxMLot(MaterialLot boxMaterialLot) throws ClientException;
     Map<String, Object> buildBoxParameterMap(MaterialLot boxMaterialLot) throws ClientException;
 
-    void printRYBoxMLot(MaterialLot boxMaterialLot) throws ClientException;
-    Map<String, Object> buildRYBoxParameterMap(MaterialLot boxMaterialLot) throws ClientException;
-
+    Map<String, Object> buildVIVOBoxOtherParameterMap(MaterialLot boxMaterialLot) throws ClientException;
     void printVIVOBoxMLot(MaterialLot boxMaterialLot) throws ClientException;
-    void printOPPOBoxTabMLot(MaterialLot boxMaterialLot, Map<String, Object> parameterMap) throws ClientException;
-    void printOPPOBoxMLot(MaterialLot boxMaterialLot) throws ClientException;
+    void printOPPOBoxTagMLot(MaterialLot boxMaterialLot, Map<String, Object> parameterMap) throws ClientException;
 }

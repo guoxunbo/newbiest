@@ -2,6 +2,7 @@ package com.newbiest.vanchip.rest.mlot.update;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.msg.Request;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.vanchip.service.VanChipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/vc")
@@ -38,6 +41,10 @@ public class UpdateMaterialLotContorller {
             vanChipService.updateERPSo(requestBody.getMaterialLotList());
         } else if (UpdateMaterialLotRequest.ACTION_TYPE_UPDATE_ICL_DATE.equals(actionType)){
             vanChipService.updateProductionDate(requestBody.getMaterialLotId(), requestBody.getIclDateValue());
+        } else if (UpdateMaterialLotRequest.ACTION_TYPE_UPDATE_RMA_NO.equals(actionType)){
+
+            List<MaterialLot> materialLotList = vanChipService.updateRmaNo(requestBody.getMaterialLotList(), requestBody.getMaterialLotAction());
+            responseBody.setMaterialLotList(materialLotList);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

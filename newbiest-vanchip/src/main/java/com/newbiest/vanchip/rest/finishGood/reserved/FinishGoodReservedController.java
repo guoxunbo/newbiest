@@ -31,7 +31,7 @@ public class FinishGoodReservedController {
     DocumentService documentService;
 
     @ApiOperation(value = "对完成品做操作", notes = "备货")
-    @ApiImplicitParam(name="request", value="request", required = true, dataType = "FinishGoodReservedRequest")
+    @ApiImplicitParam(name="request", value="request", required = true, dataType = "ImportExcelRequest")
     @RequestMapping(value = "/finishGoodReserved", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
     public FinishGoodReservedResponse execute(@RequestBody FinishGoodReservedRequest request) throws Exception {
         FinishGoodReservedResponse response = new FinishGoodReservedResponse();

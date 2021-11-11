@@ -249,7 +249,7 @@ public class Material extends NBVersionControl {
     private String reserved11;
 
     /**
-     *所属部门
+     *位置描述
      */
     @Column(name="RESERVED12")
     private String reserved12;

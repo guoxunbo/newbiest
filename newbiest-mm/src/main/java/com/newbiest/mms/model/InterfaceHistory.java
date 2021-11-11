@@ -15,6 +15,9 @@ import javax.persistence.Table;
 @Data
 public class InterfaceHistory extends NBHis {
 
+    public static final String SYSTEM_NAME_ERP_SAP = "ERP_SAP";
+    public static final String SYSTEM_NAME_VIVO_VLM = "VIVO_VLM";
+
     public static final Integer ACTION_CODE_MAX_LENGTH = 256;
     public static final String RESULT_SUCCESS = "Success";
     public static final String RESULT_FAIL = "Fail";
@@ -39,4 +42,9 @@ public class InterfaceHistory extends NBHis {
     @Column(name="RESPONSE_TXT")
     private String responseTxt;
 
+    /**
+     * 接口系统名称/系统类型
+     */
+    @Column(name="SYSTEM_NAME")
+    private String systemName;
 }
