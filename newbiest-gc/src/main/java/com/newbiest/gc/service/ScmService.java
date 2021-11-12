@@ -2,6 +2,7 @@ package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.utils.SessionContext;
+import com.newbiest.gc.model.GCScmToMesEngInform;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 
@@ -14,6 +15,9 @@ import java.util.Map;
  * @date 2020-08-09 10:39
  */
 public interface ScmService {
+
+    void scmSaveEngInfo(List<GCScmToMesEngInform> lotEngInfoList, String actionType) throws ClientException;
+    void scmDeleteEngInfo(List<GCScmToMesEngInform> lotEngInfoList) throws ClientException;
 
     void retry() throws ClientException;
 
