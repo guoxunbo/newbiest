@@ -1071,6 +1071,7 @@ public class ErpServiceImpl implements ErpService {
                         reelMLotList.add(materialLot);
 
                         erpDocumentLine.setReserved34(responseItem.getMaterial_desc());
+                        erpDocumentLine.setReserved38(responseItem.getMaterial());
                     }
 
                     DocumentLine documentLine = documentLineRepository.findByLineId(responseData.getDelivery());

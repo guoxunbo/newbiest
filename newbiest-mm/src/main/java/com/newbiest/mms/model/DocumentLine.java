@@ -303,6 +303,12 @@ public class DocumentLine extends NBUpdatable {
     private String reserved37;
 
     /**
+     * 客户物料编码
+     */
+    @Column(name="RESERVED38")
+    private String reserved38;
+
+    /**
      * 导入时格式转换
      */
     @Transient

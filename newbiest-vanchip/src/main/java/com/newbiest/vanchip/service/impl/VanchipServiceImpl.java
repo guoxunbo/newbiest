@@ -2148,6 +2148,7 @@ public class VanchipServiceImpl implements VanChipService {
             deliveryPrintInfo.setCustomerCode(deliveryOrderLine.getReserved2());
             deliveryPrintInfo.setTotalQty(deliveryOrderLine.getQty().toPlainString());
             deliveryPrintInfo.setTerminalCustomer(deliveryOrderLine.getReserved36());
+            deliveryPrintInfo.setMaterialCode(deliveryOrderLine.getReserved38());
 
             if (!StringUtils.isNullOrEmpty(deliveryOrderLine.getReserved24())) {
                 DeliveryMLotPrintInfo deliveryMLotPrintInfo = new DeliveryMLotPrintInfo();
@@ -3257,7 +3258,6 @@ public class VanchipServiceImpl implements VanChipService {
             parameterMap.put("vendorCode", customerProduct.getVendorCode());
             parameterMap.put("materialCode", customerProduct.getMaterialCode());
             parameterMap.put("materialDescription", customerProduct.getMaterialDescription());
-            //parameterMap.put("dc", customerProduct.getVendorCode());
             printService.printOPPOBoxTagMLot(boxMaterialLot, parameterMap);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
