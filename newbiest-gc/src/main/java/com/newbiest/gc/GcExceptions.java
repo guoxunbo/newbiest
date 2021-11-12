@@ -89,6 +89,9 @@ public class GcExceptions {
 
     //MSCM
     public static final String MSCM_ERROR = "gc.mscm_error";
+    public static final String SCM_LOT_INFO_CONTAINS_EMPTY_VALUE = "gc.lotInfo_contains_empty_value";
+    public static final String SCM_LOT_ID_ALREADY_EXISTS = "gc.lotId_already_exists";
+    public static final String SCM_LOT_ID_IS_NOT_EXIST = "gc.lotId_is_not_exist";
 
     //原材料相关
     public static final String TAPA_MATERIAL_CODE_IS_ERROR = "gc.tape_material_code_is_error";

@@ -110,5 +110,8 @@ public class GcConfiguration {
         ModelFactory.registerHistoryModelClassLoader(FutureHoldConfig.class.getName(), FutureHoldConfigHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(FutureHoldConfig.class.getName(), FutureHoldConfigHis.class.getName());
 
+        ModelFactory.registerHistoryModelClassLoader(GCScmToMesEngInform.class.getName(), GCScmToMesEngInformHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(GCScmToMesEngInform.class.getName(), GCScmToMesEngInformHis.class.getName());
+
     }
 }
