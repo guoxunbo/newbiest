@@ -13,6 +13,11 @@ import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.gc.GcExceptions;
+import com.newbiest.gc.model.GCScmToMesEngInform;
+import com.newbiest.gc.model.GCScmToMesEngInformHis;
+import com.newbiest.gc.repository.GCScmToMesEngInformHisRepository;
+import com.newbiest.gc.repository.GCScmToMesEngInformRepository;
+import com.newbiest.gc.rest.scm.engManager.EngManagerRequest;
 import com.newbiest.gc.service.model.QueryWaferResponse;
 import com.newbiest.mms.model.FutureHoldConfig;
 import com.newbiest.mms.model.FutureHoldConfigHis;
@@ -40,6 +45,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -63,6 +69,7 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
 @Slf4j
 @Data
 @EnableAsync
+@Transactional
 public class ScmServiceImpl implements ScmService {
 
     /**
@@ -153,6 +160,12 @@ public class ScmServiceImpl implements ScmService {
 
     @Autowired
     FutureHoldConfigHisRepository futureHoldConfigHisRepository;
+
+    @Autowired
+    GCScmToMesEngInformRepository gcScmToMesEngInformRepository;
+
+    @Autowired
+    GCScmToMesEngInformHisRepository gcScmToMesEngInformHisRepository;
 
     @PostConstruct
     public void init() {
@@ -438,6 +451,66 @@ public class ScmServiceImpl implements ScmService {
                 mapList = queryWaferResponse.getData();
             }
             return mapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 添加、修改SCM工程品
+     * @param lotEngInfoList
+     * @throws ClientException
+     */
+    @Override
+    public void scmSaveEngInfo(List<GCScmToMesEngInform> lotEngInfoList, String actionType) throws ClientException {
+        try {
+            for (GCScmToMesEngInform mesLot : lotEngInfoList) {
+                if (StringUtils.isNullOrEmpty(mesLot.getLotId()) || StringUtils.isNullOrEmpty(mesLot.getProductId()) || StringUtils.isNullOrEmpty(mesLot.getWaferId())
+                        || StringUtils.isNullOrEmpty(mesLot.getHoldFlag()) || StringUtils.isNullOrEmpty(mesLot.getHoldDesc())) {
+                    throw new ClientException(GcExceptions.SCM_LOT_INFO_CONTAINS_EMPTY_VALUE);
+                }
+                GCScmToMesEngInform existMesLot = gcScmToMesEngInformRepository.findByLotId(mesLot.getLotId());
+                if (EngManagerRequest.ACTION_TYPE_SAVE.equals(actionType)) {
+                    if (existMesLot != null) {
+                        throw new ClientParameterException(GcExceptions.SCM_LOT_ID_ALREADY_EXISTS, existMesLot.getLotId());
+                    }
+                    mesLot = gcScmToMesEngInformRepository.saveAndFlush(mesLot);
+                    GCScmToMesEngInformHis scmToMesEngInformHis = (GCScmToMesEngInformHis) baseService.buildHistoryBean(mesLot, "CreateSCMEng");
+                    gcScmToMesEngInformHisRepository.save(scmToMesEngInformHis);
+                } else if (EngManagerRequest.ACTION_TYPE_UPDATE.equals(actionType)) {
+                    if (existMesLot == null) {
+                        throw new ClientParameterException(GcExceptions.SCM_LOT_ID_IS_NOT_EXIST, mesLot.getLotId());
+                    }
+                    PropertyUtils.copyProperties(mesLot, existMesLot);
+
+                    existMesLot = gcScmToMesEngInformRepository.saveAndFlush(existMesLot);
+                    GCScmToMesEngInformHis scmToMesEngInformHis = (GCScmToMesEngInformHis) baseService.buildHistoryBean(existMesLot, "UpdateMesEng");
+                    gcScmToMesEngInformHisRepository.save(scmToMesEngInformHis);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 删除SCM工程品
+     * @param lotEngInfoList
+     * @throws ClientException
+     */
+    @Override
+    public void scmDeleteEngInfo(List<GCScmToMesEngInform> lotEngInfoList) throws ClientException {
+        try {
+            for (GCScmToMesEngInform mesLot : lotEngInfoList) {
+                GCScmToMesEngInform existMesLot = gcScmToMesEngInformRepository.findByLotId(mesLot.getLotId());
+                if (existMesLot != null) {
+                    gcScmToMesEngInformRepository.delete(existMesLot);
+                    GCScmToMesEngInformHis gcScmToMesEngInformHis = (GCScmToMesEngInformHis) baseService.buildHistoryBean(existMesLot, "DeleteSCMEng");
+                    gcScmToMesEngInformHisRepository.save(gcScmToMesEngInformHis);
+                } else {
+                    throw new ClientParameterException(GcExceptions.SCM_LOT_ID_IS_NOT_EXIST, mesLot.getLotId());
+                }
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
