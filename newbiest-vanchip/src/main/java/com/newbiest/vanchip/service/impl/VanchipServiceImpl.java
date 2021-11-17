@@ -2955,15 +2955,15 @@ public class VanchipServiceImpl implements VanChipService {
 
             Material material = mmsService.getMaterialByName(documentLine.getMaterialName(), true);
             materialLotAction.setFromWarehouseRrn(material.getWarehouseRrn());
-            stockOutParts(material, materialLotAction);
+            stockOutParts(material, materialLotAction, document);
 
-            //mesService.issuePartsMLot(documentLine);
+            mesService.issuePartsMLot(documentLine);
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
 
-    public void stockOutParts(Material material, MaterialLotAction materialLotAction) throws ClientException{
+    public void stockOutParts(Material material, MaterialLotAction materialLotAction, Document document) throws ClientException{
         try {
             BigDecimal transQty = materialLotAction.getTransQty();
             Warehouse warehouse = warehouseRepository.findByObjectRrn(materialLotAction.getFromWarehouseRrn());
@@ -2980,12 +2980,18 @@ public class VanchipServiceImpl implements VanChipService {
                 BigDecimal currentQty = mLot.getCurrentQty();
                 if (transQty.compareTo(mLot.getCurrentQty()) >= 0){
                     materialLotAction.setTransQty(mLot.getCurrentQty());
+                    if (document != null){
+                        mLot.setLastDocumentInfo(document);
+                    }
                     mmsService.stockOut(mLot, materialLotAction);
                 }else if (transQty.compareTo(mLot.getCurrentQty()) < 0){
                     materialLotAction.setTransQty(transQty);
                     MaterialLot materialLot = mmsService.splitMLot(mLot.getMaterialLotId(), materialLotAction);
 
                     materialLotAction.setTransQty(materialLot.getCurrentQty());
+                    if (document != null){
+                        materialLot.setLastDocumentInfo(document);
+                    }
                     mmsService.stockOut(materialLot, materialLotAction);
                 }
                 transQty = transQty.subtract(currentQty);
