@@ -8,6 +8,11 @@ import java.util.List;
 @Data
 public class PackingListPrintInfo implements Serializable {
 
+    /**
+     * 客户名称
+     */
+    private String customerName;
+
     private String packingListType;
 
     private String shipTo;
