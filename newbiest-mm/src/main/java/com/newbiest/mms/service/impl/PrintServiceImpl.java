@@ -130,7 +130,6 @@ public class PrintServiceImpl implements PrintService {
      * @param parameterMap  参数MAP
      * @throws ClientException
      */
-    @Async
     public void printOPPOBoxTagMLot(MaterialLot boxMaterialLot, Map<String, Object> parameterMap) throws ClientException {
         try {
             PrintContext printContext = buildPrintContext(boxMaterialLot, LABEL_TEMPLATE_NAME_PRINT_OPPO_BOX_TAG_MLOT, parameterMap);
@@ -180,7 +179,6 @@ public class PrintServiceImpl implements PrintService {
      * @throws ClientException
      */
     @Override
-    @Async
     public void printBoxMLot(MaterialLot boxMLot) throws ClientException {
         try {
             Map<String, Object> parameterMap = buildBoxParameterMap(boxMLot);
