@@ -101,7 +101,7 @@ public interface VanChipService {
     List<MaterialLot> getRecheckMLots(DocumentLine documentLine)throws ClientException;
 
     void stockOutPartsByOrder(String documentId, MaterialLotAction materialLotAction) throws ClientException;
-    void stockOutParts(Material material, MaterialLotAction materialLotAction) throws ClientException;
+    void stockOutParts(Material material, MaterialLotAction materialLotAction, Document document) throws ClientException;
     MaterialLot returnMLotWarehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
 
     void erpSaveMaterial(List<Material> materials) throws ClientException;
