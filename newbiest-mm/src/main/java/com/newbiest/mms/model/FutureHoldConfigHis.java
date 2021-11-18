@@ -29,4 +29,16 @@ public class FutureHoldConfigHis extends NBHis {
      */
     @Column(name="HOLD_REASON")
     private String holdReason;
+
+    /**
+     * 产品类别
+     */
+    @Column(name = "PRODUCT_AREA")
+    private String productArea;
+
+    /**
+     * 接收来源
+     */
+    @Column(name = "RECEIVE_TYPE")
+    private String receiveType;
 }

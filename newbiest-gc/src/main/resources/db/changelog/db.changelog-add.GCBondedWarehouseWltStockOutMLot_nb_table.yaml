@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseWltStockOutMLot_to_NB_TABLE
+      author: Youqing Huang
+      comment: add BondedWarehouseWltStockOutMLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWarehouseWltStockOutMLot
+              description: 保税仓库 WLT发货单物料
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: WLT发货单物料
+              label: WltStockOutMLot
