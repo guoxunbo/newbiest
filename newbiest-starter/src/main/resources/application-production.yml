@@ -1,5 +1,6 @@
 gc:
   scmUrl: https://gc-scm.wochacha.com
+  wScmUrl: https://gc-scm.wochacha.com
   mesUrl: http://10.181.160.31/mycim2
   mScmUrl: https://mscm.wochacha.com
   mScmUsername: gc_mes
