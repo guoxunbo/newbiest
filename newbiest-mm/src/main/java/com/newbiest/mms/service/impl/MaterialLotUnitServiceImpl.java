@@ -470,7 +470,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved50",materialLotUnit.getReserved50());
                     propsMap.put("reserved48",importCode);
 
-                    MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotUnit.getUnitId().toUpperCase(), StringUtils.EMPTY, materialLotUnit.getCurrentQty(), propsMap, BigDecimal.ONE);
+                    MaterialLotAction materialLotAction = new MaterialLotAction(materialLotUnit.getUnitId().toUpperCase(), StringUtils.EMPTY, propsMap, materialLotUnit.getCurrentQty(), BigDecimal.ONE, StringUtils.EMPTY);
+                    MaterialLot materialLot = mmsService.createMLot(material, statusModel, materialLotAction);
 
                     if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                         materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());

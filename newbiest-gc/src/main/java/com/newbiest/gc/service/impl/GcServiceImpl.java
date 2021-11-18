@@ -335,6 +335,11 @@ public class GcServiceImpl implements GcService {
                 whereClause.append(" materialName = '" + documentLine.getMaterialName() + "'");
                 whereClause.append(" AND ");
                 whereClause.append(" grade ='" + documentLine.getReserved3() + "'");
+                if(ErpSo.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
+                    whereClause.append(" and reserved7 ='COM'");
+                } else if(ErpSoa.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
+                    whereClause.append(" and reserved7 ='FT'");
+                }
 
                 List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause.toString(), "");
                 if (CollectionUtils.isNotEmpty(materialLots)) {
@@ -446,12 +451,12 @@ public class GcServiceImpl implements GcService {
             documentLine = documentLineRepository.saveAndFlush(documentLine);
             baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RESERVED);
 
-            DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-            BigDecimal docReservedQty = deliveryOrder.getReservedQty() == null ? BigDecimal.ZERO : deliveryOrder.getReservedQty();
-            deliveryOrder.setUnReservedQty(deliveryOrder.getUnReservedQty().subtract(reservedQty));
-            deliveryOrder.setReservedQty(docReservedQty.add(reservedQty));
-            deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
-            baseService.saveHistoryEntity(deliveryOrder, MaterialLotHistory.TRANS_TYPE_RESERVED);
+            Document document = (Document) documentRepository.findByObjectRrn(documentLine.getDocRrn());
+            BigDecimal docReservedQty = document.getReservedQty() == null ? BigDecimal.ZERO : document.getReservedQty();
+            document.setUnReservedQty(document.getUnReservedQty().subtract(reservedQty));
+            document.setReservedQty(docReservedQty.add(reservedQty));
+            document = documentRepository.saveAndFlush(document);
+            baseService.saveHistoryEntity(document, MaterialLotHistory.TRANS_TYPE_RESERVED);
             return documentLine;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -513,12 +518,12 @@ public class GcServiceImpl implements GcService {
             }
 
             for (Long docRrn : docUnReservedQtyMap.keySet()) {
-                DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(docRrn);
-                deliveryOrder.setUnReservedQty(deliveryOrder.getUnReservedQty().add(docUnReservedQtyMap.get(docRrn)));
-                deliveryOrder.setReservedQty(deliveryOrder.getReservedQty().subtract(docUnReservedQtyMap.get(docRrn)));
-                deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
+                Document document = (Document) documentRepository.findByObjectRrn(docRrn);
+                document.setUnReservedQty(document.getUnReservedQty().add(docUnReservedQtyMap.get(docRrn)));
+                document.setReservedQty(document.getReservedQty().subtract(docUnReservedQtyMap.get(docRrn)));
+                document = documentRepository.saveAndFlush(document);
 
-                baseService.saveHistoryEntity(deliveryOrder, MaterialLotHistory.TRANS_TYPE_UN_RESERVED);
+                baseService.saveHistoryEntity(document, MaterialLotHistory.TRANS_TYPE_UN_RESERVED);
             }
 
         } catch (Exception e) {
@@ -4729,6 +4734,7 @@ public class GcServiceImpl implements GcService {
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
                     materialLotAction.setSourceModelId(mesPackedLot.getProductId());
                     materialLotAction.setReturnMaterialFlag(mesPackedLot.getInFlag());
+                    materialLotAction.setWorkOrderId(mesPackedLot.getWorkorderId());
 
                     // 产地是空的话则是ZJ仓库
                     String warehouseName = WAREHOUSE_ZJ;

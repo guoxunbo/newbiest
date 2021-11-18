@@ -7,6 +7,7 @@ import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -111,7 +112,8 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved48",importCode);
             propsMap.put("productType",productType);
 
-            MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap, currentSubQty);
+            MaterialLotAction materialLotAction = new MaterialLotAction(materialLotId, StringUtils.EMPTY, propsMap, totalQty, currentSubQty, StringUtils.EMPTY);
+            MaterialLot materialLot = mmsService.createMLot(material, statusModel, materialLotAction);
 
             if (MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49())) {
                 mmsService.validateFutureHoldByLotId(materialLot.getLotId());
