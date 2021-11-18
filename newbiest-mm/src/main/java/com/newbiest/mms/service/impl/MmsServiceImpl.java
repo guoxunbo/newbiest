@@ -373,8 +373,8 @@ public class MmsServiceImpl implements MmsService {
             List<MaterialLot> materialLots = Lists.newArrayList();
             StatusModel statusModel = getMaterialStatusModel(rawMaterial);
             for (MaterialLotAction materialLotImportAction : materialLotImportActions) {
-                MaterialLot materialLot = createMLot(rawMaterial, statusModel, materialLotImportAction.getMaterialLotId(),
-                                                        materialLotImportAction.getGrade(), materialLotImportAction.getTransQty(), materialLotImportAction.getPropsMap(), BigDecimal.ZERO);
+                materialLotImportAction.setTransCount(BigDecimal.ZERO);
+                MaterialLot materialLot = createMLot(rawMaterial, statusModel, materialLotImportAction);
                 materialLots.add(materialLot);
             }
             return materialLots;
@@ -585,6 +585,9 @@ public class MmsServiceImpl implements MmsService {
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
             history.buildByMaterialLotAction(materialLotAction);
+            if(!StringUtils.isNullOrEmpty(materialLotAction.getWorkOrderId())){
+                history.setWorkOrderId(materialLotAction.getWorkOrderId());
+            }
             history.setTargetWarehouseId(targetWarehouse.getName());
             history.setTargetStorageId(targetStorage.getName());
             materialLotHistoryRepository.save(history);
@@ -952,11 +955,14 @@ public class MmsServiceImpl implements MmsService {
             StatusModel statusModel = getMaterialStatusModel(material);
 
             for (MaterialLotAction materialLotAction : materialLotActionList) {
-                MaterialLot materialLot = createMLot(material, statusModel, materialLotAction.getMaterialLotId(), materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap(),materialLotAction.getTransCount());
+                MaterialLot materialLot = createMLot(material, statusModel, materialLotAction);
                 materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
                 history.buildByMaterialLotAction(materialLotAction);
+                if(!StringUtils.isNullOrEmpty(materialLotAction.getWorkOrderId())){
+                    history.setWorkOrderId(materialLotAction.getWorkOrderId());
+                }
                 history.setSourceModelId(materialLotAction.getSourceModelId());
                 materialLotHistoryRepository.save(history);
                 materialLots.add(materialLot);
@@ -998,8 +1004,8 @@ public class MmsServiceImpl implements MmsService {
     public MaterialLot receiveMLot(Material material, String mLotId, MaterialLotAction materialLotAction) {
         try {
             StatusModel statusModel = getMaterialStatusModel(material);
-
-            MaterialLot materialLot = createMLot(material, statusModel, mLotId, materialLotAction.getGrade(), materialLotAction.getTransQty(), materialLotAction.getPropsMap(), materialLotAction.getTransCount());
+            materialLotAction.setMaterialLotId(mLotId);
+            MaterialLot materialLot = createMLot(material, statusModel, materialLotAction);
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RECEIVE);
@@ -1072,14 +1078,20 @@ public class MmsServiceImpl implements MmsService {
     /**
      * 创建物料批次
      * @param material 源物料/产品号
-     * @param  mLotId 物料批次号。当为空的时候，按照设定的物料批次号生成规则进行生成
+     *  mLotId 物料批次号。当为空的时候，按照设定的物料批次号生成规则进行生成
      * @return
      * @throws ClientException
      */
-    public MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, String grade, BigDecimal transQty, Map<String, Object> propsMap, BigDecimal currentSubQty) throws ClientException {
+    public MaterialLot createMLot(Material material, StatusModel statusModel, MaterialLotAction materialLotAction) throws ClientException {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
+            String mLotId = materialLotAction.getMaterialLotId();
+            String grade = materialLotAction.getGrade();
+            BigDecimal transQty = materialLotAction.getTransQty();
+            Map<String, Object>  propsMap = materialLotAction.getPropsMap();
+            BigDecimal currentSubQty = materialLotAction.getTransCount();
+            String workOrderId = materialLotAction.getWorkOrderId();
             if (StringUtils.isNullOrEmpty(mLotId)) {
                 mLotId = generatorMLotId(material);
             }
@@ -1124,6 +1136,9 @@ public class MmsServiceImpl implements MmsService {
             // 记录历史
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
             history.setTransQty(materialLot.getCurrentQty());
+            if(!StringUtils.isNullOrEmpty(workOrderId)){
+                history.setWorkOrderId(workOrderId);
+            }
             history.setCreated(materialLot.getCreated());
             materialLotHistoryRepository.save(history);
             return materialLot;
