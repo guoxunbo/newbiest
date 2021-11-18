@@ -746,3 +746,21 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCIncomingMLotPrintLabel.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseIncomingMaterialImport.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseWaferInStorage.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseLotPackage.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseWltStockOut.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseWltOrCpWaferReceive.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseWltOtherStockOut.nb_authority.yaml
+      relativeToChangelogFile: true

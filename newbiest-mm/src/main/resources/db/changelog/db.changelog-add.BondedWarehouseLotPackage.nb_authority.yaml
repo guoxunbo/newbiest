@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseLotPackageManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseLotPackageManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: LotPackageManager
+              description: 保税仓库 Lot装箱
+              tableName: BondedWarehouseLotPackage
+              mobileFlag: N
+              url: /BondedWarehouse/LotPackage
+              parentRrn: 2021
+              seqNo: 20
+              image: icon-wuliao
+              labelZh: Lot装箱
+              labelEn: LotPackage
+
