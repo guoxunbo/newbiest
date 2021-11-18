@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseWltOrCpWaferReceiveManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseWltOrCpWaferReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: WltOrCpWaferReceiveManager
+              description: 保税仓库 WLT/CP晶圆接收
+              tableName: BondedWarehouseWltOrCpWaferReceive
+              secondTableName: BondedWarehouseWltOrCpWaferWait
+              mobileFlag: N
+              url: /BondedWarehouse/WltOrCpWaferReceive
+              parentRrn: 2021
+              seqNo: 10
+              image: icon-wuliao
+              labelZh: WLT/CP晶圆接收
+              labelEn: WltOrCpWaferReceive
+

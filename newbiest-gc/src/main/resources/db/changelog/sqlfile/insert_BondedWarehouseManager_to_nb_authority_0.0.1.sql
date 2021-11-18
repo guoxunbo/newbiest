@@ -1,0 +1,2 @@
+insert into nb_authority (OBJECT_RRN, ACTIVE_FLAG, ORG_RRN, NAME, DESCRIPTION, PARENT_RRN, AUTHORITY_TYPE, AUTHORITY_CATEGORY, IMAGE, LABEL_EN, LABEL_ZH, LABEL_RES, SEQ_NO, TABLE_RRN, URL, PARAMETER1, PARAMETER2, PARAMETER3, PARAMETER4, PARAMETER5, MOBILE_FLAG)
+values (2021, 'Y', 0, 'BondedWarehouseManager', '保税仓库管理', null, 'M', 'MMS', 'icon-warehouse', 'Bonded Warehouse Manager', '保税仓库管理', null, 47, null, '/BondedWarehouse', null, null, null, null, null, 'N');
