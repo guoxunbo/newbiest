@@ -4624,7 +4624,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReceiveQty(BigDecimal.valueOf(packedLot.getQuantity()));
                     materialLotUnit.setReserved1(packedLot.getLevelTwoCode());
                     materialLotUnit.setReserved3(StringUtils.EMPTY);
-                    materialLotUnit.setReserved4(packedLot.getBondedProperty());
+                    materialLotUnit.setReserved4(materialLot.getReserved6());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved22(materialLot.getReserved22());
@@ -4642,6 +4642,8 @@ public class GcServiceImpl implements GcService {
 
                     MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
                     materialLotUnitHisRepository.save(history);
+
+
                 }
                 materialLotList.add(materialLot);
             }
@@ -4671,6 +4673,15 @@ public class GcServiceImpl implements GcService {
             }
             receiveRwFinishGood(mesPackedLots);
             saveMaterialLotUnitAndSaveHis(packedLotMap, mesPackedLots, materialLotList);
+
+            //验证是否需要转仓库，退料入库的物料批次不需要转仓库
+            for(MesPackedLot mesPackedLot : mesPackedLots){
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mesPackedLot.getBoxId(), ThreadLocalContext.getOrgRrn());
+                if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6()) && !MesPackedLot.IN_FLAG_ONE.equals(mesPackedLot.getInFlag())){
+                    Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_SH);
+                    materialLotTransferWareHouse(materialLot, MaterialLot.LOCATION_SH, warehouse);
+                }
+            }
 
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLots.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
             if(!StringUtils.isNullOrEmpty(printLabel)){
@@ -4818,15 +4829,6 @@ public class GcServiceImpl implements GcService {
                     erpMoaList.add(erpMoa);
                 }
                 List<MaterialLot> materialLots = mmsService.receiveMLotList2Warehouse(material, materialLotActions);
-
-                //退料入库的物料批次不需要转仓库
-                for(MaterialLotAction materialLotAction : materialLotActions){
-                    MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotAction.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
-                    if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6()) && !MesPackedLot.IN_FLAG_ONE.equals(materialLotAction.getReturnMaterialFlag())){
-                        Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_SH);
-                        materialLotTransferWareHouse(materialLot, MaterialLot.LOCATION_SH, warehouse);
-                    }
-                }
             };
 
             List<Long> parentRrnList = packedLotList.stream().map(MesPackedLot :: getParentRrn).collect(Collectors.toList());
