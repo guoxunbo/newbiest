@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_future_hold_config add column
+      author: Youqing Huang
+      comment: gc_future_hold_config add column
+      changes:
+        - addColumn:
+            tableName: GC_FUTURE_HOLD_CONFIG
+            columns:
+              - column:
+                  name: PRODUCT_AREA
+                  type: varchar2(32)
+                  remarks: 产品类别
+              - column:
+                  name: RECEIVE_TYPE
+                  type: varchar2(32)
+                  remarks: 接收来源

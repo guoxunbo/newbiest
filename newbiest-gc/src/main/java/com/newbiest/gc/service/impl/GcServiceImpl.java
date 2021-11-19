@@ -6,6 +6,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
+import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBQuery;
 import com.newbiest.base.repository.QueryRepository;
@@ -5820,6 +5821,8 @@ public class GcServiceImpl implements GcService {
                 erpInStock.setWarehouse(ErpInStock.SH_STOCK);
             } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehouseName)){
                 erpInStock.setWarehouse(ErpInStock.HK_STOCK);
+            } else if(ErpInStock.WAREHOUSE_BS_STOCK.equals(warehouseName)){
+                erpInStock.setWarehouse(ErpInStock.BS_STOCK);
             } else {
                 throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouseName);
             }
