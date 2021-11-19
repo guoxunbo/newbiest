@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseWaferCheck_to_NB_TABLE
+      author: Youqing Huang
+      comment: add BondedWarehouseWaferCheck to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWarehouseWaferCheck
+              description: 保税仓库 晶圆盘点
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 晶圆盘点
+              label: WaferCheck

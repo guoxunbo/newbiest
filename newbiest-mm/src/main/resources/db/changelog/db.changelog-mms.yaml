@@ -764,3 +764,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.BondedWarehouseWltOtherStockOut.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseMaterialLotWeigh.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseWLTStockOutCheck.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseWaferCheck.nb_authority.yaml
+      relativeToChangelogFile: true
