@@ -725,3 +725,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCBondedWarehouseWltOtherStockOutMLot_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseMaterialLotWeigh_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWLTStockOutCheck_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWaferCheck_nb_table.yaml
+      relativeToChangelogFile: true
