@@ -39,6 +39,35 @@ public class GCRawMaterialSaveController {
             responseBody.setImportCode(importCode);
         } else if(GCRawMaterialSaveRequest.ACTION_TYPE_RECEIVE.equals(actionType)){
             gcService.receiveRawMaterial(materialLotList);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_ISSUE.equals(actionType)) {
+            gcService.validateAndRawMaterialIssue(requestBody.getDocumentLineList() ,materialLotList, requestBody.getIssueWithDoc());
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SCRAP.equals(actionType)){
+            gcService.scrapRawMaterial(materialLotList, requestBody.getReason(), requestBody.getRemarks());
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_DELETE.equals(actionType)){
+            gcService.deleteMaterialLotAndSaveHis(materialLotList, requestBody.getRemarks());
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_QUERY_SPARE_MLOT.equals(actionType)){
+            List<MaterialLot> materialLots = gcService.getWaitSpareRawMaterialLotListByOrderAndTableRrn(requestBody.getDocLineRrn(), requestBody.getTableRrn());
+            responseBody.setMaterialLotList(materialLots);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_GET_SPARE_RAW_MLOT.equals(actionType)){
+            List<MaterialLot> materialLots = gcService.getSpareRawMaterialLotListByDocLineRrrn(materialLotList, requestBody.getDocLineRrn());
+            responseBody.setMaterialLotList(materialLots);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_GET_SPARE_RWA_OUT_DOC.equals(actionType)){
+            List<MaterialLot> materialLots = gcService.getWaitSpareRawMaterialByReservedQty(materialLotList, requestBody.getPickQty());
+            responseBody.setMaterialLotList(materialLots);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SPARE_RAW_OUT_DOC.equals(actionType)){
+            String spareRuleId = gcService.spareRawMLotOutDoc(materialLotList);
+            responseBody.setSpareCode(spareRuleId);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SPARE_RAW_MLOT.equals(actionType)){
+            gcService.rawMaterialMLotSpare(materialLotList, requestBody.getDocLineRrn());
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_QUERY_ISSUE_RAW_MATERIAL_LOT.equals(actionType)){
+            List<MaterialLot> materialLots = gcService.queryIssueRawMaterialByMaterialLotIdOrLotIdAndTableRrn(requestBody.getQueryLotId(), requestBody.getTableRrn());
+            responseBody.setMaterialLotList(materialLots);
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_SCRAP_RAW_MATERIAL_SHIP.equals(actionType)){
+            gcService.scrapRawMaterialShip(requestBody.getDocumentLine(), requestBody.getMaterialLotList());
+        } else if(GCRawMaterialSaveRequest.ACTION_TYPE_GC_UN_RAW_MATERIAL_SPARE.equals(actionType)){
+            gcService.unRawMaterialSpare(requestBody.getMaterialLotList());
+        } else if (GCRawMaterialSaveRequest.ACTION_TYPE_MOBILE_ISSUE.equals(actionType)){
+            gcService.mobileValidateAndRawMaterialIssue(materialLotList, requestBody.getErpTime(), GCRawMaterialSaveRequest.ISSUE_WITH_DOC);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-GC_FUTURE_HOLD_CONFIG_HIS-table
+      author: Naferian Wang
+      comment: Create table GC_FUTURE_HOLD_CONFIG_HIS
+      changes:
+        - createTable:
+            tableName: GC_FUTURE_HOLD_CONFIG_HIS
+            remarks: lotId Hold History Info
+            columns:
+              - column:
+                  name: OBJECT_RRN
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: 主键
+              - column:
+                  name: ACTIVE_FLAG
+                  type: varchar(1)
+                  defaultValue: Y
+                  remarks: 数据是否可用
+              - column:
+                  name: ORG_RRN
+                  type: bigint
+                  defaultValueNumeric: 0
+                  remarks: 区域号
+              - column:
+                  name: CREATED
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 创建时间
+              - column:
+                  name: CREATED_BY
+                  type: varchar(32)
+                  remarks: 创建者
+              - column:
+                  name: UPDATED
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 更新时间
+              - column:
+                  name: UPDATED_BY
+                  type: varchar(32)
+                  remarks: 更新者
+              - column:
+                  name: LOCK_VERSION
+                  type: bigint
+                  defaultValueNumeric: 1
+                  remarks: 乐观锁版本 程序自己更新 不可人为改变
+              - column:
+                  name: LOT_ID
+                  type: varchar(64)
+                  remarks: lotId
+              - column:
+                  name: HOLD_REASON
+                  type: varchar(64)
+                  remarks: HOLD原因
+              - column:
+                  name: HISTORY_SEQ
+                  type: varchar(64)
+                  remarks: 历史序列号
+              - column:
+                  name: TRANS_TYPE
+                  type: varchar(64)
+                  remarks: 操作类型
+              - column:
+                  name: ACTION_CODE
+                  type: varchar(64)
+                  remarks: 动作码
+              - column:
+                  name: ACTION_REASON
+                  type: varchar(64)
+                  remarks: 原因
+              - column:
+                  name: ACTION_COMMENT
+                  type: varchar(64)
+                  remarks: 备注

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -29,6 +30,9 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String STATE_ISSUE = "Issue";
     public static final String STATE_SCRAP = "Scrap";
     public static final String STATE_OUT = "Out";
+    public static final String STATE_PACKAGE = "Package";
+    public static final String STATUS_MERGED = "MERGED";
+    public static final String STATUS_ENGHOLD = "ENGHOLD";
 
     public static final String PRODUCT_TYPE_PROD = "PROD";
     public static final String PRODUCT_TYPE_ENG = "ENG";
@@ -52,11 +56,13 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String RMA_RETURN = "GCRMACustomerReturnFinishProduct";//RMA_客户退货_成品
     public static final String RMA_PURE = "GCRMAPureFinishProduct";//RMA纯_成品-4
     public static final String COB_FINISH_PRODUCT = "GCCOBFinishProduct"; //COB（-4成品）
+    public static final String COB_RAW_MATERIAL_PRODUCT = "GCCOBRawMaterialProduct"; //COM原料导入
     public static final String LCD_COG_FINISH_PRODUCT = "GCLCDCOGFinishProductEcretive";//LCD（COG成品-ECRETIVE）
     public static final String LCD_COG_DETIAL = "GCLcdCogDetial";//LCD(COG成品-明细)
     public static final String FINISH_PRODUCT_IMPORT = "GCFinishProductImport";//成品导入模板
-    public static final String SOC_FINISH_PRODUCT = "GCSOCFinishProduct"; //COB（-4成品）
-
+    public static final String SOC_FINISH_PRODUCT = "GCSOCFinishProduct"; //SOC成品
+    public static final String SOC_WAFER_UNMEASURED = "GCSOCWaferUnmeasured"; //SOC晶圆未测、已测
+    public static final String MASK_FINISH_PRODUCT= "GCMaskFinishProduct"; //MASK成品
 
     //产品型号
     public static final String PRODUCT_CLASSIFY_CP = "CP0";
@@ -67,6 +73,7 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String PRODUCT_CLASSIFY_COB = "COB0";
     public static final String PRODUCT_CLASSIFY_COG = "COG0";
     public static final String PRODUCT_CLASSIFY_SOC = "SOC0";
+    public static final String PRODUCT_CLASSIFY_MASK = "MASK0";
 
     public static final String PRODUCT_CATEGORY_WLT = "WLT";
     public static final String PRODUCT_CATEGORY_CP = "CP";
@@ -75,10 +82,13 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String PRODUCT_CATEGORY_FT = "FT";
     public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
     public static final String PRODUCT_CATEGORY_FT_COB = "COB";
+    public static final String PRODUCT_CATEGORY_RW = "RW";
 
     public static final String BOX_TYPE = "COB";
 
+    public static final Integer THIRTEEN = 13;
 
+    public static final String STRING_NULL = "NULL";
 
     @Column(name="UNIT_ID")
     private String unitId;
@@ -234,6 +244,24 @@ public class MaterialLotUnit extends NBUpdatable {
      */
     @Column(name="SOURCE_PRODUCT_ID")
     private String sourceProductId;
+
+    /**
+     * RW生成的内批号
+     */
+    @Column(name="INNER_LOT_ID")
+    private String innerLotId;
+
+    /**
+     * RW产线入库时的LotId
+     */
+    @Column(name="LOT_CST")
+    private String lotCst;
+
+    /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
 
     /**
      * 二级代码
@@ -570,4 +598,20 @@ public class MaterialLotUnit extends NBUpdatable {
         this.setTreasuryNote(materialLot.getReserved4());
         this.setSourceProductId(materialLot.getSourceProductId());
     }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    @PrePersist
+    protected void prePersist() {
+        super.prePersist();
+        if (this.created == null) {
+            created = new Date();
+        }
+        updated = new Date();
+        createdBy = ThreadLocalContext.getUsername();
+        updatedBy = ThreadLocalContext.getUsername();
+    }
+
 }

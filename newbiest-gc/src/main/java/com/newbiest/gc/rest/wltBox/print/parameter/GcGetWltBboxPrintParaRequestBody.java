@@ -13,4 +13,6 @@ public class GcGetWltBboxPrintParaRequestBody extends RequestBody {
 
 	private Long materialLotRrn;
 
+	private String printCount;
+
 }

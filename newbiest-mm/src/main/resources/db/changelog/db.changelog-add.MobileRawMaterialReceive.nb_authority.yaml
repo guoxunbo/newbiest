@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileRawMaterialReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MobileRawMaterialReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileRawMaterialReceiveManager
+              description: 手持端原材料接收
+              tableName: GCMobileRawMaterialReceive
+              mobileFlag: Y
+              url: /Mobile/RawMaterialReceive
+              parentRrn: 2
+              seqNo: 130
+              image: icon-rule
+              labelZh: 原材料接收
+              labelEn: RawMaterialReceive

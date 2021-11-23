@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RwMLotUnStockOutTagManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add RwMLotUnStockOutTagManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RwMLotUnStockOutTagManager
+              description: RW取消出货标注
+              tableName: GCRwMLotUnStockOutTagUpdate
+              mobileFlag: N
+              url: /GC/GCRwStockOutTagUpdateManager
+              parentRrn: 1010
+              seqNo: 48
+              image: icon-rule
+              labelZh: RW出货标注修改
+              labelEn: RwMLotStockOutTagUpdate

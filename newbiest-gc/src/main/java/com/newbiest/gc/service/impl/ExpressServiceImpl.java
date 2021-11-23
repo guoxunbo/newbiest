@@ -15,6 +15,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.ui.model.NBOwnerReferenceList;
 import com.newbiest.base.ui.model.NBReferenceList;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.CollectionUtils;
@@ -24,6 +25,7 @@ import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.express.dto.WaybillDelivery;
 import com.newbiest.gc.service.ExpressService;
+import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.DeliveryOrder;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
@@ -32,6 +34,7 @@ import com.newbiest.mms.repository.DeliveryOrderRepository;
 import com.newbiest.mms.repository.DocumentLineRepository;
 import com.newbiest.mms.repository.MaterialLotHistoryRepository;
 import com.newbiest.mms.repository.MaterialLotRepository;
+import com.newbiest.mms.service.PrintService;
 import com.newbiest.msg.DefaultParser;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +59,8 @@ public class ExpressServiceImpl implements ExpressService {
 
     public static final String ZJ_SHIPPING_ADDRESS = "ZJShippingAddress";
     public static final String SH_SHIPPING_ADDRESS= "SHShippingAddress";
+
+    public static final String EXPRESS_ORDER_TIME= "ExpressOrderTime";
 
     /**
      * 浙江账套
@@ -79,6 +87,9 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Autowired
     DocumentLineRepository documentLineRepository;
+
+    @Autowired
+    PrintService printService;
 
     @Value("${spring.profiles.active}")
     private String profiles;
@@ -122,6 +133,9 @@ public class ExpressServiceImpl implements ExpressService {
             if (log.isInfoEnabled()) {
                 log.info("Start to send [" + methodCode + "] to express.");
             }
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Send data. RequestString is [%s]", parameter));
+            }
             String token = getToken();
             KyeClient kyeClient = new DefaultKyeClient(isProdEnv() ? KyeConstants.SERVER_URL : KyeConstants.SANDBOX_SERVER_URL, expressConfiguration.getAppKey(), expressConfiguration.getAppSecret(), token);
             DefaultRequest request = new DefaultRequest(methodCode, parameter, KyeConstants.REQUEST_DATA_FORMAT_JSON, KyeConstants.RESPONSE_DATA_FORMAT_JSON);
@@ -150,11 +164,12 @@ public class ExpressServiceImpl implements ExpressService {
      * @param materialLots
      * @param expressNumber
      */
-    public List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String planOrderType) throws ClientException{
+    public List<MaterialLot> recordExpressNumber(List<MaterialLot> materialLots, String expressNumber, String expressCompany, String planOrderType) throws ClientException{
         try {
             validateMLotAddressAndShipper(materialLots);
             for (MaterialLot materialLot : materialLots) {
-                materialLot.setExpressNumber(expressNumber);
+                materialLot.setExpressNumber(expressNumber.toUpperCase());
+                materialLot.setExpressCompany(expressCompany);
                 materialLot.setPlanOrderType(planOrderType);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
 
@@ -173,7 +188,7 @@ public class ExpressServiceImpl implements ExpressService {
      * @param serviceMode 服务模式 次日达等等
      * @param payMode 支付方式
      */
-    public List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode) throws ClientException {
+    public void planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException {
         try {
             Optional optional = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved51())).findFirst();
             if (optional.isPresent()) {
@@ -199,10 +214,22 @@ public class ExpressServiceImpl implements ExpressService {
             preWaybillPickup.setPerson(materialLots.get(0).getReserved52());
             preWaybillPickup.setMobile(materialLots.get(0).getReserved53());
             preWaybillPickup.setAddress(materialLots.get(0).getReserved51());
+            DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLots.get(0).getReserved16()));
+            preWaybillPickup.setCompanyName(documentLine.getReserved8());
+
             orderInfo.setPreWaybillPickup(preWaybillPickup);
 
             orderInfo.setServiceMode(serviceMode);
             orderInfo.setPayMode(payMode);
+
+            //下单时间为空时默认当天19：30
+            if(!StringUtils.isNullOrEmpty(orderTime)){
+                orderInfo.setGoodsTime(orderTime);
+            }
+
+            SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.DEFAULT_NOT_S_DATE_PATTERN);
+            String date = formatter.format(new Date());
+            orderInfo.setOrderTime(date);
 
             orderInfo.setOrderId(ExpressConfiguration.PLAN_ORDER_DEFAULT_ORDER_ID);
             orderInfo.setPaymentCustomer(expressConfiguration.getCustomerCode());
@@ -235,7 +262,8 @@ public class ExpressServiceImpl implements ExpressService {
                 materialLotHistoryRepository.save(history);
             }
 
-            return materialLots;
+            //自动打印斜标签
+            printService.printMaterialLotObliqueBoxLabel(materialLots, waybillNumber);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -298,7 +326,15 @@ public class ExpressServiceImpl implements ExpressService {
                 String planOrderType = materialLots.get(0).getPlanOrderType();
                 if (MaterialLot.PLAN_ORDER_TYPE_AUTO.equals(planOrderType)) {
                     Map<String, Object> requestParameters = Maps.newHashMap();
-                    requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
+                    if (StringUtils.isNullOrEmpty(materialLots.get(0).getReserved16())) {
+                        throw new ClientException(GcExceptions.MATERIALLOT_RESERVED_ORDER_IS_NULL);
+                    }
+                    DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLots.get(0).getReserved16()));
+                    if (ZJ_BOOK.equals(documentLine.getReserved30())) {
+                        requestParameters.put("customerCode", expressConfiguration.getZjCustomerCode());
+                    } else {
+                        requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
+                    }
                     requestParameters.put("waybillNumber", expressNumber);
                     sendRequest(ExpressConfiguration.CANCEL_ORDER_METHOD, requestParameters);
                 }
@@ -370,58 +406,20 @@ public class ExpressServiceImpl implements ExpressService {
     }
 
     /**
-     * 单据上记录快递单号，将快递单号回写至中间表OTHER19字段
+     * 单据上记录快递单号
      * @return
      * @throws ClientException
      */
-    public List<DeliveryOrder> recordExpressNumber(List<DeliveryOrder> deliveryOrders) throws ClientException {
-        List<DeliveryOrder> deliveryOrderList = Lists.newArrayList();
-        for (DeliveryOrder deliveryOrder : deliveryOrders) {
-            deliveryOrder = deliveryOrderRepository.saveAndFlush(deliveryOrder);
-            deliveryOrderList.add(deliveryOrder);
-            baseService.saveHistoryEntity(deliveryOrder, "RecordExpress");
+    public List<DocumentLine> recordExpressNumber(List<DocumentLine> documentLines) throws ClientException {
+        List<DocumentLine> documentLineList = Lists.newArrayList();
+        for (DocumentLine documentLine : documentLines) {
+            documentLine.setExpressNumber(documentLine.getExpressNumber().toUpperCase());
+            documentLine = documentLineRepository.saveAndFlush(documentLine);
+            documentLineList.add(documentLine);
+            baseService.saveHistoryEntity(documentLine, "RecordExpress");
         }
-        return deliveryOrderList;
+        return documentLineList;
     }
-
-    public List<Map<String,String>> getPrintLabelParameterList(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{
-        try {
-            List<Map<String, String>> parameterMapList =  Lists.newArrayList();
-            Integer seq = 1;
-            Integer numfix = materialLotList.size();
-            //按照称重的先后排序打印标签
-            List<MaterialLot> materialLots = Lists.newArrayList();
-            List<MaterialLot> mLotList = Lists.newArrayList();
-            for(MaterialLot materialLot : materialLotList){
-                if(StringUtils.isNullOrEmpty(materialLot.getWeightSeq())){
-                    materialLots.add(materialLot);
-                } else {
-                    mLotList.add(materialLot);
-                }
-            }
-            if(CollectionUtils.isNotEmpty(mLotList)){
-                mLotList = mLotList.stream().sorted(Comparator.comparing(MaterialLot::getWeightSeq)).collect(Collectors.toList());
-                materialLots.addAll(mLotList);
-            }
-            for (MaterialLot materialLot : materialLots){
-                Map<String, String> parameterMap =  Maps.newHashMap();
-                parameterMap.put("CSNAME", materialLot.getShipper());
-                parameterMap.put("NUMCHANG", seq.toString());
-                parameterMap.put("NUMFIX", numfix.toString());
-                if(StringUtils.isNullOrEmpty(expressNumber)){
-                    parameterMap.put("EXNUM", materialLot.getExpressNumber());
-                }else {
-                    parameterMap.put("EXNUM", expressNumber);
-                }
-                parameterMapList.add(parameterMap);
-                ++seq;
-            }
-            return parameterMapList;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
 
     /**
      * 判断所有的备货单号是否一致
@@ -477,4 +475,5 @@ public class ExpressServiceImpl implements ExpressService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
 }

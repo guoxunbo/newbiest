@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileWaferCheckManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileWaferCheckManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileWaferCheckManage
+              description: 手持端晶圆盘点
+              tableName: GCMobileWaferCheck
+              mobileFlag: Y
+              url: /Mobile/MobileWaferCheck
+              parentRrn: 2
+              seqNo: 110
+              image: icon-rule
+              labelZh: 晶圆盘点
+              labelEn: Check

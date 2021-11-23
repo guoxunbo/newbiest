@@ -1,7 +1,10 @@
 package com.newbiest.gc.rest.stockIn;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ClientParameterException;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController("GcStockInController")
 @RequestMapping("/gc")
@@ -44,6 +49,15 @@ public class StockInController {
             responseBody.setMaterialLot(materialLot);
         } else if (StockInRequest.ACTION_STOCK_IN.equals(actionType)) {
             gcService.stockIn(requestBody.getStockInModels());
+        } else if(StockInRequest.ACTION_QUERY_MATERIAL.equals(actionType)){
+            List<MaterialLot> materialLotList = gcService.queryRawMaterialByMaterialLotOrLotIdAndTableRrn(requestBody.getMaterialLotId(), requestBody.getTableRrn());
+            responseBody.setMaterialLotList(materialLotList);
+        } else if(StockInRequest.ACTION_QUERY_MATERIAL_INFO.equals(actionType)){
+            MaterialLot materialLot = gcService.getMaterialLotByTableRrnAndMaterialLotIdOrLotId(requestBody.getTableRrn(), requestBody.getMaterialLotId());
+            if (materialLot.getObjectRrn() == null) {
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, requestBody.getMaterialLotId());
+            }
+            responseBody.setMaterialLot(materialLot);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

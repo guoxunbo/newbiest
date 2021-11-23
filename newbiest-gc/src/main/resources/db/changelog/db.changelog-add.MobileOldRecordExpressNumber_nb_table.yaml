@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileOldRecordExpressNumber_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCMobileOldRecordExpressNumber to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileOldRecordExpressNumber
+              description: 手持端老记录快递单号
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 手持端老记录快递单号
+              label: MobileOldRecordExpressNumber

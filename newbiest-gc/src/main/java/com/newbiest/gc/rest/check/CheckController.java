@@ -1,6 +1,9 @@
 package com.newbiest.gc.rest.check;
 
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -32,7 +35,17 @@ public class CheckController {
 
         CheckResponseBody responseBody = new CheckResponseBody();
         CheckRequestBody requestBody = request.getBody();
-        gcService.checkMaterialInventory(requestBody.getExistMaterialLots(), requestBody.getErrorMaterialLots());
+
+        String actionType = requestBody.getActionType();
+        if(CheckRequest.ACTION_CHECK.equals(actionType)){
+            gcService.checkMaterialInventory(requestBody.getExistMaterialLots(), requestBody.getErrorMaterialLots());
+        } else if (CheckRequest.ACTION_QUERY.equals(actionType)){
+            MaterialLot materialLot = gcService.getMaterialLotByTableRrnAndMaterialLotIdOrLotId(requestBody.getTableRrn(),requestBody.getQueryLotId());
+            responseBody.setMaterialLot(materialLot);
+        } else {
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+        }
+
         response.setBody(responseBody);
         return response;
     }

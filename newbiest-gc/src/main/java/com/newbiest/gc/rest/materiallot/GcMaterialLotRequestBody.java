@@ -40,4 +40,7 @@ public class GcMaterialLotRequestBody extends RequestBody {
 	@ApiModelProperty(value="动态表主键")
 	private Long tableRrn;
 
+	@ApiModelProperty(value="取消检验原因")
+	private String cancelReason;
+
 }

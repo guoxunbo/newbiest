@@ -38,6 +38,11 @@ public class ErpSo implements Serializable {
     public static final String TYPE_COG = "COG";
 
     /**
+     * 原材料其他出库单
+     */
+    public static final String TYPE_MO = "MO";
+
+    /**
      * 未同步
      */
     public static final String SYNC_STATUS_NOT_ASYNC = "0";
@@ -61,6 +66,11 @@ public class ErpSo implements Serializable {
      * ERP修改过后
      */
     public static final String SYNC_STATUS_CHANGED = "4";
+
+    /**
+     * WMS合单之后
+     */
+    public static final String SYNC_STATUS_MERGE = "9";
 
     @Column(name="SEQ")
     @Id
@@ -252,5 +262,8 @@ public class ErpSo implements Serializable {
 
     @Column(name="CREATE_SEQ")
     private String createSeq;
+
+    @Column(name="CFREE4")
+    private String cfree4;
 
 }

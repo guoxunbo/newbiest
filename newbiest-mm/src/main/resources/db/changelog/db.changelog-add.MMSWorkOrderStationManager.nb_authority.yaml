@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MMSWorkOrderStationManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MMSWorkOrderStationManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MMSWorkOrderStationManager
+              description: 工作站管理
+              tableName: MMSWorkOrderStation
+              mobileFlag: N
+              url: /MMS/MMSWorkOrderStationManager
+              parentRrn: 25
+              seqNo: 25
+              image: icon-biaoqian
+              labelZh: 工作站管理
+              labelEn: WorkOrderStationManager

@@ -7,6 +7,7 @@ import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -18,8 +19,6 @@ import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.utils.CollectorsUtils;
 import com.newbiest.msg.ResponseHeader;
 import lombok.Data;
-import org.hibernate.Session;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +41,7 @@ public class ImportMLotThread implements Callable {
     private String lotId;
     private String materialLotId;
     private String importCode;
+    private String productType;
     private List<MaterialLotUnit> materialLotUnits;
     private Material material;
     private StatusModel statusModel;
@@ -75,6 +75,7 @@ public class ImportMLotThread implements Callable {
             propsMap.put("sourceProductId", materialLotUnits.get(0).getSourceProductId());
 
             propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
+            propsMap.put("reserved4",materialLotUnits.get(0).getTreasuryNote());
             propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());
             propsMap.put("reserved7",materialLotUnits.get(0).getReserved7());
             propsMap.put("reserved13",materialLotUnits.get(0).getReserved13());
@@ -82,6 +83,14 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved22",materialLotUnits.get(0).getReserved22());
             propsMap.put("reserved23",materialLotUnits.get(0).getReserved23());
             propsMap.put("reserved24",materialLotUnits.get(0).getReserved24());
+            String lotType = materialLotUnits.get(0).getReserved25();
+            if (!StringUtils.isNullOrEmpty(lotType) && MaterialLotUnit.STRING_NULL.equals(lotType.toUpperCase().trim())){
+                lotType = StringUtils.EMPTY;
+            } else {
+                lotType = materialLotUnits.get(0).getReserved25();
+            }
+            propsMap.put("reserved25",lotType);
+            propsMap.put("reserved26",materialLotUnits.get(0).getReserved26());
             propsMap.put("reserved27",materialLotUnits.get(0).getReserved27());
             propsMap.put("reserved28",materialLotUnits.get(0).getReserved28());
             propsMap.put("reserved29",materialLotUnits.get(0).getReserved29());
@@ -93,6 +102,7 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved37",materialLotUnits.get(0).getReserved37());
             propsMap.put("reserved38",materialLotUnits.get(0).getReserved38());
             propsMap.put("reserved39",materialLotUnits.get(0).getReserved39());
+            propsMap.put("reserved40",materialLotUnits.get(0).getReserved40());
             propsMap.put("reserved41",materialLotUnits.get(0).getReserved41());
             propsMap.put("reserved45",materialLotUnits.get(0).getReserved45());
             propsMap.put("reserved46",materialLotUnits.get(0).getReserved46());
@@ -100,9 +110,18 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved49",materialLotUnits.get(0).getReserved49());
             propsMap.put("reserved50",materialLotUnits.get(0).getReserved50());
             propsMap.put("reserved48",importCode);
+            propsMap.put("productType",productType);
 
-            MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap, currentSubQty);
+            MaterialLotAction materialLotAction = new MaterialLotAction(materialLotId, StringUtils.EMPTY, propsMap, totalQty, currentSubQty, StringUtils.EMPTY);
+            MaterialLot materialLot = mmsService.createMLot(material, statusModel, materialLotAction);
+
+            if (MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49())) {
+                mmsService.validateFutureHoldByLotId(materialLot.getLotId());
+            }
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                if (MaterialLot.IMPORT_WLA.equals(materialLotUnit.getReserved49())) {
+                    mmsService.validateFutureHoldByWaferId(materialLotUnit.getUnitId(), materialLot);
+                }
                 if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                     materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                 }
@@ -114,6 +133,7 @@ public class ImportMLotThread implements Callable {
                 materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                 materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                 materialLotUnit.setReserved18("0");
+                materialLotUnit.setReserved25(materialLot.getReserved25());
                 materialLotUnit.setReserved6(StringUtils.EMPTY);//来料导入时reserved6不是报税属性，暂时清空
                 materialLotUnit.setReserved7(StringUtils.EMPTY);//晶圆信息不保存产品型号
                 materialLotUnit.setReserved48(importCode);

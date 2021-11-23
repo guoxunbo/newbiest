@@ -3,6 +3,7 @@ package com.newbiest.gc.rest.record.express;
 import com.google.common.collect.Lists;
 import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.mms.model.DeliveryOrder;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.ResponseBody;
 import lombok.Data;
@@ -25,6 +26,6 @@ public class RecordExpressResponseBody extends ResponseBody {
 	 * 老记录快递使用
 	 */
 	@Deprecated
-	private List<DeliveryOrder> deliveryOrderList;
+	private List<DocumentLine> documentLineList;
 
 }

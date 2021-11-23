@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_0.0.9
+      author: Guozhang Luo
+      remarks: mms_document_line add column MERGE_DOC
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT_LINE
+            columns:
+              - column:
+                  name: MERGE_DOC
+                  type: varchar2(64)
+                  remarks: 合单标记

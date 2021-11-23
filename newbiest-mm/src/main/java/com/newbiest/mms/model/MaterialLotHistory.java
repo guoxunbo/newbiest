@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.utils.DateUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.mms.dto.MaterialLotAction;
 import lombok.Data;
 
@@ -19,6 +20,8 @@ import java.util.Date;
 @Data
 public class MaterialLotHistory extends NBHis {
 
+    public static final String TRANS_TYPE_WAFER_SOURCE_UPDATE = "WaferSourceUpdate";
+    public static final String TRANS_TYPE_WAFER_UNPACK = "WaferUnpack";
     public static final String TRANS_TYPE_RECEIVE = "Receive";
     public static final String TRANS_TYPE_STOCK_IN = "StockIn";
     public static final String TRANS_TYPE_STOCK_OUT = "StockOut";
@@ -27,9 +30,20 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_UN_RESERVED = "UnReserved";
     public static final String TRANS_TYPE_STOCK_OUT_TAG = "StockOutTag";
     public static final String TRANS_TYPE_UN_STOCK_OUT_TAG = "UnStockOutTag";
+    public static final String TRANS_TYPE_THREE_SIDE = "ThreeSide";
+    public static final String TRANS_TYPE_RAW_SCRAP = "Scrap";
+    public static final String TRANS_TYPE_RAW_UN_SPARE = "UnSpare";
+    public static final String TRANS_TYPE_UPDATE = "Update";
+    public static final String TRANS_TYPE_ADD_SHIP_ORDER_ID = "AddShipOrderId";
+    public static final String TRANS_TYPE_MATERIAL_SPARE = "MaterialSpare";
+    public static final String TRANS_TYPE_CANCEL_MATERIAL_SPARE = "MaterialCancel";
+    public static final String TRANS_TYPE_TRANSFER_WAREHOUSE = "TransferWarehouse";
+    public static final String TRANS_TYPE_SCRAP_SHIP = "ScrapShip";
+    public static final String TRANS_TYPE_RAW_MATERIAL_ISSUE = "RawMaterialIssue";
 
     public static final String TRANS_TYPE_PICK = "Pick";
     public static final String TRANS_TYPE_TRANSFER = "Transfer";
+    public static final String TRANS_TYPE_TRANSFER_PARENT = "TransferParent";
     public static final String TRANS_TYPE_CHECK = "Check";
     public static final String TRANS_TYPE_CONSUME = "Consume";
 
@@ -40,6 +54,8 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_CANCEL_EXPRESS = "CancelExpress";
 
     public static final String TRANS_TYPE_WEIGHT = "Weight";
+
+    public static final String TRANS_TYPE_CANCEL_CHECK = "CancelCheck";
 
     /**
      * 因为包装产生的批次
@@ -264,6 +280,12 @@ public class MaterialLotHistory extends NBHis {
     private String expressNumber;
 
     /**
+     * 快递公司
+     */
+    @Column(name="EXPRESS_COMPANY")
+    private String expressCompany;
+
+    /**
      * 下单类型
      */
     @Column(name="PLAN_ORDER_TYPE")
@@ -362,6 +384,36 @@ public class MaterialLotHistory extends NBHis {
     private String materialCode;
 
     /**
+     * 三方销售单
+     */
+    @Column(name="THREE_SIDE_ORDER")
+    private String threeSideOrder;
+
+    /**
+     * RW生成的内批号
+     */
+    @Column(name="INNER_LOT_ID")
+    private String innerLotId;
+
+    /**
+     * RW产线入库时的LotId
+     */
+    @Column(name="LOT_CST")
+    private String lotCst;
+
+    /**
+     * 膜厚
+     */
+    @Column(name="PCODE")
+    private String pcode;
+
+    /**
+     * 客户标识
+     */
+    @Column(name="CUSTOMER_ID")
+    private String customerId;
+
+    /**
      * 原材料生产日期
      */
     @Column(name="MFG_DATE")
@@ -378,6 +430,14 @@ public class MaterialLotHistory extends NBHis {
     private Date expDate;
 
     /**
+     * 最小原材料有效日期
+     */
+    @Column(name="EARLIER_EXP_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATETIME_PATTERN)
+    private Date earlierExpDate;
+
+    /**
      * 原材料发货日期
      */
     @Column(name="SHIPPING_DATE")
@@ -390,6 +450,9 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="SOURCE_MODEL_ID")
     private String sourceModelId;
+
+    @Column(name="VENDER_ADDRESS")
+    private String venderAddress;
 
     /**
      * GlaxyCore MES完成品的levelTwoCode
@@ -756,4 +819,9 @@ public class MaterialLotHistory extends NBHis {
         this.setActionReason(materialLotAction.getActionReason());
         this.setActionComment(materialLotAction.getActionComment());
     }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
 }

@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCobRetestLabelAndMakeUpManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCCobRetestLabelAndMakeUpManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCCobRetestLabelAndMakeUpManager
+              description: COB重测标签补打
+              tableName: GCCobRetestLabelAndMakeUp
+              url: /Wafer/CobRetestLabelAndMakeUp
+              parentRrn: 1001
+              seqNo: 54
+              mobileFlag: N
+              image: icon-rule
+              labelZh: COB重测标签补打
+              labelEn: CobRetestLabelAndMakeUp

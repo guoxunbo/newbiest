@@ -29,6 +29,11 @@ public class ErpMaterialOutaOrder implements Serializable {
     public static final String TYPE_TV = "TV";
 
     /**
+     * 原材料发料单
+     */
+    public static final String TYPE_MV = "MV";
+
+    /**
      * 未同步
      */
     public static final String SYNC_STATUS_NOT_ASYNC = "0";
@@ -146,4 +151,8 @@ public class ErpMaterialOutaOrder implements Serializable {
 
     @Column(name="CREATE_SEQ")
     private String createSeq;
+
+    @Column(name="CFREE4")
+    private String cfree4;
+
 }

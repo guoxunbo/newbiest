@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_his_0.2.2
+      author: Guozhang Luo
+      remarks: mms_material_lot_his add column THREE_SIDE_ORDER
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_HIS
+            columns:
+              - column:
+                  name: THREE_SIDE_ORDER
+                  type: varchar(64)
+                  remarks: 三方销售单

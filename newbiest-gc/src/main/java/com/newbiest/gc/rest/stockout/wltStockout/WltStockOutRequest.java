@@ -14,6 +14,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_WLTSTOCKOUT= "WltStockOut";
 
+	public static final String ACTION_WLTOTHERSTOCKOUT = "WltOtherStockOut";
+
 	public static final String ACTION_VALIDATION_WLTMLOT = "validationWltMlot";
 
 	public static final String ACTION_QUERY_STOCKOUTTAG_MLOTUNIT = "queryTagMlotUnit";
@@ -27,6 +29,16 @@ public class WltStockOutRequest extends Request {
 	public static final String ACTION_GETMLOT = "GetMLot";
 
 	public static final String ACTION_VALIDATE_MATERIAL_NAME = "ValidateMaterialName";
+
+	public static final String ACTION_THREESIDE_SHIP = "ThreeSideShip";
+
+	public static final String ACTION_SALE_SHIP = "SaleShip";
+
+	public static final String ACTION_GC_RW_ATTRIBUTE_CHANGE = "GCRWAttributeChange";
+
+	public static final String ACTION_MOBILE_WLT_STOCK_OUT = "MobileWltStockOut";
+
+	public static final String ACTION_MOBILE_SALE_SHIP = "MobileSaleShip";
 
 	private WltStockOutRequestBody body;
 

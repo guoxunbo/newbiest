@@ -1,10 +1,7 @@
 package com.newbiest.gc.rest.stockout;
 
 import com.newbiest.base.exception.ClientException;
-import com.newbiest.gc.rest.IncomingMaterialImport.IncomingMaterialImportRequest;
 import com.newbiest.gc.service.GcService;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -15,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/gc")
@@ -39,9 +34,8 @@ public class StockOutController {
         String actionType = requestBody.getActionType();
 
         if (StockOutRequest.ACTION_STOCKOUT.equals(actionType)) {
-            gcService.stockOut(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
+            gcService.stockOut(requestBody.getDocumentLineList(), requestBody.getMaterialLotActions());
         } else if(StockOutRequest.ACTION_VALIDATION.equals(actionType)){
-//            gcService.validationStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             boolean falg = gcService.validateStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
         } else {

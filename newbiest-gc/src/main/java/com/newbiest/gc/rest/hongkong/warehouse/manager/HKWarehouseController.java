@@ -41,9 +41,9 @@ public class HKWarehouseController {
             boolean falg = gcService.validationHKStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
         } else if(HKWarehouseRequest.ACTION_HK_STOCK_OUT.equals(actionType)){
-            gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
+            gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), "");
         } else if(HKWarehouseRequest.ACTION_HK_BYORDER_STOCK_OUT.equals(actionType)) {
-            gcService.hongKongWarehouseByOrderStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
+            gcService.hongKongWarehouseByOrderStockOut(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

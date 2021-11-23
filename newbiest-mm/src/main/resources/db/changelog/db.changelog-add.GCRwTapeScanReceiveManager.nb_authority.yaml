@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RwTapeScanReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add RwTapeScanReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RwTapeScanReceiveManager
+              description: Tape扫描接收
+              tableName: GCRwTapeScanReceive
+              mobileFlag: N
+              url: /GC/GCRwTapeScanReceiveManager
+              parentRrn: 210
+              seqNo: 40
+              image: icon-recipe
+              labelZh: Tape扫描接收
+              labelEn: TapeScanReceive

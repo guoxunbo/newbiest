@@ -18,9 +18,11 @@ public interface PackageService {
     List<MaterialLot> getPackageDetailLots(Long packagedLotRrn) throws ClientException;
 
     MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packageType) throws ClientException;
+    MaterialLot packageMLots(List<MaterialLotAction> materialLotActions, String packedMaterialLotId, String packageType) throws ClientException;
+
     MaterialLot appendPacking(MaterialLot packedMaterialLot, List<MaterialLotAction> materialLotActions) throws ClientException;
 
     void validationPackageRule(List<MaterialLot> materialLots, MaterialLotPackageType materialLotPackageType) throws ClientException;
     List<MaterialLot> unPack(List<MaterialLotAction> materialLotActions) throws ClientException;
-
+    List<MaterialLot> getWaitPackMaterialLots(List<MaterialLot> materialLots) throws ClientException;
 }

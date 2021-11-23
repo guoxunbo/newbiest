@@ -43,6 +43,15 @@ public class GcMaterialLotRequest extends Request {
 	 */
 	public static final String ACTION_QUERY_MATERIALLOT = "QueryMLot";
 
+	/**
+	 * 取消检验
+	 */
+	public static final String ACTION_CANCEL_CHECK = "CancelCheck";
+
+	public static final String ACTION_QUERY_MATERIALLOTID_OR_LOTID = "QueryMaterialLotIdOrLotId";
+
+	public static final String ACTION_QUERY_DATA = "QueryData";
+
 	private GcMaterialLotRequestBody body;
 
 }

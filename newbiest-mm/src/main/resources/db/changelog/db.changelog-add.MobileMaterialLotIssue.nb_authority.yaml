@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileMaterialLotIssueManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MobileMaterialLotIssueManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileMaterialLotIssueManager
+              description: 手持端来料发料
+              tableName: GCMobileMaterialLotIssueOrder
+              secondTableName: GCMobileMaterialLotIssue
+              mobileFlag: Y
+              url: /Mobile/MaterialLotIssue
+              parentRrn: 2
+              seqNo: 50
+              image: icon-rule
+              labelZh: 来料发料
+              labelEn: Issue

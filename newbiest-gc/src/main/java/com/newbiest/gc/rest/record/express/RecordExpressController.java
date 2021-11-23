@@ -6,7 +6,9 @@ import com.newbiest.gc.express.dto.OrderInfo;
 import com.newbiest.gc.service.ExpressService;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.DeliveryOrder;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.service.PrintService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -36,6 +38,9 @@ public class RecordExpressController {
     @Autowired
     ExpressService expressService;
 
+    @Autowired
+    PrintService printService;
+
     @ApiOperation(value = "RecordExpress", notes = "记录快递单号")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "RecordExpressRequest")
     @RequestMapping(value = "/recordExpress", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -51,24 +56,16 @@ public class RecordExpressController {
         String actionType = requestBody.getActionType();
         List<MaterialLot> materialLots = Lists.newArrayList();
         if (RecordExpressRequestBody.ACTION_TYPE_AUTO_ORDER.equals(actionType)) {
-            materialLots = expressService.planOrder(requestBody.getMaterialLots(), requestBody.getServiceMode(), requestBody.getPayMode());
-            parameterMapList = expressService.getPrintLabelParameterList(materialLots, materialLots.get(0).getExpressNumber());
-            responseBody.setParameterMapList(parameterMapList);
+            expressService.planOrder(requestBody.getMaterialLots(), requestBody.getServiceMode(), requestBody.getPayMode(), requestBody.getOrderTime());
         } else if (RecordExpressRequestBody.ACTION_TYPE_MANUAL_ORDER.equals(actionType)) {
-            materialLots = expressService.recordExpressNumber(requestBody.getMaterialLots(), requestBody.getExpressNumber(), MaterialLot.PLAN_ORDER_TYPE_MANUAL);
+            materialLots = expressService.recordExpressNumber(requestBody.getMaterialLots(), requestBody.getExpressNumber(), requestBody.getExpressCompany(), MaterialLot.PLAN_ORDER_TYPE_MANUAL);
         } else if (RecordExpressRequestBody.ACTION_TYPE_CANCEL_ORDER.equals(actionType)) {
             expressService.cancelOrderByMaterialLots(requestBody.getMaterialLots());
         } else if (RecordExpressRequestBody.ACTION_TYPE_OLD_RECORD_ORDER.equals(actionType)) {
-            List<DeliveryOrder> deliveryOrders = expressService.recordExpressNumber(requestBody.getDeliveryOrderList());
-            responseBody.setDeliveryOrderList(deliveryOrders);
-        } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_PRINTPARAMETER.equals(actionType)){
-            parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(), requestBody.getExpressNumber());
-            responseBody.setParameterMapList(parameterMapList);
-        }else if(RecordExpressRequestBody.ACTION_TYPE_OBLIQUE_LABEL_PRINT.equals(actionType)){
-            materialLots = requestBody.getMaterialLots();
-            expressService.validateReservedOrderId(materialLots);
-            parameterMapList = expressService.getPrintLabelParameterList(requestBody.getMaterialLots(),null);
-            responseBody.setParameterMapList(parameterMapList);
+            List<DocumentLine> deliveryOrders = expressService.recordExpressNumber(requestBody.getDocumentLineList());
+            responseBody.setDocumentLineList(deliveryOrders);
+        }else if(RecordExpressRequestBody.ACTION_TYPE_OBLIQUE_LABEL_PRINT.equals(actionType) || RecordExpressRequestBody.ACTION_TYPE_QUERY_PRINTPARAMETER.equals(actionType)){
+            printService.printMaterialLotObliqueBoxLabel(requestBody.getMaterialLots(), null);
         } else if(RecordExpressRequestBody.ACTION_TYPE_BATCH_CANCEL_ORDER.equals(actionType)){
             expressService.batchCancelOrderByWayBillNumber(requestBody.getOrderList());
         } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_ORDER_INFO.equals(actionType)){

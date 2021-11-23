@@ -23,6 +23,10 @@ public class AuthorityConfig extends VCimAbstractLiquibaseConfig {
 
     private String tableName;
 
+    private String secondTableName;
+
+    private String thirdTableName;
+
     private Long tableRrn;
 
     private String url;
@@ -40,6 +44,8 @@ public class AuthorityConfig extends VCimAbstractLiquibaseConfig {
     private String labelEn;
 
     private String label;
+
+    private String mobileFlag;
 
     private String parameter1;
 

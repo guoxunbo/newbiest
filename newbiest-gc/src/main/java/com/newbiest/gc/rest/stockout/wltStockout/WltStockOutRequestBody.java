@@ -46,5 +46,20 @@ public class WltStockOutRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "物料批次号/LOTID")
 	private String queryLotId;
+  
+	@ApiModelProperty(value = "三方销售单据")
+	private DocumentLine documentLine;
+  
+  @ApiModelProperty(value = "检验二级代码")
+	private String checkSubCode;
 
+	@ApiModelProperty(value = "供应商地址")
+	private String address;
+
+	@ApiModelProperty(value = "选择的物料批次")
+	private List<MaterialLot> materialLots;
+
+	@ApiModelProperty(value = "手持端发料单据日期")
+	private String erpTime;
+  
 }

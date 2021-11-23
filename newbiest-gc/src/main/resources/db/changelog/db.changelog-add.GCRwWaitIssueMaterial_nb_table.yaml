@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCRwWaitIssueMaterial_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCRwWaitIssueMaterial to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCRwWaitIssueMaterial
+              description: 待发料原材料
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 待发料原材料
+              label: WaitIssueMaterial

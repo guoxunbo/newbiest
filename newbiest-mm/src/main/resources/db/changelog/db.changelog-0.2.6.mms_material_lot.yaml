@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.2.6
+      author: Guozhang Lou
+      remarks: mms_material add column PCODE
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: PCODE
+                  type: varchar(64)
+                  remarks: 膜厚

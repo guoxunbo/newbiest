@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-unique-constraint-for-GC_OUTSOURCE_PO
+      author: Guozhang Luo
+      comment: Apply unique constraint(ORG_RRN, PRODUCT_ID, MATERIAL_NAME)for GC_OUTSOURCE_PO
+      changes:
+        - addUniqueConstraint:
+            tableName: GC_OUTSOURCE_PO
+            columnNames: ORG_RRN, PO_ID, MATERIAL_NAME
+            constraintName: UK_GC_OUTSOURCE_PO

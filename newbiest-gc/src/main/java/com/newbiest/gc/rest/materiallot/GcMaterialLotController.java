@@ -1,8 +1,11 @@
 package com.newbiest.gc.rest.materiallot;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.ui.model.NBOwnerReferenceList;
+import com.newbiest.base.utils.CollectionUtils;
+import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
@@ -60,7 +63,22 @@ public class GcMaterialLotController extends AbstractRestController {
             long tableRrn = requestBody.getTableRrn();
             List<MaterialLot> materialLotList = gcService.getMaterialLotByTableRrnAndMLotId(mLotId, tableRrn);
             responseBody.setMaterialLotList(materialLotList);
-        }else {
+        } else if (GcMaterialLotRequest.ACTION_QUERY_MATERIALLOTID_OR_LOTID.equals(actionType)){
+            MaterialLot materialLot = gcService.getMaterialLotByTableRrnAndMaterialLotIdOrLotId(requestBody.getTableRrn(), requestBody.getQueryLotId());
+            responseBody.setMaterialLot(materialLot);
+        } else if (GcMaterialLotRequest.ACTION_CANCEL_CHECK.equals(actionType)){
+            gcService.cancelCheckMaterialLot(requestBody.getMaterialLots(), requestBody.getCancelReason());
+        } else if (GcMaterialLotRequest.ACTION_QUERY_DATA.equals(actionType)) {
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            materialLotList =  gcService.queryIssueRawMaterialByMaterialLotIdOrLotIdAndTableRrn(requestBody.getQueryLotId(), requestBody.getTableRrn());
+            if (!CollectionUtils.isNotEmpty(materialLotList)) {
+                MaterialLot materialLotIdOrLotId = gcService.getMaterialLotByTableRrnAndMaterialLotIdOrLotId(requestBody.getTableRrn(), requestBody.getQueryLotId());
+                if (!StringUtils.isNullOrEmpty(materialLotIdOrLotId.getMaterialLotId())) {
+                    materialLotList.add(materialLotIdOrLotId);
+                }
+            }
+            responseBody.setMaterialLotList(materialLotList);
+        } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
         response.setBody(responseBody);

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_add_VenderAndAddressManager_to_nb_authority
+      author: Jason Zhou
+      comment: add VenderAndAddressManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: VenderAndAddressManager
+              description: 供应商地址管理
+              tableName: GCVenderAndAddress
+              url: /GC/GCVenderAndAddressManager
+              parentRrn: 555
+              seqNo: 40
+              image: icon-wuliao
+              labelZh: 供应商地址管理
+              labelEn: GC Vender Address Management

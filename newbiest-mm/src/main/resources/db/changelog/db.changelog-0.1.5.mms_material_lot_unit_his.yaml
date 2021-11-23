@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_his_0.1.5
+      author: Guozhang Luo
+      remarks: mms_material_lot_unit_his add columns INNER_LOT_ID, LOT_CST
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT_HIS
+            columns:
+              - column:
+                  name: INNER_LOT_ID
+                  type: varchar(64)
+                  remarks: RW排料时生成的内批号
+              - column:
+                  name: LOT_CST
+                  type: varchar(64)
+                  remarks: 记录RW产线入库时LotId

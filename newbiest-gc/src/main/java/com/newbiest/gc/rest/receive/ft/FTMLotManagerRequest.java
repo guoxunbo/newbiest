@@ -26,6 +26,8 @@ public class FTMLotManagerRequest extends Request {
 
 	public static final String ACTION_TYPE_FT_STOCK_OUT = "FTStockOut";
 
+	public static final String ACTION_TYPE_FT_OUTORDER_ISSUE = "FTOutOrderIssue";
+
 	private FTMLotManagerRequestBody body;
 
 }

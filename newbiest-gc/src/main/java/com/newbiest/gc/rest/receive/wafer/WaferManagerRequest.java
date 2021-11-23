@@ -36,6 +36,26 @@ public class WaferManagerRequest extends Request {
 	 */
 	public static final String ACTION_TYPE_COG_MLOT_RECEIVE = "CogReceive";
 
+	/**
+	 * WLT/CP无订单发料
+	 */
+	public static final String ACTION_TYPE_OUTORDER_ISSUE = "OutOrderIssue";
+
+	/**
+	 * 手持端晶圆发料
+	 */
+	public static final String ACTION_TYPE_MOBILE_GET_WAFER = "MobileGetWafer";
+
+	/**
+	 * 手持端COB晶圆发料
+	 */
+	public static final String ACTION_TYPE_MOBILE_ISSUE = "MobileIssue";
+
+	/**
+	 * 查询COB接收晶圆
+	 */
+	public static final String ACTION_TYPE_QUERY_COB_RECEIVE_MLOT = "QueryCOBReceiveMLot";
+
 	private WaferManagerRequestBody body;
 
 }

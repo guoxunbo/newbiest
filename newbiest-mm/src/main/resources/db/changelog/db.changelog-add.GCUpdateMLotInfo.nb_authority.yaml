@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCUpdateMLotInfoManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCUpdateMLotInfoManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCUpdateMLotInfoManager
+              description: 修改LOT信息
+              tableName: GCUpdateMLotInfo
+              url: /Warehouse/GCUpdateMLotInfo
+              parentRrn: 55
+              seqNo: 35
+              image: icon-rule
+              labelZh: 修改LOT信息
+              labelEn: UpdateMLotInfo

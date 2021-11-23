@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCScmLotQuery_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCScmLotQuery to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCScmLotQuery
+              description: SCM来料批次查询
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: SCM来料批次查询
+              label: ScmLotQuery

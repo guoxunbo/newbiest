@@ -54,7 +54,7 @@ public class Document extends NBUpdatable {
      *  由lines上统计。无法私自改数量
      */
     @Column(name="QTY")
-    private BigDecimal qty;
+    private BigDecimal qty = BigDecimal.ZERO;
 
     /**
      * 已经处理的数量

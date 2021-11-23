@@ -19,6 +19,7 @@ import java.util.Date;
 public class MesPackedLot implements Serializable {
 
     public static final String PACKED_STATUS_RECEIVED = "RECEIVED";
+    public static final String PACKED_STATUS_IN = "IN";
 
     public static final String PRODUCT_CATEGORY_FT = "FT";
     public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
@@ -28,8 +29,20 @@ public class MesPackedLot implements Serializable {
     public static final String PRODUCT_CATEGORY_LSP = "LSP";
     public static final String PRODUCT_CATEGORY_LCP = "LCP";
     public static final String PRODUCT_CATEGORY_SCP = "SCP";
+    public static final String PRODUCT_CATEGORY_COB = "COB";
 
     public static final String REPLACE_FLAG = "true";
+
+    public static final String PACKED_TYPE = "VBOX";
+    public static final String PACKED_TYPE_CPCST_PREIN = "CPCST_PREIN";
+    public static final String LEVEL_TWO_CODE_FFFFF = "FFFFF";
+
+    public static final String GRADE_F3 = "F3";
+
+    public static final String IN_FLAG_ONE = "1";
+    public static final String ZJ_SUB_NAME = "GCZJ";
+    public static final String SH_SUB_NAME = "GCSH";
+    public static final String ZH_WAREHOUSE = "8143";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -114,6 +127,12 @@ public class MesPackedLot implements Serializable {
     private String shipSerialNumber;
 
     /**
+     * 入库单号
+     */
+    @Column(name="SHIP_SEQUENCE_NUMBER")
+    private String shipSequenceNumber;
+
+    /**
      * 仓库号
      */
     @Column(name="STOCK")
@@ -156,4 +175,69 @@ public class MesPackedLot implements Serializable {
     @Column(name="REPLACE_FLAG")
     private String replaceFlag;
 
+    /**
+     * 载具号
+     */
+    @Column(name="LOT_ID")
+    private String lotId;
+
+    /**
+     * 物料批次号
+     */
+    @Column(name="MATERIAL_LOT_NAME")
+    private String materialLotName;
+
+    /**
+     * 原产品型号
+     */
+    @Column(name="ORG_PRODUCT_ID")
+    private String orgProductId;
+
+    /**
+     * 原产品等级
+     */
+    @Column(name="BIN_TYPE")
+    private String binType;
+
+    /**
+     * 载具号
+     */
+    @Column(name="PCODE")
+    private String pcode;
+
+    /**
+     * 预入前工单号
+     */
+    @Column(name="SOURCE_WORKORDER_ID")
+    private String sourceWorkorderId;
+
+    /**
+     * 供应商
+     */
+    @Transient
+    private String subName;
+
+    /**
+     * FAB_DEVICE
+     */
+    @Transient
+    private String fabDevice;
+
+    /**
+     * PRODUCT_TYPE
+     */
+    @Transient
+    private String productType;
+
+    /**
+     * IMPORT_TYPE
+     */
+    @Transient
+    private String importType;
+
+    /**
+     * 扫描序号
+     */
+    @Transient
+    private String scanSeq;
 }

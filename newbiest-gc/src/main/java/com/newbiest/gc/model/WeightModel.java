@@ -13,6 +13,8 @@ public class WeightModel implements Serializable  {
 
     private  String boxsWeightFlag;
 
-    private  String scanSeq;
+    private  Integer scanSeq;
+
+    private  Long boxsScanSeq;
 
 }

@@ -34,4 +34,13 @@ public class WaferManagerRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "发料计划投批")
 	private String unPlanLot;
+
+	@ApiModelProperty(value = "接收匹配单据")
+	private String receiveWithDoc;
+
+	@ApiModelProperty(value = "物料批次号")
+	private String lotId;
+
+	@ApiModelProperty(value = "手持端发料单据日期")
+	private String erpTime;
 }

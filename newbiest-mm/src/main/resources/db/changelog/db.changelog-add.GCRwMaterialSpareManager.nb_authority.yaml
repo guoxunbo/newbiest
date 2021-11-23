@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RwMaterialSpareManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add RwMaterialSpareManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RwMaterialSpareManager
+              description: Rw材料备料
+              tableName: GCRwMaterialSpare
+              mobileFlag: N
+              url: /GC/GCRwMaterialSpareManager
+              parentRrn: 2030
+              seqNo: 80
+              image: icon-recipe
+              labelZh: RW材料备料
+              labelEn: RwMaterialSpare

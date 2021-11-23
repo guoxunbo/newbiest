@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCVenderAndAddress_to_NB_TABLE
+      author: Jason Zhou
+      comment: add GCVenderAndAddress to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCVenderAndAddress
+              description: 供应商地址管理
+              tableName: GC_VENDER_ADDRESS
+              modelName: GCVenderAddressRelation
+              modelClass: com.newbiest.gc.model.GCVenderAddressRelation
+              labelZh: 供应商地址管理
+              label: GC VENDER ADDRESS

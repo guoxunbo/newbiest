@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_WltLotPackCaseCheck_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add WltLotPackCaseCheck to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: WltLotPackCaseCheck
+              description: WLT Lot装箱检验
+              tableName: WltLotPackCaseCheckTable
+              url: /WLT/WLTLotPackCaseCheck
+              mobileFlag: N
+              parentRrn: 211
+              seqNo: 42
+              image: icon-rule
+              labelZh: WLT Lot装箱检验
+              labelEn: WltLotPackCaseCheck

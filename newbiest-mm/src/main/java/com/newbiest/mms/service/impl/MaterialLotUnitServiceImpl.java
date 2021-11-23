@@ -7,6 +7,7 @@ import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
@@ -161,7 +162,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
                 for(String lotId : materialLotUnitMap.keySet()){
-                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndReserved7NotIn(lotId, MaterialLotUnit.PRODUCT_CATEGORY_WLT);
+                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialLot.STATUS_FIN);
                     if(materialLotInfo != null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
                     }
@@ -169,6 +170,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
 
+                    //验证晶圆是否存在Eng晶圆
+                    String productType = MaterialLotUnit.PRODUCT_TYPE_PROD;
+                    List<MaterialLotUnit> engUnitList = materialLotUnits.stream().filter(materialLotUnit -> MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())).collect(Collectors.toList());
+                    if(CollectionUtils.isNotEmpty(engUnitList)){
+                        productType = MaterialLotUnit.PRODUCT_TYPE_ENG;
+                    }
                     // 导入进行多线程处理 进行并行处理
                     ImportMLotThread importMLotThread = new ImportMLotThread();
                     importMLotThread.setMaterialLotRepository(materialLotRepository);
@@ -188,6 +195,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     importMLotThread.setMaterial(material);
                     importMLotThread.setStatusModel(statusModel);
                     importMLotThread.setMaterialLotUnits(materialLotUnits);
+                    importMLotThread.setProductType(productType);
 
                     Future<ImportMLotThreadResult> importCallBack = executorService.submit(importMLotThread);
                     importCallBackList.add(importCallBack);
@@ -264,8 +272,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      * 晶圆换箱号则修改原箱号中的晶圆状态
      * @param materialLotUnitList
      */
-    public String validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
-        String errorMessage = "";
+    public void validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
         try {
             Warehouse warehouse;
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
@@ -304,9 +311,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 }
             }
         } catch (Exception e) {
-            errorMessage = e.getMessage();
+            throw ExceptionManager.handleException(e, log);
         }
-        return errorMessage;
     }
 
     /**
@@ -317,6 +323,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      */
     public List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList, String importType) throws ClientException {
         try {
+            List<String> cpImportList = Lists.newArrayList(MaterialLotUnit.FAB_SENSOR, MaterialLotUnit.FAB_SENSOR_2UNMEASURED, MaterialLotUnit.SENSOR_CP_KLT,
+                    MaterialLotUnit.SENSOR_CP, MaterialLotUnit.SENSOR_UNMEASURED, MaterialLotUnit.LCD_CP_25UNMEASURED, MaterialLotUnit.LCD_CP);
             List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = Maps.newHashMap();
 
@@ -327,22 +335,51 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             }
             for(String fabLotId : materialLotUnitMap.keySet()){
                 List<MaterialLotUnit> mLotUnitList = materialLotUnitMap.get(fabLotId);
-                Integer minWaferId = 0;
-                for (MaterialLotUnit materialLotUnit : mLotUnitList) {
-                    if(minWaferId == 0 || minWaferId > Integer.parseInt(materialLotUnit.getReserved31())){
-                        minWaferId = Integer.parseInt(materialLotUnit.getReserved31());
-                    }
+                if (mLotUnitList.size() > MaterialLotUnit.THIRTEEN && importType.equals(MaterialLotUnit.WLA_UNMEASURED)){
+                    throw new ClientParameterException(MmsException.MM_WLA_IMPORT_MATERIAL_LOT_UNIT_SIZE_IS_OVER_THIRTEEN, fabLotId);
                 }
-                String waferId = minWaferId+"";
-                waferId = StringUtil.leftPad(waferId , 2 , "0");
-                String lotId = fabLotId.split("\\.")[0] +"."+ waferId;
-                for(MaterialLotUnit materialLotUnit : mLotUnitList){
-                    materialLotUnit.setLotId(lotId);
-                    materialLotUnit.setReserved30(fabLotId.split("\\.")[0]);
-                    materialLotUnits.add(materialLotUnit);
+                //CP的晶圆同一个FabLotId的需要按照CartonNo进行分组，构建多个Lot
+                if(cpImportList.contains(importType)){
+                    Map<String, List<MaterialLotUnit>> cartonNoMap = mLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit :: getReserved39));
+                    for(String cartonNo : cartonNoMap.keySet()){
+                        List<MaterialLotUnit> cartonMLotUnitList = cartonNoMap.get(cartonNo);
+                        cartonMLotUnitList = getImportMaterialLotUnitByFabLotIdAndMinWaferId(cartonMLotUnitList, fabLotId);
+                        materialLotUnits.addAll(cartonMLotUnitList);
+                    }
+                } else {
+                    mLotUnitList = getImportMaterialLotUnitByFabLotIdAndMinWaferId(mLotUnitList, fabLotId);
+                    materialLotUnits.addAll(mLotUnitList);
                 }
             }
             return materialLotUnits;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 来了导入按照FabLotId分组，取最小的waferId与FablotId做拼接为LotId
+     * 如果是CP的批次，则再按照CartonNo分组，同一个FabLotId的批次分成多个Lot
+     * @param mLotUnitList
+     * @return
+     * @throws ClientException
+     */
+    private List<MaterialLotUnit> getImportMaterialLotUnitByFabLotIdAndMinWaferId(List<MaterialLotUnit> mLotUnitList, String fabLotId) throws ClientException{
+        try {
+            Integer minWaferId = 0;
+            for (MaterialLotUnit materialLotUnit : mLotUnitList) {
+                if(minWaferId == 0 || minWaferId > Integer.parseInt(materialLotUnit.getReserved31())){
+                    minWaferId = Integer.parseInt(materialLotUnit.getReserved31());
+                }
+            }
+            String waferId = minWaferId+"";
+            waferId = StringUtil.leftPad(waferId , 2 , "0");
+            String lotId = fabLotId.split("\\.")[0] +"."+ waferId;
+            for(MaterialLotUnit materialLotUnit : mLotUnitList){
+                materialLotUnit.setLotId(lotId);
+                materialLotUnit.setReserved30(fabLotId.split("\\.")[0]);
+            }
+            return mLotUnitList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -388,13 +425,22 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                         propsMap.put("durable", materialLotUnit.getDurable().toUpperCase());
                     }
+                    if(MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())){
+                        propsMap.put("productType", MaterialLotUnit.PRODUCT_TYPE_ENG);
+                    }
+                    //FT导入的产品-3.5的二级代码为三位的转换为四位
+                    String subCode = materialLotUnit.getReserved1();
+                    if(materialName.endsWith("-3.5") && !StringUtils.isNullOrEmpty(subCode) && subCode.length() == 3){
+                        subCode = subCode + materialLotUnit.getUnitId().substring(0,1);
+                    }
                     propsMap.put("supplier", materialLotUnit.getSupplier());
                     propsMap.put("shipper", materialLotUnit.getShipper());
                     propsMap.put("grade", materialLotUnit.getGrade());
                     propsMap.put("lotId", materialLotUnit.getUnitId().toUpperCase());
                     propsMap.put("sourceProductId", materialLotUnit.getSourceProductId());
 
-                    propsMap.put("reserved1",materialLotUnit.getReserved1());
+                    propsMap.put("reserved1",subCode);
+                    propsMap.put("reserved4",materialLotUnit.getTreasuryNote());
                     propsMap.put("reserved6",materialLotUnit.getReserved4());
                     propsMap.put("reserved7",materialLotUnit.getReserved7());
                     propsMap.put("reserved13",materialLotUnit.getReserved13());
@@ -402,6 +448,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved22",materialLotUnit.getReserved22());
                     propsMap.put("reserved23",materialLotUnit.getReserved23());
                     propsMap.put("reserved24",materialLotUnit.getReserved24());
+                    propsMap.put("reserved25",materialLotUnit.getReserved25());
+                    propsMap.put("reserved26",materialLotUnit.getReserved26());
                     propsMap.put("reserved27",materialLotUnit.getReserved27());
                     propsMap.put("reserved28",materialLotUnit.getReserved28());
                     propsMap.put("reserved29",materialLotUnit.getReserved29());
@@ -413,6 +461,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved37",materialLotUnit.getReserved37());
                     propsMap.put("reserved38",materialLotUnit.getReserved38());
                     propsMap.put("reserved39",materialLotUnit.getReserved39());
+                    propsMap.put("reserved40",materialLotUnit.getReserved40());
                     propsMap.put("reserved41",materialLotUnit.getReserved41());
                     propsMap.put("reserved45",materialLotUnit.getReserved45());
                     propsMap.put("reserved46",materialLotUnit.getReserved46());
@@ -421,12 +470,14 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved50",materialLotUnit.getReserved50());
                     propsMap.put("reserved48",importCode);
 
-                    MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotUnit.getUnitId().toUpperCase(), StringUtils.EMPTY, materialLotUnit.getCurrentQty(), propsMap, BigDecimal.ONE);
+                    MaterialLotAction materialLotAction = new MaterialLotAction(materialLotUnit.getUnitId().toUpperCase(), StringUtils.EMPTY, propsMap, materialLotUnit.getCurrentQty(), BigDecimal.ONE, StringUtils.EMPTY);
+                    MaterialLot materialLot = mmsService.createMLot(material, statusModel, materialLotAction);
 
                     if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                         materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                     }
                     materialLotUnit.setReserved7(StringUtils.EMPTY);
+                    materialLotUnit.setReserved1(subCode);
                     materialLotUnit.setLotId(materialLotUnit.getLotId().toUpperCase());
                     materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
                     materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());

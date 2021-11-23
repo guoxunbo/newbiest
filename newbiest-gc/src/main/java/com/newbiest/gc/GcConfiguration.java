@@ -66,6 +66,9 @@ public class GcConfiguration {
         ModelFactory.registerModelClassLoader(NBQuery.class.getName(), NBQuery.class.getClassLoader());
         ModelFactory.registerModelClassLoader(NBAuthority.class.getName(), NBAuthority.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GcUnConfirmWaferSet.class.getName(), GcUnConfirmWaferSet.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(FutureHoldConfig.class.getName(), FutureHoldConfig.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(GCVenderAddressRelation.class.getName(),GCVenderAddressRelation.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(WaferHoldRelation.class.getName(),WaferHoldRelation.class.getClassLoader());
 
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());
@@ -73,6 +76,9 @@ public class GcConfiguration {
 
         ModelFactory.registerHistoryModelClassLoader(WaferIssueOrder.class.getName(), DocumentHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(WaferIssueOrder.class.getName(), DocumentHistory.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(MaterialIssueOrder.class.getName(), DocumentHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(MaterialIssueOrder.class.getName(), DocumentHistory.class.getName());
 
         ModelFactory.registerHistoryModelClassLoader(OtherShipOrder.class.getName(), DocumentHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(OtherShipOrder.class.getName(), DocumentHistory.class.getName());
@@ -100,6 +106,12 @@ public class GcConfiguration {
 
         ModelFactory.registerHistoryModelClassLoader(GcUnConfirmWaferSet.class.getName(), GCUnConfirmWaferSetHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(GcUnConfirmWaferSet.class.getName(), GCUnConfirmWaferSetHis.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(FutureHoldConfig.class.getName(), FutureHoldConfigHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(FutureHoldConfig.class.getName(), FutureHoldConfigHis.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(GCScmToMesEngInform.class.getName(), GCScmToMesEngInformHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(GCScmToMesEngInform.class.getName(), GCScmToMesEngInformHis.class.getName());
 
     }
 }

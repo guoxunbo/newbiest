@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileMaterialLotStockInManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add MobileMaterialLotStockInManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileMaterialLotStockInManager
+              description: 手持端入库位
+              tableName: GCMobileMaterialLotStockIn
+              mobileFlag: Y
+              url: /Mobile/MaterialLotStockIn
+              parentRrn: 2
+              seqNo: 40
+              image: icon-rule
+              labelZh: 入库位
+              labelEn: StockIn

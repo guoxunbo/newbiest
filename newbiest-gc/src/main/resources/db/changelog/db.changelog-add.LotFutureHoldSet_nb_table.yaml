@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCLotFutureHoldSet_to_NB_TABLE
+      author: Xinqi Wang
+      comment: add GCLotFutureHoldSet to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCLotFutureHoldSet
+              description: LOT预HOLD设置
+              tableName: GC_FUTURE_HOLD_CONFIG
+              modelName: GCFutureHoldConfig
+              modelClass: com.newbiest.gc.model.GCFutureHoldConfig
+              labelZh: LOT预HOLD设置
+              label: LotFutureHoldSet

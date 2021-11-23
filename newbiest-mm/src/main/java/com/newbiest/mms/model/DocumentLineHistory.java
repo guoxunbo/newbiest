@@ -16,6 +16,12 @@ import java.util.Date;
 @Entity
 public class DocumentLineHistory extends NBHis {
 
+    /**
+     * 合单
+     */
+    public static final String TRANS_TYPE_MERGE_DOC = "MergeDoc";
+    public static final String TRANS_TYPE_DELETE = "Delete";
+
     @Column(name="DOC_RRN")
     private Long docRrn;
 
@@ -84,6 +90,24 @@ public class DocumentLineHistory extends NBHis {
      */
     @Column(name="WAREHOUSE_NAME")
     private String warehouseName;
+
+    /**
+     * 三方交易
+     */
+    @Column(name="THREE_SIDE_TRANSACTION")
+    private String threeSideTransaction;
+
+    /**
+     * 合单标记
+     */
+    @Column(name="MERGE_DOC")
+    private String mergeDoc;
+
+    /**
+     * 快递单号
+     */
+    @Column(name="EXPRESSS_NUMBER")
+    private String expressNumber;
 
     /**
      * 关联ERP LINE的SEQ主键
@@ -255,5 +279,8 @@ public class DocumentLineHistory extends NBHis {
 
     @Column(name="RESERVED31")
     private String reserved31;
+
+    @Column(name="MATERIAL_TYPE")
+    private String materialType;
 
 }

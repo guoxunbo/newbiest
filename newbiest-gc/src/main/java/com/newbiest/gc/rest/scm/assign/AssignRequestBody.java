@@ -15,10 +15,19 @@ public class AssignRequestBody extends RequestBody {
 	@ApiModelProperty(value = "动作类型", example = "Assign/UnAssign")
 	private String actionType;
 
-	@ApiModelProperty(value = "批次号")
 	private String lotId;
 
-	@ApiModelProperty(value = "晶圆号", example = "01")
-	private String waferId;
+	private String materialName;
 
+	private String subName;
+
+	private String vendor;
+
+	private String poId;
+
+	private String materialType;
+
+	private String remarks;
+
+	private String vendorAddress;
 }

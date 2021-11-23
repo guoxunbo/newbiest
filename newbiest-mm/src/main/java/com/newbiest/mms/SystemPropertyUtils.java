@@ -11,16 +11,28 @@ public class SystemPropertyUtils {
 
     private static final String SYSTEM_PROPERTY_CONNECT_SCM_FLAG = "gc.connect_scm_flag";
 
+    private static final String SYSTEM_PROPERTY_CONNECT_MSCM_FLAG = "gc.connect_mscm_flag";
+
     private static final String SYSTEM_PROPERTY_WAFER_ISSUE_WITH_DOC_FLAG = "gc.wafer_issue_with_doc_flag";
 
     private static final String SYSTEM_PROPERTY_WAFER_ISSUE_TO_MES_PLAN_LOT_FLAG = "gc.wafer_issue_to_mes_plan_lot_flag";
 
     private static final String SYSTEM_PROPERTY_IMPORT_MLOT_POOL_SIZE = "gc.import_mlot_pool_size";
 
+    private static final String SYSTEM_PROPERTY_READ_MES_TIME_OUT_TIME = "gc.read_mes_time_out_time";
+
     public static Integer getImportMLotPoolSize() {
         Object importMLotPoolSize = System.getProperty(SYSTEM_PROPERTY_IMPORT_MLOT_POOL_SIZE);
         if (importMLotPoolSize != null) {
             return Integer.parseInt(importMLotPoolSize.toString());
+        }
+        return null;
+    }
+
+    public static Integer getReadMesTimeOutTime() {
+        Object time = System.getProperty(SYSTEM_PROPERTY_READ_MES_TIME_OUT_TIME);
+        if (time != null) {
+            return Integer.parseInt(time.toString());
         }
         return null;
     }
@@ -62,6 +74,14 @@ public class SystemPropertyUtils {
         Object planLotFlag = System.getProperty(SYSTEM_PROPERTY_WAFER_ISSUE_TO_MES_PLAN_LOT_FLAG);
         if (planLotFlag != null) {
             return Boolean.valueOf(planLotFlag.toString());
+        }
+        return false;
+    }
+
+    public static boolean getConnectMscmFlag() {
+        Object connectMscmFlag = System.getProperty(SYSTEM_PROPERTY_CONNECT_MSCM_FLAG);
+        if (connectMscmFlag != null) {
+            return Boolean.valueOf(connectMscmFlag.toString());
         }
         return false;
     }

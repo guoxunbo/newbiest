@@ -10,6 +10,7 @@ import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
+import com.newbiest.mms.service.PrintService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -38,6 +39,9 @@ public class GetVboxPrintParaController extends AbstractRestController {
     @Autowired
     PackageService packageService;
 
+    @Autowired
+    PrintService printService;
+
     @ApiOperation(value = "获取VBOX标签参数")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "GetVboxPrintParaRequest")
     @RequestMapping(value = "/getPrintVboxParameter", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -50,10 +54,10 @@ public class GetVboxPrintParaController extends AbstractRestController {
 
         List<MesPackedLot> mesPackedLots = requestBody.getMesPackedLots();
 
-        List<Map<String, String>> parameterMapList = Lists.newArrayList();
+        List<Map<String, Object>> parameterMapList = Lists.newArrayList();
 
         for (MesPackedLot mesPackedLot : mesPackedLots) {
-            Map<String, String> parameterMap = Maps.newHashMap();
+            Map<String, Object> parameterMap = Maps.newHashMap();
             MesPackedLot vBox = gcService.findByPackedLotRrn(mesPackedLot.getPackedLotRrn());
             parameterMap.put("BOXID", vBox.getBoxId());
             parameterMap.put("DEVICEID", vBox.getProductId());
@@ -63,7 +67,7 @@ public class GetVboxPrintParaController extends AbstractRestController {
                 String subCode = gcService.getEncryptionSubCode(vBox.getGrade(), vBox.getLevelTwoCode());
                 parameterMap.put("SUBCODE", subCode);
             } else {
-                parameterMap.put("SUBCODE", vBox.getLevelTwoCode());
+                parameterMap.put("SUBCODE", vBox.getLevelTwoCode() + vBox.getGrade());
             }
 
             parameterMap.put("NUMBER", vBox.getQuantity().toString());
@@ -111,11 +115,9 @@ public class GetVboxPrintParaController extends AbstractRestController {
                     }
                 }
             }
-
-
         }
+        printService.rePrintVBxoLabel(parameterMapList);
 
-        responseBody.setParameters(parameterMapList);
         response.setBody(responseBody);
         return response;
     }
