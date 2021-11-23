@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseIncomingMaterialImportManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseIncomingMaterialImportManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: IncomingMaterialImportManager
+              description: 保税仓库来料导入
+              tableName: BondedWarehouseIncomingMaterialImport
+              mobileFlag: N
+              url: /BondedWarehouse/IncomingMaterialImport
+              parentRrn: 2021
+              seqNo: 5
+              image: icon-wuliao
+              labelZh: 来料导入
+              labelEn: IncomingMaterialImport
+

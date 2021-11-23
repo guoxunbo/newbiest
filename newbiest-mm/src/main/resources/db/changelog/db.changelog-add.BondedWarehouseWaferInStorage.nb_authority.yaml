@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseWaferInStorageManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseWaferInStorageManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: WaferInStorageManager
+              description: 保税仓库 WLT/CP晶圆接收
+              tableName: BondedWarehouseWaferInStorage
+              mobileFlag: N
+              url: /BondedWarehouse/WaferInStorageManager
+              parentRrn: 2021
+              seqNo: 15
+              image: icon-wuliao
+              labelZh: 晶圆入库位
+              labelEn: WaferInStorage
+

@@ -11,4 +11,6 @@ public class IncomingMaterialImportRequest  extends Request {
     public static final String MESSAGE_NAME = "GCIncomingImport";
 
     private IncomingMaterialImportRequestBody body;
+
+    public static final String ACTION_VALIDATE_RMA = "ValidateRma";
 }

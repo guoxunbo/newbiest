@@ -684,5 +684,59 @@ databaseChangeLog:
       file: db.changelog-0.0.2.gc_workorder_relation_his.yaml
       relativeToChangelogFile: true
   - include:
+      file: db.changelog-add.ScmLotQuery_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
       file: db.changelog-add.GCIncomingMLotPrintLabel_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.gc_scm_to_mes_eng_inform.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.1.gc_scm_to_mes_eng_inform_his.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseIncomingMaterialImport_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWaferInStorage_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseLotPackage_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWltOrCpStockOutOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWltStockOutMLot_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWltOrCpWaferReceive_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWltOrCpWaferWaitReceive_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWltOtherStockOutOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWltOtherStockOutMLot_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseMaterialLotWeigh_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWLTStockOutCheck_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseWaferCheck_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.gc_future_hold_config.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.gc_future_hold_config_his.yaml
       relativeToChangelogFile: true

@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseWltOtherStockOutManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseWltOtherStockOutManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehouseWltOtherStockOut
+              description: 保税仓库 WLT/CP其它出
+              tableName: BondedWarehouseWltOtherStockOutOrder
+              secondTableName: BondedWarehouseWltOtherStockOutMLot
+              mobileFlag: N
+              url: /BondedWarehouse/WltOtherStockOut
+              parentRrn: 2021
+              seqNo: 30
+              image: icon-wuliao
+              labelZh: WLT/CP其它出
+              labelEn: WLT/CP OtherStockOut
+
