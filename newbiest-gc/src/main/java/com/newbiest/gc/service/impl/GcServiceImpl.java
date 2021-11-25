@@ -6,7 +6,6 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.exception.NewbiestException;
-import com.newbiest.base.model.NBBase;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.model.NBQuery;
 import com.newbiest.base.repository.QueryRepository;
@@ -20,6 +19,8 @@ import com.newbiest.base.utils.*;
 import com.newbiest.commom.sm.exception.StatusMachineExceptions;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.common.exception.ContextException;
+import com.newbiest.common.idgenerator.service.GeneratorService;
+import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
@@ -48,8 +49,6 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.newbiest.common.idgenerator.utils.GeneratorContext;
-import com.newbiest.common.idgenerator.service.GeneratorService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -61,8 +60,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.newbiest.mms.exception.MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST;
 import static com.newbiest.mms.exception.MmsException.MM_PRODUCT_ID_IS_NOT_EXIST;
+import static com.newbiest.mms.exception.MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST;
 
 /**
  * Created by guoxunbo on 2019-08-21 12:41
@@ -1165,6 +1164,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved7(erpMaterialOutOrder.getOther1());
                                 documentLine.setReserved8(erpMaterialOutOrder.getCusname());
                                 documentLine.setReserved9(waferIssueOrder.CATEGORY_WAFER_ISSUE);
+                                documentLine.setReserved13(erpMaterialOutOrder.getCmemo());
                                 documentLine.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
                             }
 
@@ -1325,6 +1325,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved7(erpMaterialOutOrder.getOther1());
                                 documentLine.setReserved8(erpMaterialOutOrder.getCusname());
                                 documentLine.setReserved9(ReTestOrder.CATEGORY_RETEST);
+                                documentLine.setReserved13(erpMaterialOutOrder.getCmemo());
                                 documentLine.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
 
                             }
@@ -2480,6 +2481,7 @@ public class GcServiceImpl implements GcService {
                 documentLine.setReserved10(erpSo.getGCode());
                 documentLine.setReserved11(erpSo.getGName());
                 documentLine.setReserved12(erpSo.getOther8());
+                documentLine.setReserved13(erpSo.getCmemo());
                 documentLine.setReserved15(erpSo.getOther18());
                 documentLine.setReserved17(erpSo.getOther3());
                 documentLine.setReserved20(erpSo.getOther9());
@@ -6687,6 +6689,7 @@ public class GcServiceImpl implements GcService {
             documentLine.setReserved5(erpMaterialOutaOrder.getCmaker());
             documentLine.setReserved6(erpMaterialOutaOrder.getChandler());
             documentLine.setReserved7(erpMaterialOutaOrder.getOther1());
+            documentLine.setReserved13(erpMaterialOutaOrder.getCmemo());
             documentLine.setMaterialType(erpMaterialOutaOrder.getCfree4());
             documentLine.setReserved31(ErpMaterialOutaOrder.SOURCE_TABLE_NAME);
         } catch (Exception e) {
@@ -7178,6 +7181,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved8(erpSob.getOther9());
 
                                 documentLine.setReserved9(OtherShipOrder.CATEGORY_DELIVERYB);
+                                documentLine.setReserved13(erpSob.getCmemo());
                                 documentLine.setReserved16(erpSob.getOther2());
                                 documentLine.setReserved19(erpSob.getOther8());
                                 documentLine.setReserved20(erpSob.getOther9());
