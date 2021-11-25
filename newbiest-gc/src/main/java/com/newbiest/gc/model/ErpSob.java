@@ -206,4 +206,7 @@ public class ErpSob implements Serializable {
     @Column(name="CREATE_SEQ")
     private String createSeq;
 
+    @Column(name="CMEMO")
+    private String cmemo;
+
 }
