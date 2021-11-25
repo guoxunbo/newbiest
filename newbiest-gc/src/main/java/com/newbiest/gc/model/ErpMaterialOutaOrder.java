@@ -155,4 +155,10 @@ public class ErpMaterialOutaOrder implements Serializable {
     @Column(name="CFREE4")
     private String cfree4;
 
+    /**
+     * 备注
+     */
+    @Column(name="CMEMO")
+    private String cmemo;
+
 }
