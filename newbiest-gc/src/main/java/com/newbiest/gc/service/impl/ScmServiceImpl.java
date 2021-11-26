@@ -400,8 +400,6 @@ public class ScmServiceImpl implements ScmService {
                         mLotMap.put("boxId", mLotList.get(0).getParentMaterialLotId() == null ? StringUtils.EMPTY : mLotList.get(0).getParentMaterialLotId());
                         mLotMap.put("waferCount", mLotList.get(0).getCurrentSubQty().toString());
                         materialLots.add(mLotMap);
-                    } else {
-                        throw new ClientParameterException(GcExceptions.LOT_ID_IS_NOT_EXIST, lotId);
                     }
                 }
             }
