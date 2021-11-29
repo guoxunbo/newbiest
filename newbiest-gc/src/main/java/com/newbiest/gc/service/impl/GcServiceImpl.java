@@ -313,6 +313,12 @@ public class GcServiceImpl implements GcService {
     @Autowired
     WaferHoldRelationRepository waferHoldRelationRepository;
 
+    @Autowired
+    WlatoFtTestBitRepository wlatoFtTestBitRepository;
+
+    @Autowired
+    WlatoFtTestBitHisRepository wlatoFtTestBitHisRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -4611,6 +4617,24 @@ public class GcServiceImpl implements GcService {
                     } else {
                         materialLotUnit.setUnitId(packedLot.getWaferId());
                     }
+                    if (MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
+                        GcWlatoftTesebit wlatoftTesebit = wlatoFtTestBitRepository.findByWaferId(packedLot.getWaferId());
+                        if (wlatoftTesebit == null){
+                            wlatoftTesebit = new GcWlatoftTesebit();
+                            wlatoftTesebit.setWaferId(packedLot.getWaferId());
+                            wlatoftTesebit.setWlaTestBit(packedLot.getWlaTestBit());
+                            wlatoftTesebit = wlatoFtTestBitRepository.save(wlatoftTesebit);
+
+                            GcWlatoftTesebitHis wlatoftTesebitHis = (GcWlatoftTesebitHis)baseService.buildHistoryBean(wlatoftTesebit, NBHis.TRANS_TYPE_CREATE);
+                            wlatoFtTestBitHisRepository.save(wlatoftTesebitHis);
+                        }else{
+                            wlatoftTesebit.setWlaTestBit(packedLot.getWlaTestBit());
+                            wlatoftTesebit = wlatoFtTestBitRepository.saveAndFlush(wlatoftTesebit);
+
+                            GcWlatoftTesebitHis wlatoftTesebitHis = (GcWlatoftTesebitHis)baseService.buildHistoryBean(wlatoftTesebit, NBHis.TRANS_TYPE_UPDATE);
+                            wlatoFtTestBitHisRepository.save(wlatoftTesebitHis);
+                        }
+                    }
                     materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                     materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                     materialLotUnit.setLotId(cstId);
@@ -4628,6 +4652,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved1(packedLot.getLevelTwoCode());
                     materialLotUnit.setReserved3(StringUtils.EMPTY);
                     materialLotUnit.setReserved4(materialLot.getReserved6());
+                    materialLotUnit.setReserved9(packedLot.getWlaTestBit());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved22(materialLot.getReserved22());
