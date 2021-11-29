@@ -7384,22 +7384,20 @@ public class GcServiceImpl implements GcService {
                             throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
                         }
                     }
-                } else {
-                    if(Integer.parseInt(mesPackedLotRelation.getBinId1()) < Integer.parseInt(materialLotUnit.getReserved34()) ||
-                            Integer.parseInt(mesPackedLotRelation.getBinId2()) < Integer.parseInt(materialLotUnit.getReserved42()) ||
-                            Integer.parseInt(mesPackedLotRelation.getBinId4()) < Integer.parseInt(materialLotUnit.getReserved43())){
+                } else if(Integer.parseInt(mesPackedLotRelation.getBinId1() == null ? "0" : mesPackedLotRelation.getBinId1()) < Integer.parseInt(materialLotUnit.getReserved34()) ||
+                            Integer.parseInt(mesPackedLotRelation.getBinId2() == null ? "0" : mesPackedLotRelation.getBinId2()) < Integer.parseInt(materialLotUnit.getReserved42()) ||
+                            Integer.parseInt(mesPackedLotRelation.getBinId4() == null ? "0" : mesPackedLotRelation.getBinId4() ) < Integer.parseInt(materialLotUnit.getReserved43())){
                         throw new ClientParameterException(GcExceptions.INCOMINGMLOT_QTY_AND_SENTOUT_QTY_DISCREPANCY, materialLotUnit.getUnitId());
-                    }
-                    materialLotUnit.setSourceProductId(materialName);
-                    String testProductId = mesPackedLotRelation.getTestModelId();
-                    materialName = testProductId.split("-")[0] + "-3.5";
-                    material = mmsService.getRawMaterialByName(materialName);
-                    if(material == null){
-                        RawMaterial rawMaterial = new RawMaterial();
-                        rawMaterial.setName(materialName);
-                        mmsService.createRawMaterial(rawMaterial);
-                    }
                 }
+//                    materialLotUnit.setSourceProductId(materialName);
+//                    String testProductId = mesPackedLotRelation.getTestModelId();
+//                    materialName = testProductId.split("-")[0] + "-3.5";
+//                    material = mmsService.getRawMaterialByName(materialName);
+//                    if(material == null){
+//                        RawMaterial rawMaterial = new RawMaterial();
+//                        rawMaterial.setName(materialName);
+//                        mmsService.createRawMaterial(rawMaterial);
+//                    }
                 materialLotUnit.setMaterialName(materialName);
                 materialLotUnit.setReserved6(StringUtils.EMPTY);
                 materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
@@ -9176,17 +9174,20 @@ public class GcServiceImpl implements GcService {
             } else if(MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType) || MaterialLotUnit.SENSOR_PACK_RETURN_COGO.equals(importType) || MaterialLotUnit.SENSOR_TPLCC.equals(importType)){
                 for(String materialName : materialLotUnitMap.keySet()){
                     GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductIdAndModelCategory(materialName, MaterialLot.IMPORT_FT);
+                    String conversionModelId = StringUtils.EMPTY;
                     if(productModelConversion != null){
-                        String conversionModelId = productModelConversion.getConversionModelId();
+                        conversionModelId = productModelConversion.getConversionModelId();
                         conversionModelId = conversionModelId.substring(0, conversionModelId.lastIndexOf("-")) + "-3.5";
-                        List<MaterialLotUnit> materialLotUnitList = materialLotUnitMap.get(materialName);
-                        for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    }
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitMap.get(materialName);
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        if(!StringUtils.isNullOrEmpty(conversionModelId)){
                             materialLotUnit.setSourceProductId(materialName);
                             materialLotUnit.setMaterialName(conversionModelId);
-                            //Sensor封装回货的物料批次验证数量是否正确
-                            if(MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)){
-                                validateMaterialLotUnitQty(materialLotUnit);
-                            }
+                        }
+                        //Sensor封装回货的物料批次验证数量是否正确
+                        if(MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)){
+                            validateMaterialLotUnitQty(materialLotUnit);
                         }
                     }
                 }
