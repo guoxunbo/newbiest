@@ -69,6 +69,7 @@ public class GcConfiguration {
         ModelFactory.registerModelClassLoader(FutureHoldConfig.class.getName(), FutureHoldConfig.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GCVenderAddressRelation.class.getName(),GCVenderAddressRelation.class.getClassLoader());
         ModelFactory.registerModelClassLoader(WaferHoldRelation.class.getName(),WaferHoldRelation.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(GcWlatoftTesebit.class.getName(),GcWlatoftTesebit.class.getClassLoader());
 
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());
@@ -112,6 +113,9 @@ public class GcConfiguration {
 
         ModelFactory.registerHistoryModelClassLoader(GCScmToMesEngInform.class.getName(), GCScmToMesEngInformHis.class.getClassLoader());
         ModelFactory.registerHistoryClassName(GCScmToMesEngInform.class.getName(), GCScmToMesEngInformHis.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(GcWlatoftTesebit.class.getName(), GcWlatoftTesebitHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(GcWlatoftTesebit.class.getName(), GcWlatoftTesebitHis.class.getName());
 
     }
 }

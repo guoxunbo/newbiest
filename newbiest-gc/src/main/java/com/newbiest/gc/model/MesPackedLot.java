@@ -210,6 +210,11 @@ public class MesPackedLot implements Serializable {
      */
     @Column(name="SOURCE_WORKORDER_ID")
     private String sourceWorkorderId;
+ /**
+     * WLA测试位
+     */
+    @Column(name="WLA_TEST_BIT")
+    private String wlaTestBit;
 
     /**
      * 供应商
