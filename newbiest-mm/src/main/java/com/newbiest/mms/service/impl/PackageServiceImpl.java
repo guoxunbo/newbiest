@@ -311,6 +311,16 @@ public class PackageServiceImpl implements PackageService{
                 packedMaterialLot.setReserved17(packedMaterialLots.get(0).getReserved17());
                 packedMaterialLot.setReserved18(packedMaterialLots.get(0).getReserved18());
 
+                //如果箱中Lot已经被标注，更新箱号的标注信息
+                List<MaterialLot> taggingMLotList = packedMaterialLots.stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getReserved54())).collect(Collectors.toList());
+                if(CollectionUtils.isNotEmpty(taggingMLotList)){
+                    packedMaterialLot.setReserved54(taggingMLotList.get(0).getReserved54());
+                    packedMaterialLot.setReserved55(taggingMLotList.get(0).getReserved55());
+                    packedMaterialLot.setReserved56(taggingMLotList.get(0).getReserved56());
+                    packedMaterialLot.setReserved57(taggingMLotList.get(0).getReserved57());
+                    packedMaterialLot.setVenderAddress(taggingMLotList.get(0).getVenderAddress());
+                }
+
                 //如果箱号被Hold,箱中被Hold的真空包全部被拆除，Release箱号
                 if(MaterialLot.HOLD_STATE_ON.equals(packedMaterialLot.getHoldState())){
                     List<MaterialLot> holdMLotList = packedMaterialLots.stream().filter(materialLot -> MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())).collect(Collectors.toList());
