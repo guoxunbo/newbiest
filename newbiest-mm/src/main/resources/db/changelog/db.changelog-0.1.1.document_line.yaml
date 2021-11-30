@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_0.1.1
+      author: Tao Zhou
+      remarks: mms_document_line add column reserved32
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT_LINE
+            columns:
+              - column:
+                  name: RESERVED32
+                  type: varchar2(64)
+                  remarks: 合单之后的ERP SEQ主键

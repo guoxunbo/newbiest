@@ -19,6 +19,8 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void printMaterialCodeLabel(MaterialLot materialLot, String printType) throws ClientException;
+
     void waferUnpackMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException;
     List<MaterialLot> queryIssueRawMaterialByMaterialLotIdOrLotIdAndTableRrn(String queryLotId, Long tableRrn) throws ClientException;
     MaterialLot getRwMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, Long tableRrn) throws ClientException;
