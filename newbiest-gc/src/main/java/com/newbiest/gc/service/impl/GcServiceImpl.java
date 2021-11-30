@@ -7404,6 +7404,27 @@ public class GcServiceImpl implements GcService {
                 }
             }
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                // 验证Gross Dies=Sampling Qty+Pass Dies1+Pass Dies2+Pass Dies3+NG Die
+                BigDecimal grossDies = materialLotUnit.getCurrentQty();
+                String samplingQtyStr = materialLotUnit.getReserved33();
+                String passDies1Str = materialLotUnit.getReserved34();
+                String ngDieStr = materialLotUnit.getReserved35();
+                String passDies2Str = materialLotUnit.getReserved42();
+                String passDies3Str = materialLotUnit.getReserved43();
+
+                List<BigDecimal> diesList = Lists.newArrayList(
+                        StringUtils.isNullOrEmpty(samplingQtyStr) ? BigDecimal.ZERO : new BigDecimal(samplingQtyStr),
+                        StringUtils.isNullOrEmpty(passDies1Str) ? BigDecimal.ZERO : new BigDecimal(passDies1Str),
+                        StringUtils.isNullOrEmpty(passDies2Str) ? BigDecimal.ZERO : new BigDecimal(passDies2Str),
+                        StringUtils.isNullOrEmpty(passDies3Str) ? BigDecimal.ZERO : new BigDecimal(passDies3Str),
+                        StringUtils.isNullOrEmpty(ngDieStr) ? BigDecimal.ZERO : new BigDecimal(ngDieStr));
+                BigDecimal totalDies = diesList.stream().collect(CollectorsUtils.summingBigDecimal(dies -> dies));
+
+                if (grossDies.compareTo(totalDies) != 0){
+                    throw new ClientParameterException(GcExceptions.ABNORMAL_FILE_QUANTITY,
+                            grossDies, samplingQtyStr, passDies1Str, passDies2Str, passDies3Str, ngDieStr);
+                }
+
                 String unitId = materialLotUnit.getUnitId();
                 String materialName = materialLotUnit.getMaterialName();
                 Material material = new Material();
