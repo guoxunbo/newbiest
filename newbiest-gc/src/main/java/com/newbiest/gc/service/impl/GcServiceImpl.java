@@ -7823,6 +7823,9 @@ public class GcServiceImpl implements GcService {
             if(CollectionUtils.isEmpty(shipOrderList)){
                 throw new ClientParameterException(GcExceptions.CHOOSE_STOCK_OUT_ORDER_PLEASE, ErpSob.SOURCE_TABLE_NAME);
             }
+            //验证装箱的Lot出货标注信息是否一致，不一致不允许出货
+            validateMaterialLotStockTaggingInfo(materialLots);
+
             documentLineList = shipOrderList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
 
             Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMaterialAndSecondCodeAndBondPropAndShipper(documentLineList, checkSubCode);
@@ -7832,6 +7835,50 @@ public class GcServiceImpl implements GcService {
             for (String key : materialLotMap.keySet()) {
                 validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(key, materialLotMap, documentLineMap);
                 wltCpStockOut(documentLineMap.get(key), materialLotMap.get(key));
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证出货的物料批次标注信息是否一致，存在不一致不允许出货
+     * @param materialLotList
+     * @throws ClientException
+     */
+    private void validateMaterialLotStockTaggingInfo(List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            if(packedLotMap != null && packedLotMap.keySet().size() > 0){
+                for(String parentMaterialLotId : packedLotMap.keySet()){
+                    MaterialLot materialLot = mmsService.getMLotByMLotId(parentMaterialLotId, true);
+
+                    List<MaterialLot> materialLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                    Map<String, List<MaterialLot>> mLotMap =  materialLots.stream().collect(Collectors.groupingBy(mLot -> {
+                        StringBuffer key = new StringBuffer();
+                        if(StringUtils.isNullOrEmpty(mLot.getReserved54())){
+                            key.append(StringUtils.EMPTY);
+                        } else {
+                            key.append(mLot.getReserved54());
+                        }
+                        if(StringUtils.isNullOrEmpty(mLot.getReserved56())){
+                            key.append(StringUtils.EMPTY);
+                        } else {
+                            key.append(mLot.getReserved56());
+                        }
+                        if(StringUtils.isNullOrEmpty(mLot.getVenderAddress())){
+                            key.append(StringUtils.EMPTY);
+                        } else {
+                            key.append(mLot.getVenderAddress());
+                        }
+                        return key.toString();
+                    }));
+
+                    if (mLotMap != null &&  mLotMap.size() > 1) {
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_INFO_IS_NOT_SAME, materialLot.getMaterialLotId());
+                    }
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -8203,7 +8250,7 @@ public class GcServiceImpl implements GcService {
                 taggingMaterialLotAndSaveHis(materialLot, stockOutType, customerName, poId, stockTagNote, address);
             }
 
-            //如果LOT已经装箱，验证箱中所有的LOT是否已经标注，如果全部标注，对箱号进行标注(箱中LOT的标注信息保持一致)
+            //如果LOT已经装箱，验证箱中所有的LOT是否已经标注，如果全部标注，对箱号进行标注
             Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
                     .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
             if(packedLotMap != null && packedLotMap.keySet().size() > 0){
@@ -8243,7 +8290,7 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 验证箱中LOT是否全部标注，且标注信息是否一致，如果一致对箱号标注
+     * 验证箱中LOT是否全部标注，全部标注则对箱号标注
      * @param materialLot
      * @param stockOutType
      * @param customerName
@@ -8254,39 +8301,10 @@ public class GcServiceImpl implements GcService {
     private void validateMaterilaLotTaggingInfo(MaterialLot materialLot, String stockOutType, String customerName, String poId, String stockTagNote, String address) throws ClientException{
         try {
             List<MaterialLot> materialLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
-            boolean tagFlag = true;
-            for(MaterialLot mlLot : materialLots){
-                if(StringUtils.isNullOrEmpty(mlLot.getReserved54())){
-                    tagFlag = false;
-                    break;
-                }
-            }
-            if(tagFlag){
-                Map<String, List<MaterialLot>> mLotMap =  materialLots.stream().collect(Collectors.groupingBy(mLot -> {
-                    StringBuffer key = new StringBuffer();
-                    if(StringUtils.isNullOrEmpty(mLot.getReserved54())){
-                        key.append(StringUtils.EMPTY);
-                    } else {
-                        key.append(mLot.getReserved54());
-                    }
-                    if(StringUtils.isNullOrEmpty(mLot.getReserved56())){
-                        key.append(StringUtils.EMPTY);
-                    } else {
-                        key.append(mLot.getReserved56());
-                    }
-                    if(StringUtils.isNullOrEmpty(mLot.getVenderAddress())){
-                        key.append(StringUtils.EMPTY);
-                    } else {
-                        key.append(mLot.getVenderAddress());
-                    }
-                    return key.toString();
-                }));
-                if (mLotMap != null &&  mLotMap.size() > 1) {
-                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_INFO_IS_NOT_SAME, materialLot.getMaterialLotId());
-                }
+            List<MaterialLot> unTaggingMLots = materialLots.stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getReserved54())).collect(Collectors.toList());
+            if(CollectionUtils.isEmpty(unTaggingMLots)){
                 taggingMaterialLotAndSaveHis(materialLot, stockOutType, customerName, poId, stockTagNote, address);
             }
-
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
