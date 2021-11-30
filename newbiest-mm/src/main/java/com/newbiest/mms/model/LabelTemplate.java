@@ -42,6 +42,21 @@ public class LabelTemplate extends NBBase {
     public static final String PRINT_IRA_BOX_LABEL = "PrintIRABoxLabel";//IR箱号标签打印
     public static final String PRINT_WAFER_LOT_LABEL = "PrintWaferLotLabel";//wafer拆箱箱号标签打印
 
+    //物料编码打印相关
+    public static final String PRINT_OPHELION_MLOT_LABEL = "PrintOphelionMLotLabel";//欧菲光
+    public static final String PRINT_BAI_CHEN_MLOT_LABEL = "PrintBaichenMLotLabel";//白辰
+    public static final String PRINT_GUANG_BAO_VBOX_LABEL = "PrintGuangBaoVBoxLabel";//光宝真空包
+    public static final String PRINT_COB_GUANG_BAO_LABEL = "PrintCobGuangBaoLabel";//COB光宝标签
+    public static final String PRINT_HUA_TIAN_LABEL = "PrintHuatianLabel";//华天
+    public static final String PRINT_SHENG_TAI_VBOX_LABEL = "PrintShengTaiVBoxLabel";//盛泰真空包
+    public static final String PRINT_BYD_LABEL = "PrintBydLabel";//比亚迪内箱/外箱
+    public static final String PRINT_XLGD_BOX_LABEL = "PrintXLGDBoxLabel";//信利光电
+    public static final String PRINT_SHUN_YU_LABEL = "PrintShunYuLabel";//舜宇
+    public static final String PRINT_ZHONG_KONG_LABEL = "PrintZhongKongLabel";//中控智慧
+    public static final String PRINT_XING_ZHI_MLOT_LABEL = "PrintXingZhiMLotLabel";//芯智物料标签
+    public static final String PRINT_GENERAL_MLOT_LABEL = "PrintGeneralMLotLabel";//一般物料标签/光宝箱/盛泰箱
+
+
     @Column(name="NAME")
     private String name;
 

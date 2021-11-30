@@ -5,6 +5,9 @@ package com.newbiest.gc;
  */
 public class GcExceptions {
 
+    public static final String ABNORMAL_FILE_QUANTITY = "gc.abnormal_file_quantity";
+    public static final String PRINT_TYPE_IS_NOT_SUPPORTED = "gc.print_type_is_not_supported";
+
     public static final String ERP_RETEST_ORDER_IS_NOT_EXIST = "gc.erp_retest_order_is_not_exist";
     public static final String ERP_WAFER_ISSUE_ORDER_IS_NOT_EXIST = "gc.erp_wafer_issue_order_is_not_exist";
     public static final String ERP_RAW_MATERIAL_ISSUE_ORDER_IS_NOT_EXIST = "gc.erp_raw_material_issue_order_is_not_exist";

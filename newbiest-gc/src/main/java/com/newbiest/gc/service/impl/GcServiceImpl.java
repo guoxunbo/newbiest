@@ -5860,6 +5860,49 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     *物料编码打印
+     * @throws ClientException
+     */
+    public void printMaterialCodeLabel(MaterialLot materialLot, String printType) throws ClientException{
+        try{
+            List<Map<String, String>> mlotCodePrintParameter = getMlotCodePrintParameter(materialLot, printType);
+            if(MLotCodePrint.GENERAL_MLOT_LABEL.equals(printType)){//一般物料标签
+                printService.PrintGeneralMLotLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.OPHELION_MLOT_LABEL.equals(printType)){//欧菲光物料标签
+                printService.printOphelionMLotLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.BAICHEN_MLOT_LABEL.equals(printType)){//百辰物料标签
+                printService.printBaichenMLotLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.GUANGBAO_BOX_LABEL.equals(printType)){//光宝箱标签
+                printService.PrintGeneralMLotLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.GUANGBAO_VBOX_LABEL.equals(printType)){//光宝真空包标签
+                printService.printGuangBaoVBoxLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.COB_GUANGBAO_LABEL.equals(printType)){//COB光宝标签
+                printService.printCobGuangBaoLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.HUATIAN_LABEL.equals(printType)){//华天标签
+                printService.printHuatianLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.SHENGTAI_BOX_LABEL.equals(printType)){//盛泰箱标签
+                printService.PrintGeneralMLotLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.SHENGTAI_VBOX_LABEL.equals(printType)){//盛泰真空包标签
+                printService.printShengTaiVBoxLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.BYD_LABEL.equals(printType)){//比亚迪内箱/外箱标签
+                printService.prinBydLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.XLGD_BOX_LABEL.equals(printType)){//信利光电标签
+                printService.printXLGDBoxLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.SHUN_YU_LABEL.equals(printType)){//舜宇标签
+                printService.printShunYuLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.ZHONG_KONG_LABEL.equals(printType)){//中控智慧标签
+                printService.printZhongKongLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.XING_ZHI_MLOT_LABEL.equals(printType)){//芯智物料标签
+                printService.printXingZhiMLotLabel(mlotCodePrintParameter);
+            }else{
+                throw new ClientParameterException(GcExceptions.PRINT_TYPE_IS_NOT_SUPPORTED, printType);
+            }
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 获取物料编码标签打印参数
      * @param materialLot
      * @param printType
@@ -6572,7 +6615,7 @@ public class GcServiceImpl implements GcService {
         try {
             long documentLineRrn = Long.parseLong(reserved16);
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
-            Long seq = Long.parseLong(documentLine.getReserved1());
+            Long seq = Long.parseLong(documentLine.getReserved32());
             ErpSo erpSo = erpSoRepository.findBySeq(seq);
             return erpSo;
         } catch (Exception e) {
@@ -7361,6 +7404,27 @@ public class GcServiceImpl implements GcService {
                 }
             }
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                // 验证Gross Dies=Sampling Qty+Pass Dies1+Pass Dies2+Pass Dies3+NG Die
+                BigDecimal grossDies = materialLotUnit.getCurrentQty();
+                String samplingQtyStr = materialLotUnit.getReserved33();
+                String passDies1Str = materialLotUnit.getReserved34();
+                String ngDieStr = materialLotUnit.getReserved35();
+                String passDies2Str = materialLotUnit.getReserved42();
+                String passDies3Str = materialLotUnit.getReserved43();
+
+                List<BigDecimal> diesList = Lists.newArrayList(
+                        StringUtils.isNullOrEmpty(samplingQtyStr) ? BigDecimal.ZERO : new BigDecimal(samplingQtyStr),
+                        StringUtils.isNullOrEmpty(passDies1Str) ? BigDecimal.ZERO : new BigDecimal(passDies1Str),
+                        StringUtils.isNullOrEmpty(passDies2Str) ? BigDecimal.ZERO : new BigDecimal(passDies2Str),
+                        StringUtils.isNullOrEmpty(passDies3Str) ? BigDecimal.ZERO : new BigDecimal(passDies3Str),
+                        StringUtils.isNullOrEmpty(ngDieStr) ? BigDecimal.ZERO : new BigDecimal(ngDieStr));
+                BigDecimal totalDies = diesList.stream().collect(CollectorsUtils.summingBigDecimal(dies -> dies));
+
+                if (grossDies.compareTo(totalDies) != 0){
+                    throw new ClientParameterException(GcExceptions.ABNORMAL_FILE_QUANTITY,
+                            grossDies, samplingQtyStr, passDies1Str, passDies2Str, passDies3Str, ngDieStr);
+                }
+
                 String unitId = materialLotUnit.getUnitId();
                 String materialName = materialLotUnit.getMaterialName();
                 Material material = new Material();

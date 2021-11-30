@@ -306,6 +306,12 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="RESERVED31")
     private String reserved31;
 
+    /**
+     * 记录合单之后的ERP SEQ主键
+     */
+    @Column(name="RESERVED32")
+    private String reserved32;
+
     @Column(name="MATERIAL_TYPE")
     private String materialType;
 
@@ -360,6 +366,7 @@ public class DocumentLine extends NBUpdatable {
         this.setReserved29(documentLine.getReserved29());
         this.setReserved30(documentLine.getReserved30());
         this.setReserved31(documentLine.getReserved31());
+        this.setReserved32(documentLine.getReserved1());
     }
 
 }
