@@ -167,6 +167,12 @@ public class ScmServiceImpl implements ScmService {
     @Autowired
     GCScmToMesEngInformHisRepository gcScmToMesEngInformHisRepository;
 
+    @Autowired
+    WaferHoldRelationRepository waferHoldRelationRepository;
+
+    @Autowired
+    WaferHoldRelationHisRepository waferHoldRelationHisRepository;
+
     @PostConstruct
     public void init() {
         CloseableHttpClient client = createHttpClient().build();
@@ -180,26 +186,28 @@ public class ScmServiceImpl implements ScmService {
         return create().useSystemProperties().disableRedirectHandling().disableCookieManagement();
     }
 
-    public void scmHold(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
+    public void scmHold(List<String> materialLotUnitIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
         try {
-            for (String lotId : materialLotIdList) {
-                List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
-                if (CollectionUtils.isEmpty(materialLotList)) {
+            for (String unitId : materialLotUnitIdList) {
+                MaterialLotUnit materialLotUnit = materialLotUnitRepository.findByUnitIdAndStateIn(unitId, Lists.newArrayList(MaterialLotUnit.STATE_CREATE, MaterialLotUnit.STATE_IN, MaterialLotUnit.STATE_PACKAGE));
+                if (materialLotUnit == null) {
                     // 不存在 则做预Hold
-                    FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
-                    if(gcFutureHoldConfig == null){
-                        gcFutureHoldConfig = new FutureHoldConfig();
-                        gcFutureHoldConfig.setLotId(lotId);
-                        gcFutureHoldConfig.setHoldReason(actionReason);
-                        futureHoldConfigRepository.save(gcFutureHoldConfig);
+                    WaferHoldRelation waferHoldRelation = waferHoldRelationRepository.findByWaferIdAndType(unitId, WaferHoldRelation.HOLD_TYPE_SCM);
+                    if(waferHoldRelation == null){
+                        waferHoldRelation = new WaferHoldRelation();
+                        waferHoldRelation.setWaferId(unitId);
+                        waferHoldRelation.setHoldReason(actionReason);
+                        waferHoldRelation.setType(WaferHoldRelation.HOLD_TYPE_SCM);
+                        waferHoldRelationRepository.save(waferHoldRelation);
 
-                        FutureHoldConfigHis history = (FutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, FutureHoldConfigHis.SCM_ADD);
-                        futureHoldConfigHisRepository.save(history);
+                        WaferHoldRelationHis history = (WaferHoldRelationHis) baseService.buildHistoryBean(waferHoldRelation, WaferHoldRelationHis.SCM_ADD);
+                        waferHoldRelationHisRepository.save(history);
                     } else {
-                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, lotId);
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, unitId);
                     }
                 } else {
-                    for(MaterialLot materialLot : materialLotList){
+                    MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotUnit.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                    if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
                         materialLotAction.setActionCode(actionCode);
                         materialLotAction.setActionReason(actionReason);
@@ -214,21 +222,22 @@ public class ScmServiceImpl implements ScmService {
         }
     }
 
-    public void scmRelease(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
-        for (String lotId : materialLotIdList) {
-            List<MaterialLot> materialLots = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
-            if (CollectionUtils.isEmpty(materialLots)) {
-                FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByLotId(lotId);
-                if(gcFutureHoldConfig == null){
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
+    public void scmRelease(List<String> materialLotUnitIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
+        for (String unitId : materialLotUnitIdList) {
+            MaterialLotUnit materialLotUnit = materialLotUnitRepository.findByUnitIdAndStateIn(unitId, Lists.newArrayList(MaterialLotUnit.STATE_CREATE, MaterialLotUnit.STATE_IN, MaterialLotUnit.STATE_PACKAGE));
+            if (materialLotUnit == null) {
+                WaferHoldRelation waferHoldRelation = waferHoldRelationRepository.findByWaferIdAndType(unitId, WaferHoldRelation.HOLD_TYPE_SCM);
+                if(waferHoldRelation == null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, unitId);
                 } else {
-                    futureHoldConfigRepository.delete(gcFutureHoldConfig);
+                    waferHoldRelationRepository.delete(waferHoldRelation);
 
-                    FutureHoldConfigHis history = (FutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, FutureHoldConfigHis.SCM_DELETE);
-                    futureHoldConfigHisRepository.save(history);
+                    WaferHoldRelationHis history = (WaferHoldRelationHis) baseService.buildHistoryBean(waferHoldRelation, WaferHoldRelationHis.SCM_DELETE);
+                    waferHoldRelationHisRepository.save(history);
                 }
             } else {
-                for(MaterialLot materialLot : materialLots){
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotUnit.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                if(MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
                     MaterialLotAction materialLotAction = new MaterialLotAction();
                     materialLotAction.setActionCode(actionCode);
                     materialLotAction.setActionReason(actionReason);

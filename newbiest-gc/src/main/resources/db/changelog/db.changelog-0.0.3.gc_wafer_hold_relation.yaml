@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-unique-constraint-for-GC_WAFER_HOLD_RELATION-table
+      author: Guozhang Luo
+      comment: drop unique constraint WAFER_ID for GC_WAFER_HOLD_RELATION
+      changes:
+        - dropUniqueConstraint:
+            tableName: GC_WAFER_HOLD_RELATION
+            constraintName: WAFER_ID

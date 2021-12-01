@@ -112,6 +112,9 @@ public class MmsServiceImpl implements MmsService {
     WaferHoldRelationRepository waferHoldRelationRepository;
 
     @Autowired
+    WaferHoldRelationHisRepository waferHoldRelationHisRepository;
+
+    @Autowired
     FutureHoldConfigRepository futureHoldConfigRepository;
 
     @Autowired
@@ -1155,17 +1158,17 @@ public class MmsServiceImpl implements MmsService {
      * 此处做预约Hold传的值都是已经拼接好的LotId包含“.”
      * 预约hold通过匹配 接收来源、接收类型、以及lotId来验证是否预约HOLD操作，并删除该HOLD信息，记录历史
      * @param receiveType 接收来源
-     * @param productArea 产品类别
+     * @param importType 导入型号
      * @param lotId
      * @throws ClientException
      */
-    public void validateFutureHoldByReceiveTypeAndProductAreaAndLotId(String receiveType, String productArea, String lotId) throws ClientException{
+    public void validateFutureHoldByReceiveTypeAndProductAreaAndLotId(String receiveType, String importType, String lotId) throws ClientException{
         try {
             log.info("future Hold lotId is " + lotId);
-            FutureHoldConfig futureHoldConfigSet = futureHoldConfigRepository.findByReceiveTypeAndProductAreaAndLotId(receiveType, productArea, lotId);
+            FutureHoldConfig futureHoldConfigSet = futureHoldConfigRepository.findByReceiveTypeAndProductAreaAndLotId(receiveType, importType, lotId);
             if(futureHoldConfigSet != null){
                 log.info("future HoldConfigSet is " + futureHoldConfigSet);
-                MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(futureHoldConfigSet.getLotId(), MaterialLot.STATUS_FIN);
+                MaterialLot materialLot = materialLotRepository.findByLotIdAndReserved49AndStatusCategoryNotIn(futureHoldConfigSet.getLotId(), importType, MaterialLot.STATUS_FIN);
                 if(materialLot != null && MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
                     MaterialLotAction materialLotAction = new MaterialLotAction();
                     materialLotAction.setActionReason(futureHoldConfigSet.getHoldReason());
@@ -1176,9 +1179,9 @@ public class MmsServiceImpl implements MmsService {
                 futureHoldConfigHisRepository.save(history);
             } else {
                 String fabLotId = lotId.split("\\.")[0];
-                FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByReceiveTypeAndProductAreaAndLotId(receiveType, productArea, fabLotId);
+                FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByReceiveTypeAndProductAreaAndLotId(receiveType, importType, fabLotId);
                 if (gcFutureHoldConfig != null){
-                    List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
+                    List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndReserved49AndStatusCategoryNotIn(lotId + "%", importType, MaterialLot.STATUS_FIN);
                     log.info("Hold materialLotList is " + materialLotList);
                     for(MaterialLot materialLot : materialLotList){
                         if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())) {
@@ -1206,12 +1209,22 @@ public class MmsServiceImpl implements MmsService {
     @Override
     public void validateFutureHoldByWaferId(String waferId, MaterialLot materialLot) throws ClientException {
         try {
-            WaferHoldRelation waferHoldRelation = waferHoldRelationRepository.findByWaferId(waferId);
+            String holdType = WaferHoldRelation.HOLD_TYPE_WLA;
+            if(MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49())){
+                holdType = WaferHoldRelation.HOLD_TYPE_SCM;
+            }
+            WaferHoldRelation waferHoldRelation = waferHoldRelationRepository.findByWaferIdAndType(waferId, holdType);
             materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
-            if (waferHoldRelation != null && MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())) {
-                MaterialLotAction materialLotAction = new MaterialLotAction();
-                materialLotAction.setActionReason(waferHoldRelation.getHoldReason());
-                holdMaterialLot(materialLot, materialLotAction);
+            if (waferHoldRelation != null) {
+                if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setActionReason(waferHoldRelation.getHoldReason());
+                    holdMaterialLot(materialLot, materialLotAction);
+                }
+
+                waferHoldRelationRepository.delete(waferHoldRelation);
+                WaferHoldRelationHis history = (WaferHoldRelationHis) baseService.buildHistoryBean(waferHoldRelation, WaferHoldRelationHis.HOLD_DELETE);
+                waferHoldRelationHisRepository.save(history);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

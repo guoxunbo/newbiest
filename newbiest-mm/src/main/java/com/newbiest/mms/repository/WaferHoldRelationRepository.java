@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WaferHoldRelationRepository extends IRepository<WaferHoldRelation, Long> {
-    WaferHoldRelation findByWaferId(@Param("waferId") String waferId) throws ClientException;
+
+    WaferHoldRelation findByWaferIdAndType(@Param("waferId") String waferId, @Param("type") String type) throws ClientException;
 }

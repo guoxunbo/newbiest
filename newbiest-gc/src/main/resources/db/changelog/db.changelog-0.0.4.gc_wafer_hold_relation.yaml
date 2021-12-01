@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-unique-constraint-for-GC_WAFER_HOLD_RELATION-table
+      author: Guozhang Luo
+      comment: Apply unique constraint WAFER_ID, TYPE for GC_WAFER_HOLD_RELATION
+      changes:
+        - addUniqueConstraint:
+            tableName: GC_WAFER_HOLD_RELATION
+            columnNames: WAFER_ID, TYPE
+            constraintName: UK_GC_WAFER_HOLD_RELATION
