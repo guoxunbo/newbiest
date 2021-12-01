@@ -3094,7 +3094,7 @@ public class GcServiceImpl implements GcService {
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
                     }
                     if(!StringUtils.isNullOrEmpty(materialLot.getLotId())){
-                        mmsService.validateFutureHoldByLotId(materialLot.getLotId());
+                        mmsService.validateFutureHoldByReceiveTypeAndProductAreaAndLotId(MaterialLot.WLT_PACKAGED_LOT_SCAN, materialLot.getReserved49(), materialLot.getLotId());
                     }
                 }
             };
