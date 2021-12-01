@@ -115,8 +115,8 @@ public class ImportMLotThread implements Callable {
             MaterialLotAction materialLotAction = new MaterialLotAction(materialLotId, StringUtils.EMPTY, propsMap, totalQty, currentSubQty, StringUtils.EMPTY);
             MaterialLot materialLot = mmsService.createMLot(material, statusModel, materialLotAction);
 
-            if (MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49())) {
-                mmsService.validateFutureHoldByLotId(materialLot.getLotId());
+            if (MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_WLA.equals(materialLot.getReserved49())) {
+                mmsService.validateFutureHoldByReceiveTypeAndProductAreaAndLotId(MaterialLot.GC_INCOMING_MATERIAL_IMPORT, materialLot.getReserved49(), materialLot.getLotId());
             }
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
                 if (MaterialLot.IMPORT_WLA.equals(materialLotUnit.getReserved49())) {

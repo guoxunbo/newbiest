@@ -114,6 +114,9 @@ public class MmsServiceImpl implements MmsService {
     @Autowired
     FutureHoldConfigRepository futureHoldConfigRepository;
 
+    @Autowired
+    FutureHoldConfigHisRepository futureHoldConfigHisRepository;
+
     /**
      * 根据名称获取源物料。
      *  源物料不区分版本。故此处只会有1个
@@ -1150,13 +1153,16 @@ public class MmsServiceImpl implements MmsService {
     /**
      * 根据LotId验证物料批次是否需要预约Hold操作
      * 此处做预约Hold传的值都是已经拼接好的LotId包含“.”
+     * 预约hold通过匹配 接收来源、接收类型、以及lotId来验证是否预约HOLD操作，并删除该HOLD信息，记录历史
+     * @param receiveType 接收来源
+     * @param productArea 产品类别
      * @param lotId
      * @throws ClientException
      */
-    public void validateFutureHoldByLotId(String lotId) throws ClientException{
+    public void validateFutureHoldByReceiveTypeAndProductAreaAndLotId(String receiveType, String productArea, String lotId) throws ClientException{
         try {
             log.info("future Hold lotId is " + lotId);
-            FutureHoldConfig futureHoldConfigSet = futureHoldConfigRepository.findByLotId(lotId);
+            FutureHoldConfig futureHoldConfigSet = futureHoldConfigRepository.findByReceiveTypeAndProductAreaAndLotId(receiveType, productArea, lotId);
             if(futureHoldConfigSet != null){
                 log.info("future HoldConfigSet is " + futureHoldConfigSet);
                 MaterialLot materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(futureHoldConfigSet.getLotId(), MaterialLot.STATUS_FIN);
@@ -1165,9 +1171,12 @@ public class MmsServiceImpl implements MmsService {
                     materialLotAction.setActionReason(futureHoldConfigSet.getHoldReason());
                     holdMaterialLot(materialLot, materialLotAction);
                 }
+                futureHoldConfigRepository.delete(futureHoldConfigSet);
+                FutureHoldConfigHis history = (FutureHoldConfigHis) baseService.buildHistoryBean(futureHoldConfigSet, FutureHoldConfigHis.HOLD_DELETE);
+                futureHoldConfigHisRepository.save(history);
             } else {
                 String fabLotId = lotId.split("\\.")[0];
-                FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByLotId(fabLotId);
+                FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByReceiveTypeAndProductAreaAndLotId(receiveType, productArea, fabLotId);
                 if (gcFutureHoldConfig != null){
                     List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
                     log.info("Hold materialLotList is " + materialLotList);
@@ -1178,6 +1187,9 @@ public class MmsServiceImpl implements MmsService {
                             holdMaterialLot(materialLot, materialLotAction);
                         }
                     }
+                    futureHoldConfigRepository.delete(gcFutureHoldConfig);
+                    FutureHoldConfigHis history = (FutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, FutureHoldConfigHis.HOLD_DELETE);
+                    futureHoldConfigHisRepository.save(history);
                 }
             }
         } catch (Exception e) {
