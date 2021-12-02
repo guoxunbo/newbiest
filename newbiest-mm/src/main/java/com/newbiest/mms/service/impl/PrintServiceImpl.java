@@ -1163,4 +1163,127 @@ public class PrintServiceImpl implements PrintService {
             throw ExceptionManager.handleException(e, log);
         }
     }
+
+    @Override
+    public void printOphelionMLotLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_OPHELION_MLOT_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void printBaichenMLotLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_BAI_CHEN_MLOT_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void printGuangBaoVBoxLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_GUANG_BAO_VBOX_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void printCobGuangBaoLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_COB_GUANG_BAO_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void printHuatianLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_HUA_TIAN_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void printShengTaiVBoxLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_SHENG_TAI_VBOX_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void prinBydLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_BYD_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void printXLGDBoxLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_XLGD_BOX_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void printShunYuLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_SHUN_YU_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void printZhongKongLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_ZHONG_KONG_LABEL);
+            print(printContext);
+        }
+    }
+
+    @Override
+    public void printXingZhiMLotLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_XING_ZHI_MLOT_LABEL);
+            print(printContext);
+        }
+    }
+
+    /**
+     * //一般物料标签/光宝箱/盛泰箱
+     * @param mapList
+     * @throws ClientException
+     */
+    @Override
+    public void PrintGeneralMLotLabel(List<Map<String, String>> mapList) throws ClientException {
+        for (Map<String, String> stringStringMap : mapList) {
+            PrintContext printContext = buildMaterialCodePrintContext(stringStringMap, LabelTemplate.PRINT_GENERAL_MLOT_LABEL);
+            print(printContext);
+        }
+    }
+
+    /**
+     *
+     * @param parameterMap
+     * @param labelTemplateName
+     * @return
+     * @throws ClientException
+     */
+    private PrintContext buildMaterialCodePrintContext(Map<String, String> parameterMap, String labelTemplateName) throws ClientException{
+        try {
+            //Map<String, String> => Map<String, Object>
+            Map tempMap = parameterMap;
+            Map<String,Object> destMap = tempMap;
+            PrintContext printContext = buildPrintContext(labelTemplateName, "");
+            printContext.setParameterMap(destMap);
+            return printContext;
+        }catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
 }

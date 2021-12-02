@@ -15,4 +15,6 @@ public interface FutureHoldConfigRepository extends IRepository<FutureHoldConfig
 
     List<FutureHoldConfig> getByLotIdLike(@Param("lotId")String lotId) throws ClientException;
 
+    FutureHoldConfig findByReceiveTypeAndProductAreaAndLotId(@Param("receiveType")String receiveType, @Param("productArea")String productArea, @Param("lotId")String lotId) throws ClientException;
+
 }

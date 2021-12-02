@@ -149,6 +149,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE = "GCWltOrCpStockOutOrder";
     public static final String MOBILE_COM_WAFER_ISSUE_MANAGER_WHERE_CLAUSE = "GCCOMWaferIssueManager";
     public static final String GC_SCM_LOT_QUERY_WHERE_CLAUSE = "GCScmLotQuery";
+    public static final String GC_INCOMING_MATERIAL_IMPORT = "GCIncomingMaterialImport"; //来料导入
+    public static final String WLT_PACKAGED_LOT_SCAN = "WLTPackagedLotScan"; //LOT产线入库
 
     /**
      * 香港仓依订单出货
