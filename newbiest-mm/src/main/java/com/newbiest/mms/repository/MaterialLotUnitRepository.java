@@ -28,18 +28,12 @@ public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, 
     void updateMLotUnitByUnitIdAndMLotId(@Param("unitId") String unitId, @Param("materialLotId")  String materialLotId, @Param("state") String state) throws ClientException;
 
     @Modifying
-    @Query("update MaterialLotUnit m set m.productType = :prodType where m.unitId in (:unitId)")
-    void updateProdTypeByUnitIds(@Param("prodType") String prodType, @Param("unitId") List<String> unitId) throws ClientException;
-
-    @Modifying
     @Query("DELETE FROM MaterialLotUnit m where m.materialLotId = :materialLotId")
     void deleteByMaterialLotId(@Param("materialLotId") String materialLotId) throws ClientException;
-
-    @Query("SELECT m FROM MaterialLotUnit m where  m.unitId in (:unitIdList)")
-    List<MaterialLotUnit> findByUnitIdIn(@Param("unitIdList") List<String> unitIdList) throws ClientException;
 
     @Modifying
     @Query("DELETE FROM MaterialLotUnit m where m.reserved48 = :importCode")
     void deleteByImportCode(@Param("importCode") String importCode) throws ClientException;
 
+    MaterialLotUnit findByUnitIdAndStateIn(String unitId, List<String> stateList)  throws ClientException;
 }

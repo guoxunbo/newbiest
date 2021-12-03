@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify_GC_WAFER_HOLD_RELATION_0.0.2
+      author: Guozhang Luo
+      remarks: GC_WAFER_HOLD_RELATION add column TYPE
+      changes:
+        - addColumn:
+            tableName: GC_WAFER_HOLD_RELATION
+            columns:
+              - column:
+                  name: TYPE
+                  type: varchar2(64)
+                  remarks: 类别
