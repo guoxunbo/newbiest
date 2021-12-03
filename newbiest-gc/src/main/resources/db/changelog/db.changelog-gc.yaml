@@ -758,3 +758,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.4.gc_wafer_hold_relation.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehousePrintWltCpLot_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseIncomingMLotDelete_nb_table.yaml
+      relativeToChangelogFile: true
