@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehousePrintWltCpLotManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehousePrintWltCpLotManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: PrintWltCpLotManager
+              description: 保税仓库 补打WLT/CP的LOT ID标签
+              tableName: BondedWarehousePrintWltCpLot
+              mobileFlag: N
+              url: /BondedWarehouse/PrintWltCpLot
+              parentRrn: 2021
+              seqNo: 105
+              image: icon-wuliao
+              labelZh: 补打WLT/CP的LOT ID标签
+              labelEn: PrintWltCpLot
+
