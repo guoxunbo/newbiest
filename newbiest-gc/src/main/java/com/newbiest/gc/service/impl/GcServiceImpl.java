@@ -6615,7 +6615,12 @@ public class GcServiceImpl implements GcService {
         try {
             long documentLineRrn = Long.parseLong(reserved16);
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
-            Long seq = Long.parseLong(documentLine.getReserved32());
+
+            Long seq = 0L;
+            seq = Long.parseLong(documentLine.getReserved1());
+            if(DocumentLine.DOC_MERGE.equals(documentLine.getMergeDoc())){
+                seq = Long.parseLong(documentLine.getReserved32());
+            }
             ErpSo erpSo = erpSoRepository.findBySeq(seq);
             return erpSo;
         } catch (Exception e) {
