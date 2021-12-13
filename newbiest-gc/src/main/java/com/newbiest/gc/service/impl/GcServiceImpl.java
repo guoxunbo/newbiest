@@ -5127,6 +5127,18 @@ public class GcServiceImpl implements GcService {
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UPDATE_TREASURY_NOTE);
                 history.setTransQty(materialLot.getCurrentQty());
                 materialLotHistoryRepository.save(history);
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for (MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        materialLotUnit.setTreasuryNote(treasuryNote);
+                        materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                        MaterialLotUnitHistory materialLotUnitHis = (MaterialLotUnitHistory)baseService.buildHistoryBean(materialLotUnit, TRANS_TYPE_UPDATE_TREASURY_NOTE);
+                        materialLotUnitHis.setTransQty(materialLotUnitHis.getCurrentQty());
+                        materialLotUnitHisRepository.save(materialLotUnitHis);
+                    }
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -6524,7 +6536,7 @@ public class GcServiceImpl implements GcService {
                 expirationDate = expirationDate.substring(0,2) + "0228";
             }
             String code = MLotCodePrint.SUPPLIER_CODE + "|"  + erpSo.getOther16() + "|" + materialLot.getMaterialLotId() + "|"
-                    + materialLot.getCurrentSubQty().toString() + "|"  + effectiveDate + "|" + expirationDate + "|" + printSeq;
+                    + materialLot.getCurrentQty().toString() + "|"  + effectiveDate + "|" + expirationDate + "|" + printSeq;
             parameterMap.put("CODE", code);
             parameterMap.put("portId", MLotCodePrint.OPHELION_MLOT_PORTID);
             return parameterMap;
@@ -6615,7 +6627,12 @@ public class GcServiceImpl implements GcService {
         try {
             long documentLineRrn = Long.parseLong(reserved16);
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
-            Long seq = Long.parseLong(documentLine.getReserved32());
+
+            Long seq = 0L;
+            seq = Long.parseLong(documentLine.getReserved1());
+            if(DocumentLine.DOC_MERGE.equals(documentLine.getMergeDoc())){
+                seq = Long.parseLong(documentLine.getReserved32());
+            }
             ErpSo erpSo = erpSoRepository.findBySeq(seq);
             return erpSo;
         } catch (Exception e) {
