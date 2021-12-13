@@ -17,6 +17,7 @@ public class FutureHoldConfigHis extends NBHis {
 
     public static final String SCM_ADD = "SCMADD";
     public static final String SCM_DELETE = "SCMDELETE";
+    public static final String HOLD_DELETE = "HoldDelete";
 
     /**
      * LotId

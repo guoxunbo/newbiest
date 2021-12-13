@@ -1,19 +1,23 @@
 package com.newbiest.mms.model;
 
-import com.newbiest.base.model.NBUpdatable;
+import com.newbiest.base.model.NBHis;
 import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+/**
+ * Created by guozhangLuo
+ */
 @Entity
-@Table(name="GC_WAFER_HOLD_RELATION")
+@Table(name="GC_WAFER_HOLD_RELATION_HIS")
 @Data
-public class WaferHoldRelation extends NBUpdatable {
+public class WaferHoldRelationHis extends NBHis {
 
-    public static final String HOLD_TYPE_WLA = "WLA";
-    public static final String HOLD_TYPE_SCM = "SCM";
+    public static final String SCM_ADD = "SCMADD";
+    public static final String SCM_DELETE = "SCMDELETE";
+    public static final String HOLD_DELETE = "HoldDelete";
 
     /**
      * 晶圆ID
@@ -22,7 +26,7 @@ public class WaferHoldRelation extends NBUpdatable {
     private String waferId;
 
     /**
-     * 保留原因
+     * Hold原因
      */
     @Column(name = "HOLD_REASON")
     private String holdReason;
@@ -31,5 +35,5 @@ public class WaferHoldRelation extends NBUpdatable {
      * 类型
      */
     @Column(name = "TYPE")
-    private String type = HOLD_TYPE_WLA;
+    private String type;
 }

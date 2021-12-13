@@ -2098,7 +2098,7 @@ public class GcServiceImpl implements GcService {
                 DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
                 //获取发货的物料批次的快递单号
                 String expressNumber = StringUtils.EMPTY;
-                Map<String, List<MaterialLot>> mLotExpressMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
+                Map<String, List<MaterialLot>> mLotExpressMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
                         .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
                 for (String expressId : mLotExpressMap.keySet()){
                     if(StringUtils.isNullOrEmpty(expressNumber)){
@@ -2108,7 +2108,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 BigDecimal handledQty = BigDecimal.ZERO;
-                for (MaterialLot materialLot : materialLots) {
+                for (MaterialLot materialLot : materialLotList) {
                     handledQty = handledQty.add(materialLot.getCurrentQty());
                     // 变更事件，并清理掉库存
                     materialLot.setCurrentQty(BigDecimal.ZERO);
@@ -2142,7 +2142,7 @@ public class GcServiceImpl implements GcService {
                 validateDocAndUpdateErpSo(documentLine, handledQty);
 
                 if (SystemPropertyUtils.getConnectMscmFlag()) {
-                    scmService.addScmTracking(documentLine.getDocId(), materialLots);
+                    scmService.addScmTracking(documentLine.getDocId(), materialLotList);
                 }
             }
         } catch (Exception e) {
@@ -3094,7 +3094,7 @@ public class GcServiceImpl implements GcService {
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
                     }
                     if(!StringUtils.isNullOrEmpty(materialLot.getLotId())){
-                        mmsService.validateFutureHoldByLotId(materialLot.getLotId());
+                        mmsService.validateFutureHoldByReceiveTypeAndProductAreaAndLotId(MaterialLot.WLT_PACKAGED_LOT_SCAN, materialLot.getReserved49(), materialLot.getLotId());
                     }
                 }
             };

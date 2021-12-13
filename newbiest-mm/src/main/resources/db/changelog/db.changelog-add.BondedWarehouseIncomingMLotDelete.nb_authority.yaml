@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseIncomingMLotDeleteManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseIncomingMLotDeleteManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: IncomingMLotDeleteManager
+              description: 保税仓库 来料删除
+              tableName: BondedWarehouseIncomingMLotDelete
+              mobileFlag: N
+              url: /BondedWarehouse/IncomingMLotDelete
+              parentRrn: 2021
+              seqNo: 110
+              image: icon-wuliao
+              labelZh: 来料删除
+              labelEn: IncomingMLotDelete
