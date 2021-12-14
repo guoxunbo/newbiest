@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileRWFinishGood_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCMobileRWFinishGood to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileRWFinishGood
+              description: 手持端RW产线接收入库
+              tableName: MES_PACKED_LOT
+              modelName: MesPackedLot
+              modelClass: com.newbiest.gc.model.MesPackedLot
+              labelZh: RW产线接收入库
+              label: MobileRWFinishGood
