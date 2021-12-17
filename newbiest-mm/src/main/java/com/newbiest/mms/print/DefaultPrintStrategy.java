@@ -102,7 +102,7 @@ public class DefaultPrintStrategy implements IPrintStrategy {
                     parameterMap.put(key, value);
                 }
                 if (value == null || StringUtils.EMPTY == value){
-                    parameterMap.put(key, "null");
+                    parameterMap.put(key, StringUtils.BLANK_SPACE);
                 }
             }
         }

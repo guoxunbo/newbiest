@@ -8382,7 +8382,7 @@ public class GcServiceImpl implements GcService {
     private void validateMaterilaLotTaggingInfo(MaterialLot materialLot, String stockOutType, String customerName, String poId, String stockTagNote, String address) throws ClientException{
         try {
             List<MaterialLot> materialLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
-            List<MaterialLot> unTaggingMLots = materialLots.stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getReserved54())).collect(Collectors.toList());
+            List<MaterialLot> unTaggingMLots = materialLots.stream().filter(mLot -> StringUtils.isNullOrEmpty(mLot.getReserved54())).collect(Collectors.toList());
             if(CollectionUtils.isEmpty(unTaggingMLots)){
                 taggingMaterialLotAndSaveHis(materialLot, stockOutType, customerName, poId, stockTagNote, address);
             }

@@ -209,7 +209,9 @@ public class MmsServiceImpl implements MmsService {
                     nbHis.setNbBase(rawMaterial);
                     historyRepository.save(nbHis);
                 }
-                saveMaterialName(rawMaterial.getName());
+                if(Material.TYPE_WAFER.equals(rawMaterial.getMaterialCategory())){
+                    saveMaterialName(rawMaterial.getName());
+                }
             } else {
                 NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(rawMaterial.getObjectRrn());
                 // 不可改变状态
@@ -247,7 +249,9 @@ public class MmsServiceImpl implements MmsService {
                 throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
             }
             Material material = rawMaterialRepository.save(rawMaterial);
-            saveMaterialName(rawMaterial.getName());
+            if(Material.TYPE_WAFER.equals(rawMaterial.getMaterialCategory())){
+                saveMaterialName(rawMaterial.getName());
+            }
             return material;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
