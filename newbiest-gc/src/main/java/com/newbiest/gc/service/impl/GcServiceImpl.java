@@ -2098,7 +2098,7 @@ public class GcServiceImpl implements GcService {
                 DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
                 //获取发货的物料批次的快递单号
                 String expressNumber = StringUtils.EMPTY;
-                Map<String, List<MaterialLot>> mLotExpressMap = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
+                Map<String, List<MaterialLot>> mLotExpressMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
                         .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
                 for (String expressId : mLotExpressMap.keySet()){
                     if(StringUtils.isNullOrEmpty(expressNumber)){
@@ -2108,7 +2108,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
                 BigDecimal handledQty = BigDecimal.ZERO;
-                for (MaterialLot materialLot : materialLots) {
+                for (MaterialLot materialLot : materialLotList) {
                     handledQty = handledQty.add(materialLot.getCurrentQty());
                     // 变更事件，并清理掉库存
                     materialLot.setCurrentQty(BigDecimal.ZERO);
@@ -2142,7 +2142,7 @@ public class GcServiceImpl implements GcService {
                 validateDocAndUpdateErpSo(documentLine, handledQty);
 
                 if (SystemPropertyUtils.getConnectMscmFlag()) {
-                    scmService.addScmTracking(documentLine.getDocId(), materialLots);
+                    scmService.addScmTracking(documentLine.getDocId(), materialLotList);
                 }
             }
         } catch (Exception e) {
@@ -5127,6 +5127,18 @@ public class GcServiceImpl implements GcService {
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, TRANS_TYPE_UPDATE_TREASURY_NOTE);
                 history.setTransQty(materialLot.getCurrentQty());
                 materialLotHistoryRepository.save(history);
+
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for (MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        materialLotUnit.setTreasuryNote(treasuryNote);
+                        materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                        MaterialLotUnitHistory materialLotUnitHis = (MaterialLotUnitHistory)baseService.buildHistoryBean(materialLotUnit, TRANS_TYPE_UPDATE_TREASURY_NOTE);
+                        materialLotUnitHis.setTransQty(materialLotUnitHis.getCurrentQty());
+                        materialLotUnitHisRepository.save(materialLotUnitHis);
+                    }
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -6524,7 +6536,7 @@ public class GcServiceImpl implements GcService {
                 expirationDate = expirationDate.substring(0,2) + "0228";
             }
             String code = MLotCodePrint.SUPPLIER_CODE + "|"  + erpSo.getOther16() + "|" + materialLot.getMaterialLotId() + "|"
-                    + materialLot.getCurrentSubQty().toString() + "|"  + effectiveDate + "|" + expirationDate + "|" + printSeq;
+                    + materialLot.getCurrentQty().toString() + "|"  + effectiveDate + "|" + expirationDate + "|" + printSeq;
             parameterMap.put("CODE", code);
             parameterMap.put("portId", MLotCodePrint.OPHELION_MLOT_PORTID);
             return parameterMap;
@@ -6615,7 +6627,12 @@ public class GcServiceImpl implements GcService {
         try {
             long documentLineRrn = Long.parseLong(reserved16);
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
-            Long seq = Long.parseLong(documentLine.getReserved32());
+
+            Long seq = 0L;
+            seq = Long.parseLong(documentLine.getReserved1());
+            if(DocumentLine.DOC_MERGE.equals(documentLine.getMergeDoc())){
+                seq = Long.parseLong(documentLine.getReserved32());
+            }
             ErpSo erpSo = erpSoRepository.findBySeq(seq);
             return erpSo;
         } catch (Exception e) {
@@ -8365,7 +8382,7 @@ public class GcServiceImpl implements GcService {
     private void validateMaterilaLotTaggingInfo(MaterialLot materialLot, String stockOutType, String customerName, String poId, String stockTagNote, String address) throws ClientException{
         try {
             List<MaterialLot> materialLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
-            List<MaterialLot> unTaggingMLots = materialLots.stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getReserved54())).collect(Collectors.toList());
+            List<MaterialLot> unTaggingMLots = materialLots.stream().filter(mLot -> StringUtils.isNullOrEmpty(mLot.getReserved54())).collect(Collectors.toList());
             if(CollectionUtils.isEmpty(unTaggingMLots)){
                 taggingMaterialLotAndSaveHis(materialLot, stockOutType, customerName, poId, stockTagNote, address);
             }
