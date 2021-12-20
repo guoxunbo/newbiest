@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_wlatoft_testbit add column
+      author: Naferian Wang
+      comment: gc_wlatoft_testbit add column
+      changes:
+        - addColumn:
+            tableName: GC_WLATOFT_TESTBIT
+            columns:
+              - column:
+                  name: WLA_PROGRAM_BIT
+                  type: varchar2(32)
+                  remarks: 程序位
