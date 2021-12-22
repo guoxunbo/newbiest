@@ -4623,12 +4623,14 @@ public class GcServiceImpl implements GcService {
                             wlatoftTesebit = new GcWlatoftTesebit();
                             wlatoftTesebit.setWaferId(packedLot.getWaferId());
                             wlatoftTesebit.setWlaTestBit(packedLot.getWlaTestBit());
+                            wlatoftTesebit.setWlaProgramBit(packedLot.getProgramBit());
                             wlatoftTesebit = wlatoFtTestBitRepository.save(wlatoftTesebit);
 
                             GcWlatoftTesebitHis wlatoftTesebitHis = (GcWlatoftTesebitHis)baseService.buildHistoryBean(wlatoftTesebit, NBHis.TRANS_TYPE_CREATE);
                             wlatoFtTestBitHisRepository.save(wlatoftTesebitHis);
                         }else{
                             wlatoftTesebit.setWlaTestBit(packedLot.getWlaTestBit());
+                            wlatoftTesebit.setWlaProgramBit(packedLot.getProgramBit());
                             wlatoftTesebit = wlatoFtTestBitRepository.saveAndFlush(wlatoftTesebit);
 
                             GcWlatoftTesebitHis wlatoftTesebitHis = (GcWlatoftTesebitHis)baseService.buildHistoryBean(wlatoftTesebit, NBHis.TRANS_TYPE_UPDATE);
@@ -4653,6 +4655,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved3(StringUtils.EMPTY);
                     materialLotUnit.setReserved4(materialLot.getReserved6());
                     materialLotUnit.setReserved9(packedLot.getWlaTestBit());
+                    materialLotUnit.setReserved10(packedLot.getProgramBit());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved22(materialLot.getReserved22());
