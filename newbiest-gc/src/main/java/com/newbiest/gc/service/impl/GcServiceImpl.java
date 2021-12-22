@@ -4761,7 +4761,11 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     //从发料Lot的获取无聊编码信息
-                    MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
+                    String workorderId = mesPackedLot.getWorkorderId();
+                    if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceWorkorderId())){
+                        workorderId = mesPackedLot.getSourceWorkorderId();
+                    }
+                    MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), workorderId, MaterialLotUnit.STATE_ISSUE);
                     if(materialLot == null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
                     } else {
@@ -4894,7 +4898,11 @@ public class GcServiceImpl implements GcService {
             if(CollectionUtils.isNotEmpty(preInputLotList)){
                 mesPackedLot.setWorkorderId(preInputLotList.get(0).getSourceWorkorderId());
             }
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
+            String workorderId = mesPackedLot.getWorkorderId();
+            if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceWorkorderId())){
+                workorderId = mesPackedLot.getSourceWorkorderId();
+            }
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), workorderId, MaterialLotUnit.STATE_ISSUE);
             if(materialLot == null){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
             }
