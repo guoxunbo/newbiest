@@ -4629,12 +4629,14 @@ public class GcServiceImpl implements GcService {
                             wlatoftTesebit = new GcWlatoftTesebit();
                             wlatoftTesebit.setWaferId(packedLot.getWaferId());
                             wlatoftTesebit.setWlaTestBit(packedLot.getWlaTestBit());
+                            wlatoftTesebit.setWlaProgramBit(packedLot.getProgramBit());
                             wlatoftTesebit = wlatoFtTestBitRepository.save(wlatoftTesebit);
 
                             GcWlatoftTesebitHis wlatoftTesebitHis = (GcWlatoftTesebitHis)baseService.buildHistoryBean(wlatoftTesebit, NBHis.TRANS_TYPE_CREATE);
                             wlatoFtTestBitHisRepository.save(wlatoftTesebitHis);
                         }else{
                             wlatoftTesebit.setWlaTestBit(packedLot.getWlaTestBit());
+                            wlatoftTesebit.setWlaProgramBit(packedLot.getProgramBit());
                             wlatoftTesebit = wlatoFtTestBitRepository.saveAndFlush(wlatoftTesebit);
 
                             GcWlatoftTesebitHis wlatoftTesebitHis = (GcWlatoftTesebitHis)baseService.buildHistoryBean(wlatoftTesebit, NBHis.TRANS_TYPE_UPDATE);
@@ -4659,6 +4661,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved3(StringUtils.EMPTY);
                     materialLotUnit.setReserved4(materialLot.getReserved6());
                     materialLotUnit.setReserved9(packedLot.getWlaTestBit());
+                    materialLotUnit.setReserved10(packedLot.getProgramBit());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved22(materialLot.getReserved22());
@@ -4758,7 +4761,11 @@ public class GcServiceImpl implements GcService {
                         }
                     }
                     //从发料Lot的获取无聊编码信息
-                    MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
+                    String workorderId = mesPackedLot.getWorkorderId();
+                    if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceWorkorderId())){
+                        workorderId = mesPackedLot.getSourceWorkorderId();
+                    }
+                    MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), workorderId, MaterialLotUnit.STATE_ISSUE);
                     if(materialLot == null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
                     } else {
@@ -4891,7 +4898,11 @@ public class GcServiceImpl implements GcService {
             if(CollectionUtils.isNotEmpty(preInputLotList)){
                 mesPackedLot.setWorkorderId(preInputLotList.get(0).getSourceWorkorderId());
             }
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
+            String workorderId = mesPackedLot.getWorkorderId();
+            if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceWorkorderId())){
+                workorderId = mesPackedLot.getSourceWorkorderId();
+            }
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), workorderId, MaterialLotUnit.STATE_ISSUE);
             if(materialLot == null){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
             }
