@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileRWFinishGoodManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileRWFinishGoodManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileRWFinishGood
+              description: 手持端RW产线接收入库
+              tableName: GCMobileRWFinishGood
+              mobileFlag: Y
+              url: /Mobile/RWFinishGood
+              parentRrn: 2
+              seqNo: 110
+              image: icon-rule
+              labelZh: RW产线接收入库
+              labelEn: RWFinishGood

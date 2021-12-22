@@ -785,3 +785,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.BondedWarehouseIncomingMLotDelete.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRWFinishGood.nb_authority.yaml
+      relativeToChangelogFile: true

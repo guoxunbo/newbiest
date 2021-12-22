@@ -25,4 +25,10 @@ public class GcWlatoftTesebit extends NBUpdatable{
      */
     @Column(name="WLA_TEST_BIT")
     private String wlaTestBit;
+
+    /**
+     * 测试码
+     */
+    @Column(name="WLA_PROGRAM_BIT")
+    private String wlaProgramBit;
 }

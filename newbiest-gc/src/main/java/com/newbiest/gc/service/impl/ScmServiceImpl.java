@@ -51,6 +51,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -614,6 +615,9 @@ public class ScmServiceImpl implements ScmService {
             }
             List<Map> requestWaferList = Lists.newArrayList();
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                if (materialLotUnit.getCurrentQty().compareTo(BigDecimal.ZERO) <= 0){
+                    throw new ClientParameterException(GcExceptions.THE_QUANTITY_FIELD_MUST_BE_GREATER_THAN_ZERO, materialLotUnit.getCurrentQty());
+                }
                 Map<String, String> requestInfo = Maps.newHashMap();
                 if (StringUtils.isNullOrEmpty(materialLotUnit.getReserved30())) {
                     log.warn(String.format("MaterialUnit [%s] has no lotId.", materialLotUnit.getUnitId()));
