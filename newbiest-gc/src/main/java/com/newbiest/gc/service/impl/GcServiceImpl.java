@@ -4301,6 +4301,9 @@ public class GcServiceImpl implements GcService {
 
                     //保存真空包信息
                     for(MaterialLot materialLot : materialLots){
+                        if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) <= 0){
+                            throw new ClientParameterException(GcExceptions.THE_QUANTITY_FIELD_MUST_BE_GREATER_THAN_ZERO, materialLot.getCurrentQty());
+                        }
                         if (mmsService.getMLotByMLotId(materialLot.getMaterialLotId()) != null) {
                             throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLot.getMaterialLotId());
                         }
@@ -4340,6 +4343,9 @@ public class GcServiceImpl implements GcService {
                     //删除已经存在的物料批次信息，重新导入
                     deleteRmaMaterialLotAndUnit(materialLots);
                     for(MaterialLot materialLot : materialLots){
+                        if(materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) <= 0){
+                            throw new ClientParameterException(GcExceptions.THE_QUANTITY_FIELD_MUST_BE_GREATER_THAN_ZERO, materialLot.getCurrentQty());
+                        }
                         materialLot.setMaterial(material);
                         materialLot.setLotId(materialLot.getMaterialLotId());
                         materialLot.setReserved48(importCode);
@@ -4623,12 +4629,14 @@ public class GcServiceImpl implements GcService {
                             wlatoftTesebit = new GcWlatoftTesebit();
                             wlatoftTesebit.setWaferId(packedLot.getWaferId());
                             wlatoftTesebit.setWlaTestBit(packedLot.getWlaTestBit());
+                            wlatoftTesebit.setWlaProgramBit(packedLot.getProgramBit());
                             wlatoftTesebit = wlatoFtTestBitRepository.save(wlatoftTesebit);
 
                             GcWlatoftTesebitHis wlatoftTesebitHis = (GcWlatoftTesebitHis)baseService.buildHistoryBean(wlatoftTesebit, NBHis.TRANS_TYPE_CREATE);
                             wlatoFtTestBitHisRepository.save(wlatoftTesebitHis);
                         }else{
                             wlatoftTesebit.setWlaTestBit(packedLot.getWlaTestBit());
+                            wlatoftTesebit.setWlaProgramBit(packedLot.getProgramBit());
                             wlatoftTesebit = wlatoFtTestBitRepository.saveAndFlush(wlatoftTesebit);
 
                             GcWlatoftTesebitHis wlatoftTesebitHis = (GcWlatoftTesebitHis)baseService.buildHistoryBean(wlatoftTesebit, NBHis.TRANS_TYPE_UPDATE);
@@ -4653,6 +4661,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved3(StringUtils.EMPTY);
                     materialLotUnit.setReserved4(materialLot.getReserved6());
                     materialLotUnit.setReserved9(packedLot.getWlaTestBit());
+                    materialLotUnit.setReserved10(packedLot.getProgramBit());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved22(materialLot.getReserved22());
@@ -5521,6 +5530,9 @@ public class GcServiceImpl implements GcService {
             ThreadLocalContext.getSessionContext().buildTransInfo();
             String importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
             for(MaterialLot materialLot : materialLotList){
+                if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) <= 0){
+                    throw new ClientParameterException(GcExceptions.THE_QUANTITY_FIELD_MUST_BE_GREATER_THAN_ZERO, materialLot.getCurrentQty());
+                }
                 GCLcdCogDetail gcLcdCogDetail = gcLcdCogDetialRepository.findByBoxaIdAndBoxbId(materialLot.getMaterialLotId(), materialLot.getParentMaterialLotId());
                 if(gcLcdCogDetail != null){
                     throw new ClientParameterException(GcExceptions.BOXAID_AND_BOXBID_IS_EXIST, gcLcdCogDetail.getBoxaId() + StringUtils.SPLIT_CODE + gcLcdCogDetail.getBoxbId());
@@ -5705,6 +5717,14 @@ public class GcServiceImpl implements GcService {
                 }
             } else {
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    if (materialLotUnit.getCurrentQty().compareTo(BigDecimal.ZERO) <= 0){
+                        throw new ClientParameterException(GcExceptions.THE_QUANTITY_FIELD_MUST_BE_GREATER_THAN_ZERO, materialLotUnit.getCurrentQty());
+                    }
+                    if ((MaterialLotUnit.COB_RAW_MATERIAL_PRODUCT.equals(importType) || MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType))
+                             && (MaterialLot.SH_WAREHOUSE.equals(materialLotUnit.getReserved13()) && !(MaterialLot.LOCATION_SH.equals(materialLotUnit.getReserved4()))
+                                 || (MaterialLot.ZJ_WAREHOUSE.equals(materialLotUnit.getReserved13()) && !MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLotUnit.getReserved4())))){
+                        throw new ClientParameterException(GcExceptions.WAREHOUSE_AND_BONDPRO_ARE_INCONSISTENT, materialLotUnit.getUnitId());
+                    }
                     if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
                         materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
                         materialLotUnit.setReserved50(MaterialLot.WLT_PACK_RETURN_WAFER_SOURCE);
