@@ -10826,11 +10826,11 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> packedMaterialLots = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())).collect(Collectors.toList());
             List<MaterialLot> unpackedMaterialLots = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())).collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(packedMaterialLots)){
-                packedMaterialLots = packedMaterialLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                packedMaterialLots = packedMaterialLots.stream().sorted(Comparator.comparing(MaterialLot::getCurrentQty).reversed()).collect(Collectors.toList());
                 Map<String, List<MaterialLot>> packedMLotMap = packedMaterialLots.stream().collect(Collectors.groupingBy(MaterialLot::getParentMaterialLotId));
                 for(String parentMLotId : packedMLotMap.keySet()){
                     List<MaterialLot> materialLots = packedMLotMap.get(parentMLotId);
-                    materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                    materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getCurrentQty).reversed()).collect(Collectors.toList());
                     for(MaterialLot materialLot : materialLots){
                         if(pickQty.compareTo(materialLot.getCurrentQty()) > 0){
                             pickMLotList.add(materialLot);
@@ -10840,7 +10840,7 @@ public class GcServiceImpl implements GcService {
                 }
             }
             if(CollectionUtils.isNotEmpty(unpackedMaterialLots)){
-                unpackedMaterialLots = unpackedMaterialLots.stream().sorted(Comparator.comparing(MaterialLot :: getCreated)).collect(Collectors.toList());
+                unpackedMaterialLots = unpackedMaterialLots.stream().sorted(Comparator.comparing(MaterialLot :: getCurrentQty).reversed()).collect(Collectors.toList());
                 for(MaterialLot materialLot : unpackedMaterialLots){
                     if(pickQty.compareTo(materialLot.getCurrentQty()) >= 0){
                         pickMLotList.add(materialLot);
