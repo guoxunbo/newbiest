@@ -4843,6 +4843,7 @@ public class GcServiceImpl implements GcService {
                     //记录物料批次的原产品型号和等级
                     otherReceiveProps.put("sourceProductId", mesPackedLot.getOrgProductId());
                     otherReceiveProps.put("reserved26", mesPackedLot.getBinType());
+                    otherReceiveProps.put("innerLotId", mesPackedLot.getAssyLotNo());
 
                     if(mesPackedLot.getWaferQty() != null){
                         BigDecimal waferQty = new BigDecimal(mesPackedLot.getWaferQty().toString());

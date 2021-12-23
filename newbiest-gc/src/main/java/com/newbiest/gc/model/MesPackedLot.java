@@ -224,6 +224,12 @@ public class MesPackedLot implements Serializable {
     private String programBit;
 
     /**
+     * 内批号
+     */
+    @Column(name="ASSY_LOT_NO")
+    private String assyLotNo;
+
+    /**
      * 供应商
      */
     @Transient
