@@ -786,7 +786,7 @@ public class MmsServiceImpl implements MmsService {
             materialLotInventory.setWarehouse(targetWarehouse).setStorage(targetStorage);
             materialLotInventoryRepository.saveAndFlush(materialLotInventory);
 
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_TRANSFER);
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_INSTROAGE);
             history.buildByMaterialLotAction(materialLotAction);
             history.setTransWarehouseId(fromWarehouse.getName());
             history.setTransStorageId(fromStorage.getName());
