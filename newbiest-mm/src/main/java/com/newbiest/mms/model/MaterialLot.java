@@ -297,6 +297,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String LOCATION_SH = "SH";
     public static final String BONDED_PROPERTY_ZSH = "ZSH";
 
+    public static final String MLOT_SBB = "SBB";
+    public static final String MLOT_SBC = "SBC";
+
     /**
      * 物料批次号
      */
