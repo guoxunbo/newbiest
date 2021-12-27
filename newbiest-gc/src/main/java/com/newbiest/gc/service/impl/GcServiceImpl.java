@@ -4375,17 +4375,19 @@ public class GcServiceImpl implements GcService {
                         MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
                         materialLotHistoryRepository.save(history);
 
-                        MaterialLotUnit materialLotUnit = new MaterialLotUnit();
-                        materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
-                        materialLotUnit.setLotId(materialLot.getMaterialLotId());
-                        materialLotUnit.setState(MaterialStatus.STATUS_CREATE);
-                        materialLotUnit.setMaterial(material);
-                        materialLotUnit.setMaterialLot(materialLot);
-                        materialLotUnit.setRmaMaterialLot(materialLot);
-                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                        if(!importType.equals(MaterialLotUnit.RMA_PURE)){
+                            MaterialLotUnit materialLotUnit = new MaterialLotUnit();
+                            materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
+                            materialLotUnit.setLotId(materialLot.getMaterialLotId());
+                            materialLotUnit.setState(MaterialStatus.STATUS_CREATE);
+                            materialLotUnit.setMaterial(material);
+                            materialLotUnit.setMaterialLot(materialLot);
+                            materialLotUnit.setRmaMaterialLot(materialLot);
+                            materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
-                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
-                        materialLotUnitHisRepository.save(materialLotUnitHistory);
+                            MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
+                            materialLotUnitHisRepository.save(materialLotUnitHistory);
+                        }
                     }
                 }
             }
