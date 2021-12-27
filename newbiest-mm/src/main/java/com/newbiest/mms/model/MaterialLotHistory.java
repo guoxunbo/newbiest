@@ -64,6 +64,12 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_ADDITIONAL_PACKAGE = "AdditionalPackage";
 
     /**
+     * 库存有货,
+     * 如果已经入库，再次入库。
+     */
+    public static final String TRANS_TYPE_INSTROAGE = "Instroage";
+
+    /**
      * 产品分类
      */
     public static final String PRODUCT_TYPE = "PROD";
