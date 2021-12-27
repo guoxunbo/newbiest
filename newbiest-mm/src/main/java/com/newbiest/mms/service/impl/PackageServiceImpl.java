@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
@@ -421,6 +422,9 @@ public class PackageServiceImpl implements PackageService{
             validationPackageRule(materialLots, materialLotPackageType);
 
             MaterialLot packedMaterialLot = (MaterialLot) materialLots.get(0).clone();
+            if (MaterialLot.COB_PACKCASE.equals(materialLotPackageType.getName()) && packedMaterialLot.getMaterialLotId().startsWith(MaterialLot.MLOT_SBC)){
+                packedMaterialLotId = packageSBCMLot(packedMaterialLot.getMaterialLotId());
+            }
             if (StringUtils.isNullOrEmpty(packedMaterialLotId)) {
                 packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
             }
@@ -459,6 +463,21 @@ public class PackageServiceImpl implements PackageService{
 
             packageMaterialLots(packedMaterialLot, materialLots, materialLotActions, false, true);
             return packedMaterialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private String packageSBCMLot(String packedMaterialLotId){
+        try {
+            String pMLotId = MaterialLot.MLOT_SBB + packedMaterialLotId.substring(3);
+            MaterialLot pMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(pMLotId, ThreadLocalContext.getOrgRrn());
+            if (pMLot != null){
+                materialLotRepository.delete(pMLot);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(pMLot, NBHis.TRANS_TYPE_DELETE);
+                materialLotHistoryRepository.save(history);
+            }
+            return pMLotId;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
