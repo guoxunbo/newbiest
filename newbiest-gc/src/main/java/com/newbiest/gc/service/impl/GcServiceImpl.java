@@ -4539,13 +4539,24 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getCstId));
             List<MesPackedLot> mesPackedLots = Lists.newArrayList();
             for(String cstId : packedLotMap.keySet()){
+                Material material = null;
+
                 List<MesPackedLot> mesPackedLotList = packedLotMap.get(cstId);
-                Long totalQuantity = mesPackedLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getQuantity().longValue()));
-                Material material = mmsService.getProductByName(mesPackedLotList.get(0).getProductId());
+                Optional<MesPackedLot> firstMesPackedLot = mesPackedLotList.stream().filter(packedLot -> !StringUtils.isNullOrEmpty(packedLot.getInFlag()) && MesPackedLot.IN_FLAG_ONE.equals(packedLot.getInFlag())).findFirst();
+                if (firstMesPackedLot.isPresent()) {
+                    material = mmsService.getRawMaterialByName(mesPackedLotList.get(0).getProductId());
+                    if (material == null) {
+                        material = new RawMaterial();
+                        material.setName(firstMesPackedLot.get().getProductId());
+                        material = mmsService.createRawMaterial((RawMaterial)material);
+                    }
+                }else {
+                    material = mmsService.getProductByName(mesPackedLotList.get(0).getProductId());
+                }
                 if (material == null) {
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, mesPackedLotList.get(0).getProductId());
                 }
-
+                Long totalQuantity = mesPackedLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getQuantity().longValue()));
                 MesPackedLot mesPackedLot = getReceicvePackedLotByPackedWafer(mesPackedLotList.get(0), material, totalQuantity, mesPackedLotList.size());
                 mesPackedLots.add(mesPackedLot);
             }
