@@ -4625,7 +4625,7 @@ public class GcServiceImpl implements GcService {
                 List<MesPackedLot> mesPackedLotList = packedLotMap.get(cstId);
                 MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mesPackedLot.getBoxId(), ThreadLocalContext.getOrgRrn());
                 Material material = mmsService.getProductByName(materialLot.getMaterialName());
-                if(MesPackedLot.IN_FLAG_ONE.equals(mesPackedLot.getInFlag()) && MaterialLotUnit.PRODUCT_CATEGORY_RW.equals(mesPackedLot.getProductCategory())){
+                if(MesPackedLot.IN_FLAG_ONE.equals(mesPackedLot.getInFlag())){
                     material = mmsService.getRawMaterialByName(materialLot.getMaterialName());
                 }
                 MesPackedLotRelation mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
