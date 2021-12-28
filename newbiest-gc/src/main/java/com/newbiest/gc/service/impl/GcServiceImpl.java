@@ -2893,7 +2893,18 @@ public class GcServiceImpl implements GcService {
 
             for (String productId : packedLotMap.keySet()) {
                 List<MesPackedLot> mesPackedLotList = packedLotMap.get(productId);
-                Material material = mmsService.getProductByName(productId);
+                Optional<MesPackedLot> firstMesPackedLot = mesPackedLotList.stream().filter(packedLot -> !StringUtils.isNullOrEmpty(packedLot.getInFlag()) && MesPackedLot.IN_FLAG_ONE.equals(packedLot.getInFlag())).findFirst();
+                Material material = null;
+                if (firstMesPackedLot.isPresent()) {
+                    material = mmsService.getRawMaterialByName(mesPackedLotList.get(0).getProductId());
+                    if (material == null) {
+                        material = new RawMaterial();
+                        material.setName(firstMesPackedLot.get().getProductId());
+                        material = mmsService.createRawMaterial((RawMaterial)material);
+                    }
+                }else {
+                    material = mmsService.getProductByName(mesPackedLotList.get(0).getProductId());
+                }
                 if (material == null) {
                     throw new ClientParameterException(MM_PRODUCT_ID_IS_NOT_EXIST, productId);
                 }
