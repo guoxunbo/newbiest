@@ -7524,6 +7524,10 @@ public class GcServiceImpl implements GcService {
                 materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
                 materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
                 materialLotUnit.setReserved50("7");
+
+                String levelTwoCode = materialLotUnit.getReserved1();
+                String substring = materialLotUnit.getReserved30().substring(0, 1);
+                materialLotUnit.setReserved1(levelTwoCode + substring);
             }
             materialLotUnitList = materialLotUnitService.createFTMLot(materialLotUnitList);
             return materialLotUnitList;
@@ -8803,6 +8807,10 @@ public class GcServiceImpl implements GcService {
                 materialLotUnit.setReserved32(materialLotUnit.getCurrentQty().toString());
                 materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR);
                 materialLotUnit.setReserved50(MaterialLot.SENSOR_WAFER_SOURCE);
+
+                String levelTwoCode = materialLotUnit.getReserved1();
+                String substring = materialLotUnit.getReserved30().substring(0, 1);
+                materialLotUnit.setReserved1(levelTwoCode + substring);
             }
             materialLotUnits = materialLotUnitService.createFTMLot(materialLotUnits);
 
