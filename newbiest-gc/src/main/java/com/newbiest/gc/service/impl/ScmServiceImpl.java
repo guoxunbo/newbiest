@@ -33,7 +33,9 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
+import com.newbiest.mms.utils.CollectorsUtils;
 import com.newbiest.msg.*;
+import io.swagger.annotations.Api;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -103,6 +105,8 @@ public class ScmServiceImpl implements ScmService {
     public static final String SCM_RETRY_VALIDATE_MATERIAL_LOT_ENG = "https://gc-scm.wochacha.com/api/wip/sync-eng/query";
 
     private RestTemplate restTemplate;
+
+    private List<String> needTokenUrlList = Lists.newArrayList();
 
     @Value("${gc.scmUrl}")
     private String scmUrl;
@@ -751,10 +755,17 @@ public class ScmServiceImpl implements ScmService {
             }
             headers.put("Content-Type", Lists.newArrayList(contentType));
 
-            String token = httpHeaders.get("authorization");
-            if (!StringUtils.isNullOrEmpty(token)) {
+//            String token = httpHeaders.get("authorization");
+//            if (!StringUtils.isNullOrEmpty(token)) {
+//                headers.put("authorization", Lists.newArrayList(token));
+//            }
+
+            String needTokenUrl = mScmUrl + MSCM_ADD_TRACKING_API;
+            if (needTokenUrl.equals(url)){
+                String token = getMScmToken();
                 headers.put("authorization", Lists.newArrayList(token));
             }
+
             ResponseEntity<byte[]> responseEntity = null;
             if ("application/x-www-form-urlencoded".equals(contentType)) {
                 MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
@@ -802,10 +813,6 @@ public class ScmServiceImpl implements ScmService {
 
     public void addTracking(String orderId, String expressNumber, boolean isKuayueExprress) throws ClientException{
         try {
-            String token = getMScmToken();
-            Map httpHeader = Maps.newHashMap();
-            httpHeader.put("authorization", token);
-
             List<Map> requestInfoList = Lists.newArrayList();
             Map requestInfo = Maps.newHashMap();
             requestInfo.put("send_code", orderId);
@@ -816,7 +823,7 @@ public class ScmServiceImpl implements ScmService {
             }
             requestInfoList.add(requestInfo);
 
-            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, httpHeader);
+            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, Maps.newHashMap());
             if (!StringUtils.isNullOrEmpty(response)) {
                 Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
                 Integer ret = (Integer) responseData.get("ret");
@@ -877,11 +884,7 @@ public class ScmServiceImpl implements ScmService {
                 requestInfoList.add(requestInfo);
             }
 
-            String token = getMScmToken();
-            Map httpHeader = Maps.newHashMap();
-            httpHeader.put("authorization", token);
-
-            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, httpHeader);
+            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, Maps.newHashMap());
             if (!StringUtils.isNullOrEmpty(response)) {
                 Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
                 Integer ret = (Integer) responseData.get("ret");
@@ -898,23 +901,38 @@ public class ScmServiceImpl implements ScmService {
     public String getMScmToken() throws ClientException{
         try {
             String token = StringUtils.EMPTY;
-            Map httpHeader = Maps.newHashMap();
-            httpHeader.put("contentType", "application/x-www-form-urlencoded");
+            HttpHeaders httpHeader = new HttpHeaders();
+            httpHeader.put("contentType", Lists.newArrayList("application/x-www-form-urlencoded"));
 
-            Map<String, String> requestInfo = Maps.newHashMap();
-            requestInfo.put("app_name", mScmUsername);
-            requestInfo.put("app_secret", mScmPassword);
-            requestInfo.put("service", MSCM_SERVICE_NAME);
+            Map<String, String> requestMap = Maps.newHashMap();
+            requestMap.put("app_name", mScmUsername);
+            requestMap.put("app_secret", mScmPassword);
+            requestMap.put("service", MSCM_SERVICE_NAME);
 
-            String response = sendHttpRequest(mScmUrl + MSCM_TOKEN_API, requestInfo, httpHeader);
-            Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
+            MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
+            for (String key : requestMap.keySet()) {
+                postParameters.add(key, requestMap.get(key));
+            }
 
-            if (!StringUtils.isNullOrEmpty(response)) {
-                Integer ret = (Integer) responseData.get("ret");
+            if (log.isDebugEnabled()) {
+                String requestString = DefaultParser.getObjectMapper().writeValueAsString(requestMap);
+                log.debug(String.format("Send data. RequestString is [%s]", requestString));
+            }
+
+            HttpEntity<MultiValueMap> httpEntity = new HttpEntity<>(postParameters, httpHeader);
+            Map<String, Object> responseMap = restTemplate.postForObject(new URI(mScmUrl + MSCM_TOKEN_API), httpEntity, Map.class);
+
+            if (log.isDebugEnabled()) {
+                String response = DefaultParser.writerJson(responseMap);
+                log.debug(String.format("Get response by scm. Response is [%s]", response));
+            }
+
+            if (!responseMap.isEmpty()) {
+                Integer ret = (Integer) responseMap.get("ret");
                 if (200 != ret) {
-                    throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+                    throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseMap.get("msg"));
                 }
-                Map<String, Object> data = (Map<String, Object>) responseData.get("data");
+                Map<String, Object> data = (Map<String, Object>) responseMap.get("data");
                 token = (String) data.get("token");
             }
             return token;
