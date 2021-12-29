@@ -106,20 +106,13 @@ public class DefaultPrintStrategy implements IPrintStrategy {
                 }
             }
         }
-        parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());
+        //parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());
         return parameterMap;
     }
 
     public void printWithBartender(PrintContext printContext) {
         String destination = printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation());
         Map<String, Object> params = buildParameters(printContext);
-
-//        List<String> paramStr = Lists.newArrayList();
-//        for (String key : params.keySet()) {
-//            paramStr.add(key + "=" + params.get(key));
-//        }
-//
-//        destination = destination + "?" + StringUtils.join(paramStr, "&");
 
         UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromHttpUrl(destination);
         for (String key : params.keySet()) {
