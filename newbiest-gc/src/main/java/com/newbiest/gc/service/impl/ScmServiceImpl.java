@@ -884,6 +884,10 @@ public class ScmServiceImpl implements ScmService {
                 requestInfoList.add(requestInfo);
             }
 
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Send addScmTracking. RequestString is [%s]", requestInfoList));
+            }
+
             String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, Maps.newHashMap());
             if (!StringUtils.isNullOrEmpty(response)) {
                 Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
