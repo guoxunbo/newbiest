@@ -21,6 +21,8 @@ public class SystemPropertyUtils {
 
     private static final String SYSTEM_PROPERTY_READ_MES_TIME_OUT_TIME = "gc.read_mes_time_out_time";
 
+    public static final String SYSTEM_PROPERTY_WLT_STOCK_OUT_TO_COM_THROW_WAFER_TAB_FLAG = "gc.wlt_stock_out_to_com_throw_wafer_tab_flag";
+
     public static Integer getImportMLotPoolSize() {
         Object importMLotPoolSize = System.getProperty(SYSTEM_PROPERTY_IMPORT_MLOT_POOL_SIZE);
         if (importMLotPoolSize != null) {
@@ -82,6 +84,14 @@ public class SystemPropertyUtils {
         Object connectMscmFlag = System.getProperty(SYSTEM_PROPERTY_CONNECT_MSCM_FLAG);
         if (connectMscmFlag != null) {
             return Boolean.valueOf(connectMscmFlag.toString());
+        }
+        return false;
+    }
+
+    public static boolean getWltStockOutToComThrowWaferTabFlag() {
+        Object wltStockOutToComFlag = System.getProperty(SYSTEM_PROPERTY_WLT_STOCK_OUT_TO_COM_THROW_WAFER_TAB_FLAG);
+        if (wltStockOutToComFlag != null){
+            return Boolean.valueOf(wltStockOutToComFlag.toString());
         }
         return false;
     }

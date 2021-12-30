@@ -1,6 +1,7 @@
 package com.newbiest.mms.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
@@ -16,6 +17,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by guoxunbo on 2019/2/26.
@@ -296,6 +298,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public static final String LOCATION_SH = "SH";
     public static final String BONDED_PROPERTY_ZSH = "ZSH";
+
+    public static final List<String> bondedList = Lists.newArrayList("SWJF", "SWKY", "SWHT", "WJF", "WKY", "WHT");
 
     public static final String MLOT_SBB = "SBB";
     public static final String MLOT_SBC = "SBC";
