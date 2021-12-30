@@ -70,6 +70,7 @@ public class GcConfiguration {
         ModelFactory.registerModelClassLoader(GCVenderAddressRelation.class.getName(),GCVenderAddressRelation.class.getClassLoader());
         ModelFactory.registerModelClassLoader(WaferHoldRelation.class.getName(),WaferHoldRelation.class.getClassLoader());
         ModelFactory.registerModelClassLoader(GcWlatoftTesebit.class.getName(),GcWlatoftTesebit.class.getClassLoader());
+        ModelFactory.registerModelClassLoader(ComThrowWaferTab.class.getName(),ComThrowWaferTab.class.getClassLoader());
 
         // 注册历史
         ModelFactory.registerHistoryModelClassLoader(GCLcdCogDetail.class.getName(), GCLcdCogDetailHis.class.getClassLoader());
