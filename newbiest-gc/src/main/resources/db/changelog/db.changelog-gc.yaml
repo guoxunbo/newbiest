@@ -776,3 +776,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-0.0.2.gc_wlatoft_testbit_his.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRawMaterialStockInChange_nb_table.yaml
+      relativeToChangelogFile: true
