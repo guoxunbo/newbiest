@@ -788,3 +788,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.MobileRWFinishGood.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRawMaterialStockInChange.nb_authority.yaml
+      relativeToChangelogFile: true
