@@ -44,8 +44,8 @@ public interface GcService {
     List<MaterialLotUnit> materialLotUnitAssignEng(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 
     void wltCpThreeSideShip(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
-    void wltCpMaterialLotSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException;
-    void mobileWltCpMaterialLotSaleShip(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode) throws ClientException;
+    void wltCpMaterialLotSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode, String actionType) throws ClientException;
+    void mobileWltCpMaterialLotSaleShip(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode, String actionType) throws ClientException;
     void rWAttributeChange(List<MaterialLot> materialLots) throws ClientException;
 
     String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws ClientException;
@@ -100,9 +100,9 @@ public interface GcService {
     void validationMaterialLotVender(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferUnStockOutTagging(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferStockOutTagging(List<MaterialLotAction> materialLotActions, String stockTagNote, String customerName, String stockOutType, String poId, String address) throws ClientException;
-    void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException;
-    void mobileWltStockOut(List<MaterialLotAction> materialLotActions,String erpTime, String checkSubCode) throws ClientException;
-    void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode, String actionType) throws ClientException;
+    void mobileWltStockOut(List<MaterialLotAction> materialLotActions,String erpTime, String checkSubCode, String actionType) throws ClientException;
+    void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String actionType) throws ClientException;
     boolean validationWltStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     boolean validateStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
