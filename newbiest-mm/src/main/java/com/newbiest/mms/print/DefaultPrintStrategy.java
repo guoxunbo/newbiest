@@ -106,7 +106,10 @@ public class DefaultPrintStrategy implements IPrintStrategy {
                 }
             }
         }
-        //parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());
+        //如果parameterMap指定了打印次数，则不取LabelTemplate上的打印次数。
+        if(!parameterMap.containsKey("printCount")){
+            parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());
+        }
         return parameterMap;
     }
 

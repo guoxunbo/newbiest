@@ -428,9 +428,9 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     if(MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())){
                         propsMap.put("productType", MaterialLotUnit.PRODUCT_TYPE_ENG);
                     }
-                    //FT导入的产品-3.5的二级代码为三位的转换为四位
+                    //FT导入的产品二级代码为三位的转换为四位
                     String subCode = materialLotUnit.getReserved1();
-                    if(materialName.endsWith("-3.5") && !StringUtils.isNullOrEmpty(subCode) && subCode.length() == 3){
+                    if(!StringUtils.isNullOrEmpty(subCode) && subCode.length() == 3){
                         subCode = subCode + materialLotUnit.getUnitId().substring(0,1);
                     }
                     propsMap.put("supplier", materialLotUnit.getSupplier());
