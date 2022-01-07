@@ -8141,9 +8141,8 @@ public class GcServiceImpl implements GcService {
                 Iterator<MaterialLot> iterator = materialLots.iterator();
                 while (iterator.hasNext()) {
                     MaterialLot materialLot = iterator.next();
-                    String materialName = materialLot.getMaterialName();
-                    Integer length = materialName.length();
-                    if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54()) || MaterialLot.STOCKOUT_TYPE_4.equals(materialName.substring(length - 2, length))){
+                    BigDecimal circleQty = BigDecimal.ZERO;//定义一个每次循环扣减数量
+                    if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54()) || materialLot.getMaterialName().endsWith(MaterialLot.STOCKOUT_TYPE_4)){
                         BigDecimal currentQty = materialLot.getCurrentQty();
                         if (unhandedQty.compareTo(currentQty) >= 0) {
                             unhandedQty = unhandedQty.subtract(currentQty);
@@ -8161,9 +8160,11 @@ public class GcServiceImpl implements GcService {
                         BigDecimal currentSubQty = materialLot.getCurrentSubQty();
                         if (unhandedQty.compareTo(currentSubQty) >= 0) {
                             unhandedQty = unhandedQty.subtract(currentSubQty);
+                            circleQty = currentSubQty;
                             currentSubQty = BigDecimal.ZERO;
                         } else {
                             currentSubQty = currentSubQty.subtract(unhandedQty);
+                            circleQty = unhandedQty;
                             unhandedQty = BigDecimal.ZERO;
                         }
                         materialLot.setCurrentSubQty(currentSubQty);
@@ -8173,10 +8174,10 @@ public class GcServiceImpl implements GcService {
                         }
                     }
 
-                    if(SystemPropertyUtils.getWltStockOutToComThrowWaferTabFlag()){
+                    if(SystemPropertyUtils.getWltStockOutToComThrowWaferTabFlag() && MaterialLot.BONDED_LIST.contains(materialLot.getReserved6())){
                         if (WltStockOutRequest.ACTION_WLTSTOCKOUT.equals(actionType) || WltStockOutRequest.ACTION_WLTOTHERSTOCKOUT.equals(actionType)
                                 || WltStockOutRequest.ACTION_MOBILE_WLT_STOCK_OUT.equals(actionType)){
-                            addUnitToComThrowWaferTab(documentLine.getDocId(), materialLot);
+                            addUnitToComThrowWaferTab(documentLine, materialLot, circleQty.intValue());
                         }
                     }
 
@@ -8208,26 +8209,43 @@ public class GcServiceImpl implements GcService {
 
     /**
      * “材料/其他出”功能操作的保税属性为SWJF/SWKY/SWHT/WJF/WKY/WHT的materialLotUnit部分数据同步到 COM_THROW_WAFER_TAB中
-     * @param docId 出货单号
+     * @param documentLine 出货单
      * @param materialLot
      * @throws ClientException
      */
-    private void addUnitToComThrowWaferTab(String docId, MaterialLot materialLot) throws ClientException {
+    private void addUnitToComThrowWaferTab(DocumentLine documentLine, MaterialLot materialLot, Integer circleQty) throws ClientException {
         try {
-            String bondedPro = materialLot.getReserved6();
-            if (MaterialLot.bondedList.contains(bondedPro)){
-                List<MaterialLotUnit> mLotUnit = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            List<MaterialLot> materialLotList = Lists.newArrayList();
+            SimpleDateFormat formats = new SimpleDateFormat(MaterialLot.DEFAULT_DATE_PATTERN);
+            if (!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                materialLotList = materialLotRepository.getByParentMaterialLotId(materialLot.getMaterialLotId());
+            } else {
+                materialLotList.add(materialLot);
+            }
+            for (MaterialLot lot : materialLotList) {
+                List<MaterialLotUnit> mLotUnit = materialLotUnitRepository.findByMaterialLotIdAndReserved12IsNull(lot.getMaterialLotId());
                 if (CollectionUtils.isNotEmpty(mLotUnit)){
-                    ComThrowWaferTab comThrowWaferTab = new ComThrowWaferTab();
-                    SimpleDateFormat formats = new SimpleDateFormat(MaterialLot.DEFAULT_DATE_PATTERN);
                     for (MaterialLotUnit materialLotUnit : mLotUnit) {
+                        ComThrowWaferTab comThrowWaferTab = new ComThrowWaferTab();
                         comThrowWaferTab.setWaferId(materialLotUnit.getUnitId());
                         comThrowWaferTab.setPdtId(materialLotUnit.getMaterialName());
                         comThrowWaferTab.setSecondCode(materialLotUnit.getReserved1());
                         comThrowWaferTab.setProperty(materialLotUnit.getReserved4());
                         comThrowWaferTab.setTimeStr(formats.format(materialLotUnit.getUpdated()));
-                        comThrowWaferTab.setBillNum(docId);
+                        comThrowWaferTab.setBillNum(documentLine.getDocId());
                         comThrowWaferTabRepository.saveAndFlush(comThrowWaferTab);
+
+                        //unit保存reserved12记录历史
+                        materialLotUnit.setReserved12(documentLine.getObjectRrn().toString());
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
+                        materialLotUnitHisRepository.save(materialLotUnitHistory);
+
+                        --circleQty;
+                        if(circleQty == 0){
+                            break;
+                        }
                     }
                 }
             }
