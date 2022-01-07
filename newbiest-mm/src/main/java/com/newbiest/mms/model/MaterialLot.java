@@ -299,7 +299,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String LOCATION_SH = "SH";
     public static final String BONDED_PROPERTY_ZSH = "ZSH";
 
-    public static final List<String> bondedList = Lists.newArrayList("SWJF", "SWKY", "SWHT", "WJF", "WKY", "WHT");
+    public static final List<String> BONDED_LIST = Lists.newArrayList("SWJF", "SWKY", "SWHT", "WJF", "WKY", "WHT");
 
     public static final String MLOT_SBB = "SBB";
     public static final String MLOT_SBC = "SBC";
