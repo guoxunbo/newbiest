@@ -43,6 +43,7 @@ public class MesPackedLot implements Serializable {
     public static final String ZJ_SUB_NAME = "GCZJ";
     public static final String SH_SUB_NAME = "GCSH";
     public static final String ZH_WAREHOUSE = "8143";
+    public static final String STRING_LINE = "|";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
