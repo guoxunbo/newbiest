@@ -1,4 +1,4 @@
-package com.newbiest.gc.model;
+package com.newbiest.mms.model;
 
 import com.newbiest.base.model.NBUpdatable;
 import lombok.Data;
@@ -12,6 +12,9 @@ import javax.persistence.Table;
 @Data
 public class WaferHoldRelation extends NBUpdatable {
 
+    public static final String HOLD_TYPE_WLA = "WLA";
+    public static final String HOLD_TYPE_SCM = "SCM";
+
     /**
      * 晶圆ID
      */
@@ -23,4 +26,10 @@ public class WaferHoldRelation extends NBUpdatable {
      */
     @Column(name = "HOLD_REASON")
     private String holdReason;
+
+    /**
+     * 类型
+     */
+    @Column(name = "TYPE")
+    private String type = HOLD_TYPE_WLA;
 }

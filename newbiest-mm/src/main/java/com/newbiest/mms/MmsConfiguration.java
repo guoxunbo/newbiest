@@ -99,6 +99,9 @@ public class MmsConfiguration {
 
         ModelFactory.registerHistoryModelClassLoader(Parts.class.getName(), MaterialHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(Parts.class.getName(), MaterialHistory.class.getName());
+
+        ModelFactory.registerHistoryModelClassLoader(WaferHoldRelation.class.getName(), WaferHoldRelationHis.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(WaferHoldRelation.class.getName(), WaferHoldRelationHis.class.getName());
     }
 
 }

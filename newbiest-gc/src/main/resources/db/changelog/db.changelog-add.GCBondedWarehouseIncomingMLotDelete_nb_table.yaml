@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseIncomingMLotDelete_to_NB_TABLE
+      author: Youqing Huang
+      comment: add BondedWarehouseIncomingMLotDelete to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWarehouseIncomingMLotDelete
+              description: 保税仓库 来料删除
+              tableName: MMS_MATERIAL_LOT_UNIT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLotUnit
+              labelZh: 来料删除
+              label: IncomingMLotDelete

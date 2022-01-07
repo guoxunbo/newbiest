@@ -1,12 +1,10 @@
 package com.newbiest.gc.model;
 
-import com.newbiest.mms.model.MaterialLot;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 发料单
@@ -173,4 +171,9 @@ public class ErpMaterialOutOrder implements Serializable {
     @Column(name="CREATE_SEQ")
     private String createSeq;
 
+    /**
+     * 备注
+     */
+    @Column(name="CMEMO")
+    private String cmemo;
 }

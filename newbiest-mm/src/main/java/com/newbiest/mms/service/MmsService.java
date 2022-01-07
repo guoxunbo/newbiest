@@ -14,6 +14,9 @@ import java.util.Map;
  */
 public interface MmsService {
 
+    void validateFutureHoldByReceiveTypeAndProductAreaAndLotId(String receiveType, String productArea, String lotId) throws ClientException;
+    void validateFutureHoldByWaferId(String waferId, MaterialLot materialLot) throws ClientException;
+
     // rawMaterial
     Material createRawMaterial(RawMaterial rawMaterial) throws ClientException;
     RawMaterial saveRawMaterial(RawMaterial rawMaterial) throws ClientException;
@@ -36,7 +39,7 @@ public interface MmsService {
 
     StatusModel getMaterialStatusModel(Material material) throws ClientException;
     List<MaterialLot> createMaterialLotList(RawMaterial rawMaterial, List<MaterialLotAction> materialLotImportActions) throws ClientException;
-    MaterialLot createMLot(Material material, StatusModel statusModel, String mLotId, String grade, BigDecimal transQty, Map<String, Object> propsMap, BigDecimal currentSubQty) throws ClientException;
+    MaterialLot createMLot(Material material, StatusModel statusModel, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot receiveMLot2Warehouse(Material material, String mLotId, MaterialLotAction materialLotAction) throws ClientException;
     List<MaterialLot> receiveMLotList2Warehouse(Material material, List<MaterialLotAction> materialLotActions) throws ClientException;
 

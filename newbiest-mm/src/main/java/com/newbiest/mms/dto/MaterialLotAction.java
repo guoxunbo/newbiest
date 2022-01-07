@@ -1,6 +1,7 @@
 package com.newbiest.mms.dto;
 
 import com.newbiest.base.dto.Action;
+import com.newbiest.commom.sm.model.StatusModel;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -26,6 +27,11 @@ public class MaterialLotAction extends Action {
      * 判等
      */
     private String grade;
+
+    /**
+     * 入库备注
+     */
+    private String reserved4;
 
     /**
      * 来源仓库主键
@@ -81,4 +87,25 @@ public class MaterialLotAction extends Action {
      */
     private String sourceModelId;
 
+    /**
+     * RW退料入库标记
+     */
+    private String returnMaterialFlag;
+
+    /**
+     * RW退料入库标记
+     */
+    private String workOrderId;
+
+    public MaterialLotAction(){
+    }
+
+    public MaterialLotAction(String materialLotId, String grade, Map<String, Object> propsMap, BigDecimal totalQty, BigDecimal currentSubQty, String workOrderId){
+        this.setMaterialLotId(materialLotId);
+        this.setGrade(grade);
+        this.setPropsMap(propsMap);
+        this.setTransQty(totalQty);
+        this.setTransCount(currentSubQty);
+        this.setWorkOrderId(workOrderId);
+    }
 }

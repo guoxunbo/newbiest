@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_workorder_relation add column
+      author: Youqing Huang
+      comment: gc_workorder_relation add column
+      changes:
+        - addColumn:
+            tableName: GC_WORKORDER_RELATION
+            columns:
+              - column:
+                  name: BOX_ID
+                  type: varchar2(32)
+                  remarks: 真空包号

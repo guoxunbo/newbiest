@@ -39,4 +39,41 @@ public interface PrintService {
     void printRawMlotIRLabel(List<MaterialLot> materialLots) throws ClientException;
     void printRawMlotGlueLabel(List<MaterialLot> materialLots) throws ClientException;
     void printIRABoxLabel(List<MaterialLot> materialLots) throws ClientException;
+
+    //欧菲光
+    void printOphelionMLotLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //白辰
+    void printBaichenMLotLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //光宝真空包
+    void printGuangBaoVBoxLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //COB光宝标签
+    void printCobGuangBaoLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //华天
+    void printHuatianLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //盛泰真空包
+    void printShengTaiVBoxLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //比亚迪内箱
+    void prinBydLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //信利光电
+    void printXLGDBoxLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //舜宇
+    void printShunYuLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //中控智慧
+    void printZhongKongLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //芯智物料标签
+    void printXingZhiMLotLabel(List<Map<String, String>> mapList) throws ClientException;
+
+    //一般物料标签/光宝箱/盛泰箱
+    void PrintGeneralMLotLabel(List<Map<String, String>> mapList) throws ClientException;
+
 }

@@ -1,5 +1,6 @@
 gc:
   scmUrl: https://gc-scm.wochacha.com
+  wScmUrl: https://gc-scm.wochacha.com
   mesUrl: http://10.181.160.31/mycim2
   mScmUrl: https://mscm.wochacha.com
   mScmUsername: gc_mes
@@ -23,7 +24,7 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@10.181.160.25:1521:MESDB1
+      url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 10.181.160.22)(PORT = 1521))(ADDRESS = (PROTOCOL = TCP)(HOST = 10.181.160.24)(PORT = 1521))(LOAD_BALANCE = yes)(FAILOVER = yes)(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = MESDB)(FAILOVER_MODE=(TYPE = SELECT)(METHOD = BASIC)(RETIRES = 180)(DELAY = 15))))
       username: wmsprod
       password: wmsprod
       driver-class-name: oracle.jdbc.OracleDriver
@@ -78,6 +79,11 @@ spring:
           starttls:
             enable: true
             required: true
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 10MB
+      enabled: true
 #设置server的基本信息
 server:
   servlet:

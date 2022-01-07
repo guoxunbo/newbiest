@@ -44,5 +44,7 @@ public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
 
     MaterialLot findByLotIdAndWorkOrderIdAndStatus(@Param("lotId")String lotId, @Param("workOrderId") String workOrderId, @Param("status")String status) throws ClientException;
 
-    List<MaterialLot> findByLotIdLikeAndStatusCategoryNotIn(@Param("lotId")String lotId, @Param("statusCategory") String statusCategory);
+    List<MaterialLot> findByLotIdLikeAndReserved49AndStatusCategoryNotIn(@Param("lotId")String lotId, @Param("reserved49")String reserved49, @Param("statusCategory") String statusCategory) throws ClientException;
+
+    MaterialLot findByLotIdAndReserved49AndStatusCategoryNotIn(@Param("lotId")String lotId, @Param("reserved49")String reserved49, @Param("statusCategory")String statusCategory) throws ClientException;
 }

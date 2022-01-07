@@ -428,13 +428,19 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     if(MaterialLotUnit.PRODUCT_TYPE_ENG.equals(materialLotUnit.getProductType())){
                         propsMap.put("productType", MaterialLotUnit.PRODUCT_TYPE_ENG);
                     }
+                    //FT导入的产品二级代码为三位的转换为四位
+                    String subCode = materialLotUnit.getReserved1();
+                    if(!StringUtils.isNullOrEmpty(subCode) && subCode.length() == 3){
+                        subCode = subCode + materialLotUnit.getUnitId().substring(0,1);
+                    }
                     propsMap.put("supplier", materialLotUnit.getSupplier());
                     propsMap.put("shipper", materialLotUnit.getShipper());
                     propsMap.put("grade", materialLotUnit.getGrade());
                     propsMap.put("lotId", materialLotUnit.getUnitId().toUpperCase());
+                    propsMap.put("lotCst", materialLotUnit.getUnitId().toUpperCase().split("\\.")[0]);
                     propsMap.put("sourceProductId", materialLotUnit.getSourceProductId());
 
-                    propsMap.put("reserved1",materialLotUnit.getReserved1());
+                    propsMap.put("reserved1",subCode);
                     propsMap.put("reserved4",materialLotUnit.getTreasuryNote());
                     propsMap.put("reserved6",materialLotUnit.getReserved4());
                     propsMap.put("reserved7",materialLotUnit.getReserved7());
@@ -465,12 +471,14 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved50",materialLotUnit.getReserved50());
                     propsMap.put("reserved48",importCode);
 
-                    MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotUnit.getUnitId().toUpperCase(), StringUtils.EMPTY, materialLotUnit.getCurrentQty(), propsMap, BigDecimal.ONE);
+                    MaterialLotAction materialLotAction = new MaterialLotAction(materialLotUnit.getUnitId().toUpperCase(), StringUtils.EMPTY, propsMap, materialLotUnit.getCurrentQty(), BigDecimal.ONE, StringUtils.EMPTY);
+                    MaterialLot materialLot = mmsService.createMLot(material, statusModel, materialLotAction);
 
                     if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                         materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                     }
                     materialLotUnit.setReserved7(StringUtils.EMPTY);
+                    materialLotUnit.setReserved1(subCode);
                     materialLotUnit.setLotId(materialLotUnit.getLotId().toUpperCase());
                     materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
                     materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());

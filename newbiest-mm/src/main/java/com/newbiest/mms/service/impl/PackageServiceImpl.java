@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
+import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
@@ -311,6 +312,16 @@ public class PackageServiceImpl implements PackageService{
                 packedMaterialLot.setReserved17(packedMaterialLots.get(0).getReserved17());
                 packedMaterialLot.setReserved18(packedMaterialLots.get(0).getReserved18());
 
+                //如果箱中Lot已经被标注，更新箱号的标注信息
+                List<MaterialLot> taggingMLotList = packedMaterialLots.stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getReserved54())).collect(Collectors.toList());
+                if(CollectionUtils.isNotEmpty(taggingMLotList)){
+                    packedMaterialLot.setReserved54(taggingMLotList.get(0).getReserved54());
+                    packedMaterialLot.setReserved55(taggingMLotList.get(0).getReserved55());
+                    packedMaterialLot.setReserved56(taggingMLotList.get(0).getReserved56());
+                    packedMaterialLot.setReserved57(taggingMLotList.get(0).getReserved57());
+                    packedMaterialLot.setVenderAddress(taggingMLotList.get(0).getVenderAddress());
+                }
+
                 //如果箱号被Hold,箱中被Hold的真空包全部被拆除，Release箱号
                 if(MaterialLot.HOLD_STATE_ON.equals(packedMaterialLot.getHoldState())){
                     List<MaterialLot> holdMLotList = packedMaterialLots.stream().filter(materialLot -> MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())).collect(Collectors.toList());
@@ -411,6 +422,9 @@ public class PackageServiceImpl implements PackageService{
             validationPackageRule(materialLots, materialLotPackageType);
 
             MaterialLot packedMaterialLot = (MaterialLot) materialLots.get(0).clone();
+            if (MaterialLot.COB_PACKCASE.equals(materialLotPackageType.getName()) && packedMaterialLot.getMaterialLotId().startsWith(MaterialLot.MLOT_SBC)){
+                packedMaterialLotId = packageSBCMLot(packedMaterialLot.getMaterialLotId());
+            }
             if (StringUtils.isNullOrEmpty(packedMaterialLotId)) {
                 packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);
             }
@@ -449,6 +463,21 @@ public class PackageServiceImpl implements PackageService{
 
             packageMaterialLots(packedMaterialLot, materialLots, materialLotActions, false, true);
             return packedMaterialLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private String packageSBCMLot(String packedMaterialLotId){
+        try {
+            String pMLotId = MaterialLot.MLOT_SBB + packedMaterialLotId.substring(3);
+            MaterialLot pMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(pMLotId, ThreadLocalContext.getOrgRrn());
+            if (pMLot != null){
+                materialLotRepository.delete(pMLot);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(pMLot, NBHis.TRANS_TYPE_DELETE);
+                materialLotHistoryRepository.save(history);
+            }
+            return pMLotId;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

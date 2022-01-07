@@ -1,6 +1,7 @@
 package com.newbiest.mms.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.model.NBUpdatable;
@@ -16,6 +17,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by guoxunbo on 2019/2/26.
@@ -148,6 +150,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String MOBILE_RETEST_WHERE_CLAUSE = "GCReTestManager";
     public static final String MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE = "GCWltOrCpStockOutOrder";
     public static final String MOBILE_COM_WAFER_ISSUE_MANAGER_WHERE_CLAUSE = "GCCOMWaferIssueManager";
+    public static final String GC_SCM_LOT_QUERY_WHERE_CLAUSE = "GCScmLotQuery";
+    public static final String GC_INCOMING_MATERIAL_IMPORT = "GCIncomingMaterialImport"; //来料导入
+    public static final String WLT_PACKAGED_LOT_SCAN = "WLTPackagedLotScan"; //LOT产线入库
 
     /**
      * 香港仓依订单出货
@@ -224,8 +229,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
     public static final String RAW_MATERIAL_WAFER_SOURCE = "60";
     public static final String CP_CHANGGE_RW_WAFER_SOURCE = "21";
-    public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
-    public static final String SOC_WAFER_SOURCE_MEASURE = "14";
+    public static final String SOC_WAFER_SOURCE_UNMEASUREN = "1";
+    public static final String SOC_WAFER_SOURCE_MEASURE = "2";
     public static final String MASK_WAFER_SOURCE = "99";
 
     /**
@@ -293,6 +298,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public static final String LOCATION_SH = "SH";
     public static final String BONDED_PROPERTY_ZSH = "ZSH";
+
+    public static final List<String> bondedList = Lists.newArrayList("SWJF", "SWKY", "SWHT", "WJF", "WKY", "WHT");
+
+    public static final String MLOT_SBB = "SBB";
+    public static final String MLOT_SBC = "SBC";
 
     /**
      * 物料批次号

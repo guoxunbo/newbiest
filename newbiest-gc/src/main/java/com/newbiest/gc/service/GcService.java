@@ -19,6 +19,8 @@ import java.util.Map;
  */
 public interface GcService {
 
+    void printMaterialCodeLabel(MaterialLot materialLot, String printType) throws ClientException;
+
     void waferUnpackMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException;
     List<MaterialLot> queryIssueRawMaterialByMaterialLotIdOrLotIdAndTableRrn(String queryLotId, Long tableRrn) throws ClientException;
     MaterialLot getRwMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, Long tableRrn) throws ClientException;
@@ -42,8 +44,8 @@ public interface GcService {
     List<MaterialLotUnit> materialLotUnitAssignEng(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 
     void wltCpThreeSideShip(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
-    void wltCpMaterialLotSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException;
-    void mobileWltCpMaterialLotSaleShip(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode) throws ClientException;
+    void wltCpMaterialLotSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode, String actionType) throws ClientException;
+    void mobileWltCpMaterialLotSaleShip(List<MaterialLotAction> materialLotActions, String erpTime, String checkSubCode, String actionType) throws ClientException;
     void rWAttributeChange(List<MaterialLot> materialLots) throws ClientException;
 
     String importRawMaterialLotList(List<MaterialLot> materialLotList, String importType) throws ClientException;
@@ -98,9 +100,9 @@ public interface GcService {
     void validationMaterialLotVender(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferUnStockOutTagging(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferStockOutTagging(List<MaterialLotAction> materialLotActions, String stockTagNote, String customerName, String stockOutType, String poId, String address) throws ClientException;
-    void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException;
-    void mobileWltStockOut(List<MaterialLotAction> materialLotActions,String erpTime, String checkSubCode) throws ClientException;
-    void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode, String actionType) throws ClientException;
+    void mobileWltStockOut(List<MaterialLotAction> materialLotActions,String erpTime, String checkSubCode, String actionType) throws ClientException;
+    void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String actionType) throws ClientException;
     boolean validationWltStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     boolean validateStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
@@ -112,6 +114,7 @@ public interface GcService {
     String saveLCDCOGDetailList(List<MaterialLot> materialLots, String importType)throws ClientException;
     List<MaterialLot> validationAndGetWaitIssueWafer(Long tableRrn,String whereClause) throws ClientException;
     MaterialLot mobileValidationAndGetWait(Long tableRrn,String lotId) throws ClientException;
+    MaterialLot queryCOBReceiveMaterialLotByTabRrnAndLotId(Long tableRrn, String lotId)throws Exception;
 
     void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException;
     void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException;
@@ -128,6 +131,7 @@ public interface GcService {
     MaterialLot getWaitStockInStorageWaferByLotId(String lotId, Long tableRrn) throws ClientException;
     void deleteIncomingMaterialLot(List<MaterialLotUnit> materialLotUnitList, String deleteNote) throws ClientException;
     String saveIncomingMaterialList(List<MaterialLot> materialLots, String importType)throws ClientException;
+    boolean validateRmaImportMaterialLot(List<MaterialLot> materialLotList) throws ClientException;
     void validationStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions)throws ClientException;
     void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String receiveWithDoc) throws ClientException;
 

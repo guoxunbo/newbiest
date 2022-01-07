@@ -47,9 +47,9 @@ public class WltStockOutController {
         String actionType = requestBody.getActionType();
 
         if (WltStockOutRequest.ACTION_WLTSTOCKOUT.equals(actionType)) {
-            gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode());
+            gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode(), actionType);
         } else if(WltStockOutRequest.ACTION_WLTOTHERSTOCKOUT.equals(actionType)) {
-            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
+            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), actionType);
         } else if(WltStockOutRequest.ACTION_VALIDATION_WLTMLOT.equals(actionType)){
             boolean falg = gcService.validateMLotByPackageRule(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
@@ -70,13 +70,13 @@ public class WltStockOutController {
         } else if(WltStockOutRequest.ACTION_THREESIDE_SHIP.equals(actionType)){
             gcService.wltCpThreeSideShip(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
         } else if(WltStockOutRequest.ACTION_SALE_SHIP.equals(actionType)) {
-            gcService.wltCpMaterialLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode());
+            gcService.wltCpMaterialLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode(), actionType);
         } else if (WltStockOutRequest.ACTION_GC_RW_ATTRIBUTE_CHANGE.equals(actionType)){
             gcService.rWAttributeChange(requestBody.getMaterialLots());
         } else if (WltStockOutRequest.ACTION_MOBILE_WLT_STOCK_OUT.equals(actionType)){
-            gcService.mobileWltStockOut(requestBody.getMaterialLotActions(), requestBody.getErpTime(), requestBody.getCheckSubCode());
+            gcService.mobileWltStockOut(requestBody.getMaterialLotActions(), requestBody.getErpTime(), requestBody.getCheckSubCode(), actionType);
         } else if (WltStockOutRequest.ACTION_MOBILE_SALE_SHIP.equals(actionType)){
-            gcService.mobileWltCpMaterialLotSaleShip(requestBody.getMaterialLotActions(), requestBody.getErpTime(), requestBody.getCheckSubCode());
+            gcService.mobileWltCpMaterialLotSaleShip(requestBody.getMaterialLotActions(), requestBody.getErpTime(), requestBody.getCheckSubCode(), actionType);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

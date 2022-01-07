@@ -280,6 +280,12 @@ public class DocumentLineHistory extends NBHis {
     @Column(name="RESERVED31")
     private String reserved31;
 
+    /**
+     * 记录合单之后的ERP SEQ主键
+     */
+    @Column(name="RESERVED32")
+    private String reserved32;
+
     @Column(name="MATERIAL_TYPE")
     private String materialType;
 

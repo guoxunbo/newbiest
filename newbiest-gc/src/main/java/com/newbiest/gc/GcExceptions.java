@@ -5,6 +5,9 @@ package com.newbiest.gc;
  */
 public class GcExceptions {
 
+    public static final String ABNORMAL_FILE_QUANTITY = "gc.abnormal_file_quantity";
+    public static final String PRINT_TYPE_IS_NOT_SUPPORTED = "gc.print_type_is_not_supported";
+
     public static final String ERP_RETEST_ORDER_IS_NOT_EXIST = "gc.erp_retest_order_is_not_exist";
     public static final String ERP_WAFER_ISSUE_ORDER_IS_NOT_EXIST = "gc.erp_wafer_issue_order_is_not_exist";
     public static final String ERP_RAW_MATERIAL_ISSUE_ORDER_IS_NOT_EXIST = "gc.erp_raw_material_issue_order_is_not_exist";
@@ -56,11 +59,14 @@ public class GcExceptions {
     public static final String MATERIAL_LOT_SHIP_ORDER_ID_IS_NOT_SAME = "gc.material_lot_ship_order_id_is_not_same";
     public static final String MATERIAL_LOT_IS_NOT_PACKED = "gc.material_lot_is_not_packed";
     public static final String MATERIAL_LOT_ALREADY_RECEIVE = "gc.material_lot_already_receive";
+    public static final String MATERIAL_LOT_UNIT_QTY_IS_ERROR = "gc.material_lot_unit_qty_is_error";
+    public static final String THE_QUANTITY_FIELD_MUST_BE_GREATER_THAN_ZERO = "gc.the_quantity_field_must_be_greater_than_zero";
 
     public static final String DOCUMENT_LINE_MERGE_RULE_IS_NOE_EXIST = "gc.document_line_merge_rule_is_not_exist";
 
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";
+    public static final String WAREHOUSE_AND_BONDPRO_ARE_INCONSISTENT = "gc.warehouse_and_bondPro_are_inconsistent";
 
     public static final String CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY = "gc.corresponding_raw_material_info_is_empty";
 
@@ -88,6 +94,9 @@ public class GcExceptions {
 
     //MSCM
     public static final String MSCM_ERROR = "gc.mscm_error";
+    public static final String SCM_LOT_INFO_CONTAINS_EMPTY_VALUE = "gc.lotInfo_contains_empty_value";
+    public static final String SCM_LOT_ID_ALREADY_EXISTS = "gc.lotId_already_exists";
+    public static final String SCM_LOT_ID_IS_NOT_EXIST = "gc.lotId_is_not_exist";
 
     //原材料相关
     public static final String TAPA_MATERIAL_CODE_IS_ERROR = "gc.tape_material_code_is_error";
@@ -95,6 +104,7 @@ public class GcExceptions {
     public static final String IRA_RAW_MATERIAL_BOX_ID_CANNOT_EMPTY = "gc.ira_raw_material_box_id_cannot_empty";
     public static final String IRA_RAW_MATERIAL_BOX_ID_IS_EXISTS = "gc.ira_raw_material_box_id_is_exists";
     public static final String TAPE_MATERIAL_LOT_ID_IS_REPEAT = "gc.tape_material_lot_id_is_repeat";
+    public static final String LOT_ID_IS_NOT_EXIST = "gc.lot_id_is_not_exist";
     public static final String RAW_MATERIAL_WARNING_LIFE_TIME_IS_NOT_SET = "gc.raw_material_warning_life_time_is_not_set";
     public static final String RAW_MATERIAL_LOT_EXPDATE_LESS_THAN_WARNING_LIFE = "gc.raw_material_lot_expdate_less_than_warning_life";
     public static final String IRA_MATERIAL_LOT_BOX_MUST_SATRT_WITH_GCB = "gc.ira_material_lot_box_must_start_with_GCB";

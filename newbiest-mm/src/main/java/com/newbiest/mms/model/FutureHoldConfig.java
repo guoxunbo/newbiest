@@ -1,4 +1,4 @@
-package com.newbiest.gc.model;
+package com.newbiest.mms.model;
 
 import com.newbiest.base.model.NBUpdatable;
 import lombok.Data;
@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name="GC_FUTURE_HOLD_CONFIG")
 @Data
-public class GCFutureHoldConfig extends NBUpdatable {
+public class FutureHoldConfig extends NBUpdatable {
 
     /**
      * LotId
@@ -26,4 +26,16 @@ public class GCFutureHoldConfig extends NBUpdatable {
      */
     @Column(name="HOLD_REASON")
     private String holdReason;
+
+    /**
+     * 产品类别
+     */
+    @Column(name = "PRODUCT_AREA")
+    private String productArea;
+
+    /**
+     * 接收来源
+     */
+    @Column(name = "RECEIVE_TYPE")
+    private String receiveType;
 }

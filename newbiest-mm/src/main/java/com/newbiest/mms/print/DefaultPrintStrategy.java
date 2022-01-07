@@ -17,7 +17,10 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import javax.annotation.PostConstruct;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -98,9 +101,15 @@ public class DefaultPrintStrategy implements IPrintStrategy {
                     value = sdf.format(value);
                     parameterMap.put(key, value);
                 }
+                if (value == null || StringUtils.EMPTY == value){
+                    parameterMap.put(key, StringUtils.BLANK_SPACE);
+                }
             }
         }
-        parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());
+        //如果parameterMap指定了打印次数，则不取LabelTemplate上的打印次数。
+        if(!parameterMap.containsKey("printCount")){
+            parameterMap.put("printCount", printContext.getLabelTemplate().getPrintCount());
+        }
         return parameterMap;
     }
 
@@ -108,17 +117,17 @@ public class DefaultPrintStrategy implements IPrintStrategy {
         String destination = printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation());
         Map<String, Object> params = buildParameters(printContext);
 
-        List<String> paramStr = Lists.newArrayList();
+        UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromHttpUrl(destination);
         for (String key : params.keySet()) {
-            paramStr.add(key + "=" + params.get(key));
+            urlBuilder.queryParam(key, params.get(key));
         }
-
-        destination = destination + "?" + StringUtils.join(paramStr, "&");
+        URI url = urlBuilder.build(false).encode().toUri();
+        destination = url.toString();
         if (log.isDebugEnabled()) {
-            log.debug("Start to send print data to bartender. The destination is [ " + destination + "] ");
+            log.debug("Start to send print data to bartender. The destination is [ " + destination + " ] ");
         }
 
-        HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(destination, byte[].class);
+        HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(url, byte[].class);
         String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
         if (log.isDebugEnabled()) {
             log.debug(String.format("Get response from bartender. Response is [%s]", response));

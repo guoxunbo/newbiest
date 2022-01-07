@@ -7,6 +7,7 @@ import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -18,8 +19,6 @@ import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.utils.CollectorsUtils;
 import com.newbiest.msg.ResponseHeader;
 import lombok.Data;
-import org.hibernate.Session;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,8 +112,17 @@ public class ImportMLotThread implements Callable {
             propsMap.put("reserved48",importCode);
             propsMap.put("productType",productType);
 
-            MaterialLot materialLot = mmsService.createMLot(material, statusModel,  materialLotId, StringUtils.EMPTY, totalQty, propsMap, currentSubQty);
+            MaterialLotAction materialLotAction = new MaterialLotAction(materialLotId, StringUtils.EMPTY, propsMap, totalQty, currentSubQty, StringUtils.EMPTY);
+            MaterialLot materialLot = mmsService.createMLot(material, statusModel, materialLotAction);
+
+            if (MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49()) || MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49())) {
+                mmsService.validateFutureHoldByReceiveTypeAndProductAreaAndLotId(MaterialLot.GC_INCOMING_MATERIAL_IMPORT, materialLot.getReserved49(), materialLot.getLotId());
+            }
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                if (MaterialLot.IMPORT_WLA.equals(materialLotUnit.getReserved49()) || MaterialLot.IMPORT_LCD_CP.equals(materialLot.getReserved49())
+                        || MaterialLot.IMPORT_SENSOR_CP.equals(materialLot.getReserved49())) {
+                    mmsService.validateFutureHoldByWaferId(materialLotUnit.getUnitId(), materialLot);
+                }
                 if(!StringUtils.isNullOrEmpty(materialLotUnit.getDurable())){
                     materialLotUnit.setDurable(materialLotUnit.getDurable().toUpperCase());
                 }

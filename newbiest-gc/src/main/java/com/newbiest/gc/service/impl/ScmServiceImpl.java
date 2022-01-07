@@ -13,10 +13,16 @@ import com.newbiest.base.ui.model.NBTable;
 import com.newbiest.base.ui.service.UIService;
 import com.newbiest.base.utils.*;
 import com.newbiest.gc.GcExceptions;
-import com.newbiest.gc.model.GCFutureHoldConfig;
-import com.newbiest.gc.model.GCFutureHoldConfigHis;
-import com.newbiest.gc.repository.GCFutureHoldConfigHisRepository;
-import com.newbiest.gc.repository.GCFutureHoldConfigRepository;
+import com.newbiest.gc.model.GCScmToMesEngInform;
+import com.newbiest.gc.model.GCScmToMesEngInformHis;
+import com.newbiest.gc.repository.GCScmToMesEngInformHisRepository;
+import com.newbiest.gc.repository.GCScmToMesEngInformRepository;
+import com.newbiest.gc.rest.scm.engManager.EngManagerRequest;
+import com.newbiest.gc.service.model.QueryWaferResponse;
+import com.newbiest.mms.model.FutureHoldConfig;
+import com.newbiest.mms.model.FutureHoldConfigHis;
+import com.newbiest.mms.repository.FutureHoldConfigHisRepository;
+import com.newbiest.mms.repository.FutureHoldConfigRepository;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequest;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
 import com.newbiest.gc.service.ScmService;
@@ -27,7 +33,9 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
+import com.newbiest.mms.utils.CollectorsUtils;
 import com.newbiest.msg.*;
+import io.swagger.annotations.Api;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -39,17 +47,16 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.http.impl.client.HttpClientBuilder.create;
@@ -65,6 +72,7 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
 @Slf4j
 @Data
 @EnableAsync
+@Transactional
 public class ScmServiceImpl implements ScmService {
 
     /**
@@ -89,9 +97,16 @@ public class ScmServiceImpl implements ScmService {
     public static final String MSCM_TOKEN_API = "/api/?r=Api/Token/AccessToken";
     public static final String MSCM_ADD_TRACKING_API = "/api/?r=Api/Logistics/AddTracking";
 
+    public static final String MSCM_QUERY_WAFER_BY_WONO_API = "/api/wip/wipdata-wo/get-details";
+    public static final String APP_KEY = "5128e6b9-759a-47e8-8341-d0ca552ac10b";
+    public static final String SYSTEM_ID = "2";
+    public static final String VERSION = "v1";
+
     public static final String SCM_RETRY_VALIDATE_MATERIAL_LOT_ENG = "https://gc-scm.wochacha.com/api/wip/sync-eng/query";
 
     private RestTemplate restTemplate;
+
+    private List<String> needTokenUrlList = Lists.newArrayList();
 
     @Value("${gc.scmUrl}")
     private String scmUrl;
@@ -99,11 +114,21 @@ public class ScmServiceImpl implements ScmService {
     @Value("${gc.mScmUrl}")
     private String mScmUrl;
 
+    @Value("${gc.wScmUrl}")
+    private String wScmUrl;
+
     @Value("${gc.mScmUsername}")
     private String mScmUsername;
 
     @Value("${gc.mScmPassword}")
     private String mScmPassword;
+
+    @Value("${spring.profiles.active}")
+    private String profiles;
+
+    private boolean isProdEnv() {
+        return "production".equalsIgnoreCase(profiles);
+    }
 
     @Autowired
     MaterialLotRepository materialLotRepository;
@@ -136,10 +161,22 @@ public class ScmServiceImpl implements ScmService {
     InterfaceHistoryRepository interfaceHistoryRepository;
 
     @Autowired
-    GCFutureHoldConfigRepository gcFutureHoldConfigRepository;
+    FutureHoldConfigRepository futureHoldConfigRepository;
 
     @Autowired
-    GCFutureHoldConfigHisRepository gcFutureHoldConfigHisRepository;
+    FutureHoldConfigHisRepository futureHoldConfigHisRepository;
+
+    @Autowired
+    GCScmToMesEngInformRepository gcScmToMesEngInformRepository;
+
+    @Autowired
+    GCScmToMesEngInformHisRepository gcScmToMesEngInformHisRepository;
+
+    @Autowired
+    WaferHoldRelationRepository waferHoldRelationRepository;
+
+    @Autowired
+    WaferHoldRelationHisRepository waferHoldRelationHisRepository;
 
     @PostConstruct
     public void init() {
@@ -154,26 +191,28 @@ public class ScmServiceImpl implements ScmService {
         return create().useSystemProperties().disableRedirectHandling().disableCookieManagement();
     }
 
-    public void scmHold(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
+    public void scmHold(List<String> materialLotUnitIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
         try {
-            for (String lotId : materialLotIdList) {
-                List<MaterialLot> materialLotList = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
-                if (CollectionUtils.isEmpty(materialLotList)) {
+            for (String unitId : materialLotUnitIdList) {
+                MaterialLotUnit materialLotUnit = materialLotUnitRepository.findByUnitIdAndStateIn(unitId, Lists.newArrayList(MaterialLotUnit.STATE_CREATE, MaterialLotUnit.STATE_IN, MaterialLotUnit.STATE_PACKAGE));
+                if (materialLotUnit == null) {
                     // 不存在 则做预Hold
-                    GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(lotId);
-                    if(gcFutureHoldConfig == null){
-                        gcFutureHoldConfig = new GCFutureHoldConfig();
-                        gcFutureHoldConfig.setLotId(lotId);
-                        gcFutureHoldConfig.setHoldReason(actionReason);
-                        gcFutureHoldConfigRepository.save(gcFutureHoldConfig);
+                    WaferHoldRelation waferHoldRelation = waferHoldRelationRepository.findByWaferIdAndType(unitId, WaferHoldRelation.HOLD_TYPE_SCM);
+                    if(waferHoldRelation == null){
+                        waferHoldRelation = new WaferHoldRelation();
+                        waferHoldRelation.setWaferId(unitId);
+                        waferHoldRelation.setHoldReason(actionReason);
+                        waferHoldRelation.setType(WaferHoldRelation.HOLD_TYPE_SCM);
+                        waferHoldRelationRepository.save(waferHoldRelation);
 
-                        GCFutureHoldConfigHis history = (GCFutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, GCFutureHoldConfigHis.SCM_ADD);
-                        gcFutureHoldConfigHisRepository.save(history);
+                        WaferHoldRelationHis history = (WaferHoldRelationHis) baseService.buildHistoryBean(waferHoldRelation, WaferHoldRelationHis.SCM_ADD);
+                        waferHoldRelationHisRepository.save(history);
                     } else {
-                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, lotId);
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, unitId);
                     }
                 } else {
-                    for(MaterialLot materialLot : materialLotList){
+                    MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotUnit.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                    if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
                         materialLotAction.setActionCode(actionCode);
                         materialLotAction.setActionReason(actionReason);
@@ -188,21 +227,22 @@ public class ScmServiceImpl implements ScmService {
         }
     }
 
-    public void scmRelease(List<String> materialLotIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
-        for (String lotId : materialLotIdList) {
-            List<MaterialLot> materialLots = materialLotRepository.findByLotIdLikeAndStatusCategoryNotIn(lotId + "%", MaterialLot.STATUS_FIN);
-            if (CollectionUtils.isEmpty(materialLots)) {
-                GCFutureHoldConfig gcFutureHoldConfig = gcFutureHoldConfigRepository.findByLotId(lotId);
-                if(gcFutureHoldConfig == null){
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
+    public void scmRelease(List<String> materialLotUnitIdList, String actionCode, String actionReason, String actionRemarks) throws ClientException{
+        for (String unitId : materialLotUnitIdList) {
+            MaterialLotUnit materialLotUnit = materialLotUnitRepository.findByUnitIdAndStateIn(unitId, Lists.newArrayList(MaterialLotUnit.STATE_CREATE, MaterialLotUnit.STATE_IN, MaterialLotUnit.STATE_PACKAGE));
+            if (materialLotUnit == null) {
+                WaferHoldRelation waferHoldRelation = waferHoldRelationRepository.findByWaferIdAndType(unitId, WaferHoldRelation.HOLD_TYPE_SCM);
+                if(waferHoldRelation == null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, unitId);
                 } else {
-                    gcFutureHoldConfigRepository.delete(gcFutureHoldConfig);
+                    waferHoldRelationRepository.delete(waferHoldRelation);
 
-                    GCFutureHoldConfigHis history = (GCFutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, GCFutureHoldConfigHis.SCM_DELETE);
-                    gcFutureHoldConfigHisRepository.save(history);
+                    WaferHoldRelationHis history = (WaferHoldRelationHis) baseService.buildHistoryBean(waferHoldRelation, WaferHoldRelationHis.SCM_DELETE);
+                    waferHoldRelationHisRepository.save(history);
                 }
             } else {
-                for(MaterialLot materialLot : materialLots){
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotUnit.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                if(MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
                     MaterialLotAction materialLotAction = new MaterialLotAction();
                     materialLotAction.setActionCode(actionCode);
                     materialLotAction.setActionReason(actionReason);
@@ -277,30 +317,7 @@ public class ScmServiceImpl implements ScmService {
         try {
             List<MaterialLot> materialLotList = packageService.getPackageDetailLots(parentMaterialLot.getObjectRrn());
             List<MaterialLot> unTagMaterialLotList = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved54())).collect(Collectors.toList());
-
             if(CollectionUtils.isEmpty(unTagMaterialLotList)){
-                Map<String, List<MaterialLot>> mLotAssignMap =  materialLotList.stream().collect(Collectors.groupingBy(mLot -> {
-                    StringBuffer key = new StringBuffer();
-                    if(StringUtils.isNullOrEmpty(mLot.getReserved56())){
-                        key.append(StringUtils.EMPTY);
-                    } else {
-                        key.append(mLot.getReserved56());
-                    }
-                    if(StringUtils.isNullOrEmpty(mLot.getReserved54())){
-                        key.append(StringUtils.EMPTY);
-                    } else {
-                        key.append(mLot.getReserved54());
-                    }
-                    if(StringUtils.isNullOrEmpty(mLot.getVenderAddress())){
-                        key.append(StringUtils.EMPTY);
-                    } else {
-                        key.append(mLot.getVenderAddress());
-                    }
-                    return key.toString();
-                }));
-                if (mLotAssignMap != null &&  mLotAssignMap.size() > 1) {
-                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_TAG_INFO_IS_NOT_SAME, parentMaterialLot.getMaterialLotId());
-                }
                 scmAssignAndSaveHis(parentMaterialLot, materialType, vendor, poId, remarks, vendorAddress);
             }
         } catch (Exception e){
@@ -342,6 +359,146 @@ public class ScmServiceImpl implements ScmService {
             if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
                 MaterialLot parentMLot = mmsService.getMLotByMLotId(materialLot.getParentMaterialLotId(), true);
                 scmUnAssignMaterialLot(parentMLot);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * scm 来料批次查询
+     * @param lotIdList
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public List<Map<String, String>> scmLotQuery(List<Map<String, String>> lotIdList) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.GC_SCM_LOT_QUERY_WHERE_CLAUSE);
+            String whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+
+            List<Map<String, String>> materialLots = Lists.newArrayList();
+            for (Map<String, String> lotIdMap : lotIdList) {
+                String lotId = lotIdMap.get("lotId");
+                if (!StringUtils.isNullOrEmpty(lotId)) {
+                    StringBuffer clauseBuffer = new StringBuffer(whereClause);
+                    clauseBuffer.append(" and lot_id = '" + lotId + "'");
+                    List<MaterialLot> mLotList = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), clauseBuffer.toString(), orderBy);
+                    if (CollectionUtils.isNotEmpty(mLotList)) {
+                        Map<String, String> mLotMap = Maps.newHashMap();
+                        mLotMap.put("lotId", mLotList.get(0).getLotId());
+                        mLotMap.put("boxId", mLotList.get(0).getParentMaterialLotId() == null ? StringUtils.EMPTY : mLotList.get(0).getParentMaterialLotId());
+                        mLotMap.put("waferCount", mLotList.get(0).getCurrentSubQty().toString());
+                        materialLots.add(mLotMap);
+                    }
+                }
+            }
+            return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 通过物料批次生产订单号查询SCM晶圆信息
+     * @param workOrderNo
+     * @return
+     * @throws ClientException
+     */
+    public List<Map<String, String>> queryScmWaferByWorkOrderNo(String workOrderNo) throws ClientException{
+        try {
+            Long timeStamp = System.currentTimeMillis();
+            Map<String, Object> requestMap = Maps.newHashMap();
+            requestMap.put("format", "json");
+            requestMap.put("wo_codes", workOrderNo);
+            requestMap.put("app_key", APP_KEY);
+            requestMap.put("timestamp", timeStamp.toString());
+            requestMap.put("system_id", SYSTEM_ID);
+            requestMap.put("version", VERSION);
+
+            List<String> paramStr = Lists.newArrayList();
+            for (String key : requestMap.keySet()) {
+                paramStr.add(key + "=" + requestMap.get(key));
+            }
+            String url = isProdEnv() ? scmUrl : wScmUrl + MSCM_QUERY_WAFER_BY_WONO_API;
+            String destination = url + "?" + StringUtils.join(paramStr, "&");
+
+            log.info("query waferInfo by wono requestString is " + destination);
+
+            HttpEntity<byte[]> responseEntity = restTemplate.getForEntity(destination, byte[].class);
+            String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Get response from bartender. Response is [%s]", response));
+            }
+            List<Map<String, String>> mapList = Lists.newArrayList();
+            if (!StringUtils.isNullOrEmpty(response)) {
+                QueryWaferResponse queryWaferResponse = DefaultParser.getObjectMapper().readerFor(QueryWaferResponse.class).readValue(response);
+                if (!QueryEngResponse.SUCCESS_CODE.equals(queryWaferResponse.getCode())) {
+                    throw new ClientException(queryWaferResponse.getMessage());
+                }
+                mapList = queryWaferResponse.getData();
+            }
+            return mapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 添加、修改SCM工程品
+     * @param lotEngInfoList
+     * @throws ClientException
+     */
+    @Override
+    public void scmSaveEngInfo(List<GCScmToMesEngInform> lotEngInfoList, String actionType) throws ClientException {
+        try {
+            for (GCScmToMesEngInform mesLot : lotEngInfoList) {
+                if (StringUtils.isNullOrEmpty(mesLot.getLotId()) || StringUtils.isNullOrEmpty(mesLot.getProductId()) || StringUtils.isNullOrEmpty(mesLot.getWaferId())
+                        || StringUtils.isNullOrEmpty(mesLot.getHoldFlag()) || StringUtils.isNullOrEmpty(mesLot.getHoldDesc())) {
+                    throw new ClientException(GcExceptions.SCM_LOT_INFO_CONTAINS_EMPTY_VALUE);
+                }
+                GCScmToMesEngInform existMesLot = gcScmToMesEngInformRepository.findByLotId(mesLot.getLotId());
+                if (EngManagerRequest.ACTION_TYPE_SAVE.equals(actionType)) {
+                    if (existMesLot != null) {
+                        throw new ClientParameterException(GcExceptions.SCM_LOT_ID_ALREADY_EXISTS, existMesLot.getLotId());
+                    }
+                    mesLot = gcScmToMesEngInformRepository.saveAndFlush(mesLot);
+                    GCScmToMesEngInformHis scmToMesEngInformHis = (GCScmToMesEngInformHis) baseService.buildHistoryBean(mesLot, "CreateSCMEng");
+                    gcScmToMesEngInformHisRepository.save(scmToMesEngInformHis);
+                } else if (EngManagerRequest.ACTION_TYPE_UPDATE.equals(actionType)) {
+                    if (existMesLot == null) {
+                        throw new ClientParameterException(GcExceptions.SCM_LOT_ID_IS_NOT_EXIST, mesLot.getLotId());
+                    }
+                    PropertyUtils.copyProperties(mesLot, existMesLot);
+
+                    existMesLot = gcScmToMesEngInformRepository.saveAndFlush(existMesLot);
+                    GCScmToMesEngInformHis scmToMesEngInformHis = (GCScmToMesEngInformHis) baseService.buildHistoryBean(existMesLot, "UpdateMesEng");
+                    gcScmToMesEngInformHisRepository.save(scmToMesEngInformHis);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 删除SCM工程品
+     * @param lotEngInfoList
+     * @throws ClientException
+     */
+    @Override
+    public void scmDeleteEngInfo(List<GCScmToMesEngInform> lotEngInfoList) throws ClientException {
+        try {
+            for (GCScmToMesEngInform mesLot : lotEngInfoList) {
+                GCScmToMesEngInform existMesLot = gcScmToMesEngInformRepository.findByLotId(mesLot.getLotId());
+                if (existMesLot != null) {
+                    gcScmToMesEngInformRepository.delete(existMesLot);
+                    GCScmToMesEngInformHis gcScmToMesEngInformHis = (GCScmToMesEngInformHis) baseService.buildHistoryBean(existMesLot, "DeleteSCMEng");
+                    gcScmToMesEngInformHisRepository.save(gcScmToMesEngInformHis);
+                } else {
+                    throw new ClientParameterException(GcExceptions.SCM_LOT_ID_IS_NOT_EXIST, mesLot.getLotId());
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -462,6 +619,9 @@ public class ScmServiceImpl implements ScmService {
             }
             List<Map> requestWaferList = Lists.newArrayList();
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                if (materialLotUnit.getCurrentQty().compareTo(BigDecimal.ZERO) <= 0){
+                    throw new ClientParameterException(GcExceptions.THE_QUANTITY_FIELD_MUST_BE_GREATER_THAN_ZERO, materialLotUnit.getCurrentQty());
+                }
                 Map<String, String> requestInfo = Maps.newHashMap();
                 if (StringUtils.isNullOrEmpty(materialLotUnit.getReserved30())) {
                     log.warn(String.format("MaterialUnit [%s] has no lotId.", materialLotUnit.getUnitId()));
@@ -525,7 +685,7 @@ public class ScmServiceImpl implements ScmService {
     }
 
     @Async
-    public void sendMaterialStateReport(List<MaterialLot> materialLots, String action) throws ClientException {
+    public void sendMaterialStateReport(List<MaterialLotUnit> materialLotUnitList, String action) throws ClientException {
         try {
             MaterialLotStateReportRequest request = new MaterialLotStateReportRequest();
             RequestHeader requestHeader = new RequestHeader();
@@ -537,15 +697,18 @@ public class ScmServiceImpl implements ScmService {
 
             MaterialLotStateReportRequestBody requestBody = new MaterialLotStateReportRequestBody();
             List<Map<String, String>> reportDataList = Lists.newArrayList();
-            for (MaterialLot materialLot : materialLots) {
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-                for(MaterialLotUnit materialLotUnit: materialLotUnitList){
-                    Map<String, String> reportData = Maps.newHashMap();
-                    reportData.put("lotId", materialLotUnit.getLotId());
-                    String waferId = materialLotUnit.getUnitId().split("-")[1];
-                    reportData.put("waferId", waferId);
-                    reportDataList.add(reportData);
-                }
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("scm report materialLot status materialLotUnitList is [%s]", materialLotUnitList));
+            }
+            for(MaterialLotUnit materialLotUnit: materialLotUnitList){
+                Map<String, String> reportData = Maps.newHashMap();
+                reportData.put("lotId", materialLotUnit.getLotId());
+                String waferId = materialLotUnit.getUnitId().split("-")[1];
+                reportData.put("waferId", waferId);
+                reportDataList.add(reportData);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("report materialLot state reportDataList is [%s]", reportDataList));
             }
             requestBody.setActionType(action);
             requestBody.setMaterialLotList(reportDataList);
@@ -592,10 +755,17 @@ public class ScmServiceImpl implements ScmService {
             }
             headers.put("Content-Type", Lists.newArrayList(contentType));
 
-            String token = httpHeaders.get("authorization");
-            if (!StringUtils.isNullOrEmpty(token)) {
+//            String token = httpHeaders.get("authorization");
+//            if (!StringUtils.isNullOrEmpty(token)) {
+//                headers.put("authorization", Lists.newArrayList(token));
+//            }
+
+            String needTokenUrl = mScmUrl + MSCM_ADD_TRACKING_API;
+            if (needTokenUrl.equals(url)){
+                String token = getMScmToken();
                 headers.put("authorization", Lists.newArrayList(token));
             }
+
             ResponseEntity<byte[]> responseEntity = null;
             if ("application/x-www-form-urlencoded".equals(contentType)) {
                 MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
@@ -643,10 +813,6 @@ public class ScmServiceImpl implements ScmService {
 
     public void addTracking(String orderId, String expressNumber, boolean isKuayueExprress) throws ClientException{
         try {
-            String token = getMScmToken();
-            Map httpHeader = Maps.newHashMap();
-            httpHeader.put("authorization", token);
-
             List<Map> requestInfoList = Lists.newArrayList();
             Map requestInfo = Maps.newHashMap();
             requestInfo.put("send_code", orderId);
@@ -657,7 +823,7 @@ public class ScmServiceImpl implements ScmService {
             }
             requestInfoList.add(requestInfo);
 
-            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, httpHeader);
+            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, Maps.newHashMap());
             if (!StringUtils.isNullOrEmpty(response)) {
                 Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
                 Integer ret = (Integer) responseData.get("ret");
@@ -718,11 +884,11 @@ public class ScmServiceImpl implements ScmService {
                 requestInfoList.add(requestInfo);
             }
 
-            String token = getMScmToken();
-            Map httpHeader = Maps.newHashMap();
-            httpHeader.put("authorization", token);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Send addScmTracking. RequestString is [%s]", requestInfoList));
+            }
 
-            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, httpHeader);
+            String response = sendHttpRequest(mScmUrl + MSCM_ADD_TRACKING_API, requestInfoList, Maps.newHashMap());
             if (!StringUtils.isNullOrEmpty(response)) {
                 Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
                 Integer ret = (Integer) responseData.get("ret");
@@ -739,23 +905,38 @@ public class ScmServiceImpl implements ScmService {
     public String getMScmToken() throws ClientException{
         try {
             String token = StringUtils.EMPTY;
-            Map httpHeader = Maps.newHashMap();
-            httpHeader.put("contentType", "application/x-www-form-urlencoded");
+            HttpHeaders httpHeader = new HttpHeaders();
+            httpHeader.put("contentType", Lists.newArrayList("application/x-www-form-urlencoded"));
 
-            Map<String, String> requestInfo = Maps.newHashMap();
-            requestInfo.put("app_name", mScmUsername);
-            requestInfo.put("app_secret", mScmPassword);
-            requestInfo.put("service", MSCM_SERVICE_NAME);
+            Map<String, String> requestMap = Maps.newHashMap();
+            requestMap.put("app_name", mScmUsername);
+            requestMap.put("app_secret", mScmPassword);
+            requestMap.put("service", MSCM_SERVICE_NAME);
 
-            String response = sendHttpRequest(mScmUrl + MSCM_TOKEN_API, requestInfo, httpHeader);
-            Map<String, Object> responseData = DefaultParser.getObjectMapper().readerFor(Map.class).readValue(response);
+            MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
+            for (String key : requestMap.keySet()) {
+                postParameters.add(key, requestMap.get(key));
+            }
 
-            if (!StringUtils.isNullOrEmpty(response)) {
-                Integer ret = (Integer) responseData.get("ret");
+            if (log.isDebugEnabled()) {
+                String requestString = DefaultParser.getObjectMapper().writeValueAsString(requestMap);
+                log.debug(String.format("Send data. RequestString is [%s]", requestString));
+            }
+
+            HttpEntity<MultiValueMap> httpEntity = new HttpEntity<>(postParameters, httpHeader);
+            Map<String, Object> responseMap = restTemplate.postForObject(new URI(mScmUrl + MSCM_TOKEN_API), httpEntity, Map.class);
+
+            if (log.isDebugEnabled()) {
+                String response = DefaultParser.writerJson(responseMap);
+                log.debug(String.format("Get response by scm. Response is [%s]", response));
+            }
+
+            if (!responseMap.isEmpty()) {
+                Integer ret = (Integer) responseMap.get("ret");
                 if (200 != ret) {
-                    throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseData.get("msg"));
+                    throw new ClientParameterException(GcExceptions.MSCM_ERROR, responseMap.get("msg"));
                 }
-                Map<String, Object> data = (Map<String, Object>) responseData.get("data");
+                Map<String, Object> data = (Map<String, Object>) responseMap.get("data");
                 token = (String) data.get("token");
             }
             return token;
