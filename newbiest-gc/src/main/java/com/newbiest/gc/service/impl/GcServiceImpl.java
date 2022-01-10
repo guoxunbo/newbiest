@@ -2150,7 +2150,6 @@ public class GcServiceImpl implements GcService {
                 if (SystemPropertyUtils.getConnectMscmFlag()) {
                     scmService.addScmTracking(documentLine.getDocId(), materialLotList);
                 }
-                throw new ClientParameterException("123");
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -8239,7 +8238,7 @@ public class GcServiceImpl implements GcService {
                         materialLotUnit.setReserved12(documentLine.getObjectRrn().toString());
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
-                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
+                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_THROW_WLT_OUT);
                         materialLotUnitHisRepository.save(materialLotUnitHistory);
 
                         --circleQty;
