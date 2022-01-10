@@ -24,6 +24,7 @@ public class MaterialLotUnitHistory extends NBHis {
 
     public static final String TRANS_TYPE_IN = "In";
     public static final String TRANS_TYPE_STOCK_OUT = "Out";
+    public static final String TRANS_TYPE_THROW_WLT_OUT = "ThrowWltOut";
 
 
     public static final String PRODUCT_TYPE = "PROD";

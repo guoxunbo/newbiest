@@ -21,6 +21,8 @@ public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, 
 
     List<MaterialLotUnit> findByUnitIdAndStateInAndReserved48IsNotNull(String unitId, List<String> stateList) throws ClientException;
 
+    List<MaterialLotUnit> findByMaterialLotIdAndReserved12IsNull(String materialLotId) throws ClientException;
+
     MaterialLotUnit findByMaterialLotIdAndUnitId(String materialLotId, String unitId) throws ClientException;
 
     @Modifying
