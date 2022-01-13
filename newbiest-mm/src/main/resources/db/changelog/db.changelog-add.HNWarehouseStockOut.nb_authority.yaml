@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseStockOutManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseStockOutManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNWarehouseStockOutManager
+              description: 湖南仓库出货
+              tableName: HNWarehouseStockOutOrder
+              secondTableName: HNWarehouseStockOutMLot
+              mobileFlag: N
+              url: /HNWarehouse/StockOut
+              parentRrn: 2022
+              seqNo: 25
+              image: icon-wuliao
+              labelZh: 出货
+              labelEn: StockOut
+
