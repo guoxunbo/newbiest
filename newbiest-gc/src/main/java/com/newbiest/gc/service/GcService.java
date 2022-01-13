@@ -134,6 +134,7 @@ public interface GcService {
     boolean validateRmaImportMaterialLot(List<MaterialLot> materialLotList) throws ClientException;
     void validationStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions)throws ClientException;
     void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String receiveWithDoc) throws ClientException;
+    void saveHNWarehouseImportList(List<MaterialLot> materialLotList) throws ClientException;
 
     void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException;
     void mobileValidationAndWaferIssue(String erpTime, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException;

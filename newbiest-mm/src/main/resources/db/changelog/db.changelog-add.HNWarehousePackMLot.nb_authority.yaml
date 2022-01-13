@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehousePackMLotManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehousePackMLotManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNWarehousePackMLotManager
+              description: 湖南仓库装箱
+              tableName: HNWarehousePackMLot
+              mobileFlag: N
+              url: /HNWarehouse/PackMLot
+              parentRrn: 2022
+              seqNo: 15
+              image: icon-wuliao
+              labelZh: 装箱
+              labelEn: PackMLot
+
