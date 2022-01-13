@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseReceiveManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNWarehouseReceiveManager
+              description: 湖南仓库接收
+              tableName: HNWarehouseReceive
+              secondTableName: HNWarehouseWaitReceiveMLot
+              mobileFlag: N
+              url: /HNWarehouse/Receive
+              parentRrn: 2022
+              seqNo: 10
+              image: icon-wuliao
+              labelZh: 接收
+              labelEn: Receive
+
