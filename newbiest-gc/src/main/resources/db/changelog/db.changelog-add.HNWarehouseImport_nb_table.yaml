@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseImport_to_NB_TABLE
+      author: Youqing Huang
+      comment: add HNWarehouseImport to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HNWarehouseImport
+              description: 湖南仓导入
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 湖南仓导入
+              label: HNWarehouseImport

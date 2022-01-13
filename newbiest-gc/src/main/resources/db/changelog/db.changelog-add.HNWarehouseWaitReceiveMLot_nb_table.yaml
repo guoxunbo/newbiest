@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseWaitReceiveMLot_to_NB_TABLE
+      author: Youqing Huang
+      comment: add HNWarehouseWaitReceiveMLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HNWarehouseWaitReceiveMLot
+              description: 湖南仓待接收货物
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 湖南仓待接收货物
+              label: HNWarehouseWaitReceiveMLot
