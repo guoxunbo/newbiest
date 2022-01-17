@@ -3001,6 +3001,16 @@ public class GcServiceImpl implements GcService {
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
                     materialLotAction.setSourceModelId(mesPackedLot.getProductId());
 
+                    if (MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
+                        if (MesPackedLot.REPLACE_FLAG.equals(mesPackedLot.getReplaceFlag())) {
+                            materialLotAction.setSourceModelId(mesPackedLot.getPrintModelId());
+                        }else{
+                            if (mesPackedLot.getProductId().endsWith("-4")) {
+                                materialLotAction.setSourceModelId(mesPackedLot.getProductId().substring(0, mesPackedLot.getProductId().lastIndexOf(StringUtils.SPLIT_CODE)) + "-3.5");
+                            }
+                        }
+                    }
+
                     // 真空包产地是SH的入SH仓库，是ZJ的入浙江仓库(COM和FT的保税属性是上海的入上海仓库，其他入浙江仓库)
                     String warehouseName = WAREHOUSE_ZJ;
                     if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) || MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(productCateGory)){
