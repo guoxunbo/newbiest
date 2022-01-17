@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCHNWarehouseIncomingMaterialImport_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCHNWarehouseIncomingMaterialImport to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HNWarehouseIncomingMaterialImport
+              description: 湖南仓库入库导入
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 入库导入
+              label: IncomingMaterialImport
