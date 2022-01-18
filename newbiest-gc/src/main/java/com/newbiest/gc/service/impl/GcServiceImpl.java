@@ -328,6 +328,9 @@ public class GcServiceImpl implements GcService {
     @Autowired
     ComThrowWaferTabRepository comThrowWaferTabRepository;
 
+    @Autowired
+    MesGcWltUploadRepository mesGcWltUploadRepository;
+
     /**
      * 根据单据和动态表RRN获取可以被备货的批次
      * @param
@@ -4594,8 +4597,9 @@ public class GcServiceImpl implements GcService {
     /**
      * 接收WLT的完成品
      * @param packedLotList
+     * @return
      */
-    public void receiveWltFinishGood(List<MesPackedLot> packedLotList, String printLabel, String printCount) throws ClientException {
+    public List<MesPackedLot> receiveWltFinishGood(List<MesPackedLot> packedLotList, String printLabel, String printCount) throws ClientException {
         try {
             List<MaterialLot> scmReportHoldMLotList = Lists.newArrayList();
             List<MaterialLot> materialLotList = Lists.newArrayList();
@@ -4652,15 +4656,16 @@ public class GcServiceImpl implements GcService {
                 scmService.sendMaterialStateReport(materialLotUnitList, MaterialLotStateReportRequestBody.ACTION_TYPE_HOLD);
             }
 
-            if(!StringUtils.isNullOrEmpty(printLabel)){
-                mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
-                List<MaterialLot> materialLots = Lists.newArrayList();
-                for(MesPackedLot mesPackedLot : mesPackedLots){
-                    MaterialLot materialLot = mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true);
-                    materialLots.add(materialLot);
-                }
-                printService.printReceiveWltCpLotLabel(materialLots, printCount);
-            }
+            return mesPackedLots;
+//            if(!StringUtils.isNullOrEmpty(printLabel)){
+//                mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
+//                List<MaterialLot> materialLots = Lists.newArrayList();
+//                for(MesPackedLot mesPackedLot : mesPackedLots){
+//                    MaterialLot materialLot = mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true);
+//                    materialLots.add(materialLot);
+//                }
+//                printService.printReceiveWltCpLotLabel(materialLots, printCount);
+//            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -4775,8 +4780,9 @@ public class GcServiceImpl implements GcService {
      * @param packedLots
      * @param printLabel
      * @throws ClientException
+     * @return
      */
-    public void receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel, String printCount) throws ClientException {
+    public List<MesPackedLot> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel, String printCount) throws ClientException {
         try {
             List<MaterialLot> materialLotList = Lists.newArrayList();
             Map<String, List<MesPackedLot>> packedLotMap = packedLots.stream().collect(Collectors.groupingBy(MesPackedLot :: getCstId));
@@ -4800,11 +4806,12 @@ public class GcServiceImpl implements GcService {
             }
 
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLots.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
-            if(!StringUtils.isNullOrEmpty(printLabel)){
-                mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
-                List<MaterialLot> materialLots = mesPackedLots.stream().map(mesPackedLot -> mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true)).collect(Collectors.toList());
-                printService.printRwLotCstLabel(materialLots, printCount);
-            }
+//            if(!StringUtils.isNullOrEmpty(printLabel)){
+//                mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
+//                List<MaterialLot> materialLots = mesPackedLots.stream().map(mesPackedLot -> mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true)).collect(Collectors.toList());
+//                printService.printRwLotCstLabel(materialLots, printCount);
+//            }
+            return mesPackedLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -7548,6 +7555,34 @@ public class GcServiceImpl implements GcService {
                             grossDies, samplingQtyStr, passDies1Str, passDies2Str, passDies3Str, ngDieStr);
                 }
 
+                //验证GC_WLT_UPLOAD Pass Dies1≤BIN1，Pass Dies2≤BIN2，Pass Dies3≤BIN4
+                MesGcWltUpload mesGcWltUpload = mesGcWltUploadRepository.findByWaferId(materialLotUnit.getReserved31());
+                if(mesGcWltUpload == null){
+                    throw new ClientParameterException(GcExceptions.CANNOT_FIND_TEST_DATA, materialLotUnit.getReserved31());
+                }
+
+                Long passDies1 = StringUtils.isNullOrEmpty(passDies1Str) ? 0 : new Long(passDies1Str);
+                Long passDies2 = StringUtils.isNullOrEmpty(passDies2Str) ? 0 : new Long(passDies2Str);
+                Long passDies3 = StringUtils.isNullOrEmpty(passDies3Str) ? 0 : new Long(passDies3Str);
+                if(passDies1 > mesGcWltUpload.getBin1() || passDies2 > mesGcWltUpload.getBin2() || passDies3 > mesGcWltUpload.getBin4()){
+                    throw new ClientParameterException(GcExceptions.INCOMINGMLOT_QTY_AND_SENTOUT_QTY_DISCREPANCY, materialLotUnit.getUnitId());
+                }
+                if (!StringUtils.isNullOrEmpty(mesGcWltUpload.getFlag()) && !MesGcWltUpload.FLAG_NONE.equals(mesGcWltUpload.getFlag())) {
+                    materialLotUnit.setSubCode5(mesGcWltUpload.getFlag());
+                }
+                materialLotUnit.setSourceProductId(mesGcWltUpload.getDevice());
+
+                String materialName = materialLotUnit.getMaterialName();
+                materialName = materialName.substring(0, materialName.lastIndexOf(StringUtils.SPLIT_CODE)) + "-3.5";
+
+                Material material = mmsService.getRawMaterialByName(materialName);
+                if (material == null){
+                    material = new RawMaterial();
+                    material.setName(materialName);
+                    material = mmsService.createRawMaterial((RawMaterial) material);
+                }
+                
+                /**
                 String unitId = materialLotUnit.getUnitId();
                 String materialName = materialLotUnit.getMaterialName();
                 Material material = new Material();
@@ -7582,6 +7617,8 @@ public class GcServiceImpl implements GcService {
                             Integer.parseInt(mesPackedLotRelation.getBinId4() == null ? "0" : mesPackedLotRelation.getBinId4() ) < Integer.parseInt(materialLotUnit.getReserved43())){
                         throw new ClientParameterException(GcExceptions.INCOMINGMLOT_QTY_AND_SENTOUT_QTY_DISCREPANCY, materialLotUnit.getUnitId());
                 }
+                 */
+
 //                    materialLotUnit.setSourceProductId(materialName);
 //                    String testProductId = mesPackedLotRelation.getTestModelId();
 //                    materialName = testProductId.split("-")[0] + "-3.5";
@@ -11482,9 +11519,10 @@ public class GcServiceImpl implements GcService {
      * wafer拆箱
      * @param materialLotUnits
      * @throws ClientException
+     * @return
      */
     @Override
-    public void waferUnpackMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException {
+    public List<MaterialLot> waferUnpackMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException {
         try {
             List<MaterialLot> materialLotList = Lists.newArrayList();
             String materialLotId = materialLotUnits.get(0).getMaterialLotId();
@@ -11529,7 +11567,7 @@ public class GcServiceImpl implements GcService {
                 materialLotUnitHisRepository.save(mLotUnitHistory);
             }
 
-            printService.printWaferCstAndLotLabel(materialLotList);
+            return materialLotList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

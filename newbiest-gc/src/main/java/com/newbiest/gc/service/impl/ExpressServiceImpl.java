@@ -188,7 +188,7 @@ public class ExpressServiceImpl implements ExpressService {
      * @param serviceMode 服务模式 次日达等等
      * @param payMode 支付方式
      */
-    public void planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException {
+    public List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException {
         try {
             Optional optional = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved51())).findFirst();
             if (optional.isPresent()) {
@@ -262,8 +262,7 @@ public class ExpressServiceImpl implements ExpressService {
                 materialLotHistoryRepository.save(history);
             }
 
-            //自动打印斜标签
-            printService.printMaterialLotObliqueBoxLabel(materialLots, waybillNumber);
+            return materialLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

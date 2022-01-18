@@ -433,6 +433,10 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     if(!StringUtils.isNullOrEmpty(subCode) && subCode.length() == 3){
                         subCode = subCode + materialLotUnit.getUnitId().substring(0,1);
                     }
+                    //WLT 将二级代码增加一位（第五位）
+                    if(MaterialLot.IMPORT_WLT.equals(materialLotUnit.getReserved49()) && !StringUtils.isNullOrEmpty(materialLotUnit.getSubCode5())){
+                        subCode = subCode + materialLotUnit.getSubCode5();
+                    }
                     propsMap.put("supplier", materialLotUnit.getSupplier());
                     propsMap.put("shipper", materialLotUnit.getShipper());
                     propsMap.put("grade", materialLotUnit.getGrade());

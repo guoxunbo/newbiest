@@ -130,7 +130,8 @@ public class GetVboxPrintParaController extends AbstractRestController {
                 }
             }
         }
-        printService.rePrintVBxoLabel(parameterMapList);
+        List<Map<String, Object>> mapList = printService.rePrintVBxoLabel(parameterMapList);
+        responseBody.settingClientPrint(mapList);
 
         response.setBody(responseBody);
         return response;
