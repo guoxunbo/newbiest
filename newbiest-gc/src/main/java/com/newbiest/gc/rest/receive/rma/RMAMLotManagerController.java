@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by guozhangLuo on 2020-12-14
@@ -52,11 +53,15 @@ public class RMAMLotManagerController extends AbstractRestController {
         if (RMAMLotManagerRequest.ACTION_TYPE_RECEIVE.equals(actionType)) {
             List<MaterialLotAction> materialLotActions = requestBody.getMaterialLotActions();
             List<MaterialLot> materialLots = gcService.receiveRmaMLot(materialLotActions);
+
             if(!StringUtils.isNullOrEmpty(printLabel)){
-                printService.printRmaMaterialLotLabel(materialLots);
+                List<Map<String, Object>> mapList = printService.printRmaMaterialLotLabel(materialLots);
+                responseBody.settingClientPrint(mapList);
             }
         } else if(RMAMLotManagerRequest.ACTION_TYPE_PRINT.equals(actionType)) {
-            printService.printRmaMaterialLotLabel(requestBody.getMaterialLots());
+            List<Map<String, Object>> mapList = printService.printRmaMaterialLotLabel(requestBody.getMaterialLots());
+            responseBody.settingClientPrint(mapList);
+
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }

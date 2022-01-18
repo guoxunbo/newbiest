@@ -119,4 +119,6 @@ public class GcExceptions {
     public static final String GLUE_MATERIAL_HAS_EXPIRED = "gc.glue_material_has_expired";
     public static final String RAW_MATERIAL_LOT_MFG_DATE_IS_AFTER_EXP_DATE = "gc.raw_material_lot_mfg_date_is_after_exp_date";
     public static final String RAW_MATERIAL_LOT_MFG_DATE_IS_AFTER_CURRENT_TIME = "gc.raw_material_lot_mfg_date_is_after_current_time";
+
+    public static final String CANNOT_FIND_TEST_DATA = "gc.cannot_find_test_data";
 }

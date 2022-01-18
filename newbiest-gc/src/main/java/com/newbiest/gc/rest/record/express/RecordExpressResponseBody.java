@@ -18,7 +18,9 @@ public class RecordExpressResponseBody extends ResponseBody {
 
 	private List<MaterialLot> materialLots;
 
-	private List<Map<String, String>> parameterMapList = Lists.newArrayList();
+	private List<Map<String, Object>> parameterMapList = Lists.newArrayList();
+
+	private Boolean clientPrint;
 
 	private OrderInfo orderInfo;
 
@@ -27,5 +29,12 @@ public class RecordExpressResponseBody extends ResponseBody {
 	 */
 	@Deprecated
 	private List<DocumentLine> documentLineList;
+
+	public void settingClientPrint(List<Map<String, Object>> parameterMapList){
+		this.parameterMapList = parameterMapList;
+		if (parameterMapList.size() > 0) {
+			this.clientPrint = true;
+		}
+	}
 
 }

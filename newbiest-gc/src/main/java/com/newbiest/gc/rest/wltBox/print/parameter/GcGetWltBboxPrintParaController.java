@@ -45,7 +45,9 @@ public class GcGetWltBboxPrintParaController extends AbstractRestController {
         GcGetWltBboxPrintParaRequestBody requestBody = request.getBody();
 
         MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
-        printService.printWltBoxLabel(materialLot, requestBody.getPrintCount());
+
+        Map<String, Object> stringObjectMap = printService.printWltBoxLabel(materialLot, requestBody.getPrintCount());
+        responseBody.settingClientPrint(stringObjectMap);
 
         response.setBody(responseBody);
         return response;

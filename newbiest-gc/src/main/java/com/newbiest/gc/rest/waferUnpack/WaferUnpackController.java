@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Youqing Huang 20210915
@@ -45,9 +46,15 @@ public class WaferUnpackController extends AbstractRestController {
         String actionType = requestBody.getActionType();
         List<MaterialLotUnit> materialLotUnits = requestBody.getMaterialLotUnits();
         if (WaferUnpackRequest.ACTION_WAFER_UNPACK.equals(actionType)){
-            gcService.waferUnpackMLot(materialLotUnits);
+            List<MaterialLot> materialLotList = gcService.waferUnpackMLot(materialLotUnits);
+
+            List<Map<String, Object>> parameterMapList = printService.printWaferCstAndLotLabel(materialLotList);
+            responseBody.settingClientPrint(parameterMapList);
+
         } else if (WaferUnpackRequest.ACTION_GET_PRINT_LABEL.equals(actionType)) {
-            printService.printCobRetestLabel(requestBody.getMaterialLot(), requestBody.getPrintCount(), requestBody.getPrintType());
+            Map<String, Object> parameterMap = printService.printCobRetestLabel(requestBody.getMaterialLot(), requestBody.getPrintCount(), requestBody.getPrintType());
+            responseBody.settingClientPrint(parameterMap);
+
         }
 
         response.setBody(responseBody);

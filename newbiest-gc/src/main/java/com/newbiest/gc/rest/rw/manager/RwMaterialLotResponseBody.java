@@ -14,9 +14,11 @@ public class RwMaterialLotResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<Map<String, String>> parameterList = Lists.newArrayList();
+	private List<Map<String, Object>> parameterMapList = Lists.newArrayList();
 
-	private Map<String, String> parameterMap = Maps.newHashMap();
+	private Map<String, Object> parameterMap = Maps.newHashMap();
+
+	private Boolean clientPrint;
 
 	private List<MaterialLot> materialLotList = Lists.newArrayList();
 
@@ -24,4 +26,17 @@ public class RwMaterialLotResponseBody extends ResponseBody {
 
     private boolean falg;
 
+	public void settingClientPrint(List<Map<String, Object>> parameterMapList){
+		this.parameterMapList = parameterMapList;
+		if (parameterMapList.size() > 0) {
+			this.clientPrint = true;
+		}
+	}
+
+	public void settingClientPrint(Map<String, Object> parameterMap){
+		this.parameterMap  = parameterMap;
+		if (parameterMap.size() > 0) {
+			this.clientPrint = true;
+		}
+	}
 }

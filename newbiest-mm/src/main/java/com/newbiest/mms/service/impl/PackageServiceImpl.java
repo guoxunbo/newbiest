@@ -422,8 +422,8 @@ public class PackageServiceImpl implements PackageService{
             validationPackageRule(materialLots, materialLotPackageType);
 
             MaterialLot packedMaterialLot = (MaterialLot) materialLots.get(0).clone();
-            if (MaterialLot.COB_PACKCASE.equals(materialLotPackageType.getName()) && packedMaterialLot.getMaterialLotId().startsWith(MaterialLot.MLOT_SBC)){
-                packedMaterialLotId = packageSBCMLot(packedMaterialLot.getMaterialLotId());
+            if (MaterialLot.RW_PACKCASE.equals(materialLotPackageType.getName()) && packedMaterialLot.getLotId().startsWith(MaterialLot.MLOT_SBC)){
+                packedMaterialLotId = packageSBCMLot(packedMaterialLot.getLotId());
             }
             if (StringUtils.isNullOrEmpty(packedMaterialLotId)) {
                 packedMaterialLotId = generatorPackageMLotId(packedMaterialLot, materialLotPackageType);

@@ -11,5 +11,15 @@ public class PrintWltCpLotResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<String, String> parameterMap = Maps.newHashMap();
+	private Map<String, Object> parameterMap = Maps.newHashMap();
+
+	private Boolean clientPrint;
+
+	public void settingClientPrint(Map<String, Object> parameterMap){
+		this.parameterMap = parameterMap;
+		if (parameterMap.size() > 0){
+			this.clientPrint = true;
+		}
+	}
+
 }
