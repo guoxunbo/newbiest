@@ -14,5 +14,14 @@ public class GetVboxPrintParaResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<Map<String, String>> parameters = Lists.newArrayList();
+	private List<Map<String, Object>> parameterMapList = Lists.newArrayList();
+
+	private Boolean clientPrint;
+
+	public void settingClientPrint(List<Map<String, Object>> parameterMapList){
+		this.parameterMapList = parameterMapList;
+		if (parameterMapList.size() > 0) {
+			clientPrint = true;
+		}
+	}
 }

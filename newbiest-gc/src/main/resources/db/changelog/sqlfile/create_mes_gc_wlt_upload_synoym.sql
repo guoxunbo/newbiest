@@ -1,0 +1,1 @@
+create synonym MES_GC_WLT_UPLOAD for GC_WLT_UPLOAD@TO_MES;

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_work_station-0.0.2
+      author: Tao Zhou
+      comment: add is_client_print column
+      changes:
+        - addColumn:
+            tableName: MMS_WORK_STATION
+            columns:
+              - column:
+                  name: IS_CLIENT_PRINT
+                  type: varchar(64)
+                  remarks: 是否client打印

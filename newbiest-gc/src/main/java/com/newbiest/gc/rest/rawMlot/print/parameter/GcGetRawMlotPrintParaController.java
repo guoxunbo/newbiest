@@ -1,5 +1,6 @@
 package com.newbiest.gc.rest.rawMlot.print.parameter;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.rest.AbstractRestController;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,17 +61,22 @@ public class GcGetRawMlotPrintParaController extends AbstractRestController {
             throw new ClientParameterException(GcExceptions.MATERIAL_TYPE_IS_NOT_SAME);
         }
         if (GcGetRawMlotPrintParaRequest.ACTION_RAWPRINT.equals(actionType)) {
+            List<Map<String, Object>> parameterMapList = Lists.newArrayList();
+
             if (Material.MATERIAL_TYPE_IRA.equals(materialLots.get(0).getMaterialType())) {
-                printService.printRawMlotIRLabel(materialLots);
+                parameterMapList = printService.printRawMlotIRLabel(materialLots);
             } else if (Material.MATERIAL_TYPE_GLUE.equals(materialLots.get(0).getMaterialType())) {
-                printService.printRawMlotGlueLabel(materialLots);
+                parameterMapList = printService.printRawMlotGlueLabel(materialLots);
             }
+            responseBody.settingClientPrint(parameterMapList);
+
         } else if (GcGetRawMlotPrintParaRequest.ACTION_IRABOXPRINT.equals(actionType)) {
             List<MaterialLot> unPackedMLots = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getLotId())).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(unPackedMLots)){
                 throw new ClientException(GcExceptions.MATERIAL_TYPE_IS_NOT_SAME);
             }
-            printService.printIRABoxLabel(materialLots);
+            List<Map<String, Object>> parameterMapList = printService.printIRABoxLabel(materialLots);
+            responseBody.settingClientPrint(parameterMapList);
         }
 
         response.setBody(responseBody);
