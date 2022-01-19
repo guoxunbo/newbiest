@@ -28,6 +28,7 @@ public interface PrintService {
     Map<String, Object> printRwCstLabel(MaterialLot materialLot, String printCount) throws ClientException;
     Map<String, Object> printRwStockOutLabel(MaterialLot materialLot) throws ClientException;
     List<Map<String, Object>> printRwLotIssueLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
+    Map<String, Object> printRWBoxLabel(MaterialLot materialLot) throws ClientException;
 
     Map<String, Object> printCobBoxLabel(MaterialLot materialLot, String printCount) throws ClientException;
     Map<String, Object> printCobBBoxLabel(MaterialLot materialLot) throws ClientException;

@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RWBoxLabelPrintManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add RWBoxLabelPrintManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: RWBoxLabelPrintManager
+              description: RW出货箱标签打印
+              tableName: RWBoxLabelPrint
+              url: /GC/RWBoxLabelPrint
+              mobileFlag: N
+              parentRrn: 1010
+              seqNo: 65
+              image: icon-rule
+              labelZh: RW出货箱标签打印
+              labelEn: RWBoxLabelPrint
+
