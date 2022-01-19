@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/gc")
 @Slf4j
@@ -48,9 +51,15 @@ public class GcGetBoxQRCodePrintParaController extends AbstractRestController {
         }
         String printVboxLabelFlag = requestBody.getPrintVboxLabelFlag();
         if(GcGetBoxQRCodePrintParaRequest.ACTION_COB_PRINT_LABEL.equals(actionType)){
-            printService.printCobBBoxLabel(materialLot);
+
+            Map<String, Object> params = printService.printCobBBoxLabel(materialLot);
+            responseBody.settingClientPrint(params);
+
         } else if(GcGetBoxQRCodePrintParaRequest.ACTION_PRINT_QRCODE_LABEL.equals(actionType)){
-            printService.printBoxQRCodeLabel(materialLot, printVboxLabelFlag);
+
+            List<Map<String, Object>> mapList = printService.printBoxQRCodeLabel(materialLot, printVboxLabelFlag);
+            responseBody.settingClientPrint(mapList);
+
         } else{
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

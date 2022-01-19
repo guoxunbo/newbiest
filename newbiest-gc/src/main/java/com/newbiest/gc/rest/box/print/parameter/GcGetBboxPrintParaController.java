@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/gc")
@@ -46,7 +49,8 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
         if(!MaterialLot.PRODUCT_CATEGORY.equals(materialLot.getReserved7())){
             subcode = gcService.getEncryptionSubCode(materialLot.getGrade(), materialLot.getReserved1());
         }
-        printService.printComBoxAndCustomerLabel(materialLot, subcode, requestBody.getPrintCount());
+        List<Map<String, Object>> mapList = printService.printComBoxAndCustomerLabel(materialLot, subcode, requestBody.getPrintCount());
+        responseBody.settingClientPrint(mapList);
 
         response.setBody(responseBody);
         return response;

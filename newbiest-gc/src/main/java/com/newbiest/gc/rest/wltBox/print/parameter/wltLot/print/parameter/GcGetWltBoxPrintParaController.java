@@ -1,5 +1,6 @@
 package com.newbiest.gc.rest.wltBox.print.parameter.wltLot.print.parameter;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.service.MmsService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/gc")
@@ -36,9 +38,10 @@ public class GcGetWltBoxPrintParaController extends AbstractRestController {
         GcGetWltBoxPrintParaResponseBody responseBody = new GcGetWltBoxPrintParaResponseBody();
 
         GcGetWltBoxPrintParaRequestBody requestBody = request.getBody();
-
         List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
-        printService.printWltBboxLabel(materialLotUnitList);
+
+        List<Map<String, Object>> parameterMapList = printService.printWltBboxLabel(materialLotUnitList);
+        responseBody.settingClientPrint(parameterMapList);
 
         response.setBody(responseBody);
         return response;
