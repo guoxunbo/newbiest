@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RWBoxLabelPrint_to_NB_TABLE
+      author: Youqing Huang
+      comment: add RWBoxLabelPrint to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: RWBoxLabelPrint
+              description: RW出货箱标签打印
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: RW出货箱标签打印
+              label: RWBoxLabelPrint

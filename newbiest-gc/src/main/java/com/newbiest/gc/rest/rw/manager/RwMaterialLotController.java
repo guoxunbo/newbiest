@@ -92,6 +92,10 @@ public class RwMaterialLotController {
 
             responseBody.settingClientPrint(parameterMap);
 
+        } else if (RwMaterialLotRequest.ACTION_GET_RW_LABEL.equals(actionType)) {
+            MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
+            Map<String, Object> parameterMap = printService.printRWBoxLabel(materialLot);
+            responseBody.settingClientPrint(parameterMap);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
