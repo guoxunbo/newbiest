@@ -21,7 +21,7 @@ public interface GcService {
 
     void printMaterialCodeLabel(MaterialLot materialLot, String printType) throws ClientException;
 
-    void waferUnpackMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException;
+    List<MaterialLot> waferUnpackMLot(List<MaterialLotUnit> materialLotUnits) throws ClientException;
     List<MaterialLot> queryIssueRawMaterialByMaterialLotIdOrLotIdAndTableRrn(String queryLotId, Long tableRrn) throws ClientException;
     MaterialLot getRwMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, Long tableRrn) throws ClientException;
     void issueRwMaterial(List<MaterialLot> materialLotList) throws ClientException;
@@ -37,7 +37,7 @@ public interface GcService {
     void rwMaterialLotAddShipOrderId(List<MaterialLot> materialLotList, String shipOrderId) throws ClientException;
     void rwMaterialLotStockOutTag(List<MaterialLot> materialLotList, String customerName, String abbreviation, String remarks) throws ClientException;
     List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, BigDecimal pickQty) throws ClientException;
-    void receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel, String printCount) throws ClientException;
+    List<MesPackedLot> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel, String printCount) throws ClientException;
     Material saveProductAndSetStatusModelRrn(String name) throws ClientException;
 
     boolean validateMLotByPackageRule(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
@@ -127,13 +127,14 @@ public interface GcService {
     String validationAndGetBondedPropertyByFileName(String fileName) throws ClientException;
     GCProductSubcode saveProductSubcode(GCProductSubcode gcProductSubcode) throws ClientException;
     void importProductSubCode(List<GCProductSubcode> productSubcodeList) throws ClientException;
-    void receiveWltFinishGood(List<MesPackedLot> packedLotList, String printLabel, String printCount) throws ClientException;
+    List<MesPackedLot> receiveWltFinishGood(List<MesPackedLot> packedLotList, String printLabel, String printCount) throws ClientException;
     MaterialLot getWaitStockInStorageWaferByLotId(String lotId, Long tableRrn) throws ClientException;
     void deleteIncomingMaterialLot(List<MaterialLotUnit> materialLotUnitList, String deleteNote) throws ClientException;
     String saveIncomingMaterialList(List<MaterialLot> materialLots, String importType)throws ClientException;
     boolean validateRmaImportMaterialLot(List<MaterialLot> materialLotList) throws ClientException;
     void validationStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions)throws ClientException;
     void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String receiveWithDoc) throws ClientException;
+    void saveHNWarehouseImportList(List<MaterialLot> materialLotList) throws ClientException;
 
     void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException;
     void mobileValidationAndWaferIssue(String erpTime, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException;

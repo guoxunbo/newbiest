@@ -26,6 +26,7 @@ public class GcExceptions {
     public static final String MATERIAL_LOT_NOT_MATCH_ORDER = "gc.meterial_lot_not_match_order";
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "gc.meterial_lot_reserved_by_another";
     public static final String MATERIAL_LOT_IMPORT_FILE_IS_ERRROR = "gc.meterial_lot_import_file_is_error";
+    public static final String MATERIAL_LOT_ID_IS_EXIST = "gc.material_lot_id_is_exist";
 
     public static final String OVER_DOC_QTY = "gc.over_doc_qty";
     public static final String MATERIAL_LOT_WAREHOUSE_IS_NULL = "gc.material_lot_is_not_def_warehouse";
@@ -118,4 +119,6 @@ public class GcExceptions {
     public static final String GLUE_MATERIAL_HAS_EXPIRED = "gc.glue_material_has_expired";
     public static final String RAW_MATERIAL_LOT_MFG_DATE_IS_AFTER_EXP_DATE = "gc.raw_material_lot_mfg_date_is_after_exp_date";
     public static final String RAW_MATERIAL_LOT_MFG_DATE_IS_AFTER_CURRENT_TIME = "gc.raw_material_lot_mfg_date_is_after_current_time";
+
+    public static final String CANNOT_FIND_TEST_DATA = "gc.cannot_find_test_data";
 }

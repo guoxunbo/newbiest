@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseIncomingMaterialImportManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseIncomingMaterialImportManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNIncomingMaterialImportManager
+              description: 湖南仓库入库导入
+              tableName: HNWarehouseIncomingMaterialImport
+              mobileFlag: N
+              url: /HNWarehouse/IncomingMaterialImport
+              parentRrn: 2022
+              seqNo: 5
+              image: icon-wuliao
+              labelZh: 入库导入
+              labelEn: IncomingMaterialImport
+

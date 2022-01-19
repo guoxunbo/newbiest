@@ -77,6 +77,20 @@ public class GetVboxPrintParaController extends AbstractRestController {
                 parameterMap.put("PRODUCTNOTE",vBox.getProductionNote());
             }
 
+            StringBuilder QRCodeInfo = new StringBuilder();
+            QRCodeInfo.append(vBox.getBoxId());
+            QRCodeInfo.append(MesPackedLot.STRING_LINE);
+            QRCodeInfo.append(vBox.getProductId().substring(0, vBox.getProductId().length()-4));
+            QRCodeInfo.append(MesPackedLot.STRING_LINE);
+            QRCodeInfo.append(vBox.getBoxId().substring(4, vBox.getBoxId().length()-4));
+            QRCodeInfo.append(MesPackedLot.STRING_LINE);
+            QRCodeInfo.append(vBox.getBoxId().substring(4, vBox.getBoxId().length()));
+            QRCodeInfo.append(MesPackedLot.STRING_LINE);
+            QRCodeInfo.append("GC");
+            QRCodeInfo.append(MesPackedLot.STRING_LINE);
+            QRCodeInfo.append(vBox.getQuantity());
+            parameterMap.put("QRCodeInfo", QRCodeInfo.toString());
+
             if(StringUtils.isNullOrEmpty(vBox.getWorkorderId())){
                 for(int i=1; i<=4; i++){
                     parameterMap.put("PACKED" + i, StringUtils.EMPTY);
@@ -116,7 +130,8 @@ public class GetVboxPrintParaController extends AbstractRestController {
                 }
             }
         }
-        printService.rePrintVBxoLabel(parameterMapList);
+        List<Map<String, Object>> mapList = printService.rePrintVBxoLabel(parameterMapList);
+        responseBody.settingClientPrint(mapList);
 
         response.setBody(responseBody);
         return response;
