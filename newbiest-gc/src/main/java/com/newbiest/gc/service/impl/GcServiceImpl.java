@@ -8982,6 +8982,11 @@ public class GcServiceImpl implements GcService {
                             material = (RawMaterial) mmsService.createRawMaterial(material);
                         }
                     }
+                    //若gc_wlatoft_testbit的WLA_TEST_BIT 不为空，二级代码增加一位
+                    GcWlatoftTesebit gcWlatoftTesebit = wlatoFtTestBitRepository.findByWaferId(materialLotUnit.getLotId());
+                    if(gcWlatoftTesebit!=null && !StringUtils.isNullOrEmpty(gcWlatoftTesebit.getWlaTestBit())){
+                        materialLotUnit.setSubCode5(gcWlatoftTesebit.getWlaTestBit());
+                    }
                 }
             }
             materialLotUnits = materialLotUnitService.createFTMLot(materialLotUnits);
