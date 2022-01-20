@@ -1292,6 +1292,49 @@ public class PrintServiceImpl implements PrintService {
     }
 
     /**
+     * RW出货箱标签打印
+     * @param materialLot
+     * @throws ClientException
+     */
+    @Override
+    public Map<String, Object> printRWBoxLabel(MaterialLot materialLot) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_BOX_LABEL, "");
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            SimpleDateFormat format = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            Calendar.getInstance().setTime(format.parse(format.format(new Date())));
+            Integer year = Calendar.getInstance().get(Calendar.YEAR) % 1000;
+            String years = year.toString();
+            Integer week = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR);
+            String weeks = week.toString();
+            if (week < 10){
+                weeks = "0" + weeks;
+            }
+            String deviceNo = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-"));
+            parameterMap.put("DeviceNo", deviceNo);
+            parameterMap.put("PN", deviceNo);
+            parameterMap.put("WaferLotNo", materialLot.getLotCst());
+            parameterMap.put("AssyPN", materialLot.getMaterialName());
+            parameterMap.put("AssyLotNo", materialLot.getInnerLotId());
+            parameterMap.put("ShipLotNo", materialLot.getLotCst());
+            parameterMap.put("Qty", materialLot.getCurrentQty());
+            parameterMap.put("DC", years + weeks);
+            parameterMap.put("FrameSlice", materialLot.getCurrentSubQty());
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            Map<String, Object> clientParameters = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                clientParameters = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+            return clientParameters;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 获取周信息
      * @return
      * @throws ClientException

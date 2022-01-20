@@ -25,7 +25,7 @@ spring:
           auto: none
   datasource:
     druid:
-      url: jdbc:oracle:thin:@10.181.160.18:1521:testdb
+      url: jdbc:oracle:thin:@localhost:1521:orcl
       username: wmstest
       password: wmstest
       driver-class-name: oracle.jdbc.OracleDriver
@@ -101,7 +101,7 @@ server:
 show:
   swagger: true
 logging:
-  path: D:/Design/wmsLog/log
+  path: E:/WMSCode/log
 management:
   endpoints:
     web:
