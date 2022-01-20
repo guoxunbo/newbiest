@@ -4707,7 +4707,8 @@ public class GcServiceImpl implements GcService {
                     } else {
                         materialLotUnit.setUnitId(packedLot.getWaferId());
                     }
-                    if (MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
+                    if (MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())
+                            && !StringUtils.isNullOrEmpty(packedLot.getWlaTestBit())){
                         GcWlatoftTesebit wlatoftTesebit = wlatoFtTestBitRepository.findByWaferId(packedLot.getWaferId());
                         if (wlatoftTesebit == null){
                             wlatoftTesebit = new GcWlatoftTesebit();
@@ -8981,6 +8982,11 @@ public class GcServiceImpl implements GcService {
                             material.setName(materialLotUnit.getMaterialName());
                             material = (RawMaterial) mmsService.createRawMaterial(material);
                         }
+                    }
+                    //若gc_wlatoft_testbit的WLA_TEST_BIT 不为空，二级代码增加一位
+                    GcWlatoftTesebit gcWlatoftTesebit = wlatoFtTestBitRepository.findByWaferId(materialLotUnit.getLotId());
+                    if(gcWlatoftTesebit!=null && !StringUtils.isNullOrEmpty(gcWlatoftTesebit.getWlaTestBit())){
+                        materialLotUnit.setSubCode5(gcWlatoftTesebit.getWlaTestBit());
                     }
                 }
             }
