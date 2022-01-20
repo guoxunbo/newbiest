@@ -4707,7 +4707,8 @@ public class GcServiceImpl implements GcService {
                     } else {
                         materialLotUnit.setUnitId(packedLot.getWaferId());
                     }
-                    if (MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
+                    if (MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())
+                            && !StringUtils.isNullOrEmpty(packedLot.getWlaTestBit())){
                         GcWlatoftTesebit wlatoftTesebit = wlatoFtTestBitRepository.findByWaferId(packedLot.getWaferId());
                         if (wlatoftTesebit == null){
                             wlatoftTesebit = new GcWlatoftTesebit();
