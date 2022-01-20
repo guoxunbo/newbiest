@@ -1301,9 +1301,11 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_BOX_LABEL, "");
             Map<String, Object> parameterMap = Maps.newHashMap();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy");
-            String year = simpleDateFormat.format(new Date());
-            Integer week = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            SimpleDateFormat format = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            Calendar.getInstance().setTime(format.parse(format.format(new Date())));
+            Integer year = Calendar.getInstance().get(Calendar.YEAR) % 1000;
+            String years = year.toString();
+            Integer week = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR);
             String weeks = week.toString();
             if (week < 10){
                 weeks = "0" + weeks;
@@ -1316,7 +1318,7 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("AssyLotNo", materialLot.getInnerLotId());
             parameterMap.put("ShipLotNo", materialLot.getLotCst());
             parameterMap.put("Qty", materialLot.getCurrentQty());
-            parameterMap.put("DC", year + weeks);
+            parameterMap.put("DC", years + weeks);
             parameterMap.put("FrameSlice", materialLot.getCurrentSubQty());
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
