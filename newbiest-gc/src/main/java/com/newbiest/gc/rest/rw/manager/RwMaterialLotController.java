@@ -1,6 +1,8 @@
 package com.newbiest.gc.rest.rw.manager;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.utils.StringUtils;
+import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.service.MmsService;
@@ -16,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController("RwMaterialLotController")
 @RequestMapping("/gc")
@@ -46,11 +50,22 @@ public class RwMaterialLotController {
 
         String actionType = requestBody.getActionType();
         if (RwMaterialLotRequest.ACTION_QUERY_PRINT_PARAMETER.equals(actionType)) {
-            printService.printRwLotIssueLabel(requestBody.getMaterialLotList(), requestBody.getPrintCount());
+            List<Map<String, Object>> mapList = printService.printRwLotIssueLabel(requestBody.getMaterialLotList(), requestBody.getPrintCount());
+            responseBody.settingClientPrint(mapList);
+
         } else if(RwMaterialLotRequest.ACTION_RECEIVE_PACKEDLOT.equals(actionType)) {
-            gcService.receiveRWFinishPackedLot(requestBody.getMesPackedLots(), requestBody.getPrintLabel(), requestBody.getPrintCount());
+            List<MesPackedLot> mesPackedLots = gcService.receiveRWFinishPackedLot(requestBody.getMesPackedLots(), requestBody.getPrintLabel(), requestBody.getPrintCount());
+
+            if(!StringUtils.isNullOrEmpty(requestBody.getPrintLabel())){
+                mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
+                List<MaterialLot> materialLots = mesPackedLots.stream().map(mesPackedLot -> mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true)).collect(Collectors.toList());
+                List<Map<String, Object>> mapList = printService.printRwLotCstLabel(materialLots, requestBody.getPrintCount());
+                responseBody.settingClientPrint(mapList);
+            }
         } else if(RwMaterialLotRequest.ACTION_PRINT_LOT_LABEL.equals(actionType)){
-            printService.rePrintRwLotCstLabel(requestBody.getMaterialLot(), requestBody.getPrintCount());
+            Map<String, Object> parameterMap = printService.rePrintRwLotCstLabel(requestBody.getMaterialLot(), requestBody.getPrintCount());
+            responseBody.settingClientPrint(parameterMap);
+
         } else if(RwMaterialLotRequest.ACTION_AUTO_PICK.equals(actionType)){
             List<MaterialLot> materialLots = gcService.rwTagginggAutoPickMLot(requestBody.getMaterialLotList(), requestBody.getPickQty());
             responseBody.setMaterialLotList(materialLots);
@@ -67,10 +82,20 @@ public class RwMaterialLotController {
             gcService.rwStockOut(requestBody.getMaterialLotList(), requestBody.getDocumentLineList());
         } else if(RwMaterialLotRequest.ACTION_GET_RW_PRINT_PARAMETER.equals(actionType)){
             MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
-            printService.printRwCstLabel(materialLot, requestBody.getPrintCount());
+
+            Map<String, Object> parameterMap = printService.printRwCstLabel(materialLot, requestBody.getPrintCount());
+            responseBody.settingClientPrint(parameterMap);
+
         }else if(RwMaterialLotRequest.ACTION_GET_RW_STOCK_OUT.equals(actionType)){
             MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
-            printService.printRwStockOutLabel(materialLot);
+            Map<String, Object> parameterMap = printService.printRwStockOutLabel(materialLot);
+
+            responseBody.settingClientPrint(parameterMap);
+
+        } else if (RwMaterialLotRequest.ACTION_GET_RW_LABEL.equals(actionType)) {
+            MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
+            Map<String, Object> parameterMap = printService.printRWBoxLabel(materialLot);
+            responseBody.settingClientPrint(parameterMap);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

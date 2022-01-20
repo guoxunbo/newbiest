@@ -12,5 +12,13 @@ public class GcGetCobboxPrintParaResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<String, String> parameters = new HashMap<>();
+	private Map<String, Object> parameterMap = new HashMap<>();
+	private Boolean clientPrint;
+
+	public void settingClientPrint(Map<String, Object> parameterMap){
+		this.parameterMap = parameterMap;
+		if (parameterMap.size() > 0){
+			this.clientPrint = true;
+		}
+	}
 }

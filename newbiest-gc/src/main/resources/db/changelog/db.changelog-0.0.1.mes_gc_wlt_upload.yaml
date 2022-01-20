@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_mes_gc_wlt_upload_synoym
+      author: Tao Zhou
+      comment: crete mes gc wlt upload synonym
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/create_mes_gc_wlt_upload_synoym.sql

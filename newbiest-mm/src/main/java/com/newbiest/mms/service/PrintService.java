@@ -13,32 +13,33 @@ import java.util.Map;
  */
 public interface PrintService {
 
-    void printCobRetestLabel(MaterialLot materialLot, String printCount, String printType) throws ClientException;
-    void printWaferCstAndLotLabel(List<MaterialLot> materialLotList) throws ClientException;
-    void printReceiveWltCpLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
-    void printWltOrCpLabel(MaterialLot materialLot, String printCount) throws ClientException;
-    void printWltBoxLabel(MaterialLot materialLot, String printCount) throws ClientException;
-    void printWltBboxLabel(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+    Map<String, Object> printCobRetestLabel(MaterialLot materialLot, String printCount, String printType) throws ClientException;
+    List<Map<String, Object>> printWaferCstAndLotLabel(List<MaterialLot> materialLotList) throws ClientException;
+    List<Map<String, Object>> printReceiveWltCpLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
+    Map<String, Object> printWltOrCpLabel(MaterialLot materialLot, String printCount) throws ClientException;
+    Map<String, Object> printWltBoxLabel(MaterialLot materialLot, String printCount) throws ClientException;
+    List<Map<String, Object>> printWltBboxLabel(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 
-    void printRmaMaterialLotLabel(List<MaterialLot> materialLotList) throws ClientException;
+    List<Map<String, Object>> printRmaMaterialLotLabel(List<MaterialLot> materialLotList) throws ClientException;
 
-    void printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException;
-    void printRwLotCstLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
-    void rePrintRwLotCstLabel(MaterialLot materialLot, String printCount) throws ClientException;
-    void printRwCstLabel(MaterialLot materialLot, String printCount) throws ClientException;
-    void printRwStockOutLabel(MaterialLot materialLot) throws ClientException;
-    void printRwLotIssueLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
+    List<Map<String, Object>> printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException;
+    List<Map<String, Object>> printRwLotCstLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
+    Map<String, Object> rePrintRwLotCstLabel(MaterialLot materialLot, String printCount) throws ClientException;
+    Map<String, Object> printRwCstLabel(MaterialLot materialLot, String printCount) throws ClientException;
+    Map<String, Object> printRwStockOutLabel(MaterialLot materialLot) throws ClientException;
+    List<Map<String, Object>> printRwLotIssueLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
+    Map<String, Object> printRWBoxLabel(MaterialLot materialLot) throws ClientException;
 
-    void printCobBoxLabel(MaterialLot materialLot,  String printCount) throws ClientException;
-    void printCobBBoxLabel(MaterialLot materialLot) throws ClientException;
-    void printBoxQRCodeLabel(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
+    Map<String, Object> printCobBoxLabel(MaterialLot materialLot, String printCount) throws ClientException;
+    Map<String, Object> printCobBBoxLabel(MaterialLot materialLot) throws ClientException;
+    List<Map<String, Object>> printBoxQRCodeLabel(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
 
-    void printComBoxAndCustomerLabel(MaterialLot materialLot, String subcode, String printCount) throws ClientException;
-    void rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException;
+    List<Map<String, Object>> printComBoxAndCustomerLabel(MaterialLot materialLot, String subcode, String printCount) throws ClientException;
+    List<Map<String, Object>> rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException;
 
-    void printRawMlotIRLabel(List<MaterialLot> materialLots) throws ClientException;
-    void printRawMlotGlueLabel(List<MaterialLot> materialLots) throws ClientException;
-    void printIRABoxLabel(List<MaterialLot> materialLots) throws ClientException;
+    List<Map<String, Object>> printRawMlotIRLabel(List<MaterialLot> materialLots) throws ClientException;
+    List<Map<String, Object>> printRawMlotGlueLabel(List<MaterialLot> materialLots) throws ClientException;
+    List<Map<String, Object>> printIRABoxLabel(List<MaterialLot> materialLots) throws ClientException;
 
     //欧菲光
     void printOphelionMLotLabel(List<Map<String, String>> mapList) throws ClientException;

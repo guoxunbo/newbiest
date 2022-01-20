@@ -94,6 +94,31 @@ public class PrintServiceImpl implements PrintService {
     }
 
     /**
+     * 构建client打印所需参数
+     * @param printContext
+     * @return
+     */
+    public Map<String, Object> buildClientParameters(PrintContext printContext) {
+        Map<String, Object> map = Maps.newHashMap();
+
+        Map<String, Object> params = buildClientParameters(DefaultPrintStrategy.DEFAULT_STRATEGY_NAME, printContext);
+        map.put("params", params);
+        map.put("url", printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation()));
+        return map;
+    }
+
+    public Map<String, Object> buildClientParameters(String strategyName, PrintContext printContext) {
+        IPrintStrategy printStrategy = printStrategyMap.get(strategyName);
+        if (printStrategy == null) {
+            printStrategy = printStrategyMap.get(DefaultPrintStrategy.DEFAULT_STRATEGY_NAME);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Use context [" + printContext.toString() + "] to print");
+        }
+        return printStrategy.buildParameters(printContext);
+    }
+
+    /**
      * 根据ID生成规则生成序列号
      * @return
      * @throws ClientException
@@ -148,15 +173,24 @@ public class PrintServiceImpl implements PrintService {
      * @param printCount
      * @param printType
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printCobRetestLabel(MaterialLot materialLot, String printCount, String printType) throws ClientException {
+    public Map<String, Object> printCobRetestLabel(MaterialLot materialLot, String printCount, String printType) throws ClientException {
         try {
+            Map<String, Object> clientPrintParams = Maps.newHashMap();
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WAFER_LOT_LABEL, printCount);
             Map<String, Object> parameterMap = buildWaferCstAndLotPrintParameter(materialLot, printType);
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+
+            if (printContext.getWorkStation().getIsClientPrint()){
+                clientPrintParams = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+            return clientPrintParams;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -166,23 +200,42 @@ public class PrintServiceImpl implements PrintService {
      * 打印wafer拆箱  lotId和cstId的标签
      * @param materialLotList
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printWaferCstAndLotLabel(List<MaterialLot> materialLotList) throws ClientException {
+    public List<Map<String, Object>> printWaferCstAndLotLabel(List<MaterialLot> materialLotList) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             for (MaterialLot materialLot : materialLotList) {
                 PrintContext lotPrintContext = buildPrintContext(LabelTemplate.PRINT_WAFER_LOT_LABEL, "1");
                 Map<String, Object> lotParameterMap = buildWaferCstAndLotPrintParameter(materialLot, "");
                 lotPrintContext.setBaseObject(materialLot);
                 lotPrintContext.setParameterMap(lotParameterMap);
-                print(lotPrintContext);
+
+                if (lotPrintContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> lotParams = Maps.newHashMap();
+                    lotParams = buildClientParameters(lotPrintContext);
+                    mapList.add(lotParams);
+                }else {
+                    print(lotPrintContext);
+                }
 
                 PrintContext cstPrintContext = buildPrintContext(LabelTemplate.PRINT_WAFER_LOT_LABEL, "2");
                 Map<String, Object> cstParameterMap = buildWaferCstAndLotPrintParameter(materialLot, "PRINT_LOT");
                 cstPrintContext.setBaseObject(materialLot);
                 cstPrintContext.setParameterMap(cstParameterMap);
-                print(cstPrintContext);
+
+                if (cstPrintContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> cstparams = Maps.newHashMap();
+                    cstparams = buildClientParameters(cstPrintContext);
+                    mapList.add(cstparams);
+                }else {
+                    print(cstPrintContext);
+                }
+
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -223,15 +276,25 @@ public class PrintServiceImpl implements PrintService {
     }
 
     @Override
-    public void printReceiveWltCpLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException {
+    public List<Map<String, Object>> printReceiveWltCpLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_CP_BOX_LABEL, printCount);
             for(MaterialLot materialLot : materialLotList){
                 Map<String, Object> parameterMap = buildWltCpPrintParameter(materialLot);
                 printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
             }
+            return mapList;
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -286,13 +349,20 @@ public class PrintServiceImpl implements PrintService {
      * @throws ClientException
      */
     @Override
-    public void printWltOrCpLabel(MaterialLot materialLot, String printCount) throws ClientException {
+    public Map<String, Object> printWltOrCpLabel(MaterialLot materialLot, String printCount) throws ClientException {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_CP_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = buildWltCpPrintParameter(materialLot);
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+
+            Map<String, Object> params = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                params = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+            return params;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -303,8 +373,10 @@ public class PrintServiceImpl implements PrintService {
      * @param materialLotList
      * @throws ClientException
      */
-    public void printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{
+    public List<Map<String, Object>> printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException{
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_OBLIQUE_BOX_LABEL, "");
             List<MaterialLot> expressNumberInfoList = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getExpressNumber())).collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(expressNumberInfoList)){
@@ -343,9 +415,16 @@ public class PrintServiceImpl implements PrintService {
                 }
                 ++seq;
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
-            }
 
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
+            }
+            return mapList;
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -356,16 +435,28 @@ public class PrintServiceImpl implements PrintService {
      * @param materialLotList
      * @param printCount
      * @throws ClientException
+     * @return
      */
-    public void printRwLotCstLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException{
+    public List<Map<String, Object>> printRwLotCstLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException{
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_LOT_CST_LABEL, printCount);
             for(MaterialLot materialLot : materialLotList){
                 Map<String, Object> parameterMap = buildRwLotCsttPrintParameter(materialLot);
                 printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
+                //print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -410,15 +501,25 @@ public class PrintServiceImpl implements PrintService {
      * @param materialLot
      * @param printCount
      * @throws ClientException
+     * @return
      */
     @Override
-    public void rePrintRwLotCstLabel(MaterialLot materialLot, String printCount) throws ClientException {
+    public Map<String, Object> rePrintRwLotCstLabel(MaterialLot materialLot, String printCount) throws ClientException {
         try {
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_LOT_CST_LABEL, printCount);
             Map<String, Object> parameterMap = buildRwLotCsttPrintParameter(materialLot);
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+            //print(printContext);
+
+            Map<String, Object> params = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                params = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+            return params;
         }catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -428,9 +529,10 @@ public class PrintServiceImpl implements PrintService {
      * 打印COB装箱标签(一箱只有一包)
      * @param materialLot
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printCobBoxLabel(MaterialLot materialLot, String printCount) throws ClientException {
+    public Map<String, Object> printCobBoxLabel(MaterialLot materialLot, String printCount) throws ClientException {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COB_BOX_LABEL, printCount);
             materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
@@ -472,7 +574,16 @@ public class PrintServiceImpl implements PrintService {
             }
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+//            print(printContext);
+
+            Map<String, Object> params = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                params = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+
+            return params;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -485,7 +596,7 @@ public class PrintServiceImpl implements PrintService {
      * @throws ClientException
      */
     @Override
-    public void printCobBBoxLabel(MaterialLot materialLot) throws ClientException {
+    public Map<String, Object> printCobBBoxLabel(MaterialLot materialLot) throws ClientException {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_QR_CODE_LABEL, "");
             Map<String, Object> parameterMap = Maps.newHashMap();
@@ -504,7 +615,14 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("TWODCODE", twoDCode);
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+
+            Map<String, Object> params = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                params = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+            return params;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -515,10 +633,13 @@ public class PrintServiceImpl implements PrintService {
      * @param materialLot
      * @param printVboxLabelFlag
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printBoxQRCodeLabel(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException {
+    public List<Map<String, Object>> printBoxQRCodeLabel(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             //获取当前日期，时间格式yyMMdd
             SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
             String date = formatter.format(new Date());
@@ -533,7 +654,15 @@ public class PrintServiceImpl implements PrintService {
                 Map<String, Object> parameterMap = buildQRCodeBoxLabelParameter(materialLot, documentLine, date, packageTotalQty);
                 printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
+                //print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
             } else {
                 //如果勾选打印箱中真空包标签信息，需要按照整包和零包进行分组，再按照是否打印真空包flag组装Map
                 List<MaterialLot> materialLotList = packageService.getPackageDetailLots(materialLot.getObjectRrn());
@@ -547,12 +676,17 @@ public class PrintServiceImpl implements PrintService {
                     }
                 }
                 if(MaterialLot.PRINT_CHECK.equals(printVboxLabelFlag)){
+                    List<Map<String, Object>> qrCodeLabelPrintParm= Lists.newArrayList();
                     if( CollectionUtils.isNotEmpty(fullPackageMLotList)){
-                        printQRCodeLabelPrintParmByVboxStandardQty(fullPackageMLotList, documentLine, date, MLotCodePrint.VBOXSEQ_START_VZ);
+
+                        qrCodeLabelPrintParm = printQRCodeLabelPrintParmByVboxStandardQty(fullPackageMLotList, documentLine, date, MLotCodePrint.VBOXSEQ_START_VZ);
                     }
                     if( CollectionUtils.isNotEmpty(zeroPackageMLotList)){
-                        printQRCodeLabelPrintParmByVboxStandardQty(zeroPackageMLotList, documentLine, date, MLotCodePrint.VBOXSEQ_START_VL);
+
+                        qrCodeLabelPrintParm = printQRCodeLabelPrintParmByVboxStandardQty(zeroPackageMLotList, documentLine, date, MLotCodePrint.VBOXSEQ_START_VL);
                     }
+                    mapList.addAll(qrCodeLabelPrintParm);
+
                 } else {
                     List<Map<String, Object>> parameterMapList = Lists.newArrayList();
                     //不打印真空包标签也要区分散包零包的箱标签
@@ -566,10 +700,19 @@ public class PrintServiceImpl implements PrintService {
                     for(Map<String, Object> parameterMap : parameterMapList){
                         printContext.setBaseObject(materialLot);
                         printContext.setParameterMap(parameterMap);
-                        print(printContext);
+                        //print(printContext);
+
+                        if (printContext.getWorkStation().getIsClientPrint()){
+                            Map<String, Object> params = Maps.newHashMap();
+                            params = buildClientParameters(printContext);
+                            mapList.add(params);
+                        }else {
+                            print(printContext);
+                        }
                     }
                 }
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -664,8 +807,10 @@ public class PrintServiceImpl implements PrintService {
      * @param boxStart
      * @return
      */
-    private void printQRCodeLabelPrintParmByVboxStandardQty(List<MaterialLot> materialLotList, DocumentLine documentLine, String date, String boxStart)throws ClientException{
+    private List<Map<String, Object>> printQRCodeLabelPrintParmByVboxStandardQty(List<MaterialLot> materialLotList, DocumentLine documentLine, String date, String boxStart)throws ClientException{
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             List<Map<String, Object>> parameterMapList = Lists.newArrayList();
             String dateAndNumber = StringUtils.EMPTY;
             String printSeq = StringUtils.EMPTY;
@@ -700,7 +845,14 @@ public class PrintServiceImpl implements PrintService {
             for(Map<String, Object> parameterMap : parameterMapList){
                 PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_QR_CODE_LABEL, "1");
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
+//                print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
             }
 
             //获取箱标签信息
@@ -716,13 +868,20 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("TWODCODE", twoDCode);
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_QR_CODE_LABEL, "2");
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+
+            if (printContext.getWorkStation().getIsClientPrint()){
+                Map<String, Object> boxPrintParams = buildClientParameters(printContext);
+                mapList.add(boxPrintParams);
+            }else {
+                print(printContext);
+            }
 
             //将箱号二维码信息记录到真空包上
             for(MaterialLot materialLot : materialLotList){
                 materialLot.setBoxQrcodeInfo(twoDCode);
                 materialLotRepository.saveAndFlush(materialLot);
             }
+            return mapList;
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -732,9 +891,10 @@ public class PrintServiceImpl implements PrintService {
      * WLT装箱标签打印
      * @param materialLot
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printWltBoxLabel(MaterialLot materialLot, String printCount) throws ClientException {
+    public Map<String, Object> printWltBoxLabel(MaterialLot materialLot, String printCount) throws ClientException {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
@@ -787,7 +947,14 @@ public class PrintServiceImpl implements PrintService {
             }
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+
+            Map<String, Object> params = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                params = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+            return params;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -799,10 +966,12 @@ public class PrintServiceImpl implements PrintService {
      * @throws ClientException
      */
     @Override
-    public void printWltBboxLabel(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
+    public List<Map<String, Object>> printWltBboxLabel(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
+        List<Map<String, Object>> mapList = Lists.newArrayList();
+        PrintContext printContext = new PrintContext();
         try {
             if(CollectionUtils.isNotEmpty(materialLotUnitList)){
-                PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_WLT_BBOX_LABEL, "");
+                printContext = buildPrintContext(LabelTemplate.PRINT_WLT_BBOX_LABEL, "");
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
                 for(String materialLotId : materialLotUnitMap.keySet()){
                     Map<String, Object> parameterMap = Maps.newHashMap();
@@ -844,9 +1013,17 @@ public class PrintServiceImpl implements PrintService {
 
                     printContext.setBaseObject(materialLot);
                     printContext.setParameterMap(parameterMap);
-                    print(printContext);
+
+                    if (printContext.getWorkStation().getIsClientPrint()){
+                        Map<String, Object> params = Maps.newHashMap();
+                        params = buildClientParameters(printContext);
+                        mapList.add(params);
+                    }else {
+                        print(printContext);
+                    }
                 }
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -856,10 +1033,13 @@ public class PrintServiceImpl implements PrintService {
      * RMA来料接收箱标签打印
      * @param materialLotList
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printRmaMaterialLotLabel(List<MaterialLot> materialLotList) throws ClientException {
+    public List<Map<String, Object>> printRmaMaterialLotLabel(List<MaterialLot> materialLotList) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RMA_BOX_LABEL, "");
             for(MaterialLot materialLot : materialLotList){
                 Map<String, Object> parameterMap = Maps.newHashMap();
@@ -873,8 +1053,16 @@ public class PrintServiceImpl implements PrintService {
 
                 printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -885,10 +1073,13 @@ public class PrintServiceImpl implements PrintService {
      * @param materialLot
      * @param subcode
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printComBoxAndCustomerLabel(MaterialLot materialLot, String subcode, String printCount) throws ClientException {
+    public List<Map<String, Object>> printComBoxAndCustomerLabel(MaterialLot materialLot, String subcode, String printCount) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COM_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("barcode", materialLot.getMaterialLotId());
@@ -909,11 +1100,19 @@ public class PrintServiceImpl implements PrintService {
             }
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+            if (printContext.getWorkStation().getIsClientPrint()){
+                Map<String, Object> params = Maps.newHashMap();
+                params = buildClientParameters(printContext);
+                mapList.add(params);
+            }else {
+                print(printContext);
+            }
 
             if (!StringUtils.isNullOrEmpty(materialLot.getReserved18()) || !StringUtils.isNullOrEmpty(materialLot.getShipper())){
-                printCustomerNameLabel(materialLot);
+                Map<String, Object> customerLabelParams = printCustomerNameLabel(materialLot);
+                mapList.add(customerLabelParams);
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -924,7 +1123,7 @@ public class PrintServiceImpl implements PrintService {
      * @param materialLot
      * @throws ClientException
      */
-    private void printCustomerNameLabel(MaterialLot materialLot) throws ClientException{
+    private Map<String, Object> printCustomerNameLabel(MaterialLot materialLot) throws ClientException{
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_CUSTOMER_NAME_LABEL, "");
             Map<String, Object> parameterMap = Maps.newHashMap();
@@ -932,6 +1131,14 @@ public class PrintServiceImpl implements PrintService {
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
             print(printContext);
+
+            Map<String, Object> params = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                params = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+            return params;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -941,9 +1148,10 @@ public class PrintServiceImpl implements PrintService {
      * RW打印CST标签
      * @param materialLot
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printRwCstLabel(MaterialLot materialLot, String printCount) throws ClientException {
+    public Map<String, Object> printRwCstLabel(MaterialLot materialLot, String printCount) throws ClientException {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_CST_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
@@ -983,7 +1191,15 @@ public class PrintServiceImpl implements PrintService {
             }
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+            //print(printContext);
+
+            Map<String, Object> clientParameters = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                clientParameters = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+            return clientParameters;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -993,9 +1209,10 @@ public class PrintServiceImpl implements PrintService {
      * RW出货标签打印
      * @param materialLot
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printRwStockOutLabel(MaterialLot materialLot) throws ClientException {
+    public Map<String, Object> printRwStockOutLabel(MaterialLot materialLot) throws ClientException {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_STOCK_OUT_LABEL, "");
             Map<String, Object> parameterMap = Maps.newHashMap();
@@ -1015,7 +1232,15 @@ public class PrintServiceImpl implements PrintService {
             }
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
+            //print(printContext);
+
+            Map<String, Object> clientParameters = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                clientParameters = buildClientParameters(printContext);
+            }else {
+                print(printContext);
+            }
+            return clientParameters;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -1025,10 +1250,13 @@ public class PrintServiceImpl implements PrintService {
      * RW物料发料标签打印
      * @param materialLotList
      * @throws ClientException
+     * @return
      */
     @Override
-    public void printRwLotIssueLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException {
+    public List<Map<String, Object>> printRwLotIssueLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_LOT_ISSUE_LABEL, printCount);
             SimpleDateFormat formatter = new SimpleDateFormat("yyMMdd");
             String date = formatter.format(new Date());
@@ -1047,8 +1275,58 @@ public class PrintServiceImpl implements PrintService {
                 parameter.put("INNERLOTINFO", innerLotInfo );
                 printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameter);
+                //print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
+            }
+            return mapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * RW出货箱标签打印
+     * @param materialLot
+     * @throws ClientException
+     */
+    @Override
+    public Map<String, Object> printRWBoxLabel(MaterialLot materialLot) throws ClientException {
+        try {
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_BOX_LABEL, "");
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy");
+            String year = simpleDateFormat.format(new Date());
+            Integer week = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            String weeks = week.toString();
+            if (week < 10){
+                weeks = "0" + weeks;
+            }
+            String deviceNo = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-"));
+            parameterMap.put("DeviceNo", deviceNo);
+            parameterMap.put("PN", deviceNo);
+            parameterMap.put("WaferLotNo", materialLot.getLotCst());
+            parameterMap.put("AssyPN", materialLot.getMaterialName());
+            parameterMap.put("AssyLotNo", materialLot.getInnerLotId());
+            parameterMap.put("ShipLotNo", materialLot.getLotCst());
+            parameterMap.put("Qty", materialLot.getCurrentQty());
+            parameterMap.put("DC", year + weeks);
+            parameterMap.put("FrameSlice", materialLot.getCurrentSubQty());
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+            Map<String, Object> clientParameters = Maps.newHashMap();
+            if (printContext.getWorkStation().getIsClientPrint()){
+                clientParameters = buildClientParameters(printContext);
+            }else {
                 print(printContext);
             }
+            return clientParameters;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -1081,23 +1359,35 @@ public class PrintServiceImpl implements PrintService {
      * 真空包标签补打（打印真空包种的盒子信息）
      * @param parameterMapList
      * @throws ClientException
+     * @return
      */
     @Override
-    public void rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException {
+    public List<Map<String, Object>> rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COM_VBOX_LABEL, "");
             for(Map<String, Object> parameterMap : parameterMapList){
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
     @Override
-    public void printRawMlotIRLabel(List<MaterialLot> materialLots) throws ClientException {
+    public List<Map<String, Object>> printRawMlotIRLabel(List<MaterialLot> materialLots) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_IR_LABEL, "");
             SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATETIME_PATTERN);
             for (MaterialLot materialLot : materialLots) {
@@ -1111,16 +1401,25 @@ public class PrintServiceImpl implements PrintService {
                 parameterMap.put("REMARK", materialLot.getReserved41() == null ? "": materialLot.getReserved41());
                 printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
     @Override
-    public void printRawMlotGlueLabel(List<MaterialLot> materialLots) throws ClientException {
+    public List<Map<String, Object>> printRawMlotGlueLabel(List<MaterialLot> materialLots) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_GLUE_LABEL, "");
             SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             for (MaterialLot materialLot : materialLots) {
@@ -1133,16 +1432,26 @@ public class PrintServiceImpl implements PrintService {
                 parameterMap.put("WEIGHT", materialLot.getCurrentQty().toString());
                 printContext.setBaseObject(materialLot);
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
     @Override
-    public void printIRABoxLabel(List<MaterialLot> materialLots) throws ClientException {
+    public List<Map<String, Object>> printIRABoxLabel(List<MaterialLot> materialLots) throws ClientException {
         try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_IRA_BOX_LABEL, "");
             Map<String,List<MaterialLot>> materialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
             Map<String, List<MaterialLot>> sortMap = materialLotMap.entrySet().stream().sorted(Map.Entry.comparingByKey())
@@ -1157,8 +1466,16 @@ public class PrintServiceImpl implements PrintService {
                 parameterMap.put("QTY", String.valueOf(materialLotList.size()));
                 parameterMap.put("VENDER", materialLotList.get(0).getReserved22());
                 printContext.setParameterMap(parameterMap);
-                print(printContext);
+
+                if (printContext.getWorkStation().getIsClientPrint()){
+                    Map<String, Object> params = Maps.newHashMap();
+                    params = buildClientParameters(printContext);
+                    mapList.add(params);
+                }else {
+                    print(printContext);
+                }
             }
+            return mapList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

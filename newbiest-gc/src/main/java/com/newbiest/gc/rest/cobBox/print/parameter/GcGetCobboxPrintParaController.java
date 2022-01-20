@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/gc")
 @Slf4j
@@ -31,7 +33,8 @@ public class GcGetCobboxPrintParaController extends AbstractRestController {
         GcGetCobboxPrintParaResponseBody responseBody = new GcGetCobboxPrintParaResponseBody();
         GcGetCobboxPrintParaRequestBody requestBody = request.getBody();
 
-        printService.printCobBoxLabel(requestBody.getMaterialLot(), requestBody.getPrintCount());
+        Map<String, Object> stringObjectMap = printService.printCobBoxLabel(requestBody.getMaterialLot(), requestBody.getPrintCount());
+        responseBody.settingClientPrint(stringObjectMap);
 
         response.setBody(responseBody);
         return response;

@@ -63,7 +63,7 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String SOC_FINISH_PRODUCT = "GCSOCFinishProduct"; //SOC成品
     public static final String SOC_WAFER_UNMEASURED = "GCSOCWaferUnmeasured"; //SOC晶圆未测、已测
     public static final String MASK_FINISH_PRODUCT= "GCMaskFinishProduct"; //MASK成品
-    public static final String HN_WAREHOUSE_IMPORT = "HNWarehouseImport";//湖南仓库导入模板
+    public static final String HN_WAREHOUSE_IMPORT = "HNWarehouseImport";//成品导入（湖南仓库）
 
     //产品型号
     public static final String PRODUCT_CLASSIFY_CP = "CP0";
@@ -537,6 +537,10 @@ public class MaterialLotUnit extends NBUpdatable {
 
     @Transient
     private String storageId;
+
+    /**二级代码第五位*/
+    @Transient
+    private String subCode5;
 
     public void setMaterial(Material material) {
         this.setMaterialRrn(material.getObjectRrn());
