@@ -1178,9 +1178,9 @@ public class MmsServiceImpl implements MmsService {
                     materialLotAction.setActionReason(futureHoldConfigSet.getHoldReason());
                     holdMaterialLot(materialLot, materialLotAction);
                 }
-                futureHoldConfigRepository.delete(futureHoldConfigSet);
+/*                futureHoldConfigRepository.delete(futureHoldConfigSet);
                 FutureHoldConfigHis history = (FutureHoldConfigHis) baseService.buildHistoryBean(futureHoldConfigSet, FutureHoldConfigHis.HOLD_DELETE);
-                futureHoldConfigHisRepository.save(history);
+                futureHoldConfigHisRepository.save(history);*/
             } else {
                 String fabLotId = lotId.split("\\.")[0];
                 FutureHoldConfig gcFutureHoldConfig = futureHoldConfigRepository.findByReceiveTypeAndProductAreaAndLotId(receiveType, importType, fabLotId);
@@ -1194,9 +1194,9 @@ public class MmsServiceImpl implements MmsService {
                             holdMaterialLot(materialLot, materialLotAction);
                         }
                     }
-                    futureHoldConfigRepository.delete(gcFutureHoldConfig);
+                    /*futureHoldConfigRepository.delete(gcFutureHoldConfig);
                     FutureHoldConfigHis history = (FutureHoldConfigHis) baseService.buildHistoryBean(gcFutureHoldConfig, FutureHoldConfigHis.HOLD_DELETE);
-                    futureHoldConfigHisRepository.save(history);
+                    futureHoldConfigHisRepository.save(history);*/
                 }
             }
         } catch (Exception e) {
