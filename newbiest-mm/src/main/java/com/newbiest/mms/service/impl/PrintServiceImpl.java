@@ -982,28 +982,30 @@ public class PrintServiceImpl implements PrintService {
                     parameterMap.put("LOCATION", materialLot.getReserved6());
                     parameterMap.put("VENDER", materialLot.getReserved22());
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(materialLotId);
+
+                    List<String> waferList = Lists.newArrayList();
                     Integer waferNumber = 0;
-                    String unitIdList1 = "";
-                    String unitIdLisr2 = "";
                     if(CollectionUtils.isNotEmpty(materialLotUnits)){
                         waferNumber = materialLotUnits.size();
-                        for(int j = 0; j <  materialLotUnits.size() ; j++){
-                            String[] unitIdList = materialLotUnits.get(j).getUnitId().split(StringUtils.SPLIT_CODE);
-                            String waferSeq = unitIdList[1] + ",";
-                            if(j < 12){
-                                unitIdList1 = unitIdList1 + waferSeq;
-                            } else {
-                                unitIdLisr2 = unitIdLisr2 + waferSeq;
-                            }
+
+                        materialLotUnits = materialLotUnits.stream().sorted(Comparator.comparing(MaterialLotUnit::getUnitId)).collect(Collectors.toList());
+                        for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                            String[] unitIdList = materialLotUnit.getUnitId().split(StringUtils.SPLIT_CODE);
+                            String waferSeq = unitIdList[1] ;
+                            waferList.add(waferSeq);
                         }
                     }
-                    if(!StringUtils.isNullOrEmpty(unitIdList1)){
-                        parameterMap.put("WAFERLIST1", unitIdList1);
+
+                    if(CollectionUtils.isNotEmpty(waferList)){
+                        List<String> strings1 = waferList.subList(0, waferList.size() > 12 ? 12 : waferList.size());
+                        parameterMap.put("WAFERLIST1", StringUtils.join(strings1, StringUtils.SPLIT_COMMA));
                     } else {
                         parameterMap.put("WAFERLIST1", StringUtils.EMPTY);
                     }
-                    if(!StringUtils.isNullOrEmpty(unitIdLisr2)){
-                        parameterMap.put("WAFERLIST2", unitIdLisr2);
+                    if(waferList.size() > 12){
+                        List<String> strings2 = waferList.subList(12, waferList.size());
+
+                        parameterMap.put("WAFERLIST2", StringUtils.join(strings2, StringUtils.SPLIT_COMMA));
                     } else {
                         parameterMap.put("WAFERLIST2", StringUtils.EMPTY);
                     }
