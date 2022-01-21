@@ -3004,16 +3004,6 @@ public class GcServiceImpl implements GcService {
                     materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
                     materialLotAction.setSourceModelId(mesPackedLot.getProductId());
 
-                    if (MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
-                        if (MesPackedLot.REPLACE_FLAG.equals(mesPackedLot.getReplaceFlag())) {
-                            materialLotAction.setSourceModelId(mesPackedLot.getPrintModelId());
-                        }else{
-                            if (mesPackedLot.getProductId().endsWith("-4")) {
-                                materialLotAction.setSourceModelId(mesPackedLot.getProductId().substring(0, mesPackedLot.getProductId().lastIndexOf(StringUtils.SPLIT_CODE)) + "-3.5");
-                            }
-                        }
-                    }
-
                     // 真空包产地是SH的入SH仓库，是ZJ的入浙江仓库(COM和FT的保税属性是上海的入上海仓库，其他入浙江仓库)
                     String warehouseName = WAREHOUSE_ZJ;
                     if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) || MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(productCateGory)){
@@ -3081,6 +3071,16 @@ public class GcServiceImpl implements GcService {
                     if(mesPackedLot.getWaferQty() != null){
                         BigDecimal waferQty = new BigDecimal(mesPackedLot.getWaferQty().toString());
                         materialLotAction.setTransCount(waferQty);
+                    }
+
+                    if (MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
+                        if (MesPackedLot.REPLACE_FLAG.equals(mesPackedLot.getReplaceFlag())) {
+                            otherReceiveProps.put("sourceProductId", mesPackedLot.getPrintModelId());
+                        }else{
+                            if (mesPackedLot.getProductId().endsWith("-4")) {
+                                otherReceiveProps.put("sourceProductId", mesPackedLot.getProductId().substring(0, mesPackedLot.getProductId().lastIndexOf(StringUtils.SPLIT_CODE)) + "-3.5");
+                            }
+                        }
                     }
                     materialLotAction.setPropsMap(otherReceiveProps);
 
@@ -7556,10 +7556,10 @@ public class GcServiceImpl implements GcService {
                             grossDies, samplingQtyStr, passDies1Str, passDies2Str, passDies3Str, ngDieStr);
                 }
 
-                //验证GC_WLT_UPLOAD Pass Dies1≤BIN1，Pass Dies2≤BIN2，Pass Dies3≤BIN4
-                MesGcWltUpload mesGcWltUpload = mesGcWltUploadRepository.findByWaferId(materialLotUnit.getReserved31());
+                //验证GC_WLT_UPLOAD Pass Dies1 ≤ BIN1，Pass Dies2 ≤ BIN2，Pass Dies3 ≤ BIN4
+                MesGcWltUpload mesGcWltUpload = mesGcWltUploadRepository.findByWaferId(materialLotUnit.getUnitId());
                 if(mesGcWltUpload == null){
-                    throw new ClientParameterException(GcExceptions.CANNOT_FIND_TEST_DATA, materialLotUnit.getReserved31());
+                    throw new ClientParameterException(GcExceptions.CANNOT_FIND_TEST_DATA, materialLotUnit.getUnitId());
                 }
 
                 Long passDies1 = StringUtils.isNullOrEmpty(passDies1Str) ? 0 : new Long(passDies1Str);

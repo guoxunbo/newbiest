@@ -434,7 +434,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         subCode = subCode + materialLotUnit.getUnitId().substring(0,1);
                     }
                     //WLT 将二级代码增加一位（第五位）
-                    if(MaterialLot.IMPORT_WLT.equals(materialLotUnit.getReserved49()) && !StringUtils.isNullOrEmpty(materialLotUnit.getSubCode5())){
+                    if(MaterialLot.IMPORT_WLT.equals(materialLotUnit.getReserved49()) && !StringUtils.isNullOrEmpty(materialLotUnit.getSubCode5()) && subCode.length() == 4){
                         subCode = subCode + materialLotUnit.getSubCode5();
                     }else if(MaterialLot.IMPORT_SENSOR.equals(materialLotUnit.getReserved49()) && !StringUtils.isNullOrEmpty(materialLotUnit.getSubCode5())){
                         //sensor封装回货(-3未测) 将二级代码增加一位（第五位）

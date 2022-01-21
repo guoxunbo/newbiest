@@ -1155,7 +1155,8 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_CST_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
-            parameterMap.put("DeviceID", materialLot.getMaterialName());
+            String deviceID = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-"));
+            parameterMap.put("DeviceID", deviceID);
             parameterMap.put("BoxID", materialLot.getMaterialLotId());
             parameterMap.put("Qty", materialLot.getCurrentQty().toPlainString());
             parameterMap.put("BP", materialLot.getReserved6());
@@ -1314,7 +1315,7 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("DeviceNo", deviceNo);
             parameterMap.put("PN", deviceNo);
             parameterMap.put("WaferLotNo", materialLot.getLotCst());
-            parameterMap.put("AssyPN", materialLot.getMaterialName());
+            parameterMap.put("AssyPN", deviceNo);
             parameterMap.put("AssyLotNo", materialLot.getInnerLotId());
             parameterMap.put("ShipLotNo", materialLot.getLotCst());
             parameterMap.put("Qty", materialLot.getCurrentQty());
