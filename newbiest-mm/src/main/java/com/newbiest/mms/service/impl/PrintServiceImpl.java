@@ -982,28 +982,30 @@ public class PrintServiceImpl implements PrintService {
                     parameterMap.put("LOCATION", materialLot.getReserved6());
                     parameterMap.put("VENDER", materialLot.getReserved22());
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(materialLotId);
+
+                    List<String> waferList = Lists.newArrayList();
                     Integer waferNumber = 0;
-                    String unitIdList1 = "";
-                    String unitIdLisr2 = "";
                     if(CollectionUtils.isNotEmpty(materialLotUnits)){
                         waferNumber = materialLotUnits.size();
-                        for(int j = 0; j <  materialLotUnits.size() ; j++){
-                            String[] unitIdList = materialLotUnits.get(j).getUnitId().split(StringUtils.SPLIT_CODE);
-                            String waferSeq = unitIdList[1] + ",";
-                            if(j < 12){
-                                unitIdList1 = unitIdList1 + waferSeq;
-                            } else {
-                                unitIdLisr2 = unitIdLisr2 + waferSeq;
-                            }
+
+                        materialLotUnits = materialLotUnits.stream().sorted(Comparator.comparing(MaterialLotUnit::getUnitId)).collect(Collectors.toList());
+                        for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                            String[] unitIdList = materialLotUnit.getUnitId().split(StringUtils.SPLIT_CODE);
+                            String waferSeq = unitIdList[1] ;
+                            waferList.add(waferSeq);
                         }
                     }
-                    if(!StringUtils.isNullOrEmpty(unitIdList1)){
-                        parameterMap.put("WAFERLIST1", unitIdList1);
+
+                    if(CollectionUtils.isNotEmpty(waferList)){
+                        List<String> strings1 = waferList.subList(0, waferList.size() > 12 ? 12 : waferList.size());
+                        parameterMap.put("WAFERLIST1", StringUtils.join(strings1, StringUtils.SPLIT_COMMA));
                     } else {
                         parameterMap.put("WAFERLIST1", StringUtils.EMPTY);
                     }
-                    if(!StringUtils.isNullOrEmpty(unitIdLisr2)){
-                        parameterMap.put("WAFERLIST2", unitIdLisr2);
+                    if(waferList.size() > 12){
+                        List<String> strings2 = waferList.subList(12, waferList.size());
+
+                        parameterMap.put("WAFERLIST2", StringUtils.join(strings2, StringUtils.SPLIT_COMMA));
                     } else {
                         parameterMap.put("WAFERLIST2", StringUtils.EMPTY);
                     }
@@ -1155,7 +1157,8 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_CST_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
-            parameterMap.put("DeviceID", materialLot.getMaterialName());
+            String deviceID = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-"));
+            parameterMap.put("DeviceID", deviceID);
             parameterMap.put("BoxID", materialLot.getMaterialLotId());
             parameterMap.put("Qty", materialLot.getCurrentQty().toPlainString());
             parameterMap.put("BP", materialLot.getReserved6());
@@ -1301,9 +1304,11 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_BOX_LABEL, "");
             Map<String, Object> parameterMap = Maps.newHashMap();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy");
-            String year = simpleDateFormat.format(new Date());
-            Integer week = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            SimpleDateFormat format = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            Calendar.getInstance().setTime(format.parse(format.format(new Date())));
+            Integer year = Calendar.getInstance().get(Calendar.YEAR) % 1000;
+            String years = year.toString();
+            Integer week = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR);
             String weeks = week.toString();
             if (week < 10){
                 weeks = "0" + weeks;
@@ -1312,11 +1317,11 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("DeviceNo", deviceNo);
             parameterMap.put("PN", deviceNo);
             parameterMap.put("WaferLotNo", materialLot.getLotCst());
-            parameterMap.put("AssyPN", materialLot.getMaterialName());
+            parameterMap.put("AssyPN", deviceNo);
             parameterMap.put("AssyLotNo", materialLot.getInnerLotId());
             parameterMap.put("ShipLotNo", materialLot.getLotCst());
             parameterMap.put("Qty", materialLot.getCurrentQty());
-            parameterMap.put("DC", year + weeks);
+            parameterMap.put("DC", years + weeks);
             parameterMap.put("FrameSlice", materialLot.getCurrentSubQty());
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
