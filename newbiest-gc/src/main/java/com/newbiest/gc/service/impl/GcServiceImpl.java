@@ -3265,15 +3265,12 @@ public class GcServiceImpl implements GcService {
                 otherReceiveProps.put("reserved50", MaterialLot.COM_WAFER_SOURCE);
                 otherReceiveProps.put("reserved7", productCategory);
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(productCategory)){
-                if(MaterialLot.MM_PACKED_LOTIN_FLAG.equals(inFlag)){
-                    otherReceiveProps.put("reserved7", MaterialLot.WLT_IN_FLAG_PRODUCTCATEGORY);
-                } else {
-                    otherReceiveProps.put("reserved7", productCategory);
-                }
                 if(productId.endsWith("-2.5")){
                     otherReceiveProps.put("reserved50", MaterialLot.WLT_IN_FLAG_WAFER_SOURCE);
+                    otherReceiveProps.put("reserved7", MaterialLot.WLT_IN_FLAG_PRODUCTCATEGORY);
                 } else if(productId.endsWith("-2.6")){
                     otherReceiveProps.put("reserved50", MaterialLot.WLT_WAFER_SOURCE);
+                    otherReceiveProps.put("reserved7", productCategory);
                 } else {
                     otherReceiveProps.put("reserved50", MaterialLot.ERROR_WAFER_SOUCE);
                 }
