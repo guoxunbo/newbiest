@@ -135,6 +135,7 @@ public class ImportMLotThread implements Callable {
                 materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                 materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                 materialLotUnit.setLotId(materialLot.getLotId());
+                materialLotUnit.setReserved1(materialLot.getReserved1());
                 materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                 materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                 materialLotUnit.setReserved18("0");
