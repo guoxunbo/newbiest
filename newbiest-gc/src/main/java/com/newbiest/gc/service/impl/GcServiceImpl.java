@@ -1859,7 +1859,7 @@ public class GcServiceImpl implements GcService {
                         if (materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) == 0) {
                             //数量进行还原。不能扣减。
                             materialLot.setCurrentSubQty(mLotQty.get(materialLot.getMaterialLotId()));
-                            List<MaterialLotUnit> receiveUnits = materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
                             iterator.remove();
                         }
                     } else {
@@ -1875,7 +1875,7 @@ public class GcServiceImpl implements GcService {
                         if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                             //数量进行还原。不能扣减。
                             materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
-                            List<MaterialLotUnit> receiveUnits = materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
                             iterator.remove();
                         }
                     }
@@ -5942,7 +5942,6 @@ public class GcServiceImpl implements GcService {
      */
     public void purchaseOutsourceWaferReceive(List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
-            List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Warehouse warehouse = new Warehouse();
             for(MaterialLot materialLot : materialLots){
@@ -5955,8 +5954,17 @@ public class GcServiceImpl implements GcService {
                 String warehouseName = warehouse.getName();
 
                 log.info("receive materialLot and materialLotUnits");
-                List<MaterialLotUnit> units = materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
-                materialLotUnits.addAll(units);
+                materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
+
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                    if(!MaterialLotUnit.STATE_IN.equals(materialLotUnit.getState())){
+                        materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                        MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                        materialLotUnitHisRepository.save(history);
+                    }
+                }
             }
 
             for(MaterialLot materialLot : materialLots){
