@@ -94,22 +94,11 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      * @return
      * @throws ClientException
      */
-    public List<MaterialLotUnit> receiveMLotWithUnit(MaterialLot materialLot, String warehouseName) throws ClientException {
+    public void receiveMLotWithUnit(MaterialLot materialLot, String warehouseName) throws ClientException {
         try {
-            List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
             Warehouse warehouse = mmsService.getWarehouseByName(warehouseName);
             if (warehouse == null) {
                 throw new ClientParameterException(MmsException.MM_WAREHOUSE_IS_NOT_EXIST, warehouseName);
-            }
-            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-            for (MaterialLotUnit materialLotUnit : materialLotUnits) {
-                materialLotUnit.setState(MaterialLotUnit.STATE_IN);
-                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-
-                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
-                history.setTransQty(materialLotUnit.getCurrentQty());
-                materialLotUnitHisRepository.save(history);
-                materialLotUnitList.add(materialLotUnit);
             }
             Long warehouseRrn = warehouse.getObjectRrn();
             if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
@@ -122,7 +111,17 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             materialLotAction.setTransQty(materialLot.getCurrentQty());
             materialLotAction.setTransCount(materialLot.getCurrentSubQty());
             mmsService.stockIn(materialLot, materialLotAction);
-            return materialLotUnitList;
+
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                materialLotUnitHisRepository.save(history);
+                log.info("received materialLotUnit is " + materialLotUnit);
+            }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
