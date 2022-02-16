@@ -101,7 +101,7 @@ public class MesServiceImpl implements MesService {
             for(MaterialLot materialLot : materialLots){
                 if(MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) ||
                         MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CATEGORY_RW.equals(materialLot.getReserved7()) ||
-                        MaterialLotUnit.PRODUCT_CLASSIFY_SOC.equals(materialLot.getReserved7())){
+                        MaterialLotUnit.PRODUCT_CLASSIFY_SOC.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CATEGORY_SOC.equals(materialLot.getReserved7())){
                     if(!StringUtils.isNullOrEmpty(materialLot.getInnerLotId()) && rwWaferSourceList.contains(materialLot.getReserved50())){
                         unitIdList.add(materialLot.getInnerLotId());
                     } else {
