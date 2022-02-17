@@ -533,6 +533,30 @@ public class MaterialLotUnit extends NBUpdatable {
     @Column(name="RESERVED50")
     private String reserved50;
 
+    /**
+     * PACK_DEVICE
+     */
+    @Column(name="PACK_DEVICE")
+    private String packDevice;
+
+    /**
+     * 工程师名
+     */
+    @Column(name="ENGINEER_NAME")
+    private String engineerName;
+
+    /**
+     * 实验目的
+     */
+    @Column(name="TEST_PURPOSE")
+    private String testPurpose;
+
+    /**
+     * 工程备注
+     */
+    @Column(name="WORK_REMARKS")
+    private String workRemarks;
+
     @Transient
     private String relaxBoxId;
 

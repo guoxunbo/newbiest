@@ -7989,9 +7989,14 @@ public class GcServiceImpl implements GcService {
     private void rwLotAttributeChange(MaterialLot materialLot) throws ClientException {
         try {
             String waferSource = materialLot.getReserved50();
+            String strProdcutType = materialLot.getMaterialName();
             if (!StringUtils.isNullOrEmpty(waferSource)){
                 if (MaterialLot.RW_TO_CP_WAFER_SOURCE.equals(waferSource)) {
-                    materialLot.setReserved50(MaterialLot.SCP_WAFER_SOURCE);
+                    if(strProdcutType.endsWith("-2.1")){
+                        materialLot.setReserved50(MaterialLot.SCP_WAFER_SOURCE);
+                    }else {
+                        materialLot.setReserved50(MaterialLot.SOC_WAFER_SOURCE_UNMEASUREN);
+                    }
                 }else if (MaterialLot.SCP_WAFER_SOURCE.equals(waferSource)){
                     materialLot.setReserved50(MaterialLot.RW_TO_CP_WAFER_SOURCE);
                 }
