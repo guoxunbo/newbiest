@@ -76,6 +76,12 @@ public class MmsServiceImpl implements MmsService {
     MaterialLotInventoryRepository materialLotInventoryRepository;
 
     @Autowired
+    MaterialLotUnitRepository materialLotUnitRepository;
+
+    @Autowired
+    MaterialLotUnitHisRepository materialLotUnitHisRepository;
+
+    @Autowired
     StatusMachineService statusMachineService;
 
     @Autowired
@@ -1153,6 +1159,28 @@ public class MmsServiceImpl implements MmsService {
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 晶圆接收入库操作
+     * @param materialLot
+     * @param transType
+     * @throws ClientException
+     */
+    public void stockInMaterialLotUnitAndSaveHis(MaterialLot materialLot, String transType) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                materialLotUnitHisRepository.save(history);
+                log.info("received materialLotUnit is " + materialLotUnit);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
