@@ -11383,7 +11383,6 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, bladeMaterialCode);
             }
             materialLot.setMaterial(material);
-            materialLot.setCurrentQty(BigDecimal.TEN);
             materialLot.setCurrentSubQty(BigDecimal.ONE);
             materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
             materialLot.setStatus(MaterialStatus.STATUS_CREATE);
