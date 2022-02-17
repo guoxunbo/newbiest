@@ -575,13 +575,10 @@ public class GcServiceImpl implements GcService {
      * @param mLotId
      * @return materialLot
      */
-    public MaterialLot getWaitStockInStorageMaterialLotByLotIdOrMLotId(String mLotId) throws ClientException{
+    public MaterialLot getWaitStockInStorageMaterialLotByLotIdOrMLotId(String mLotId, Long tableRrn) throws ClientException{
         try {
-            MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId,  ThreadLocalContext.getOrgRrn());
-            if(materialLot == null){
-                materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(mLotId, MaterialLot.STATUS_FIN);
-            }
-            if(materialLot == null){
+            MaterialLot materialLot = getMaterialLotByTableRrnAndMaterialLotIdOrLotId(tableRrn, mLotId);
+            if(StringUtils.isNullOrEmpty(materialLot.getMaterialLotId())){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mLotId);
             } else{
                 materialLot.isFinish();
@@ -1859,7 +1856,7 @@ public class GcServiceImpl implements GcService {
                         if (materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) == 0) {
                             //数量进行还原。不能扣减。
                             materialLot.setCurrentSubQty(mLotQty.get(materialLot.getMaterialLotId()));
-                            List<MaterialLotUnit> receiveUnits = materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
                             iterator.remove();
                         }
                     } else {
@@ -1875,7 +1872,7 @@ public class GcServiceImpl implements GcService {
                         if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                             //数量进行还原。不能扣减。
                             materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
-                            List<MaterialLotUnit> receiveUnits = materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                            materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
                             iterator.remove();
                         }
                     }
@@ -4236,6 +4233,8 @@ public class GcServiceImpl implements GcService {
                 }
                 materialLot.setReserved14(storageId);
                 materialLotRepository.save(materialLot);
+
+
             }
 
         } catch (Exception e) {
@@ -5942,7 +5941,6 @@ public class GcServiceImpl implements GcService {
      */
     public void purchaseOutsourceWaferReceive(List<MaterialLotAction> materialLotActions) throws ClientException{
         try {
-            List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Warehouse warehouse = new Warehouse();
             for(MaterialLot materialLot : materialLots){
@@ -5955,8 +5953,7 @@ public class GcServiceImpl implements GcService {
                 String warehouseName = warehouse.getName();
 
                 log.info("receive materialLot and materialLotUnits");
-                List<MaterialLotUnit> units = materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
-                materialLotUnits.addAll(units);
+                materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
             }
 
             for(MaterialLot materialLot : materialLots){
@@ -7992,9 +7989,14 @@ public class GcServiceImpl implements GcService {
     private void rwLotAttributeChange(MaterialLot materialLot) throws ClientException {
         try {
             String waferSource = materialLot.getReserved50();
+            String strProdcutType = materialLot.getMaterialName();
             if (!StringUtils.isNullOrEmpty(waferSource)){
                 if (MaterialLot.RW_TO_CP_WAFER_SOURCE.equals(waferSource)) {
-                    materialLot.setReserved50(MaterialLot.SCP_WAFER_SOURCE);
+                    if(strProdcutType.endsWith("-2.1")){
+                        materialLot.setReserved50(MaterialLot.SCP_WAFER_SOURCE);
+                    }else {
+                        materialLot.setReserved50(MaterialLot.SOC_WAFER_SOURCE_UNMEASUREN);
+                    }
                 }else if (MaterialLot.SCP_WAFER_SOURCE.equals(waferSource)){
                     materialLot.setReserved50(MaterialLot.RW_TO_CP_WAFER_SOURCE);
                 }

@@ -147,7 +147,7 @@ public interface GcService {
     DocumentLine reservedMaterialLot(Long documentLineRrn, List<MaterialLotAction> materialLotActions, String stockNote) throws ClientException;
     void unReservedMaterialLot(List<MaterialLotAction> materialLotActions) throws ClientException;
 
-    MaterialLot getWaitStockInStorageMaterialLotByLotIdOrMLotId(String mLotId) throws ClientException;
+    MaterialLot getWaitStockInStorageMaterialLotByLotIdOrMLotId(String mLotId, Long tableRrn) throws ClientException;
     MaterialLot getMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, long tableRrn) throws ClientException;
     void stockIn(List<StockInModel> stockInModels) throws ClientException;
 

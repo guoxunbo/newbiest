@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_unit_0.1.7
+      author: Guozhang Luo
+      remarks: mms_material_lot_unit add columns
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT_UNIT
+            columns:
+              - column:
+                  name: PACK_DEVICE
+                  type: varchar(64)
+                  remarks: pack Device
+              - column:
+                  name: ENGINEER_NAME
+                  type: varchar(64)
+                  remarks: 工程师名
+              - column:
+                  name: TEST_PURPOSE
+                  type: varchar(64)
+                  remarks: 实验目的
+              - column:
+                  name: WORK_REMARKS
+                  type: varchar(128)
+                  remarks: 工程备注

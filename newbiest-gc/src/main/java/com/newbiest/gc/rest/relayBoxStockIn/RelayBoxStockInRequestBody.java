@@ -23,6 +23,9 @@ public class RelayBoxStockInRequestBody extends RequestBody {
     @ApiModelProperty(value = "中转箱号")
     private String relayBoxId;
 
+    @ApiModelProperty(value = "表单主键")
+    private Long tableRrn;
+
     @ApiModelProperty(value = "更换库位号")
     private List<RelayBoxStockInModel> relayBoxStockInModels;
 }
