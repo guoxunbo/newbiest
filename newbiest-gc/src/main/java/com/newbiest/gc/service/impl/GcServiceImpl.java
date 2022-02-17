@@ -575,13 +575,10 @@ public class GcServiceImpl implements GcService {
      * @param mLotId
      * @return materialLot
      */
-    public MaterialLot getWaitStockInStorageMaterialLotByLotIdOrMLotId(String mLotId) throws ClientException{
+    public MaterialLot getWaitStockInStorageMaterialLotByLotIdOrMLotId(String mLotId, Long tableRrn) throws ClientException{
         try {
-            MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mLotId,  ThreadLocalContext.getOrgRrn());
-            if(materialLot == null){
-                materialLot = materialLotRepository.findByLotIdAndStatusCategoryNotIn(mLotId, MaterialLot.STATUS_FIN);
-            }
-            if(materialLot == null){
+            MaterialLot materialLot = getMaterialLotByTableRrnAndMaterialLotIdOrLotId(tableRrn, mLotId);
+            if(StringUtils.isNullOrEmpty(materialLot.getMaterialLotId())){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mLotId);
             } else{
                 materialLot.isFinish();
@@ -4236,6 +4233,8 @@ public class GcServiceImpl implements GcService {
                 }
                 materialLot.setReserved14(storageId);
                 materialLotRepository.save(materialLot);
+
+
             }
 
         } catch (Exception e) {
@@ -5955,16 +5954,6 @@ public class GcServiceImpl implements GcService {
 
                 log.info("receive materialLot and materialLotUnits");
                 materialLotUnitService.receiveMLotWithUnit(materialLot, warehouseName);
-
-                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
-                for (MaterialLotUnit materialLotUnit : materialLotUnits) {
-                    if(!MaterialLotUnit.STATE_IN.equals(materialLotUnit.getState())){
-                        materialLotUnit.setState(MaterialLotUnit.STATE_IN);
-                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-                        MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
-                        materialLotUnitHisRepository.save(history);
-                    }
-                }
             }
 
             for(MaterialLot materialLot : materialLots){
