@@ -9,11 +9,9 @@ import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.gc.scm.dto.TempCpModel;
 import com.newbiest.gc.scm.dto.TempFtModel;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.gc.service.TempFtService;
-import com.newbiest.gc.service.TempService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -29,9 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -218,11 +214,12 @@ public class TempFtServiceImpl implements TempFtService {
                             //晶圆创建历史
                             MaterialLotUnitHistory unitCreateHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
                             unitCreateHistory.setCreated(materialLotUnit.getCreated());
+                            unitCreateHistory.setState(MaterialLotUnit.STATE_CREATE);
                             materialLotUnitHisRepository.save(unitCreateHistory);
 
                             //晶圆接收历史
                             MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
-                            unitHistory.setCreated(materialLotUnit.getCreated());
+                            unitHistory.setCreated(getDate(materialLotUnit.getCreated()));
                             unitHistory.setState(MaterialLotUnit.STATE_IN);
                             materialLotUnitHisRepository.save(unitHistory);
                         }
@@ -231,6 +228,23 @@ public class TempFtServiceImpl implements TempFtService {
                 }
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取三分钟后的时间
+     * @param created
+     * @return
+     * @throws ClientException
+     */
+    private Date getDate(Date created) throws ClientException{
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(created);
+            calendar.add(Calendar.MINUTE, 3);
+            return calendar.getTime();
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -318,6 +332,7 @@ public class TempFtServiceImpl implements TempFtService {
             materialLot = mmsService.changeMaterialLotState(materialLot, "OQC", "OK");
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "OQC");
+            history.setCreated(getDate(materialLot.getCreated()));
             materialLotHistoryRepository.save(history);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
