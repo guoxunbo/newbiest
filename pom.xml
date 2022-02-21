@@ -47,7 +47,7 @@
         <liquibase.version>3.6.1</liquibase.version>
         <newbiest.idgenerator.version>1.0.1.RELEASE</newbiest.idgenerator.version>
         <newbiest.statusmachine.version>1.0.1.RELEASE</newbiest.statusmachine.version>
-        <newbiest.framework.version>1.0.4.10.RELEASE</newbiest.framework.version>
+        <newbiest.framework.version>1.0.4.12.RELEASE</newbiest.framework.version>
         <newbiest.kms.version>1.0.1.RELEASE</newbiest.kms.version>
         <platform.version>1.0.4-SNAPSHOT</platform.version>
     </properties>
