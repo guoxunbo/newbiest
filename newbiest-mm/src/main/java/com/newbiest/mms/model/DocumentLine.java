@@ -315,6 +315,42 @@ public class DocumentLine extends NBUpdatable {
     @Column(name="MATERIAL_TYPE")
     private String materialType;
 
+    /**
+     * 客户Code
+     */
+    @Column(name="CUSCODE")
+    private String cuscode;
+
+    /**
+     * 产品类型
+     */
+    @Column(name="PRODUCT_TYPE")
+    private String productType;
+
+    /**
+     * 销售订单号
+     */
+    @Column(name="SALE_CODE")
+    private String saleCode;
+
+    /**
+     * 发货日期
+     */
+    @Column(name="SHIP_DETE")
+    private String shipDate;
+
+    /**
+     * 存货编码
+     */
+    @Column(name="STOCK_CODE")
+    private String stockCode;
+
+    /**
+     * PO号
+     */
+    @Column(name="PO_ID")
+    private String poId;
+
     @Transient
     private Integer erpSeq;
 

@@ -251,4 +251,22 @@ public class ErpSoa implements Serializable {
     @Column(name="CREATE_SEQ")
     private String createSeq;
 
+    @Column(name="STCODE")
+    private String stcode;
+
+    @Column(name="BUSTYPE")
+    private String bustype;
+
+    @Column(name="OTHER20")
+    private String other20;
+
+    @Column(name="OTHER15")
+    private String other15;
+
+    @Column(name="DLCODE")
+    private String dlcode;
+
+    @Column(name="SHIP_DATE")
+    private String shipDate;
+
 }

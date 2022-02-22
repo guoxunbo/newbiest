@@ -134,11 +134,8 @@ public class ErpSob implements Serializable {
     @Column(name="OTHER5")
     private String other5;
 
-    /**
-     * 客户名称
-     */
-    //@Column(name="CUSNAME")
-    //private String cusname;
+    @Column(name="CFREE4")
+    private String cfree4;
 
     /**
      * 同步状态
