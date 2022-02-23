@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_his_0.1.3
+      author: Guozhang Luo
+      remarks: mms_document_line_his add columns
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT_LINE_HIS
+            columns:
+              - column:
+                  name: CRD_CODE
+                  type: varchar2(64)
+                  remarks: 收发类别编码
+              - column:
+                  name: CRD_NAME
+                  type: varchar2(64)
+                  remarks: 收发类别名称
+              - column:
+                  name: AUTOID
+                  type: varchar2(64)
+                  remarks: 子表AUTOID
+              - column:
+                  name: SHIP_AUTOID
+                  type: varchar2(64)
+                  remarks: 发货单子表Id
+              - column:
+                  name: SALE_TYPE
+                  type: varchar2(64)
+                  remarks: 销售类型
+              - column:
+                  name: SHIP_CUSTOMER
+                  type: varchar2(64)
+                  remarks: 出货客户
+              - column:
+                  name: CARGO_CODE
+                  type: varchar2(64)
+                  remarks: 货物编码
+              - column:
+                  name: RESERVED33
+                  type: varchar2(64)
+                  remarks: erp_soa的other5
+              - column:
+                  name: RESERVED34
+                  type: varchar2(64)
+                  remarks: erp_soa的other7统计口径
+              - column:
+                  name: RESERVED35
+                  type: varchar2(64)
+                  remarks: 销售订单审核状态

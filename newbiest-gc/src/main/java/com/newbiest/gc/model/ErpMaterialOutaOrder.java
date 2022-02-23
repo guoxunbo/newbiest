@@ -221,4 +221,13 @@ public class ErpMaterialOutaOrder implements Serializable {
     @Column(name="CMEMO")
     private String cmemo;
 
+    @Column(name="CRDCODE")
+    private String crdcode;
+
+    @Column(name="CRDNAME")
+    private String crdname;
+
+    @Column(name="OTHER16")
+    private String other16;
+
 }

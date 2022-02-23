@@ -1202,6 +1202,7 @@ public class GcServiceImpl implements GcService {
                         savaCustomer(reTestOrder.getSupplierName());
                     }
                 }
+                updateErpMaterialOutSyncStatusAndErrorMemoAndUserId(asyncSuccessSeqList, asyncDuplicateSeqList);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -1422,6 +1423,9 @@ public class GcServiceImpl implements GcService {
             documentLine.setCuscode(erpMaterialOutOrder.getCuscode());
             documentLine.setProductType(erpMaterialOutOrder.getOther15());
             documentLine.setPoId(erpMaterialOutOrder.getCfree4());
+            documentLine.setCrdCode(erpMaterialOutOrder.getCrdcode());
+            documentLine.setCrdName(erpMaterialOutOrder.getCrdname());
+            documentLine.setAutoid(erpMaterialOutOrder.getOther16());
             documentLine.setReserved31(ErpMaterialOutOrder.SOURCE_TABLE_NAME);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -2582,6 +2586,8 @@ public class GcServiceImpl implements GcService {
                 documentLine.setWarehouseCode(erpSo.getCwhcode());
                 documentLine.setWarehouseName(erpSo.getCwhname());
                 documentLine.setProductType(erpSo.getOther15());
+                documentLine.setCrdCode(erpSo.getCrdcode());
+                documentLine.setCrdName(erpSo.getCrdname());
                 documentLine.setCuscode(erpSo.getCuscode());
                 documentLine.setReserved31(ErpSo.SOURCE_TABLE_NAME);
             }
@@ -6943,6 +6949,9 @@ public class GcServiceImpl implements GcService {
             documentLine.setReserved27(erpMaterialOutaOrder.getOther7());
             documentLine.setReserved28(erpMaterialOutaOrder.getOther4());
             documentLine.setReserved30(erpMaterialOutaOrder.getOther5());
+            documentLine.setCrdCode(erpMaterialOutaOrder.getCrdcode());
+            documentLine.setCrdName(erpMaterialOutaOrder.getCrdname());
+            documentLine.setAutoid(erpMaterialOutaOrder.getOther16());
             documentLine.setCuscode(erpMaterialOutaOrder.getCuscode());
             documentLine.setProductType(erpMaterialOutaOrder.getOther15());
         } catch (Exception e) {
@@ -7252,6 +7261,15 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setProductType(erpSoa.getOther15());
                                 documentLine.setSaleCode(erpSoa.getDlcode());
                                 documentLine.setShipDate(erpSoa.getShipDate());
+                                documentLine.setWarehouseCode(erpSoa.getWhcode());
+                                documentLine.setWarehouseName(erpSoa.getWhname());
+                                documentLine.setShipAutoid(erpSoa.getShipAutoid());
+                                documentLine.setSaleType(erpSoa.getOther2());
+                                documentLine.setShipCustomer(erpSoa.getOther9());
+                                documentLine.setCargoCode(erpSoa.getOther10());
+                                documentLine.setReserved33(erpSoa.getOther5());
+                                documentLine.setReserved34(erpSoa.getOther7());
+                                documentLine.setReserved35(erpSoa.getOther14());
                                 documentLine.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
                                 documentLine.setThreeSideTransaction(erpSoa.getCuscode());
                             }
@@ -7458,6 +7476,9 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setDocSource(erpSob.getCsource());
                                 documentLine.setWarehouseCode(erpSob.getCwhcode());
                                 documentLine.setWarehouseName(erpSob.getCwhname());
+                                documentLine.setCrdName(erpSob.getCrdname());
+                                documentLine.setCrdCode(erpSob.getCrdcode());
+                                documentLine.setAutoid(erpSob.getOther16());
                                 documentLine.setReserved31(ErpSob.SOURCE_TABLE_NAME);
                             }
 
