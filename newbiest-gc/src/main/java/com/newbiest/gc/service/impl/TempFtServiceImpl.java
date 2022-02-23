@@ -9,11 +9,9 @@ import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
-import com.newbiest.gc.scm.dto.TempCpModel;
 import com.newbiest.gc.scm.dto.TempFtModel;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.gc.service.TempFtService;
-import com.newbiest.gc.service.TempService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
@@ -29,9 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -146,91 +142,152 @@ public class TempFtServiceImpl implements TempFtService {
                         TempFtModel firstTempFtModel = lotTempCpModels.get(0);
                         Material material = validateAndGetMaterial(waferSource, firstTempFtModel.getProductId());
 
-                        Long totalMLotQty = lotTempCpModels.stream().collect(Collectors.summingLong(tempCpModel -> Long.parseLong(tempCpModel.getWaferNum())));
-                        BigDecimal qty = new BigDecimal(totalMLotQty);
-                        BigDecimal subQty = new BigDecimal(lotTempCpModels.size());
-
-                        MaterialLotAction materialLotAction = new MaterialLotAction();
-                        materialLotAction.setTransQty(qty);
-                        materialLotAction.setGrade(firstTempFtModel.getGrade());
-                        materialLotAction.setTransCount(subQty);
-
-                        if (!StringUtils.isNullOrEmpty(firstTempFtModel.getStockId())) {
-                            Warehouse warehouse = getWareHoseByStockId(firstTempFtModel.getStockId().trim());
-                            materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
-                            materialLotAction.setTargetStorageId(firstTempFtModel.getPointId());
-                        }
                         Map<String, Object> propMap = Maps.newConcurrentMap();
                         getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource);
-                        buildPropMap(propMap, firstTempFtModel, materialLotAction, fileName);
-                        propMap.put("lotId", firstTempFtModel.getLotId() == null ? "": firstTempFtModel.getLotId().trim());
-                        materialLotAction.setPropsMap(propMap);
 
-                        MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, firstTempFtModel.getLotId(), materialLotAction);
-
-                        for (TempFtModel tempFtModel : lotTempCpModels) {
-                            MaterialLotUnit materialLotUnit = new MaterialLotUnit();
-                            materialLotUnit.setUnitId(tempFtModel.getWaferId());
-                            materialLotUnit.setMaterial(material);
-                            materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
-                            materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
-                            materialLotUnit.setLotId(materialLot.getLotId());
-                            materialLotUnit.setState(MaterialLotUnit.STATE_IN);
-                            materialLotUnit.setGrade(materialLot.getGrade());
-                            materialLotUnit.setCreated(tempFtModel.getInTime());
-                            materialLotUnit.setReceiveDate(tempFtModel.getInTime());
-                            materialLotUnit.setCurrentQty(new BigDecimal(tempFtModel.getWaferNum()));
-                            materialLotUnit.setReceiveQty(new BigDecimal(tempFtModel.getWaferNum()));
-                            materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
-                            materialLotUnit.setPackDevice(materialLot.getPackDevice());
-                            materialLotUnit.setEngineerName(materialLot.getEngineerName());
-                            materialLotUnit.setWorkRemarks(materialLot.getWorkRemarks());
-                            materialLotUnit.setTestPurpose(materialLot.getTestPurpose());
-                            materialLotUnit.setDurable(materialLot.getDurable());
-                            materialLotUnit.setLotCst(materialLot.getLotCst());
-                            materialLotUnit.setTreasuryNote(tempFtModel.getProdRemarkDesc());
-                            materialLotUnit.setReserved1(tempFtModel.getSecondCode());
-                            materialLotUnit.setReserved4(tempFtModel.getLocation());
-                            materialLotUnit.setReserved8(materialLot.getReserved8());
-                            materialLotUnit.setReserved13(materialLot.getReserved13());
-                            materialLotUnit.setReserved14(tempFtModel.getPointId());
-                            materialLotUnit.setReserved22(tempFtModel.getVendor());
-                            materialLotUnit.setReserved24(tempFtModel.getFabDevice());
-                            materialLotUnit.setReserved27(tempFtModel.getPoNo());
-                            materialLotUnit.setReserved29(tempFtModel.getInvoiceId());
-                            materialLotUnit.setReserved33(tempFtModel.getDataValue19());
-                            materialLotUnit.setReserved34(tempFtModel.getPassNum());
-                            materialLotUnit.setReserved35(tempFtModel.getNgNum());
-                            materialLotUnit.setReserved36(tempFtModel.getYield());
-                            materialLotUnit.setReserved37(tempFtModel.getPackLotId());
-                            materialLotUnit.setReserved38(tempFtModel.getDataValue16());
-                            materialLotUnit.setReserved39(tempFtModel.getCartonNo());
-                            materialLotUnit.setReserved41(tempFtModel.getRemark());
-                            materialLotUnit.setReserved42(tempFtModel.getDataValue20());
-                            materialLotUnit.setReserved43(tempFtModel.getDataValue24());
-                            materialLotUnit.setReserved45(tempFtModel.getDataValue25());
-                            materialLotUnit.setReserved46(tempFtModel.getWoId());
-                            materialLotUnit.setReserved47(fileName);
-                            materialLotUnit.setReserved49(materialLot.getReserved49());
-                            materialLotUnit.setReserved50(materialLot.getReserved50());
-                            materialLotUnitRepository.save(materialLotUnit);
-
-                            //晶圆创建历史
-                            MaterialLotUnitHistory unitCreateHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
-                            unitCreateHistory.setCreated(materialLotUnit.getCreated());
-                            materialLotUnitHisRepository.save(unitCreateHistory);
-
-                            //晶圆接收历史
-                            MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
-                            unitHistory.setCreated(materialLotUnit.getCreated());
-                            unitHistory.setState(MaterialLotUnit.STATE_IN);
-                            materialLotUnitHisRepository.save(unitHistory);
+                        //waferSource为7和9的晶圆一个unitId为一个lot，按照unit接收发料
+                        String newWaferSource = (String) propMap.get("reserved50");
+                        if(MaterialLot.WLT_PACK_RETURN_WAFER_SOURCE.equals(newWaferSource) || MaterialLot.SENSOR_WAFER_SOURCE.equals(newWaferSource)){
+                            for(TempFtModel tempFtModel : lotTempCpModels){
+                                propMap.put("lotId", tempFtModel.getWaferId().trim());
+                                BigDecimal qty = new BigDecimal(tempFtModel.getWaferNum());
+                                MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), BigDecimal.ONE, tempFtModel, fileName, propMap);
+                                MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, tempFtModel.getWaferId().trim(), materialLotAction);
+                                createMaterialLotUnitAndSaveHis(tempFtModel, materialLot, material, fileName);
+                            }
+                        } else {
+                            Long totalMLotQty = lotTempCpModels.stream().collect(Collectors.summingLong(tempCpModel -> Long.parseLong(tempCpModel.getWaferNum())));
+                            BigDecimal qty = new BigDecimal(totalMLotQty);
+                            BigDecimal subQty = new BigDecimal(lotTempCpModels.size());
+                            propMap.put("lotId", firstTempFtModel.getLotId().trim());
+                            MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), subQty, firstTempFtModel, fileName, propMap);
+                            MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, firstTempFtModel.getLotId(), materialLotAction);
+                            for (TempFtModel tempFtModel : lotTempCpModels) {
+                                createMaterialLotUnitAndSaveHis(tempFtModel, materialLot, material, fileName);
+                            }
                         }
-
                     }
                 }
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 构建MaterialLotAction
+     * @param currentQty
+     * @param grade
+     * @param currentSubQty
+     * @param tempFtModel
+     * @param fileName
+     * @return
+     * @throws ClientException
+     */
+    private MaterialLotAction buildMaterialLotAction(BigDecimal currentQty, String grade, BigDecimal currentSubQty, TempFtModel tempFtModel, String fileName, Map<String,Object> propMap) throws ClientException{
+        try {
+            MaterialLotAction materialLotAction = new MaterialLotAction();
+            materialLotAction.setTransQty(currentQty);
+            materialLotAction.setGrade(grade);
+            materialLotAction.setTransCount(currentSubQty);
+            if (!StringUtils.isNullOrEmpty(tempFtModel.getStockId().trim())) {
+                Warehouse warehouse = getWareHoseByStockId(tempFtModel.getStockId().trim());
+                materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+                materialLotAction.setTargetStorageId(tempFtModel.getPointId());
+            }
+            buildPropMap(propMap, tempFtModel, materialLotAction, fileName);
+            materialLotAction.setPropsMap(propMap);
+            return materialLotAction;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 创建晶圆信息并且记录历史
+     * @param tempFtModel
+     * @param materialLot
+     * @param material
+     * @param fileName
+     * @throws ClientException
+     */
+    private void createMaterialLotUnitAndSaveHis(TempFtModel tempFtModel, MaterialLot materialLot, Material material, String fileName) throws ClientException{
+        try {
+            MaterialLotUnit materialLotUnit = new MaterialLotUnit();
+            materialLotUnit.setUnitId(tempFtModel.getWaferId());
+            materialLotUnit.setMaterial(material);
+            materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
+            materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
+            materialLotUnit.setLotId(materialLot.getLotId());
+            materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+            materialLotUnit.setGrade(materialLot.getGrade());
+            materialLotUnit.setCreated(tempFtModel.getInTime());
+            materialLotUnit.setReceiveDate(tempFtModel.getInTime());
+            materialLotUnit.setCurrentQty(new BigDecimal(tempFtModel.getWaferNum()));
+            materialLotUnit.setReceiveQty(new BigDecimal(tempFtModel.getWaferNum()));
+            materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
+            materialLotUnit.setPackDevice(materialLot.getPackDevice());
+            materialLotUnit.setEngineerName(materialLot.getEngineerName());
+            materialLotUnit.setWorkRemarks(materialLot.getWorkRemarks());
+            materialLotUnit.setTestPurpose(materialLot.getTestPurpose());
+            materialLotUnit.setDurable(materialLot.getDurable());
+            materialLotUnit.setLotCst(materialLot.getLotCst());
+            materialLotUnit.setTreasuryNote(tempFtModel.getProdRemarkDesc());
+            materialLotUnit.setReserved1(tempFtModel.getSecondCode());
+            materialLotUnit.setReserved4(tempFtModel.getLocation());
+            materialLotUnit.setReserved8(materialLot.getReserved8());
+            materialLotUnit.setReserved13(materialLot.getReserved13());
+            materialLotUnit.setReserved14(tempFtModel.getPointId());
+            materialLotUnit.setReserved22(tempFtModel.getVendor());
+            materialLotUnit.setReserved24(tempFtModel.getFabDevice());
+            materialLotUnit.setReserved27(tempFtModel.getPoNo());
+            materialLotUnit.setReserved29(tempFtModel.getInvoiceId());
+            materialLotUnit.setReserved33(tempFtModel.getDataValue19());
+            materialLotUnit.setReserved34(tempFtModel.getPassNum());
+            materialLotUnit.setReserved35(tempFtModel.getNgNum());
+            materialLotUnit.setReserved36(tempFtModel.getYield());
+            materialLotUnit.setReserved37(tempFtModel.getPackLotId());
+            materialLotUnit.setReserved38(tempFtModel.getDataValue16());
+            materialLotUnit.setReserved39(tempFtModel.getCartonNo());
+            materialLotUnit.setReserved41(tempFtModel.getRemark());
+            materialLotUnit.setReserved42(tempFtModel.getDataValue20());
+            materialLotUnit.setReserved43(tempFtModel.getDataValue24());
+            materialLotUnit.setReserved45(tempFtModel.getDataValue25());
+            materialLotUnit.setReserved46(tempFtModel.getWoId());
+            materialLotUnit.setReserved47(fileName);
+            materialLotUnit.setReserved49(materialLot.getReserved49());
+            materialLotUnit.setReserved50(materialLot.getReserved50());
+            materialLotUnitRepository.save(materialLotUnit);
+
+            //晶圆创建历史
+            MaterialLotUnitHistory unitCreateHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
+            unitCreateHistory.setCreated(materialLotUnit.getCreated());
+            unitCreateHistory.setState(MaterialLotUnit.STATE_CREATE);
+            materialLotUnitHisRepository.save(unitCreateHistory);
+
+            //晶圆接收历史
+            MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+            unitHistory.setCreated(getDate(materialLotUnit.getCreated()));
+            unitHistory.setState(MaterialLotUnit.STATE_IN);
+            materialLotUnitHisRepository.save(unitHistory);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取三分钟后的时间
+     * @param created
+     * @return
+     * @throws ClientException
+     */
+    private Date getDate(Date created) throws ClientException{
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(created);
+            calendar.add(Calendar.MINUTE, 3);
+            return calendar.getTime();
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -318,6 +375,7 @@ public class TempFtServiceImpl implements TempFtService {
             materialLot = mmsService.changeMaterialLotState(materialLot, "OQC", "OK");
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "OQC");
+            history.setCreated(getDate(materialLot.getCreated()));
             materialLotHistoryRepository.save(history);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
