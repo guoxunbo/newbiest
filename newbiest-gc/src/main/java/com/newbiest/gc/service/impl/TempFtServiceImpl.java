@@ -10,15 +10,13 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.scm.dto.TempFtModel;
+import com.newbiest.gc.scm.dto.TempFtVboxModel;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.gc.service.TempFtService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
-import com.newbiest.mms.repository.MaterialLotHistoryRepository;
-import com.newbiest.mms.repository.MaterialLotRepository;
-import com.newbiest.mms.repository.MaterialLotUnitHisRepository;
-import com.newbiest.mms.repository.MaterialLotUnitRepository;
+import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +63,9 @@ public class TempFtServiceImpl implements TempFtService {
 
     @Autowired
     BaseService baseService;
+
+    @Autowired
+    StorageRepository storageRepository;
 
     /**
      * 转换老系统的FT数据
@@ -214,7 +215,7 @@ public class TempFtServiceImpl implements TempFtService {
     private void createMaterialLotUnitAndSaveHis(TempFtModel tempFtModel, MaterialLot materialLot, Material material, String fileName) throws ClientException{
         try {
             MaterialLotUnit materialLotUnit = new MaterialLotUnit();
-            materialLotUnit.setUnitId(tempFtModel.getWaferId());
+            materialLotUnit.setUnitId(tempFtModel.getWaferId().trim());
             materialLotUnit.setMaterial(material);
             materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
             materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
@@ -223,8 +224,8 @@ public class TempFtServiceImpl implements TempFtService {
             materialLotUnit.setGrade(materialLot.getGrade());
             materialLotUnit.setCreated(tempFtModel.getInTime());
             materialLotUnit.setReceiveDate(tempFtModel.getInTime());
-            materialLotUnit.setCurrentQty(new BigDecimal(tempFtModel.getWaferNum()));
-            materialLotUnit.setReceiveQty(new BigDecimal(tempFtModel.getWaferNum()));
+            materialLotUnit.setCurrentQty(new BigDecimal(tempFtModel.getWaferNum().trim()));
+            materialLotUnit.setReceiveQty(new BigDecimal(tempFtModel.getWaferNum().trim()));
             materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
             materialLotUnit.setPackDevice(materialLot.getPackDevice());
             materialLotUnit.setEngineerName(materialLot.getEngineerName());
@@ -232,28 +233,28 @@ public class TempFtServiceImpl implements TempFtService {
             materialLotUnit.setTestPurpose(materialLot.getTestPurpose());
             materialLotUnit.setDurable(materialLot.getDurable());
             materialLotUnit.setLotCst(materialLot.getLotCst());
-            materialLotUnit.setTreasuryNote(tempFtModel.getProdRemarkDesc());
-            materialLotUnit.setReserved1(tempFtModel.getSecondCode());
-            materialLotUnit.setReserved4(tempFtModel.getLocation());
+            materialLotUnit.setTreasuryNote(tempFtModel.getProdRemarkDesc().trim());
+            materialLotUnit.setReserved1(tempFtModel.getSecondCode().trim());
+            materialLotUnit.setReserved4(tempFtModel.getLocation().trim());
             materialLotUnit.setReserved8(materialLot.getReserved8());
             materialLotUnit.setReserved13(materialLot.getReserved13());
-            materialLotUnit.setReserved14(tempFtModel.getPointId());
-            materialLotUnit.setReserved22(tempFtModel.getVendor());
-            materialLotUnit.setReserved24(tempFtModel.getFabDevice());
-            materialLotUnit.setReserved27(tempFtModel.getPoNo());
-            materialLotUnit.setReserved29(tempFtModel.getInvoiceId());
-            materialLotUnit.setReserved33(tempFtModel.getDataValue19());
-            materialLotUnit.setReserved34(tempFtModel.getPassNum());
-            materialLotUnit.setReserved35(tempFtModel.getNgNum());
-            materialLotUnit.setReserved36(tempFtModel.getYield());
-            materialLotUnit.setReserved37(tempFtModel.getPackLotId());
-            materialLotUnit.setReserved38(tempFtModel.getDataValue16());
-            materialLotUnit.setReserved39(tempFtModel.getCartonNo());
-            materialLotUnit.setReserved41(tempFtModel.getRemark());
-            materialLotUnit.setReserved42(tempFtModel.getDataValue20());
-            materialLotUnit.setReserved43(tempFtModel.getDataValue24());
-            materialLotUnit.setReserved45(tempFtModel.getDataValue25());
-            materialLotUnit.setReserved46(tempFtModel.getWoId());
+            materialLotUnit.setReserved14(tempFtModel.getPointId().trim());
+            materialLotUnit.setReserved22(tempFtModel.getVendor().trim());
+            materialLotUnit.setReserved24(tempFtModel.getFabDevice().trim());
+            materialLotUnit.setReserved27(tempFtModel.getPoNo().trim());
+            materialLotUnit.setReserved29(tempFtModel.getInvoiceId().trim());
+            materialLotUnit.setReserved33(tempFtModel.getDataValue19().trim());
+            materialLotUnit.setReserved34(tempFtModel.getPassNum().trim());
+            materialLotUnit.setReserved35(tempFtModel.getNgNum().trim());
+            materialLotUnit.setReserved36(tempFtModel.getYield().trim());
+            materialLotUnit.setReserved37(tempFtModel.getPackLotId().trim());
+            materialLotUnit.setReserved38(tempFtModel.getDataValue16().trim());
+            materialLotUnit.setReserved39(tempFtModel.getCartonNo().trim());
+            materialLotUnit.setReserved41(tempFtModel.getRemark().trim());
+            materialLotUnit.setReserved42(tempFtModel.getDataValue20().trim());
+            materialLotUnit.setReserved43(tempFtModel.getDataValue24().trim());
+            materialLotUnit.setReserved45(tempFtModel.getDataValue25().trim());
+            materialLotUnit.setReserved46(tempFtModel.getWoId().trim());
             materialLotUnit.setReserved47(fileName);
             materialLotUnit.setReserved49(materialLot.getReserved49());
             materialLotUnit.setReserved50(materialLot.getReserved50());
@@ -481,6 +482,66 @@ public class TempFtServiceImpl implements TempFtService {
                 propMap.put("reserved50", MaterialLot.COM_WAFER_SOURCE);//19
             }
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 接收FT老系统真空包
+     * @param tempFtVboxModelList
+     * @throws ClientException
+     */
+    public void receiveFtOldSystemVbox(List<TempFtVboxModel> tempFtVboxModelList) throws ClientException{
+        try {
+            Map<String, List<TempFtVboxModel>> materialNameMap = tempFtVboxModelList.stream().collect(Collectors.groupingBy(TempFtVboxModel :: getProductId));
+            for(String materialName : materialNameMap.keySet()){
+                List<TempFtVboxModel> tempFtVboxModels = materialNameMap.get(materialName);
+
+                Material material = mmsService.getProductByName(materialName);
+                if (material == null) {
+                    material = gcService.saveProductAndSetStatusModelRrn(materialName);
+                }
+
+                Map<String, List<TempFtVboxModel>> stockIdMap = tempFtVboxModels.stream().collect(Collectors.groupingBy(TempFtVboxModel :: getWarehouseName));
+                for(String warehouseName : stockIdMap.keySet()){
+                    Warehouse warehouse = getWareHoseByStockId(warehouseName);
+                    List<TempFtVboxModel> ftVboxModels = stockIdMap.get(warehouseName);
+                    for(TempFtVboxModel tempFtVboxModel : ftVboxModels){
+                        MaterialLotAction materialLotAction = new MaterialLotAction();
+                        materialLotAction.setTransQty(new BigDecimal(tempFtVboxModel.getQty()));
+                        materialLotAction.setGrade(tempFtVboxModel.getGrade());
+                        materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+                        if(StringUtils.isNullOrEmpty(tempFtVboxModel.getStorageId())){
+                            Storage targetStorage = new Storage();
+                            targetStorage.setName(materialLotAction.getTargetStorageId());
+                            targetStorage.setDescription(StringUtils.SYSTEM_CREATE);
+                            targetStorage.setWarehouseRrn(warehouse.getObjectRrn());
+                            storageRepository.saveAndFlush(targetStorage);
+
+                            materialLotAction.setTargetStorageId(tempFtVboxModel.getStorageId());
+                        }
+
+                        Map<String, Object> propMap = Maps.newConcurrentMap();
+                        propMap.put("reserved1", tempFtVboxModel.getSecondCode() == null ? "": tempFtVboxModel.getSecondCode().trim());
+                        propMap.put("reserved3", tempFtVboxModel.getSaleNote() == null ? "": tempFtVboxModel.getSaleNote().trim());
+                        propMap.put("reserved4", tempFtVboxModel.getTreasuryNote() == null ? "": tempFtVboxModel.getTreasuryNote().trim());
+                        propMap.put("reserved6", tempFtVboxModel.getLocation() == null ? "": tempFtVboxModel.getLocation().trim());
+                        propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_FT);//FT
+                        propMap.put("reserved13", warehouse.getObjectRrn().toString());
+                        propMap.put("reserved14", tempFtVboxModel.getStorageId() == null ? "": tempFtVboxModel.getStorageId().trim());
+                        propMap.put("reserved22", tempFtVboxModel.getSubName() == null ? "": tempFtVboxModel.getSubName().trim());
+                        propMap.put("reserved46", tempFtVboxModel.getWo() == null ? "": tempFtVboxModel.getWo().trim());
+                        propMap.put("reserved49", MaterialLotUnit.PRODUCT_CATEGORY_FT);//FT
+                        propMap.put("reserved50", MaterialLot.FT_WAFER_SOURCE);//10
+                        propMap.put("sourceProductId", tempFtVboxModel.getSoureProductId() == null ? "": tempFtVboxModel.getSoureProductId().trim());
+
+                        materialLotAction.setPropsMap(propMap);
+                        mmsService.receiveMLot2Warehouse(material, tempFtVboxModel.getBoxId(), materialLotAction);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
