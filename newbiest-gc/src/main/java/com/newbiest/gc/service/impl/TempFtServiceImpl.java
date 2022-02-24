@@ -73,7 +73,6 @@ public class TempFtServiceImpl implements TempFtService {
      */
     public void transferFtData(List<TempFtModel> tempCpModelList, String fileName) throws ClientException {
         try {
-            Map<String, Material> materialMap = Maps.newHashMap();
             Map<String, List<TempFtModel>> waferSourceMap = tempCpModelList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
             for (String waferSource : waferSourceMap.keySet()) {
                 List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
