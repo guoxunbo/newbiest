@@ -227,4 +227,13 @@ public class ErpMaterialOutOrder implements Serializable {
 
     @Column(name="CFREE4")
     private String cfree4;
+
+    @Column(name="CRDCODE")
+    private String crdcode;
+
+    @Column(name="CRDNAME")
+    private String crdname;
+
+    @Column(name="OTHER16")
+    private String other16;
 }

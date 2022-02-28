@@ -2,6 +2,7 @@ package com.newbiest.gc.service;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.scm.dto.TempFtModel;
+import com.newbiest.gc.scm.dto.TempFtVboxModel;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface TempFtService {
 
     void transferFtData(List<TempFtModel> tempCpModelList, String fileName) throws ClientException;
 
+    void receiveFtOldSystemVbox(List<TempFtVboxModel> tempFtVboxModelList)  throws ClientException;
 }
