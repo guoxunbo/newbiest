@@ -230,6 +230,7 @@ public class TempFtServiceImpl implements TempFtService {
             materialLotUnit.setEngineerName(materialLot.getEngineerName());
             materialLotUnit.setWorkRemarks(materialLot.getWorkRemarks());
             materialLotUnit.setTestPurpose(materialLot.getTestPurpose());
+            materialLotUnit.setProductType(materialLot.getProductType());
             materialLotUnit.setDurable(materialLot.getDurable());
             materialLotUnit.setLotCst(materialLot.getLotCst());
             materialLotUnit.setTreasuryNote(tempFtModel.getProdRemarkDesc() == null ? "": tempFtModel.getProdRemarkDesc().trim());
