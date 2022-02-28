@@ -8068,9 +8068,9 @@ public class GcServiceImpl implements GcService {
                     if(strProdcutType.endsWith("-2.1")){
                         materialLot.setReserved50(MaterialLot.SCP_WAFER_SOURCE);
                     }else {
-                        materialLot.setReserved50(MaterialLot.SOC_WAFER_SOURCE_UNMEASUREN);
+                        materialLot.setReserved50(MaterialLot.SCP_IN_FLAG_WAFER_SOURCE);
                     }
-                }else if (MaterialLot.SCP_WAFER_SOURCE.equals(waferSource)){
+                }else if (MaterialLot.SCP_WAFER_SOURCE.equals(waferSource) || MaterialLot.SCP_IN_FLAG_WAFER_SOURCE.equals(waferSource)){
                     materialLot.setReserved50(MaterialLot.RW_TO_CP_WAFER_SOURCE);
                 }
                 if (MaterialLot.RW_WAFER_SOURCE.equals(waferSource)) {
