@@ -4435,8 +4435,8 @@ public class GcServiceImpl implements GcService {
                         materialLotHistoryRepository.save(history);
                     }
                 }
-            } else if(importType.equals(MaterialLotUnit.RMA_GOOD_PRODUCT) || importType.equals(MaterialLotUnit.RMA_RETURN)
-                    ||importType.equals(MaterialLotUnit.RMA_PURE)){
+            } else if(importType.equals(MaterialLotUnit.SENSOR_RMA_GOOD_PRODUCT) || importType.equals(MaterialLotUnit.RMA_RETURN)
+                    ||importType.equals(MaterialLotUnit.RMA_PURE) || importType.equals(MaterialLotUnit.WLT_RMA_GOOD_PRODUCT)){
                 importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
                 Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getMaterialName));
                 for(String materialName : materialLotMap.keySet()){
@@ -4464,17 +4464,23 @@ public class GcServiceImpl implements GcService {
                         materialLot.setStatusModelRrn(material.getStatusModelRrn());
                         materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         materialLot.setStatus(MaterialStatus.STATUS_CREATE);
-                        materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_RMA);
                         if(StringUtils.isNullOrEmpty(materialLot.getReserved35())){
                             materialLot.setReserved35("0");
                         }
-                        if(MaterialLotUnit.RMA_GOOD_PRODUCT.equals(importType)){
-                            materialLot.setReserved50("11");
-                            materialLot.setReserved49(MaterialLot.IMPORT_RMA);
+                        if(MaterialLotUnit.SENSOR_RMA_GOOD_PRODUCT.equals(importType)){
+                            materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_RMA);
+                            materialLot.setReserved50(MaterialLot.SENSOR_WAFER_SOURCE);
+                            materialLot.setReserved49(MaterialLot.IMPORT_SENSOR);
+                        } else if(MaterialLotUnit.WLT_RMA_GOOD_PRODUCT.equals(importType)){
+                            materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_RMA);
+                            materialLot.setReserved50(MaterialLot.WLT_PACK_RETURN_WAFER_SOURCE);
+                            materialLot.setReserved49(MaterialLot.IMPORT_WLT);
                         } else if(MaterialLotUnit.RMA_RETURN.equals(importType)){
+                            materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_RMA);
                             materialLot.setReserved50("12");
                             materialLot.setReserved49(MaterialLot.IMPORT_RETURN);
                         } else if(MaterialLotUnit.RMA_PURE.equals(importType)){
+                            materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_RMA);
                             materialLot.setReserved50("15");
                             materialLot.setReserved49(MaterialLot.IMPORT_CRMA);
                         }
