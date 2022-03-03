@@ -202,7 +202,7 @@ public interface GcService {
     void validationDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException;
 
     void stockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
-    void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String reTestType) throws ClientException;
     void mobileReTest(List<MaterialLotAction> materialLotActions, String erpTime) throws ClientException;
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
 

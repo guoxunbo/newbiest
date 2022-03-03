@@ -1941,14 +1941,18 @@ public class GcServiceImpl implements GcService {
      * @param materialLotActions
      * @throws ClientException
      */
-    public void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
+    public void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String retestType) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             //将装箱的物料批次筛选出来
             materialLots = packageService.getWaitPackMaterialLots(materialLots);
+            String docRuleName = MaterialLot.MLOT_RETEST_DOC_VALIDATE_RULE_ID;
+            if(MaterialLot.RETEST_TYPE_FT.equals(retestType)){
+                docRuleName = MaterialLot.FT_RETEST_DOC_VALIDATE_RULE_ID;
+            }
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.MLOT_RETEST_DOC_VALIDATE_RULE_ID);
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.MLOT_RETEST_DOC_VALIDATE_RULE_ID);
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, docRuleName);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, docRuleName);
 
             // 确保所有的物料批次都能匹配上单据, 并且数量足够
             for (String key : materialLotMap.keySet()) {
@@ -1960,12 +1964,11 @@ public class GcServiceImpl implements GcService {
                 if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
                     throw new ClientException(GcExceptions.OVER_DOC_QTY);
                 }
-                reTestMaterialLots(documentLineMap.get(key), materialLotMap.get(key));
+                reTestMaterialLots(documentLineMap.get(key), materialLotMap.get(key), retestType);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
-
     }
 
     /**
@@ -1981,7 +1984,7 @@ public class GcServiceImpl implements GcService {
             if (CollectionUtils.isEmpty(documentLineList)){
                 throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
             }
-            reTest(documentLineList, materialLotActions);
+            reTest(documentLineList, materialLotActions, MaterialLot.RETEST_TYPE_COM);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -1993,11 +1996,10 @@ public class GcServiceImpl implements GcService {
      * @param materialLots
      * @throws ClientException
      */
-    private void reTestMaterialLots(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
+    private void reTestMaterialLots(List<DocumentLine> documentLines, List<MaterialLot> materialLots, String retestType) throws ClientException{
         try {
             documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
             for (DocumentLine documentLine: documentLines) {
-
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
                 Iterator<MaterialLot> iterator = materialLots.iterator();
                 while (iterator.hasNext()) {
@@ -2044,28 +2046,53 @@ public class GcServiceImpl implements GcService {
                     documentLine = documentLineRepository.saveAndFlush(documentLine);
                     baseService.saveHistoryEntity(documentLine, GCMaterialEvent.EVENT_RETEST);
 
-                    ReTestOrder reTestOrder = (ReTestOrder) reTestOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-                    reTestOrder.setHandledQty(reTestOrder.getHandledQty().add(handledQty));
-                    reTestOrder.setUnHandledQty(reTestOrder.getUnHandledQty().subtract(handledQty));
-                    reTestOrder = reTestOrderRepository.saveAndFlush(reTestOrder);
-                    baseService.saveHistoryEntity(reTestOrder, GCMaterialEvent.EVENT_RETEST);
+                    if(MaterialLot.RETEST_TYPE_COM.equals(retestType)){
+                        ReTestOrder reTestOrder = (ReTestOrder) reTestOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                        reTestOrder.setHandledQty(reTestOrder.getHandledQty().add(handledQty));
+                        reTestOrder.setUnHandledQty(reTestOrder.getUnHandledQty().subtract(handledQty));
+                        reTestOrder = reTestOrderRepository.saveAndFlush(reTestOrder);
+                        baseService.saveHistoryEntity(reTestOrder, GCMaterialEvent.EVENT_RETEST);
 
-                    Optional<ErpMaterialOutOrder> erpMaterialOutOrderOptional = erpMaterialOutOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
-                    if (!erpMaterialOutOrderOptional.isPresent()) {
-                        throw new ClientParameterException(GcExceptions.ERP_RETEST_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
-                    }
+                        Optional<ErpMaterialOutOrder> erpMaterialOutOrderOptional = erpMaterialOutOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                        if (!erpMaterialOutOrderOptional.isPresent()) {
+                            throw new ClientParameterException(GcExceptions.ERP_RETEST_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                        }
 
-                    ErpMaterialOutOrder erpMaterialOutOrder = erpMaterialOutOrderOptional.get();
-                    erpMaterialOutOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
-                    erpMaterialOutOrder.setLeftNum(erpMaterialOutOrder.getLeftNum().subtract(handledQty));
-                    if (StringUtils.isNullOrEmpty(erpMaterialOutOrder.getDeliveredNum())) {
-                        erpMaterialOutOrder.setDeliveredNum(handledQty.toPlainString());
-                    } else {
-                        BigDecimal docHandledQty = new BigDecimal(erpMaterialOutOrder.getDeliveredNum());
-                        docHandledQty = docHandledQty.add(handledQty);
-                        erpMaterialOutOrder.setDeliveredNum(docHandledQty.toPlainString());
+                        ErpMaterialOutOrder erpMaterialOutOrder = erpMaterialOutOrderOptional.get();
+                        erpMaterialOutOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                        erpMaterialOutOrder.setLeftNum(erpMaterialOutOrder.getLeftNum().subtract(handledQty));
+                        if (StringUtils.isNullOrEmpty(erpMaterialOutOrder.getDeliveredNum())) {
+                            erpMaterialOutOrder.setDeliveredNum(handledQty.toPlainString());
+                        } else {
+                            BigDecimal docHandledQty = new BigDecimal(erpMaterialOutOrder.getDeliveredNum());
+                            docHandledQty = docHandledQty.add(handledQty);
+                            erpMaterialOutOrder.setDeliveredNum(docHandledQty.toPlainString());
+                        }
+                        erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
+                    } else if(MaterialLot.RETEST_TYPE_FT.equals(retestType)){
+                        FtRetestOrder ftRetestOrder = (FtRetestOrder) ftRetestOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                        ftRetestOrder.setHandledQty(ftRetestOrder.getHandledQty().add(handledQty));
+                        ftRetestOrder.setUnHandledQty(ftRetestOrder.getUnHandledQty().subtract(handledQty));
+                        ftRetestOrder = ftRetestOrderRepository.saveAndFlush(ftRetestOrder);
+                        baseService.saveHistoryEntity(ftRetestOrder, GCMaterialEvent.EVENT_RETEST);
+
+                        Optional<ErpMaterialOutaOrder> erpMaterialOutaOrderOptional = erpMaterialOutAOrderRepository.findById(Long.valueOf(documentLine.getReserved1()));
+                        if (!erpMaterialOutaOrderOptional.isPresent()) {
+                            throw new ClientParameterException(GcExceptions.ERP_RETEST_ORDER_IS_NOT_EXIST, documentLine.getReserved1());
+                        }
+
+                        ErpMaterialOutaOrder erpMaterialOutaOrder = erpMaterialOutaOrderOptional.get();
+                        erpMaterialOutaOrder.setSynStatus(ErpMaterialOutOrder.SYNC_STATUS_OPERATION);
+                        erpMaterialOutaOrder.setLeftNum(erpMaterialOutaOrder.getLeftNum().subtract(handledQty));
+                        if (StringUtils.isNullOrEmpty(erpMaterialOutaOrder.getDeliveredNum())) {
+                            erpMaterialOutaOrder.setDeliveredNum(handledQty.toPlainString());
+                        } else {
+                            BigDecimal docHandledQty = new BigDecimal(erpMaterialOutaOrder.getDeliveredNum());
+                            docHandledQty = docHandledQty.add(handledQty);
+                            erpMaterialOutaOrder.setDeliveredNum(docHandledQty.toPlainString());
+                        }
+                        erpMaterialOutAOrderRepository.save(erpMaterialOutaOrder);
                     }
-                    erpMaterialOutOrderRepository.save(erpMaterialOutOrder);
                 }
             }
         } catch (Exception e) {

@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFtRetestManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCFtRetestManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCFtRetestManager
+              description: FT真空包重测
+              tableName: GCFtRetestOrder
+              secondTableName: GCFtRetestMaterialLot
+              thirdTableName: GCFtRetestWaitMaterialLot
+              mobileFlag: N
+              url: /Retest/GCFtVboxRetest
+              parentRrn: 2024
+              seqNo: 10
+              image: icon-retest
+              labelZh: FT真空包重测
+              labelEn: FtVboxRetest

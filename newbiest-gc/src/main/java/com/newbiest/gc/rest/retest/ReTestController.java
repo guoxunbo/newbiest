@@ -1,6 +1,9 @@
 package com.newbiest.gc.rest.retest;
 
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -36,8 +39,12 @@ public class ReTestController {
 
         if (ReTestRequest.ACTION_MOBILE_RETEST.equals(actionType)){
             gcService.mobileReTest(requestBody.getMaterialLotActions(), requestBody.getErpTime());
+        } else if(ReTestRequest.ACTION_COM_RETEST.equals(actionType)){
+            gcService.reTest(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), MaterialLot.RETEST_TYPE_COM);
+        } else if(ReTestRequest.ACTION_FT_RETEST.equals(actionType)){
+            gcService.reTest(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), MaterialLot.RETEST_TYPE_FT);
         } else {
-            gcService.reTest(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
 
         response.setBody(responseBody);

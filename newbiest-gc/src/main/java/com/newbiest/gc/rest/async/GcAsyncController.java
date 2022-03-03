@@ -66,6 +66,8 @@ public class GcAsyncController extends AbstractRestController {
             gcService.asyncWltCpShipOrder();
         } else if(GcAsyncRequest.ACTION_ASYNC_RAW_OTHER_SHIP_ORDER.equals(actionType)){
             gcService.asyncRawMaterialOtherShipOrder();
+        } else if(GcAsyncRequest.ACTION_ASYNC_FT_RETEST_ORDER.equals(actionType)){
+            gcService.asyncFtRetestIssueOrder();
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
