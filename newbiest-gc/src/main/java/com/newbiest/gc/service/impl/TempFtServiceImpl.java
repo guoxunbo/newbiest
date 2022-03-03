@@ -243,6 +243,7 @@ public class TempFtServiceImpl implements TempFtService {
             materialLotUnit.setReserved24(tempFtModel.getFabDevice() == null ? "": tempFtModel.getFabDevice().trim());
             materialLotUnit.setReserved27(tempFtModel.getPoNo() == null ? "": tempFtModel.getPoNo().trim());
             materialLotUnit.setReserved29(tempFtModel.getInvoiceId() == null ? "": tempFtModel.getInvoiceId().trim());
+            materialLotUnit.setReserved32(tempFtModel.getWaferNum() == null ? "": tempFtModel.getWaferNum().trim());
             materialLotUnit.setReserved33(tempFtModel.getDataValue19() == null ? "": tempFtModel.getDataValue19().trim());
             materialLotUnit.setReserved34(tempFtModel.getPassNum() == null ? "": tempFtModel.getPassNum().trim());
             materialLotUnit.setReserved35(tempFtModel.getNgNum() == null ? "": tempFtModel.getNgNum().trim());
@@ -320,6 +321,7 @@ public class TempFtServiceImpl implements TempFtService {
             propMap.put("reserved24", tempFtModel.getFabDevice() == null ? "": tempFtModel.getFabDevice().trim());
             propMap.put("reserved27", tempFtModel.getPoNo() == null ? "": tempFtModel.getPoNo().trim());
             propMap.put("reserved29", tempFtModel.getInvoiceId() == null ? "": tempFtModel.getInvoiceId().trim());
+            propMap.put("reserved32", tempFtModel.getWaferNum() == null ? "": tempFtModel.getWaferNum().trim());
             propMap.put("reserved33", tempFtModel.getDataValue19() == null ? "": tempFtModel.getDataValue19().trim());
             propMap.put("reserved34", tempFtModel.getPassNum() == null ? "": tempFtModel.getPassNum().trim());
             propMap.put("reserved35", tempFtModel.getNgNum() == null ? "": tempFtModel.getNgNum().trim());

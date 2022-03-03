@@ -88,6 +88,9 @@ public class GcConfiguration {
         ModelFactory.registerHistoryModelClassLoader(ReTestOrder.class.getName(), DocumentHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(ReTestOrder.class.getName(), DocumentHistory.class.getName());
 
+        ModelFactory.registerHistoryModelClassLoader(FtRetestOrder.class.getName(), DocumentHistory.class.getClassLoader());
+        ModelFactory.registerHistoryClassName(FtRetestOrder.class.getName(), DocumentHistory.class.getName());
+
         ModelFactory.registerHistoryModelClassLoader(ReceiveOrder.class.getName(), DocumentHistory.class.getClassLoader());
         ModelFactory.registerHistoryClassName(ReceiveOrder.class.getName(), DocumentHistory.class.getName());
 

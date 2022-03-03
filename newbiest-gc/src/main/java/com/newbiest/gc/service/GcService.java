@@ -172,6 +172,7 @@ public interface GcService {
     void asyncShipOrder() throws ClientException;
     void asyncCogReceiveOrder() throws ClientException;
 
+    void asyncFtRetestIssueOrder() throws ClientException;
     void asyncOtherIssueOrder() throws ClientException;
     void asyncOtherStockOutOrder() throws ClientException;
     void asyncOtherShipOrder() throws ClientException;
