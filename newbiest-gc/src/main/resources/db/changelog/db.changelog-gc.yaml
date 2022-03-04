@@ -830,3 +830,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCFtRetestWaitMaterialLot_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRawMaterialOtherShip_nb_table.yaml
+      relativeToChangelogFile: true

@@ -845,3 +845,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.FTVboxRetest.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileRawMaterialOtherShip.nb_authority.yaml
+      relativeToChangelogFile: true

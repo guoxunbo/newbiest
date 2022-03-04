@@ -40,5 +40,7 @@ public class GCRawMaterialSaveRequest extends Request {
 
     public static final String ISSUE_WITH_DOC = "issueWithDoc";
 
+    public static final String ACTION_TYPE_MOBILE_RAW_MATERIAL_OTHER_SHIP = "MobileRawMaterialOtherShip";
+
     private GCRawMaterialSaveRequestBody body;
 }
