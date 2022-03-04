@@ -98,7 +98,8 @@ public class ScmServiceImpl implements ScmService {
     public static final String MSCM_ADD_TRACKING_API = "/api/?r=Api/Logistics/AddTracking";
 
     public static final String MSCM_QUERY_WAFER_BY_WONO_API = "/api/wip/wipdata-wo/get-details";
-    public static final String APP_KEY = "5128e6b9-759a-47e8-8341-d0ca552ac10b";
+    public static final String BATE_APP_KEY = "5128e6b9-759a-47e8-8341-d0ca552ac10b";//测试环境Key(COB晶圆非确认晶圆追踪)
+    public static final String PROD_APP_KEY = "460ffd71-e795-4f7d-870b-e8c5b4a930f5";//正式环境Key
     public static final String SYSTEM_ID = "2";
     public static final String VERSION = "v1";
 
@@ -412,7 +413,7 @@ public class ScmServiceImpl implements ScmService {
             Map<String, Object> requestMap = Maps.newHashMap();
             requestMap.put("format", "json");
             requestMap.put("wo_codes", workOrderNo);
-            requestMap.put("app_key", APP_KEY);
+            requestMap.put("app_key", isProdEnv() ? PROD_APP_KEY : BATE_APP_KEY);
             requestMap.put("timestamp", timeStamp.toString());
             requestMap.put("system_id", SYSTEM_ID);
             requestMap.put("version", VERSION);

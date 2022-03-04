@@ -266,6 +266,18 @@ public class ErpSo implements Serializable {
     @Column(name="CFREE4")
     private String cfree4;
 
+    @Column(name="CUSCODE")
+    private String cuscode;
+
+    @Column(name="OTHER15")
+    private String other15;
+
+    @Column(name="CRDCODE")
+    private String crdcode;
+
+    @Column(name="CRDNAME")
+    private String crdname;
+
     /**
      * 备注
      */

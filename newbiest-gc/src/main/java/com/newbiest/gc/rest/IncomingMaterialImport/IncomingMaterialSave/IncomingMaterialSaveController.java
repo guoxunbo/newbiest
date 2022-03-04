@@ -56,7 +56,7 @@ public class IncomingMaterialSaveController {
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
         } else if(MaterialLotUnit.SAMSUING_PACKING_LIST.equals(importType) || MaterialLotUnit.LCD_COG_FINISH_PRODUCT.equals(importType)
-                || MaterialLotUnit.RMA_GOOD_PRODUCT.equals(importType) || MaterialLotUnit.RMA_RETURN.equals(importType) || MaterialLotUnit.RMA_PURE.equals(importType)){
+                || MaterialLotUnit.SENSOR_RMA_GOOD_PRODUCT.equals(importType) || MaterialLotUnit.WLT_RMA_GOOD_PRODUCT.equals(importType) || MaterialLotUnit.RMA_RETURN.equals(importType) || MaterialLotUnit.RMA_PURE.equals(importType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
             importCode = gcService.saveIncomingMaterialList(materialLotList, importType);
         } else if(MaterialLotUnit.LCD_COG_DETIAL.equals(importType)){

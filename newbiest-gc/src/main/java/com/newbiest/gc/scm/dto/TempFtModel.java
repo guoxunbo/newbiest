@@ -61,8 +61,6 @@ public class TempFtModel implements Serializable {
 
     private String ngNum;
 
-    private String CstWaferQty;
-
     private String lotId;
 
     private String poNo;

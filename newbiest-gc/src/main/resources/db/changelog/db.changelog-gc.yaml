@@ -818,3 +818,15 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.RWBoxLabelPrint_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.RetestManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCFTRetestOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCFtRetestMaterialLot_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCFtRetestWaitMaterialLot_nb_table.yaml
+      relativeToChangelogFile: true

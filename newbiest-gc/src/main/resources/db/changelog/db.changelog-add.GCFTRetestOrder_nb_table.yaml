@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFtRetestOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCFtRetestOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCFtRetestOrder
+              description: FT真空包重测单据
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: FT重测单据
+              label: FTRetestOrder

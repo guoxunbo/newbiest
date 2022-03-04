@@ -58,7 +58,6 @@ public class TempFtController extends AbstractRestController {
         fieldMap.put("PACK_DEVICE", "packDevice");//新增栏位记录
         fieldMap.put("YIELD", "yield");//reserved36
         fieldMap.put("REMARK", "remark");//reserved41
-        fieldMap.put("CST_WAFERQTY", "CstWaferQty");//CstWaferQty
         fieldMap.put("INVOICEID", "invoiceId");//reserved29
         fieldMap.put("PACK_LOTID", "packLotId");//reserved37
         fieldMap.put("DATA_VAL3", "dataValue3");//工程师名

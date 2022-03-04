@@ -134,6 +134,14 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_ID_REPEATS, unitId);
                 }
             }
+            Map<String, List<MaterialLotUnit>> materialLotMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
+            for(String lotId : materialLotMap.keySet()){
+                MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialLot.STATUS_FIN);
+                if(materialLotInfo != null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
+                }
+            }
+
             //生成导入编码
             String importCode = "";
             if(StringUtils.isNullOrEmpty(materialLotUnitList.get(0).getReserved48())){
@@ -152,12 +160,6 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 }
                 StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
-                for(String lotId : materialLotUnitMap.keySet()){
-                    MaterialLot materialLotInfo = materialLotRepository.findByLotIdAndStatusCategoryNotIn(lotId, MaterialLot.STATUS_FIN);
-                    if(materialLotInfo != null){
-                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
-                    }
-                }
                 for (String lotId : materialLotUnitMap.keySet()) {
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(lotId);
 

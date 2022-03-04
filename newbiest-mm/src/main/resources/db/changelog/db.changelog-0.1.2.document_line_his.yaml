@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_his_0.1.2
+      author: Guozhang Luo
+      remarks: mms_document_line_his add columns
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT_LINE_HIS
+            columns:
+              - column:
+                  name: CUSCODE
+                  type: varchar2(64)
+                  remarks: 客户Code
+              - column:
+                  name: PRODUCT_TYPE
+                  type: varchar2(64)
+                  remarks: 产品类型
+              - column:
+                  name: SALE_CODE
+                  type: varchar2(64)
+                  remarks: 销售订单号
+              - column:
+                  name: SHIP_DETE
+                  type: varchar2(64)
+                  remarks: 发货日期
+              - column:
+                  name: STOCK_CODE
+                  type: varchar2(64)
+                  remarks: 存货编码
+              - column:
+                  name: PO_ID
+                  type: varchar2(64)
+                  remarks: PO号

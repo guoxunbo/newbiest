@@ -146,6 +146,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String RW_MLOT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "RwMLotStockOutDocRule";  //RW出货单据验证规则
     public static final String RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID = "RwMaterialScrapShipDocRule";  //原材料报废出库单据验证规则
     public static final String WLT_OTHER_STOCK_OUT_RULE_ID = "WltOtherStockOutRule";  //WLT/CP其它出单据验证规则
+    public static final String FT_RETEST_DOC_VALIDATE_RULE_ID = "FtVboxReTestRule"; //FT真空包重测发料单据验证规则
+
     public static final String MOBILE_RAW_ISSUE_WHERE_CLAUSE="GCRawMaterialIssueOrder";
     public static final String MOBILE_RETEST_WHERE_CLAUSE = "GCReTestManager";
     public static final String MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE = "GCWltOrCpStockOutOrder";
@@ -206,6 +208,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String IMPORT_SOC = "SOC";
     public static final String IMPORT_FT = "FT";
     public static final String IMPORT_MASK = "MASK";
+
+    public static final String RETEST_TYPE_COM = "COMReTest";
+    public static final String RETEST_TYPE_FT = "FtReTest";
 
     /**
      * Wafer Source

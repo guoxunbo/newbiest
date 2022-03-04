@@ -34,6 +34,11 @@ public class ErpMaterialOutaOrder implements Serializable {
     public static final String TYPE_MV = "MV";
 
     /**
+     * FT重测发料单
+     */
+    public static final String TYPE_RT = "RT";
+
+    /**
      * 未同步
      */
     public static final String SYNC_STATUS_NOT_ASYNC = "0";
@@ -155,10 +160,79 @@ public class ErpMaterialOutaOrder implements Serializable {
     @Column(name="CFREE4")
     private String cfree4;
 
+    @Column(name="CFREE3")
+    private String cfree3;
+
+    @Column(name="CUSNAME")
+    private String cusname;
+
+    @Column(name="G_CODE")
+    private String gCode;
+
+    @Column(name="CVOUCHTYPE")
+    private String cvouchtype;
+
+    @Column(name="CVOUCHNAME")
+    private String cvouchname;
+
+    @Column(name="CBUSTYPE")
+    private String cbustype;
+
+    @Column(name="CSOURCE")
+    private String csource;
+
+    @Column(name="CWHCODE")
+    private String cwhcode;
+
+    @Column(name="CWHNAME")
+    private String cwhname;
+
+    @Column(name="G_NAME")
+    private String gName;
+
+    @Column(name="OTHER8")
+    private String other8;
+
+    @Column(name="OTHER18")
+    private String other18;
+
+    @Column(name="OTHER3")
+    private String other3;
+
+    @Column(name="OTHER9")
+    private String other9;
+
+    @Column(name="OTHER10")
+    private String other10;
+
+    @Column(name="OTHER7")
+    private String other7;
+
+    @Column(name="OTHER4")
+    private String other4;
+
+    @Column(name="OTHER5")
+    private String other5;
+
+    @Column(name="CUSCODE")
+    private String cuscode;
+
+    @Column(name="OTHER15")
+    private String other15;
+
     /**
      * 备注
      */
     @Column(name="CMEMO")
     private String cmemo;
+
+    @Column(name="CRDCODE")
+    private String crdcode;
+
+    @Column(name="CRDNAME")
+    private String crdname;
+
+    @Column(name="OTHER16")
+    private String other16;
 
 }

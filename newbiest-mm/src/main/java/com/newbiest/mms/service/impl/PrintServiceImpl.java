@@ -1132,7 +1132,6 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("CSNAME",materialLot.getReserved18() == null ? materialLot.getShipper() : materialLot.getReserved18());
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
 
             Map<String, Object> params = Maps.newHashMap();
             if (printContext.getWorkStation().getIsClientPrint()){
