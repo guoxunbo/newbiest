@@ -47,7 +47,7 @@ public class ReservedController extends AbstractRestController {
         ReServedRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
         if (ReServedRequestBody.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)) {
-            List<MaterialLot> waitForReservedMaterialLots = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn());
+            List<MaterialLot> waitForReservedMaterialLots = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation());
             responseBody.setMaterialLotList(waitForReservedMaterialLots);
         } else if (ReServedRequestBody.ACTION_TYPE_GET_MATERIAL_LOT_AND_USER.equals(actionType)) {
             NBTable nbTable = uiService.getDeepNBTable(requestBody.getTableRrn());
