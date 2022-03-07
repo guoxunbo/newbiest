@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileRawMaterialOtherShipManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileRawMaterialOtherShipManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileRawOtherShipManager
+              description: 手持端原材料其他出库
+              tableName: MobileRawMaterialOtherShip
+              mobileFlag: Y
+              url: /Mobile/RawMaterialOtherShip
+              parentRrn: 2
+              seqNo: 260
+              image: icon-rule
+              labelZh: 原材料其他出库
+              labelEn: RawMaterialOtherShip

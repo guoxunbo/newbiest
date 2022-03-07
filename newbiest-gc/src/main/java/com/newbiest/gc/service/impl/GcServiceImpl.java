@@ -10937,48 +10937,109 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 报废原材料出库
-     * @param documentLine
+     * 报废原材料出库 （单据自动匹配）
+     * @param documentLineList
      * @param materialLotList
      * @throws ClientException
      */
     @Override
-    public void scrapRawMaterialShip(DocumentLine documentLine, List<MaterialLot> materialLotList) throws ClientException {
+    public void scrapRawMaterialShip(List<DocumentLine> documentLineList, List<MaterialLot> materialLotList) throws ClientException {
         try {
-            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
-            Long totalRawMaterialLotQty = materialLotList.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
-            if(documentLine.getUnHandledQty().compareTo(new BigDecimal(totalRawMaterialLotQty)) < 0){
-                throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
+            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
+            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLotList, MaterialLot.RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID);
+            for (String key : materialLotMap.keySet()) {
+                if (!documentLineMap.keySet().contains(key)) {
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+                }
+                Long totalUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                Long totalMaterialLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                if (totalMaterialLotQty.compareTo(totalUnhandledQty) > 0) {
+                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
+                }
+                documentLineList = vlidateDocMergeAndSortDocumentLinesBySeq(documentLineMap.get(key));
+                for (DocumentLine documentLine : documentLineList) {
+                    BigDecimal unhandedQty = documentLine.getUnHandledQty();
+                    Iterator<MaterialLot> iterator = materialLotMap.get(key).iterator();
+                    while (iterator.hasNext()) {
+                        MaterialLot materialLot = iterator.next();
+                        if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
+                            materialLot.setReserved12(documentLine.getObjectRrn().toString());
+                        } else {
+                            materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
+                        }
+                        BigDecimal currentQty = materialLot.getCurrentQty();
+                        if (unhandedQty.compareTo(currentQty) >= 0) {
+                            unhandedQty = unhandedQty.subtract(currentQty);
+                            currentQty =  BigDecimal.ZERO;
+                        } else {
+                            currentQty = currentQty.subtract(unhandedQty);
+                            unhandedQty = BigDecimal.ZERO;
+                        }
+                        materialLot.setCurrentQty(currentQty);
+                        if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
+                            mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
+                            materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                            iterator.remove();
+                        } else {
+                            List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
+                            if (CollectionUtils.isNotEmpty(materialLotInvList)) {
+                                MaterialLotInventory materialLotInv = materialLotInvList.get(0);
+                                materialLotInv.setStockQty(currentQty);
+                                materialLotInv.setCurrentSubQty(materialLot.getCurrentSubQty());
+                                materialLotInventoryRepository.save(materialLotInv);
+                            }
+                        }
+
+                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE);
+                        materialLotHistoryRepository.save(history);
+
+                        if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
+                            break;
+                        }
+                    }
+                    BigDecimal handleQty = documentLine.getUnHandledQty().subtract(unhandedQty);
+                    if(handleQty.compareTo(BigDecimal.ZERO) == 0){
+                        break;
+                    } else {
+                        BigDecimal unHandledQty = documentLine.getUnHandledQty().subtract(handleQty);
+                        if(unHandledQty.compareTo(BigDecimal.ZERO) < 0){
+                            throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
+                        }
+                        documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
+                        documentLine.setUnHandledQty(unHandledQty);
+                        documentLine = documentLineRepository.saveAndFlush(documentLine);
+                        baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RAW_MATERIAL_ISSUE);
+
+                        RawMaterialOtherOutOrder rawMaterialOtherOutOrder = (RawMaterialOtherOutOrder) rawMaterialOtherOutOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                        rawMaterialOtherOutOrder.setHandledQty(rawMaterialOtherOutOrder.getHandledQty().add(handleQty));
+                        rawMaterialOtherOutOrder.setUnHandledQty(rawMaterialOtherOutOrder.getUnHandledQty().subtract(handleQty));
+                        rawMaterialOtherOutOrderRepository.save(rawMaterialOtherOutOrder);
+                        baseService.saveHistoryEntity(rawMaterialOtherOutOrder, MaterialLotHistory.TRANS_TYPE_SCRAP_SHIP);
+
+                        validateDocAndUpdateErpSo(documentLine, handleQty);
+                    }
+                }
             }
-            for (MaterialLot materialLot : materialLotList) {
-                validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 手持端 报废原材料出库 ==>  “原材料其他出库”功能
+     * @param erpTime
+     * @param materialLotList
+     * @throws ClientException
+     */
+    public void mobileRawMaterialOtherShip(String erpTime, List<MaterialLot> materialLotList) throws ClientException {
+        try {
+            NBTable nbTable = uiService.getNBTableByName(MaterialLot.MOBILE_RAW_MATERIAL_SCRAP_SHIP_WHERE_CLAUSE);
+            List<DocumentLine> documentLineList = findDocumentLineByTime(nbTable, erpTime);
+            if (CollectionUtils.isEmpty(documentLineList)){
+                throw new ClientException(GcExceptions.RAW_DOCUMENT_LINE_IS_EMPTY);
             }
-
-            BigDecimal handleQty = BigDecimal.ZERO;
-            for(MaterialLot materialLot : materialLotList){
-                handleQty = handleQty.add(materialLot.getCurrentQty());
-                materialLot.setReserved12(documentLine.getObjectRrn().toString());
-                materialLot.setCurrentQty(BigDecimal.ZERO);
-                mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_SCRAP_SHIP, StringUtils.EMPTY);
-                materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
-
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SCRAP_SHIP);
-                materialLotHistoryRepository.save(history);
-            }
-
-            BigDecimal unHandledQty = documentLine.getUnHandledQty().subtract(handleQty);
-            documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
-            documentLine.setUnHandledQty(unHandledQty);
-            documentLine = documentLineRepository.saveAndFlush(documentLine);
-            baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SCRAP_SHIP);
-
-            RawMaterialOtherOutOrder rawMaterialOtherOutOrder = (RawMaterialOtherOutOrder) rawMaterialOtherOutOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-            rawMaterialOtherOutOrder.setHandledQty(rawMaterialOtherOutOrder.getHandledQty().add(handleQty));
-            rawMaterialOtherOutOrder.setUnHandledQty(rawMaterialOtherOutOrder.getUnHandledQty().subtract(handleQty));
-            rawMaterialOtherOutOrderRepository.save(rawMaterialOtherOutOrder);
-            baseService.saveHistoryEntity(rawMaterialOtherOutOrder, MaterialLotHistory.TRANS_TYPE_SCRAP_SHIP);
-
-            validateDocAndUpdateErpSo(documentLine, handleQty);
+            scrapRawMaterialShip(documentLineList, materialLotList);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
