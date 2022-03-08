@@ -8896,6 +8896,8 @@ public class GcServiceImpl implements GcService {
             materialLot.setReserved57(StringUtils.EMPTY);
             materialLot.setVenderAddress(StringUtils.EMPTY);
             materialLot.setCustomerId(StringUtils.EMPTY);
+            materialLot.setTagUser(StringUtils.EMPTY);
+            materialLot.setTagDate(null);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_STOCK_OUT_TAG);
@@ -11376,6 +11378,8 @@ public class GcServiceImpl implements GcService {
      */
     public void rwMaterialLotStockOutTag(List<MaterialLot> materialLotList, String customerName, String abbreviation, String remarks) throws ClientException{
         try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            String nowDate = simpleDateFormat.format(new Date());
             //验证装箱的Lot客户标识和客户简称是否一致，不一致不能标注
             Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
                     .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
@@ -11383,11 +11387,11 @@ public class GcServiceImpl implements GcService {
                 MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(parentMaterialLotId, ThreadLocalContext.getOrgRrn());
                 validateMLotTagInfo(materialLot, customerName, abbreviation);
 
-                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks);
+                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks, nowDate);
             }
 
             for(MaterialLot materialLot : materialLotList){
-                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks);
+                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks, nowDate);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -11400,14 +11404,17 @@ public class GcServiceImpl implements GcService {
      * @param customerName
      * @param abbreviation
      * @param remarks
+     * @param nowDate
      * @throws ClientException
      */
-    private void saveMaterialLotTaggingInfoAndSaveHis(MaterialLot materialLot, String customerName, String abbreviation, String remarks) throws ClientException{
+    private void saveMaterialLotTaggingInfoAndSaveHis(MaterialLot materialLot, String customerName, String abbreviation, String remarks, String nowDate) throws ClientException{
         try {
             materialLot.setCustomerId(customerName);
             materialLot.setReserved54(MaterialLot.STOCKOUT_TYPE_4);
             materialLot.setReserved55(abbreviation);
             materialLot.setReserved57(remarks);
+            materialLot.setTagDate(DateUtils.parseDate(nowDate));
+            materialLot.setTagUser(ThreadLocalContext.getUsername());
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
