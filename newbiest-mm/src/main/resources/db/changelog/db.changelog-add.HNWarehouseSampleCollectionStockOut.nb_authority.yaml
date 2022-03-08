@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseSampleCollectionStockOutManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseSampleCollectionStockOutManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNSampleStockOutManager
+              description: 湖南仓样品领用出
+              tableName: HNWarehouseSampleCollectionStockOutOrder
+              secondTableName: HNWarehouseSampleCollectionStockOutMLotScan
+              mobileFlag: N
+              url: /HNWarehouse/SampleCollectionStockOut
+              parentRrn: 2022
+              seqNo: 30
+              image: icon-rule
+              labelZh: 样品领用出
+              labelEn: SampleCollectionStockOut
+

@@ -851,3 +851,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.FTPackMaterialLot.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseSampleCollectionStockOut.nb_authority.yaml
+      relativeToChangelogFile: true
