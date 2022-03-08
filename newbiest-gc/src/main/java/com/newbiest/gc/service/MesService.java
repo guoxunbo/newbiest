@@ -20,4 +20,5 @@ public interface MesService {
 
     void saveBackendWaferReceive(List<MaterialLot> materialLots) throws ClientException;
 
+    void materialLotPlanLot(List<MaterialLot> ftRetestVboxList) throws ClientException;
 }
