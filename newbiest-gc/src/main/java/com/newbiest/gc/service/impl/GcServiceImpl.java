@@ -2001,6 +2001,7 @@ public class GcServiceImpl implements GcService {
      */
     private void reTestMaterialLots(List<DocumentLine> documentLines, List<MaterialLot> materialLots, String retestType) throws ClientException{
         try {
+            List<MaterialLot> ftRetestVboxList = Lists.newArrayList();
             documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
             for (DocumentLine documentLine: documentLines) {
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
@@ -2024,6 +2025,9 @@ public class GcServiceImpl implements GcService {
                     if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                         mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_RETEST, StringUtils.EMPTY);
                         materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
+                        if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(materialLot.getReserved7())){
+                            ftRetestVboxList.add(materialLot);
+                        }
                         iterator.remove();
                     } else {
                         List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
@@ -2097,6 +2101,13 @@ public class GcServiceImpl implements GcService {
                         erpMaterialOutAOrderRepository.save(erpMaterialOutaOrder);
                     }
                 }
+            }
+
+            //FT重测的真空包发料投批
+            if(CollectionUtils.isNotEmpty(ftRetestVboxList)){
+                log.info("Ft Retest to mes plan lot start， matreiallotList is " + ftRetestVboxList);
+                mesService.materialLotPlanLot(ftRetestVboxList);
+                log.info("Ft Retest to mes plan lot end ");
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
