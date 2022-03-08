@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.3.0
+      author: Guozhang Luo
+      remarks: mms_material add columns
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: TAG_DATE
+                  type: datetime
+                  remarks: 标注时间
+              - column:
+                  name: TAG_USER
+                  type: varchar(32)
+                  remarks: 标注人

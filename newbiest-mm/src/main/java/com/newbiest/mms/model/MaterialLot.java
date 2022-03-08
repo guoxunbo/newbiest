@@ -1036,6 +1036,20 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="WORK_REMARKS")
     private String workRemarks;
 
+    /**
+     * 标注日期
+     */
+    @Column(name="TAG_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date tagDate;
+
+    /**
+     * 标注人
+     */
+    @Column(name="TAG_USER")
+    private String tagUser;
+
     @Transient
     private String documentLineUser;
 
