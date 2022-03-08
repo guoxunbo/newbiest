@@ -836,3 +836,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.FTPackMaterialLot_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseSampleCollectionStockOutMLotScan_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseSampleCollectionStockOutOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.add.mobile_menu_nb_authority.yaml
+      relativeToChangelogFile: true
