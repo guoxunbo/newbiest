@@ -52,4 +52,7 @@ public class ReServedRequestBody extends RequestBody {
 
 	@ApiModelProperty(example = "包装规格")
 	private String packageRule;
+
+	@ApiModelProperty(example = "货架归属地")
+	private String stockLocation;
 }
