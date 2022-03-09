@@ -11476,6 +11476,57 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 物料批次取消快递单号
+     * 清除出货单号reserved56
+     * @param materialLotList
+     * @throws ClientException
+     */
+    public void rwMaterialLotCancelShipOrderId(List<MaterialLot> materialLotList) throws ClientException {
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                cancelMaterialLotShipOrderIdAndSaveHis(materialLot);
+            }
+            Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            for(String parentMLotId : packedLotMap.keySet()){
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(parentMLotId, ThreadLocalContext.getOrgRrn());
+                List<MaterialLot> materialLots = packageService.getPackageDetailLots(materialLot.getObjectRrn()).stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getReserved56())).collect(Collectors.toList());
+                if(CollectionUtils.isEmpty(materialLots)){
+                    cancelMaterialLotShipOrderIdAndSaveHis(materialLot);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * COB出货标注的物料批次做分组进行数量统计
+     * @param materialLotList
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLot> previewRwShipTagUpdateMaterialLotList(List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            List<MaterialLot> materialLots = Lists.newArrayList();
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLotList, MaterialLot.RW_SHIP_TAG_UPDATE_PREVIEW_RULE_ID);
+            for(String key : materialLotMap.keySet()){
+                List<MaterialLot> mLots = materialLotMap.get(key);
+                Long totalCurrentSubQty = mLots.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentSubQty().longValue()));
+                Long totalCurrentQty = mLots.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                MaterialLot materialLot = new MaterialLot();
+                materialLot = mLots.get(0);
+                materialLot.setCurrentQty(new BigDecimal(totalCurrentQty));
+                materialLot.setCurrentSubQty(new BigDecimal(totalCurrentSubQty));
+                materialLots.add(materialLot);
+            }
+            return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * RW保存物料批次出货单号
      * @param materialLot
      * @param shipOrderId
@@ -11487,6 +11538,23 @@ public class GcServiceImpl implements GcService {
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_ADD_SHIP_ORDER_ID);
+            materialLotHistoryRepository.save(history);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * RW取消物料批次出货单号
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void cancelMaterialLotShipOrderIdAndSaveHis(MaterialLot materialLot) throws ClientException{
+        try {
+            materialLot.setReserved56(null);
+            materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_CANCEL_SHIP_ORDER_ID);
             materialLotHistoryRepository.save(history);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

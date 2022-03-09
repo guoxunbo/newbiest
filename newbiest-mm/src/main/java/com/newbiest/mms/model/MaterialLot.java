@@ -148,6 +148,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WLT_OTHER_STOCK_OUT_RULE_ID = "WltOtherStockOutRule";  //WLT/CP其它出单据验证规则
     public static final String FT_RETEST_DOC_VALIDATE_RULE_ID = "FtVboxReTestRule"; //FT真空包重测发料单据验证规则
 
+    public static final String RW_SHIP_TAG_UPDATE_PREVIEW_RULE_ID = "RwShipTagUpdatePreviewRule"; //COB出货标注修改分组筛选
+
     public static final String MOBILE_RAW_ISSUE_WHERE_CLAUSE="GCRawMaterialIssueOrder";
     public static final String MOBILE_RETEST_WHERE_CLAUSE = "GCReTestManager";
     public static final String MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE = "GCWltOrCpStockOutOrder";
