@@ -5672,17 +5672,19 @@ public class GcServiceImpl implements GcService {
                         }
                         Map<String, List<ScmQueryInfo>> scmQueryInfoMap = scmQueryInfoList.stream().collect(Collectors.groupingBy(ScmQueryInfo:: getLotNo));
                         for(String lotNumber : lotNumberList){
+                            List<ScmQueryInfo> scmQueryInfos = scmQueryInfoMap.get(lotNumber);
                             if (scmQueryInfoMap.keySet().contains(lotNumber)) {
-                                GcUnConfirmWaferSet unConfirmWaferSet = unConfirmWaferSetRepository.findByLotId(lotNumber);
-                                if(unConfirmWaferSet != null){
-                                    List<ScmQueryInfo> scmQueryInfos = scmQueryInfoMap.get(lotNumber);
-                                    String waferInfo = unConfirmWaferSet.getWaferId();
-                                    String[] waferSeqArray = waferInfo.split(",");
-                                    List<String> waferIdList = Arrays.asList(waferSeqArray);
-                                    for(ScmQueryInfo scmQueryInfo : scmQueryInfos){
-                                        if(waferIdList.contains(scmQueryInfo.getWaferSeq())){
-                                            confirmWaferSetArrayList.add(unConfirmWaferSet);
-                                            break;
+                                List<GcUnConfirmWaferSet> unConfirmWaferSetList = unConfirmWaferSetRepository.findByLotId(lotNumber);
+                                if(CollectionUtils.isNotEmpty(unConfirmWaferSetList)){
+                                    for(GcUnConfirmWaferSet unConfirmWaferSet : unConfirmWaferSetList){
+                                        String waferInfo = unConfirmWaferSet.getWaferId();
+                                        String[] waferSeqArray = waferInfo.split(",");
+                                        List<String> waferIdList = Arrays.asList(waferSeqArray);
+                                        for(ScmQueryInfo scmQueryInfo : scmQueryInfos){
+                                            if(waferIdList.contains(scmQueryInfo.getWaferSeq())){
+                                                confirmWaferSetArrayList.add(unConfirmWaferSet);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -10576,6 +10578,10 @@ public class GcServiceImpl implements GcService {
      */
     public GcUnConfirmWaferSet saveUnConfirmWaferTrackSetInfo(GcUnConfirmWaferSet unConfirmWaferSet, String transType) throws ClientException{
         try {
+            if(GcUnConfirmWaferSet.TRANS_TYPE_CREATE.equals(transType)){
+                String serialNumber = generatorMLotsTransId(GcUnConfirmWaferSet.GENERATOR_ISERIAL_NUMBER_RULE);
+                unConfirmWaferSet.setSerialNumber(serialNumber);
+            }
             unConfirmWaferSet = unConfirmWaferSetRepository.saveAndFlush(unConfirmWaferSet);
 
             GCUnConfirmWaferSetHis unConfirmWaferSetHis = (GCUnConfirmWaferSetHis) baseService.buildHistoryBean(unConfirmWaferSet, transType);

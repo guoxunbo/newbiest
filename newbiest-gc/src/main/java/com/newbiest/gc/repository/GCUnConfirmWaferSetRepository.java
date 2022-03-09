@@ -6,9 +6,11 @@ import com.newbiest.gc.model.GcUnConfirmWaferSet;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface GCUnConfirmWaferSetRepository extends IRepository<GcUnConfirmWaferSet, Long> {
 
-    GcUnConfirmWaferSet findByLotId(@Param("lotId") String lotId) throws ClientException;
+    List<GcUnConfirmWaferSet> findByLotId(@Param("lotId") String lotId) throws ClientException;
 
 }

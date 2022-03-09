@@ -16,6 +16,10 @@ public class GcUnConfirmWaferSet extends NBUpdatable {
 
     private static final long serialVersionUID = -8075936261995774501L;
 
+    public static final String TRANS_TYPE_CREATE = "Create";
+    public static final String GENERATOR_ISERIAL_NUMBER_RULE = "UnConfirmWaferSeq";
+
+
     /**
      * 序号
      */
