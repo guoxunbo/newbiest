@@ -77,7 +77,7 @@ public class TempFtServiceImpl implements TempFtService {
             for (String waferSource : waferSourceMap.keySet()) {
                 List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
                 //区分真空包和wafer处理,lotId为空的则为真空包，不为空则为wafer
-                List<TempFtModel> vboxList = tempFtModels.stream().filter(tempFtModel -> StringUtils.isNullOrEmpty(tempFtModel.getLotId().trim())).collect(Collectors.toList());
+                List<TempFtModel> vboxList = tempFtModels.stream().filter(tempFtModel -> StringUtils.isNullOrEmpty(tempFtModel.getLotId())).collect(Collectors.toList());
                 List<TempFtModel> lotUnitList = tempFtModels.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getLotId().trim())).collect(Collectors.toList());
                 if(CollectionUtils.isNotEmpty(vboxList)){
                     for(TempFtModel tempFtModel : vboxList){
@@ -150,6 +150,7 @@ public class TempFtServiceImpl implements TempFtService {
                         if(MaterialLot.WLT_PACK_RETURN_WAFER_SOURCE.equals(newWaferSource) || MaterialLot.SENSOR_WAFER_SOURCE.equals(newWaferSource)){
                             for(TempFtModel tempFtModel : lotTempCpModels){
                                 propMap.put("lotId", tempFtModel.getWaferId().trim());
+                                propMap.put("lotCst", tempFtModel.getWaferId().trim().split("-")[0]);
                                 BigDecimal qty = new BigDecimal(tempFtModel.getWaferNum());
                                 MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), BigDecimal.ONE, tempFtModel, fileName, propMap);
                                 MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, tempFtModel.getWaferId().trim(), materialLotAction);

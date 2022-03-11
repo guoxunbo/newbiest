@@ -3025,18 +3025,7 @@ public class GcServiceImpl implements GcService {
 
             for (String productId : packedLotMap.keySet()) {
                 List<MesPackedLot> mesPackedLotList = packedLotMap.get(productId);
-                Optional<MesPackedLot> firstMesPackedLot = mesPackedLotList.stream().filter(packedLot -> !StringUtils.isNullOrEmpty(packedLot.getInFlag()) && MesPackedLot.IN_FLAG_ONE.equals(packedLot.getInFlag())).findFirst();
-                Material material = null;
-                if (firstMesPackedLot.isPresent()) {
-                    material = mmsService.getRawMaterialByName(mesPackedLotList.get(0).getProductId());
-                    if (material == null) {
-                        material = new RawMaterial();
-                        material.setName(firstMesPackedLot.get().getProductId());
-                        material = mmsService.createRawMaterial((RawMaterial)material);
-                    }
-                }else {
-                    material = mmsService.getProductByName(mesPackedLotList.get(0).getProductId());
-                }
+                Material material = getMaterialByMesPackedLot(mesPackedLotList);
                 if (material == null) {
                     throw new ClientParameterException(MM_PRODUCT_ID_IS_NOT_EXIST, productId);
                 }
@@ -3096,17 +3085,19 @@ public class GcServiceImpl implements GcService {
 
                     Warehouse warehouse;
                     if (!warehouseMap.containsKey(warehouseName)) {
-                        warehouse = mmsService.getWarehouseByName(warehouseName);
-                        if (warehouse == null) {
-                            warehouse = new Warehouse();
-                            warehouse.setName(warehouseName);
-                            warehouse = warehouseRepository.saveAndFlush(warehouse);
-                        }
+                        warehouse = getWarehouseByName(warehouseName);
                         warehouseMap.put(warehouseName, warehouse);
                     }
                     warehouse = warehouseMap.get(warehouseName);
 
                     materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty())){
+                        if(mesPackedLot.getBondedProperty().equalsIgnoreCase(MaterialLot.LOCATION_SH)){
+                            materialLotAction.setTargetStorageId(MesPackedLot.STORAGE_ID_SH);
+                        } else if (mesPackedLot.getBondedProperty().equalsIgnoreCase(MaterialLot.BONDED_PROPERTY_ZSH)){
+                            materialLotAction.setTargetStorageId(MesPackedLot.STORAGE_ID_ZSH);
+                        }
+                    }
 
                     // 需要赋值的Map
                     Map<String, Object> otherReceiveProps = Maps.newHashMap();
@@ -3309,12 +3300,14 @@ public class GcServiceImpl implements GcService {
 
             materialLot.setReserved6(bondedProperty);
             materialLot.setReserved13(warehouse.getObjectRrn().toString());
+            materialLot.setReserved14(MesPackedLot.STORAGE_ID_SH);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 materialLotUnit.setReserved4(bondedProperty);
                 materialLotUnit.setReserved13(warehouse.getObjectRrn().toString());
+                materialLotUnit.setReserved14(MesPackedLot.STORAGE_ID_SH);
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                 MaterialLotUnitHistory materialLotUnitHistory =  (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_TRANSFER_WAREHOUSE);
@@ -4703,20 +4696,8 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getCstId));
             List<MesPackedLot> mesPackedLots = Lists.newArrayList();
             for(String cstId : packedLotMap.keySet()){
-                Material material = null;
-
                 List<MesPackedLot> mesPackedLotList = packedLotMap.get(cstId);
-                Optional<MesPackedLot> firstMesPackedLot = mesPackedLotList.stream().filter(packedLot -> !StringUtils.isNullOrEmpty(packedLot.getInFlag()) && MesPackedLot.IN_FLAG_ONE.equals(packedLot.getInFlag())).findFirst();
-                if (firstMesPackedLot.isPresent()) {
-                    material = mmsService.getRawMaterialByName(mesPackedLotList.get(0).getProductId());
-                    if (material == null) {
-                        material = new RawMaterial();
-                        material.setName(firstMesPackedLot.get().getProductId());
-                        material = mmsService.createRawMaterial((RawMaterial)material);
-                    }
-                }else {
-                    material = mmsService.getProductByName(mesPackedLotList.get(0).getProductId());
-                }
+                Material material = getMaterialByMesPackedLot(mesPackedLotList);
                 if (material == null) {
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, mesPackedLotList.get(0).getProductId());
                 }
@@ -4749,16 +4730,33 @@ public class GcServiceImpl implements GcService {
             }
 
             return mesPackedLots;
-//            if(!StringUtils.isNullOrEmpty(printLabel)){
-//                mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
-//                List<MaterialLot> materialLots = Lists.newArrayList();
-//                for(MesPackedLot mesPackedLot : mesPackedLots){
-//                    MaterialLot materialLot = mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true);
-//                    materialLots.add(materialLot);
-//                }
-//                printService.printReceiveWltCpLotLabel(materialLots, printCount);
-//            }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据产线接收入库数据获取物料信息
+     * @param mesPackedLotList
+     * @return
+     * @throws ClientException
+     */
+    private Material getMaterialByMesPackedLot(List<MesPackedLot> mesPackedLotList) throws ClientException{
+        try {
+            Material material = null;
+            Optional<MesPackedLot> firstMesPackedLot = mesPackedLotList.stream().filter(packedLot -> !StringUtils.isNullOrEmpty(packedLot.getInFlag()) && MesPackedLot.IN_FLAG_ONE.equals(packedLot.getInFlag())).findFirst();
+            if (firstMesPackedLot.isPresent()) {
+                material = mmsService.getRawMaterialByName(mesPackedLotList.get(0).getProductId());
+                if (material == null) {
+                    material = new RawMaterial();
+                    material.setName(firstMesPackedLot.get().getProductId());
+                    material = mmsService.createRawMaterial((RawMaterial)material);
+                }
+            }else {
+                material = mmsService.getProductByName(mesPackedLotList.get(0).getProductId());
+            }
+            return material;
+        }catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -4840,6 +4838,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved9(packedLot.getWlaTestBit());
                     materialLotUnit.setReserved10(packedLot.getProgramBit());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
+                    materialLotUnit.setReserved14(materialLot.getReserved14());
                     materialLotUnit.setReserved18("0");
                     materialLotUnit.setReserved22(materialLot.getReserved22());
                     materialLotUnit.setReserved23(materialLot.getReserved23());
@@ -4899,11 +4898,6 @@ public class GcServiceImpl implements GcService {
             }
 
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLots.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
-//            if(!StringUtils.isNullOrEmpty(printLabel)){
-//                mesPackedLots = mesPackedLots.stream().sorted(Comparator.comparing(MesPackedLot::getScanSeq)).collect(Collectors.toList());
-//                List<MaterialLot> materialLots = mesPackedLots.stream().map(mesPackedLot -> mmsService.getMLotByMLotId(mesPackedLot.getBoxId(), true)).collect(Collectors.toList());
-//                printService.printRwLotCstLabel(materialLots, printCount);
-//            }
             return mesPackedLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -4973,14 +4967,17 @@ public class GcServiceImpl implements GcService {
                         warehouseName = WAREHOUSE_SH;
                     }
 
+                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty())){
+                        if(mesPackedLot.getBondedProperty().equalsIgnoreCase(MaterialLot.LOCATION_SH)){
+                            materialLotAction.setTargetStorageId(MesPackedLot.STORAGE_ID_SH);
+                        } else if (mesPackedLot.getBondedProperty().equalsIgnoreCase(MaterialLot.BONDED_PROPERTY_ZSH)){
+                            materialLotAction.setTargetStorageId(MesPackedLot.STORAGE_ID_ZSH);
+                        }
+                    }
+
                     Warehouse warehouse;
                     if (!warehouseMap.containsKey(warehouseName)) {
-                        warehouse = mmsService.getWarehouseByName(warehouseName);
-                        if (warehouse == null) {
-                            warehouse = new Warehouse();
-                            warehouse.setName(warehouseName);
-                            warehouse = warehouseRepository.saveAndFlush(warehouse);
-                        }
+                        warehouse = getWarehouseByName(warehouseName);
                         warehouseMap.put(warehouseName, warehouse);
                     }
                     warehouse = warehouseMap.get(warehouseName);
@@ -5060,6 +5057,26 @@ public class GcServiceImpl implements GcService {
                 erpMoaRepository.saveAll(erpMoaList);
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证仓库是否存在，不存在则新建
+     * @param warehouseName
+     * @return
+     * @throws ClientException
+     */
+    private Warehouse getWarehouseByName(String warehouseName) throws ClientException{
+        try {
+            Warehouse warehouse = mmsService.getWarehouseByName(warehouseName);
+            if (warehouse == null) {
+                warehouse = new Warehouse();
+                warehouse.setName(warehouseName);
+                warehouse = warehouseRepository.saveAndFlush(warehouse);
+            }
+            return warehouse;
+        }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
