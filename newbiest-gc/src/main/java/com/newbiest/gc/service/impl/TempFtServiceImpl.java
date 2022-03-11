@@ -78,7 +78,7 @@ public class TempFtServiceImpl implements TempFtService {
                 List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
                 //区分真空包和wafer处理,lotId为空的则为真空包，不为空则为wafer
                 List<TempFtModel> vboxList = tempFtModels.stream().filter(tempFtModel -> StringUtils.isNullOrEmpty(tempFtModel.getLotId())).collect(Collectors.toList());
-                List<TempFtModel> lotUnitList = tempFtModels.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getLotId().trim())).collect(Collectors.toList());
+                List<TempFtModel> lotUnitList = tempFtModels.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getLotId())).collect(Collectors.toList());
                 if(CollectionUtils.isNotEmpty(vboxList)){
                     for(TempFtModel tempFtModel : vboxList){
                         Material material = validateAndGetMaterial(waferSource, tempFtModel.getProductId().trim());
