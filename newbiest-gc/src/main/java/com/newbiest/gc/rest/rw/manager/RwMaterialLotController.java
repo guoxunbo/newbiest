@@ -73,6 +73,11 @@ public class RwMaterialLotController {
             gcService.rwMaterialLotStockOutTag(requestBody.getMaterialLotList(), requestBody.getCustomerName(), requestBody.getAbbreviation(), requestBody.getRemarks());
         } else if(RwMaterialLotRequest.ACTION_ADD_SHIP_ORDERID.equals(actionType)) {
             gcService.rwMaterialLotAddShipOrderId(requestBody.getMaterialLotList(), requestBody.getShipOrderId());
+        } else if(RwMaterialLotRequest.ACTION_CANCEL_SHIP_ORDERID.equals(actionType)){
+            gcService.rwMaterialLotCancelShipOrderId(requestBody.getMaterialLotList());
+        } else if(RwMaterialLotRequest.ACTION_PREVIEW.equals(actionType)){
+            List<MaterialLot> materialLotList = gcService.previewRwShipTagUpdateMaterialLotList(requestBody.getMaterialLotList());
+            responseBody.setMaterialLotList(materialLotList);
         } else if(RwMaterialLotRequest.ACTION_UN_STOCK_OUT_TAG.equals(actionType)){
             gcService.rwMaterialLotCancelStockTag(requestBody.getMaterialLotList());
         } else if(RwMaterialLotRequest.ACTION_QUERY_MLOT.equals(actionType)){
