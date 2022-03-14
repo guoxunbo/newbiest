@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFtRetestWaitMaterialLot_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCFtRetestWaitMaterialLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCFtRetestWaitMaterialLot
+              description: FT等待重测物料批次
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: FT等待重测物料批次
+              label: FtRetestWaitMaterialLot

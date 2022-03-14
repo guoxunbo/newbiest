@@ -26,6 +26,10 @@ public class RwMaterialLotRequest extends Request {
 	
 	public static final String ACTION_ADD_SHIP_ORDERID = "AddShipOrderId";
 
+	public static final String ACTION_CANCEL_SHIP_ORDERID = "CancelShipOrderId";
+
+	public static final String ACTION_PREVIEW = "PreView";
+
 	public static final String ACTION_QUERY_MLOT = "QueryMLot";
 
 	public static final String ACTION_STOCK_OUT = "StockOut";

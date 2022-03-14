@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_FTPackMaterialLot_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add FTPackMaterialLot to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: FTPackMaterialLot
+              description: FT VBOX装箱
+              tableName: FTPackMaterialLot
+              url: /Pack/FTPackMaterialLot
+              parentRrn: 1001
+              seqNo: 20
+              image: icon-rule
+              labelZh: FT VBOX装箱
+              labelEn: FT VBOXPackMaterialLot
+

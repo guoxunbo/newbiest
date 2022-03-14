@@ -64,6 +64,7 @@ public class MesServiceImpl implements MesService {
     public static final int MES_READ_TIME_OUT = 120;
 
     public static final String PLAN_LOT_API = "/wms/planLot.spring";
+    public static final String FT_RETEST_PLAN_LOT_API = "/wms/ftRetestPlanLot.spring";
 
     public static final String SAVE_BACKEND_WAFER_RECEIVE_API = "/wms/saveWaferReceive.spring";
 
@@ -188,6 +189,48 @@ public class MesServiceImpl implements MesService {
                     log.debug(String.format("Get response by mes. Response is [%s]", response));
                 }
 
+                if(!MESSAGE_INFO.equals(response)){
+                    throw new ClientParameterException(response);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * FT重测发料时将发料的Vbox 计划投批
+     * @param materialLots
+     * @throws ClientException
+     */
+//    @Async
+    public void materialLotPlanLot(List<MaterialLot> materialLots) throws ClientException {
+        try {
+            List<String> vboxIdList = Lists.newArrayList();
+            for(MaterialLot materialLot : materialLots){
+                vboxIdList.add(materialLot.getMaterialLotId());
+            }
+            if(CollectionUtils.isNotEmpty(vboxIdList)){
+                Map<String, Object> requestInfo = Maps.newHashMap();
+                requestInfo.put("ftRetestPlanLot", vboxIdList);
+                requestInfo.put("userName", ThreadLocalContext.getUsername());
+                requestInfo.put("messageName", "materialLotUnitManager");
+                requestInfo.put("facilityId", MES_FACILITY_ID);
+
+                String requestString = DefaultParser.getObjectMapper().writeValueAsString(requestInfo);
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Sending to mes. RequestString is [%s]", requestString));
+                }
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.put("Content-Type", Lists.newArrayList("application/json"));
+
+                RequestEntity<byte[]> request = new RequestEntity<>(requestString.getBytes(), headers, HttpMethod.POST, new URI(mesUrl + FT_RETEST_PLAN_LOT_API));
+                ResponseEntity<byte[]> responseEntity = restTemplate.exchange(request, byte[].class);
+                String response = new String(responseEntity.getBody(), StringUtils.getUtf8Charset());
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Get response by mes. Response is [%s]", response));
+                }
                 if(!MESSAGE_INFO.equals(response)){
                     throw new ClientParameterException(response);
                 }

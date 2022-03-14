@@ -35,6 +35,7 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_RAW_UN_SPARE = "UnSpare";
     public static final String TRANS_TYPE_UPDATE = "Update";
     public static final String TRANS_TYPE_ADD_SHIP_ORDER_ID = "AddShipOrderId";
+    public static final String TRANS_TYPE_CANCEL_SHIP_ORDER_ID = "CancelShipOrderId";
     public static final String TRANS_TYPE_MATERIAL_SPARE = "MaterialSpare";
     public static final String TRANS_TYPE_CANCEL_MATERIAL_SPARE = "MaterialCancel";
     public static final String TRANS_TYPE_TRANSFER_WAREHOUSE = "TransferWarehouse";
@@ -834,6 +835,20 @@ public class MaterialLotHistory extends NBHis {
      */
     @Column(name="WORK_REMARKS")
     private String workRemarks;
+
+    /**
+     * 标注日期
+     */
+    @Column(name="TAG_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date tagDate;
+
+    /**
+     * 标注人
+     */
+    @Column(name="TAG_USER")
+    private String tagUser;
 
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;

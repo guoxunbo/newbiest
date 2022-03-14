@@ -26,6 +26,7 @@ public class GcAsyncRequest extends Request {
 	public static final String ACTION_ASYNC_MATERIAL_ISSUE_ORDER = "AsyncMaterialIssueOrder"; //同步ETM_MATERIAL_OUTA  TYPE = 'MV'
 	public static final String ACTION_ASYNC_WLT_SHIP_ORDER = "AsyncWltShipOrder"; //同步ETM_SOA、ETM_SOB单据
 	public static final String ACTION_ASYNC_RAW_OTHER_SHIP_ORDER = "AsyncRawOtherShipOrder"; //同步ETM_SO中type = 'MO'的原材料其他出单据
+	public static final String ACTION_ASYNC_FT_RETEST_ORDER = "AsyncFtReTestIssueOrder"; //同步ETM_MATERIAL_OUTA  TYPR = 'FT'的FT重测发料单
 
 	public static final String ACTION_ASYNC_MATERIAL = "AsyncMaterial";
 	public static final String ACTION_ASYNC_PRODUCT = "AsyncProduct";

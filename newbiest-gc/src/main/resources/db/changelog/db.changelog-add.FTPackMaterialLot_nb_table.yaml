@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_FTPackMaterialLot_to_NB_TABLE
+      author: Youqing Huang
+      comment: add FTPackMaterialLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: FTPackMaterialLot
+              description: FT VBOX装箱
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: FT VBOX装箱
+              label: FTPackMaterialLot

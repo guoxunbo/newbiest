@@ -437,7 +437,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("shipper", materialLotUnit.getShipper());
                     propsMap.put("grade", materialLotUnit.getGrade());
                     propsMap.put("lotId", materialLotUnit.getUnitId().toUpperCase());
-                    propsMap.put("lotCst", materialLotUnit.getUnitId().toUpperCase().split("\\.")[0]);
+                    propsMap.put("lotCst", materialLotUnit.getUnitId().toUpperCase().split("-")[0]);
                     propsMap.put("sourceProductId", materialLotUnit.getSourceProductId());
 
                     propsMap.put("reserved1",subCode);
@@ -481,6 +481,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     materialLotUnit.setReserved1(subCode);
                     materialLotUnit.setLotId(materialLotUnit.getLotId().toUpperCase());
                     materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
+                    materialLotUnit.setLotCst(materialLot.getLotCst().toUpperCase());//晶圆号小写转大写
                     materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                     materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                     materialLotUnit.setLotId(materialLot.getLotId());

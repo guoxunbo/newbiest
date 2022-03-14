@@ -77,8 +77,8 @@ public class TempFtServiceImpl implements TempFtService {
             for (String waferSource : waferSourceMap.keySet()) {
                 List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
                 //区分真空包和wafer处理,lotId为空的则为真空包，不为空则为wafer
-                List<TempFtModel> vboxList = tempFtModels.stream().filter(tempFtModel -> StringUtils.isNullOrEmpty(tempFtModel.getLotId().trim())).collect(Collectors.toList());
-                List<TempFtModel> lotUnitList = tempFtModels.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getLotId().trim())).collect(Collectors.toList());
+                List<TempFtModel> vboxList = tempFtModels.stream().filter(tempFtModel -> StringUtils.isNullOrEmpty(tempFtModel.getLotId())).collect(Collectors.toList());
+                List<TempFtModel> lotUnitList = tempFtModels.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getLotId())).collect(Collectors.toList());
                 if(CollectionUtils.isNotEmpty(vboxList)){
                     for(TempFtModel tempFtModel : vboxList){
                         Material material = validateAndGetMaterial(waferSource, tempFtModel.getProductId().trim());
@@ -150,6 +150,7 @@ public class TempFtServiceImpl implements TempFtService {
                         if(MaterialLot.WLT_PACK_RETURN_WAFER_SOURCE.equals(newWaferSource) || MaterialLot.SENSOR_WAFER_SOURCE.equals(newWaferSource)){
                             for(TempFtModel tempFtModel : lotTempCpModels){
                                 propMap.put("lotId", tempFtModel.getWaferId().trim());
+                                propMap.put("lotCst", tempFtModel.getWaferId().trim().split("-")[0]);
                                 BigDecimal qty = new BigDecimal(tempFtModel.getWaferNum());
                                 MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), BigDecimal.ONE, tempFtModel, fileName, propMap);
                                 MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, tempFtModel.getWaferId().trim(), materialLotAction);
@@ -230,30 +231,32 @@ public class TempFtServiceImpl implements TempFtService {
             materialLotUnit.setEngineerName(materialLot.getEngineerName());
             materialLotUnit.setWorkRemarks(materialLot.getWorkRemarks());
             materialLotUnit.setTestPurpose(materialLot.getTestPurpose());
+            materialLotUnit.setProductType(materialLot.getProductType());
             materialLotUnit.setDurable(materialLot.getDurable());
             materialLotUnit.setLotCst(materialLot.getLotCst());
-            materialLotUnit.setTreasuryNote(tempFtModel.getProdRemarkDesc().trim());
-            materialLotUnit.setReserved1(tempFtModel.getSecondCode().trim());
-            materialLotUnit.setReserved4(tempFtModel.getLocation().trim());
+            materialLotUnit.setTreasuryNote(tempFtModel.getProdRemarkDesc() == null ? "": tempFtModel.getProdRemarkDesc().trim());
+            materialLotUnit.setReserved1(tempFtModel.getSecondCode() == null ? "": tempFtModel.getSecondCode().trim());
+            materialLotUnit.setReserved4(tempFtModel.getLocation() == null ? "": tempFtModel.getLocation().trim());
             materialLotUnit.setReserved8(materialLot.getReserved8());
             materialLotUnit.setReserved13(materialLot.getReserved13());
-            materialLotUnit.setReserved14(tempFtModel.getPointId().trim());
-            materialLotUnit.setReserved22(tempFtModel.getVendor().trim());
-            materialLotUnit.setReserved24(tempFtModel.getFabDevice().trim());
-            materialLotUnit.setReserved27(tempFtModel.getPoNo().trim());
-            materialLotUnit.setReserved29(tempFtModel.getInvoiceId().trim());
-            materialLotUnit.setReserved33(tempFtModel.getDataValue19().trim());
-            materialLotUnit.setReserved34(tempFtModel.getPassNum().trim());
-            materialLotUnit.setReserved35(tempFtModel.getNgNum().trim());
-            materialLotUnit.setReserved36(tempFtModel.getYield().trim());
-            materialLotUnit.setReserved37(tempFtModel.getPackLotId().trim());
-            materialLotUnit.setReserved38(tempFtModel.getDataValue16().trim());
-            materialLotUnit.setReserved39(tempFtModel.getCartonNo().trim());
-            materialLotUnit.setReserved41(tempFtModel.getRemark().trim());
-            materialLotUnit.setReserved42(tempFtModel.getDataValue20().trim());
-            materialLotUnit.setReserved43(tempFtModel.getDataValue24().trim());
-            materialLotUnit.setReserved45(tempFtModel.getDataValue25().trim());
-            materialLotUnit.setReserved46(tempFtModel.getWoId().trim());
+            materialLotUnit.setReserved14(tempFtModel.getPointId() == null ? "": tempFtModel.getPointId().trim());
+            materialLotUnit.setReserved22(tempFtModel.getVendor() == null ? "": tempFtModel.getVendor().trim());
+            materialLotUnit.setReserved24(tempFtModel.getFabDevice() == null ? "": tempFtModel.getFabDevice().trim());
+            materialLotUnit.setReserved27(tempFtModel.getPoNo() == null ? "": tempFtModel.getPoNo().trim());
+            materialLotUnit.setReserved29(tempFtModel.getInvoiceId() == null ? "": tempFtModel.getInvoiceId().trim());
+            materialLotUnit.setReserved32(tempFtModel.getWaferNum() == null ? "": tempFtModel.getWaferNum().trim());
+            materialLotUnit.setReserved33(tempFtModel.getDataValue19() == null ? "": tempFtModel.getDataValue19().trim());
+            materialLotUnit.setReserved34(tempFtModel.getPassNum() == null ? "": tempFtModel.getPassNum().trim());
+            materialLotUnit.setReserved35(tempFtModel.getNgNum() == null ? "": tempFtModel.getNgNum().trim());
+            materialLotUnit.setReserved36(tempFtModel.getYield() == null ? "": tempFtModel.getYield().trim());
+            materialLotUnit.setReserved37(tempFtModel.getPackLotId() == null ? "": tempFtModel.getPackLotId().trim());
+            materialLotUnit.setReserved38(tempFtModel.getDataValue16() == null ? "": tempFtModel.getDataValue16().trim());
+            materialLotUnit.setReserved39(tempFtModel.getCartonNo() == null ? "": tempFtModel.getCartonNo().trim());
+            materialLotUnit.setReserved41(tempFtModel.getRemark() == null ? "": tempFtModel.getRemark().trim());
+            materialLotUnit.setReserved42(tempFtModel.getDataValue20() == null ? "": tempFtModel.getDataValue20().trim());
+            materialLotUnit.setReserved43(tempFtModel.getDataValue24() == null ? "": tempFtModel.getDataValue24().trim());
+            materialLotUnit.setReserved45(tempFtModel.getDataValue25() == null ? "": tempFtModel.getDataValue25().trim());
+            materialLotUnit.setReserved46(tempFtModel.getWoId() == null ? "": tempFtModel.getWoId().trim());
             materialLotUnit.setReserved47(fileName);
             materialLotUnit.setReserved49(materialLot.getReserved49());
             materialLotUnit.setReserved50(materialLot.getReserved50());
@@ -319,6 +322,7 @@ public class TempFtServiceImpl implements TempFtService {
             propMap.put("reserved24", tempFtModel.getFabDevice() == null ? "": tempFtModel.getFabDevice().trim());
             propMap.put("reserved27", tempFtModel.getPoNo() == null ? "": tempFtModel.getPoNo().trim());
             propMap.put("reserved29", tempFtModel.getInvoiceId() == null ? "": tempFtModel.getInvoiceId().trim());
+            propMap.put("reserved32", tempFtModel.getWaferNum() == null ? "": tempFtModel.getWaferNum().trim());
             propMap.put("reserved33", tempFtModel.getDataValue19() == null ? "": tempFtModel.getDataValue19().trim());
             propMap.put("reserved34", tempFtModel.getPassNum() == null ? "": tempFtModel.getPassNum().trim());
             propMap.put("reserved35", tempFtModel.getNgNum() == null ? "": tempFtModel.getNgNum().trim());
