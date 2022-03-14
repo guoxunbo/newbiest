@@ -1138,10 +1138,10 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setEffectiveLife(material.getEffectiveLife());
             materialLot.setEffectiveUnit(material.getEffectiveUnit());
             materialLot.setWarningLife(material.getWarningLife());
+            materialLot.setReserved14(materialLotAction.getTargetStorageId());
             materialLot.setReserved58(material.getSpareSpecs());
             materialLot.setReserved59(material.getSpareModel());
             materialLot.setReserved60(material.getSparePartsLine());
-
             if (propsMap != null && propsMap.size() > 0) {
                 for (String propName : propsMap.keySet()) {
                     PropertyUtils.setProperty(materialLot, propName, propsMap.get(propName));

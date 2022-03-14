@@ -37,6 +37,9 @@ public class MesPackedLot implements Serializable {
     public static final String PACKED_TYPE_CPCST_PREIN = "CPCST_PREIN";
     public static final String LEVEL_TWO_CODE_FFFFF = "FFFFF";
 
+    public static final String STORAGE_ID_SH = "HJ AZ5000";
+    public static final String STORAGE_ID_ZSH = "ZHJ AZ6000";
+
     public static final String GRADE_F3 = "F3";
 
     public static final String IN_FLAG_ONE = "1";
