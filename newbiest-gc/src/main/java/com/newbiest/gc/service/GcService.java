@@ -215,4 +215,5 @@ public interface GcService {
     void transferStorage(List<RelayBoxStockInModel> relayBoxStockInModel) throws  ClientException;
     List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn,String whereClause) throws ClientException;
 
+    String packageIRAs(List<MaterialLotAction> materialLotActions, String packageType);
 }
