@@ -8405,8 +8405,15 @@ public class GcServiceImpl implements GcService {
             }
             documentLineList = otherStockOutLines.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
 
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
+            Map<String, List<DocumentLine>> documentLineMap = new HashMap<>();
+            Map<String, List<MaterialLot>> materialLotMap = new HashMap<>();
+            if(WltStockOutRequest.ACTION_HN_SAMPLE_COLLECTION_STOCK_OUT.equals(actionType)) {
+                documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.SAMPLE_COLLECTION_STOCK_OUT_RULE_ID);
+                materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.SAMPLE_COLLECTION_STOCK_OUT_RULE_ID);
+            } else {
+                documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
+                materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
+            }
 
             for (String key : materialLotMap.keySet()) {
                 validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(key, materialLotMap, documentLineMap);
