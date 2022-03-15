@@ -1457,7 +1457,8 @@ public class PrintServiceImpl implements PrintService {
             List<Map<String, Object>> mapList = Lists.newArrayList();
 
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_IRA_BOX_LABEL, "");
-            Map<String,List<MaterialLot>> materialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
+            List<MaterialLot> queryMaterialLots = materialLots.stream().map(materialLot -> materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(),materialLot.getOrgRrn())).collect(Collectors.toList());
+            Map<String,List<MaterialLot>> materialLotMap = queryMaterialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
             Map<String, List<MaterialLot>> sortMap = materialLotMap.entrySet().stream().sorted(Map.Entry.comparingByKey())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,(oldValue, newValue) -> oldValue, LinkedHashMap::new));
             for (String lotId : sortMap.keySet()) {

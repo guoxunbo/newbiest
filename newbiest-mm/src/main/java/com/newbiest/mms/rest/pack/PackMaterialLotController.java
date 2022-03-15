@@ -35,7 +35,6 @@ public class PackMaterialLotController extends AbstractRestController {
         PackMaterialLotResponseBody responseBody = new PackMaterialLotResponseBody();
 
         PackMaterialLotRequestBody requestBody = request.getBody();
-
         MaterialLot packagedMaterialLot = packageService.packageMLots(requestBody.getMaterialLotActions(), requestBody.getPackageType());
         responseBody.setMaterialLot(packagedMaterialLot);
         response.setBody(responseBody);
