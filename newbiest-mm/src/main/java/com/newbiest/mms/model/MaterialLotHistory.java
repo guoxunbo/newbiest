@@ -57,6 +57,8 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_WEIGHT = "Weight";
 
     public static final String TRANS_TYPE_CANCEL_CHECK = "CancelCheck";
+    public static final String TRANS_TYPE_IRA_PACKAGE = "IRAPackage";
+    public static final String TRANS_TYPE_IRA_UNPACKAGE = "IRAUnPackage";
 
     /**
      * 因为包装产生的批次

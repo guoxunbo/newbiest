@@ -121,6 +121,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String WLT_SHIP_MLOT_MERGE_RULE = "WltCPShipCase";
 
+    /**
+     * IRA装箱规则
+     */
+    public static final String IRA_MERGE_RULE = "IRAPackCase";
+
     public static final String RECEIVE_ERROR = "ERROR";
 
     /**

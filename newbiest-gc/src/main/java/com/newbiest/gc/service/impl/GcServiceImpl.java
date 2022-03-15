@@ -7771,6 +7771,36 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    @Override
+    public String packageIRAs(List<MaterialLotAction> materialLotActions, String packageType) {
+        try{
+            MaterialLotPackageType materialLotPackageType = packageService.getMaterialPackageTypeByName(packageType);
+            String packedMaterialLotId = generatorPackageMLotId(materialLotPackageType);
+            List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+            for (MaterialLot materialLot : materialLots) {
+                materialLot.setLotId(packedMaterialLotId);
+                materialLotRepository.saveAndFlush(materialLot);
+                // 记录历史
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_IRA_PACKAGE);
+                materialLotHistoryRepository.save(history);
+            }
+            return packedMaterialLotId;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    public String generatorPackageMLotId(MaterialLotPackageType packageType) throws ClientException{
+        try {
+            GeneratorContext generatorContext = new GeneratorContext();
+            generatorContext.setRuleName(packageType.getPackIdRule());
+            return generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
     /**
      * 验证WLT封装回货模板是否经WLA处理，根据产品型号转换表验证晶圆型号是否需要转换
      * @return
