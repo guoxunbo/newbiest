@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCOBWaferStockOutTagManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCCOBWaferStockOutTagManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCCOBWaferStockOutTagManager
+              description: COB晶圆出货标注
+              tableName: GCCOBWaferStockOutTag
+              url: /GC/GCCOBWaferStockOutTagManager
+              mobileFlag: N
+              parentRrn: 1020
+              seqNo: 16
+              image: icon-rule
+              labelZh: COB晶圆出货标注
+              labelEn: COBWaferStockOutTag

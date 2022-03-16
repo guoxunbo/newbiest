@@ -863,3 +863,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.IRAPaking.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCCOBWaferStockOutTag.nb_authority.yaml
+      relativeToChangelogFile: true

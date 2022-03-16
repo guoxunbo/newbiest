@@ -12,6 +12,10 @@ public class MaterialLotImportSearchRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "GCMaterialLotUpdate";
 
+	public static final String ACTION_TYPE_IMPORT_QUERY_MLOT = "ImportQueryMLot";
+
+	public static final String ACTION_TYPE_IMPORT_QUERY_MLOT_UNIT = "ImportQueryMLotUnit";
+
 	private MaterialLotImportSearchRequestBody body;
 
 }
