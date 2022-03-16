@@ -40,6 +40,12 @@ public class RwMaterialLotRequest extends Request {
 
 	public static final String ACTION_GET_RW_LABEL = "RWBoxLabelPrint";
 
+	public static final String ACTION_COB_QUERY_MLOTUNIT = "COBWaferQuery";
+
+	public static final String ACTION_WAFER_AUTO_PICK = "WaferAutoPick";
+
+	public static final String ACTION_WAFER_STOCK_OUT_TAG = "WaferStockOutTag";
+
 	private RwMaterialLotRequestBody body;
 
 }

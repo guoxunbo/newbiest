@@ -488,6 +488,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                     materialLotUnit.setReserved48(importCode);
                     materialLotUnit.setMaterial(material);
+                    materialLotUnit.setReceiveDate(materialLot.getReceiveDate());
                     materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);

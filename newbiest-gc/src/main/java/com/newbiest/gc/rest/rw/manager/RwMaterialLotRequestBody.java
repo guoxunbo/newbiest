@@ -3,6 +3,7 @@ package com.newbiest.gc.rest.rw.manager;
 import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.msg.RequestBody;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -62,5 +63,11 @@ public class RwMaterialLotRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "标签打印份数")
 	private String printCount;
+
+	@ApiModelProperty(value = "查询条件")
+	private String whereClause;
+
+	@ApiModelProperty(value = "晶圆列表")
+	private List<MaterialLotUnit> materialLotUnitList;
 
 }
