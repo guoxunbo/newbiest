@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.materiallot.importSearch;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.NewbiestException;
 import com.newbiest.base.factory.ModelFactory;
@@ -13,6 +14,8 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.model.GCProductSubcode;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotUnit;
+import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.msg.DefaultParser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -35,6 +38,9 @@ public class MaterialLotImportSearchController extends AbstractRestController {
     @Autowired
     GcService gcService;
 
+    @Autowired
+    MaterialLotUnitService materialLotUnitService;
+
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "MaterialLotImportSearchRequest")
     @RequestMapping(value = "/mLotImportSearch", method = RequestMethod.POST)
     public MaterialLotImportSearchResponse excute(@RequestParam MultipartFile file, @RequestParam String request) throws Exception {
@@ -44,6 +50,7 @@ public class MaterialLotImportSearchController extends AbstractRestController {
         response.getHeader().setTransactionId(mLotImportSearchRequest.getHeader().getTransactionId());
         MaterialLotImportSearchResponseBody responseBody = new MaterialLotImportSearchResponseBody();
 
+        String actionType = requestBody.getActionType();
         NBTable nbTable = uiService.getDeepNBTable(requestBody.getTableRrn());
         ClassLoader classLoader = ModelFactory.getModelClassLoader(nbTable.getModelClass());
         if (classLoader == null) {
@@ -52,8 +59,12 @@ public class MaterialLotImportSearchController extends AbstractRestController {
 
         BiMap<String, String> fieldMap = HashBiMap.create(ExcelUtils.buildHeaderByTable(nbTable, mLotImportSearchRequest.getHeader().getLanguage()));
         fieldMap = fieldMap.inverse();
-        List<MaterialLot> materialLotList = (List) ExcelUtils.importExcel(classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), StringUtils.EMPTY);
-        if(CollectionUtils.isNotEmpty(materialLotList)){
+        if(MaterialLotImportSearchRequest.ACTION_TYPE_IMPORT_QUERY_MLOT_UNIT.equals(actionType)) {
+            List<MaterialLotUnit> importMLotUnits = (List) ExcelUtils.importExcel(classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), StringUtils.EMPTY);
+            List<MaterialLotUnit> materialLotUnitList = gcService.getMaterialLotUnitListByImportFileAndNbTable(importMLotUnits, nbTable);
+            responseBody.setMaterialLotUnitList(materialLotUnitList);
+        } else {
+            List<MaterialLot> materialLotList = (List) ExcelUtils.importExcel(classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), StringUtils.EMPTY);
             List<MaterialLot> materialLots = gcService.getMaterialLotsByImportFileAndNbTable(materialLotList, nbTable);
             responseBody.setMaterialLotList(materialLots);
         }

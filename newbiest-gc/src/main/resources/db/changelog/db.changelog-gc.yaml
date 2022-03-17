@@ -851,3 +851,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.IRAPacking_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCCOBWaferStockOutTag_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCCOBWaferStockOutTagShow_nb_table.yaml
+      relativeToChangelogFile: true
