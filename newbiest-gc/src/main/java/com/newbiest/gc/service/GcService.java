@@ -222,4 +222,6 @@ public interface GcService {
     List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn,String whereClause) throws ClientException;
 
     String packageIRAs(List<MaterialLotAction> materialLotActions, String packageType);
+
+    void unPackageIRAs(List<MaterialLotAction> materialLotActions, String packageType);
 }
