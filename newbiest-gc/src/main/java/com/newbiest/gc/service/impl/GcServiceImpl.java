@@ -7795,11 +7795,28 @@ public class GcServiceImpl implements GcService {
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setLotId(packedMaterialLotId);
                 materialLotRepository.saveAndFlush(materialLot);
-                // 记录历史
+
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_IRA_PACKAGE);
                 materialLotHistoryRepository.save(history);
             }
             return packedMaterialLotId;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw ExceptionManager.handleException(e);
+        }
+    }
+
+    @Override
+    public void unPackageIRAs(List<MaterialLotAction> materialLotActions, String packageType) {
+        try{
+            List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
+            for (MaterialLot materialLot : materialLots) {
+                materialLot.setLotId(materialLot.getMaterialLotId());
+                materialLotRepository.saveAndFlush(materialLot);
+
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_IRA_UNPACKAGE);
+                materialLotHistoryRepository.save(history);
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw ExceptionManager.handleException(e);
