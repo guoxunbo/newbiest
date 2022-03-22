@@ -236,6 +236,12 @@ public class MesPackedLot implements Serializable {
     /**
      * 供应商
      */
+    @Column(name="VENDER")
+    private String vender;
+
+    /**
+     * 供应商
+     */
     @Transient
     private String subName;
 

@@ -340,7 +340,7 @@ public class GcServiceImpl implements GcService {
      * @param
      * @return
      */
-    public List<MaterialLot> getWaitForReservedMaterialLot(Long documentLineRrn, Long tableRrn, String stockLocation)  throws ClientException {
+    public List<MaterialLot> getWaitForReservedMaterialLot(Long documentLineRrn, Long tableRrn, String stockLocation, String ruleId)  throws ClientException {
         try {
             List<MaterialLot> waitForReservedMaterialLots = Lists.newArrayList();
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
@@ -358,7 +358,7 @@ public class GcServiceImpl implements GcService {
                 whereClause.append(" grade ='" + documentLine.getReserved3() + "'");
                 if(ErpSo.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
                     whereClause.append(" and reserved7 ='COM'");
-                } else if(ErpSoa.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
+                } else if(ErpSoa.SOURCE_TABLE_NAME.equals(documentLine.getReserved31()) || ErpSob.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
                     whereClause.append(" and reserved7 in ('FT','FT0')");
                 }
                 if(!StringUtils.isNullOrEmpty(stockLocation)){
@@ -369,7 +369,7 @@ public class GcServiceImpl implements GcService {
                 if (CollectionUtils.isNotEmpty(materialLots)) {
                     for (MaterialLot materialLot : materialLots) {
                         try {
-                            validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.MLOT_RESERVED_DOC_VALIDATE_RULE_ID);
+                            validateMLotAndDocLineByRule(documentLine, materialLot, ruleId);
                             if(nbTable.getName().equals("MMReservedCase")){
                                 List<String> packedLotIdList = new ArrayList<String>();
                                 packedLotIdList.add(materialLot.getMaterialLotId());
@@ -409,7 +409,7 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    public DocumentLine reservedMaterialLot(Long documentLineRrn, List<MaterialLotAction> materialLotActions ,String stockNote) throws ClientException {
+    public DocumentLine reservedMaterialLot(Long documentLineRrn, List<MaterialLotAction> materialLotActions ,String stockNote, String ruleId) throws ClientException {
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             List<MaterialLot> holdMaterialLot = materialLots.stream().filter(materialLot -> MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())).collect(Collectors.toList());
@@ -423,7 +423,7 @@ public class GcServiceImpl implements GcService {
                 if (!StringUtils.isNullOrEmpty(materialLot.getReserved16())) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_RESERVED_BY_ANOTHER);
                 }
-                validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.MLOT_RESERVED_DOC_VALIDATE_RULE_ID);
+                validateMLotAndDocLineByRule(documentLine, materialLot, ruleId);
                 BigDecimal currentQty = materialLot.getCurrentQty();
                 reservedQty = reservedQty.add(currentQty);
                 if (unReservedQty.compareTo(reservedQty) < 0) {
@@ -3120,8 +3120,12 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved24", mesPackedLot.getFabDevice());
                     if(mesPackedLotRelation != null && MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
                         otherReceiveProps.put("reserved22", mesPackedLotRelation.getVender());
-                    } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(mesPackedLot.getProductCategory()) || (MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory()) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
-                        otherReceiveProps.put("reserved22", MesPackedLot.ZJ_SUB_NAME);
+                    } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(mesPackedLot.getProductCategory()) || (MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory()))){
+                        if(MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType())){
+                            otherReceiveProps.put("reserved22", MesPackedLot.ZJ_SUB_NAME);
+                        } else {
+                            otherReceiveProps.put("reserved22", mesPackedLot.getVender());
+                        }
                     } else {
                         otherReceiveProps.put("reserved22", mesPackedLot.getSubName());
                     }
@@ -7897,55 +7901,11 @@ public class GcServiceImpl implements GcService {
                 if (material == null){
                     material = new RawMaterial();
                     material.setName(materialName);
-                    material = mmsService.createRawMaterial((RawMaterial) material);
+                    mmsService.createRawMaterial((RawMaterial) material);
                 }
-                
-                /**
-                String unitId = materialLotUnit.getUnitId();
-                String materialName = materialLotUnit.getMaterialName();
-                Material material = new Material();
-                //验证晶圆是否在经过WLA测试,经过WLA测试的根据产品型号转换做验证
-                MesPackedLotRelation mesPackedLotRelation = mesPackedLotRelationRepository.findByWaferId(unitId);
-                if(mesPackedLotRelation == null){
-                    //验证是否存在产品型号转换，存在即将晶圆型号转换成产品型号转换的型号
-                    GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductId(materialName);
-                    if(productModelConversion != null){
-                        materialLotUnit.setSourceProductId(materialName);
-                        materialName = productModelConversion.getConversionModelId();
-                        material = mmsService.getRawMaterialByName(materialName);
-                    } else {
-                        //后两位是'-3'转变成'-3.5'
-                        if (materialName.endsWith("-3")){
-                            materialName = materialName + ".5";
-                            material = mmsService.getRawMaterialByName(materialName);
-                        }else {
-                            material = mmsService.getRawMaterialByName(materialName);
-                            if (material == null){
-                                throw new ClientParameterException(MM_RAW_MATERIAL_IS_NOT_EXIST, materialName);
-                            }
-                        }
-                    }
-                    if (material == null){
-                        material = new RawMaterial();
-                        material.setName(materialName);
-                        material = mmsService.createRawMaterial((RawMaterial) material);
-                    }
-                } else if(Integer.parseInt(mesPackedLotRelation.getBinId1() == null ? "0" : mesPackedLotRelation.getBinId1()) < Integer.parseInt(materialLotUnit.getReserved34()) ||
-                            Integer.parseInt(mesPackedLotRelation.getBinId2() == null ? "0" : mesPackedLotRelation.getBinId2()) < Integer.parseInt(materialLotUnit.getReserved42()) ||
-                            Integer.parseInt(mesPackedLotRelation.getBinId4() == null ? "0" : mesPackedLotRelation.getBinId4() ) < Integer.parseInt(materialLotUnit.getReserved43())){
-                        throw new ClientParameterException(GcExceptions.INCOMINGMLOT_QTY_AND_SENTOUT_QTY_DISCREPANCY, materialLotUnit.getUnitId());
+                if(materialName.endsWith("-3.5")){
+                    materialLotUnit.setGrade(MaterialLotUnit.MAIN_GRADE);
                 }
-                 */
-
-//                    materialLotUnit.setSourceProductId(materialName);
-//                    String testProductId = mesPackedLotRelation.getTestModelId();
-//                    materialName = testProductId.split("-")[0] + "-3.5";
-//                    material = mmsService.getRawMaterialByName(materialName);
-//                    if(material == null){
-//                        RawMaterial rawMaterial = new RawMaterial();
-//                        rawMaterial.setName(materialName);
-//                        mmsService.createRawMaterial(rawMaterial);
-//                    }
                 materialLotUnit.setMaterialName(materialName);
                 materialLotUnit.setReserved6(StringUtils.EMPTY);
                 materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
@@ -9311,13 +9271,16 @@ public class GcServiceImpl implements GcService {
                         if(material == null){
                             material = new RawMaterial();
                             material.setName(materialLotUnit.getMaterialName());
-                            material = (RawMaterial) mmsService.createRawMaterial(material);
+                            mmsService.createRawMaterial(material);
                         }
                     }
                     //若gc_wlatoft_testbit的WLA_TEST_BIT 不为空，二级代码增加一位
                     GcWlatoftTesebit gcWlatoftTesebit = wlatoFtTestBitRepository.findByWaferId(materialLotUnit.getLotId());
                     if(gcWlatoftTesebit!=null && !StringUtils.isNullOrEmpty(gcWlatoftTesebit.getWlaTestBit())){
                         materialLotUnit.setSubCode5(gcWlatoftTesebit.getWlaTestBit());
+                    }
+                    if(materialLotUnit.getMaterialName().endsWith("-3.5")){
+                        materialLotUnit.setGrade(MaterialLotUnit.MAIN_GRADE);
                     }
                 }
             }

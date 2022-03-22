@@ -860,3 +860,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCIRAUnPackage_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCOtherShipReservedMLot_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCOtherShipReservedOrder_nb_table.yaml
+      relativeToChangelogFile: true
