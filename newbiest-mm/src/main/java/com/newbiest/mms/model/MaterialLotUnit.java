@@ -25,6 +25,8 @@ public class MaterialLotUnit extends NBUpdatable {
     //三星等级
     public static final String SAMSUING_GRADE = "A";
 
+    public static final String MAIN_GRADE = "MAIN";
+
     public static final String STATE_CREATE = "Create";
     public static final String STATE_IN = "In";
     public static final String STATE_ISSUE = "Issue";

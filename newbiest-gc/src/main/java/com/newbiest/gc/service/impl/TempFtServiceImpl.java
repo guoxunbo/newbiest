@@ -96,7 +96,7 @@ public class TempFtServiceImpl implements TempFtService {
 
                         Map<String, Object> propMap = Maps.newConcurrentMap();
                         getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource);
-                        buildPropMap(propMap, tempFtModel, materialLotAction, fileName);
+                        buildPropMap(propMap, tempFtModel, materialLotAction, fileName,StringUtils.EMPTY);
 
                         materialLotAction.setPropsMap(propMap);
 
@@ -150,9 +150,9 @@ public class TempFtServiceImpl implements TempFtService {
                         if(MaterialLot.WLT_PACK_RETURN_WAFER_SOURCE.equals(newWaferSource) || MaterialLot.SENSOR_WAFER_SOURCE.equals(newWaferSource)){
                             for(TempFtModel tempFtModel : lotTempCpModels){
                                 propMap.put("lotId", tempFtModel.getWaferId().trim());
-                                propMap.put("lotCst", tempFtModel.getWaferId().trim().split("-")[0]);
+                                String cstId = tempFtModel.getWaferId().trim().split("-")[0];
                                 BigDecimal qty = new BigDecimal(tempFtModel.getWaferNum());
-                                MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), BigDecimal.ONE, tempFtModel, fileName, propMap);
+                                MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), BigDecimal.ONE, tempFtModel, fileName, propMap, cstId);
                                 MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, tempFtModel.getWaferId().trim(), materialLotAction);
                                 createMaterialLotUnitAndSaveHis(tempFtModel, materialLot, material, fileName);
                             }
@@ -161,7 +161,7 @@ public class TempFtServiceImpl implements TempFtService {
                             BigDecimal qty = new BigDecimal(totalMLotQty);
                             BigDecimal subQty = new BigDecimal(lotTempCpModels.size());
                             propMap.put("lotId", firstTempFtModel.getLotId().trim());
-                            MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), subQty, firstTempFtModel, fileName, propMap);
+                            MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), subQty, firstTempFtModel, fileName, propMap, StringUtils.EMPTY);
                             MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, firstTempFtModel.getLotId(), materialLotAction);
                             for (TempFtModel tempFtModel : lotTempCpModels) {
                                 createMaterialLotUnitAndSaveHis(tempFtModel, materialLot, material, fileName);
@@ -185,7 +185,7 @@ public class TempFtServiceImpl implements TempFtService {
      * @return
      * @throws ClientException
      */
-    private MaterialLotAction buildMaterialLotAction(BigDecimal currentQty, String grade, BigDecimal currentSubQty, TempFtModel tempFtModel, String fileName, Map<String,Object> propMap) throws ClientException{
+    private MaterialLotAction buildMaterialLotAction(BigDecimal currentQty, String grade, BigDecimal currentSubQty, TempFtModel tempFtModel, String fileName, Map<String,Object> propMap, String cstId) throws ClientException{
         try {
             MaterialLotAction materialLotAction = new MaterialLotAction();
             materialLotAction.setTransQty(currentQty);
@@ -196,7 +196,7 @@ public class TempFtServiceImpl implements TempFtService {
                 materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
                 materialLotAction.setTargetStorageId(tempFtModel.getPointId());
             }
-            buildPropMap(propMap, tempFtModel, materialLotAction, fileName);
+            buildPropMap(propMap, tempFtModel, materialLotAction, fileName, cstId);
             materialLotAction.setPropsMap(propMap);
             return materialLotAction;
         } catch (Exception e) {
@@ -303,7 +303,7 @@ public class TempFtServiceImpl implements TempFtService {
      * @param fileName
      * @throws ClientException
      */
-    private void buildPropMap(Map<String,Object> propMap, TempFtModel tempFtModel, MaterialLotAction materialLotAction, String fileName) throws ClientException{
+    private void buildPropMap(Map<String,Object> propMap, TempFtModel tempFtModel, MaterialLotAction materialLotAction, String fileName, String cstId) throws ClientException{
         try {
             if(!StringUtils.isNullOrEmpty(tempFtModel.getStockId())){
                 propMap.put("reserved13", materialLotAction.getTargetWarehouseRrn().toString());
@@ -352,7 +352,10 @@ public class TempFtServiceImpl implements TempFtService {
                 propMap.put("productType", MaterialLotUnit.PRODUCT_TYPE_ENG);
             }
 
-            if(!StringUtils.isNullOrEmpty(tempFtModel.getCstId())){
+            if(!StringUtils.isNullOrEmpty(cstId)){
+                propMap.put("durable", cstId);
+                propMap.put("lotCst", cstId);
+            } else {
                 propMap.put("durable", tempFtModel.getCstId() == null ? "": tempFtModel.getCstId().trim());
                 propMap.put("lotCst", tempFtModel.getCstId() == null ? "": tempFtModel.getCstId().trim());
             }

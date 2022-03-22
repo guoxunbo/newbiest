@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCOtherShipReservedMLot_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCOtherShipReservedMLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCOtherShipReservedMLot
+              description: 其他出备货物料批次
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 其他出备货物料批次
+              label: OtherShipReservedMLot
