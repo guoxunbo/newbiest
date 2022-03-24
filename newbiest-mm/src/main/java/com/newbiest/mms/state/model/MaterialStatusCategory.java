@@ -20,4 +20,6 @@ public class MaterialStatusCategory extends StatusCategory {
 
     public static final String STATUS_CATEGORY_USE = "Use";
 
+    public static final String STATUS_CATEGORY_OQC = "OQC";
+
 }
