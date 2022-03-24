@@ -1085,7 +1085,7 @@ public class PrintServiceImpl implements PrintService {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COM_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("barcode", materialLot.getMaterialLotId());
-            parameterMap.put("device", materialLot.getMaterialName());
+            parameterMap.put("device", materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-")));
             parameterMap.put("wafernum", materialLot.getCurrentQty().toPlainString());
             parameterMap.put("subcode", subcode);
 
