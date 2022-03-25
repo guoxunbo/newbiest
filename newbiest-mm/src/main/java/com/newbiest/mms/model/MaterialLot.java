@@ -1218,6 +1218,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setReserved51(StringUtils.EMPTY);
         this.setReserved52(StringUtils.EMPTY);
         this.setReserved53(StringUtils.EMPTY);
+        this.setReserved55(StringUtils.EMPTY);
     }
 
     /**

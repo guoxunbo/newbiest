@@ -9,6 +9,7 @@ import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
+import com.newbiest.gc.model.StockOutCheck;
 import com.newbiest.gc.scm.dto.TempFtModel;
 import com.newbiest.gc.scm.dto.TempFtVboxModel;
 import com.newbiest.gc.service.GcService;
@@ -379,6 +380,7 @@ public class TempFtServiceImpl implements TempFtService {
      */
     private void checkOutAndSaveHis(MaterialLot materialLot) throws ClientException{
         try {
+            materialLot.setReserved9("PASS");
             materialLot = mmsService.changeMaterialLotState(materialLot, "OQC", "OK");
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "OQC");

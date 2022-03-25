@@ -87,6 +87,7 @@ public class GcServiceImpl implements GcService {
     public static final String REFERENCE_NAME_WLTPACK_CASE_CHECK_ITEM_LIST = "WltPackCaseCheckItemList";
     public static final String REFERENCE_NAME_PRODUCT_DECS_LIST = "ProductDescList";
     public static final String REFERENCE_NAME_ENCRYPTION_SUBCODE_LIST = "EncryptionSubcodeList";
+    public static final String REFERENCE_NAME_RESERVED_CUSTOMER_LIST = "ReservedCustomerList";
 
     public static final String EVENT_OQC = "OQC";
 
@@ -417,6 +418,8 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_ALREADY_HOLD, holdMaterialLot.get(0).getMaterialLotId());
             }
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
+            List<NBOwnerReferenceList> customerAddressList = getReferenceListByName(REFERENCE_NAME_RESERVED_CUSTOMER_LIST);
+            Map<String, List<NBOwnerReferenceList>> customerAddressMap = customerAddressList.stream().collect(Collectors.groupingBy(NBOwnerReferenceList:: getKey));
             BigDecimal unReservedQty = documentLine.getUnReservedQty();
             BigDecimal reservedQty = BigDecimal.ZERO;
             for (MaterialLot materialLot : materialLots) {
@@ -439,6 +442,16 @@ public class GcServiceImpl implements GcService {
                 materialLot.setReserved51(documentLine.getReserved15());
                 materialLot.setReserved52(documentLine.getReserved20());
                 materialLot.setReserved53(documentLine.getReserved21());
+                if(ErpSoa.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
+                    if(customerAddressMap.containsKey(documentLine.getReserved8())){
+                        List<NBOwnerReferenceList> customerNameList = customerAddressMap.get(documentLine.getReserved8());
+                        materialLot.setReserved55(customerNameList.get(0).getValue());
+                    } else if(StringUtils.isNullOrEmpty(documentLine.getReserved15())){
+                        materialLot.setReserved55(documentLine.getReserved8() + "("+ documentLine.getReserved15().substring(0, 2)+")");
+                    } else {
+                        materialLot.setReserved55(documentLine.getReserved8());
+                    }
+                }
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RESERVED);
                 materialLotHistoryRepository.save(history);
@@ -448,6 +461,7 @@ public class GcServiceImpl implements GcService {
                     .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
 
             for (String parentMLotId : parentMaterialLots.keySet()) {
+                List<MaterialLot> packMLots = parentMaterialLots.get(parentMLotId);
                 MaterialLot parentMLot = mmsService.getMLotByMLotId(parentMLotId);
                 BigDecimal totalReservedQty = parentMaterialLots.get(parentMLotId).stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
                 BigDecimal parentMaterialLotReservedQty = parentMLot.getReservedQty() == null ? BigDecimal.ZERO : parentMLot.getReservedQty();
@@ -462,6 +476,7 @@ public class GcServiceImpl implements GcService {
                 parentMLot.setReserved51(documentLine.getReserved15());
                 parentMLot.setReserved52(documentLine.getReserved20());
                 parentMLot.setReserved53(documentLine.getReserved21());
+                parentMLot.setReserved55(packMLots.get(0).getReserved55());
                 materialLotRepository.saveAndFlush(parentMLot);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(parentMLot, MaterialLotHistory.TRANS_TYPE_RESERVED);
