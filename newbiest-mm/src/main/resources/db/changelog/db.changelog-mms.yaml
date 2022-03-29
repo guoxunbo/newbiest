@@ -869,3 +869,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCIRAUnPackage.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCOtherShipReservedManager.nb_authority.yaml
+      relativeToChangelogFile: true
