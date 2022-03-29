@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCOBWaferStockOutTagShow_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCCOBWaferStockOutTagShow to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCOBWaferStockOutTagShow
+              description: COB晶圆出货标注
+              tableName: MMS_MATERIAL_LOT_UNIT
+              modelName: MaterialLotUnit
+              modelClass: com.newbiest.mms.model.MaterialLotUnit
+              labelZh: COB晶圆出货标注
+              label: COBWaferStockOutTag

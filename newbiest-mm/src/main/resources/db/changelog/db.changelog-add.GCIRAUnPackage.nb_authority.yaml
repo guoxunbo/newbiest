@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCIRAUnPackage_to_NB_AUTHORITY
+      author: Xinqi Wang
+      comment: add GCIRAUnPackage to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCIRAUnPackage
+              description: IRA拆箱
+              tableName: GCIRAUnPackage
+              url: /RawMaterial/GCIRAUnPackage
+              parentRrn: 2030
+              seqNo: 24
+              image: icon-delivery
+              labelZh: IRA拆箱
+              labelEn: IRAUnPackage

@@ -32,8 +32,13 @@ public class IRAPackageController extends AbstractRestController {
         IRAPackageResponseBody responseBody = new IRAPackageResponseBody();
 
         IRAPackageRequestBody requestBody = request.getBody();
-        String packMaterialLotId = gcService.packageIRAs(requestBody.getMaterialLotActions(), requestBody.getPackageType());
-        responseBody.setMaterialLotId(packMaterialLotId);
+        if (IRAPackageRequestBody.IRA_PACKAGE.equals(requestBody.getPackageType())){
+            String packMaterialLotId = gcService.packageIRAs(requestBody.getMaterialLotActions(), requestBody.getPackageType());
+            responseBody.setMaterialLotId(packMaterialLotId);
+        }
+        if (IRAPackageRequestBody.IRA_UN_PACKAGE.equals(requestBody.getPackageType())){
+            gcService.unPackageIRAs(requestBody.getMaterialLotActions(), requestBody.getPackageType());
+        }
         response.setBody(responseBody);
         return response;
     }
