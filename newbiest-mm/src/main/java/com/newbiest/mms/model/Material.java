@@ -1,10 +1,12 @@
 package com.newbiest.mms.model;
 
-import com.newbiest.base.model.NBVersionControl;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.newbiest.base.model.NBUpdatable;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Created by guoxunbo on 2019/1/3.
@@ -14,7 +16,7 @@ import java.math.BigDecimal;
 @Data
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="CLASS", discriminatorType = DiscriminatorType.STRING, length = 32)
-public class Material extends NBVersionControl {
+public class Material extends NBUpdatable {
 
     private static final long serialVersionUID = -8075936261995774501L;
 
@@ -63,6 +65,12 @@ public class Material extends NBVersionControl {
      */
     public static final String DELIVERY_POLICY_RESIDUAL_LIFO = "RL";
 
+    public static final String STATUS_FROZEN = "Frozen";
+    public static final String STATUS_UNFROZEN = "UnFrozen";
+    public static final String STATUS_ACTIVE = "Active";
+    public static final String STATUS_INACTIVE = "InActive";
+    public static final String STATUS_DELETE = "Delete";
+
     /**
      * 物料类别
      */
@@ -99,6 +107,26 @@ public class Material extends NBVersionControl {
     public static final String QUERY_PRODUCT_PRINT_MODELID = "queryProductPrintModelId";
     public static final String QUERY_MATERIAL_MODEL = "queryMaterialModelId";
     public static final String QUERY_GLUE_TYPE = "queryGlueType";
+
+    @Column(name = "NAME")
+    private String name;
+
+    @Column(name = "DESCRIPTION")
+    private String description;
+
+    @Column(name = "VERSION")
+    private Long version = 1L;
+
+    @Column(name = "STATUS")
+    private String status = STATUS_ACTIVE;
+
+    @Column(name = "ACTIVE_TIME")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date activeTime;
+
+    @Column(name = "ACTIVE_USER")
+    private String activeUser;
 
     @Column(name="CLASS",insertable = false, updatable = false)
     private String clazz;
