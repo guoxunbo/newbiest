@@ -866,3 +866,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCOtherShipReservedOrder_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseAddPackage_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseUnbox_nb_table.yaml
+      relativeToChangelogFile: true
