@@ -366,7 +366,7 @@ public class GcServiceImpl implements GcService {
                     whereClause.append(" and reserved14 like '"+ stockLocation + '%' + "'");
                 }
 
-                List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause.toString(), "");
+                List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause.toString(), nbTable.getOrderBy());
                 if (CollectionUtils.isNotEmpty(materialLots)) {
                     for (MaterialLot materialLot : materialLots) {
                         try {
