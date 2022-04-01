@@ -56,6 +56,7 @@ public class LabelTemplate extends NBBase {
     public static final String PRINT_ZHONG_KONG_LABEL = "PrintZhongKongLabel";//中控智慧
     public static final String PRINT_XING_ZHI_MLOT_LABEL = "PrintXingZhiMLotLabel";//芯智物料标签
     public static final String PRINT_GENERAL_MLOT_LABEL = "PrintGeneralMLotLabel";//一般物料标签/光宝箱/盛泰箱
+    public static final String PRINT_LONGTEN_MLOT_LABEL = "PrintLongTenMLotLabel";//龙腾光电
 
 
     @Column(name="NAME")
