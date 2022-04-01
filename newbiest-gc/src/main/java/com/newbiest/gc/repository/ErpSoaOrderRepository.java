@@ -19,5 +19,6 @@ public interface ErpSoaOrderRepository extends IRepository<ErpSoa, Long> {
     @Modifying
     void updateSynStatusAndErrorMemoAndUserIdBySeq(@Param("synStatus") String synStatus, @Param("errorMemo") String errorMemo, @Param("userId") String userId, @Param("seqList") List<Long> seqList) throws ClientException;
 
-    List<ErpSoa> findBySocodeAndCreateSeq(String socode, String createSeq);
+    ErpSoa findBySeq(@Param("seq") Long seq) throws Exception;
+
 }

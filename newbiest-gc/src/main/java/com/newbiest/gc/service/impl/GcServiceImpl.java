@@ -6153,6 +6153,8 @@ public class GcServiceImpl implements GcService {
                 printService.printZhongKongLabel(mlotCodePrintParameter);
             }else if(MLotCodePrint.XING_ZHI_MLOT_LABEL.equals(printType)){//芯智物料标签
                 printService.printXingZhiMLotLabel(mlotCodePrintParameter);
+            }else if(MLotCodePrint.LONGTEN_MLOT_LABEL.equals(printType)){//龙腾光电
+                printService.printLongTenMLotLabel(mlotCodePrintParameter);
             }else{
                 throw new ClientParameterException(GcExceptions.PRINT_TYPE_IS_NOT_SUPPORTED, printType);
             }
@@ -6177,14 +6179,14 @@ public class GcServiceImpl implements GcService {
             Calendar calendar = Calendar.getInstance();
             String date = formatter.format(new Date());
             Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
-            ErpSo erpSo = getErpSoByReserved16(materialLot.getReserved16());
+            ErpSoa erpSoa = getErpSoaByReserved16(materialLot.getReserved16());
             String productType = getProductType(materialLot.getMaterialName());
 
             //将物料编码记录到真空包上
             if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
                 packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                 for(MaterialLot packedMLot : packageMLotList){
-                    packedMLot.setMaterialCode(erpSo.getOther10());
+                    packedMLot.setMaterialCode(erpSoa.getOther10());
                     materialLotRepository.saveAndFlush(packedMLot);
                 }
             }
@@ -6193,12 +6195,12 @@ public class GcServiceImpl implements GcService {
                 Integer boxPrintCount = 1;
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
                     for (MaterialLot packageMLot : packageMLotList) {
-                        Map<String, String> vBoxParameterMap = getGeneralMLotPrintParamater(erpSo, packageMLot, warehouse, date, productType, MLotCodePrint.VBOX_LABEL, new Integer(1));
+                        Map<String, String> vBoxParameterMap = getGeneralMLotPrintParamater(erpSoa, packageMLot, warehouse, date, productType, MLotCodePrint.VBOX_LABEL, new Integer(1));
                         parameterMapList.add(vBoxParameterMap);
                     }
                     boxPrintCount = 2;
                 }
-                Map<String, String> boxParameterMap = getGeneralMLotPrintParamater(erpSo, materialLot, warehouse, date, productType, MLotCodePrint.BOX_LABEL, boxPrintCount);
+                Map<String, String> boxParameterMap = getGeneralMLotPrintParamater(erpSoa, materialLot, warehouse, date, productType, MLotCodePrint.BOX_LABEL, boxPrintCount);
                 parameterMapList.add(boxParameterMap);
             } else if (MLotCodePrint.OPHELION_MLOT_LABEL.equals(printType)){
                 String startDate = formatter.format(materialLot.getReceiveDate());
@@ -6217,18 +6219,18 @@ public class GcServiceImpl implements GcService {
                 Integer printCount = 1;
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
                     for(MaterialLot packageMLot : packageMLotList) {
-                        Map<String, String> parameterMap = getOphelionMLotPrintParamater(erpSo, packageMLot, startDate, date, endDate, effectiveDate, expirationDate, printSeq);
+                        Map<String, String> parameterMap = getOphelionMLotPrintParamater(erpSoa, packageMLot, startDate, date, endDate, effectiveDate, expirationDate, printSeq);
                         parameterMap.put("printCount", "1");
                         parameterMapList.add(parameterMap);
                     }
                     printCount = 2;
                 }
-                Map<String, String> ophelionParamaterMap = getOphelionMLotPrintParamater(erpSo, materialLot, startDate, date, endDate, effectiveDate, expirationDate, printSeq);
+                Map<String, String> ophelionParamaterMap = getOphelionMLotPrintParamater(erpSoa, materialLot, startDate, date, endDate, effectiveDate, expirationDate, printSeq);
                 ophelionParamaterMap.put("printCount", printCount + StringUtils.EMPTY);
                 parameterMapList.add(ophelionParamaterMap);
             } else if(MLotCodePrint.BAICHEN_MLOT_LABEL.equals(printType)){
                 String firstVboxSeq = "";
-                String poName = erpSo.getOther10();
+                String poName = erpSoa.getOther10();
                 String ponoPrefix = "";
                 if(!StringUtils.isNullOrEmpty(poName)){
                     int poSize = poName.length();
@@ -6242,36 +6244,36 @@ public class GcServiceImpl implements GcService {
                         if(StringUtils.isNullOrEmpty(firstVboxSeq)){
                             firstVboxSeq = vboxSeq;
                         }
-                        Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, packageMLot, vboxSeq, ponoPrefix);
+                        Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSoa, packageMLot, vboxSeq, ponoPrefix);
                         parameterMap.put("printCount", "1");
                         parameterMapList.add(parameterMap);
                     }
-                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, materialLot, firstVboxSeq, ponoPrefix);
+                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSoa, materialLot, firstVboxSeq, ponoPrefix);
                     parameterMap.put("printCount", "2");
                     parameterMapList.add(parameterMap);
                 } else {
                     String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BAICHEN_MLOT_LABEL_PRINT_SEQ_RULE).substring(8, 16);
                     vboxSeq = vboxSeq.substring(vboxSeq.length() - 8, vboxSeq.length());
-                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSo, materialLot, vboxSeq, ponoPrefix);
+                    Map<String, String> parameterMap = getBaiChenMLotPrintParamater(erpSoa, materialLot, vboxSeq, ponoPrefix);
                     parameterMap.put("printCount", "1");
                     parameterMapList.add(parameterMap);
                 }
             } else if(MLotCodePrint.GUANGBAO_BOX_LABEL.equals(printType)){
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                    Map<String, String> boxParamaterMap = getGeneralMLotPrintParamater(erpSo, materialLot, warehouse, date, productType, MLotCodePrint.BOX_LABEL, new Integer(2));
+                    Map<String, String> boxParamaterMap = getGeneralMLotPrintParamater(erpSoa, materialLot, warehouse, date, productType, MLotCodePrint.BOX_LABEL, new Integer(2));
                     // 一般物料标签
                     printService.PrintGeneralMLotLabel(Lists.newArrayList(boxParamaterMap));
 
                     for(MaterialLot packageMLot : packageMLotList){
-                        Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSo, packageMLot);
+                        Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSoa, packageMLot);
                         parameterMapList.add(parameterMap);
                     }
                 } else {
-                    Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSo, materialLot);
+                    Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSoa, materialLot);
                     parameterMapList.add(parameterMap);
                 }
             } else if(MLotCodePrint.GUANGBAO_VBOX_LABEL.equals(printType)){
-                Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSo, materialLot);
+                Map<String, String> parameterMap = getGuangBaoVboxMLotPrintParamater(erpSoa, materialLot);
                 parameterMapList.add(parameterMap);
             } else if(MLotCodePrint.COB_GUANGBAO_LABEL.equals(printType)){
                 String materialDesc = StringUtils.EMPTY;
@@ -6286,7 +6288,7 @@ public class GcServiceImpl implements GcService {
                 if(StringUtils.isNullOrEmpty(materialDesc)){
                     throw new ClientParameterException(GcExceptions.MATERIAL_NAME_DESCRIPTION_IS_NOT_CONFIGURED, materialLot.getMaterialName());
                 }
-                Map<String, String> parameterMap = getCOBGuangBaoMLotPrintParamater(erpSo, materialLot, materialDesc);
+                Map<String, String> parameterMap = getCOBGuangBaoMLotPrintParamater(erpSoa, materialLot, materialDesc);
                 parameterMapList.add(parameterMap);
             } else if(MLotCodePrint.HUATIAN_LABEL.equals(printType)){
                 String huaTianPrintSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_HUATIAN_LABEL_PRINT_SEQ_RULE);
@@ -6295,11 +6297,11 @@ public class GcServiceImpl implements GcService {
                 String effectiveDate = formatter.format(calendar.getTime());
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
                     for(MaterialLot packageMLot : packageMLotList){
-                        Map<String, String> parameterMap = getHuaTianMLotPrintParamater(erpSo, packageMLot, warehouse, huaTianPrintSeq, productType, date, effectiveDate);
+                        Map<String, String> parameterMap = getHuaTianMLotPrintParamater(erpSoa, packageMLot, warehouse, huaTianPrintSeq, productType, date, effectiveDate);
                         parameterMap.put("printCount", "1");
                         parameterMapList.add(parameterMap);
                     }
-                    Map<String, String> parameterMap = getHuaTianMLotPrintParamater(erpSo, materialLot, warehouse, huaTianPrintSeq, productType, date, effectiveDate);
+                    Map<String, String> parameterMap = getHuaTianMLotPrintParamater(erpSoa, materialLot, warehouse, huaTianPrintSeq, productType, date, effectiveDate);
                     parameterMap.put("printCount", "2");
                     parameterMapList.add(parameterMap);
                 }
@@ -6309,7 +6311,7 @@ public class GcServiceImpl implements GcService {
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
                     String seq = generatorMLotsTransId(MLotCodePrint.GENERATOR_SHENGTAI_LABEL_PRINT_SEQ_RULE);
                     seq = seq.substring(2,6) + seq.substring(8,11);
-                    Map<String, String> boxParameterMap = getGeneralMLotPrintParamater(erpSo, materialLot, warehouse, date, productType, MLotCodePrint.BOX_LABEL, new Integer(2));
+                    Map<String, String> boxParameterMap = getGeneralMLotPrintParamater(erpSoa, materialLot, warehouse, date, productType, MLotCodePrint.BOX_LABEL, new Integer(2));
                     printService.PrintGeneralMLotLabel(Lists.newArrayList(boxParameterMap));
 
                     for (MaterialLot packageMLot : packageMLotList) {
@@ -6329,7 +6331,7 @@ public class GcServiceImpl implements GcService {
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
                     String boxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BYD_BOX_LABEL_PRINT_SEQ_RULE).substring(6, 10);
                     for (MaterialLot packageMLot : packageMLotList) {
-                        Map<String, String> parameterMap = getBYDMLotPrintParamater(erpSo, packageMLot, productType, date);
+                        Map<String, String> parameterMap = getBYDMLotPrintParamater(erpSoa, packageMLot, productType, date);
                         String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_BYD_VBOX_LABEL_PRINT_SEQ_RULE).substring(7, 11);
                         //截取箱号数字起6位作为标签号
                         String vboxLabelId = getLabelIdByMLotId(packageMLot.getMaterialLotId());
@@ -6337,36 +6339,39 @@ public class GcServiceImpl implements GcService {
                         parameterMap.put("printCount", "1");
                         parameterMapList.add(parameterMap);
                     }
-                    Map<String, String> parameterMap = getBYDMLotPrintParamater(erpSo, materialLot, productType, date);
+                    Map<String, String> parameterMap = getBYDMLotPrintParamater(erpSoa, materialLot, productType, date);
                     String boxLabelId = getLabelIdByMLotId(materialLot.getMaterialLotId());
                     parameterMap.put("STRLABEL", strLabel + boxLabelId + boxSeq);
                     parameterMap.put("printCount", "2");
                     parameterMapList.add(parameterMap);
                 }
             } else if(MLotCodePrint.XLGD_BOX_LABEL.equals(printType)){
-                Map<String, String> parameterMap = getXLGDMLotPrintParamater(erpSo, materialLot, productType);
+                Map<String, String> parameterMap = getXLGDMLotPrintParamater(erpSoa, materialLot, productType);
                 parameterMapList.add(parameterMap);
             } else if(MLotCodePrint.SHUN_YU_LABEL.equals(printType)){
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())) {
                     for (MaterialLot packageMLot : packageMLotList) {
-                        Map<String, String> parameterMap = getShunYuMLotPrintParamater(erpSo, packageMLot, productType);
+                        Map<String, String> parameterMap = getShunYuMLotPrintParamater(erpSoa, packageMLot, productType);
                         //截取箱号数字起6位作为生产批号
                         String batchNumber = getLabelIdByMLotId(packageMLot.getMaterialLotId());
                         parameterMap.put("BATCHNUMBER",  batchNumber );
                         parameterMap.put("printCount", "1");
                         parameterMapList.add(parameterMap);
                     }
-                    Map<String, String> parameterMap = getShunYuMLotPrintParamater(erpSo, materialLot, productType);
+                    Map<String, String> parameterMap = getShunYuMLotPrintParamater(erpSoa, materialLot, productType);
                     String batchNumber = getLabelIdByMLotId(materialLot.getMaterialLotId());
                     parameterMap.put("BATCHNUMBER", batchNumber);
                     parameterMap.put("printCount", "2");
                     parameterMapList.add(parameterMap);
                 }
             } else if (MLotCodePrint.ZHONG_KONG_LABEL.equals(printType)){
-                Map<String, String> parameterMap = getZhongKongMLotPrintParamater(erpSo, materialLot, date);
+                Map<String, String> parameterMap = getZhongKongMLotPrintParamater(erpSoa, materialLot, date);
                 parameterMapList.add(parameterMap);
             } else if(MLotCodePrint.XING_ZHI_MLOT_LABEL.equals(printType)){
-                Map<String, String> parameterMap = getXingZhiMLotPrintParamater(erpSo, materialLot, date);
+                Map<String, String> parameterMap = getXingZhiMLotPrintParamater(erpSoa, materialLot, date);
+                parameterMapList.add(parameterMap);
+            } else if(MLotCodePrint.LONGTEN_MLOT_LABEL.equals(printType)){
+                Map<String, String> parameterMap = getLongTenMLotPrintParamater(erpSoa, materialLot, date);
                 parameterMapList.add(parameterMap);
             }
             return parameterMapList;
@@ -6375,24 +6380,46 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    private Map<String,String> getXingZhiMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String date) throws ClientException{
+    /**
+     * 龙腾光电标签
+     * @param materialLot
+     * @param date
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,String> getLongTenMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, String date) throws ClientException{
+        try {
+            Map<String, String> parameterMap = Maps.newHashMap();
+            parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+            parameterMap.put("NUM", materialLot.getCurrentQty().toString());
+            parameterMap.put("SALEID", erpSoa.getSaleId());
+            parameterMap.put("DATE", date);
+            parameterMap.put("VENDER", materialLot.getReserved22());
+            parameterMap.put("portId", MLotCodePrint.LONGTEN_PORTID);
+            return parameterMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    private Map<String,String> getXingZhiMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, String date) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             String printSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_XINZHI_MLOT_LABEL_PRINT_SEQ_RULE).substring(8, 11);
             SimpleDateFormat formatter = new SimpleDateFormat(MLotCodePrint.SHUNYU_PRINT_DATE_PATTERN);
             String createDate = formatter.format(materialLot.getCreated());
-            parameterMap.put("STRPONO", erpSo.getCcode());
+            parameterMap.put("STRPONO", erpSoa.getSocode());
             parameterMap.put("STRPL", date + printSeq);
             parameterMap.put("STRBOXID", materialLot.getMaterialLotId());
             parameterMap.put("STRWEIGHT", "/");
-            String materialCode = erpSo.getOther16();
+            String materialCode = erpSoa.getOther16();
             if(StringUtils.isNullOrEmpty(materialCode)){
                 materialCode = "/";
             }
             parameterMap.put("STRPN", materialCode);
             parameterMap.put("STRDC", createDate);
             parameterMap.put("STRTOTALQTY", materialLot.getCurrentQty().toString());
-            String poNo = StringUtil.rightPad(erpSo.getCcode() , 30 , "@");
+            String poNo = StringUtil.rightPad(erpSoa.getSocode() , 30 , "@");
             String strPL = StringUtil.rightPad(date + printSeq , 20 , "@");
             String strPN = StringUtil.rightPad(materialCode , 25 , "@");
             String origin = StringUtil.rightPad(MLotCodePrint.ORIGIN , 9 , "@");
@@ -6420,22 +6447,22 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 中控智慧标签
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @param date
      * @return
      * @throws ClientException
      */
-    private Map<String,String> getZhongKongMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String date) throws ClientException{
+    private Map<String,String> getZhongKongMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, String date) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
-            parameterMap.put("NUMBER", erpSo.getOther16());
+            parameterMap.put("NUMBER", erpSoa.getOther16());
             parameterMap.put("PRODUCTNAME", materialLot.getMaterialName());
             parameterMap.put("NUM", materialLot.getCurrentQty().toString());
             parameterMap.put("BOXID", materialLot.getMaterialLotId());
             parameterMap.put("DATE", date);
-            parameterMap.put("ADDRESS", erpSo.getOther19());
-            String qrCode = ",," + materialLot.getCurrentQty().toString() + ",,,,ICGKW004A," + erpSo.getOther16() + "," + materialLot.getMaterialName() + ",," + date + ",";
+            parameterMap.put("ADDRESS", erpSoa.getShipAddress());
+            String qrCode = ",," + materialLot.getCurrentQty().toString() + ",,,,ICGKW004A," + erpSoa.getOther16() + "," + materialLot.getMaterialName() + ",," + date + ",";
             parameterMap.put("QRCODE", qrCode);
             parameterMap.put("portId", MLotCodePrint.ZHONG_KONG_PORTID);
             parameterMap.put("printCount", "2");
@@ -6447,12 +6474,12 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 信利光电标签打印
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @return
      * @throws ClientException
      */
-    private Map<String,String> getShunYuMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String productType) throws ClientException{
+    private Map<String,String> getShunYuMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, String productType) throws ClientException{
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             Map<String, String> parameterMap = Maps.newHashMap();
@@ -6466,7 +6493,7 @@ public class GcServiceImpl implements GcService {
                 batchNumber = materialLotId.substring(materialLotId.length() - 9, materialLotId.length() - 3);
             }
             parameterMap.put("NAME", productType);
-            parameterMap.put("CLIENTNAME", erpSo.getOther16());
+            parameterMap.put("CLIENTNAME", erpSoa.getOther16());
             parameterMap.put("USERID", sc.getUsername());
             parameterMap.put("DATE", createDate);
             parameterMap.put("BATCHNUMBER", batchNumber);
@@ -6481,12 +6508,12 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 信利光电标签打印
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @return
      * @throws ClientException
      */
-    private Map<String,String> getXLGDMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String productType) throws ClientException{
+    private Map<String,String> getXLGDMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, String productType) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             SimpleDateFormat formatter = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
@@ -6496,8 +6523,8 @@ public class GcServiceImpl implements GcService {
             calendar.add(Calendar.MONTH, +6);
             String effectiveDate = formatter.format(calendar.getTime());
             String createDate = formatter.format(materialLot.getCreated());
-            parameterMap.put("STRORDERNUMBER", erpSo.getCcode());
-            parameterMap.put("STRCODE", erpSo.getOther16());
+            parameterMap.put("STRORDERNUMBER", erpSoa.getSocode());
+            parameterMap.put("STRCODE", erpSoa.getOther16());
             parameterMap.put("STRQUANTITY", materialLot.getCurrentQty().toString());
             parameterMap.put("STRBATCH", materialLot.getReserved1());
             parameterMap.put("STRTRADETYPE", MLotCodePrint.XLGD_TRADETYPE);
@@ -6507,8 +6534,8 @@ public class GcServiceImpl implements GcService {
             parameterMap.put("STRDATE", effectiveDate);
             parameterMap.put("STRBRAND", MLotCodePrint.XLGD_BRAND);
             parameterMap.put("STRBBOXID", materialLot.getMaterialLotId());
-            String strQrCode = erpSo.getOther16() + StringUtils.SEMICOLON_CODE + materialLot.getCurrentQty().toString() +StringUtils.SEMICOLON_CODE + materialLot.getReserved1() +
-                    StringUtils.SEMICOLON_CODE + createDate + StringUtils.SEMICOLON_CODE + effectiveDate + StringUtils.SEMICOLON_CODE + "GALAXYCORE.INC;" + erpSo.getCcode();
+            String strQrCode = erpSoa.getOther16() + StringUtils.SEMICOLON_CODE + materialLot.getCurrentQty().toString() +StringUtils.SEMICOLON_CODE + materialLot.getReserved1() +
+                    StringUtils.SEMICOLON_CODE + createDate + StringUtils.SEMICOLON_CODE + effectiveDate + StringUtils.SEMICOLON_CODE + "GALAXYCORE.INC;" + erpSoa.getSocode();
             parameterMap.put("STRQRCODE", strQrCode);
             parameterMap.put("portId", MLotCodePrint.XLGD_PORTID);
             parameterMap.put("printCount", "2");
@@ -6538,19 +6565,19 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 比亚迪内箱标签
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @param productType
      * @param date
      * @return
      * @throws ClientException
      */
-    private Map<String,String> getBYDMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String productType, String date) throws ClientException{
+    private Map<String,String> getBYDMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, String productType, String date) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             parameterMap.put("STRCODING", productType);
             parameterMap.put("STRDESCRIPTION", materialLot.getMaterialDesc());
-            parameterMap.put("STRCLIENT", erpSo.getOther16());
+            parameterMap.put("STRCLIENT", erpSoa.getOther16());
             parameterMap.put("STRDATE", date);
             parameterMap.put("STRBATCH", materialLot.getMaterialLotId());
             parameterMap.put("STRNUM", materialLot.getCurrentQty().toString() + "/PCS");
@@ -6617,7 +6644,7 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 华天标签打印
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @param warehouse
      * @param huaTianPrintSeq
@@ -6627,11 +6654,11 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    private Map<String,String> getHuaTianMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, Warehouse warehouse, String huaTianPrintSeq,
+    private Map<String,String> getHuaTianMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, Warehouse warehouse, String huaTianPrintSeq,
                                                             String productType, String stockOutDate, String effectiveDate) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
-            parameterMap.put("CODE", erpSo.getOther16());
+            parameterMap.put("CODE", erpSoa.getOther16());
             if(warehouse.getName().equals(WAREHOUSE_HK)){
                 parameterMap.put("SUPPLIERNAME", MLotCodePrint.HK_SUPPLIER);
             } else {
@@ -6642,7 +6669,7 @@ public class GcServiceImpl implements GcService {
             parameterMap.put("DATE2", effectiveDate);
             parameterMap.put("NUM", materialLot.getCurrentQty().toString());
             parameterMap.put("DATE", stockOutDate);
-            parameterMap.put("ID", erpSo.getCcode());
+            parameterMap.put("ID", erpSoa.getSocode());
             parameterMap.put("portId", MLotCodePrint.COB_HUATIAN_PORTID);
             return parameterMap;
         } catch (Exception e) {
@@ -6652,12 +6679,12 @@ public class GcServiceImpl implements GcService {
 
     /**
      * COB光宝标签打印
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @return
      * @throws ClientException
      */
-    private Map<String,String> getCOBGuangBaoMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String materialDesc) throws ClientException{
+    private Map<String,String> getCOBGuangBaoMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, String materialDesc) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             String seq = generatorMLotsTransId(MLotCodePrint.GENERATOR_GUANGBAO_VBOX_LABEL_PRINT_SEQ_RULE).substring(2, 13);
@@ -6671,13 +6698,13 @@ public class GcServiceImpl implements GcService {
             //十进制转36进制
             reelId = reelId + month + StringUtil.leftPad(tenTo36(cobMonthSeq) , 6 , "0");
 
-            parameterMap.put("PARTNUM", erpSo.getOther16());
+            parameterMap.put("PARTNUM", erpSoa.getOther16());
             parameterMap.put("MATERIALDESC", materialDesc);
             parameterMap.put("DATECODE", date);
             parameterMap.put("LOTNO", seq);
             parameterMap.put("QUANTITY", materialLot.getCurrentQty().toString());
             parameterMap.put("REELID", reelId);
-            parameterMap.put("CODE", "P" + erpSo.getOther16() + StringUtils.SEMICOLON_CODE + "D" + date + StringUtils.SEMICOLON_CODE + "L" + seq + StringUtils.SEMICOLON_CODE
+            parameterMap.put("CODE", "P" + erpSoa.getOther16() + StringUtils.SEMICOLON_CODE + "D" + date + StringUtils.SEMICOLON_CODE + "L" + seq + StringUtils.SEMICOLON_CODE
                     + "VI50111" + "Q" + materialLot.getCurrentQty().toString()+ StringUtils.SEMICOLON_CODE + "R" + reelId + StringUtils.SEMICOLON_CODE + "U000000");
             parameterMap.put("portId", MLotCodePrint.COB_GUANGBAO_PORTID);
             parameterMap.put("printCount", "2");
@@ -6697,12 +6724,12 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 光宝真空包打印参数
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @return
      * @throws ClientException
      */
-    private Map<String,String> getGuangBaoVboxMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot) throws ClientException{
+    private Map<String,String> getGuangBaoVboxMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             String vboxSeq = generatorMLotsTransId(MLotCodePrint.GENERATOR_GUANGBAO_VBOX_LABEL_PRINT_SEQ_RULE).substring(2, 13);
@@ -6715,13 +6742,13 @@ public class GcServiceImpl implements GcService {
             //十进制转36进制
             reelId = reelId + month + StringUtil.leftPad(tenTo36(monthSeq) , 6 , "0");
 
-            parameterMap.put("PARTNUM", erpSo.getOther16());
+            parameterMap.put("PARTNUM", erpSoa.getOther16());
             parameterMap.put("DATECODE", date);
             parameterMap.put("LOTNO", vboxSeq);
             parameterMap.put("QUANTITY", materialLot.getCurrentQty().toString());
             parameterMap.put("REELID", reelId);
             parameterMap.put("WAFERID", materialLot.getMaterialLotId());
-            parameterMap.put("CODE", "P" + erpSo.getOther16() + StringUtils.SEMICOLON_CODE + "D" + date + StringUtils.SEMICOLON_CODE + "L" + vboxSeq + StringUtils.SEMICOLON_CODE
+            parameterMap.put("CODE", "P" + erpSoa.getOther16() + StringUtils.SEMICOLON_CODE + "D" + date + StringUtils.SEMICOLON_CODE + "L" + vboxSeq + StringUtils.SEMICOLON_CODE
                     + "VI50111" + "Q" + materialLot.getCurrentQty().toString()+ StringUtils.SEMICOLON_CODE + "R" + reelId + StringUtils.SEMICOLON_CODE + "U000000");
             parameterMap.put("portId", MLotCodePrint.GUANGBAO_VBOX_PORTID);
             parameterMap.put("printCount", "1");
@@ -6751,7 +6778,7 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 欧菲光物料标签
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @param startDate
      * @param date
@@ -6759,12 +6786,12 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    private Map<String,String> getOphelionMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String startDate, String date,String endDate,String effectiveDate,String expirationDate, String printSeq) throws ClientException{
+    private Map<String,String> getOphelionMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, String startDate, String date,String endDate,String effectiveDate,String expirationDate, String printSeq) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             parameterMap.put("SUPPLIERCODE", MLotCodePrint.SUPPLIER_CODE);
-            parameterMap.put("ORDERID", erpSo.getCcode());
-            parameterMap.put("MATERIALCODE", erpSo.getOther16());
+            parameterMap.put("ORDERID", erpSoa.getSocode());
+            parameterMap.put("MATERIALCODE", erpSoa.getOther16());
             parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
             parameterMap.put("MLOTID", materialLot.getMaterialLotId());
             parameterMap.put("STARTDATE", startDate);
@@ -6774,7 +6801,7 @@ public class GcServiceImpl implements GcService {
             if(expirationDate.endsWith("0229")){
                 expirationDate = expirationDate.substring(0,2) + "0228";
             }
-            String code = MLotCodePrint.SUPPLIER_CODE + "|"  + erpSo.getOther16() + "|" + materialLot.getMaterialLotId() + "|"
+            String code = MLotCodePrint.SUPPLIER_CODE + "|"  + erpSoa.getOther16() + "|" + materialLot.getMaterialLotId() + "|"
                     + materialLot.getCurrentQty().toString() + "|"  + effectiveDate + "|" + expirationDate + "|" + printSeq;
             parameterMap.put("CODE", code);
             parameterMap.put("portId", MLotCodePrint.OPHELION_MLOT_PORTID);
@@ -6787,7 +6814,7 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 一般物料标签/光宝箱标签 参数
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @param warehouse
      * @param date
@@ -6795,19 +6822,19 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    private Map<String,String> getGeneralMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot,Warehouse warehouse,
+    private Map<String,String> getGeneralMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot,Warehouse warehouse,
                                                             String date, String productType, String labelName, Integer printCount) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
-            parameterMap.put("CUSTOMER", erpSo.getCusname());
-            parameterMap.put("MLOTCODE", erpSo.getOther16());
+            parameterMap.put("CUSTOMER", erpSoa.getCusname());
+            parameterMap.put("MLOTCODE", erpSoa.getOther16());
             if(warehouse.getName().equals(WAREHOUSE_HK)){
                 parameterMap.put("SUPPLIER", MLotCodePrint.HK_SUPPLIER);
             } else {
                 parameterMap.put("SUPPLIER", MLotCodePrint.SH_SUPPLIER);
             }
             parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
-            parameterMap.put("ORDERID", erpSo.getCcode());
+            parameterMap.put("ORDERID", erpSoa.getSocode());
             parameterMap.put("OUTDATE", date);
             parameterMap.put("DELIVERYPLACE", MLotCodePrint.DELIVERY_PLACE);
             parameterMap.put("PRODUCTTYPE", productType);
@@ -6825,30 +6852,30 @@ public class GcServiceImpl implements GcService {
 
     /**
      * 百辰物料标签参数
-     * @param erpSo
+     * @param erpSoa
      * @param materialLot
      * @param vboxSeq
      * @return
      * @throws ClientException
      */
-    private Map<String, String> getBaiChenMLotPrintParamater(ErpSo erpSo, MaterialLot materialLot, String vboxSeq,String ponoPrefix) throws ClientException{
+    private Map<String, String> getBaiChenMLotPrintParamater(ErpSoa erpSoa, MaterialLot materialLot, String vboxSeq,String ponoPrefix) throws ClientException{
         try {
             Map<String, String> parameterMap = Maps.newHashMap();
             SimpleDateFormat formatter = new SimpleDateFormat(MLotCodePrint.DATE_PATTERN);
-            parameterMap.put("MATERIALCODE", erpSo.getOther16());
+            parameterMap.put("MATERIALCODE", erpSoa.getOther16());
             parameterMap.put("SHIPCODE", MLotCodePrint.SHIP_CODE);
             parameterMap.put("DATEDAY", formatter.format(new Date()));
             parameterMap.put("SERIALCODE", vboxSeq);
-            parameterMap.put("TWODCODE1", erpSo.getOther16() + MLotCodePrint.SHIP_CODE + formatter.format(new Date()) + vboxSeq);
+            parameterMap.put("TWODCODE1", erpSoa.getOther16() + MLotCodePrint.SHIP_CODE + formatter.format(new Date()) + vboxSeq);
 
             String packageQty = StringUtil.leftPad(materialLot.getCurrentQty().toString() , 8 , "0");
             parameterMap.put("PONOPREFIX", ponoPrefix);
-            parameterMap.put("PONO", erpSo.getOther10());
+            parameterMap.put("PONO", erpSoa.getOther10());
             parameterMap.put("PACKAGEQTY", packageQty);
-            parameterMap.put("TWODCODE2", ponoPrefix + erpSo.getOther10() + packageQty);
+            parameterMap.put("TWODCODE2", ponoPrefix + erpSoa.getOther10() + packageQty);
 
-            parameterMap.put("MEMO", erpSo.getOther16());
-            parameterMap.put("TWODCODE3", erpSo.getOther16());
+            parameterMap.put("MEMO", erpSoa.getOther16());
+            parameterMap.put("TWODCODE3", erpSoa.getOther16());
 
             formatter = new SimpleDateFormat(MaterialLot.PRINT_DATE_PATTERN);
             parameterMap.put("DATEMONTH", formatter.format(new Date()));
@@ -6866,7 +6893,7 @@ public class GcServiceImpl implements GcService {
      * @param reserved16
      * @return
      */
-    private ErpSo getErpSoByReserved16(String reserved16) throws ClientException{
+    private ErpSoa getErpSoaByReserved16(String reserved16) throws ClientException{
         try {
             long documentLineRrn = Long.parseLong(reserved16);
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
@@ -6876,8 +6903,8 @@ public class GcServiceImpl implements GcService {
             if(DocumentLine.DOC_MERGE.equals(documentLine.getMergeDoc())){
                 seq = Long.parseLong(documentLine.getReserved32());
             }
-            ErpSo erpSo = erpSoRepository.findBySeq(seq);
-            return erpSo;
+            ErpSoa erpSoa = erpSoaOrderRepository.findBySeq(seq);
+            return erpSoa;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

@@ -1607,5 +1607,13 @@ public class PrintServiceImpl implements PrintService {
         }
     }
 
+    @Override
+    public void printLongTenMLotLabel(List<Map<String, String>> mapList) throws ClientException {
+        for(Map<String, String> map : mapList){
+            PrintContext printContext = buildMaterialCodePrintContext(map, LabelTemplate.PRINT_LONGTEN_MLOT_LABEL);
+            print(printContext);
+        }
+    }
+
 
 }
