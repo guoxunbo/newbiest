@@ -443,13 +443,13 @@ public class GcServiceImpl implements GcService {
                 materialLot.setReserved52(documentLine.getReserved20());
                 materialLot.setReserved53(documentLine.getReserved21());
                 if(ErpSoa.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
-                    if(customerAddressMap.containsKey(documentLine.getReserved8())){
-                        List<NBOwnerReferenceList> customerNameList = customerAddressMap.get(documentLine.getReserved8());
+                    if(customerAddressMap.containsKey(documentLine.getReserved12())){
+                        List<NBOwnerReferenceList> customerNameList = customerAddressMap.get(documentLine.getReserved12());
                         materialLot.setReserved55(customerNameList.get(0).getValue());
-                    } else if(StringUtils.isNullOrEmpty(documentLine.getReserved15())){
-                        materialLot.setReserved55(documentLine.getReserved8() + "("+ documentLine.getReserved15().substring(0, 2)+")");
+                    } else if(!StringUtils.isNullOrEmpty(documentLine.getReserved15()) && documentLine.getReserved15().length() > 2){
+                        materialLot.setReserved55(documentLine.getReserved12() + "("+ documentLine.getReserved15().substring(0, 2)+")");
                     } else {
-                        materialLot.setReserved55(documentLine.getReserved8());
+                        materialLot.setReserved55(documentLine.getReserved12());
                     }
                 }
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
@@ -11381,37 +11381,41 @@ public class GcServiceImpl implements GcService {
      * @return
      * @throws ClientException
      */
-    public List<MaterialLot> getMaterialLotsByImportFileAndNbTable(List<MaterialLot> materialLotList, NBTable nbTable) throws ClientException{
+    public List<MaterialLot> getMaterialLotsByImportFileAndNbTable(List<MaterialLot> materialLotList, NBTable nbTable, String queryParentBoxFlag) throws ClientException{
         try {
             List<MaterialLot> materialLots = Lists.newArrayList();
             String orderBy = nbTable.getOrderBy();
-            String queryLotId = StringUtils.EMPTY;
+            String queryMLotId = StringUtils.EMPTY;
             for(MaterialLot materialLot : materialLotList){
                 String whereClause = nbTable.getWhereClause();
                 StringBuffer clauseBuffer = new StringBuffer(whereClause);
                 if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
-                    queryLotId = materialLot.getParentMaterialLotId();
-                    clauseBuffer.append(" AND materialLotId = ");
-                    clauseBuffer.append("'" + queryLotId + "'");
+                    queryMLotId = materialLot.getParentMaterialLotId();
+                    if(StringUtils.isNullOrEmpty(queryParentBoxFlag)){
+                        clauseBuffer.append(" AND materialLotId = ");
+                    } else {
+                        clauseBuffer.append(" AND parentMaterialLotId = ");
+                    }
+                    clauseBuffer.append("'" + queryMLotId + "'");
                 } else if(!StringUtils.isNullOrEmpty(materialLot.getMaterialLotId())){
-                    queryLotId = materialLot.getMaterialLotId();
+                    queryMLotId = materialLot.getMaterialLotId();
                     clauseBuffer.append(" AND materialLotId = ");
-                    clauseBuffer.append("'" + queryLotId + "'");
-                } else if(!StringUtils.isNullOrEmpty(materialLot.getLotId())){
-                    queryLotId = materialLot.getLotId();
-                    clauseBuffer.append(" AND lotId = ");
-                    clauseBuffer.append("'" + materialLot.getLotId() + "'");
+                    clauseBuffer.append("'" + queryMLotId + "'");
                 } else if(!StringUtils.isNullOrEmpty(materialLot.getDurable())){
-                    queryLotId = materialLot.getDurable();
+                    queryMLotId = materialLot.getDurable();
                     clauseBuffer.append(" AND durable = ");
                     clauseBuffer.append("'" + materialLot.getDurable() + "'");
-                } else {
+                }  else if(!StringUtils.isNullOrEmpty(materialLot.getLotId())){
+                    queryMLotId = materialLot.getLotId();
+                    clauseBuffer.append(" AND lotId = ");
+                    clauseBuffer.append("'" + materialLot.getLotId() + "'");
+                }  else {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_IMPORT_FILE_IS_ERRROR);
                 }
                 whereClause = clauseBuffer.toString();
                 List<MaterialLot> mLotList = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause, orderBy);
                 if(CollectionUtils.isEmpty(mLotList)){
-                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, queryLotId);
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, queryMLotId);
                 } else {
                     if(!StringUtils.isNullOrEmpty(materialLot.getLotId())  && materialLot.getLotId().startsWith(PRE_FIX_GCB)){
                         materialLots.addAll(mLotList);
