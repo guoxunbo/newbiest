@@ -11,6 +11,8 @@ public class MaterialLotImportSearchRequestBody extends RequestBody {
 	
 	private static final long serialVersionUID = 1L;
 
+	public static final String BBOX_IMPORT_QUERY = "BBOXQueryFlag";
+
 	@ApiModelProperty(value = "操作类型", example = "Hold/Release")
 	private String actionType;
 
