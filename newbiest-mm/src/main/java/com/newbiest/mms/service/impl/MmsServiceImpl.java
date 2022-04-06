@@ -206,8 +206,6 @@ public class MmsServiceImpl implements MmsService {
                 rawMaterial.setActiveTime(new Date());
                 rawMaterial.setActiveUser(sc.getUsername());
                 rawMaterial.setStatus(NBVersionControl.STATUS_ACTIVE);
-                Long version = versionControlService.getNextVersion(rawMaterial);
-                rawMaterial.setVersion(version);
 
                 rawMaterial = (RawMaterial) modelRepository.saveAndFlush(rawMaterial);
                 if (nbHis != null) {
@@ -219,9 +217,9 @@ public class MmsServiceImpl implements MmsService {
                     saveMaterialName(rawMaterial.getName());
                 }
             } else {
-                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(rawMaterial.getObjectRrn());
+//                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(rawMaterial.getObjectRrn());
                 // 不可改变状态
-                rawMaterial.setStatus(oldData.getStatus());
+                rawMaterial.setStatus(NBVersionControl.STATUS_ACTIVE);
                 rawMaterial = (RawMaterial) modelRepository.saveAndFlush(rawMaterial);
 
                 if (nbHis != null) {
@@ -286,8 +284,6 @@ public class MmsServiceImpl implements MmsService {
                 product.setActiveTime(new Date());
                 product.setActiveUser(sc.getUsername());
                 product.setStatus(NBVersionControl.STATUS_ACTIVE);
-                Long version = versionControlService.getNextVersion(product);
-                product.setVersion(version);
 
                 product = (Product) modelRepository.saveAndFlush(product);
                 if (nbHis != null) {
@@ -297,9 +293,9 @@ public class MmsServiceImpl implements MmsService {
                 }
                 saveMaterialName(product.getName());
             } else {
-                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(product.getObjectRrn());
+//                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(product.getObjectRrn());
                 // 不可改变状态
-                product.setStatus(oldData.getStatus());
+                product.setStatus(NBVersionControl.STATUS_ACTIVE);
                 product = (Product) modelRepository.saveAndFlush(product);
 
                 if (nbHis != null) {
@@ -336,8 +332,6 @@ public class MmsServiceImpl implements MmsService {
                 parts.setActiveTime(new Date());
                 parts.setActiveUser(sc.getUsername());
                 parts.setStatus(NBVersionControl.STATUS_ACTIVE);
-                Long version = versionControlService.getNextVersion(parts);
-                parts.setVersion(version);
 
                 parts = (Parts) modelRepository.saveAndFlush(parts);
                 if (nbHis != null) {
@@ -346,9 +340,9 @@ public class MmsServiceImpl implements MmsService {
                     historyRepository.save(nbHis);
                 }
             } else {
-                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(parts.getObjectRrn());
+//                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(parts.getObjectRrn());
                 // 不可改变状态
-                parts.setStatus(oldData.getStatus());
+                parts.setStatus(NBVersionControl.STATUS_ACTIVE);
                 parts = (Parts) modelRepository.saveAndFlush(parts);
 
                 if (nbHis != null) {

@@ -16,6 +16,8 @@ public class MaterialLotImportSearchRequest extends Request {
 
 	public static final String ACTION_TYPE_IMPORT_QUERY_MLOT_UNIT = "ImportQueryMLotUnit";
 
+	public static final String ACTION_TYPE_RW_IMPORT_QUERY_MLOT = "RwImportQueryMLot";
+
 	private MaterialLotImportSearchRequestBody body;
 
 }

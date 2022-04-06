@@ -77,4 +77,7 @@ public interface PrintService {
     //一般物料标签/光宝箱/盛泰箱
     void PrintGeneralMLotLabel(List<Map<String, String>> mapList) throws ClientException;
 
+    //龙腾光电物料标签
+    void printLongTenMLotLabel(List<Map<String, String>> mapList) throws ClientException;
+
 }
