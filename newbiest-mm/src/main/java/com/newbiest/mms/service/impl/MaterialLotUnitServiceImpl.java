@@ -223,7 +223,8 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     }
                 }
             }
-
+            List<MaterialLotUnit> mLotUnits = Lists.newArrayList();
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByReserved48(importCode);
             if(!StringUtils.isNullOrEmpty(resultMessage)){
                 //停止线程
                 for(Future<ImportMLotThreadResult> importCallBack : importCallBackList){
@@ -231,14 +232,30 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         importCallBack.cancel(true);
                     }
                 }
-                //根据导入编码删除导入数据
-                materialLotUnitRepository.deleteByImportCode(importCode);
-                materialLotRepository.deleteByImportType(importCode);
-                materialLotUnitHisRepository.deleteByImportCode(importCode);
-                materialLotHistoryRepository.deleteByImportCode(importCode);
-                throw new ClientParameterException(resultMessage, maxWaitCount * 0.1);
+                deleteImportMaterialLotUnit(importCode);
+                return mLotUnits;
+            } else if(CollectionUtils.isEmpty(materialLotUnits) || materialLotUnitList.size() != materialLotUnits.size()){
+                deleteImportMaterialLotUnit(importCode);
+                return mLotUnits;
+            } else {
+                return materialLotUnitArrayList;
             }
-            return materialLotUnitArrayList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 导入出现异常，删除重新导入
+     * @param importCode
+     * @throws ClientException
+     */
+    private void deleteImportMaterialLotUnit(String importCode) throws ClientException{
+        try {
+            materialLotUnitRepository.deleteByImportCode(importCode);
+            materialLotRepository.deleteByImportType(importCode);
+            materialLotUnitHisRepository.deleteByImportCode(importCode);
+            materialLotHistoryRepository.deleteByImportCode(importCode);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
