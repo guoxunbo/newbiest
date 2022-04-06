@@ -1869,21 +1869,18 @@ public class GcServiceImpl implements GcService {
     private void receiveWafer(List<DocumentLine> documentLines, List<MaterialLot> materialLots) throws ClientException{
         try {
             documentLines = vlidateDocMergeAndSortDocumentLinesBySeq(documentLines);
-            for (DocumentLine documentLine: documentLines) {
-
-                BigDecimal unhandedQty = documentLine.getUnHandledQty();
-                Map<String, BigDecimal> mLotQty = Maps.newHashMap();
-                for(MaterialLot materialLot : materialLots) {
-                    String importType = materialLot.getReserved49();
-                    if(MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)) {
-                        mLotQty.put(materialLot.getMaterialLotId(), materialLot.getCurrentSubQty());
-                    } else {
-                        mLotQty.put(materialLot.getMaterialLotId(), materialLot.getCurrentQty());
-                    }
+            Map<String, BigDecimal> mLotQty = Maps.newHashMap();
+            for(MaterialLot materialLot : materialLots) {
+                String importType = materialLot.getReserved49();
+                if(MaterialLot.IMPORT_LCD_CP.equals(importType) || MaterialLot.IMPORT_SENSOR_CP.equals(importType) || MaterialLot.IMPORT_WLA.equals(importType)) {
+                    mLotQty.put(materialLot.getMaterialLotId(), materialLot.getCurrentSubQty());
+                } else {
+                    mLotQty.put(materialLot.getMaterialLotId(), materialLot.getCurrentQty());
                 }
-
+            }
+            for (DocumentLine documentLine: documentLines) {
+                BigDecimal unhandedQty = documentLine.getUnHandledQty();
                 Iterator<MaterialLot> iterator = materialLots.iterator();
-
                 while (iterator.hasNext()) {
                     MaterialLot materialLot = iterator.next();
                     String importType = materialLot.getReserved49();

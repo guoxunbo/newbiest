@@ -38,4 +38,7 @@ public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, 
     void deleteByImportCode(@Param("importCode") String importCode) throws ClientException;
 
     MaterialLotUnit findByUnitIdAndStateIn(String unitId, List<String> stateList)  throws ClientException;
+
+    List<MaterialLotUnit> findByReserved48(@Param("reserved48") String reserved48) throws ClientException;
+
 }
