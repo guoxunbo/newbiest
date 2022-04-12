@@ -63,9 +63,13 @@ public class MaterialLotImportSearchController extends AbstractRestController {
             List<MaterialLotUnit> importMLotUnits = (List) ExcelUtils.importExcel(classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), StringUtils.EMPTY);
             List<MaterialLotUnit> materialLotUnitList = gcService.getMaterialLotUnitListByImportFileAndNbTable(importMLotUnits, nbTable);
             responseBody.setMaterialLotUnitList(materialLotUnitList);
+        } else if(MaterialLotImportSearchRequest.ACTION_TYPE_RW_IMPORT_QUERY_MLOT.equals(actionType)){
+            List<MaterialLot> materialLotList = (List) ExcelUtils.importExcel(classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), StringUtils.EMPTY);
+            List<MaterialLot> materialLots = gcService.getMaterialLotsByImportFileAndNbTable(materialLotList, nbTable, MaterialLotImportSearchRequestBody.BBOX_IMPORT_QUERY);
+            responseBody.setMaterialLotList(materialLots);
         } else {
             List<MaterialLot> materialLotList = (List) ExcelUtils.importExcel(classLoader.loadClass(nbTable.getModelClass()), fieldMap, file.getInputStream(), StringUtils.EMPTY);
-            List<MaterialLot> materialLots = gcService.getMaterialLotsByImportFileAndNbTable(materialLotList, nbTable);
+            List<MaterialLot> materialLots = gcService.getMaterialLotsByImportFileAndNbTable(materialLotList, nbTable, StringUtils.EMPTY);
             responseBody.setMaterialLotList(materialLots);
         }
         response.setBody(responseBody);

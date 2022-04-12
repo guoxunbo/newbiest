@@ -101,4 +101,9 @@ public class MLotCodePrint {
     public static final String BOXSEQ_START_BZ = "BZ";
     public static final String BOXSEQ_START_BL = "BL";
 
+    //龙腾广电标签
+    public static final String LONGTEN_MLOT_LABEL = "LongTenLabel";
+    public static final String LONGTEN_PORTID = "2013";
+
+
 }

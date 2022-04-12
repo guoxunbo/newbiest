@@ -872,3 +872,12 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCOtherShipReservedManager.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseAddPackageManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseUnboxManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GcSensorRMAImportManager.nb_authority.yaml
+      relativeToChangelogFile: true

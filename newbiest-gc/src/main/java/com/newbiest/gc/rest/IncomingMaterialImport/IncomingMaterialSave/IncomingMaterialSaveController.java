@@ -12,6 +12,7 @@ import com.newbiest.mms.service.MaterialLotUnitService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +55,7 @@ public class IncomingMaterialSaveController {
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             materialLotUnitList = gcService.validateAndSetWaferSource(importType, checkFourCodeFlag, materialLotUnitList);
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
-            importCode = materialLotUnitList.get(0).getReserved48();
+            importCode = CollectionUtils.isEmpty(materialLotUnitList) ? "" :materialLotUnitList.get(0).getReserved48();
         } else if(MaterialLotUnit.SAMSUING_PACKING_LIST.equals(importType) || MaterialLotUnit.LCD_COG_FINISH_PRODUCT.equals(importType)
                 || MaterialLotUnit.SENSOR_RMA_GOOD_PRODUCT.equals(importType) || MaterialLotUnit.WLT_RMA_GOOD_PRODUCT.equals(importType) || MaterialLotUnit.RMA_RETURN.equals(importType) || MaterialLotUnit.RMA_PURE.equals(importType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
@@ -81,7 +82,7 @@ public class IncomingMaterialSaveController {
             materialLotUnitList = gcService.validateAndChangeMaterialNameByImportType(materialLotUnitList, importType);
             materialLotUnitList = gcService.materialLotUnitAssignEng(materialLotUnitList);
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
-            importCode = materialLotUnitList.get(0).getReserved48();
+            importCode = CollectionUtils.isEmpty(materialLotUnitList) ? "" :materialLotUnitList.get(0).getReserved48();
         }
         responseBody.setImportCode(importCode);
         response.setBody(responseBody);
