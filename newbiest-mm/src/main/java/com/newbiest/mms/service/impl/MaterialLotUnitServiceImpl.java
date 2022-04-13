@@ -125,7 +125,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      * @return
      * @throws ClientException
      */
-    public List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
+    public List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList, String returnMaterialFlag) throws ClientException {
         try {
             List<MaterialLotUnit> materialLotUnitArrayList = new ArrayList<>();
             Map<String, List<MaterialLotUnit>> materialUnitIdMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getUnitId));
@@ -232,10 +232,11 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         importCallBack.cancel(true);
                     }
                 }
-                deleteImportMaterialLotUnit(importCode);
+                deleteImportMaterialLotUnit(importCode, returnMaterialFlag);
                 return mLotUnits;
-            } else if(CollectionUtils.isEmpty(materialLotUnits) || materialLotUnitList.size() != materialLotUnits.size()){
-                deleteImportMaterialLotUnit(importCode);
+            } else if(StringUtils.isNullOrEmpty(returnMaterialFlag) &&
+                    (CollectionUtils.isEmpty(materialLotUnits) || materialLotUnitList.size() != materialLotUnits.size())){
+                deleteImportMaterialLotUnit(importCode, returnMaterialFlag);
                 return mLotUnits;
             } else {
                 return materialLotUnitArrayList;
@@ -247,15 +248,18 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
 
     /**
      * 导入出现异常，删除重新导入
+     * 只有正常来料导入的才可以做删除操作，退料导入的不能做删除
      * @param importCode
      * @throws ClientException
      */
-    private void deleteImportMaterialLotUnit(String importCode) throws ClientException{
+    private void deleteImportMaterialLotUnit(String importCode, String returnMaterialFlag) throws ClientException{
         try {
-            materialLotUnitRepository.deleteByImportCode(importCode);
-            materialLotRepository.deleteByImportType(importCode);
-            materialLotUnitHisRepository.deleteByImportCode(importCode);
-            materialLotHistoryRepository.deleteByImportCode(importCode);
+            if(StringUtils.isNullOrEmpty(returnMaterialFlag)){
+                materialLotUnitRepository.deleteByImportCode(importCode);
+                materialLotRepository.deleteByImportType(importCode);
+                materialLotUnitHisRepository.deleteByImportCode(importCode);
+                materialLotHistoryRepository.deleteByImportCode(importCode);
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -317,7 +321,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         }
                     }
                     //重新导入退仓库的晶圆
-                    createMLot(materialLotUnitInfo);
+                    createMLot(materialLotUnitInfo, MaterialLotUnit.COB_RETURN_MATERIAL_IMPORT);
                 }
             }
         } catch (Exception e) {

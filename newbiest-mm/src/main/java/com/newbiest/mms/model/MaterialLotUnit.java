@@ -24,6 +24,7 @@ public class MaterialLotUnit extends NBUpdatable {
 
     //三星等级
     public static final String SAMSUING_GRADE = "A";
+    public static final String COB_RETURN_MATERIAL_IMPORT = "COB_RETURN_MATERIAL";
 
     public static final String MAIN_GRADE = "MAIN";
 
