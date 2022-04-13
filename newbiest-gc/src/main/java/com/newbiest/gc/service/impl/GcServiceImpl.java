@@ -1639,10 +1639,6 @@ public class GcServiceImpl implements GcService {
                 waferIssueWithOutDocument(materialLots);
             }
 
-            //RW的来料发料之后自动打印RW发料标签
-//            List<MaterialLot> rwMaterialLots = materialLots.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getInnerLotId()) && MaterialLot.RW_TO_CP_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
-//            printService.printRwLotIssueLabel(rwMaterialLots, "");
-
             //将晶圆信息保存至Mes backendWaferReceive表中
             mesService.saveBackendWaferReceive(materialLots);
 
@@ -3048,7 +3044,7 @@ public class GcServiceImpl implements GcService {
                     String productCateGory = mesPackedLot.getProductCategory();
                     //WLT产线接收时验证MM_PACKEND_LOT_RELATION表中有没有记录物料编码信息
                     if(!StringUtils.isNullOrEmpty(mesPackedLot.getCstId())){
-                        List<MesPackedLot> mesPackedLotUnits = mesPackedLotRepository.findByCstIdAndPackedStatusAndWaferIdIsNotNull(mesPackedLot.getCstId(), MesPackedLot.PACKED_STATUS_IN);
+                        List<MesPackedLot> mesPackedLotUnits = mesPackedLotRepository.findByCstIdAndPackedStatusAndTypeNotInAndWaferIdIsNotNull(mesPackedLot.getCstId(), MesPackedLot.PACKED_STATUS_IN, Lists.newArrayList(MesPackedLot.PACKED_TYPE_CPCST_PREIN));
                         mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotUnits.get(0).getPackedLotRrn());
                     } else {
                         mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
@@ -3155,13 +3151,7 @@ public class GcServiceImpl implements GcService {
                     }
 
                     if (MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
-                        if (MesPackedLot.REPLACE_FLAG.equals(mesPackedLot.getReplaceFlag())) {
-                            otherReceiveProps.put("sourceProductId", mesPackedLot.getPrintModelId());
-                        }else{
-                            if (mesPackedLot.getProductId().endsWith("-4")) {
-                                otherReceiveProps.put("sourceProductId", mesPackedLot.getProductId().substring(0, mesPackedLot.getProductId().lastIndexOf(StringUtils.SPLIT_CODE)) + "-3.5");
-                            }
-                        }
+                        otherReceiveProps.put("sourceProductId", mesPackedLot.getOrgProductId());
                     }
                     materialLotAction.setPropsMap(otherReceiveProps);
 
@@ -4423,7 +4413,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReserved48(importCode);
                     List<MaterialLotUnit> materialLotUnitList = getMaterialLotUnitList(materialLot);
                     materialLotUnitList = materialLotUnitAssignEng(materialLotUnitList);
-                    materialLotUnitService.createMLot(materialLotUnitList);
+                    materialLotUnitService.createMLot(materialLotUnitList, StringUtils.EMPTY);
                 }
             } else if (importType.equals(MaterialLotUnit.LCD_COG_FINISH_PRODUCT)){
                 //来料导入模板LCD（COG成品-ECRETIVE）数据处理
@@ -4848,6 +4838,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setTreasuryNote(packedLot.getTreasuryNote());
                     materialLotUnit.setSourceProductId(packedLot.getOrgProductId());
                     materialLotUnit.setReceiveQty(BigDecimal.valueOf(packedLot.getQuantity()));
+                    materialLotUnit.setProductType(materialLot.getProductType());
                     materialLotUnit.setReserved1(packedLot.getLevelTwoCode());
                     materialLotUnit.setReserved3(StringUtils.EMPTY);
                     materialLotUnit.setReserved4(materialLot.getReserved6());
@@ -8348,7 +8339,7 @@ public class GcServiceImpl implements GcService {
             //根据出货形态验证出货时消耗的颗数还是片数
             BigDecimal totalQty = BigDecimal.ZERO;
             for(MaterialLot materialLot : materialLotMap.get(materialInfo)){
-                if(MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getMaterialName()) || MaterialLot.STOCKOUT_TYPE_4.equals(materialLot.getMaterialName())){
+                if(materialLot.getMaterialName().endsWith(MaterialLot.STOCKOUT_TYPE_35) || materialLot.getMaterialName().endsWith(MaterialLot.STOCKOUT_TYPE_4)){
                     totalQty = totalQty.add(materialLot.getCurrentQty());
                 } else {
                     totalQty = totalQty.add(materialLot.getCurrentSubQty());
@@ -10469,6 +10460,10 @@ public class GcServiceImpl implements GcService {
                 otherStockOutOrder = otherStockOutOrderRepository.saveAndFlush(otherStockOutOrder);
                 baseService.saveHistoryEntity(otherStockOutOrder, MaterialLotHistory.TRANS_TYPE_SHIP);
                 validateAndUpdateErpSoa(documentLine, handledQty);
+
+                if (SystemPropertyUtils.getConnectMscmFlag()) {
+                    scmService.addScmTracking(documentLine.getDocId(), materialLots);
+                }
             }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
