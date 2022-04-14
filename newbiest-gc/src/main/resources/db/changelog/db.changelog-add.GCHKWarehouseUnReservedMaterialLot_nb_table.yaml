@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCHKWarehouseUnservedMaterialLot_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCHKWarehouseUnservedMaterialLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HKUnReservedMaterialLot
+              description: 香港仓 取消备料
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓取消备料
+              label: HongKongWarehouseUnReservedMLot
