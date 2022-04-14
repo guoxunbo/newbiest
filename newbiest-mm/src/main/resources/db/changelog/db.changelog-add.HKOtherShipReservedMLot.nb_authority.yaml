@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKOtherShipReservedMLotManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKOtherShipReservedMLotManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKOtherShipReservedMLotManager
+              description: 香港仓其他出备货
+              tableName: GCHKOtherShipReservedOrder
+              secondTableName: GCHKOtherShipReservedMLot
+              mobileFlag: N
+              url: /HKWarehouse/OtherShipReservedMLot
+              parentRrn: 2020
+              seqNo: 12
+              image: icon-rule
+              labelZh: 香港仓其他出备货
+              labelEn: HKOtherShipReserved

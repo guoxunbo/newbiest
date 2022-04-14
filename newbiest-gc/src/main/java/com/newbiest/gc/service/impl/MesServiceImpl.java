@@ -204,7 +204,7 @@ public class MesServiceImpl implements MesService {
      * @param materialLots
      * @throws ClientException
      */
-//    @Async
+    @Async
     public void materialLotPlanLot(List<MaterialLot> materialLots) throws ClientException {
         try {
             List<String> vboxIdList = Lists.newArrayList();

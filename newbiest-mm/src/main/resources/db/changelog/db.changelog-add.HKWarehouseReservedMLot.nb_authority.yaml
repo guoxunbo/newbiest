@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseReservedMLotManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKWarehouseReservedMLotManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKWarehouseReservedMLotManager
+              description: 香港仓自动备货
+              tableName: GCHKMLotReservedOrder
+              secondTableName: GCHKWarehouseReservedMLot
+              mobileFlag: N
+              url: /HKWarehouse/ReservedMLot
+              parentRrn: 2020
+              seqNo: 11
+              image: icon-rule
+              labelZh: 香港仓备货
+              labelEn: HKReserved

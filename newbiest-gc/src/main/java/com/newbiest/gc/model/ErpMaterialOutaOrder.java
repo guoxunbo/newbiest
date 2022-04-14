@@ -34,11 +34,6 @@ public class ErpMaterialOutaOrder implements Serializable {
     public static final String TYPE_MV = "MV";
 
     /**
-     * FT重测发料单
-     */
-    public static final String TYPE_RT = "RT";
-
-    /**
      * 未同步
      */
     public static final String SYNC_STATUS_NOT_ASYNC = "0";

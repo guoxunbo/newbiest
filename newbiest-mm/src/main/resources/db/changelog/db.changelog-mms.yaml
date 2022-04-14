@@ -896,3 +896,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HKWarehouseUnReservedMaterialLot.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseReservedMLot.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKOtherShipReservedMLot.nb_authority.yaml
+      relativeToChangelogFile: true
