@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCHKOtherShipReservedOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCHKOtherShipReservedOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCHKOtherShipReservedOrder
+              description: 香港其他出备货单据
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 香港其他出备货单据
+              label: HKOtherShipReservedOrder
+  - changeSet:
+      id: add_GCHKOtherShipReservedMLot_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCHKOtherShipReservedMLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCHKOtherShipReservedMLot
+              description: 香港仓其他出备货批次
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓其他出备货批次
+              label: HKOtherShipReservedMLot

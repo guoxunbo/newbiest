@@ -875,3 +875,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCHKWarehouseUnReservedMaterialLot_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCHKWarehouseReservedMLot_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCHKWarehouseOtherShipReserved_nb_table.yaml
+      relativeToChangelogFile: true
