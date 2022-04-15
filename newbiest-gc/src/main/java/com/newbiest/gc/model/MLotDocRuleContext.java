@@ -35,6 +35,9 @@ public class MLotDocRuleContext implements Serializable {
     private Object sourceObject;
 
     public static final String MERGE_DOC_VALIDATE_RULE_ID = "MergeDocRule";  //单据合并验证规则
+    public static final String FT_RETEST_DOC_VALIDATE_RULE_ID = "FtVboxReTestRule"; //FT真空包重测发料单据验证规则
+    public static final String MATERIAL_NAME = "materialName";
+    public static final String SOURCE_PRODUCT_ID = "sourceProductId";
 
     /**
      * 目标对象
@@ -42,6 +45,8 @@ public class MLotDocRuleContext implements Serializable {
     private Object targetObject;
 
     private List<MaterialLot> materialLotList;
+
+    private String ruleId;
 
     private List<DocumentLine> documentLineList;
 
@@ -88,6 +93,10 @@ public class MLotDocRuleContext implements Serializable {
                     for(MLotDocRuleLine ruleLine : mLotDocRuleLines){
                         try {
                             String fileName = ruleLine.getSourceFiledName();
+                            //FT重测发料产品型号匹配原产品型号，原产品号为空则匹配原型号
+                            if(FT_RETEST_DOC_VALIDATE_RULE_ID.equals(ruleId) && MATERIAL_NAME.equals(fileName) && !StringUtils.isNullOrEmpty(materialLot.getSourceProductId())){
+                                fileName = SOURCE_PRODUCT_ID;
+                            }
                             String[] fileNameArr = fileName.split(",");
                             if(fileNameArr.length > 1){
                                 for(String fileStr : fileNameArr){
@@ -102,8 +111,7 @@ public class MLotDocRuleContext implements Serializable {
                             } else {
                                 Object value = PropertyUtils.getProperty(compareValue, fileName);
                                 if(value == null){
-                                    key.append("");
-                                    key.append(StringUtils.SPLIT_CODE);
+                                    key.append("" + StringUtils.SPLIT_CODE);
                                 } else {
                                     key.append(value.toString());
                                     key.append(StringUtils.SPLIT_CODE);

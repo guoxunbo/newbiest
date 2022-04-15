@@ -5111,7 +5111,7 @@ public class GcServiceImpl implements GcService {
             String mLotId = generatorMLotsTransId(MaterialLot.GENERATOR_MATERIAL_LOT_ID_RULE);
             packedLot.setBoxId(mLotId);
             packedLot.setPackedLotRrn(null);
-            if(MaterialLot.WAREHOUSE_ZJ.equals(materialLot.getReserved13())){
+            if(MaterialLot.ZJ_WAREHOUSE.equals(materialLot.getReserved13())){
                 packedLot.setSubName(MesPackedLot.ZJ_SUB_NAME);
             } else {
                 packedLot.setSubName(MesPackedLot.SH_SUB_NAME);
@@ -9133,6 +9133,7 @@ public class GcServiceImpl implements GcService {
             }
             MLotDocRuleContext mLotDocRuleContext = new MLotDocRuleContext();
             mLotDocRuleContext.setMaterialLotList(materialLots);
+            mLotDocRuleContext.setRuleId(ruleId);
             mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
             materialLotMap = mLotDocRuleContext.validateAndGetMLot();
             return materialLotMap;
