@@ -905,3 +905,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HNWarehouseMaterialLotStockIn.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseMaterialLotWeigh.nb_authority.yaml
+      relativeToChangelogFile: true
