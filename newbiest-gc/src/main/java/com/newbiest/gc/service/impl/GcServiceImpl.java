@@ -1540,7 +1540,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReceiveDate(new Date());
                     materialLot.setMaterial(material);
                     materialLot.setReservedQty(materialLot.getCurrentQty());
-                    materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_FT0);
+                    materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_FT);
                     materialLot.setReserved48(importCode);//导入编码
                     materialLot.setReserved49(MaterialLotUnit.PRODUCT_CATEGORY_FT);
                     materialLot.setReserved50(MaterialLot.FT_WAFER_SOURCE); //10

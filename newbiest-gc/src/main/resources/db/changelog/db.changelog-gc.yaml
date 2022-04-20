@@ -881,3 +881,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCHKWarehouseOtherShipReserved_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseMaterialLotStockIn_nb_table.yaml
+      relativeToChangelogFile: true
