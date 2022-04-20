@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseUnReservedMaterialLotManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HKWarehouseUnReservedMaterialLotManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKUnReservedMaterialLotManager
+              description: 香港仓 取消备货
+              tableName: HKUnReservedMaterialLot
+              mobileFlag: N
+              url: /HKWarehouse/UnReservedMaterialLot
+              parentRrn: 2020
+              seqNo: 14
+              image: icon-rule
+              labelZh: 香港仓取消备货
+              labelEn: HKUnReservedMaterialLot
+

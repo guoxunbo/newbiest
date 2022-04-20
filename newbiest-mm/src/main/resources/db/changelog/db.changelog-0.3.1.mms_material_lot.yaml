@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.3.1
+      author: Youqing Huang
+      remarks: mms_material_lot modify columns type
+      changes:
+        - modifyDataType:
+            tableName: MMS_MATERIAL_LOT
+            columnName: TEST_PURPOSE
+            newDataType: varchar(512)

@@ -99,10 +99,10 @@ public class MesServiceImpl implements MesService {
         try {
             List<String> unitIdList = Lists.newArrayList();
             List<String> rwWaferSourceList = Lists.newArrayList(MaterialLot.SCP_WAFER_SOURCE, MaterialLot.CP_CHANGGE_RW_WAFER_SOURCE, MaterialLot.LCP_WAFER_SOURCE, MaterialLot.RW_WAFER_SOURCE);
+            List<String> productCategoryList = Lists.newArrayList(MaterialLotUnit.PRODUCT_CATEGORY_LCP, MaterialLotUnit.PRODUCT_CATEGORY_SCP, MaterialLotUnit.PRODUCT_CLASSIFY_CP, MaterialLotUnit.PRODUCT_CLASSIFY_SOC, MaterialLotUnit.PRODUCT_CATEGORY_SOC);
             for(MaterialLot materialLot : materialLots){
-                if(MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) ||
-                        MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CATEGORY_RW.equals(materialLot.getReserved7()) ||
-                        MaterialLotUnit.PRODUCT_CLASSIFY_SOC.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CATEGORY_SOC.equals(materialLot.getReserved7())){
+                if( productCategoryList.contains(materialLot.getReserved7()) || (MaterialLotUnit.PRODUCT_CATEGORY_RW.equals(materialLot.getReserved7()) && MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50()) ) ||
+                        (MaterialLotUnit.PRODUCT_CATEGORY_FT_COB.equals(materialLot.getReserved7()) && MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())) ){
                     if(!StringUtils.isNullOrEmpty(materialLot.getInnerLotId()) && rwWaferSourceList.contains(materialLot.getReserved50())){
                         unitIdList.add(materialLot.getInnerLotId());
                     } else {
@@ -203,7 +203,7 @@ public class MesServiceImpl implements MesService {
      * @param materialLots
      * @throws ClientException
      */
-//    @Async
+    @Async
     public void materialLotPlanLot(List<MaterialLot> materialLots) throws ClientException {
         try {
             List<String> vboxIdList = Lists.newArrayList();
