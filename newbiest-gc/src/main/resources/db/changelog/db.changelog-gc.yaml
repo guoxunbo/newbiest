@@ -887,3 +887,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HNWarehouseMaterialLotWeigh_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseRecordExpressNumber_nb_table.yaml
+      relativeToChangelogFile: true
