@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseErpDocLineMerge_to_NB_TABLE
+      author: Youqing Huang
+      comment: add HNWarehouseErpDocLineMerge to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HNWarehouseErpDocLineMerge
+              description: 湖南仓ERP单据合并
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 湖南仓ERP单据合并
+              label: HNWarehouseErpDocLineMerge

@@ -890,3 +890,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HNWarehouseRecordExpressNumber_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseErpDocLineMerge_nb_table.yaml
+      relativeToChangelogFile: true
