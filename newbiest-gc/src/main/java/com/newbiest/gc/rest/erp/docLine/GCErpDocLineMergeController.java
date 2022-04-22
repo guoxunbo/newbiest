@@ -1,8 +1,8 @@
 package com.newbiest.gc.rest.erp.docLine;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.gc.model.MLotDocRuleContext;
 import com.newbiest.gc.service.GcService;
-import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/gc")
@@ -34,8 +32,9 @@ public class GCErpDocLineMergeController {
 
         String actionType = requestBody.getActionType();
         if(GCErpDocLineMergeRequest.ACTION_TYPE_MERGE_DOC.equals(actionType)){
-            List<DocumentLine> documentLines = requestBody.getDocumentLines();
-            gcService.valaidateAndMergeErpDocLine(documentLines);
+            gcService.valaidateAndMergeErpDocLine(requestBody.getDocumentLines(), MLotDocRuleContext.MERGE_DOC_VALIDATE_RULE_ID);
+        } else if(GCErpDocLineMergeRequest.ACTION_TYPE_HN_WAREHOUSE_MERGE_DOC.equals(actionType)){
+            gcService.valaidateAndMergeErpDocLine(requestBody.getDocumentLines(), MLotDocRuleContext.HN_WAREHOUSE_MERGE_DOC_VALIDATE_RULE_ID);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

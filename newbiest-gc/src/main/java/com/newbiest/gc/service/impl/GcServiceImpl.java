@@ -24,6 +24,7 @@ import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
+import com.newbiest.gc.rest.erp.docLine.GCErpDocLineMergeRequest;
 import com.newbiest.gc.rest.stockout.wltStockout.WltStockOutRequest;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
 import com.newbiest.gc.service.GcService;
@@ -11315,11 +11316,11 @@ public class GcServiceImpl implements GcService {
      * @param documentLines
      * @throws ClientException
      */
-    public void valaidateAndMergeErpDocLine(List<DocumentLine> documentLines) throws ClientException {
+    public void valaidateAndMergeErpDocLine(List<DocumentLine> documentLines, String ruleId) throws ClientException {
         try {
             List<Long> seqList = Lists.newArrayList();
             //根据单据验证规则验证单据信息是否满足合批条件
-            validationDocMergeRule(MLotDocRuleContext.MERGE_DOC_VALIDATE_RULE_ID, documentLines);
+            validationDocMergeRule(ruleId, documentLines);
 
             //将所有的单据合并成一条documentLine单据
             Long totalDocQty = documentLines.stream().collect(Collectors.summingLong(documentLine -> documentLine.getQty().longValue()));

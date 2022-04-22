@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseErpDocLineMergeManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseErpDocLineMergeManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNErpDocLineMergeManager
+              description: 湖南仓库ERP单据合并
+              tableName: HNWarehouseErpDocLineMerge
+              mobileFlag: N
+              url: /HNWarehouse/ErpDocLineMerge
+              parentRrn: 2022
+              seqNo: 60
+              image: icon-wuliao
+              labelZh: ERP单据合并
+              labelEn: ErpDocLineMerge

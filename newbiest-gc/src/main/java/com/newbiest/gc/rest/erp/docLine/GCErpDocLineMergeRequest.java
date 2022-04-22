@@ -12,5 +12,7 @@ public class GCErpDocLineMergeRequest extends Request {
 
     public static final String ACTION_TYPE_MERGE_DOC = "MergeDoc";
 
+    public static final String ACTION_TYPE_HN_WAREHOUSE_MERGE_DOC =  "HNWarehouseMergeDoc";
+
     private GCErpDocLineMergeRequestBody body;
 }
