@@ -18,6 +18,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_HN_SAMPLE_COLLECTION_STOCK_OUT= "HNSampleCollectionStockOut";
 
+	public static final String ACTION_HN_WAREHOUSE_WLT_OTHER_STOCK_OUT = "HNWarehouseWltOtherStockOut";
+
 	public static final String ACTION_VALIDATION_WLTMLOT = "validationWltMlot";
 
 	public static final String ACTION_QUERY_STOCKOUTTAG_MLOTUNIT = "queryTagMlotUnit";

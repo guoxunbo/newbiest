@@ -8335,7 +8335,7 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    public void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String actionType) throws ClientException{
+    public void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String actionType, String ruleId) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             List<DocumentLine> otherStockOutLines = documentLineList.stream().filter(documentLine -> ErpSob.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())).collect(Collectors.toList());
@@ -8344,15 +8344,8 @@ public class GcServiceImpl implements GcService {
             }
             documentLineList = otherStockOutLines.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
 
-            Map<String, List<DocumentLine>> documentLineMap = new HashMap<>();
-            Map<String, List<MaterialLot>> materialLotMap = new HashMap<>();
-            if(WltStockOutRequest.ACTION_HN_SAMPLE_COLLECTION_STOCK_OUT.equals(actionType)) {
-                documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.SAMPLE_COLLECTION_STOCK_OUT_RULE_ID);
-                materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.SAMPLE_COLLECTION_STOCK_OUT_RULE_ID);
-            } else {
-                documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
-                materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
-            }
+            Map<String, List<DocumentLine>> documentLineMap  = groupDocLineByMLotDocRule(documentLineList, ruleId);
+            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, ruleId);
 
             for (String key : materialLotMap.keySet()) {
                 validateDocAndMlotShipQtyAndMaterialAndSecondCodeInfo(key, materialLotMap, documentLineMap);
@@ -8478,7 +8471,8 @@ public class GcServiceImpl implements GcService {
 
                     if(SystemPropertyUtils.getWltStockOutToComThrowWaferTabFlag() && MaterialLot.BONDED_LIST.contains(materialLot.getReserved6())){
                         if (WltStockOutRequest.ACTION_WLTSTOCKOUT.equals(actionType) || WltStockOutRequest.ACTION_WLTOTHERSTOCKOUT.equals(actionType)
-                                || WltStockOutRequest.ACTION_MOBILE_WLT_STOCK_OUT.equals(actionType)){
+                                || WltStockOutRequest.ACTION_MOBILE_WLT_STOCK_OUT.equals(actionType) || WltStockOutRequest.ACTION_HN_SAMPLE_COLLECTION_STOCK_OUT.equals(actionType)
+                                || WltStockOutRequest.ACTION_HN_WAREHOUSE_WLT_OTHER_STOCK_OUT.equals(actionType)){
                             addUnitToComThrowWaferTab(documentLine, materialLot, circleQty.intValue());
                         }
                     }

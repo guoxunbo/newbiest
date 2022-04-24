@@ -48,8 +48,12 @@ public class WltStockOutController {
 
         if (WltStockOutRequest.ACTION_WLTSTOCKOUT.equals(actionType)) {
             gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode(), actionType);
-        } else if(WltStockOutRequest.ACTION_WLTOTHERSTOCKOUT.equals(actionType) || WltStockOutRequest.ACTION_HN_SAMPLE_COLLECTION_STOCK_OUT.equals(actionType)) {
-            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), actionType);
+        } else if(WltStockOutRequest.ACTION_WLTOTHERSTOCKOUT.equals(actionType)) {
+            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), actionType, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
+        } else if(WltStockOutRequest.ACTION_HN_SAMPLE_COLLECTION_STOCK_OUT.equals(actionType)){
+            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), actionType, MaterialLot.SAMPLE_COLLECTION_STOCK_OUT_RULE_ID);
+        } else if(WltStockOutRequest.ACTION_HN_WAREHOUSE_WLT_OTHER_STOCK_OUT.equals(actionType)){
+            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), actionType, MaterialLot.HN_WAREHOUSE_WLT_OTHER_STOCK_OUT_RULE_ID);
         } else if(WltStockOutRequest.ACTION_VALIDATION_WLTMLOT.equals(actionType)){
             boolean falg = gcService.validateMLotByPackageRule(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
