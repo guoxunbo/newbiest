@@ -896,3 +896,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HNWarehousePrintCaseLabel_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseWltOrCpOtherStockOutOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseWltOtherStockOutMLotScan_nb_table.yaml
+      relativeToChangelogFile: true

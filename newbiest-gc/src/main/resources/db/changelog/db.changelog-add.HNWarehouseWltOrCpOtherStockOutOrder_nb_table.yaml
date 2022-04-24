@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseWltOrCpOtherStockOutOrder_to_NB_TABLE
+      author: Youqing Huang
+      comment: add HNWarehouseWltOrCpOtherStockOutOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HNWarehouseWltOrCpOtherStockOutOrder
+              description: 湖南仓其他出单据
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 湖南仓其它出单据
+              label: HNWarehouseWltOrCpOtherStockOutOrder
