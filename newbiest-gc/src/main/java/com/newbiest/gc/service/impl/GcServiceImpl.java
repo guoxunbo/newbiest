@@ -10332,11 +10332,6 @@ public class GcServiceImpl implements GcService {
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
 
-            List<MaterialLot> cobMaterialLotList = materialLots.stream().filter(materialLot -> MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
-            List<MaterialLot> materialLotList = materialLots.stream().filter(materialLot -> !MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
-            if(CollectionUtils.isNotEmpty(cobMaterialLotList)){
-
-            }
             validationStockMLotReservedDocLineByRuleId(documentLineList, materialLots, MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
             Map<String, List<MaterialLot>> mlotDocMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             for(String docLineRrn : mlotDocMap.keySet()){
