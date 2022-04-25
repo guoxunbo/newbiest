@@ -923,3 +923,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HNWarehouseOtherShipReserved.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HNWarehouseUnReservedMaterialLot.nb_authority.yaml
+      relativeToChangelogFile: true
