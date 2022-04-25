@@ -112,7 +112,7 @@ public class TempFtServiceImpl implements TempFtService {
                     }
 
                     //处理装箱的真空包
-                    Map<String, List<TempFtModel>> boxedTempFtModelMap = tempCpModelList.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getBoxId().trim()) &&
+                    Map<String, List<TempFtModel>> boxedTempFtModelMap = tempCpModelList.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) &&
                             (tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B) || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB))).collect(Collectors.groupingBy(TempFtModel::getBoxId));
 
                     for (String parentMaterialLotId : boxedTempFtModelMap.keySet()) {

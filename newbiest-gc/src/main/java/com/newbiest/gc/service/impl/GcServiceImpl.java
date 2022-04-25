@@ -2225,16 +2225,7 @@ public class GcServiceImpl implements GcService {
                 List<MaterialLot> materialLotList = mlotDocMap.get(docLineRrn);
                 DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
                 //获取发货的物料批次的快递单号
-                String expressNumber = StringUtils.EMPTY;
-                Map<String, List<MaterialLot>> mLotExpressMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
-                        .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
-                for (String expressId : mLotExpressMap.keySet()){
-                    if(StringUtils.isNullOrEmpty(expressNumber)){
-                        expressNumber = expressId;
-                    } else {
-                        expressNumber += StringUtils.SEMICOLON_CODE + expressId;
-                    }
-                }
+                String expressNumber = getExpressNumberByMaterialLots(materialLotList);
                 BigDecimal handledQty = BigDecimal.ZERO;
                 for (MaterialLot materialLot : materialLotList) {
                     handledQty = handledQty.add(materialLot.getCurrentQty());
@@ -2273,6 +2264,30 @@ public class GcServiceImpl implements GcService {
                     scmService.addScmTracking(documentLine.getDocId(), materialLotList);
                 }
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据出货物料获取快递单号
+     * @param materialLotList
+     * @return
+     * @throws ClientException
+     */
+    private String getExpressNumberByMaterialLots(List<MaterialLot> materialLotList) throws ClientException{
+        try{
+            String expressNumber = StringUtils.EMPTY;
+            Map<String, List<MaterialLot>> mLotExpressMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
+            for (String expressId : mLotExpressMap.keySet()){
+                if(StringUtils.isNullOrEmpty(expressNumber)){
+                    expressNumber = expressId;
+                } else {
+                    expressNumber += StringUtils.SEMICOLON_CODE + expressId;
+                }
+            }
+            return expressNumber;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -4938,7 +4953,11 @@ public class GcServiceImpl implements GcService {
                     if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceWorkorderId())){
                         workorderId = mesPackedLot.getSourceWorkorderId();
                     }
-                    MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), workorderId, MaterialLotUnit.STATE_ISSUE);
+                    String lotId = mesPackedLot.getLotId();
+                    if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceLotId())){
+                        lotId = mesPackedLot.getSourceLotId();
+                    }
+                    MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(lotId, workorderId, MaterialLotUnit.STATE_ISSUE);
                     if(materialLot == null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
                     } else {
@@ -5100,9 +5119,13 @@ public class GcServiceImpl implements GcService {
             if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceWorkorderId())){
                 workorderId = mesPackedLot.getSourceWorkorderId();
             }
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), workorderId, MaterialLotUnit.STATE_ISSUE);
+            String lotId = mesPackedLot.getLotId();
+            if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceLotId())){
+                lotId = mesPackedLot.getSourceLotId();
+            }
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(lotId, workorderId, MaterialLotUnit.STATE_ISSUE);
             if(materialLot == null){
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
             if(!StringUtils.isNullOrEmpty(materialLot.getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLot.getReserved13())){
                 packedLot.setLocation(MaterialLot.LOCATION_SH);
@@ -10309,11 +10332,17 @@ public class GcServiceImpl implements GcService {
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
 
+            List<MaterialLot> cobMaterialLotList = materialLots.stream().filter(materialLot -> MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
+            List<MaterialLot> materialLotList = materialLots.stream().filter(materialLot -> !MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(cobMaterialLotList)){
+
+            }
             validationStockMLotReservedDocLineByRuleId(documentLineList, materialLots, MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
             Map<String, List<MaterialLot>> mlotDocMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             for(String docLineRrn : mlotDocMap.keySet()){
                 List<MaterialLot> materialLotList = mlotDocMap.get(docLineRrn);
                 DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
+                String expressNumber = getExpressNumberByMaterialLots(materialLotList);
                 BigDecimal handledQty = BigDecimal.ZERO;
                 for (MaterialLot materialLot : materialLotList) {
                     handledQty = handledQty.add(materialLot.getCurrentQty());
@@ -10333,6 +10362,7 @@ public class GcServiceImpl implements GcService {
                 documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
                 documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
                 documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(handledQty));
+                documentLine.setExpressNumber(expressNumber);
                 documentLine = documentLineRepository.saveAndFlush(documentLine);
                 baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SHIP);
 
