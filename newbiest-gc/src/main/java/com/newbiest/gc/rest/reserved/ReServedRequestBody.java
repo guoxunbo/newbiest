@@ -25,6 +25,8 @@ public class ReServedRequestBody extends RequestBody {
 	public static final String ACTION_TYPE_UN_RESERVED = "UnReserved";
 	public static final String ACTION_GET_AUTO_PACK_MLOT = "GetAutoPackMLot";
 	public static final String ACTION_GET_PACKED_RULE_LIST = "GetPackedRuleList";
+	public static final String ACTION_TYPE_HN_WAREHOUSE_GET_OTHER_SHIP_MATERIAL_LOT = "HNWarehouseGetOtherShipReservedMLot";
+	public static final String ACTION_TYPE_HN_WAREHOUSE_OTHER_SHIP_RESERVED = "HNWarehouseOtherShipReserved";
 
 	/**
 	 * 获取包装箱里的批次

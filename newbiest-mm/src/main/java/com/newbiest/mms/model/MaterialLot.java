@@ -140,6 +140,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WLT_SHIP_DOC_VALIDATE_RULE_ID = "WLTStockOutDocRule";    //WLT出货单据验证
     public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "MLotReservedRule"; //备货单据验证规则
     public static final String OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID = "OtherShipReservedRule"; //其他出备货单据验证规则
+    public static final String HN_WAREHOUSE_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID = "HNWarehouseOtherShipReservedRule"; //湖南仓其他出备货单据验证规则
     public static final String MLOT_RETEST_DOC_VALIDATE_RULE_ID = "MLotReTestRule"; //物料重测发料单据验证规则
     public static final String WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "WaferReceiveDocLineRule";  //晶圆接收单据验证规则
     public static final String COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "COBWaferReceiveDocLineRule"; //COB晶圆接收单据验证规则
