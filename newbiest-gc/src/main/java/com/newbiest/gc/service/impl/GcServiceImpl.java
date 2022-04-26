@@ -24,7 +24,6 @@ import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
-import com.newbiest.gc.rest.erp.docLine.GCErpDocLineMergeRequest;
 import com.newbiest.gc.rest.stockout.wltStockout.WltStockOutRequest;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
 import com.newbiest.gc.service.GcService;
@@ -2138,7 +2137,7 @@ public class GcServiceImpl implements GcService {
                     //验证出货单与物料批次是否匹配
                     validateMLotAndDocLineByRule(documentLine, materialLot, ruleId);
                     //验证装箱的真空包备货单信息是否一致
-                    if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    if(!StringUtils.isNullOrEmpty(materialLot.getPackageType()) && !MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
                         List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                         for (MaterialLot packagedMaterialLot : packageDetailLots) {
                             if(!materialLot.getReserved16().equals(packagedMaterialLot.getReserved16())){
@@ -2225,16 +2224,7 @@ public class GcServiceImpl implements GcService {
                 List<MaterialLot> materialLotList = mlotDocMap.get(docLineRrn);
                 DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
                 //获取发货的物料批次的快递单号
-                String expressNumber = StringUtils.EMPTY;
-                Map<String, List<MaterialLot>> mLotExpressMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
-                        .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
-                for (String expressId : mLotExpressMap.keySet()){
-                    if(StringUtils.isNullOrEmpty(expressNumber)){
-                        expressNumber = expressId;
-                    } else {
-                        expressNumber += StringUtils.SEMICOLON_CODE + expressId;
-                    }
-                }
+                String expressNumber = getExpressNumberByMaterialLots(materialLotList);
                 BigDecimal handledQty = BigDecimal.ZERO;
                 for (MaterialLot materialLot : materialLotList) {
                     handledQty = handledQty.add(materialLot.getCurrentQty());
@@ -2273,6 +2263,30 @@ public class GcServiceImpl implements GcService {
                     scmService.addScmTracking(documentLine.getDocId(), materialLotList);
                 }
             }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 根据出货物料获取快递单号
+     * @param materialLotList
+     * @return
+     * @throws ClientException
+     */
+    private String getExpressNumberByMaterialLots(List<MaterialLot> materialLotList) throws ClientException{
+        try{
+            String expressNumber = StringUtils.EMPTY;
+            Map<String, List<MaterialLot>> mLotExpressMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getExpressNumber()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getExpressNumber));
+            for (String expressId : mLotExpressMap.keySet()){
+                if(StringUtils.isNullOrEmpty(expressNumber)){
+                    expressNumber = expressId;
+                } else {
+                    expressNumber += StringUtils.SEMICOLON_CODE + expressId;
+                }
+            }
+            return expressNumber;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -4938,7 +4952,11 @@ public class GcServiceImpl implements GcService {
                     if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceWorkorderId())){
                         workorderId = mesPackedLot.getSourceWorkorderId();
                     }
-                    MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), workorderId, MaterialLotUnit.STATE_ISSUE);
+                    String lotId = mesPackedLot.getLotId();
+                    if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceLotId())){
+                        lotId = mesPackedLot.getSourceLotId();
+                    }
+                    MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(lotId, workorderId, MaterialLotUnit.STATE_ISSUE);
                     if(materialLot == null){
                         throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
                     } else {
@@ -5100,9 +5118,13 @@ public class GcServiceImpl implements GcService {
             if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceWorkorderId())){
                 workorderId = mesPackedLot.getSourceWorkorderId();
             }
-            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(mesPackedLot.getLotId(), workorderId, MaterialLotUnit.STATE_ISSUE);
+            String lotId = mesPackedLot.getLotId();
+            if(!StringUtils.isNullOrEmpty(mesPackedLot.getSourceLotId())){
+                lotId = mesPackedLot.getSourceLotId();
+            }
+            MaterialLot materialLot = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(lotId, workorderId, MaterialLotUnit.STATE_ISSUE);
             if(materialLot == null){
-                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getLotId());
+                throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, lotId);
             }
             if(!StringUtils.isNullOrEmpty(materialLot.getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLot.getReserved13())){
                 packedLot.setLocation(MaterialLot.LOCATION_SH);
@@ -10306,19 +10328,24 @@ public class GcServiceImpl implements GcService {
      */
     public void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLineList) throws ClientException{
         try {
-            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
 
+            validateCobMaterialLotDocInfo(materialLots);
             validationStockMLotReservedDocLineByRuleId(documentLineList, materialLots, MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
             Map<String, List<MaterialLot>> mlotDocMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             for(String docLineRrn : mlotDocMap.keySet()){
                 List<MaterialLot> materialLotList = mlotDocMap.get(docLineRrn);
                 DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
+                String expressNumber = getExpressNumberByMaterialLots(materialLotList);
                 BigDecimal handledQty = BigDecimal.ZERO;
                 for (MaterialLot materialLot : materialLotList) {
                     handledQty = handledQty.add(materialLot.getCurrentQty());
                     materialLot.setReserved12(documentLine.getObjectRrn().toString());
                     materialLot.setCurrentQty(BigDecimal.ZERO);
+                    if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
+                        materialLot.clearCobReservedDocInfo();
+                    }
                     changeMaterialLotStatusAndSaveHistory(materialLot);
 
                     List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
@@ -10333,6 +10360,7 @@ public class GcServiceImpl implements GcService {
                 documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
                 documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
                 documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(handledQty));
+                documentLine.setExpressNumber(expressNumber);
                 documentLine = documentLineRepository.saveAndFlush(documentLine);
                 baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SHIP);
 
@@ -10348,6 +10376,35 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * COB出货时临时set单据信息
+     * @param materialLotList
+     */
+    private void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
+                    String materialName = materialLot.getMaterialName();
+                    String grade = materialLot.getGrade();
+                    String subCode = materialLot.getReserved1() + materialLot.getGrade();
+                    String bondedProperty = materialLot.getReserved6();
+                    DocumentLine documentLine = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7(materialLot.getReserved56(), materialName, grade, subCode, bondedProperty);
+                    if(documentLine == null){
+                        throw new ClientParameterException(GcExceptions.ORDER_IS_NOT_EXIST, materialLot.getReserved56());
+                    }
+                    materialLot.setShipper(documentLine.getReserved12());
+                    materialLot.setReserved16(documentLine.getObjectRrn().toString());
+                    materialLot.setReserved17(documentLine.getDocId());
+                    materialLot.setReserved51(documentLine.getReserved15());
+                    materialLot.setReserved52(documentLine.getReserved20());
+                    materialLot.setReserved53(documentLine.getReserved21());
+                }
+            }
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

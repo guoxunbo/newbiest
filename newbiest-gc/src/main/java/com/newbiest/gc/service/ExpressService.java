@@ -17,7 +17,6 @@ public interface ExpressService {
 
     void batchCancelOrderByWayBillNumber(List<OrderInfo> orderInfoList) throws ClientException;
     OrderInfo getOrderInfoByWayBillNumber(String wayBillNumber) throws ClientException;
-    void validateReservedOrderId(List<MaterialLot> materialLots) throws ClientException;
     List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException;
     void cancelOrderByMaterialLots(List<MaterialLot> materialLots) throws ClientException;
 
