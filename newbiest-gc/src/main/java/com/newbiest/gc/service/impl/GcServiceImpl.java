@@ -24,7 +24,6 @@ import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.gc.GcExceptions;
 import com.newbiest.gc.model.*;
 import com.newbiest.gc.repository.*;
-import com.newbiest.gc.rest.erp.docLine.GCErpDocLineMergeRequest;
 import com.newbiest.gc.rest.stockout.wltStockout.WltStockOutRequest;
 import com.newbiest.gc.scm.send.mlot.state.MaterialLotStateReportRequestBody;
 import com.newbiest.gc.service.GcService;
@@ -2138,7 +2137,7 @@ public class GcServiceImpl implements GcService {
                     //验证出货单与物料批次是否匹配
                     validateMLotAndDocLineByRule(documentLine, materialLot, ruleId);
                     //验证装箱的真空包备货单信息是否一致
-                    if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    if(!StringUtils.isNullOrEmpty(materialLot.getPackageType()) && !MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
                         List<MaterialLot> packageDetailLots = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                         for (MaterialLot packagedMaterialLot : packageDetailLots) {
                             if(!materialLot.getReserved16().equals(packagedMaterialLot.getReserved16())){
@@ -10329,9 +10328,10 @@ public class GcServiceImpl implements GcService {
      */
     public void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLineList) throws ClientException{
         try {
-            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
 
+            validateCobMaterialLotDocInfo(materialLots);
             validationStockMLotReservedDocLineByRuleId(documentLineList, materialLots, MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
             Map<String, List<MaterialLot>> mlotDocMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             for(String docLineRrn : mlotDocMap.keySet()){
@@ -10343,6 +10343,9 @@ public class GcServiceImpl implements GcService {
                     handledQty = handledQty.add(materialLot.getCurrentQty());
                     materialLot.setReserved12(documentLine.getObjectRrn().toString());
                     materialLot.setCurrentQty(BigDecimal.ZERO);
+                    if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
+                        materialLot.clearCobReservedDocInfo();
+                    }
                     changeMaterialLotStatusAndSaveHistory(materialLot);
 
                     List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
@@ -10373,6 +10376,35 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * COB出货时临时set单据信息
+     * @param materialLotList
+     */
+    private void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
+                    String materialName = materialLot.getMaterialName();
+                    String grade = materialLot.getGrade();
+                    String subCode = materialLot.getReserved1() + materialLot.getGrade();
+                    String bondedProperty = materialLot.getReserved6();
+                    DocumentLine documentLine = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7(materialLot.getReserved56(), materialName, grade, subCode, bondedProperty);
+                    if(documentLine == null){
+                        throw new ClientParameterException(GcExceptions.ORDER_IS_NOT_EXIST, materialLot.getReserved56());
+                    }
+                    materialLot.setShipper(documentLine.getReserved12());
+                    materialLot.setReserved16(documentLine.getObjectRrn().toString());
+                    materialLot.setReserved17(documentLine.getDocId());
+                    materialLot.setReserved51(documentLine.getReserved15());
+                    materialLot.setReserved52(documentLine.getReserved20());
+                    materialLot.setReserved53(documentLine.getReserved21());
+                }
+            }
+        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

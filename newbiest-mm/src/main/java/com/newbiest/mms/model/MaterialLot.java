@@ -1208,6 +1208,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setPlanOrderType(StringUtils.EMPTY);
     }
 
+    public void clearCobReservedDocInfo() {
+        this.setShipper(null);
+        this.setReserved16(null);
+        this.setReserved17(null);
+        this.setReserved51(null);
+        this.setReserved52(null);
+        this.setReserved53(null);
+    }
+
     /**
      * 清空预留相关栏位信息
      */
