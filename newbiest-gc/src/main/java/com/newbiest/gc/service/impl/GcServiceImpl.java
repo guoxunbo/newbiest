@@ -3057,7 +3057,7 @@ public class GcServiceImpl implements GcService {
                     }
                     if(!MesPackedLot.PRODUCT_CATEGORY_COB.equals(mesPackedLot.getProductCategory()) &&
                             !MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) &&
-                            !(MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory()) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
+                            !(MesPackedLot.PRODUCT_CATEGORY_RW.equals(mesPackedLot.getProductCategory()) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
                         if(mesPackedLotRelation == null){
                             throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
                         } else {
@@ -3380,14 +3380,11 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved50", MaterialLot.ERROR_WAFER_SOUCE);
                 }
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(productCategory)){
-                if(MaterialLotUnit.BOX_TYPE.equals(type)){
-                    otherReceiveProps.put("reserved50", MaterialLot.FT_COB_WAFER_SOURCE);
-                    otherReceiveProps.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_FT_COB);
-                } else {
                     otherReceiveProps.put("reserved50", MaterialLot.FT_WAFER_SOURCE);
                     otherReceiveProps.put("reserved7", productCategory);
-                }
-
+            } else if(MaterialLotUnit.PRODUCT_CATEGORY_RW.equals(productCategory) && MaterialLotUnit.BOX_TYPE.equals(type)){
+                otherReceiveProps.put("reserved50", MaterialLot.RW_WAFER_SOURCE);
+                otherReceiveProps.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_FT_COB);
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(productCategory)){
                 otherReceiveProps.put("reserved50", MaterialLot.WLFT_WAFER_SOURCE);
                 otherReceiveProps.put("reserved7", productCategory);
@@ -5985,6 +5982,34 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * wlt封装回货与sensor封装回货获取waferSource信息
+     * @param importType
+     * @param materialLotUnitList
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> packReturnSetWaferSource(String importType,  List<MaterialLotUnit> materialLotUnitList) throws ClientException{
+        try {
+            if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
+                    materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
+                    materialLotUnit.setReserved50("7");
+                }
+            } else if (MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)){
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);
+                    materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR);
+                    materialLotUnit.setReserved50(MaterialLot.SENSOR_WAFER_SOURCE);
+                }
+            }
+            return materialLotUnitList;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * SensorCp型号的晶圆型号验证并获取WaferSource
      * @param materialName
      * @return
@@ -6188,7 +6213,7 @@ public class GcServiceImpl implements GcService {
             if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
                 packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                 for(MaterialLot packedMLot : packageMLotList){
-                    packedMLot.setMaterialCode(erpSoa.getOther10());
+                    packedMLot.setMaterialCode(erpSoa.getOther16());
                     materialLotRepository.saveAndFlush(packedMLot);
                 }
             }
@@ -6836,7 +6861,7 @@ public class GcServiceImpl implements GcService {
                 parameterMap.put("SUPPLIER", MLotCodePrint.SH_SUPPLIER);
             }
             parameterMap.put("CURRENTQTY", materialLot.getCurrentQty().toString());
-            parameterMap.put("ORDERID", erpSoa.getSocode());
+            parameterMap.put("ORDERID", erpSoa.getOther10());
             parameterMap.put("OUTDATE", date);
             parameterMap.put("DELIVERYPLACE", MLotCodePrint.DELIVERY_PLACE);
             parameterMap.put("PRODUCTTYPE", productType);

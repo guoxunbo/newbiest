@@ -220,7 +220,9 @@ public interface GcService {
     void transferStorage(List<RelayBoxStockInModel> relayBoxStockInModel) throws  ClientException;
     List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn,String whereClause) throws ClientException;
 
-    String packageIRAs(List<MaterialLotAction> materialLotActions, String packageType);
+    String packageIRAs(List<MaterialLotAction> materialLotActions, String packageType)  throws ClientException;
 
-    void unPackageIRAs(List<MaterialLotAction> materialLotActions, String packageType);
+    void unPackageIRAs(List<MaterialLotAction> materialLotActions, String packageType)  throws ClientException;
+
+    List<MaterialLotUnit> packReturnSetWaferSource(String importType, List<MaterialLotUnit> materialLotUnitList)  throws ClientException;
 }
