@@ -6213,7 +6213,7 @@ public class GcServiceImpl implements GcService {
             if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
                 packageMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                 for(MaterialLot packedMLot : packageMLotList){
-                    packedMLot.setMaterialCode(erpSoa.getOther16());
+                    packedMLot.setMaterialCode(erpSoa.getOther10());
                     materialLotRepository.saveAndFlush(packedMLot);
                 }
             }
@@ -10099,33 +10099,44 @@ public class GcServiceImpl implements GcService {
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 materialLotUnit = materialLotUnitRepository.findByMaterialLotIdAndUnitId(materialLotUnit.getMaterialLotId(), materialLotUnit.getUnitId());
-                materialLotUnit.setWorkOrderId(null);
-                materialLotUnit.setWorkOrderPlanputTime(null);
-                materialLotUnit.setInnerLotId(null);
-                materialLotUnit.setReserved18("0");
-                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                if(materialLotUnit != null){
+                    materialLotUnit.setWorkOrderId(null);
+                    materialLotUnit.setWorkOrderPlanputTime(null);
+                    materialLotUnit.setInnerLotId(null);
+                    materialLotUnit.setReserved18("0");
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
-                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
-                materialLotUnitHisRepository.save(materialLotUnitHistory);
+                    MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
+                    materialLotUnitHisRepository.save(materialLotUnitHistory);
+                }
             }
 
             for(String materialLotId : materialLotUnitMap.keySet()){
                 MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
-                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLotId);
-                List<MaterialLotUnit> bindWorkOrderIdMLotUnits = materialLotUnits.stream().filter(materialLotUnit -> !StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderId())).collect(Collectors.toList());
-                if(CollectionUtils.isEmpty(bindWorkOrderIdMLotUnits)){
-                    materialLot.setWorkOrderPlanputTime(null);
-                    materialLot.setWorkOrderId(null);
-                    materialLot.setInnerLotId(null);
-                    materialLot = materialLotRepository.saveAndFlush(materialLot);
-
-                    if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
-                            || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()))){
-                        scmReportMLotList.add(materialLot);
-                    }
+                if(materialLot != null && !StringUtils.isNullOrEmpty(materialLot.getReserved11())){
+                    materialLot.setReserved11(null);
+                    materialLot.setReserved15(null);
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
                     materialLotHistoryRepository.save(history);
+                }
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLotId);
+                if(CollectionUtils.isNotEmpty(materialLotUnits)){
+                    List<MaterialLotUnit> bindWorkOrderIdMLotUnits = materialLotUnits.stream().filter(materialLotUnit -> !StringUtils.isNullOrEmpty(materialLotUnit.getWorkOrderId())).collect(Collectors.toList());
+                    if(CollectionUtils.isEmpty(bindWorkOrderIdMLotUnits)){
+                        materialLot.setWorkOrderPlanputTime(null);
+                        materialLot.setWorkOrderId(null);
+                        materialLot.setInnerLotId(null);
+                        materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                        if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
+                                || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()))){
+                            scmReportMLotList.add(materialLot);
+                        }
+
+                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
+                        materialLotHistoryRepository.save(history);
+                    }
                 }
             }
 
