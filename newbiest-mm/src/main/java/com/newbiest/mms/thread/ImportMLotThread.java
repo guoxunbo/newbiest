@@ -74,7 +74,11 @@ public class ImportMLotThread implements Callable {
             propsMap.put("lotId", lotId.toUpperCase());
             propsMap.put("sourceProductId", materialLotUnits.get(0).getSourceProductId());
 
-            propsMap.put("reserved1",materialLotUnits.get(0).getReserved1());
+            String subCode = materialLotUnits.get(0).getReserved1();
+            if(MaterialLot.IMPORT_WLA.equals(materialLotUnits.get(0).getReserved49()) && !StringUtils.isNullOrEmpty(subCode) && subCode.length() == 3){
+                subCode = subCode + lotId.substring(0,1);
+            }
+            propsMap.put("reserved1",subCode);
             propsMap.put("reserved4",materialLotUnits.get(0).getTreasuryNote());
             propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());
             propsMap.put("reserved7",materialLotUnits.get(0).getReserved7());
@@ -130,7 +134,9 @@ public class ImportMLotThread implements Callable {
                 materialLotUnit.setUnitId(materialLotUnit.getUnitId().toUpperCase());//晶圆号小写转大写
                 materialLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
                 materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
+                materialLotUnit.setReceiveDate(materialLot.getReceiveDate());
                 materialLotUnit.setLotId(materialLot.getLotId());
+                materialLotUnit.setReserved1(materialLot.getReserved1());
                 materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                 materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
                 materialLotUnit.setReserved18("0");

@@ -1,10 +1,14 @@
 package com.newbiest.gc.rest.rw.manager;
 
+import com.google.common.collect.Lists;
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotUnit;
+import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PrintService;
 import com.newbiest.msg.Request;
@@ -34,6 +38,9 @@ public class RwMaterialLotController {
 
     @Autowired
     MmsService mmsService;
+
+    @Autowired
+    MaterialLotUnitService materialLotUnitService;
 
     @Autowired
     PrintService printService;
@@ -73,6 +80,11 @@ public class RwMaterialLotController {
             gcService.rwMaterialLotStockOutTag(requestBody.getMaterialLotList(), requestBody.getCustomerName(), requestBody.getAbbreviation(), requestBody.getRemarks());
         } else if(RwMaterialLotRequest.ACTION_ADD_SHIP_ORDERID.equals(actionType)) {
             gcService.rwMaterialLotAddShipOrderId(requestBody.getMaterialLotList(), requestBody.getShipOrderId());
+        } else if(RwMaterialLotRequest.ACTION_CANCEL_SHIP_ORDERID.equals(actionType)){
+            gcService.rwMaterialLotCancelShipOrderId(requestBody.getMaterialLotList());
+        } else if(RwMaterialLotRequest.ACTION_PREVIEW.equals(actionType)){
+            List<MaterialLot> materialLotList = gcService.previewRwShipTagUpdateMaterialLotList(requestBody.getMaterialLotList());
+            responseBody.setMaterialLotList(materialLotList);
         } else if(RwMaterialLotRequest.ACTION_UN_STOCK_OUT_TAG.equals(actionType)){
             gcService.rwMaterialLotCancelStockTag(requestBody.getMaterialLotList());
         } else if(RwMaterialLotRequest.ACTION_QUERY_MLOT.equals(actionType)){
@@ -96,7 +108,23 @@ public class RwMaterialLotController {
             MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
             Map<String, Object> parameterMap = printService.printRWBoxLabel(materialLot);
             responseBody.settingClientPrint(parameterMap);
-        }else {
+        } else if(RwMaterialLotRequest.ACTION_COB_QUERY_MLOTUNIT.equals(actionType)){
+            List<MaterialLotUnit> materialLotUnitList = Lists.newArrayList();
+            List<MaterialLot> materialLots = gcService.getMaterialLotByTableRrnAndWhereClause(requestBody.getTableRrn(), requestBody.getWhereClause());
+            if(CollectionUtils.isNotEmpty(materialLots)){
+                for(MaterialLot materialLot : materialLots){
+                    List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotUnitList.addAll(materialLotUnits);
+                }
+            }
+            responseBody.setMaterialLotList(materialLots);
+            responseBody.setMaterialLotUnitList(materialLotUnitList);
+        } else if(RwMaterialLotRequest.ACTION_WAFER_AUTO_PICK.equals(actionType)){
+            List<MaterialLotUnit> materialLotUnitList = gcService.rwTagginggAutoPickMLotUnit(requestBody.getMaterialLotUnitList(), requestBody.getPickQty());
+            responseBody.setMaterialLotUnitList(materialLotUnitList);
+        } else if(RwMaterialLotRequest.ACTION_WAFER_STOCK_OUT_TAG.equals(actionType)){
+            gcService.cobMaterialLotUnitStockOutTag(requestBody.getMaterialLotUnitList(), requestBody.getCustomerName(), requestBody.getAbbreviation(), requestBody.getRemarks());
+        } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
         response.setBody(responseBody);

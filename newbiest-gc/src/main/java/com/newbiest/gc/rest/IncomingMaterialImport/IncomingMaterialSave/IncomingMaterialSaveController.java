@@ -12,6 +12,7 @@ import com.newbiest.mms.service.MaterialLotUnitService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,10 +54,10 @@ public class IncomingMaterialSaveController {
         if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType) || MaterialLotUnit.SOC_FINISH_PRODUCT.equals(importType) || MaterialLotUnit.COB_RAW_MATERIAL_PRODUCT.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             materialLotUnitList = gcService.validateAndSetWaferSource(importType, checkFourCodeFlag, materialLotUnitList);
-            materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
-            importCode = materialLotUnitList.get(0).getReserved48();
+            materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList, StringUtils.EMPTY);
+            importCode = CollectionUtils.isEmpty(materialLotUnitList) ? "" :materialLotUnitList.get(0).getReserved48();
         } else if(MaterialLotUnit.SAMSUING_PACKING_LIST.equals(importType) || MaterialLotUnit.LCD_COG_FINISH_PRODUCT.equals(importType)
-                || MaterialLotUnit.RMA_GOOD_PRODUCT.equals(importType) || MaterialLotUnit.RMA_RETURN.equals(importType) || MaterialLotUnit.RMA_PURE.equals(importType)){
+                || MaterialLotUnit.SENSOR_RMA_GOOD_PRODUCT.equals(importType) || MaterialLotUnit.WLT_RMA_GOOD_PRODUCT.equals(importType) || MaterialLotUnit.RMA_RETURN.equals(importType) || MaterialLotUnit.RMA_PURE.equals(importType)){
             List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
             importCode = gcService.saveIncomingMaterialList(materialLotList, importType);
         } else if(MaterialLotUnit.LCD_COG_DETIAL.equals(importType)){
@@ -64,12 +65,14 @@ public class IncomingMaterialSaveController {
             importCode = gcService.saveLCDCOGDetailList(materialLotList, importType);
         } else if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
+            materialLotUnitList = gcService.packReturnSetWaferSource(importType, materialLotUnitList);
             materialLotUnitList = gcService.materialLotUnitAssignEng(materialLotUnitList);
             materialLotUnitList = gcService.validateImportWltPackReturn(materialLotUnitList);
             importCode = materialLotUnitList.get(0).getReserved48();
         } else if(MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             materialLotUnitList = gcService.validateAndChangeMaterialNameByImportType(materialLotUnitList, importType);
+            materialLotUnitList = gcService.packReturnSetWaferSource(importType, materialLotUnitList);
             materialLotUnitList = gcService.materialLotUnitAssignEng(materialLotUnitList);
             materialLotUnitList = gcService.createFTMaterialLotAndGetImportCode(materialLotUnitList, importType);
             importCode = materialLotUnitList.get(0).getReserved48();
@@ -80,8 +83,8 @@ public class IncomingMaterialSaveController {
             gcService.validateMLotUnitProductAndSubcode(materialLotUnitList);
             materialLotUnitList = gcService.validateAndChangeMaterialNameByImportType(materialLotUnitList, importType);
             materialLotUnitList = gcService.materialLotUnitAssignEng(materialLotUnitList);
-            materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
-            importCode = materialLotUnitList.get(0).getReserved48();
+            materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList, StringUtils.EMPTY);
+            importCode = CollectionUtils.isEmpty(materialLotUnitList) ? "" :materialLotUnitList.get(0).getReserved48();
         }
         responseBody.setImportCode(importCode);
         response.setBody(responseBody);

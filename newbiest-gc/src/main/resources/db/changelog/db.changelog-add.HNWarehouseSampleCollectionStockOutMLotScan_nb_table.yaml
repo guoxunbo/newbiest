@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseSampleCollectionStockOutMLotScan_to_NB_TABLE
+      author: Youqing Huang
+      comment: add HNWarehouseSampleCollectionStockOutMLotScan to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HNWarehouseSampleCollectionStockOutMLotScan
+              description: 湖南仓样品领用出物料扫描
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 湖南仓样品领用出物料扫描
+              label: HNWarehouseSampleCollectionStockOutMLotScan

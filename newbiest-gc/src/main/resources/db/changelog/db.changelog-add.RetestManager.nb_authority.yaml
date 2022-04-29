@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_add_RetestManager_to_nb_authority
+      author: Guozhang Luo
+      comment: add RetestManager to nb_authority
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/insert_RetestManager_to_nb_authority_0.0.1.sql

@@ -18,11 +18,15 @@ public class ReServedRequestBody extends RequestBody {
 	private static final long serialVersionUID = 1L;
 
 	public static final String ACTION_TYPE_GET_MATERIAL_LOT = "GetMLot";
+	public static final String ACTION_TYPE_GET_OTHER_SHIP_MATERIAL_LOT = "GetOtherShipReservedMLot";
 	public static final String ACTION_TYPE_GET_MATERIAL_LOT_AND_USER = "GetMLotAndUser";
 	public static final String ACTION_TYPE_RESERVED = "Reserved";
+	public static final String ACTION_TYPE_OTHER_SHIP_RESERVED = "OtherShipReserved";
 	public static final String ACTION_TYPE_UN_RESERVED = "UnReserved";
 	public static final String ACTION_GET_AUTO_PACK_MLOT = "GetAutoPackMLot";
 	public static final String ACTION_GET_PACKED_RULE_LIST = "GetPackedRuleList";
+	public static final String ACTION_TYPE_HN_WAREHOUSE_GET_OTHER_SHIP_MATERIAL_LOT = "HNWarehouseGetOtherShipReservedMLot";
+	public static final String ACTION_TYPE_HN_WAREHOUSE_OTHER_SHIP_RESERVED = "HNWarehouseOtherShipReserved";
 
 	/**
 	 * 获取包装箱里的批次
@@ -52,4 +56,7 @@ public class ReServedRequestBody extends RequestBody {
 
 	@ApiModelProperty(example = "包装规格")
 	private String packageRule;
+
+	@ApiModelProperty(example = "货架归属地")
+	private String stockLocation;
 }

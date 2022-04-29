@@ -22,6 +22,7 @@ public class MesPackedLot implements Serializable {
     public static final String PACKED_STATUS_IN = "IN";
 
     public static final String PRODUCT_CATEGORY_FT = "FT";
+    public static final String PRODUCT_CATEGORY_RW = "RW";
     public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
     public static final String PRODUCT_CATEGORY_WLT = "WLT";
     public static final String PRODUCT_CATEGORY_CP = "CP";
@@ -36,6 +37,9 @@ public class MesPackedLot implements Serializable {
     public static final String PACKED_TYPE = "VBOX";
     public static final String PACKED_TYPE_CPCST_PREIN = "CPCST_PREIN";
     public static final String LEVEL_TWO_CODE_FFFFF = "FFFFF";
+
+    public static final String STORAGE_ID_SH = "HJ AZ5000";
+    public static final String STORAGE_ID_ZSH = "ZHJ AZ6000";
 
     public static final String GRADE_F3 = "F3";
 
@@ -229,6 +233,18 @@ public class MesPackedLot implements Serializable {
      */
     @Column(name="ASSY_LOT_NO")
     private String assyLotNo;
+
+    /**
+     * 供应商
+     */
+    @Column(name="VENDER")
+    private String vender;
+
+    /**
+     * 原Lot昊
+     */
+    @Column(name = "SOURCE_LOT_ID")
+    private String sourceLotId;
 
     /**
      * 供应商

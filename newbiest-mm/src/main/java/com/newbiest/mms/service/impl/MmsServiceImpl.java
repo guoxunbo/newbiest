@@ -76,6 +76,12 @@ public class MmsServiceImpl implements MmsService {
     MaterialLotInventoryRepository materialLotInventoryRepository;
 
     @Autowired
+    MaterialLotUnitRepository materialLotUnitRepository;
+
+    @Autowired
+    MaterialLotUnitHisRepository materialLotUnitHisRepository;
+
+    @Autowired
     StatusMachineService statusMachineService;
 
     @Autowired
@@ -200,8 +206,6 @@ public class MmsServiceImpl implements MmsService {
                 rawMaterial.setActiveTime(new Date());
                 rawMaterial.setActiveUser(sc.getUsername());
                 rawMaterial.setStatus(NBVersionControl.STATUS_ACTIVE);
-                Long version = versionControlService.getNextVersion(rawMaterial);
-                rawMaterial.setVersion(version);
 
                 rawMaterial = (RawMaterial) modelRepository.saveAndFlush(rawMaterial);
                 if (nbHis != null) {
@@ -213,9 +217,9 @@ public class MmsServiceImpl implements MmsService {
                     saveMaterialName(rawMaterial.getName());
                 }
             } else {
-                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(rawMaterial.getObjectRrn());
+//                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(rawMaterial.getObjectRrn());
                 // 不可改变状态
-                rawMaterial.setStatus(oldData.getStatus());
+                rawMaterial.setStatus(NBVersionControl.STATUS_ACTIVE);
                 rawMaterial = (RawMaterial) modelRepository.saveAndFlush(rawMaterial);
 
                 if (nbHis != null) {
@@ -280,8 +284,6 @@ public class MmsServiceImpl implements MmsService {
                 product.setActiveTime(new Date());
                 product.setActiveUser(sc.getUsername());
                 product.setStatus(NBVersionControl.STATUS_ACTIVE);
-                Long version = versionControlService.getNextVersion(product);
-                product.setVersion(version);
 
                 product = (Product) modelRepository.saveAndFlush(product);
                 if (nbHis != null) {
@@ -291,9 +293,9 @@ public class MmsServiceImpl implements MmsService {
                 }
                 saveMaterialName(product.getName());
             } else {
-                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(product.getObjectRrn());
+//                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(product.getObjectRrn());
                 // 不可改变状态
-                product.setStatus(oldData.getStatus());
+                product.setStatus(NBVersionControl.STATUS_ACTIVE);
                 product = (Product) modelRepository.saveAndFlush(product);
 
                 if (nbHis != null) {
@@ -330,8 +332,6 @@ public class MmsServiceImpl implements MmsService {
                 parts.setActiveTime(new Date());
                 parts.setActiveUser(sc.getUsername());
                 parts.setStatus(NBVersionControl.STATUS_ACTIVE);
-                Long version = versionControlService.getNextVersion(parts);
-                parts.setVersion(version);
 
                 parts = (Parts) modelRepository.saveAndFlush(parts);
                 if (nbHis != null) {
@@ -340,9 +340,9 @@ public class MmsServiceImpl implements MmsService {
                     historyRepository.save(nbHis);
                 }
             } else {
-                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(parts.getObjectRrn());
+//                NBVersionControl oldData = (NBVersionControl) modelRepository.findByObjectRrn(parts.getObjectRrn());
                 // 不可改变状态
-                parts.setStatus(oldData.getStatus());
+                parts.setStatus(NBVersionControl.STATUS_ACTIVE);
                 parts = (Parts) modelRepository.saveAndFlush(parts);
 
                 if (nbHis != null) {
@@ -1132,10 +1132,10 @@ public class MmsServiceImpl implements MmsService {
             materialLot.setEffectiveLife(material.getEffectiveLife());
             materialLot.setEffectiveUnit(material.getEffectiveUnit());
             materialLot.setWarningLife(material.getWarningLife());
+            materialLot.setReserved14(materialLotAction.getTargetStorageId());
             materialLot.setReserved58(material.getSpareSpecs());
             materialLot.setReserved59(material.getSpareModel());
             materialLot.setReserved60(material.getSparePartsLine());
-
             if (propsMap != null && propsMap.size() > 0) {
                 for (String propName : propsMap.keySet()) {
                     PropertyUtils.setProperty(materialLot, propName, propsMap.get(propName));
@@ -1153,6 +1153,28 @@ public class MmsServiceImpl implements MmsService {
             materialLotHistoryRepository.save(history);
             return materialLot;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 晶圆接收入库操作
+     * @param materialLot
+     * @param transType
+     * @throws ClientException
+     */
+    public void stockInMaterialLotUnitAndSaveHis(MaterialLot materialLot, String transType) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+            for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                materialLotUnitHisRepository.save(history);
+                log.info("received materialLotUnit is " + materialLotUnit);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

@@ -24,6 +24,9 @@ public class MaterialLotUnit extends NBUpdatable {
 
     //三星等级
     public static final String SAMSUING_GRADE = "A";
+    public static final String COB_RETURN_MATERIAL_IMPORT = "COB_RETURN_MATERIAL";
+
+    public static final String MAIN_GRADE = "MAIN";
 
     public static final String STATE_CREATE = "Create";
     public static final String STATE_IN = "In";
@@ -52,7 +55,8 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String SENSOR_PACK_RETURN_COGO = "GCSensorPackageReturnCogo";//sensor封装回货（积高-3未测）
     public static final String SENSOR_PACK_RETURN = "GCSensorPackageReturn";//sensor封装回货（-3未测）
     public static final String SENSOR_TPLCC = "GCSensorTplccSenBang";//sensor-tplcc（森邦-3.5）
-    public static final String RMA_GOOD_PRODUCT = "GCRMAGoodProductImport";//RMA良品_-3.5导入
+    public static final String SENSOR_RMA_GOOD_PRODUCT = "GCRMAGoodProductImport";//SenSor RMA良品_-3.5导入
+    public static final String WLT_RMA_GOOD_PRODUCT = "GCWltRMAGoodProductImport";//WLT RMA良品_-3.5导入
     public static final String RMA_RETURN = "GCRMACustomerReturnFinishProduct";//RMA_客户退货_成品
     public static final String RMA_PURE = "GCRMAPureFinishProduct";//RMA纯_成品-4
     public static final String COB_FINISH_PRODUCT = "GCCOBFinishProduct"; //COB（-4成品）
@@ -85,6 +89,9 @@ public class MaterialLotUnit extends NBUpdatable {
     public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
     public static final String PRODUCT_CATEGORY_FT_COB = "COB";
     public static final String PRODUCT_CATEGORY_RW = "RW";
+    public static final String PRODUCT_CATEGORY_SOC = "SOC";
+    public static final String PRODUCT_CATEGORY_RMA = "RMA";
+
 
     public static final String BOX_TYPE = "COB";
 
@@ -531,6 +538,30 @@ public class MaterialLotUnit extends NBUpdatable {
      */
     @Column(name="RESERVED50")
     private String reserved50;
+
+    /**
+     * PACK_DEVICE
+     */
+    @Column(name="PACK_DEVICE")
+    private String packDevice;
+
+    /**
+     * 工程师名
+     */
+    @Column(name="ENGINEER_NAME")
+    private String engineerName;
+
+    /**
+     * 实验目的
+     */
+    @Column(name="TEST_PURPOSE")
+    private String testPurpose;
+
+    /**
+     * 工程备注
+     */
+    @Column(name="WORK_REMARKS")
+    private String workRemarks;
 
     @Transient
     private String relaxBoxId;

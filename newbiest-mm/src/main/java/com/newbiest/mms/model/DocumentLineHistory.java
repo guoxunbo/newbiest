@@ -289,4 +289,99 @@ public class DocumentLineHistory extends NBHis {
     @Column(name="MATERIAL_TYPE")
     private String materialType;
 
+    /**
+     * 客户Code
+     */
+    @Column(name="CUSCODE")
+    private String cuscode;
+
+    /**
+     * 产品类型
+     */
+    @Column(name="PRODUCT_TYPE")
+    private String productType;
+
+    /**
+     * 销售订单号
+     */
+    @Column(name="SALE_CODE")
+    private String saleCode;
+
+    /**
+     * 发货日期
+     */
+    @Column(name="SHIP_DETE")
+    private String shipDate;
+
+    /**
+     * 存货编码
+     */
+    @Column(name="STOCK_CODE")
+    private String stockCode;
+
+    /**
+     * PO号
+     */
+    @Column(name="PO_ID")
+    private String poId;
+
+    /**
+     * CRD_CODE收发类别编码
+     */
+    @Column(name="CRD_CODE")
+    private String crdCode;
+
+    /**
+     * CRD_NAME收发类别名称
+     */
+    @Column(name="CRD_NAME")
+    private String crdName;
+
+    /**
+     * 子表AUTOID
+     */
+    @Column(name="AUTOID")
+    private String autoid;
+
+    /**
+     * 发货单子表Id
+     */
+    @Column(name="SHIP_AUTOID")
+    private String shipAutoid;
+
+    /**
+     * 销售类型
+     */
+    @Column(name="SALE_TYPE")
+    private String saleType;
+
+    /**
+     * erp_soa的other5
+     */
+    @Column(name="RESERVED33")
+    private String reserved33;
+
+    /**
+     * erp_soa的other7统计口径
+     */
+    @Column(name="RESERVED34")
+    private String reserved34;
+
+    /**
+     * erp_soa的other14(销售订单审核状态)
+     */
+    @Column(name="RESERVED35")
+    private String reserved35;
+
+    /**
+     * 出货客户
+     */
+    @Column(name="SHIP_CUSTOMER")
+    private String shipCustomer;
+
+    /**
+     * 货物编码
+     */
+    @Column(name="CARGO_CODE")
+    private String cargoCode;
 }

@@ -982,28 +982,30 @@ public class PrintServiceImpl implements PrintService {
                     parameterMap.put("LOCATION", materialLot.getReserved6());
                     parameterMap.put("VENDER", materialLot.getReserved22());
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitMap.get(materialLotId);
+
+                    List<String> waferList = Lists.newArrayList();
                     Integer waferNumber = 0;
-                    String unitIdList1 = "";
-                    String unitIdLisr2 = "";
                     if(CollectionUtils.isNotEmpty(materialLotUnits)){
                         waferNumber = materialLotUnits.size();
-                        for(int j = 0; j <  materialLotUnits.size() ; j++){
-                            String[] unitIdList = materialLotUnits.get(j).getUnitId().split(StringUtils.SPLIT_CODE);
-                            String waferSeq = unitIdList[1] + ",";
-                            if(j < 12){
-                                unitIdList1 = unitIdList1 + waferSeq;
-                            } else {
-                                unitIdLisr2 = unitIdLisr2 + waferSeq;
-                            }
+
+                        materialLotUnits = materialLotUnits.stream().sorted(Comparator.comparing(MaterialLotUnit::getUnitId)).collect(Collectors.toList());
+                        for (MaterialLotUnit materialLotUnit : materialLotUnits) {
+                            String[] unitIdList = materialLotUnit.getUnitId().split(StringUtils.SPLIT_CODE);
+                            String waferSeq = unitIdList[1] ;
+                            waferList.add(waferSeq);
                         }
                     }
-                    if(!StringUtils.isNullOrEmpty(unitIdList1)){
-                        parameterMap.put("WAFERLIST1", unitIdList1);
+
+                    if(CollectionUtils.isNotEmpty(waferList)){
+                        List<String> strings1 = waferList.subList(0, waferList.size() > 12 ? 12 : waferList.size());
+                        parameterMap.put("WAFERLIST1", StringUtils.join(strings1, StringUtils.SPLIT_COMMA));
                     } else {
                         parameterMap.put("WAFERLIST1", StringUtils.EMPTY);
                     }
-                    if(!StringUtils.isNullOrEmpty(unitIdLisr2)){
-                        parameterMap.put("WAFERLIST2", unitIdLisr2);
+                    if(waferList.size() > 12){
+                        List<String> strings2 = waferList.subList(12, waferList.size());
+
+                        parameterMap.put("WAFERLIST2", StringUtils.join(strings2, StringUtils.SPLIT_COMMA));
                     } else {
                         parameterMap.put("WAFERLIST2", StringUtils.EMPTY);
                     }
@@ -1083,7 +1085,7 @@ public class PrintServiceImpl implements PrintService {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COM_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("barcode", materialLot.getMaterialLotId());
-            parameterMap.put("device", materialLot.getMaterialName());
+            parameterMap.put("device", materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-")));
             parameterMap.put("wafernum", materialLot.getCurrentQty().toPlainString());
             parameterMap.put("subcode", subcode);
 
@@ -1130,7 +1132,6 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("CSNAME",materialLot.getReserved18() == null ? materialLot.getShipper() : materialLot.getReserved18());
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-            print(printContext);
 
             Map<String, Object> params = Maps.newHashMap();
             if (printContext.getWorkStation().getIsClientPrint()){
@@ -1155,7 +1156,8 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RW_CST_BOX_LABEL, printCount);
             Map<String, Object> parameterMap = Maps.newHashMap();
-            parameterMap.put("DeviceID", materialLot.getMaterialName());
+            String deviceID = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-"));
+            parameterMap.put("DeviceID", deviceID);
             parameterMap.put("BoxID", materialLot.getMaterialLotId());
             parameterMap.put("Qty", materialLot.getCurrentQty().toPlainString());
             parameterMap.put("BP", materialLot.getReserved6());
@@ -1314,7 +1316,7 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("DeviceNo", deviceNo);
             parameterMap.put("PN", deviceNo);
             parameterMap.put("WaferLotNo", materialLot.getLotCst());
-            parameterMap.put("AssyPN", materialLot.getMaterialName());
+            parameterMap.put("AssyPN", deviceNo);
             parameterMap.put("AssyLotNo", materialLot.getInnerLotId());
             parameterMap.put("ShipLotNo", materialLot.getLotCst());
             parameterMap.put("Qty", materialLot.getCurrentQty());
@@ -1455,7 +1457,8 @@ public class PrintServiceImpl implements PrintService {
             List<Map<String, Object>> mapList = Lists.newArrayList();
 
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_IRA_BOX_LABEL, "");
-            Map<String,List<MaterialLot>> materialLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
+            List<MaterialLot> queryMaterialLots = materialLots.stream().map(materialLot -> materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(),materialLot.getOrgRrn())).collect(Collectors.toList());
+            Map<String,List<MaterialLot>> materialLotMap = queryMaterialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getLotId));
             Map<String, List<MaterialLot>> sortMap = materialLotMap.entrySet().stream().sorted(Map.Entry.comparingByKey())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,(oldValue, newValue) -> oldValue, LinkedHashMap::new));
             for (String lotId : sortMap.keySet()) {
@@ -1601,6 +1604,14 @@ public class PrintServiceImpl implements PrintService {
             return printContext;
         }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    @Override
+    public void printLongTenMLotLabel(List<Map<String, String>> mapList) throws ClientException {
+        for(Map<String, String> map : mapList){
+            PrintContext printContext = buildMaterialCodePrintContext(map, LabelTemplate.PRINT_LONGTEN_MLOT_LABEL);
+            print(printContext);
         }
     }
 

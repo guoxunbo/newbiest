@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseOtherShipReservedOrder_to_NB_TABLE
+      author: Youqing Huang
+      comment: add HNWarehouseOtherShipReservedOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HNWarehouseOtherShipReservedOrder
+              description: 湖南仓其他出备货单据
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 湖南仓其他出备货单据
+              label: HNWarehouseOtherShipReservedOrder

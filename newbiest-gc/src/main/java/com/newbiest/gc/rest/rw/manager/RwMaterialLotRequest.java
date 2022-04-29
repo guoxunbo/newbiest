@@ -26,6 +26,10 @@ public class RwMaterialLotRequest extends Request {
 	
 	public static final String ACTION_ADD_SHIP_ORDERID = "AddShipOrderId";
 
+	public static final String ACTION_CANCEL_SHIP_ORDERID = "CancelShipOrderId";
+
+	public static final String ACTION_PREVIEW = "PreView";
+
 	public static final String ACTION_QUERY_MLOT = "QueryMLot";
 
 	public static final String ACTION_STOCK_OUT = "StockOut";
@@ -35,6 +39,12 @@ public class RwMaterialLotRequest extends Request {
 	public static final String ACTION_GET_RW_STOCK_OUT = "RWStockOutPrint";
 
 	public static final String ACTION_GET_RW_LABEL = "RWBoxLabelPrint";
+
+	public static final String ACTION_COB_QUERY_MLOTUNIT = "COBWaferQuery";
+
+	public static final String ACTION_WAFER_AUTO_PICK = "WaferAutoPick";
+
+	public static final String ACTION_WAFER_STOCK_OUT_TAG = "WaferStockOutTag";
 
 	private RwMaterialLotRequestBody body;
 

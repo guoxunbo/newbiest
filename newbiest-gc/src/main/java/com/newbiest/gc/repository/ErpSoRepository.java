@@ -19,7 +19,4 @@ public interface ErpSoRepository extends IRepository<ErpSo, Long> {
     @Modifying
     void updateSynStatusAndErrorMemoAndUserIdBySeq(@Param("synStatus") String synStatus,@Param("errorMemo") String errorMemo, @Param("userId") String userId,@Param("seqList") List<Long> seqList) throws ClientException;
 
-    List<ErpSo> findByTypeAndCcode(@Param("type") String type, @Param("ccode") String ccode);
-
-    ErpSo findBySeq(@Param("seq") Long seq) throws Exception;
 }

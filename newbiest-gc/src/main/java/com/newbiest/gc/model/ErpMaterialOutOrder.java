@@ -176,4 +176,64 @@ public class ErpMaterialOutOrder implements Serializable {
      */
     @Column(name="CMEMO")
     private String cmemo;
+
+    @Column(name="G_CODE")
+    private String gCode;
+
+    @Column(name="CVOUCHTYPE")
+    private String cvouchtype;
+
+    @Column(name="CVOUCHNAME")
+    private String cvouchname;
+
+    @Column(name="CBUSTYPE")
+    private String cbustype;
+
+    @Column(name="CSOURCE")
+    private String csource;
+
+    @Column(name="CWHCODE")
+    private String cwhcode;
+
+    @Column(name="G_NAME")
+    private String gName;
+
+    @Column(name="OTHER8")
+    private String other8;
+
+    @Column(name="OTHER18")
+    private String other18;
+
+    @Column(name="OTHER3")
+    private String other3;
+
+    @Column(name="OTHER9")
+    private String other9;
+
+    @Column(name="OTHER7")
+    private String other7;
+
+    @Column(name="OTHER10")
+    private String other10;
+
+    @Column(name="OTHER5")
+    private String other5;
+
+    @Column(name="OTHER15")
+    private String other15;
+
+    @Column(name="CUSCODE")
+    private String cuscode;
+
+    @Column(name="CFREE4")
+    private String cfree4;
+
+    @Column(name="CRDCODE")
+    private String crdcode;
+
+    @Column(name="CRDNAME")
+    private String crdname;
+
+    @Column(name="OTHER16")
+    private String other16;
 }

@@ -19,9 +19,9 @@ public interface MaterialLotUnitService {
 
     List<MaterialLotUnit> getUnitsByMaterialLotId(String materialLotId) throws ClientException;
 
-    List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+    List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList, String returnMaterialFlag) throws ClientException;
 
-    List<MaterialLotUnit> receiveMLotWithUnit(MaterialLot materialLots, String warehouseName) throws ClientException;
+    void receiveMLotWithUnit(MaterialLot materialLots, String warehouseName) throws ClientException;
 
     void validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 

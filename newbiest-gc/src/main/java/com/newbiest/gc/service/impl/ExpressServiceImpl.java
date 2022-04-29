@@ -190,6 +190,10 @@ public class ExpressServiceImpl implements ExpressService {
      */
     public List<MaterialLot> planOrder(List<MaterialLot> materialLots, int serviceMode, int payMode, String orderTime) throws ClientException {
         try {
+            List<MaterialLot> cobMaterialLot = materialLots.stream().filter(materialLot -> MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(cobMaterialLot)){
+                validateAndGetCobMaterialLotDocInfo(materialLots);
+            }
             Optional optional = materialLots.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getReserved51())).findFirst();
             if (optional.isPresent()) {
                 throw new ClientException(GcExceptions.PICKUP_ADDRESS_IS_NULL);
@@ -200,11 +204,11 @@ public class ExpressServiceImpl implements ExpressService {
             Map<String, Object> requestParameters = Maps.newHashMap();
             requestParameters.put("platformFlag", expressConfiguration.getPlatformFlag());
 
-            if (ZJ_BOOK.equals(books)) {
+//            if (ZJ_BOOK.equals(books)) {
                 requestParameters.put("customerCode", expressConfiguration.getZjCustomerCode());
-            } else {
-                requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
-            }
+//            } else {
+//                requestParameters.put("customerCode", expressConfiguration.getCustomerCode());
+//            }
             List<OrderInfo> orderInfos = Lists.newArrayList();
             OrderInfo orderInfo = new OrderInfo();
             // 寄件人信息
@@ -232,10 +236,10 @@ public class ExpressServiceImpl implements ExpressService {
             orderInfo.setOrderTime(date);
 
             orderInfo.setOrderId(ExpressConfiguration.PLAN_ORDER_DEFAULT_ORDER_ID);
-            orderInfo.setPaymentCustomer(expressConfiguration.getCustomerCode());
-            if (ZJ_BOOK.equals(books)) {
+//            orderInfo.setPaymentCustomer(expressConfiguration.getCustomerCode());
+//            if (ZJ_BOOK.equals(books)) {
                 orderInfo.setPaymentCustomer(expressConfiguration.getZjCustomerCode());
-            }
+//            }
             if (OrderInfo.RECEIVE_PAY_MODE.equals(payMode)) {
                 orderInfo.setPaymentCustomer(StringUtils.EMPTY);
             }
@@ -254,6 +258,9 @@ public class ExpressServiceImpl implements ExpressService {
             }
 
             for (MaterialLot materialLot : materialLots) {
+                if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
+                    materialLot.clearCobReservedDocInfo();
+                }
                 materialLot.setExpressNumber(waybillNumber);
                 materialLot.setPlanOrderType(MaterialLot.PLAN_ORDER_TYPE_AUTO);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
@@ -263,6 +270,31 @@ public class ExpressServiceImpl implements ExpressService {
             }
 
             return materialLots;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证是否存在COB的下单批次
+     * @param materialLots
+     */
+    private void validateAndGetCobMaterialLotDocInfo(List<MaterialLot> materialLots) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLots){
+                if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
+                    String subCode = materialLot.getReserved1() + materialLot.getGrade();
+                    DocumentLine documentLine = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7(materialLot.getReserved56(), materialLot.getMaterialName(), materialLot.getGrade(), subCode, materialLot.getReserved6());
+                    if(documentLine == null){
+                        throw new ClientParameterException(GcExceptions.ORDER_IS_NOT_EXIST, materialLot.getReserved56());
+                    }
+                    materialLot.setShipper(documentLine.getReserved12());
+                    materialLot.setReserved16(documentLine.getObjectRrn().toString());
+                    materialLot.setReserved51(documentLine.getReserved15());
+                    materialLot.setReserved52(documentLine.getReserved20());
+                    materialLot.setReserved53(documentLine.getReserved21());
+                }
+            }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -418,22 +450,6 @@ public class ExpressServiceImpl implements ExpressService {
             baseService.saveHistoryEntity(documentLine, "RecordExpress");
         }
         return documentLineList;
-    }
-
-    /**
-     * 判断所有的备货单号是否一致
-     * @param materialLots
-     */
-    @Override
-    public void validateReservedOrderId(List<MaterialLot> materialLots) throws ClientException{
-        try {
-            Set reservedDocIdInfo = materialLots.stream().map(materialLot -> materialLot.getReserved17()).collect(Collectors.toSet());
-            if (reservedDocIdInfo != null &&  reservedDocIdInfo.size() > 1) {
-                throw new ClientParameterException(GcExceptions.MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME);
-            }
-        }catch (Exception e) {
-            throw ExceptionManager.handleException(e,log);
-        }
     }
 
     /**

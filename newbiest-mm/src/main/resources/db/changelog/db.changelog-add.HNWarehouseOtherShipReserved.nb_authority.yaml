@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseOtherShipReservedManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseOtherShipReservedManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNOtherShipReservedManager
+              description: 湖南仓库其它出
+              tableName: HNWarehouseOtherShipReservedOrder
+              secondTableName: HNWarehouseOtherShipReservedMLotScan
+              mobileFlag: N
+              url: /HNWarehouse/OtherShipReserved
+              parentRrn: 2022
+              seqNo: 75
+              image: icon-wuliao
+              labelZh: 其他出备货
+              labelEn: OtherShipReserved

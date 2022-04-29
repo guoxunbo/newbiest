@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseUnboxManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseUnboxManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNWarehouseUnboxManager
+              description: 湖南仓 拆箱
+              tableName: HNWarehouseUnbox
+              mobileFlag: N
+              url: /HNWarehouse/UnboxManager
+              parentRrn: 2022
+              seqNo: 40
+              image: icon-rule
+              labelZh: 拆箱
+              labelEn: Unbox
+

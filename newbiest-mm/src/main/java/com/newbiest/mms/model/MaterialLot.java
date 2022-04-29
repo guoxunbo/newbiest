@@ -121,6 +121,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String WLT_SHIP_MLOT_MERGE_RULE = "WltCPShipCase";
 
+    /**
+     * IRA装箱规则
+     */
+    public static final String IRA_MERGE_RULE = "IRAPackCase";
+
     public static final String RECEIVE_ERROR = "ERROR";
 
     /**
@@ -134,6 +139,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String MLOT_SHIP_DOC_VALIDATE_RULE_ID = "MLotShipDocRule";  //COM出货单据验证规则
     public static final String WLT_SHIP_DOC_VALIDATE_RULE_ID = "WLTStockOutDocRule";    //WLT出货单据验证
     public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "MLotReservedRule"; //备货单据验证规则
+    public static final String OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID = "OtherShipReservedRule"; //其他出备货单据验证规则
+    public static final String HN_WAREHOUSE_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID = "HNWarehouseOtherShipReservedRule"; //湖南仓其他出备货单据验证规则
     public static final String MLOT_RETEST_DOC_VALIDATE_RULE_ID = "MLotReTestRule"; //物料重测发料单据验证规则
     public static final String WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "WaferReceiveDocLineRule";  //晶圆接收单据验证规则
     public static final String COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "COBWaferReceiveDocLineRule"; //COB晶圆接收单据验证规则
@@ -146,11 +153,18 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String RW_MLOT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "RwMLotStockOutDocRule";  //RW出货单据验证规则
     public static final String RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID = "RwMaterialScrapShipDocRule";  //原材料报废出库单据验证规则
     public static final String WLT_OTHER_STOCK_OUT_RULE_ID = "WltOtherStockOutRule";  //WLT/CP其它出单据验证规则
+    public static final String SAMPLE_COLLECTION_STOCK_OUT_RULE_ID = "SampleCollectionStockOutRule"; //样品领用出单据验证规则
+    public static final String HN_WAREHOUSE_WLT_OTHER_STOCK_OUT_RULE_ID = "HNWarehouseWltOtherStockOutRule"; //湖南仓其它出单据验证规则
+    public static final String FT_RETEST_DOC_VALIDATE_RULE_ID = "FtVboxReTestRule"; //FT真空包重测发料单据验证规则
+
+    public static final String RW_SHIP_TAG_UPDATE_PREVIEW_RULE_ID = "RwShipTagUpdatePreviewRule"; //COB出货标注修改分组筛选
+
     public static final String MOBILE_RAW_ISSUE_WHERE_CLAUSE="GCRawMaterialIssueOrder";
     public static final String MOBILE_RETEST_WHERE_CLAUSE = "GCReTestManager";
     public static final String MOBILE_WLT_OR_CP_STOCK_OUT_ORDER_WHERE_CLAUSE = "GCWltOrCpStockOutOrder";
     public static final String MOBILE_COM_WAFER_ISSUE_MANAGER_WHERE_CLAUSE = "GCCOMWaferIssueManager";
     public static final String GC_SCM_LOT_QUERY_WHERE_CLAUSE = "GCScmLotQuery";
+    public static final String MOBILE_RAW_MATERIAL_SCRAP_SHIP_WHERE_CLAUSE = "GCRawMaterialScrapShipOrder"; //原材料其他出
     public static final String GC_INCOMING_MATERIAL_IMPORT = "GCIncomingMaterialImport"; //来料导入
     public static final String WLT_PACKAGED_LOT_SCAN = "WLTPackagedLotScan"; //LOT产线入库
 
@@ -207,11 +221,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String IMPORT_FT = "FT";
     public static final String IMPORT_MASK = "MASK";
 
+    public static final String RETEST_TYPE_COM = "COMReTest";
+    public static final String RETEST_TYPE_FT = "FtReTest";
+
     /**
      * Wafer Source
      */
     public static final String RW_TO_CP_WAFER_SOURCE = "21";
     public static final String RW_WAFER_SOURCE = "20";
+    public static final String RMA_WAFER_SOURCE = "11";
     public static final String COM_WAFER_SOURCE = "19";
     public static final String WLT_WAFER_SOURCE = "6";
     public static final String LCP_WAFER_SOURCE = "4";
@@ -229,8 +247,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
     public static final String RAW_MATERIAL_WAFER_SOURCE = "60";
     public static final String CP_CHANGGE_RW_WAFER_SOURCE = "21";
-    public static final String SOC_WAFER_SOURCE_UNMEASUREN = "1";
-    public static final String SOC_WAFER_SOURCE_MEASURE = "2";
+    public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
+    public static final String SOC_WAFER_SOURCE_MEASURE = "14";
     public static final String MASK_WAFER_SOURCE = "99";
 
     /**
@@ -1006,6 +1024,43 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="RESERVED60")
     private String reserved60;
 
+    /**
+     * PACK_DEVICE
+     */
+    @Column(name="PACK_DEVICE")
+    private String packDevice;
+
+    /**
+     * 工程师名
+     */
+    @Column(name="ENGINEER_NAME")
+    private String engineerName;
+
+    /**
+     * 实验目的
+     */
+    @Column(name="TEST_PURPOSE")
+    private String testPurpose;
+
+    /**
+     * 工程备注
+     */
+    @Column(name="WORK_REMARKS")
+    private String workRemarks;
+
+    /**
+     * 标注日期
+     */
+    @Column(name="TAG_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone = GMT_PE,pattern = DateUtils.DEFAULT_DATE_PATTERN)
+    private Date tagDate;
+
+    /**
+     * 标注人
+     */
+    @Column(name="TAG_USER")
+    private String tagUser;
 
     @Transient
     private String documentLineUser;
@@ -1153,6 +1208,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setPlanOrderType(StringUtils.EMPTY);
     }
 
+    public void clearCobReservedDocInfo() {
+        this.setShipper(null);
+        this.setReserved16(null);
+        this.setReserved17(null);
+        this.setReserved51(null);
+        this.setReserved52(null);
+        this.setReserved53(null);
+    }
+
     /**
      * 清空预留相关栏位信息
      */
@@ -1166,6 +1230,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setReserved51(StringUtils.EMPTY);
         this.setReserved52(StringUtils.EMPTY);
         this.setReserved53(StringUtils.EMPTY);
+        this.setReserved55(StringUtils.EMPTY);
     }
 
     /**

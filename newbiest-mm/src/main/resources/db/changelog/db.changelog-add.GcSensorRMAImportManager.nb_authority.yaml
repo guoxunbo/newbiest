@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCSensorRMAImportManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCSensorRMAImportManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCSensorRMAImportManager
+              description: Sensor良品RMA导入
+              tableName: GCRMAGoodProductImport
+              mobileFlag: N
+              url: /WMS/SensorRMAIncomingMLotImport
+              parentRrn: 210
+              seqNo: 6
+              image: icon-rule
+              labelZh: Sensor良品RMA导入
+              labelEn: Unbox
+

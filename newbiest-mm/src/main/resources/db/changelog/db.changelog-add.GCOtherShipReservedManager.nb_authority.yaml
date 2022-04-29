@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCOtherShipReservedManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCOtherShipReservedManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCOtherShipReservedManager
+              description: 其他出自动备货
+              tableName: GCOtherShipReservedOrder
+              secondTableName: GCOtherShipReservedMLot
+              url: /Doc/OtherShipReservedManager
+              mobileFlag: N
+              parentRrn: 1020
+              seqNo: 2
+              image: icon-rule
+              labelZh: 其他出自动备货
+              labelEn: OtherShipReserved
