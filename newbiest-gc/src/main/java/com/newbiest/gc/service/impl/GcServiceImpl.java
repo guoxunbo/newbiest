@@ -5992,12 +5992,14 @@ public class GcServiceImpl implements GcService {
         try {
             if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setReserved30(materialLotUnit.getReserved30().split("\\.")[0]);
                     materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
                     materialLotUnit.setReserved50("7");
                 }
             } else if (MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)){
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    materialLotUnit.setReserved30(materialLotUnit.getReserved30().split("\\.")[0]);
                     materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR);
                     materialLotUnit.setReserved50(MaterialLot.SENSOR_WAFER_SOURCE);
@@ -10095,6 +10097,7 @@ public class GcServiceImpl implements GcService {
     @Override
     public void mesMaterialLotUnitUnBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException {
         try{
+            log.info("unbindWorkorder materialLotUnitList is " + materialLotUnitList);
             List<MaterialLot> scmReportMLotList = Lists.newArrayList();
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
