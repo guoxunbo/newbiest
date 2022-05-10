@@ -911,3 +911,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HNWarehouseUnReservedMaterialLot_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCSamsungOuterBoxLabelPrint_nb_table.yaml
+      relativeToChangelogFile: true
