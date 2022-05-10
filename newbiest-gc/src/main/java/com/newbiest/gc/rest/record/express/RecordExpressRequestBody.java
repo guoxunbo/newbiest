@@ -40,6 +40,8 @@ public class RecordExpressRequestBody extends RequestBody {
 
 	public static final String ACTION_TYPE_QUERY_ORDER_INFO = "QueryOrderInfo";
 
+	public static final String ACTION_TYPE_SAMSUNG_OUTER_BOX_LABEL_PRINT = "SamsungOuterBoxLabelPrint";
+
 	private String actionType;
 
 	private Integer serviceMode;
@@ -65,5 +67,8 @@ public class RecordExpressRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "快递单信息")
 	private List<OrderInfo> orderList;
+
+	@ApiModelProperty(value = "快递单信息")
+	private String printCount;
 
 }

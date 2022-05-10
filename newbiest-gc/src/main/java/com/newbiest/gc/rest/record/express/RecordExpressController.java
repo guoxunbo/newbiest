@@ -78,6 +78,9 @@ public class RecordExpressController {
         } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_ORDER_INFO.equals(actionType)){
             OrderInfo orderInfo = expressService.getOrderInfoByWayBillNumber(requestBody.getWayBillNumber());
             responseBody.setOrderInfo(orderInfo);
+        } else if(RecordExpressRequestBody.ACTION_TYPE_SAMSUNG_OUTER_BOX_LABEL_PRINT.equals(actionType)){
+            parameterMapList = printService.printSamsungOuterBoxLabel(requestBody.getDocumentLineList(), Integer.parseInt(requestBody.getPrintCount()));
+            responseBody.settingClientPrint(parameterMapList);
         }else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }
