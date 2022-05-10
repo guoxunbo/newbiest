@@ -454,39 +454,39 @@ public class TempFtServiceImpl implements TempFtService {
     private void getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(Map<String,Object> propMap, String waferSource, String productType) throws ClientException{
         try {
             if(TempFtModel.WAFER_SOURCE_1.equals(waferSource) || TempFtModel.WAFER_SOURCE_3.equals(waferSource)){
-                propMap.put("reserved7", productType == "RMA" ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA :  MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);//SENSOR0
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_RMA.equals(productType) ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA :  MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);//SENSOR0
                 propMap.put("reserved49", MaterialLot.IMPORT_SENSOR);//SENSOR
                 propMap.put("reserved50", MaterialLot.SENSOR_WAFER_SOURCE);//9
             } else if(TempFtModel.WAFER_SOURCE_2.equals(waferSource)) {
-                propMap.put("reserved7", productType == "RMA" ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CATEGORY_FT);//FT
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_RMA.equals(productType) ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CATEGORY_FT);//FT
                 propMap.put("reserved49", MaterialLotUnit.PRODUCT_CATEGORY_FT);//FT
                 propMap.put("reserved50", MaterialLot.FT_WAFER_SOURCE);//10
             } else if(TempFtModel.WAFER_SOURCE_11.equals(waferSource) || TempFtModel.WAFER_SOURCE_12.equals(waferSource)){
-                propMap.put("reserved7", productType == "RMA" ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CLASSIFY_COG);//COG0
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_RMA.equals(productType) ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CLASSIFY_COG);//COG0
                 propMap.put("reserved49", MaterialLot.IMPORT_COG);//COG
                 propMap.put("reserved50", MaterialLot.SCP_IN_FLAG_WAFER_SOURCE);//17
             } else if(TempFtModel.WAFER_SOURCE_21.equals(waferSource)){
-                propMap.put("reserved7", productType == "RMA" ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CATEGORY_FT_COB);//COB
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_RMA.equals(productType) ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CATEGORY_FT_COB);//COB
                 propMap.put("reserved49", MaterialLot.IMPORT_COB);//COB
                 propMap.put("reserved50", MaterialLot.RW_WAFER_SOURCE);//20
             } else if(TempFtModel.WAFER_SOURCE_31.equals(waferSource)){
-                propMap.put("reserved7", productType == "RMA" ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CATEGORY_RW);//RW
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_RMA.equals(productType) ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CATEGORY_RW);//RW
                 propMap.put("reserved49", MaterialLot.IMPORT_SENSOR_CP);//SENSOR_CP
                 propMap.put("reserved50", MaterialLot.RW_WAFER_SOURCE);//20
             } else if(TempFtModel.WAFER_SOURCE_32.equals(waferSource)){
-                propMap.put("reserved7", productType == "RMA" ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CLASSIFY_RMA);//RMA
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_RMA.equals(productType) ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CLASSIFY_RMA);//RMA
                 propMap.put("reserved49", MaterialLot.IMPORT_CRMA);//CRMA
                 propMap.put("reserved50", MaterialLot.RMA_WAFER_SOURCE);//11
             } else if(TempFtModel.WAFER_SOURCE_33.equals(waferSource) || TempFtModel.WAFER_SOURCE_34.equals(waferSource)){
-                propMap.put("reserved7", productType == "RMA" ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CLASSIFY_WLT);//WLT0
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_RMA.equals(productType) ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CLASSIFY_WLT);//WLT0
                 propMap.put("reserved49", MaterialLot.IMPORT_WLT);//WLT
                 propMap.put("reserved50", MaterialLot.WLT_PACK_RETURN_WAFER_SOURCE);//7
             } else if(TempFtModel.WAFER_SOURCE_39.equals(waferSource)){
-                propMap.put("reserved7", productType == "RMA" ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CLASSIFY_SOC);//SOC0
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_RMA.equals(productType) ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLotUnit.PRODUCT_CLASSIFY_SOC);//SOC0
                 propMap.put("reserved49", MaterialLot.IMPORT_SOC);//SOC
                 propMap.put("reserved50", MaterialLot.SOC_WAFER_SOURCE);//18
             } else if(TempFtModel.WAFER_SOURCE_100.equals(waferSource)){
-                propMap.put("reserved7", productType == "RMA" ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLot.PRODUCT_CATEGORY);//COM
+                propMap.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_RMA.equals(productType) ? MaterialLotUnit.PRODUCT_CLASSIFY_RMA : MaterialLot.PRODUCT_CATEGORY);//COM
                 propMap.put("reserved49", MaterialLot.PRODUCT_CATEGORY);//COM
                 propMap.put("reserved50", MaterialLot.COM_WAFER_SOURCE);//19
             }
