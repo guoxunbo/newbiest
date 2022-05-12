@@ -140,6 +140,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WLT_SHIP_DOC_VALIDATE_RULE_ID = "WLTStockOutDocRule";    //WLT出货单据验证
     public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "MLotReservedRule"; //备货单据验证规则
     public static final String OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID = "OtherShipReservedRule"; //其他出备货单据验证规则
+    public static final String HN_WAREHOUSE_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID = "HNWarehouseOtherShipReservedRule"; //湖南仓其他出备货单据验证规则
     public static final String MLOT_RETEST_DOC_VALIDATE_RULE_ID = "MLotReTestRule"; //物料重测发料单据验证规则
     public static final String WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "WaferReceiveDocLineRule";  //晶圆接收单据验证规则
     public static final String COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "COBWaferReceiveDocLineRule"; //COB晶圆接收单据验证规则
@@ -153,6 +154,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID = "RwMaterialScrapShipDocRule";  //原材料报废出库单据验证规则
     public static final String WLT_OTHER_STOCK_OUT_RULE_ID = "WltOtherStockOutRule";  //WLT/CP其它出单据验证规则
     public static final String SAMPLE_COLLECTION_STOCK_OUT_RULE_ID = "SampleCollectionStockOutRule"; //样品领用出单据验证规则
+    public static final String HN_WAREHOUSE_WLT_OTHER_STOCK_OUT_RULE_ID = "HNWarehouseWltOtherStockOutRule"; //湖南仓其它出单据验证规则
     public static final String FT_RETEST_DOC_VALIDATE_RULE_ID = "FtVboxReTestRule"; //FT真空包重测发料单据验证规则
 
     public static final String RW_SHIP_TAG_UPDATE_PREVIEW_RULE_ID = "RwShipTagUpdatePreviewRule"; //COB出货标注修改分组筛选
@@ -1204,6 +1206,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setExpressNumber(StringUtils.EMPTY);
         this.setExpressCompany(StringUtils.EMPTY);
         this.setPlanOrderType(StringUtils.EMPTY);
+    }
+
+    public void clearCobReservedDocInfo() {
+        this.setShipper(null);
+        this.setReserved16(null);
+        this.setReserved17(null);
+        this.setReserved51(null);
+        this.setReserved52(null);
+        this.setReserved53(null);
     }
 
     /**

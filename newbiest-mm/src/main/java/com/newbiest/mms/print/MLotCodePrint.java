@@ -101,4 +101,23 @@ public class MLotCodePrint {
     public static final String BOXSEQ_START_BZ = "BZ";
     public static final String BOXSEQ_START_BL = "BL";
 
+    //三星外箱标签
+    public static final String SEV_FACTORY_NAME = "SEV";
+    public static final String SEV_FACTORY_ID = "P518-[SEV]Mobile Plant";
+
+    public static final String SEIN_FACTORY_NAME = "SEIN";
+    public static final String SEIN_FACTORY_ID = "P529-[SEIN]HHP Plant";
+
+    public static final String SIEL_FACTORY_NAME = "SIEL";
+    public static final String SIEL_FACTORY_ID = "P538-[SIEL]Mobile Noida";
+
+    public static final String SEDA_P_FACTORY_NAME = "SEDA_P";
+    public static final String SEDA_P_FACTORY_ID = "P811-[SEDA]Mobile Campinas";
+
+    public static final String SEDA_M_FACTORY_NAME = "SEDA_M";
+    public static final String SEDA_M_FACTORY_ID = "P81J-[SEDA]HHP Manaus";
+
+    public static final String SEVT_FACTORY_NAME = "SEVT";
+    public static final String SEVT_FACTORY_ID = "P520-[SEVT]Mobile Plant";
+
 }

@@ -42,6 +42,7 @@ public class LabelTemplate extends NBBase {
     public static final String PRINT_IRA_BOX_LABEL = "PrintIRABoxLabel";//IR箱号标签打印
     public static final String PRINT_WAFER_LOT_LABEL = "PrintWaferLotLabel";//wafer拆箱箱号标签打印
     public static final String PRINT_RW_BOX_LABEL = "PrintRwBoxLabel"; //RW出货箱标签打印
+    public static final String PRINT_SAMSUNG_OUTER_BOX_LABEL = "PrintSamsungOuterBoxLabel";//三星外箱标签
 
     //物料编码打印相关
     public static final String PRINT_OPHELION_MLOT_LABEL = "PrintOphelionMLotLabel";//欧菲光

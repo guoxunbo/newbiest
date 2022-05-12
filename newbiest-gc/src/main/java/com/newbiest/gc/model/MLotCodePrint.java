@@ -14,7 +14,6 @@ public class MLotCodePrint {
     public static final String GENERAL_MLOT_PORTID = "2001";
     public static final String HK_SUPPLIER = "格科微电子（香港）有限公司";
     public static final String SH_SUPPLIER = "格科微电子（上海）有限公司";
-    public static final String DELIVERY_PLACE = "昆山";
     public static final String BOX_LABEL = "包装箱ID";
     public static final String VBOX_LABEL = "真空包ID";
 

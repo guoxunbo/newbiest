@@ -1,6 +1,7 @@
 package com.newbiest.mms.service;
 
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 
@@ -23,6 +24,7 @@ public interface PrintService {
     List<Map<String, Object>> printRmaMaterialLotLabel(List<MaterialLot> materialLotList) throws ClientException;
 
     List<Map<String, Object>> printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException;
+    List<Map<String, Object>>  printSamsungOuterBoxLabel(List<DocumentLine> documentLines, Integer printCount) throws ClientException;
     List<Map<String, Object>> printRwLotCstLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
     Map<String, Object> rePrintRwLotCstLabel(MaterialLot materialLot, String printCount) throws ClientException;
     Map<String, Object> printRwCstLabel(MaterialLot materialLot, String printCount) throws ClientException;

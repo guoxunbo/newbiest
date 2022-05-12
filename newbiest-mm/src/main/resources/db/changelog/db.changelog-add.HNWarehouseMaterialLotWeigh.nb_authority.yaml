@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseMaterialLotWeighManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseMaterialLotWeighManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNWarehouseMLotWeighManager
+              description: 湖南仓库称重
+              tableName: HNWarehouseMaterialLotWeigh
+              mobileFlag: N
+              url: /HNWarehouse/MaterialLotWeigh
+              parentRrn: 2022
+              seqNo: 50
+              image: icon-wuliao
+              labelZh: 称重
+              labelEn: MaterialLotWeigh

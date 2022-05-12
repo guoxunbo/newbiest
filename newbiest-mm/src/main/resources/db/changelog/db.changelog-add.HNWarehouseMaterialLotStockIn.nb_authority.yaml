@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseMaterialLotStockInManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseMaterialLotStockInManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNWarehouseMLotStockInManager
+              description: 湖南仓库入库位
+              tableName: HNWarehouseMaterialLotStockIn
+              mobileFlag: N
+              url: /HNWarehouse/MaterialLotStockIn
+              parentRrn: 2022
+              seqNo: 45
+              image: icon-wuliao
+              labelZh: 入库位
+              labelEn: MaterialLotStockIn
+

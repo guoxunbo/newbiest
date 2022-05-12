@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCHKMLotReservedOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCHKMLotReservedOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCHKMLotReservedOrder
+              description: 香港备货单据
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 香港备货单据
+              label: HKReservedOrder
+  - changeSet:
+      id: add_GCHKWarehouseReservedMLot_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCHKWarehouseReservedMLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCHKWarehouseReservedMLot
+              description: 香港仓备货物料批次
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓备货物料批次
+              label: HKReservedMLot

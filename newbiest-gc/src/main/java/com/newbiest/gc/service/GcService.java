@@ -116,7 +116,7 @@ public interface GcService {
     void waferStockOutTagging(List<MaterialLotAction> materialLotActions, String stockTagNote, String customerName, String stockOutType, String poId, String address) throws ClientException;
     void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode, String actionType) throws ClientException;
     void mobileWltStockOut(List<MaterialLotAction> materialLotActions,String erpTime, String checkSubCode, String actionType) throws ClientException;
-    void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String actionType) throws ClientException;
+    void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String actionType, String ruleId) throws ClientException;
     boolean validationWltStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     boolean validateStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
@@ -181,7 +181,6 @@ public interface GcService {
     void asyncShipOrder() throws ClientException;
     void asyncCogReceiveOrder() throws ClientException;
 
-    void asyncFtRetestIssueOrder() throws ClientException;
     void asyncOtherIssueOrder() throws ClientException;
     void asyncOtherStockOutOrder() throws ClientException;
     void asyncOtherShipOrder() throws ClientException;
@@ -203,7 +202,7 @@ public interface GcService {
     void asyncMesGlueType() throws ClientException;
     void asyncMaterialName() throws ClientException;
 
-    void valaidateAndMergeErpDocLine(List<DocumentLine> documentLineList) throws ClientException;
+    void valaidateAndMergeErpDocLine(List<DocumentLine> documentLineList, String ruleId) throws ClientException;
 
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 
@@ -221,7 +220,9 @@ public interface GcService {
     void transferStorage(List<RelayBoxStockInModel> relayBoxStockInModel) throws  ClientException;
     List<MaterialLot> getMaterialLotAndDocUserToUnReserved(Long tableRrn,String whereClause) throws ClientException;
 
-    String packageIRAs(List<MaterialLotAction> materialLotActions, String packageType);
+    String packageIRAs(List<MaterialLotAction> materialLotActions, String packageType)  throws ClientException;
 
-    void unPackageIRAs(List<MaterialLotAction> materialLotActions, String packageType);
+    void unPackageIRAs(List<MaterialLotAction> materialLotActions, String packageType)  throws ClientException;
+
+    List<MaterialLotUnit> packReturnSetWaferSource(String importType, List<MaterialLotUnit> materialLotUnitList)  throws ClientException;
 }

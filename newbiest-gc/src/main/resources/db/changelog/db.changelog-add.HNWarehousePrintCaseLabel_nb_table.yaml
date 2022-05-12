@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehousePrintCaseLabel_to_NB_TABLE
+      author: Youqing Huang
+      comment: add HNWarehousePrintCaseLabel to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HNWarehousePrintCaseLabel
+              description: 湖南仓补打标签
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 湖南仓补打标签
+              label: HNWarehousePrintCaseLabel

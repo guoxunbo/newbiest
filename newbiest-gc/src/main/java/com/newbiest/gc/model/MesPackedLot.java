@@ -22,6 +22,7 @@ public class MesPackedLot implements Serializable {
     public static final String PACKED_STATUS_IN = "IN";
 
     public static final String PRODUCT_CATEGORY_FT = "FT";
+    public static final String PRODUCT_CATEGORY_RW = "RW";
     public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
     public static final String PRODUCT_CATEGORY_WLT = "WLT";
     public static final String PRODUCT_CATEGORY_CP = "CP";
@@ -238,6 +239,12 @@ public class MesPackedLot implements Serializable {
      */
     @Column(name="VENDER")
     private String vender;
+
+    /**
+     * 原Lot昊
+     */
+    @Column(name = "SOURCE_LOT_ID")
+    private String sourceLotId;
 
     /**
      * 供应商

@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCSamsungOuterBoxLabelPrintManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCSamsungOuterBoxLabelPrintManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: SamsungOuterBoxLabelPrintManager
+              description: 三星外箱标签打印
+              tableName: GCSamsungOuterBoxLabelPrint
+              mobileFlag: N
+              url: /GC/SamsungOuterBoxLabelPrint
+              parentRrn: 1010
+              seqNo: 70
+              image: icon-wuliao
+              labelZh: 三星外箱标签打印
+              labelEn: SamsungOuterBoxLabelPrint
+
