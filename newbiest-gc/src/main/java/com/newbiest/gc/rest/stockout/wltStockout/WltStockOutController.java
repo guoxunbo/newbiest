@@ -6,6 +6,7 @@ import com.newbiest.gc.rest.stockout.StockOutRequestBody;
 import com.newbiest.gc.rest.stockout.StockOutResponse;
 import com.newbiest.gc.rest.stockout.StockOutResponseBody;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.gc.service.ThreeSideShipService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -31,6 +32,9 @@ public class WltStockOutController {
 
     @Autowired
     GcService gcService;
+
+    @Autowired
+    ThreeSideShipService threeSideShipService;
 
     @Autowired
     MaterialLotUnitService materialLotUnitService;
@@ -75,6 +79,8 @@ public class WltStockOutController {
             gcService.wltCpThreeSideShip(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
         } else if(WltStockOutRequest.ACTION_SALE_SHIP.equals(actionType)) {
             gcService.wltCpMaterialLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode(), actionType);
+        } else if(WltStockOutRequest.ACTION_SALE_AND_THREE_SALE_SHIP.equals(actionType)){
+            threeSideShipService.wltCpMLotSaleShip(requestBody.getDocumentLine(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode());
         } else if (WltStockOutRequest.ACTION_GC_RW_ATTRIBUTE_CHANGE.equals(actionType)){
             gcService.rWAttributeChange(requestBody.getMaterialLots());
         } else if (WltStockOutRequest.ACTION_MOBILE_WLT_STOCK_OUT.equals(actionType)){

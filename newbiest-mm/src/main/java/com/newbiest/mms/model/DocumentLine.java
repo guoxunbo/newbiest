@@ -1,6 +1,7 @@
 package com.newbiest.mms.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.Getter;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 单据对应的详细信息
@@ -25,7 +27,22 @@ public class DocumentLine extends NBUpdatable {
     public static final String CUSCODE_C2837 = "C2837";
     public static final String CUSCODE_C9009 = "C9009";
     public static final String CUSCODE_C001 = "C001";
+    public static final String CUSCODE_C003263 = "C003263";
+    public static final List<String> CUSCODE_LIST = Lists.newArrayList(CUSCODE_9006, CUSCODE_C1001, CUSCODE_C2837, CUSCODE_C9009, CUSCODE_C001, CUSCODE_C003263);
+    public static final List<String> SH_ZJ_CUSCODE_LIST = Lists.newArrayList(CUSCODE_9006, CUSCODE_C1001, CUSCODE_C2837, CUSCODE_C9009);
 
+
+    public static final String STCODE_50 = "50";
+    public static final String STCODE_55 = "55";
+    public static final String STCODE_60 = "60";
+    public static final String STCODE_65 = "65";
+    public static final List<String> STCODE_LIST = Lists.newArrayList(STCODE_50, STCODE_55, STCODE_65);
+    public static final List<String> ALL_STCODE_LIST = Lists.newArrayList(STCODE_50, STCODE_55, STCODE_60, STCODE_65);
+
+    public static final String MEMO = "出货到保税仓";
+    public static final String PLACR_GALAXYCORE = "格科微";
+
+    public static final String CBUS_TYPE = "普通销售";
 
     /**
      * 合单之后

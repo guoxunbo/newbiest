@@ -914,3 +914,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCSamsungOuterBoxLabelPrint_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-0.0.2.add.mms_warehouse.yaml
+      relativeToChangelogFile: true

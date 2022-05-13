@@ -22,11 +22,11 @@ public class FTMLotManagerRequest extends Request {
 
 	public static final String ACTION_TYPE_FT_ISSUE = "FtIssue";
 
-	public static final String ACTION_TYPE_VALIDATE_MLOT = "ValidateMLot";
-
 	public static final String ACTION_TYPE_FT_STOCK_OUT = "FTStockOut";
 
 	public static final String ACTION_TYPE_FT_OUTORDER_ISSUE = "FTOutOrderIssue";
+
+	public static final String ACTION_TYPE_SALE_SHIP = "SaleShip";
 
 	private FTMLotManagerRequestBody body;
 

@@ -40,6 +40,7 @@ import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.service.PrintService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
+import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.mms.utils.CollectorsUtils;
 import freemarker.template.utility.StringUtil;
@@ -8411,32 +8412,31 @@ public class GcServiceImpl implements GcService {
      */
     private Map<String,List<MaterialLot>> groupWaferByMaterialAndSecondCodeAndBondPropAndShipper(List<MaterialLot> materialLots, String checkSubCode) {
         return  materialLots.stream().collect(Collectors.groupingBy(materialLot -> {
-            StringBuffer key = new StringBuffer();
+            StringBuffer mLotShipInfo = new StringBuffer();
             String materialName = StringUtils.EMPTY;
             if(!StringUtils.isNullOrEmpty(materialLot.getReserved7()) && MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(materialLot.getReserved7())){
                 materialName = materialLot.getMaterialName();
             } else {
                 materialName = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-")) + materialLot.getReserved54();
             }
-            key.append(materialName);
-            key.append(StringUtils.SPLIT_CODE);
+            mLotShipInfo.append(materialName);
+            mLotShipInfo.append(StringUtils.SPLIT_CODE);
 
             if(!StringUtils.isNullOrEmpty(checkSubCode)){
-                key.append(materialLot.getReserved1());
-                key.append(StringUtils.SPLIT_CODE);
+                mLotShipInfo.append(materialLot.getReserved1());
+                mLotShipInfo.append(StringUtils.SPLIT_CODE);
             }
 
-            key.append(materialLot.getReserved6());
-            key.append(StringUtils.SPLIT_CODE);
+            mLotShipInfo.append(materialLot.getReserved6());
+            mLotShipInfo.append(StringUtils.SPLIT_CODE);
 
             if(StringUtils.isNullOrEmpty(materialLot.getReserved55())){
-                key.append(materialLot.getReserved55());
+                mLotShipInfo.append(materialLot.getReserved55());
             } else{
-                key.append(materialLot.getReserved55().toUpperCase());
+                mLotShipInfo.append(materialLot.getReserved55().toUpperCase());
             }
-            key.append(StringUtils.SPLIT_CODE);
-
-            return key.toString();
+            mLotShipInfo.append(StringUtils.SPLIT_CODE);
+            return mLotShipInfo.toString();
         }));
     }
 
@@ -8697,17 +8697,45 @@ public class GcServiceImpl implements GcService {
             changeMaterialLotStatusAndSaveHistory(materialLot);
 
             //单lot出货修改unit表晶圆状态，记录历史
-            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
-            if(CollectionUtils.isNotEmpty(packageDetailLots)){
-                changPackageDetailLotStatusAndSaveHis(packageDetailLots);
-            } else if(StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+            if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                changPackageDetailLotStatusAndSaveHis(materialLot);
+            } else {
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                     materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
+                    materialLotUnit.setReserved4(materialLot.getReserved6());
                     materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
                     materialLotUnitHisRepository.save(materialLotUnitHistory);
+                }
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 改变包装批次的状态及记录历史
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void changPackageDetailLotStatusAndSaveHis(MaterialLot materialLot) throws ClientException{
+        try {
+            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            for (MaterialLot packageLot : packageDetailLots){
+                packageLot.setReserved6(materialLot.getReserved6());
+                changeMaterialLotStatusAndSaveHistory(packageLot);
+                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packageLot.getMaterialLotId());
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
+                        materialLotUnit.setReserved4(materialLot.getReserved6());
+                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
+                        materialLotUnitHisRepository.save(materialLotUnitHistory);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -8896,14 +8924,7 @@ public class GcServiceImpl implements GcService {
      */
     private void unTaggingMaterialLot(MaterialLot materialLot) throws ClientException{
         try {
-            materialLot.setReserved54(StringUtils.EMPTY);
-            materialLot.setReserved55(StringUtils.EMPTY);
-            materialLot.setReserved56(StringUtils.EMPTY);
-            materialLot.setReserved57(StringUtils.EMPTY);
-            materialLot.setVenderAddress(StringUtils.EMPTY);
-            materialLot.setCustomerId(StringUtils.EMPTY);
-            materialLot.setTagUser(StringUtils.EMPTY);
-            materialLot.setTagDate(null);
+            materialLot.clearTaggingInfo();
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UN_STOCK_OUT_TAG);
@@ -10494,31 +10515,6 @@ public class GcServiceImpl implements GcService {
                     baseService.saveHistoryEntity(otherStockOutOrder, MaterialLotHistory.TRANS_TYPE_SHIP);
 
                     validateAndUpdateErpSoa(documentLine, handledQty);
-                }
-            }
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 改变包装批次的状态及记录历史
-     * @param packageDetailLots
-     * @throws ClientException
-     */
-    private void changPackageDetailLotStatusAndSaveHis(List<MaterialLot> packageDetailLots) throws ClientException{
-        try {
-            for (MaterialLot packageLot : packageDetailLots){
-                changeMaterialLotStatusAndSaveHistory(packageLot);
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packageLot.getMaterialLotId());
-                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
-                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                        materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
-                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-
-                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
-                        materialLotUnitHisRepository.save(materialLotUnitHistory);
-                    }
                 }
             }
         } catch (Exception e) {
