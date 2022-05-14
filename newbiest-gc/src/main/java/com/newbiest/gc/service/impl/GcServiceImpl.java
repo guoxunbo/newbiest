@@ -5991,14 +5991,13 @@ public class GcServiceImpl implements GcService {
      */
     public List<MaterialLotUnit> packReturnSetWaferSource(String importType,  List<MaterialLotUnit> materialLotUnitList) throws ClientException{
         try {
-            if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
-                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                materialLotUnit.setReserved30(materialLotUnit.getReserved30().split("\\.")[0]);
+                if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
                     materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
                     materialLotUnit.setReserved50("7");
-                }
-            } else if (MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)){
-                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                } else if(MaterialLotUnit.SENSOR_PACK_RETURN.equals(importType)){
                     materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_SENSOR);
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_SENSOR);
                     materialLotUnit.setReserved50(MaterialLot.SENSOR_WAFER_SOURCE);
