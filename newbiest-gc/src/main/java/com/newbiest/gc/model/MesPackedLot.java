@@ -250,22 +250,82 @@ public class MesPackedLot implements Serializable {
     private String sourceLotId;
 
     /**
-     * 供应商
+     * 产品分类
      */
-    @Transient
+    @Column(name = "PRODUCT_TYPE")
+    private String productType;
+
+    /**
+     * 发料产品型号
+     */
+    @Column(name = "MATERIAL_NAME")
+    private String materialName;
+
+    /**
+     * 来料发料等级
+     */
+    @Column(name = "ISSUE_GRADE")
+    private String issueGrade;
+
+    /**
+     * 来料发料二级代码
+     */
+    @Column(name = "SUBCODE")
+    private String subcode;
+
+    /**
+     * 来料发料保税属性
+     */
+    @Column(name = "ISSUE_LOCATION")
+    private String issueLocation;
+
+    /**
+     * 来料发料类别
+     */
+    @Column(name = "CATEGORY")
+    private String category;
+
+    /**
+     * 来料发料仓库
+     */
+    @Column(name = "WAREHOUSE_ID")
+    private String warehouseId;
+
+    /**
+     * 来料发料reserved22
+     */
+    @Column(name = "SUB_NAME")
     private String subName;
 
     /**
-     * FAB_DEVICE
+     * 来料发料reserved23
      */
-    @Transient
+    @Column(name = "SHIP_TO")
+    private String shipTo;
+
+    /**
+     * 来料发料reserved24
+     */
+    @Column(name = "FAB_DEVICE")
     private String fabDevice;
 
     /**
-     * PRODUCT_TYPE
+     * 来料发料reserved25
      */
-    @Transient
-    private String productType;
+    @Column(name = "LOT_TYPE")
+    private String lotType;
+
+    /**
+     * 来料发料reserved49
+     */
+    @Column(name = "TEST_SOURCE")
+    private String testSource;
+
+    /**
+     * 来料发料reserved50
+     */
+    @Column(name = "WAFER_SOURCE")
+    private String waferSource;
 
     /**
      * IMPORT_TYPE
