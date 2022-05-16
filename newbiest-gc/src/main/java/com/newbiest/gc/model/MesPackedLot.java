@@ -57,6 +57,9 @@ public class MesPackedLot implements Serializable {
     @Column(name = "BOX_ID")
     private String boxId;
 
+    @Column(name = "CREATED")
+    private Date created;
+
     @Column(name = "PRODUCT_ID")
     private String productId;
 

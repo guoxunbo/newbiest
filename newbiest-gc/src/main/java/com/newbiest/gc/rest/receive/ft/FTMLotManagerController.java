@@ -4,6 +4,7 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.gc.model.StockInModel;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.gc.service.ThreeSideShipService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.service.MmsService;
@@ -31,6 +32,9 @@ public class FTMLotManagerController extends AbstractRestController {
 
     @Autowired
     GcService gcService;
+
+    @Autowired
+    ThreeSideShipService threeSideShipService;
 
     @Autowired
     MmsService mmsService;
@@ -61,14 +65,12 @@ public class FTMLotManagerController extends AbstractRestController {
         } else if(FTMLotManagerRequest.ACTION_TYPE_FT_ISSUE.equals(actionType)){
             List<MaterialLotAction> materialLotActions = requestBody.getMaterialLotActions();
             gcService.validationAndWaferIssue(requestBody.getDocumentLines(), materialLotActions, requestBody.getIssueWithDoc(), requestBody.getUnPlanLot());
-        } else if(FTMLotManagerRequest.ACTION_TYPE_VALIDATE_MLOT.equals(actionType)) {
-            //暂时同WLT出货物料批次验证
-            boolean falg = gcService.validationWltStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
-            responseBody.setFalg(falg);
         } else if(FTMLotManagerRequest.ACTION_TYPE_FT_STOCK_OUT.equals(actionType)){
             gcService.ftStockOut(requestBody.getMaterialLotActions(), requestBody.getDocumentLines());
         } else if(FTMLotManagerRequest.ACTION_TYPE_FT_OUTORDER_ISSUE.equals(actionType)){
             gcService.waferOutOrderIssue(requestBody.getMaterialLotActions());
+        } else if(FTMLotManagerRequest.ACTION_TYPE_SALE_SHIP.equals(actionType)){
+            threeSideShipService.ftRwMLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }

@@ -309,13 +309,19 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String ZJ_WAREHOUSE = "8143";
     public static final String SH_WAREHOUSE = "8142";
     public static final String HK_WAREHOUSE = "8150";
+    public static final String BS_WAREHOUSE = "8151";
+    public static final String HN_WAREHOUSE = "8152";
+    public static final String IC_WAREHOUSE = "8153";
 
     public static final String WAREHOUSE_SH = "SH_STOCK";
     public static final String WAREHOUSE_ZJ = "ZJ_STOCK";
     public static final String WAREHOUSE_HK = "HK_STOCK";
+    public static final String WAREHOUSE_BS = "BS_STOCK";
+    public static final String WAREHOUSE_HN = "HN_STOCK";
 
     public static final String LOCATION_SH = "SH";
     public static final String BONDED_PROPERTY_ZSH = "ZSH";
+    public static final String BONDED_PROPERTY_HK = "HK";
 
     public static final List<String> BONDED_LIST = Lists.newArrayList("SWJF", "SWKY", "SWHT", "WJF", "WKY", "WHT");
 
@@ -1260,11 +1266,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         if(!RW_PACKCASE.equals(packageType)){
             this.setReserved14(StringUtils.EMPTY);
         }
-
-        // 清空备货相关信息
-        //this.setReserved16(StringUtils.EMPTY);
-        //this.setReserved17(StringUtils.EMPTY);
-        //.setReserved18(StringUtils.EMPTY);
     }
 
     public void setMaterial(Material material) {
@@ -1296,5 +1297,27 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public void clearTaggingInfo() {
+        this.setReserved54(StringUtils.EMPTY);
+        this.setReserved55(StringUtils.EMPTY);
+        this.setReserved56(StringUtils.EMPTY);
+        this.setReserved57(StringUtils.EMPTY);
+        this.setVenderAddress(StringUtils.EMPTY);
+        this.setCustomerId(StringUtils.EMPTY);
+        this.setTagUser(StringUtils.EMPTY);
+        this.setTagDate(null);
+    }
+
+    public void resetMLotInfo() {
+        this.setReserved12(null);
+        this.clearReservedInfo();
+        this.clearTaggingInfo();
+        this.setReserved19(StringUtils.EMPTY);
+        this.setReserved20(StringUtils.EMPTY);
+        this.setWorkOrderId(null);
+        this.setWorkOrderPlanputTime(null);
+        this.initialMaterialLot();
     }
 }
