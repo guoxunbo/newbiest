@@ -3123,6 +3123,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved5", mesPackedLot.getProductionNote());
                     otherReceiveProps.put("reserved6", mesPackedLot.getBondedProperty());
                     otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
+                    otherReceiveProps.put("earlierExpDate", mesPackedLot.getCreated());
                     if(MaterialLotUnit.PRODUCT_CATEGORY_CP.equals(mesPackedLot.getProductCategory()) || MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(mesPackedLot.getProductCategory())
                             || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(mesPackedLot.getProductCategory())){
                         otherReceiveProps.put("workOrderId", StringUtils.EMPTY);
