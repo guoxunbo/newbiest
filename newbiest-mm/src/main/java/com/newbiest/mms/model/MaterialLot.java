@@ -131,6 +131,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String LCD_PACKCASE = "LCDPackCase";
 
+    /**
+     * LCD装箱规则
+     */
+    public static final String HN_PACKCASE = "HNPackCase";
+
     public static final String RECEIVE_ERROR = "ERROR";
 
     /**
