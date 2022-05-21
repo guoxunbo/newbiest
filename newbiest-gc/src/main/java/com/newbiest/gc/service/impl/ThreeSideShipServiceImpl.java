@@ -151,7 +151,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 handledQty = handledQty.add(materialLot.getCurrentQty());
                 materialLot.setReserved12(documentLine.getObjectRrn().toString());
                 materialLot.setCurrentQty(BigDecimal.ZERO);
-                if(StringUtils.isNullOrEmpty(bondedProperty)){
+                if(!StringUtils.isNullOrEmpty(bondedProperty)){
                     materialLot.setReserved6(bondedProperty);
                 }
                 changeMaterialLotStatusAndSaveHistory(materialLot);
@@ -220,7 +220,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 handledQty = handledQty.add(materialLot.getCurrentQty());
                 materialLot.setReserved12(documentLine.getObjectRrn().toString());
                 materialLot.setCurrentQty(BigDecimal.ZERO);
-                if(StringUtils.isNullOrEmpty(bondedProperty)){
+                if(!StringUtils.isNullOrEmpty(bondedProperty)){
                     materialLot.setReserved6(bondedProperty);
                 }
                 if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
@@ -620,27 +620,21 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 materialLot.setReserved6(location);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
 
-                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_THREE_SIDE);
-                materialLotHistoryRepository.save(history);
-
                 if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
                     List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
                     for(MaterialLot packedLot : packageDetailLots){
-                        materialLot.setReserved13(warehouseRrn);
-                        materialLot.setReserved6(location);
-                        materialLot = materialLotRepository.saveAndFlush(materialLot);
+                        packedLot.setReserved13(warehouseRrn);
+                        packedLot.setReserved6(location);
+                        packedLot = materialLotRepository.saveAndFlush(packedLot);
 
-                        MaterialLotHistory packedLotHis = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_THREE_SIDE);
-                        materialLotHistoryRepository.save(packedLotHis);
-
-                        updateMaterialLotUnitWarehouseInfo(materialLot);
+                        updateMaterialLotUnitWarehouseInfo(packedLot);
                     }
                 } else {
                     updateMaterialLotUnitWarehouseInfo(materialLot);
                 }
 
                 //1、记录香港仓Create记录
-                createResetMLotAndUnitHis(materialLot, MaterialLotHistory.TRANS_TYPE_AUTO_CREATE);
+                createResetMLotAndUnitHis(materialLot, MaterialLotHistory.TRANS_TYPE_AUTO_CREATE_ONE);
 
                 //2、记录香港仓In记录
                 createResetMLotAndUnitHis(materialLot, MaterialLotHistory.TRANS_TYPE_AUTO_IN);
@@ -666,10 +660,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 for(MaterialLotUnit materialLotUnit : materialLotUnits){
                     materialLotUnit.setReserved4(materialLot.getReserved6());
                     materialLotUnit.setReserved13(materialLot.getReserved13());
-                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-
-                    MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_AUTO_CREATE);
-                    materialLotUnitHisRepository.save(materialLotUnitHistory);
+                    materialLotUnitRepository.saveAndFlush(materialLotUnit);
                 }
             }
         } catch (Exception e){
@@ -764,7 +755,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                     for(MaterialLot packedLot : packageDetailLots){
                         reNewMLotAndUpdateWarehouse(packedLot, warehouseRrn, bondedProperty);
                     }
-                    Long totalSubQty = packageDetailLots.stream().collect(Collectors.summingLong(mLot -> mLot.getCurrentSubQty().longValue()));
+                    Long totalSubQty = packageDetailLots.stream().collect(Collectors.summingLong(mLot -> mLot.getCurrentSubQty() == null ? 0 : mLot.getCurrentSubQty().longValue()));
                     materialLot.setCurrentSubQty(new BigDecimal(totalSubQty));
                     reNewMLotAndUpdateWarehouse(materialLot, warehouseRrn, bondedProperty);
                 } else {
