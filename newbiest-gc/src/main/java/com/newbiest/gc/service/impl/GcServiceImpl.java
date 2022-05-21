@@ -40,7 +40,6 @@ import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.service.PrintService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
-import com.newbiest.mms.state.model.MaterialStatusCategory;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import com.newbiest.mms.utils.CollectorsUtils;
 import freemarker.template.utility.StringUtil;
@@ -2602,7 +2601,7 @@ public class GcServiceImpl implements GcService {
             if (documentLine == null) {
                 documentLine = new DocumentLine();
                 Material material = new Material();
-                if(DeliveryOrder.CATEGORY_DELIVERY.equals(docType)){
+                if(DeliveryOrder.CATEGORY_DELIVERY.equals(docType) || CogReceiveOrder.CATEGORY_COG_RECEIVE.equals(docType)){
                     material = mmsService.getProductByName(erpSo.getCinvcode());
                     if (material == null) {
                         throw new ClientParameterException(MM_PRODUCT_ID_IS_NOT_EXIST, erpSo.getCinvcode());
@@ -10603,12 +10602,6 @@ public class GcServiceImpl implements GcService {
             for (DocumentLine documentLine: documentLines) {
                 BigDecimal unhandedQty = documentLine.getUnHandledQty();
                 Iterator<MaterialLot> iterator = materialLots.iterator();
-
-                Map<String, BigDecimal> mLotQty = Maps.newHashMap();
-                for(MaterialLot materialLot : materialLots) {
-                    mLotQty.put(materialLot.getMaterialLotId(), materialLot.getCurrentQty());
-                }
-
                 while (iterator.hasNext()) {
                     MaterialLot materialLot = iterator.next();
                     if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
@@ -10627,14 +10620,14 @@ public class GcServiceImpl implements GcService {
                     materialLot.setCurrentQty(currentQty);
                     if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
                         //数量进行还原。不能扣减。
-                        materialLot.setCurrentQty(mLotQty.get(materialLot.getMaterialLotId()));
-                        materialLotUnitService.receiveMLotWithUnit(materialLot, WAREHOUSE_ZJ);
+                        finishProductMaterialLotStockIn(materialLot);
                         iterator.remove();
                     }
                     if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
                         break;
                     }
                 }
+
                 BigDecimal handledQty = documentLine.getUnHandledQty().subtract(unhandedQty);
                 if(handledQty.compareTo(BigDecimal.ZERO) == 0){
                     break;
@@ -10654,6 +10647,34 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 成品箱号或者真空包号接收入库
+     * 箱号接收时，真空包记录一笔接收历史
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void finishProductMaterialLotStockIn(MaterialLot materialLot) throws ClientException{
+        try {
+            materialLot.setCurrentQty(materialLot.getReceiveQty());
+            MaterialLotAction materialLotAction = new MaterialLotAction();
+            materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+            materialLotAction.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
+            materialLotAction.setTransQty(materialLot.getCurrentQty());
+            if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                mmsService.stockIn(materialLot, MaterialEvent.EVENT_BOX_RECEIVE, materialLotAction);
+                List<MaterialLot> packedMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                for(MaterialLot packedLot : packedMLotList){
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                    materialLotHistoryRepository.save(history);
+                }
+            } else {
+                mmsService.stockIn(materialLot, MaterialEvent.EVENT_STOCK_IN, materialLotAction);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }

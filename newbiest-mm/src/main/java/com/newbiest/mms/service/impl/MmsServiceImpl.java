@@ -574,7 +574,7 @@ public class MmsServiceImpl implements MmsService {
      * @param materialLotAction 动作需要包含目标仓库以及数量
      * @return
      */
-    private MaterialLot stockIn(MaterialLot materialLot, String eventId, MaterialLotAction materialLotAction) throws ClientException {
+    public MaterialLot stockIn(MaterialLot materialLot, String eventId, MaterialLotAction materialLotAction) throws ClientException {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
