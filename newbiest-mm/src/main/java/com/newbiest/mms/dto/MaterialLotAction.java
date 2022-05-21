@@ -97,6 +97,11 @@ public class MaterialLotAction extends Action {
      */
     private String workOrderId;
 
+    /**
+     * 箱子包装初始化状态
+     */
+    private String boxStatusUseFlag;
+
     public MaterialLotAction(){
     }
 

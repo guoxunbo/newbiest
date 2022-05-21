@@ -452,6 +452,10 @@ public class PackageServiceImpl implements PackageService{
                 BigDecimal totalReservedQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
                 packedMaterialLot.setReservedQty(totalReservedQty);
             }
+            if(!StringUtils.isNullOrEmpty(firstMaterialAction.getBoxStatusUseFlag())){
+                packedMaterialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                packedMaterialLot.setStatus(MaterialStatus.STATUS_CREATE);
+            }
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 
             // 记录创建历史
