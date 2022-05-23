@@ -11367,6 +11367,30 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 修改MRB结论备注
+     * @param materialLotList
+     * @param mrbComments
+     * @throws ClientException
+     */
+    @Override
+    public void updateMRBComments(List<MaterialLot> materialLotList, String mrbComments) throws ClientException {
+        try {
+            for (MaterialLot materialLot : materialLotList) {
+                if (StringUtils.isNullOrEmpty(mrbComments)) {
+                    materialLot.setMrbComments(mrbComments);
+                } else {
+                    materialLot.setMrbComments(mrbComments.trim());
+                }
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_UPDATE_MRB_COMMENTS);
+                materialLotHistoryRepository.save(history);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * COB晶圆出货标注根据导入文件获取物料批次
      * @param materialLotUnitList
      * @param nbTable

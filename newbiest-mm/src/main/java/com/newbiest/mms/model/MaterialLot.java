@@ -1078,6 +1078,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="TAG_USER")
     private String tagUser;
 
+    /**
+     * MRB结论备注
+     */
+    @Column(name = "MRB_COMMENTS")
+    private String mrbComments;
+
     @Transient
     private String documentLineUser;
 
