@@ -5230,7 +5230,7 @@ public class GcServiceImpl implements GcService {
             PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
 
             MaterialLot materialLot = null;
-            if(!StringUtils.isNullOrEmpty(mesPackedLot.getWaferSource())){
+            if(StringUtils.isNullOrEmpty(mesPackedLot.getWaferSource())){
                 if(StringUtils.isNullOrEmpty(mesPackedLot.getMaterialLotName())){
                     List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByUnitIdAndWorkOrderIdAndState(mesPackedLot.getWaferId(), mesPackedLot.getWorkorderId(), MaterialLotUnit.STATE_ISSUE);
                     if(CollectionUtils.isNotEmpty(materialLotUnits)){
@@ -5276,7 +5276,7 @@ public class GcServiceImpl implements GcService {
 
             if(!StringUtils.isNullOrEmpty(mesPackedLot.getWarehouseId())  && MaterialLot.SH_WAREHOUSE.equals(mesPackedLot.getWarehouseId())){
                 location = MaterialLot.LOCATION_SH;
-            } else if(!StringUtils.isNullOrEmpty(materialLot.getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLot.getReserved13())){
+            } else if(materialLot != null && !StringUtils.isNullOrEmpty(materialLot.getReserved13()) && MaterialLot.SH_WAREHOUSE.equals(materialLot.getReserved13())){
                 location = MaterialLot.LOCATION_SH;
             }
 
