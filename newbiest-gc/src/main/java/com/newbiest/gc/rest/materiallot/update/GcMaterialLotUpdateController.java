@@ -56,6 +56,8 @@ public class GcMaterialLotUpdateController extends AbstractRestController {
         } else if(GcMaterialLotUpdateRequest.ACTION_TYPE_UPDATE_LOT_INFO.equals(actionType)){
             MaterialLot materialLot = requestBody.getMaterialLot();
             gcService.updateMaterialLotInfo(materialLot);
+        } else if(GcMaterialLotUpdateRequest.ACTION_TYPE_UPDATE_MRB_COMMENTS.equals(actionType)){
+            gcService.updateMRBComments(materialLotList, requestBody.getMrbComments());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
