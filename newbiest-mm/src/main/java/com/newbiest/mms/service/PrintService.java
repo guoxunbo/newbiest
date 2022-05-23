@@ -82,4 +82,6 @@ public interface PrintService {
     //龙腾光电物料标签
     void printLongTenMLotLabel(List<Map<String, String>> mapList) throws ClientException;
 
+    //LCD箱标签
+    List<Map<String,Object>> printLCDBoxLabel(MaterialLot materialLot, String printCount) throws ClientException;
 }
