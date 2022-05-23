@@ -10169,6 +10169,7 @@ public class GcServiceImpl implements GcService {
     @Override
     public void mesMaterialLotUnitUnBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException {
         try{
+            log.info("unbindWorkorder materialLotUnitList is " + materialLotUnitList);
             List<MaterialLot> scmReportMLotList = Lists.newArrayList();
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
