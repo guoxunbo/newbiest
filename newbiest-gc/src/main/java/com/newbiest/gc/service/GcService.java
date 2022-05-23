@@ -226,4 +226,6 @@ public interface GcService {
     void unPackageIRAs(List<MaterialLotAction> materialLotActions, String packageType)  throws ClientException;
 
     List<MaterialLotUnit> packReturnSetWaferSource(String importType, List<MaterialLotUnit> materialLotUnitList)  throws ClientException;
+
+    void saveMLotPackageShipHis(List<MaterialLot> materialLotList) throws ClientException;
 }

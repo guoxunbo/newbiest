@@ -920,3 +920,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCLCDMLotPackage_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCPackageMLotSave_nb_table.yaml
+      relativeToChangelogFile: true

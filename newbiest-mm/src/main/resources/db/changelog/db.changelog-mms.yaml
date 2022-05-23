@@ -938,3 +938,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCLCDMLotPackageManager.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCPackageMLotShipHisManager.nb_authority.yaml
+      relativeToChangelogFile: true
