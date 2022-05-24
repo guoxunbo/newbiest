@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCLCDMLotPackage_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCLCDMLotPackage to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCLCDMLotPackage
+              description: LCD包装
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: LCD装箱
+              label: LCDPackage

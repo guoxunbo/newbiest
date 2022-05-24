@@ -1679,5 +1679,50 @@ public class PrintServiceImpl implements PrintService {
         }
     }
 
+    /**
+     * LCD箱子标签打印
+     * @param materialLot
+     * @param printCount
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public List<Map<String, Object>> printLCDBoxLabel(MaterialLot materialLot, String printCount) throws ClientException {
+        try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_LCD_BBOX_LABEL, printCount);
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("BBOXID", materialLot.getMaterialLotId());
+            parameterMap.put("PRODUCTID", materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-")));
+            parameterMap.put("COUNT", materialLot.getCurrentQty().toPlainString());
+            parameterMap.put("GRADE", materialLot.getGrade());
+            parameterMap.put("SUBCODE", materialLot.getReserved1());
+
+            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            int i = 1;
+            if (CollectionUtils.isNotEmpty(packageDetailLots)) {
+                for (MaterialLot packedMLot : packageDetailLots) {
+                    parameterMap.put("VBox" + i, packedMLot.getMaterialLotId());
+                    i++;
+                }
+            }
+            for (int j = i; j <= 20; j++) {
+                parameterMap.put("VBox" + j, StringUtils.EMPTY);
+            }
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+
+            if (printContext.getWorkStation().getIsClientPrint()){
+                Map<String, Object> params = Maps.newHashMap();
+                params = buildClientParameters(printContext);
+                mapList.add(params);
+            }else {
+                print(printContext);
+            }
+            return mapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
 }

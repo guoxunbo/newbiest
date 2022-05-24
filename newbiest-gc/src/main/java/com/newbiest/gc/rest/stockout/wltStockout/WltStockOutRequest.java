@@ -46,6 +46,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_MOBILE_SALE_SHIP = "MobileSaleShip";
 
+	public static final String ACTION_WLT_SHIP_BY_ORDER = "WltOtherShipByOrder";
+
 	private WltStockOutRequestBody body;
 
 }
