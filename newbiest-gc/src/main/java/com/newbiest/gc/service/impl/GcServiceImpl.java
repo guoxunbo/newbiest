@@ -8560,6 +8560,72 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * WLT、CP依单据出货
+     * @param documentLine
+     * @param materialLotActions
+     * @throws ClientException
+     */
+    @Override
+    public void wltOtherShipByOrder(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException {
+        try {
+            List<ComThrowWaferTab> comThrowWaferTabList = Lists.newArrayList();
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            BigDecimal handledQty = BigDecimal.ZERO;
+            for(MaterialLot materialLot : materialLots){
+                String materialName = materialLot.getMaterialName();
+                if(materialName.endsWith(MaterialLot.STOCKOUT_TYPE_35) || materialName.endsWith(MaterialLot.STOCKOUT_TYPE_4)){
+                    handledQty = handledQty.add(materialLot.getCurrentQty());
+                } else {
+                    handledQty = handledQty.add(materialLot.getCurrentSubQty());
+                }
+                validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.WLT_OTHER_SHIP_BY_ORDER__RULE_ID);
+            }
+
+            BigDecimal unHandleQty =  documentLine.getUnHandledQty().subtract(handledQty);
+            if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
+                throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
+            }
+
+            BigDecimal docHandedQty = BigDecimal.ZERO;
+            for (MaterialLot materialLot : materialLots) {
+                BigDecimal circleQty = BigDecimal.ZERO;
+                if(materialLot.getMaterialName().endsWith(MaterialLot.STOCKOUT_TYPE_4) || MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54())){
+                    docHandedQty = docHandedQty.add(materialLot.getCurrentQty());
+                    materialLot.setCurrentQty(BigDecimal.ZERO);
+                } else {
+                    circleQty = materialLot.getCurrentSubQty();
+                    docHandedQty = docHandedQty.add(materialLot.getCurrentSubQty());
+                    materialLot.setCurrentSubQty(BigDecimal.ZERO);
+                }
+                saveDocLineRrnAndChangeStatus(materialLot, documentLine);
+
+                if(SystemPropertyUtils.getWltStockOutToComThrowWaferTabFlag() && MaterialLot.BONDED_LIST.contains(materialLot.getReserved6())){
+                    comThrowWaferTabList = addUnitToComThrowWaferTab (documentLine, materialLot, circleQty.intValue(), comThrowWaferTabList);
+                }
+            }
+
+            documentLine.setHandledQty(documentLine.getHandledQty().add(docHandedQty));
+            documentLine.setUnHandledQty(documentLine.getUnHandledQty().subtract(docHandedQty));
+            documentLine = documentLineRepository.saveAndFlush(documentLine);
+            baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SHIP);
+
+            if(ErpSob.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
+                updateDocQyAndErpSobSynStatusAndQty(documentLine, docHandedQty);
+            } else if(ErpSoa.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())) {
+                updateDocQyAndErpSoaSynStatusAndQty(documentLine, docHandedQty);
+            }
+
+            if(CollectionUtils.isNotEmpty(comThrowWaferTabList)){
+                log.info("comThrowWaferTabList size is " + comThrowWaferTabList.size());
+                comThrowWaferTabRepository.saveAll(comThrowWaferTabList);
+                log.info("comThrowWaferTabList write data end");
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * WLT/CP出货  消耗的都是片数
      * @param documentLines
      * @param materialLots
