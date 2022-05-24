@@ -480,6 +480,22 @@ public class DocumentLine extends NBUpdatable {
         this.setReserved30(documentLine.getReserved30());
         this.setReserved31(documentLine.getReserved31());
         this.setReserved32(documentLine.getReserved1());
+        this.setReserved33(documentLine.getReserved33());
+        this.setReserved34(documentLine.getReserved34());
+        this.setReserved35(documentLine.getReserved35());
+        this.setCuscode(documentLine.getCuscode());
+        this.setProductType(documentLine.getProductType());
+        this.setSaleCode(documentLine.getSaleCode());
+        this.setShipDate(documentLine.getShipDate());
+        this.setStockCode(documentLine.getStockCode());
+        this.setPoId(documentLine.getPoId());
+        this.setCrdCode(documentLine.getCrdCode());
+        this.setCrdName(documentLine.getCrdName());
+        this.setAutoid(documentLine.getAutoid());
+        this.setShipAutoid(documentLine.getShipAutoid());
+        this.setSaleType(documentLine.getSaleType());
+        this.setShipCustomer(documentLine.getShipCustomer());
+        this.setCargoCode(documentLine.getCargoCode());
     }
 
 }
