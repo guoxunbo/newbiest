@@ -424,6 +424,11 @@ public class PackageServiceImpl implements PackageService{
                 packedMaterialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                 packedMaterialLot.setStatus(MaterialStatus.STATUS_CREATE);
             }
+            List<MaterialLot> holdMLotList = materialLots.stream().filter(materialLot -> MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(holdMLotList)){
+                packedMaterialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
+                packedMaterialLot.setHoldReason(holdMLotList.get(0).getHoldReason());
+            }
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 
             // 记录创建历史

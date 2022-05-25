@@ -112,7 +112,7 @@ public class TempFtServiceImpl implements TempFtService {
                     }
 
                     //处理装箱的真空包
-                    Map<String, List<TempFtModel>> boxedTempFtModelMap = tempCpModelList.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) &&
+                    Map<String, List<TempFtModel>> boxedTempFtModelMap = tempFtModels.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) &&
                             (tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B) || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)
                                     || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_LB))).collect(Collectors.groupingBy(TempFtModel::getBoxId));
 
@@ -127,7 +127,7 @@ public class TempFtServiceImpl implements TempFtService {
                             materialLotAction.setTransQty(materialLot.getCurrentQty());
                             materialLotActions.add(materialLotAction);
                         }
-                        String packageType = MaterialLot.PACKAGE_TYPE;
+                        String packageType = MaterialLot.DFT_PACKAGE_TYPE;
                         if(parentMaterialLotId.startsWith(TempFtModel.BOX_START_LB)){
                             packageType = MaterialLot.LCD_PACKCASE;
                         }

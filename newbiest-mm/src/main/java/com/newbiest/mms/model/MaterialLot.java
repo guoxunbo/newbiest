@@ -207,6 +207,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String CATEGORY_PACKAGE = "Package";
 
     public static final String PACKAGE_TYPE = "PackCase";
+    public static final String DFT_PACKAGE_TYPE = "DFTPackCase";
 
     public static final String INCOMING_MLOT_IMPORTTYPE = "GCMaterialLotImportType";
 
