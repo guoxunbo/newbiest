@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseInTransitMaterialLotReceiveManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseInTransitMaterialLotReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehouseInTranMLotReceive
+              description: 保税仓库 成品在途接收
+              tableName: BondedWarehouseInTranMLotReceive
+              secondTableName: BondedWarehouseInTranMLotWait
+              mobileFlag: N
+              url: /BondedWarehouse/InTransitMaterialLotReceive
+              parentRrn: 2021
+              seqNo: 115
+              image: icon-wuliao
+              labelZh: 成品在途接收
+              labelEn: InTransitMaterialLotReceive
