@@ -941,3 +941,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCPackageMLotShipHisManager.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseInTransitMaterialLotReceive.nb_authority.yaml
+      relativeToChangelogFile: true
