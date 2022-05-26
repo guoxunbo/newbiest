@@ -351,10 +351,12 @@ public class GcServiceImpl implements GcService {
             whereClause.append(" and reserved16 is null");
             whereClause.append(" and materialName = '" + documentLine.getMaterialName() + "'");
             whereClause.append(" and grade ='" + documentLine.getReserved3() + "'");
-            if(StringUtils.isNullOrEmpty(documentLine.getReserved17())){
-                whereClause.append("and  reserved4 is null ");
-            } else {
-                whereClause.append("and  reserved4 ='" + documentLine.getReserved17() + "'");
+            if(MaterialLot.MLOT_RESERVED_DOC_VALIDATE_RULE_ID.equals(ruleId)){
+                if(StringUtils.isNullOrEmpty(documentLine.getReserved17())){
+                    whereClause.append("and  reserved4 is null ");
+                } else {
+                    whereClause.append("and  reserved4 ='" + documentLine.getReserved17() + "'");
+                }
             }
             whereClause.append("and  reserved6 ='" + documentLine.getReserved7() + "'");
             whereClause.append("and  reserved1 ='" + subcode + "'");
