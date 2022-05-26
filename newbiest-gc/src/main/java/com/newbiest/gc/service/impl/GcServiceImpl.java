@@ -1534,6 +1534,9 @@ public class GcServiceImpl implements GcService {
                     materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                     materialLot.setStatus(MaterialStatus.STATUS_CREATE);
                     materialLot.initialMaterialLot();
+                    if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                        materialLot.setReserved2("N");
+                    }
                     materialLot.setParentMaterialLotId(null);
                     materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_FT);
                     materialLot.setReserved48(importCode);//导入编码
@@ -10795,6 +10798,7 @@ public class GcServiceImpl implements GcService {
             materialLotAction.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
             materialLotAction.setTransQty(materialLot.getCurrentQty());
             if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                materialLot.setReserved2(null);
                 mmsService.stockIn(materialLot, MaterialEvent.EVENT_BOX_RECEIVE, materialLotAction);
                 List<MaterialLot> packedMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                 for(MaterialLot packedLot : packedMLotList){
