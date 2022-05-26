@@ -685,7 +685,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved1;
 
     /**
-     * GlaxyCore MES完成品的waferId
+     * GlaxyCore TYPE的size、LCD导入箱号未接收标记
      */
     @Column(name="RESERVED2")
     private String reserved2;

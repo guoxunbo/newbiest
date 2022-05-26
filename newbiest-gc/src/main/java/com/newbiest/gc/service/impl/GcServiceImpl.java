@@ -4441,6 +4441,9 @@ public class GcServiceImpl implements GcService {
                             material = saveProductAndSetStatusModelRrn(materialName);
                         }
                         materialLot.setMaterial(material);
+                        if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                            materialLot.setReserved2("N");
+                        }
                         materialLot.setParentMaterialLotId(null);
                         materialLot.initialMaterialLot();
                         materialLot.setStatusModelRrn(material.getStatusModelRrn());
@@ -10795,6 +10798,9 @@ public class GcServiceImpl implements GcService {
                 mmsService.stockIn(materialLot, MaterialEvent.EVENT_BOX_RECEIVE, materialLotAction);
                 List<MaterialLot> packedMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                 for(MaterialLot packedLot : packedMLotList){
+                    packedLot.setReserved2(null);
+                    packedLot = materialLotRepository.saveAndFlush(packedLot);
+
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
                     materialLotHistoryRepository.save(history);
                 }

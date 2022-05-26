@@ -294,6 +294,11 @@ public class PackageServiceImpl implements PackageService{
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(waitToUnPackageMLot.getMaterialLotId());
                 if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                     for(MaterialLotUnit materialLotUnit: materialLotUnitList){
+                        //RW(COB)的拆箱时晶圆将LotId和Durable信息还原为Lot信息
+                        if(MaterialLot.RW_WAFER_SOURCE.equals(waitToUnPackageMLot.getReserved50())){
+                            materialLotUnit.setLotId(waitToUnPackageMLot.getLotId());
+                            materialLotUnit.setDurable(waitToUnPackageMLot.getDurable());
+                        }
                         materialLotUnit.setState(MaterialLotUnit.STATE_IN);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
