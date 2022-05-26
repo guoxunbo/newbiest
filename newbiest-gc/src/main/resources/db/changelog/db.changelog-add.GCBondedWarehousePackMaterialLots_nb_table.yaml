@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCBondedWarehousePackMaterialLots_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCBondedWarehousePackMaterialLots to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWarehousePackMaterialLots
+              description: 保税仓库 成品装箱
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 成品装箱
+              label: PackMateiralLots
