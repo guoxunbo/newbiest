@@ -12036,7 +12036,7 @@ public class GcServiceImpl implements GcService {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(MaterialLot.DEFAULT_NO_FORMAT_DATE_PATTERN);
             SimpleDateFormat formats = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             String[] tepaArray = tapeMaterialCode.split(" ");
-            if(tepaArray.length < 120 ){
+            if(tepaArray.length < 116 ){
                 throw new ClientParameterException(GcExceptions.TAPA_MATERIAL_CODE_IS_ERROR, tapeMaterialCode);
             }
             String[] tepaInfoArray = new String[20];

@@ -10,5 +10,7 @@ import lombok.Data;
 public class TempFtResponseBody extends ResponseBody {
 
 	private static final long serialVersionUID = 1L;
+
+	private String messageInfo;
 	
 }

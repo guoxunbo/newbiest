@@ -33,8 +33,9 @@ public class TempFtController extends AbstractRestController {
     public TempFtResponse importData(@RequestParam MultipartFile file, @RequestParam String request) throws Exception {
 
         TempFtRequest tempRequest = DefaultParser.getObjectMapper().readerFor(TempFtRequest.class).readValue(request);
-
         TempFtResponse response = new TempFtResponse();
+        TempFtResponseBody responseBody = new TempFtResponseBody();
+
         Map<String, String> fieldMap = Maps.newHashMap();
         fieldMap.put("WAFER_ID", "waferId");//真空包号或者Wafer号
         fieldMap.put("BOX_ID", "boxId");//B、SBB箱号，其他中转箱号
@@ -84,9 +85,10 @@ public class TempFtController extends AbstractRestController {
 
         List<TempFtModel> datas = (List) ExcelUtils.importExcel(TempFtModel.class, fieldMap, file.getInputStream(), TempFtRequest.DEFAULT_DATE_PATTERN);
 
-        tempFtService.transferFtData(datas, file.getOriginalFilename());
+        String messageInfo = tempFtService.transferFtData(datas, file.getOriginalFilename());
+        responseBody.setMessageInfo(messageInfo);
         response.getHeader().setTransactionId(tempRequest.getHeader().getTransactionId());
-
+        response.setBody(responseBody);
         return response;
     }
 

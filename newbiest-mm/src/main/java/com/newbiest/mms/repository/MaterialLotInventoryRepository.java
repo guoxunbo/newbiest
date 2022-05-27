@@ -35,4 +35,7 @@ public interface MaterialLotInventoryRepository extends IRepository<MaterialLotI
     @Query("DELETE FROM MaterialLotInventory MaterialLotInventory WHERE MaterialLotInventory.materialLotRrn = :materialLotRrn")
     void deleteByMaterialLotRrn(@Param("materialLotRrn")Long materialLotRrn) throws ClientException;
 
+    @Modifying
+    @Query("DELETE FROM MaterialLotInventory m WHERE m.materialLotId in (:vboxIdList)")
+    void deleteByMaterialLotIdIn(List<String> vboxIdList);
 }
