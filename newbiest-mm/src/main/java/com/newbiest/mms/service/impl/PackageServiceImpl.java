@@ -267,6 +267,10 @@ public class PackageServiceImpl implements PackageService{
                     waitToUnPackageMLot.setReserved9(StringUtils.EMPTY);
                     waitToUnPackageMLot.setReserved10(StringUtils.EMPTY);
                     waitToUnPackageMLot.restoreStatus();
+                    if(MaterialLot.STATUS_CREATE.equals(waitToUnPackageMLot.getStatus())){
+                        waitToUnPackageMLot.setStatusCategory(MaterialLot.STATUS_STOCK);
+                        waitToUnPackageMLot.setStatus(MaterialLot.STATUS_IN);
+                    }
                     materialLotRepository.save(waitToUnPackageMLot);
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(waitToUnPackageMLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
