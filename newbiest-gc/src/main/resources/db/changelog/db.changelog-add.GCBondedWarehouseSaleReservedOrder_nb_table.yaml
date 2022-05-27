@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCBondedWarehouseSaleReservedOrder_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCBondedWarehouseSaleReservedOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWarehouseSaleReservedOrder
+              description: 保税仓库 成品销售备货单
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 成品销售备货单
+              label: SaleReservedOrder
