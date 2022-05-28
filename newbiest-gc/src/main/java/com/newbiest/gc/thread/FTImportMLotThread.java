@@ -107,6 +107,7 @@ public class FTImportMLotThread implements Callable {
                 propMap.put("reserved45", vboxMLot.getDataValue25() == null ? "": vboxMLot.getDataValue25().trim());
                 propMap.put("reserved46", vboxMLot.getWoId() == null ? "": vboxMLot.getWoId().trim());
                 propMap.put("reserved47", fileName);
+                propMap.put("reserved7", productCategory);
                 propMap.put("reserved48", importCode);
                 propMap.put("reserved49", importType);
                 propMap.put("reserved50", targetWaferSource);
