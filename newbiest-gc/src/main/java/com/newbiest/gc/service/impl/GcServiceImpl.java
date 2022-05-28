@@ -5364,7 +5364,6 @@ public class GcServiceImpl implements GcService {
     /**
      * COB晶圆待接收信息合并为一个箱号
      * @param mesPackedLot
-     * @param material
      * @param totalQty
      * @param number
      * @return
@@ -9822,7 +9821,8 @@ public class GcServiceImpl implements GcService {
             }
             //先挑整箱的
             if(CollectionUtils.isNotEmpty(wholeBoxMLots)){
-                wholeBoxMLots = wholeBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                wholeBoxMLots = getBoxMLotsTempDate(wholeBoxMLots);
+                wholeBoxMLots = wholeBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getTempDate)).collect(Collectors.toList());
             }
             Iterator<MaterialLot> iterator = wholeBoxMLots.iterator();
             while (iterator.hasNext()){
@@ -9852,7 +9852,8 @@ public class GcServiceImpl implements GcService {
             //已经装箱的零数箱（先装箱的先挑）
             if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                 if(CollectionUtils.isNotEmpty(zeroBoxMLots)){
-                    List<MaterialLot> zeroBoxMLotList = zeroBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                    zeroBoxMLots = getBoxMLotsTempDate(zeroBoxMLots);
+                    List<MaterialLot> zeroBoxMLotList = zeroBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getTempDate)).collect(Collectors.toList());
                     for (MaterialLot materialLot: zeroBoxMLotList){
                         BigDecimal unreservedQty = BigDecimal.ZERO;
                         if(MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
@@ -9910,12 +9911,29 @@ public class GcServiceImpl implements GcService {
                             }
                         }
                     }
-
                 }
             }
-
             return materialLotList;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取箱中真空包最小创新时间
+     * @param materialLots
+     * @return
+     * @throws ClientException
+     */
+    private List<MaterialLot> getBoxMLotsTempDate(List<MaterialLot> materialLots) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLots){
+                List<MaterialLot> packedLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                packedLotList = packedLotList.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                materialLot.setTempDate(packedLotList.get(0).getCreated());
+            }
+            return materialLots;
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -11519,35 +11537,6 @@ public class GcServiceImpl implements GcService {
                 MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
                 materialLotHistoryRepository.save(materialLotHistory);
             }
-//            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getReserved16));
-//
-//            for (String docRrn : materialLotMap.keySet()) {
-//                BigDecimal totalQty = BigDecimal.ZERO;
-//                List<MaterialLot> materialLots = materialLotMap.get(docRrn);
-//                for (MaterialLot materialLot : materialLots) {
-//                    BigDecimal reservedQty = materialLot.getReservedQty();
-//                    totalQty = totalQty.add(reservedQty);
-//                    materialLot.restoreStatus();
-//                    materialLot.setReserved17(StringUtils.EMPTY);
-//                    materialLot.setReserved16(StringUtils.EMPTY);
-//                    materialLotRepository.saveAndFlush(materialLot);
-//
-//                    MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
-//                    materialLotHistoryRepository.save(materialLotHistory);
-//                }
-//                DocumentLine documentLine = (DocumentLine)documentLineRepository.findByObjectRrn(Long.parseLong(docRrn));
-//                documentLine.setReservedQty(documentLine.getReservedQty().subtract(totalQty));
-//                documentLine.setUnReservedQty(documentLine.getUnReservedQty().add(totalQty));
-//
-//                documentLine = documentLineRepository.saveAndFlush(documentLine);
-//                baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
-//
-//                MaterialIssueOrder materialIssueOrder = (MaterialIssueOrder) materialIssueOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-//                materialIssueOrder.setReservedQty(materialIssueOrder.getReservedQty().subtract(totalQty));
-//                materialIssueOrder.setUnReservedQty(materialIssueOrder.getUnReservedQty().add(totalQty));
-//                materialIssueOrderRepository.save(materialIssueOrder);
-//                baseService.saveHistoryEntity(materialIssueOrder, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
-//            }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }

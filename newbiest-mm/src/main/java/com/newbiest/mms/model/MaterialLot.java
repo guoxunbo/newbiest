@@ -1131,6 +1131,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Transient
     private String treasuryNote;
 
+    @Transient
+    private Date tempDate;
+
     /**
      * 验证物料批次是否在有效期内
      */
