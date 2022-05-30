@@ -14,7 +14,7 @@ public interface ThreeSideShipService {
 
     void wltCpMLotSaleShip(DocumentLine documentLine, List<MaterialLotAction> materialLotActions, String checkSubCode) throws ClientException;
 
-    void ftRwMLotSaleShip(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions)  throws ClientException;
+    void ftRwMLotSaleShip(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions, String ruleId)  throws ClientException;
 
     void comSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions)   throws ClientException;
 }
