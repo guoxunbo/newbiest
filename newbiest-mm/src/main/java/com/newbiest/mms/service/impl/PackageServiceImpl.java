@@ -83,6 +83,9 @@ public class PackageServiceImpl implements PackageService{
     @Autowired
     MaterialLotUnitService materialLotUnitService;
 
+    @Autowired
+    WarehouseRepository warehouseRepository;
+
     public MaterialLotPackageType getMaterialPackageTypeByName(String name) throws ClientException{
         List<MaterialLotPackageType> packageTypes = materialLotPackageTypeRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
         if (CollectionUtils.isNotEmpty(packageTypes)) {
@@ -247,7 +250,7 @@ public class PackageServiceImpl implements PackageService{
             Map<String, MaterialLotAction> materialLotActionMap = materialLotActions.stream().collect(Collectors.toMap(MaterialLotAction :: getMaterialLotId, Function.identity()));
 
             Map<String, PackagedLotDetail> packagedLotDetails = packagedLotDetailRepository.findByPackagedLotRrn(packedMaterialLot.getObjectRrn()).stream().collect(Collectors.toMap(PackagedLotDetail :: getMaterialLotId, Function.identity()));
-
+            Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(packedMaterialLot.getReserved13()));
             for (MaterialLot waitToUnPackageMLot : waitToUnPackageMLots) {
                 MaterialLotAction materialLotAction = materialLotActionMap.get(waitToUnPackageMLot.getMaterialLotId());
 
@@ -280,8 +283,8 @@ public class PackageServiceImpl implements PackageService{
                         // 找到最后一笔包装数据
                         MaterialLotHistory materialLotHistory = materialLotHistoryRepository.findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(waitToUnPackageMLot.getMaterialLotId(), MaterialLotHistory.TRANS_TYPE_PACKAGE);
                         if (materialLotHistory != null) {
-                            Warehouse warehouse = mmsService.getWarehouseByName(materialLotHistory.getTransWarehouseId());
-                            Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, materialLotHistory.getTransStorageId());
+                            String storageId = StringUtils.isNullOrEmpty(materialLotHistory.getTargetStorageId()) ? waitToUnPackageMLot.getReserved14() : materialLotHistory.getTargetStorageId();
+                            Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
                             // 恢复库存数据
                             MaterialLotInventory materialLotInventory = new MaterialLotInventory();
                             materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
