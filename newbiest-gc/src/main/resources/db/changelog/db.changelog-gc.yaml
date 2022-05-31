@@ -944,3 +944,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCBondedWarehouseSaleStockOutOrder_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseAddPackage_nb_table.yaml
+      relativeToChangelogFile: true
