@@ -947,3 +947,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCBondedWarehouseAddPackage_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseUnbox_nb_table.yaml
+      relativeToChangelogFile: true

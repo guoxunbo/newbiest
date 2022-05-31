@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseUnboxManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseUnboxManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehouseUnboxManager
+              description: 保税仓库 拆箱
+              tableName: BondedWarehouseUnbox
+              mobileFlag: N
+              url: /BondedWarehouse/Unbox
+              parentRrn: 2021
+              seqNo: 140
+              image: icon-wuliao
+              labelZh: 拆箱
+              labelEn: Unbox

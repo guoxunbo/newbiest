@@ -956,3 +956,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.BondedWarehouseAddPackage.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehouseUnbox.nb_authority.yaml
+      relativeToChangelogFile: true
