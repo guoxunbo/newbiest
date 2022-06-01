@@ -255,7 +255,7 @@ public class TempFtServiceImpl implements TempFtService {
             }
 
             if(CollectionUtils.isNotEmpty(lotUnitList)){
-                Map<String, List<TempFtModel>> waferSourceMap = vboxList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
+                Map<String, List<TempFtModel>> waferSourceMap = lotUnitList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
                 for (String waferSource : waferSourceMap.keySet()) {
                     List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
                     Map<String, List<TempFtModel>> lotUnitMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel :: getLotId));

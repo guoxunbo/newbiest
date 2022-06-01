@@ -7850,7 +7850,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved25(erpSob.getOther14());
                                 documentLine.setReserved26(erpSob.getOther15());
                                 documentLine.setReserved30(erpSob.getOther5());
-                                documentLine.setStockCode(erpSob.getCfree4());
+                                documentLine.setStockCode(erpSob.getCfree4() == null ? null : erpSob.getCfree4().trim());
                                 documentLine.setDocType(erpSob.getCvouchtype());
                                 documentLine.setDocName(erpSob.getCvouchname());
                                 documentLine.setDocBusType(erpSob.getCbustype());
@@ -8715,6 +8715,7 @@ public class GcServiceImpl implements GcService {
     @Override
     public void wltOtherShipByOrder(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
+            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             List<ComThrowWaferTab> comThrowWaferTabList = Lists.newArrayList();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             BigDecimal handledQty = BigDecimal.ZERO;
