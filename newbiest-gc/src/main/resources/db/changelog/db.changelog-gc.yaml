@@ -953,3 +953,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCBondedWarehouseErpDocLineMerge_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehousePrintCaseLabel_nb_table.yaml
+      relativeToChangelogFile: true

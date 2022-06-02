@@ -962,3 +962,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.BondedWarehouseErpDocLineMerge.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.BondedWarehousePrintCaseLabel.nb_authority.yaml
+      relativeToChangelogFile: true
