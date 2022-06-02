@@ -79,7 +79,7 @@ public class FTImportMLotUnitThread implements Callable {
                     propMap.put("lotId", tempFtModel.getWaferId().trim());
                     String cstId = tempFtModel.getWaferId().trim().split("-")[0];
                     BigDecimal qty = new BigDecimal(tempFtModel.getWaferNum());
-                    MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), BigDecimal.ONE, tempFtModel, propMap, cstId);
+                    MaterialLotAction materialLotAction = buildMaterialLotAction(qty, BigDecimal.ONE, tempFtModel, propMap, cstId);
                     MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, tempFtModel.getWaferId().trim(), materialLotAction);
                     createMaterialLotUnitAndSaveHis(tempFtModel, materialLot);
                     materialLotIdList.add(materialLot.getMaterialLotId());
@@ -90,7 +90,7 @@ public class FTImportMLotUnitThread implements Callable {
                 BigDecimal subQty = new BigDecimal(tempFtModelList.size());
                 Map<String, Object> propMap = Maps.newConcurrentMap();
                 propMap.put("lotId", lotId.trim());
-                MaterialLotAction materialLotAction = buildMaterialLotAction(qty, firstTempFtModel.getGrade(), subQty, firstTempFtModel, propMap, StringUtils.EMPTY);
+                MaterialLotAction materialLotAction = buildMaterialLotAction(qty, subQty, firstTempFtModel, propMap, StringUtils.EMPTY);
                 MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, firstTempFtModel.getLotId(), materialLotAction);
                 for (TempFtModel tempFtModel : tempFtModelList) {
                     createMaterialLotUnitAndSaveHis(tempFtModel, materialLot);
@@ -110,17 +110,16 @@ public class FTImportMLotUnitThread implements Callable {
     /**
      * 构建MaterialLotAction
      * @param currentQty
-     * @param grade
      * @param currentSubQty
      * @param waferTempFtModel
      * @return
      * @throws ClientException
      */
-    private MaterialLotAction buildMaterialLotAction(BigDecimal currentQty, String grade, BigDecimal currentSubQty, TempFtModel waferTempFtModel, Map<String,Object> propMap, String cstId) throws ClientException{
+    private MaterialLotAction buildMaterialLotAction(BigDecimal currentQty, BigDecimal currentSubQty, TempFtModel waferTempFtModel, Map<String,Object> propMap, String cstId) throws ClientException{
         try {
             MaterialLotAction materialLotAction = new MaterialLotAction();
             materialLotAction.setTransQty(currentQty);
-            materialLotAction.setGrade(grade);
+            materialLotAction.setGrade(waferTempFtModel.getGrade());
             materialLotAction.setTransCount(currentSubQty);
             materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
             materialLotAction.setTargetStorageId(storage.getName());

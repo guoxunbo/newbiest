@@ -127,7 +127,7 @@ public class TempFtServiceImpl implements TempFtService {
                     //先区分是否装箱，未装箱的直接处理，装箱的多线程处理
                     List<TempFtModel> unPackedackMLotList = tempFtModels.stream().filter(tempFtModel -> tempFtModel.getBoxId() == null || StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) ||
                             (!tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)
-                                    && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_LB))).collect(Collectors.toList());
+                                    && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_LB) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_BZZSH))).collect(Collectors.toList());
 
                     if (CollectionUtils.isNotEmpty(unPackedackMLotList)) {
                         for (TempFtModel tempFtModel : unPackedackMLotList) {
@@ -160,7 +160,7 @@ public class TempFtServiceImpl implements TempFtService {
                     //处理装箱的真空包
                     Map<String, List<TempFtModel>> boxedTempFtModelMap = tempFtModels.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) &&
                             (tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B) || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)
-                                    || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_LB))).collect(Collectors.groupingBy(TempFtModel::getBoxId));
+                                    || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_LB) || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_BZZSH))).collect(Collectors.groupingBy(TempFtModel::getBoxId));
 
                     List<String> bboxIdList = Lists.newArrayList();
                     for (String parentMaterialLotId : boxedTempFtModelMap.keySet()) {
@@ -448,7 +448,8 @@ public class TempFtServiceImpl implements TempFtService {
             }
             propMap.put("reserved14", tempFtModel.getPointId() == null ? "": tempFtModel.getPointId().trim());
             if(!StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B)
-                    && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)){
+                    && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)
+                    && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_BZZSH)){
                 propMap.put("reserved8", tempFtModel.getBoxId() == null ? "": tempFtModel.getBoxId().trim());
             }
             propMap.put("created", tempFtModel.getInTime());

@@ -30,6 +30,7 @@ public class TempFtModel implements Serializable {
     public static final String BOX_START_B = "B";
     public static final String BOX_START_SBB = "SBB";
     public static final String BOX_START_LB = "LB";
+    public static final String BOX_START_BZZSH = "BZZSH";
 
     public static final List<String> WAFER_SOURCE_LIST_35 = Lists.newArrayList(WAFER_SOURCE_1, WAFER_SOURCE_3, WAFER_SOURCE_33, WAFER_SOURCE_34);
     public static final List<String> WAFER_SOURCE_LIST_4 = Lists.newArrayList(WAFER_SOURCE_2, WAFER_SOURCE_11, WAFER_SOURCE_12, WAFER_SOURCE_21, WAFER_SOURCE_31, WAFER_SOURCE_32, WAFER_SOURCE_39);

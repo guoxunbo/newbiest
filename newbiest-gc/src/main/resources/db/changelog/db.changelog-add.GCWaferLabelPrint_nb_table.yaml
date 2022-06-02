@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCWaferLabelPrint_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCWaferLabelPrint to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCWaferLabelPrint
+              description: 来料Wafer标签补打
+              tableName: MMS_MATERIAL_LOT_UNIT
+              modelName: MaterialLotUnit
+              modelClass: com.newbiest.mms.model.MaterialLotUnit
+              labelZh: 来料Wafer标签补打
+              label: WaferLabelPrint

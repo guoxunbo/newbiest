@@ -80,7 +80,8 @@ public class FTImportMLotThread implements Callable {
                 }
                 propMap.put("reserved14", vboxMLot.getPointId() == null ? "": vboxMLot.getPointId().trim());
                 if(!StringUtils.isNullOrEmpty(vboxMLot.getBoxId()) && !vboxMLot.getBoxId().startsWith(TempFtModel.BOX_START_B) &&
-                        !vboxMLot.getBoxId().startsWith(TempFtModel.BOX_START_SBB) && !vboxMLot.getBoxId().startsWith(TempFtModel.BOX_START_LB)){
+                        !vboxMLot.getBoxId().startsWith(TempFtModel.BOX_START_SBB) && !vboxMLot.getBoxId().startsWith(TempFtModel.BOX_START_LB) &&
+                        !vboxMLot.getBoxId().startsWith(TempFtModel.BOX_START_BZZSH)){
                     propMap.put("reserved8", vboxMLot.getBoxId() == null ? "": vboxMLot.getBoxId().trim());
                 }
                 propMap.put("created", vboxMLot.getInTime());
