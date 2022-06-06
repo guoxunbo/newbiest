@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseMLotsOtherShipReservedManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseMLotsOtherShipReservedManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehouseOtherShipReserved
+              description: 保税仓库 成品其他出备货
+              tableName: BondedWOtherShipReservedOrder
+              secondTableName: BondedWOtherShipReservedMLot
+              mobileFlag: N
+              url: /BondedWarehouse/MLotsOtherShipReserved
+              parentRrn: 2021
+              seqNo: 155
+              image: icon-wuliao
+              labelZh: 成品其他出备货
+              labelEn: MLotsOtherShipReserved

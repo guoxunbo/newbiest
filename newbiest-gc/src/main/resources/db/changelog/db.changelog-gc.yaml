@@ -959,3 +959,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCWaferLabelPrint_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseMLotsOtherShipReserved_nb_table.yaml
+      relativeToChangelogFile: true

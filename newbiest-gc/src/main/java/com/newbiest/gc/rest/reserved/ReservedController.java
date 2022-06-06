@@ -55,6 +55,9 @@ public class ReservedController extends AbstractRestController {
         } else if(ReServedRequestBody.ACTION_TYPE_HN_WAREHOUSE_GET_OTHER_SHIP_MATERIAL_LOT.equals(actionType)){
             List<MaterialLot> HNWarehouseOtherShipReservedMLotList = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.HN_WAREHOUSE_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID);
             responseBody.setMaterialLotList(HNWarehouseOtherShipReservedMLotList);
+        } else if (ReServedRequestBody.ACTION_TYPE_BSW_GET_OTHER_SHIP_MATERIAL_LOT.equals(actionType)){
+            List<MaterialLot> HNWarehouseOtherShipReservedMLotList = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.BSW_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID);
+            responseBody.setMaterialLotList(HNWarehouseOtherShipReservedMLotList);
         } else if (ReServedRequestBody.ACTION_TYPE_GET_MATERIAL_LOT_AND_USER.equals(actionType)) {
             NBTable nbTable = uiService.getDeepNBTable(requestBody.getTableRrn());
             List<MaterialLot> waitForUnReservedMaterialLots = gcService.getMaterialLotAndDocUserToUnReserved(requestBody.getTableRrn(),requestBody.getWhereClause());
@@ -66,6 +69,8 @@ public class ReservedController extends AbstractRestController {
             gcService.reservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getMaterialLotActions(), requestBody.getStockNote(), MaterialLot.OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID);
         } else if(ReServedRequestBody.ACTION_TYPE_HN_WAREHOUSE_OTHER_SHIP_RESERVED.equals(actionType)){
             gcService.reservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getMaterialLotActions(), requestBody.getStockNote(), MaterialLot.HN_WAREHOUSE_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID);
+        } else if(ReServedRequestBody.ACTION_TYPE_BSW_OTHER_SHIP_RESERVED.equals(actionType)){
+            gcService.reservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getMaterialLotActions(), requestBody.getStockNote(), MaterialLot.BSW_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID);
         } else if (ReServedRequestBody.ACTION_TYPE_UN_RESERVED.equals(actionType)) {
             gcService.unReservedMaterialLot(requestBody.getMaterialLotActions());
         } else if (ReServedRequestBody.ACTION_GET_PACKED_MLOTS.equals(actionType)) {
