@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehousePackMaterialLotsManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehousePackMaterialLotsManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehousePackMLotsManager
+              description: 保税仓库 成品装箱
+              tableName: BondedWarehousePackMaterialLots
+              mobileFlag: N
+              url: /BondedWarehouse/PackMaterialLots
+              parentRrn: 2021
+              seqNo: 120
+              image: icon-wuliao
+              labelZh: 成品装箱
+              labelEn: PackMaterialLots

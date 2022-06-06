@@ -84,4 +84,7 @@ public interface PrintService {
 
     //LCD箱标签
     List<Map<String,Object>> printLCDBoxLabel(MaterialLot materialLot, String printCount) throws ClientException;
+
+    //来料Wafer标签
+    List<Map<String,Object>> printWaferLabel(List<MaterialLotUnit> materialLotUnitList)  throws ClientException;
 }

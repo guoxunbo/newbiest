@@ -178,13 +178,13 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
      * @param materialLotActions
      * @throws ClientException
      */
-    public void ftRwMLotSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException{
+    public void ftRwMLotSaleShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String ruleId) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
 
             validateCobMaterialLotDocInfo(materialLots);
-            validationStockMLotReservedDocLineByRuleId(documentLineList, materialLots, MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
+            validationStockMLotReservedDocLineByRuleId(documentLineList, materialLots, ruleId);
             Map<String, List<MaterialLot>> mlotDocMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             for(String docLineRrn : mlotDocMap.keySet()){
                 List<MaterialLot> materialLotList = mlotDocMap.get(docLineRrn);

@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCFTMLotStockInManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCFTMLotStockInManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCWaferLabelPrintManager
+              description: Wafer标签补打
+              tableName: GCWaferLabelPrint
+              url: /WMS/GCWaferPrintLabel
+              mobileFlag: N
+              parentRrn: 210
+              seqNo: 9
+              image: icon-rule
+              labelZh: Wafer标签补打
+              labelEn: WaferLabelPrint

@@ -157,6 +157,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WAFER_ISSUE_DOC_VALIDATE_RULE_ID = "WaferIssueDocLineRule";  //晶圆发料验证规则
     public static final String COB_WAFER_ISSUE_DOC_VALIDATE_RULE_ID = "COBWaferIssueDocLineRule";   //COB晶圆发料单据验证规则
     public static final String FT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "FTStockOutDocRule"; //FT出货单据验证规则
+    public static final String BSW_FT_STOCK_OUT_DOC_VALIDATE_RULE_ID = "BSWFTStockOutDocRule";//保税仓成品销售出货FT出货单据验证规则
     public static final String COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID = "CogMLotReceiveDocRule"; //COG来料接受单据验证规则
     public static final String RAW_MATERIAL_ISSUE_DOC_VALIDATE_RULE_ID = "RawMaterialIssueDocRule";  //原材料发料单据验证规则
     public static final String MLOT_THREESIDE_DOC_VALIDATE_RULE_ID = "MLotThreeSideDocRule";  //三方销售单据验证规则
@@ -207,6 +208,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String CATEGORY_PACKAGE = "Package";
 
     public static final String PACKAGE_TYPE = "PackCase";
+    public static final String DFT_PACKAGE_TYPE = "DFTPackCase";
 
     public static final String INCOMING_MLOT_IMPORTTYPE = "GCMaterialLotImportType";
 
@@ -684,7 +686,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     private String reserved1;
 
     /**
-     * GlaxyCore MES完成品的waferId
+     * GlaxyCore TYPE的size、LCD导入箱号未接收标记
      */
     @Column(name="RESERVED2")
     private String reserved2;
@@ -1129,6 +1131,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     @Transient
     private String treasuryNote;
+
+    @Transient
+    private Date tempDate;
 
     /**
      * 验证物料批次是否在有效期内

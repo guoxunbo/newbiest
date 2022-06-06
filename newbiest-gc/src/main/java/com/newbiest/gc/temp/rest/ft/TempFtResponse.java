@@ -1,6 +1,5 @@
 package com.newbiest.gc.temp.rest.ft;
 
-import com.newbiest.base.ui.rest.table.TableResponseBody;
 import com.newbiest.msg.Response;
 import lombok.Data;
 
@@ -10,5 +9,5 @@ import lombok.Data;
 @Data
 public class TempFtResponse extends Response {
 
-    private TableResponseBody body;
+    private TempFtResponseBody body;
 }

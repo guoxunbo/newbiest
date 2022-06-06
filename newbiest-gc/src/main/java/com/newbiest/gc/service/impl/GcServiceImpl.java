@@ -342,49 +342,42 @@ public class GcServiceImpl implements GcService {
         try {
             List<MaterialLot> waitForReservedMaterialLots = Lists.newArrayList();
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
-            if (documentLine.getUnReservedQty().compareTo(BigDecimal.ZERO) > 0) {
-                NBTable nbTable = uiService.getDeepNBTable(tableRrn);
-                StringBuffer whereClause = new StringBuffer();
-                if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
-                    whereClause.append(nbTable.getWhereClause());
-                    whereClause.append(" AND ");
+            String subcode = documentLine.getReserved2().substring(0, documentLine.getReserved2().length() - documentLine.getReserved3().length());
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            StringBuffer whereClause = new StringBuffer();
+            if (!StringUtils.isNullOrEmpty(nbTable.getWhereClause())) {
+                whereClause.append(nbTable.getWhereClause());
+            }
+            whereClause.append(" and reserved16 is null");
+            whereClause.append(" and materialName = '" + documentLine.getMaterialName() + "'");
+            whereClause.append(" and grade ='" + documentLine.getReserved3() + "'");
+            if(MaterialLot.MLOT_RESERVED_DOC_VALIDATE_RULE_ID.equals(ruleId)){
+                if(StringUtils.isNullOrEmpty(documentLine.getReserved17())){
+                    whereClause.append("and  reserved4 is null ");
+                } else {
+                    whereClause.append("and  reserved4 ='" + documentLine.getReserved17() + "'");
                 }
-                whereClause.append(" reserved16 is null");
-                whereClause.append(" AND ");
-                whereClause.append(" materialName = '" + documentLine.getMaterialName() + "'");
-                whereClause.append(" AND ");
-                whereClause.append(" grade ='" + documentLine.getReserved3() + "'");
-                if(ErpSo.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
-                    whereClause.append(" and reserved7 ='COM'");
-                } else if(ErpSoa.SOURCE_TABLE_NAME.equals(documentLine.getReserved31()) || ErpSob.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
-                    whereClause.append(" and reserved7 in ('FT','FT0')");
-                }
-                if(!StringUtils.isNullOrEmpty(stockLocation)){
-                    whereClause.append(" and reserved14 like '"+ stockLocation + '%' + "'");
-                }
+            }
+            whereClause.append("and  reserved6 ='" + documentLine.getReserved7() + "'");
+            whereClause.append("and  reserved1 ='" + subcode + "'");
+            if(!StringUtils.isNullOrEmpty(stockLocation)){
+                whereClause.append(" and reserved14 like '"+ stockLocation + '%' + "'");
+            }
 
-                List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause.toString(), nbTable.getOrderBy());
-                if (CollectionUtils.isNotEmpty(materialLots)) {
+            List<MaterialLot> materialLots = materialLotRepository.findAll(ThreadLocalContext.getOrgRrn(), whereClause.toString(), nbTable.getOrderBy());
+            if (CollectionUtils.isNotEmpty(materialLots)) {
+                if(nbTable.getName().equals("MMReservedCase")) {
                     for (MaterialLot materialLot : materialLots) {
-                        try {
-                            validateMLotAndDocLineByRule(documentLine, materialLot, ruleId);
-                            if(nbTable.getName().equals("MMReservedCase")){
-                                List<String> packedLotIdList = new ArrayList<String>();
-                                packedLotIdList.add(materialLot.getMaterialLotId());
-                                List<MaterialLot> packedMaterialLots = getPackedDetailsAndNotReserved(packedLotIdList);
-                                if(CollectionUtils.isNotEmpty(packedMaterialLots)){
-                                    waitForReservedMaterialLots.add(materialLot);
-                                }
-                            }else{
-                                waitForReservedMaterialLots.add(materialLot);
-                            }
-                        } catch (Exception e) {
-                            // 验证不过 Do nothing。
+                        List<String> packedLotIdList = new ArrayList<String>();
+                        packedLotIdList.add(materialLot.getMaterialLotId());
+                        List<MaterialLot> packedMaterialLots = getPackedDetailsAndNotReserved(packedLotIdList);
+                        if(CollectionUtils.isNotEmpty(packedMaterialLots)){
+                            waitForReservedMaterialLots.add(materialLot);
                         }
                     }
+                } else {
+                    waitForReservedMaterialLots.addAll(materialLots);
                 }
-            } else {
-                throw new ClientException("");
             }
             return waitForReservedMaterialLots;
         } catch (Exception e) {
@@ -1541,6 +1534,9 @@ public class GcServiceImpl implements GcService {
                     materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                     materialLot.setStatus(MaterialStatus.STATUS_CREATE);
                     materialLot.initialMaterialLot();
+                    if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                        materialLot.setReserved2("N");
+                    }
                     materialLot.setParentMaterialLotId(null);
                     materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_FT);
                     materialLot.setReserved48(importCode);//导入编码
@@ -3272,6 +3268,78 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * 接收MES的COB完成品
+     * @param packedLotList
+     */
+    public void cobReceiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException {
+        try {
+            Map<String, List<MesPackedLot>> packedLotMap = packedLotList.stream().collect(Collectors.groupingBy(MesPackedLot :: getProductId));
+            for (String productId : packedLotMap.keySet()) {
+                List<MesPackedLot> mesPackedLotList = packedLotMap.get(productId);
+                Material material = getMaterialByMesPackedLot(mesPackedLotList);
+                List<MesPackedLot> mesPackedLots = packedLotMap.get(productId);
+                List<MaterialLotAction> materialLotActions = Lists.newArrayList();
+                for (MesPackedLot mesPackedLot : mesPackedLots) {
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setMaterialLotId(mesPackedLot.getBoxId());
+                    materialLotAction.setGrade(mesPackedLot.getGrade());
+                    materialLotAction.setTransQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
+                    materialLotAction.setSourceModelId(mesPackedLot.getProductId());
+                    String warehouseName = WAREHOUSE_ZJ;
+                    if (MaterialLot.LOCATION_SH.equals(mesPackedLot.getLocation())) {
+                        warehouseName = WAREHOUSE_SH;
+                    }
+                    Warehouse warehouse = getWarehouseByName(warehouseName);
+                    materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+
+                    if (!StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty())){
+                        if(mesPackedLot.getBondedProperty().equalsIgnoreCase(MaterialLot.LOCATION_SH)){
+                            materialLotAction.setTargetStorageId(MesPackedLot.STORAGE_ID_SH);
+                        } else if (mesPackedLot.getBondedProperty().equalsIgnoreCase(MaterialLot.BONDED_PROPERTY_ZSH)){
+                            materialLotAction.setTargetStorageId(MesPackedLot.STORAGE_ID_ZSH);
+                        }
+                    }
+
+                    // 需要赋值的Map
+                    Map<String, Object> otherReceiveProps = Maps.newHashMap();
+                    otherReceiveProps.put("reserved1", mesPackedLot.getLevelTwoCode());
+                    otherReceiveProps.put("reserved2", mesPackedLot.getWaferId());
+                    otherReceiveProps.put("reserved3", mesPackedLot.getSalesNote());
+                    otherReceiveProps.put("reserved4", mesPackedLot.getTreasuryNote());
+                    otherReceiveProps.put("reserved5", mesPackedLot.getProductionNote());
+                    otherReceiveProps.put("reserved6", mesPackedLot.getBondedProperty());
+                    otherReceiveProps.put("reserved13", warehouse.getObjectRrn().toString());
+                    otherReceiveProps.put("earlierExpDate", mesPackedLot.getCreated());
+                    otherReceiveProps.put("workOrderId", StringUtils.EMPTY);
+                    otherReceiveProps.put("productType", mesPackedLot.getProductType());
+                    if(!StringUtils.isNullOrEmpty(mesPackedLot.getTestSource())){
+                        otherReceiveProps.put("reserved49", mesPackedLot.getTestSource());
+                    } else {
+                        otherReceiveProps.put("reserved49", mesPackedLot.getImportType());
+                    }
+                    otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
+                    otherReceiveProps.put("reserved22", mesPackedLot.getSubName());
+                    otherReceiveProps.put("reserved24", mesPackedLot.getFabDevice());
+                    otherReceiveProps.put("lotId", mesPackedLot.getCstId());
+                    otherReceiveProps.put("durable", mesPackedLot.getCstId());
+                    if(!StringUtils.isNullOrEmpty(mesPackedLot.getProductCategory())){
+                        mLotSetWaferSourceAndReserved7(otherReceiveProps, mesPackedLot.getProductCategory(), mesPackedLot);
+                    }
+                    if(mesPackedLot.getWaferQty() != null){
+                        BigDecimal waferQty = new BigDecimal(mesPackedLot.getWaferQty().toString());
+                        materialLotAction.setTransCount(waferQty);
+                    }
+                    materialLotAction.setPropsMap(otherReceiveProps);
+                    materialLotActions.add(materialLotAction);
+                }
+                List<MaterialLot> materialLotList = mmsService.receiveMLotList2Warehouse(material, materialLotActions);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 通过boxId或workOrderId或grade来查询预约hold的条件
      * @param boxId
      * @param workOrderId
@@ -3285,9 +3353,6 @@ public class GcServiceImpl implements GcService {
             if(workorderRelation == null){
                 workorderRelation = workorderRelationRepository.findByWorkOrderIdAndGradeIsNullAndBoxIdIsNull(workOrderId);
             }
-        /*    if(workorderRelation == null){
-                workorderRelation = workorderRelationRepository.findByGradeAndWorkOrderIdIsNullAndBoxIdIsNull(grade);
-            }*/
             if(workorderRelation == null){
                 workorderRelation = workorderRelationRepository.findByBoxIdAndGradeAndWorkOrderIdIsNull(boxId, grade);
             }
@@ -4448,6 +4513,9 @@ public class GcServiceImpl implements GcService {
                             material = saveProductAndSetStatusModelRrn(materialName);
                         }
                         materialLot.setMaterial(material);
+                        if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                            materialLot.setReserved2("N");
+                        }
                         materialLot.setParentMaterialLotId(null);
                         materialLot.initialMaterialLot();
                         materialLot.setStatusModelRrn(material.getStatusModelRrn());
@@ -4719,7 +4787,7 @@ public class GcServiceImpl implements GcService {
                     throw new ClientParameterException(MmsException.MM_RAW_MATERIAL_IS_NOT_EXIST, mesPackedLotList.get(0).getProductId());
                 }
                 Long totalQuantity = mesPackedLotList.stream().collect(Collectors.summingLong(mesPackedLot -> mesPackedLot.getQuantity().longValue()));
-                MesPackedLot mesPackedLot = getReceicvePackedLotByPackedWafer(mesPackedLotList.get(0), material, totalQuantity, mesPackedLotList.size());
+                MesPackedLot mesPackedLot = getWltCPReceicvePackedLotByPackedWafer(mesPackedLotList.get(0), material, totalQuantity, mesPackedLotList.size());
                 mesPackedLots.add(mesPackedLot);
             }
             receiveFinishGood(mesPackedLots);
@@ -4874,8 +4942,6 @@ public class GcServiceImpl implements GcService {
 
                     MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
                     materialLotUnitHisRepository.save(history);
-
-
                 }
                 materialLotList.add(materialLot);
             }
@@ -5197,14 +5263,11 @@ public class GcServiceImpl implements GcService {
                 if (material == null) {
                     throw new ClientParameterException(MmsException.MM_PRODUCT_ID_IS_NOT_EXIST, productId);
                 }
-
-                //将晶圆信息合并为一个箱号
-                MesPackedLot mesPackedLot = getReceicvePackedLotByPackedWafer(mesPackedLotList.get(0), material, totalQty, mesPackedLotList.size());
+                MesPackedLot mesPackedLot = getCOBReceicvePackedLotByPackedWafer(mesPackedLotList.get(0), totalQty, mesPackedLotList.size());
                 mesPackedLots.add(mesPackedLot);
             }
-            receiveFinishGood(mesPackedLots);
+            cobReceiveFinishGood(mesPackedLots);
             saveMaterialLotUnitAndSaveHis(packedLotMap, mesPackedLots, materialLotList);
-
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -5212,14 +5275,14 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
-     * 将晶圆信息合并为一个箱号
+     * WLT/CP将晶圆信息合并为一个箱号
      * @param mesPackedLot
      * @param material
      * @param totalQty
      * @param number
      * @return
      */
-    private MesPackedLot getReceicvePackedLotByPackedWafer(MesPackedLot mesPackedLot, Material material, Long totalQty, int number) throws ClientException{
+    private MesPackedLot getWltCPReceicvePackedLotByPackedWafer(MesPackedLot mesPackedLot, Material material, Long totalQty, int number) throws ClientException{
         try {
             MesPackedLot packedLot = new MesPackedLot();
             String subName = StringUtils.EMPTY;
@@ -5293,6 +5356,90 @@ public class GcServiceImpl implements GcService {
             packedLot.setQuantity(totalQty.intValue());
             packedLot.setWaferQty(number);
             return packedLot;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * COB晶圆待接收信息合并为一个箱号
+     * @param mesPackedLot
+     * @param totalQty
+     * @param number
+     * @return
+     */
+    private MesPackedLot getCOBReceicvePackedLotByPackedWafer(MesPackedLot mesPackedLot, Long totalQty, int number) throws ClientException{
+        try {
+            MesPackedLot packedLot = new MesPackedLot();
+            String subName = MesPackedLot.SH_SUB_NAME;
+            PropertyUtils.copyProperties(mesPackedLot, packedLot, new HistoryBeanConverter());
+            packedLot.setBoxId(mesPackedLot.getCstId());
+            packedLot.setPackedLotRrn(null);
+            packedLot.setWaferId("");
+            packedLot.setQuantity(totalQty.intValue());
+            packedLot.setWaferQty(number);
+            if(StringUtils.isNullOrEmpty(mesPackedLot.getWaferSource())){
+                MaterialLot materialLot = mmsService.getMLotByMLotId(mesPackedLot.getCstId());
+                if(materialLot == null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, mesPackedLot.getCstId());
+                }
+                if(MesPackedLot.IN_FLAG_ONE.equals(mesPackedLot.getInFlag())){
+                    subName = materialLot.getReserved22();
+                } else {
+                    if(MesPackedLot.ZH_WAREHOUSE.equals(materialLot.getReserved13())){
+                        subName = MesPackedLot.ZJ_SUB_NAME;
+                    }
+                }
+                if(MaterialLot.SH_WAREHOUSE.equals(materialLot.getReserved13())){
+                    packedLot.setLocation(MaterialLot.LOCATION_SH);
+                }
+                packedLot.setFabDevice(materialLot.getReserved24());
+                packedLot.setImportType(materialLot.getReserved49());
+                packedLot.setProductType(materialLot.getProductType());
+                packedLot.setSubName(subName);
+            } else {
+                if(MesPackedLot.IN_FLAG_ONE.equals(mesPackedLot.getInFlag())){
+                    subName = mesPackedLot.getSubName();
+                } else {
+                    if(MesPackedLot.ZH_WAREHOUSE.equals(mesPackedLot.getWarehouseId())){
+                        subName = MesPackedLot.ZJ_SUB_NAME;
+                    }
+                }
+                if(MaterialLot.SH_WAREHOUSE.equals(mesPackedLot.getWarehouseId())){
+                    packedLot.setLocation(MaterialLot.LOCATION_SH);
+                }
+                packedLot.setFabDevice(mesPackedLot.getFabDevice());
+                packedLot.setImportType(mesPackedLot.getTestSource());
+                packedLot.setProductType(mesPackedLot.getProductType());
+                packedLot.setSubName(subName);
+            }
+
+            //删除COB发料库存信息
+            MaterialLot sourceMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(packedLot.getCstId(), ThreadLocalContext.getOrgRrn());
+            if(sourceMLot != null){
+                if(MaterialLotUnit.STATE_ISSUE.equals(sourceMLot.getStatus())){
+                    materialLotRepository.delete(sourceMLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(sourceMLot, NBHis.TRANS_TYPE_DELETE);
+                    materialLotHistoryRepository.save(history);
+
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(packedLot.getCstId());
+                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                        if(MaterialLotUnit.STATE_ISSUE.equals(materialLotUnit.getState())){
+                            materialLotUnitRepository.delete(materialLotUnit);
+
+                            MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_DELETE);
+                            materialLotUnitHisRepository.save(materialLotUnitHistory);
+                        } else {
+                            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_ISSUE_STATUE, materialLotUnit.getUnitId(), materialLotUnit.getMaterialLotId());
+                        }
+                    }
+                } else {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_ISSUE_STATUE, mesPackedLot.getCstId());
+                }
+            }
+            return packedLot;
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -7703,7 +7850,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved25(erpSob.getOther14());
                                 documentLine.setReserved26(erpSob.getOther15());
                                 documentLine.setReserved30(erpSob.getOther5());
-                                documentLine.setStockCode(erpSob.getCfree4());
+                                documentLine.setStockCode(erpSob.getCfree4() == null ? null : erpSob.getCfree4().trim());
                                 documentLine.setDocType(erpSob.getCvouchtype());
                                 documentLine.setDocName(erpSob.getCvouchname());
                                 documentLine.setDocBusType(erpSob.getCbustype());
@@ -8568,6 +8715,7 @@ public class GcServiceImpl implements GcService {
     @Override
     public void wltOtherShipByOrder(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
+            documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
             List<ComThrowWaferTab> comThrowWaferTabList = Lists.newArrayList();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             BigDecimal handledQty = BigDecimal.ZERO;
@@ -9674,7 +9822,8 @@ public class GcServiceImpl implements GcService {
             }
             //先挑整箱的
             if(CollectionUtils.isNotEmpty(wholeBoxMLots)){
-                wholeBoxMLots = wholeBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                wholeBoxMLots = getBoxMLotsTempDate(wholeBoxMLots);
+                wholeBoxMLots = wholeBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getTempDate)).collect(Collectors.toList());
             }
             Iterator<MaterialLot> iterator = wholeBoxMLots.iterator();
             while (iterator.hasNext()){
@@ -9683,6 +9832,8 @@ public class GcServiceImpl implements GcService {
                     materialLotList.addAll(packedLotMap.get(materialLot.getMaterialLotId()));
                     totalQty = totalQty.subtract(materialLot.getCurrentQty());
                     iterator.remove();
+                } else {
+                  break;
                 }
             }
             //再挑未装箱的真空包（整包）
@@ -9693,6 +9844,8 @@ public class GcServiceImpl implements GcService {
                         if(totalQty.compareTo(materialLot.getCurrentQty()) >= 0){
                             materialLotList.add(materialLot);
                             totalQty = totalQty.subtract(materialLot.getCurrentQty());
+                        } else {
+                            break;
                         }
                     }
                 }
@@ -9700,7 +9853,8 @@ public class GcServiceImpl implements GcService {
             //已经装箱的零数箱（先装箱的先挑）
             if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                 if(CollectionUtils.isNotEmpty(zeroBoxMLots)){
-                    List<MaterialLot> zeroBoxMLotList = zeroBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                    zeroBoxMLots = getBoxMLotsTempDate(zeroBoxMLots);
+                    List<MaterialLot> zeroBoxMLotList = zeroBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getTempDate)).collect(Collectors.toList());
                     for (MaterialLot materialLot: zeroBoxMLotList){
                         BigDecimal unreservedQty = BigDecimal.ZERO;
                         if(MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())){
@@ -9713,6 +9867,8 @@ public class GcServiceImpl implements GcService {
                         if(totalQty.compareTo(unreservedQty) >= 0){
                             materialLotList.addAll(packedLotMap.get(materialLot.getMaterialLotId()));
                             totalQty = totalQty.subtract(unreservedQty);
+                        } else {
+                            break;
                         }
                     }
                 }
@@ -9720,6 +9876,7 @@ public class GcServiceImpl implements GcService {
             //再挑已经装箱的整箱中的真空包
             if(totalQty.compareTo(BigDecimal.ZERO) > 0){
                 if(CollectionUtils.isNotEmpty(wholeBoxMLots)){
+                    boolean falg = false;
                     List<MaterialLot> wholeBoxMLotList = wholeBoxMLots.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
                     for(MaterialLot packagedLot : wholeBoxMLotList){
                         List<MaterialLot> packedDetials = packedLotMap.get(packagedLot.getMaterialLotId());
@@ -9727,6 +9884,12 @@ public class GcServiceImpl implements GcService {
                             if(totalQty.compareTo(packedMLot.getCurrentQty()) >= 0){
                                 materialLotList.add(packedMLot);
                                 totalQty = totalQty.subtract(packedMLot.getCurrentQty());
+                            } else {
+                                falg = true;
+                                break;
+                            }
+                            if(falg){
+                                break;
                             }
                         }
                     }
@@ -9749,12 +9912,29 @@ public class GcServiceImpl implements GcService {
                             }
                         }
                     }
-
                 }
             }
-
             return materialLotList;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取箱中真空包最小创新时间
+     * @param materialLots
+     * @return
+     * @throws ClientException
+     */
+    private List<MaterialLot> getBoxMLotsTempDate(List<MaterialLot> materialLots) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLots){
+                List<MaterialLot> packedLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                packedLotList = packedLotList.stream().sorted(Comparator.comparing(MaterialLot::getCreated)).collect(Collectors.toList());
+                materialLot.setTempDate(packedLotList.get(0).getCreated());
+            }
+            return materialLots;
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -10546,13 +10726,13 @@ public class GcServiceImpl implements GcService {
      * @param documentLineList
      * @throws ClientException
      */
-    public void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLineList) throws ClientException{
+    public void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLineList, String ruleId) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
 
             validateCobMaterialLotDocInfo(materialLots);
-            validationStockMLotReservedDocLineByRuleId(documentLineList, materialLots, MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
+            validationStockMLotReservedDocLineByRuleId(documentLineList, materialLots, ruleId);
             Map<String, List<MaterialLot>> mlotDocMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             for(String docLineRrn : mlotDocMap.keySet()){
                 List<MaterialLot> materialLotList = mlotDocMap.get(docLineRrn);
@@ -10787,9 +10967,13 @@ public class GcServiceImpl implements GcService {
             materialLotAction.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
             materialLotAction.setTransQty(materialLot.getCurrentQty());
             if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                materialLot.setReserved2(null);
                 mmsService.stockIn(materialLot, MaterialEvent.EVENT_BOX_RECEIVE, materialLotAction);
                 List<MaterialLot> packedMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                 for(MaterialLot packedLot : packedMLotList){
+                    packedLot.setReserved2(null);
+                    packedLot = materialLotRepository.saveAndFlush(packedLot);
+
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
                     materialLotHistoryRepository.save(history);
                 }
@@ -11355,35 +11539,6 @@ public class GcServiceImpl implements GcService {
                 MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
                 materialLotHistoryRepository.save(materialLotHistory);
             }
-//            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot::getReserved16));
-//
-//            for (String docRrn : materialLotMap.keySet()) {
-//                BigDecimal totalQty = BigDecimal.ZERO;
-//                List<MaterialLot> materialLots = materialLotMap.get(docRrn);
-//                for (MaterialLot materialLot : materialLots) {
-//                    BigDecimal reservedQty = materialLot.getReservedQty();
-//                    totalQty = totalQty.add(reservedQty);
-//                    materialLot.restoreStatus();
-//                    materialLot.setReserved17(StringUtils.EMPTY);
-//                    materialLot.setReserved16(StringUtils.EMPTY);
-//                    materialLotRepository.saveAndFlush(materialLot);
-//
-//                    MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
-//                    materialLotHistoryRepository.save(materialLotHistory);
-//                }
-//                DocumentLine documentLine = (DocumentLine)documentLineRepository.findByObjectRrn(Long.parseLong(docRrn));
-//                documentLine.setReservedQty(documentLine.getReservedQty().subtract(totalQty));
-//                documentLine.setUnReservedQty(documentLine.getUnReservedQty().add(totalQty));
-//
-//                documentLine = documentLineRepository.saveAndFlush(documentLine);
-//                baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
-//
-//                MaterialIssueOrder materialIssueOrder = (MaterialIssueOrder) materialIssueOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-//                materialIssueOrder.setReservedQty(materialIssueOrder.getReservedQty().subtract(totalQty));
-//                materialIssueOrder.setUnReservedQty(materialIssueOrder.getUnReservedQty().add(totalQty));
-//                materialIssueOrderRepository.save(materialIssueOrder);
-//                baseService.saveHistoryEntity(materialIssueOrder, MaterialLotHistory.TRANS_TYPE_RAW_UN_SPARE);
-//            }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -12021,7 +12176,7 @@ public class GcServiceImpl implements GcService {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(MaterialLot.DEFAULT_NO_FORMAT_DATE_PATTERN);
             SimpleDateFormat formats = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
             String[] tepaArray = tapeMaterialCode.split(" ");
-            if(tepaArray.length < 120 ){
+            if(tepaArray.length < 116 ){
                 throw new ClientParameterException(GcExceptions.TAPA_MATERIAL_CODE_IS_ERROR, tapeMaterialCode);
             }
             String[] tepaInfoArray = new String[20];

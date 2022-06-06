@@ -1096,6 +1096,45 @@ public class PrintServiceImpl implements PrintService {
     }
 
     /**
+     * 来料晶圆箱标签打印
+     * @param materialLotUnitList
+     * @throws ClientException
+     */
+    @Override
+    public List<Map<String, Object>> printWaferLabel(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
+        List<Map<String, Object>> mapList = Lists.newArrayList();
+        PrintContext printContext = new PrintContext();
+        try {
+            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                printContext = buildPrintContext(LabelTemplate.PRINT_WAFER_LABEL, "");
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    Map<String, Object> parameterMap = Maps.newHashMap();
+                    parameterMap.put("BARCODE", materialLotUnit.getMaterialLotId());
+                    String productId = materialLotUnit.getMaterialName().substring(0, materialLotUnit.getMaterialName().lastIndexOf("-"));
+                    parameterMap.put("PRODUCTID", productId);
+                    parameterMap.put("SUBCODE", materialLotUnit.getReserved1());
+                    parameterMap.put("GRADE", materialLotUnit.getGrade() + ":" + materialLotUnit.getCurrentQty());
+                    parameterMap.put("LOCATION", materialLotUnit.getReserved4());
+                    parameterMap.put("PASSDIE", materialLotUnit.getReserved34());
+                    parameterMap.put("NGDIE", materialLotUnit.getReserved35());
+                    printContext.setBaseObject(materialLotUnit);
+                    printContext.setParameterMap(parameterMap);
+                    if (printContext.getWorkStation().getIsClientPrint()){
+                        Map<String, Object> params = Maps.newHashMap();
+                        params = buildClientParameters(printContext);
+                        mapList.add(params);
+                    }else {
+                        print(printContext);
+                    }
+                }
+            }
+            return mapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * RMA来料接收箱标签打印
      * @param materialLotList
      * @throws ClientException

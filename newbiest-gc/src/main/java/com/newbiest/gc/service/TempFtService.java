@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface TempFtService {
 
-    void transferFtData(List<TempFtModel> tempCpModelList, String fileName) throws ClientException;
+    String transferFtData(List<TempFtModel> tempCpModelList, String fileName) throws ClientException;
 
     void receiveFtOldSystemVbox(List<TempFtVboxModel> tempFtVboxModelList)  throws ClientException;
 }

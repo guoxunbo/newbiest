@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseMaterialLotsSaleReservedManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseMaterialLotsSaleReservedManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehouseMLotsSaleReserved
+              description: 保税仓库 成品销售备货
+              tableName: BondedWarehouseSaleReservedOrder
+              secondTableName: BondedWarehouseSaleReservedMLot
+              mobileFlag: N
+              url: /BondedWarehouse/MLotsSaleReserved
+              parentRrn: 2021
+              seqNo: 125
+              image: icon-wuliao
+              labelZh: 成品销售备货
+              labelEn: MaterialLotsSaleReserved

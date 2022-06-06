@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseErpDocLineMergeManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseErpDocLineMergeManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehouseErpDocLineMerge
+              description: 保税仓库 ERP单据合并
+              tableName: BondedWarehouseErpDocLineMerge
+              mobileFlag: N
+              url: /BondedWarehouse/ErpDocLineMerge
+              parentRrn: 2021
+              seqNo: 145
+              image: icon-wuliao
+              labelZh: ERP单据合并
+              labelEn: ErpDocLineMerge

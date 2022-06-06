@@ -28,6 +28,10 @@ public class FTMLotManagerRequest extends Request {
 
 	public static final String ACTION_TYPE_SALE_SHIP = "SaleShip";
 
+	public static final String ACTION_TYPE_BSW_FT_STOCK_OUT = "BSWFTStockOut";
+
+	public static final String ACTION_TYPE_BSW_SALE_SHIP = "BSWSaleShip";
+
 	private FTMLotManagerRequestBody body;
 
 }

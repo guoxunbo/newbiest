@@ -6,6 +6,7 @@ import com.newbiest.gc.model.StockInModel;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.gc.service.ThreeSideShipService;
 import com.newbiest.mms.dto.MaterialLotAction;
+import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.msg.Request;
@@ -66,11 +67,15 @@ public class FTMLotManagerController extends AbstractRestController {
             List<MaterialLotAction> materialLotActions = requestBody.getMaterialLotActions();
             gcService.validationAndWaferIssue(requestBody.getDocumentLines(), materialLotActions, requestBody.getIssueWithDoc(), requestBody.getUnPlanLot());
         } else if(FTMLotManagerRequest.ACTION_TYPE_FT_STOCK_OUT.equals(actionType)){
-            gcService.ftStockOut(requestBody.getMaterialLotActions(), requestBody.getDocumentLines());
+            gcService.ftStockOut(requestBody.getMaterialLotActions(), requestBody.getDocumentLines(), MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
         } else if(FTMLotManagerRequest.ACTION_TYPE_FT_OUTORDER_ISSUE.equals(actionType)){
             gcService.waferOutOrderIssue(requestBody.getMaterialLotActions());
         } else if(FTMLotManagerRequest.ACTION_TYPE_SALE_SHIP.equals(actionType)){
-            threeSideShipService.ftRwMLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions());
+            threeSideShipService.ftRwMLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), MaterialLot.FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
+        } else if (FTMLotManagerRequest.ACTION_TYPE_BSW_FT_STOCK_OUT.equals(actionType)){
+            gcService.ftStockOut(requestBody.getMaterialLotActions(), requestBody.getDocumentLines(), MaterialLot.BSW_FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
+        }  else if (FTMLotManagerRequest.ACTION_TYPE_BSW_SALE_SHIP.equals(actionType)){
+            threeSideShipService.ftRwMLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), MaterialLot.BSW_FT_STOCK_OUT_DOC_VALIDATE_RULE_ID);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + request.getBody().getActionType());
         }

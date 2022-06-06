@@ -83,6 +83,9 @@ public class PackageServiceImpl implements PackageService{
     @Autowired
     MaterialLotUnitService materialLotUnitService;
 
+    @Autowired
+    WarehouseRepository warehouseRepository;
+
     public MaterialLotPackageType getMaterialPackageTypeByName(String name) throws ClientException{
         List<MaterialLotPackageType> packageTypes = materialLotPackageTypeRepository.findByNameAndOrgRrn(name, ThreadLocalContext.getOrgRrn());
         if (CollectionUtils.isNotEmpty(packageTypes)) {
@@ -247,7 +250,7 @@ public class PackageServiceImpl implements PackageService{
             Map<String, MaterialLotAction> materialLotActionMap = materialLotActions.stream().collect(Collectors.toMap(MaterialLotAction :: getMaterialLotId, Function.identity()));
 
             Map<String, PackagedLotDetail> packagedLotDetails = packagedLotDetailRepository.findByPackagedLotRrn(packedMaterialLot.getObjectRrn()).stream().collect(Collectors.toMap(PackagedLotDetail :: getMaterialLotId, Function.identity()));
-
+            Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(packedMaterialLot.getReserved13()));
             for (MaterialLot waitToUnPackageMLot : waitToUnPackageMLots) {
                 MaterialLotAction materialLotAction = materialLotActionMap.get(waitToUnPackageMLot.getMaterialLotId());
 
@@ -267,6 +270,10 @@ public class PackageServiceImpl implements PackageService{
                     waitToUnPackageMLot.setReserved9(StringUtils.EMPTY);
                     waitToUnPackageMLot.setReserved10(StringUtils.EMPTY);
                     waitToUnPackageMLot.restoreStatus();
+                    if(MaterialLot.STATUS_CREATE.equals(waitToUnPackageMLot.getStatus())){
+                        waitToUnPackageMLot.setStatusCategory(MaterialLot.STATUS_STOCK);
+                        waitToUnPackageMLot.setStatus(MaterialLot.STATUS_IN);
+                    }
                     materialLotRepository.save(waitToUnPackageMLot);
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(waitToUnPackageMLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
@@ -276,8 +283,8 @@ public class PackageServiceImpl implements PackageService{
                         // 找到最后一笔包装数据
                         MaterialLotHistory materialLotHistory = materialLotHistoryRepository.findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(waitToUnPackageMLot.getMaterialLotId(), MaterialLotHistory.TRANS_TYPE_PACKAGE);
                         if (materialLotHistory != null) {
-                            Warehouse warehouse = mmsService.getWarehouseByName(materialLotHistory.getTransWarehouseId());
-                            Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, materialLotHistory.getTransStorageId());
+                            String storageId = StringUtils.isNullOrEmpty(materialLotHistory.getTargetStorageId()) ? waitToUnPackageMLot.getReserved14() : materialLotHistory.getTargetStorageId();
+                            Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
                             // 恢复库存数据
                             MaterialLotInventory materialLotInventory = new MaterialLotInventory();
                             materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
@@ -294,6 +301,11 @@ public class PackageServiceImpl implements PackageService{
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(waitToUnPackageMLot.getMaterialLotId());
                 if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                     for(MaterialLotUnit materialLotUnit: materialLotUnitList){
+                        //RW(COB)的拆箱时晶圆将LotId和Durable信息还原为Lot信息
+                        if(MaterialLot.RW_WAFER_SOURCE.equals(waitToUnPackageMLot.getReserved50())){
+                            materialLotUnit.setLotId(waitToUnPackageMLot.getLotId());
+                            materialLotUnit.setDurable(waitToUnPackageMLot.getDurable());
+                        }
                         materialLotUnit.setState(MaterialLotUnit.STATE_IN);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
@@ -423,6 +435,11 @@ public class PackageServiceImpl implements PackageService{
             if(!StringUtils.isNullOrEmpty(firstMaterialAction.getBoxStatusUseFlag())){
                 packedMaterialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                 packedMaterialLot.setStatus(MaterialStatus.STATUS_CREATE);
+            }
+            List<MaterialLot> holdMLotList = materialLots.stream().filter(materialLot -> MaterialLot.HOLD_STATE_ON.equals(materialLot.getHoldState())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(holdMLotList)){
+                packedMaterialLot.setHoldState(MaterialLot.HOLD_STATE_ON);
+                packedMaterialLot.setHoldReason(holdMLotList.get(0).getHoldReason());
             }
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 

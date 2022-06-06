@@ -66,6 +66,8 @@ public interface MmsService {
 
     Warehouse getWarehouseByName(String name) throws ClientException;
     Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
+    Storage getDefaultStorage(Warehouse warehouse) throws ClientException;
+    Storage getTargetStorageByMaterialLotAction(MaterialLotAction materialLotAction, Warehouse warehouse) throws ClientException;
 
     void stockInMaterialLotUnitAndSaveHis(MaterialLot materialLot, String transType)throws ClientException;
 }

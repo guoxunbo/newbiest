@@ -929,3 +929,33 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCBondedWarehouseInTransitMLotWaitReceive_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehousePackMaterialLots_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseSaleReservedMLot_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseSaleReservedOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseSaleStockOutMLot_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseSaleStockOutOrder_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseAddPackage_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseUnbox_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehouseErpDocLineMerge_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCBondedWarehousePrintCaseLabel_nb_table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCWaferLabelPrint_nb_table.yaml
+      relativeToChangelogFile: true
