@@ -222,9 +222,7 @@ public class PackageServiceImpl implements PackageService{
             BigDecimal packedQty = materialLotPackageType.getPackedQty(materialLotActions);
 
             packedMaterialLot.setCurrentQty(packedMaterialLot.getCurrentQty().subtract(packedQty));
-            if(!StringUtils.isNullOrEmpty(packedMaterialLot.getReserved16())){
-                packedMaterialLot.setReservedQty(packedMaterialLot.getReservedQty().subtract(packedQty));
-            }
+            packedMaterialLot.setReceiveQty(packedMaterialLot.getReceiveQty().subtract(packedQty));
             if(packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == -1){
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_CURRENT_QTY_LESS_THAN_ZERO, packedMaterialLot.getMaterialLotId());
             } else if (packedMaterialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
@@ -305,9 +303,11 @@ public class PackageServiceImpl implements PackageService{
                 }
             }
 
-            //拆箱结束，如果没有全部拆完，修改箱号上的备货标记
+            //拆箱结束，如果没有全部拆完，修改箱号上的备货标记和备货数量
             List<MaterialLot> packedMaterialLots = materialLotRepository.getPackageDetailLots(packedMaterialLot.getObjectRrn());
             if(CollectionUtils.isNotEmpty(packedMaterialLots)){
+                BigDecimal totalReservedQty = packedMaterialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
+                packedMaterialLot.setReservedQty(totalReservedQty);
                 packedMaterialLot.setReserved16(packedMaterialLots.get(0).getReserved16());
                 packedMaterialLot.setReserved17(packedMaterialLots.get(0).getReserved17());
                 packedMaterialLot.setReserved18(packedMaterialLots.get(0).getReserved18());
@@ -341,38 +341,6 @@ public class PackageServiceImpl implements PackageService{
             throw ExceptionManager.handleException(e, log);
         }
     }
-
-//    /**
-//     * 还原箱中所有备份的真空包标识并还原出库单中的备货以及未备货数量
-//     * @param materialLots
-//     */
-//    public void restoreMaterialLotAndDocLineReservedSignAndQty(List<MaterialLot> materialLots) throws ClientException{
-//        try {
-//             Map<Long, BigDecimal> docUnReservedQtyMap = Maps.newHashMap();
-//             for (MaterialLot materialLot : materialLots) {
-//                BigDecimal unReservedQty = BigDecimal.ZERO;
-//                if(!StringUtils.isNullOrEmpty(materialLot.getReserved16())){
-//                    unReservedQty = unReservedQty.add(materialLot.getReservedQty());
-//                    DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(materialLot.getReserved16()));
-//                    documentLine.setReservedQty(documentLine.getReservedQty().subtract(unReservedQty));
-//                    documentLine.setUnReservedQty(documentLine.getUnReservedQty().add(unReservedQty));
-//                    documentLine = documentLineRepository.saveAndFlush(documentLine);
-//
-//                    DeliveryOrder deliveryOrder = (DeliveryOrder) deliveryOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-//                    deliveryOrder.setUnReservedQty(deliveryOrder.getUnReservedQty().add(unReservedQty));
-//                    deliveryOrder.setReservedQty(deliveryOrder.getReservedQty().subtract(unReservedQty));
-//                    deliveryOrderRepository.save(deliveryOrder);
-//                }
-//                materialLot.setReserved16(StringUtils.EMPTY);
-//                materialLot.setReserved17(StringUtils.EMPTY);
-//                materialLot.setReserved18(StringUtils.EMPTY);
-//                materialLotRepository.save(materialLot);
-//            }
-//
-//        } catch (Exception e) {
-//            throw ExceptionManager.handleException(e, log);
-//        }
-//    }
 
     /**
      * 根据packageType验证包装规则
@@ -451,6 +419,10 @@ public class PackageServiceImpl implements PackageService{
             if (!StringUtils.isNullOrEmpty(materialLots.get(0).getReserved16())) {
                 BigDecimal totalReservedQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
                 packedMaterialLot.setReservedQty(totalReservedQty);
+            }
+            if(!StringUtils.isNullOrEmpty(firstMaterialAction.getBoxStatusUseFlag())){
+                packedMaterialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                packedMaterialLot.setStatus(MaterialStatus.STATUS_CREATE);
             }
             packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
 

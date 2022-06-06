@@ -16,6 +16,8 @@ public class StockOutRequest extends Request {
 
 	public static final String ACTION_VALIDATION = "validation";
 
+	public static final String ACTION_SALESHIP = "SaleShip";
+
 	private StockOutRequestBody body;
 
 }

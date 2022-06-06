@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseRecordExpressNumberManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HNWarehouseRecordExpressNumberManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HNRecordExpressNumberManager
+              description: 湖南仓库记录快递单号
+              tableName: HNWarehouseRecordExpressNumber
+              mobileFlag: N
+              url: /HNWarehouse/RecordExpressNumber
+              parentRrn: 2022
+              seqNo: 55
+              image: icon-wuliao
+              labelZh: 记录快递单号
+              labelEn: RecordExpressNumber

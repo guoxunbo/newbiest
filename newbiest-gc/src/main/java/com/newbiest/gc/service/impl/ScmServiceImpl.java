@@ -654,6 +654,7 @@ public class ScmServiceImpl implements ScmService {
                 if (CollectionUtils.isNotEmpty(responseDataList)) {
                     for (Map responseData : responseDataList) {
                         String lotId = (String) responseData.get("lot_no");
+                        lotId = lotId.split("\\.")[0];
                         String waferId = (String) responseData.get("wafer_id");
                         boolean engFlag = (boolean) responseData.get("is_eng");
                         if (engFlag) {

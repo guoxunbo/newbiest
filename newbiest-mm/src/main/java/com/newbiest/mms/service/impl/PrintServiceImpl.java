@@ -431,6 +431,70 @@ public class PrintServiceImpl implements PrintService {
     }
 
     /**
+     * 三星外箱标签打印
+     * 有"SEV","SEIN","SIEL","SEDA_P","SEDA_M","SEVT"6个不同的客户简称，只打印不重复的订单号
+     * @param documentLines
+     * @param printCount
+     * @throws ClientException
+     */
+    @Override
+    public List<Map<String, Object>> printSamsungOuterBoxLabel(List<DocumentLine> documentLines, Integer printCount) throws ClientException {
+        try{
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+            List<Map<String, Object>> clientMapList = Lists.newArrayList();
+            Map<String, List<DocumentLine>> factoryNameMap = documentLines.stream().collect(Collectors.groupingBy(DocumentLine :: getShipCustomer));
+            for(String factoryName : factoryNameMap.keySet()){
+                List<DocumentLine> documentLineList = factoryNameMap.get(factoryName);
+                Map<String, List<DocumentLine>> docIdMap = documentLineList.stream().collect(Collectors.groupingBy(DocumentLine :: getDocId));
+                String orderId = StringUtils.EMPTY;
+                for(String docId : docIdMap.keySet()){
+                    if(StringUtils.isNullOrEmpty(orderId)){
+                        orderId = docId;
+                    } else {
+                        orderId = orderId + "/" + docId;
+                    }
+                }
+                for(int i = 1; i < printCount+1; i++){
+                    Map<String, Object> parameterMap = Maps.newHashMap();
+                    if(MLotCodePrint.SEV_FACTORY_NAME.equals(factoryName)){
+                        parameterMap.put("FACTORYID", MLotCodePrint.SEV_FACTORY_ID);
+                    } else if(MLotCodePrint.SEIN_FACTORY_NAME.equals(factoryName)){
+                        parameterMap.put("FACTORYID", MLotCodePrint.SEIN_FACTORY_ID);
+                    } else if(MLotCodePrint.SIEL_FACTORY_NAME.equals(factoryName)){
+                        parameterMap.put("FACTORYID", MLotCodePrint.SIEL_FACTORY_ID);
+                    } else if(MLotCodePrint.SEDA_P_FACTORY_NAME.equals(factoryName)){
+                        parameterMap.put("FACTORYID", MLotCodePrint.SEDA_P_FACTORY_ID);
+                    } else if(MLotCodePrint.SEDA_M_FACTORY_NAME.equals(factoryName)){
+                        parameterMap.put("FACTORYID", MLotCodePrint.SEDA_M_FACTORY_ID);
+                    } else if(MLotCodePrint.SEVT_FACTORY_NAME.equals(factoryName)){
+                        parameterMap.put("FACTORYID", MLotCodePrint.SEVT_FACTORY_ID);
+                    }
+                    parameterMap.put("FACTORYNAME", factoryName);
+                    parameterMap.put("NUM", i);
+                    parameterMap.put("ORDERID", orderId);
+                    parameterMap.put("TOTALNUM", printCount);
+                    mapList.add(parameterMap);
+                }
+            }
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_SAMSUNG_OUTER_BOX_LABEL, "");
+            if (printContext.getWorkStation().getIsClientPrint()){
+                for(Map<String, Object> paramMap : mapList){
+                    paramMap.put("url", printContext.getLabelTemplate().getBartenderDestination(printContext.getWorkStation()));
+                    clientMapList.add(paramMap);
+                }
+            } else {
+                for(Map<String, Object> paramMap : mapList){
+                    printContext.setParameterMap(paramMap);
+                    print(printContext);
+                }
+            }
+            return clientMapList;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * RW的CST标签打印
      * @param materialLotList
      * @param printCount
@@ -1615,5 +1679,50 @@ public class PrintServiceImpl implements PrintService {
         }
     }
 
+    /**
+     * LCD箱子标签打印
+     * @param materialLot
+     * @param printCount
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public List<Map<String, Object>> printLCDBoxLabel(MaterialLot materialLot, String printCount) throws ClientException {
+        try {
+            List<Map<String, Object>> mapList = Lists.newArrayList();
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_LCD_BBOX_LABEL, printCount);
+            Map<String, Object> parameterMap = Maps.newHashMap();
+            parameterMap.put("BBOXID", materialLot.getMaterialLotId());
+            parameterMap.put("PRODUCTID", materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-")));
+            parameterMap.put("COUNT", materialLot.getCurrentQty().toPlainString());
+            parameterMap.put("GRADE", materialLot.getGrade());
+            parameterMap.put("SUBCODE", materialLot.getReserved1());
+
+            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+            int i = 1;
+            if (CollectionUtils.isNotEmpty(packageDetailLots)) {
+                for (MaterialLot packedMLot : packageDetailLots) {
+                    parameterMap.put("VBox" + i, packedMLot.getMaterialLotId());
+                    i++;
+                }
+            }
+            for (int j = i; j <= 20; j++) {
+                parameterMap.put("VBox" + j, StringUtils.EMPTY);
+            }
+            printContext.setBaseObject(materialLot);
+            printContext.setParameterMap(parameterMap);
+
+            if (printContext.getWorkStation().getIsClientPrint()){
+                Map<String, Object> params = Maps.newHashMap();
+                params = buildClientParameters(printContext);
+                mapList.add(params);
+            }else {
+                print(printContext);
+            }
+            return mapList;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
 }

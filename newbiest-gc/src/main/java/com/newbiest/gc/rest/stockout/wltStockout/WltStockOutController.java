@@ -6,6 +6,7 @@ import com.newbiest.gc.rest.stockout.StockOutRequestBody;
 import com.newbiest.gc.rest.stockout.StockOutResponse;
 import com.newbiest.gc.rest.stockout.StockOutResponseBody;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.gc.service.ThreeSideShipService;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -33,6 +34,9 @@ public class WltStockOutController {
     GcService gcService;
 
     @Autowired
+    ThreeSideShipService threeSideShipService;
+
+    @Autowired
     MaterialLotUnitService materialLotUnitService;
 
     @ApiOperation(value = "WltStockOut", notes = "Wlt/CP发货")
@@ -48,8 +52,12 @@ public class WltStockOutController {
 
         if (WltStockOutRequest.ACTION_WLTSTOCKOUT.equals(actionType)) {
             gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode(), actionType);
-        } else if(WltStockOutRequest.ACTION_WLTOTHERSTOCKOUT.equals(actionType) || WltStockOutRequest.ACTION_HN_SAMPLE_COLLECTION_STOCK_OUT.equals(actionType)) {
-            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), actionType);
+        } else if(WltStockOutRequest.ACTION_WLTOTHERSTOCKOUT.equals(actionType)) {
+            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), actionType, MaterialLot.WLT_OTHER_STOCK_OUT_RULE_ID);
+        } else if(WltStockOutRequest.ACTION_HN_SAMPLE_COLLECTION_STOCK_OUT.equals(actionType)){
+            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), actionType, MaterialLot.SAMPLE_COLLECTION_STOCK_OUT_RULE_ID);
+        } else if(WltStockOutRequest.ACTION_HN_WAREHOUSE_WLT_OTHER_STOCK_OUT.equals(actionType)){
+            gcService.wltOtherStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), actionType, MaterialLot.HN_WAREHOUSE_WLT_OTHER_STOCK_OUT_RULE_ID);
         } else if(WltStockOutRequest.ACTION_VALIDATION_WLTMLOT.equals(actionType)){
             boolean falg = gcService.validateMLotByPackageRule(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
@@ -71,12 +79,16 @@ public class WltStockOutController {
             gcService.wltCpThreeSideShip(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
         } else if(WltStockOutRequest.ACTION_SALE_SHIP.equals(actionType)) {
             gcService.wltCpMaterialLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode(), actionType);
+        } else if(WltStockOutRequest.ACTION_SALE_AND_THREE_SALE_SHIP.equals(actionType)){
+            threeSideShipService.wltCpMLotSaleShip(requestBody.getDocumentLine(), requestBody.getMaterialLotActions(), requestBody.getCheckSubCode());
         } else if (WltStockOutRequest.ACTION_GC_RW_ATTRIBUTE_CHANGE.equals(actionType)){
             gcService.rWAttributeChange(requestBody.getMaterialLots());
         } else if (WltStockOutRequest.ACTION_MOBILE_WLT_STOCK_OUT.equals(actionType)){
             gcService.mobileWltStockOut(requestBody.getMaterialLotActions(), requestBody.getErpTime(), requestBody.getCheckSubCode(), actionType);
         } else if (WltStockOutRequest.ACTION_MOBILE_SALE_SHIP.equals(actionType)){
             gcService.mobileWltCpMaterialLotSaleShip(requestBody.getMaterialLotActions(), requestBody.getErpTime(), requestBody.getCheckSubCode(), actionType);
+        } else if(WltStockOutRequest.ACTION_WLT_SHIP_BY_ORDER.equals(actionType)){
+            gcService.wltOtherShipByOrder(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

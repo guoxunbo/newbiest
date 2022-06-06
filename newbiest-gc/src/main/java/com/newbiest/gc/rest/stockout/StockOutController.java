@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.stockout;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.gc.service.ThreeSideShipService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -22,6 +23,9 @@ public class StockOutController {
     @Autowired
     GcService gcService;
 
+    @Autowired
+    ThreeSideShipService threeSideShipService;
+
     @ApiOperation(value = "StockOut", notes = "发货")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "StockOutRequest")
     @RequestMapping(value = "/stockOut", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -38,6 +42,8 @@ public class StockOutController {
         } else if(StockOutRequest.ACTION_VALIDATION.equals(actionType)){
             boolean falg = gcService.validateStockOutMaterialLot(requestBody.getQueryMaterialLot(), requestBody.getMaterialLotActions());
             responseBody.setFalg(falg);
+        } else if(StockOutRequest.ACTION_SALESHIP.equals(actionType)){
+            threeSideShipService.comSaleShip(requestBody.getDocumentLineList(), requestBody.getMaterialLotActions());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

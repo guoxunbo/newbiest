@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_RwBladeScanReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add RwBladeScanReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: LCDMLotPackageManager
+              description: LCD包装
+              tableName: GCLCDMLotPackage
+              mobileFlag: N
+              url: /LCD/LCDPackMaterialLot
+              parentRrn: 1001
+              seqNo: 25
+              image: icon-rule
+              labelZh: LCD装箱
+              labelEn: LCDPackage

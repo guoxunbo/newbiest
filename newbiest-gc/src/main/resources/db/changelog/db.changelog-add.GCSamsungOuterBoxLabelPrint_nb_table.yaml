@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCSamsungOuterBoxLabelPrint_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCSamsungOuterBoxLabelPrint to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCSamsungOuterBoxLabelPrint
+              description: 三星外箱标签打印
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 三星外箱标签打印
+              label: GCSamsungOuterBoxLabelPrint

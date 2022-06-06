@@ -18,6 +18,8 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_HN_SAMPLE_COLLECTION_STOCK_OUT= "HNSampleCollectionStockOut";
 
+	public static final String ACTION_HN_WAREHOUSE_WLT_OTHER_STOCK_OUT = "HNWarehouseWltOtherStockOut";
+
 	public static final String ACTION_VALIDATION_WLTMLOT = "validationWltMlot";
 
 	public static final String ACTION_QUERY_STOCKOUTTAG_MLOTUNIT = "queryTagMlotUnit";
@@ -36,11 +38,15 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_SALE_SHIP = "SaleShip";
 
+	public static final String ACTION_SALE_AND_THREE_SALE_SHIP = "SaleAndthreeSide";
+
 	public static final String ACTION_GC_RW_ATTRIBUTE_CHANGE = "GCRWAttributeChange";
 
 	public static final String ACTION_MOBILE_WLT_STOCK_OUT = "MobileWltStockOut";
 
 	public static final String ACTION_MOBILE_SALE_SHIP = "MobileSaleShip";
+
+	public static final String ACTION_WLT_SHIP_BY_ORDER = "WltOtherShipByOrder";
 
 	private WltStockOutRequestBody body;
 

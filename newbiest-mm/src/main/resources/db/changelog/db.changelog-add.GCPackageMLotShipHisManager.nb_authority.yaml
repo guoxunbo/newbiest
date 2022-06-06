@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCPackageMLotShipHisSaveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCPackageMLotShipHisSaveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCPackageMLotShipHisSave
+              description: LCD包装
+              tableName: GCPackageMLotShipHisSave
+              mobileFlag: N
+              url: /GC/PackageMLotShipHisManager
+              parentRrn: 1001
+              seqNo: 555
+              image: icon-rule
+              labelZh: 批次出货历史记录
+              labelEn: PackageMLotShipHisSave

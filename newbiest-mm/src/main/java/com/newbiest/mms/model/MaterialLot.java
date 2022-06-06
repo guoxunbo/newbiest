@@ -126,6 +126,16 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String IRA_MERGE_RULE = "IRAPackCase";
 
+    /**
+     * LCD装箱规则
+     */
+    public static final String LCD_PACKCASE = "LCDPackCase";
+
+    /**
+     * LCD装箱规则
+     */
+    public static final String HN_PACKCASE = "HNPackCase";
+
     public static final String RECEIVE_ERROR = "ERROR";
 
     /**
@@ -140,6 +150,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WLT_SHIP_DOC_VALIDATE_RULE_ID = "WLTStockOutDocRule";    //WLT出货单据验证
     public static final String MLOT_RESERVED_DOC_VALIDATE_RULE_ID = "MLotReservedRule"; //备货单据验证规则
     public static final String OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID = "OtherShipReservedRule"; //其他出备货单据验证规则
+    public static final String HN_WAREHOUSE_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID = "HNWarehouseOtherShipReservedRule"; //湖南仓其他出备货单据验证规则
     public static final String MLOT_RETEST_DOC_VALIDATE_RULE_ID = "MLotReTestRule"; //物料重测发料单据验证规则
     public static final String WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "WaferReceiveDocLineRule";  //晶圆接收单据验证规则
     public static final String COB_WAFER_RECEIVE_DOC_VALIDATE_RULE_ID = "COBWaferReceiveDocLineRule"; //COB晶圆接收单据验证规则
@@ -153,7 +164,10 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String RW_MLOT_SCRAP_AND_SHIP_VALIDATE_RULE_ID = "RwMaterialScrapShipDocRule";  //原材料报废出库单据验证规则
     public static final String WLT_OTHER_STOCK_OUT_RULE_ID = "WltOtherStockOutRule";  //WLT/CP其它出单据验证规则
     public static final String SAMPLE_COLLECTION_STOCK_OUT_RULE_ID = "SampleCollectionStockOutRule"; //样品领用出单据验证规则
+    public static final String HN_WAREHOUSE_WLT_OTHER_STOCK_OUT_RULE_ID = "HNWarehouseWltOtherStockOutRule"; //湖南仓其它出单据验证规则
     public static final String FT_RETEST_DOC_VALIDATE_RULE_ID = "FtVboxReTestRule"; //FT真空包重测发料单据验证规则
+    public static final String WLT_OTHER_SHIP_BY_ORDER__RULE_ID = "WltOtherByOrderShipDocRule";  //三方销售单据验证规则
+
 
     public static final String RW_SHIP_TAG_UPDATE_PREVIEW_RULE_ID = "RwShipTagUpdatePreviewRule"; //COB出货标注修改分组筛选
 
@@ -243,6 +257,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String WLT_IN_FLAG_WAFER_SOURCE = "5";
     public static final String LCP_IN_FLAG_WAFER_SOURCE = "3";
     public static final String SCP_IN_FLAG_WAFER_SOURCE = "1";
+    public static final String COG_WAFER_SOURCE = "17";
     public static final String RAW_MATERIAL_WAFER_SOURCE = "60";
     public static final String CP_CHANGGE_RW_WAFER_SOURCE = "21";
     public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
@@ -307,13 +322,19 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String ZJ_WAREHOUSE = "8143";
     public static final String SH_WAREHOUSE = "8142";
     public static final String HK_WAREHOUSE = "8150";
+    public static final String BS_WAREHOUSE = "8151";
+    public static final String HN_WAREHOUSE = "8152";
+    public static final String IC_WAREHOUSE = "8153";
 
     public static final String WAREHOUSE_SH = "SH_STOCK";
     public static final String WAREHOUSE_ZJ = "ZJ_STOCK";
     public static final String WAREHOUSE_HK = "HK_STOCK";
+    public static final String WAREHOUSE_BS = "BS_STOCK";
+    public static final String WAREHOUSE_HN = "HN_STOCK";
 
     public static final String LOCATION_SH = "SH";
     public static final String BONDED_PROPERTY_ZSH = "ZSH";
+    public static final String BONDED_PROPERTY_HK = "HK";
 
     public static final List<String> BONDED_LIST = Lists.newArrayList("SWJF", "SWKY", "SWHT", "WJF", "WKY", "WHT");
 
@@ -1060,6 +1081,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name="TAG_USER")
     private String tagUser;
 
+    /**
+     * MRB结论备注
+     */
+    @Column(name = "MRB_COMMENTS")
+    private String mrbComments;
+
     @Transient
     private String documentLineUser;
 
@@ -1206,6 +1233,15 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setPlanOrderType(StringUtils.EMPTY);
     }
 
+    public void clearCobReservedDocInfo() {
+        this.setShipper(null);
+        this.setReserved16(null);
+        this.setReserved17(null);
+        this.setReserved51(null);
+        this.setReserved52(null);
+        this.setReserved53(null);
+    }
+
     /**
      * 清空预留相关栏位信息
      */
@@ -1249,11 +1285,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         if(!RW_PACKCASE.equals(packageType)){
             this.setReserved14(StringUtils.EMPTY);
         }
-
-        // 清空备货相关信息
-        //this.setReserved16(StringUtils.EMPTY);
-        //this.setReserved17(StringUtils.EMPTY);
-        //.setReserved18(StringUtils.EMPTY);
     }
 
     public void setMaterial(Material material) {
@@ -1285,5 +1316,27 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public void clearTaggingInfo() {
+        this.setReserved54(StringUtils.EMPTY);
+        this.setReserved55(StringUtils.EMPTY);
+        this.setReserved56(StringUtils.EMPTY);
+        this.setReserved57(StringUtils.EMPTY);
+        this.setVenderAddress(StringUtils.EMPTY);
+        this.setCustomerId(StringUtils.EMPTY);
+        this.setTagUser(StringUtils.EMPTY);
+        this.setTagDate(null);
+    }
+
+    public void resetMLotInfo() {
+        this.setReserved12(null);
+        this.clearReservedInfo();
+        this.clearTaggingInfo();
+        this.setReserved19(StringUtils.EMPTY);
+        this.setReserved20(StringUtils.EMPTY);
+        this.setWorkOrderId(null);
+        this.setWorkOrderPlanputTime(null);
+        this.initialMaterialLot();
     }
 }

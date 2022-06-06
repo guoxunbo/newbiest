@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HNWarehouseMaterialLotStockIn_to_NB_TABLE
+      author: Youqing Huang
+      comment: add HNWarehouseMaterialLotStockIn to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HNWarehouseMaterialLotStockIn
+              description: 湖南仓入库位
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 湖南仓入库位
+              label: HNWarehouseMaterialLotStockIn
