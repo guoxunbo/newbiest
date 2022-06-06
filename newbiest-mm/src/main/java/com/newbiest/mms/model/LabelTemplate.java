@@ -35,6 +35,7 @@ public class LabelTemplate extends NBBase {
     public static final String PRINT_RW_STOCK_OUT_LABEL = "PrintRWStockOutLabel";//RW出货标签打印
     public static final String PRINT_QR_CODE_LABEL = "PrintBoxQRCode";//二维码标签打印
     public static final String PRINT_WLT_BBOX_LABEL = "PrintWltBboxLabel";//WLT来料晶圆箱标签打印
+    public static final String PRINT_WAFER_LABEL = "PrintWaferLabel";//来料晶圆箱标签打印
     public static final String PRINT_RMA_BOX_LABEL = "PrintRMABoxLabel";//RMA来料接收箱标签打印
     public static final String PRINT_RW_LOT_ISSUE_LABEL = "PrintRwLotIdIssueLabel";//RW发料箱标签打印
     public static final String PRINT_IR_LABEL = "PrintIRLabel";//IR单包标签打印

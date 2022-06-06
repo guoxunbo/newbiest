@@ -21,6 +21,6 @@ public interface PackagedLotDetailRepository extends IRepository<PackagedLotDeta
     List<PackagedLotDetail> findByPackagedLotRrn(Long packagedLotRrn) throws ClientException;
 
     @Modifying
-    @Query("DELETE FROM PackagedLotDetail WHERE packagedLotRrn = :packagedLotRrn")
-    void deleteByPackagedLotRrn(Long packagedLotRrn) throws ClientException;
+    @Query("DELETE FROM PackagedLotDetail WHERE packagedLotId in (:bboxIdList)")
+    void deleteByPackagedLotIdIn(List<String> bboxIdList);
 }

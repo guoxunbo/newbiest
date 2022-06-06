@@ -495,7 +495,7 @@ public class MmsServiceImpl implements MmsService {
      * 获取默认的库位。这个库位可以挂在任意仓库下面
      *  如果系统中没有默认库位则直接创建一个
      */
-    private Storage getDefaultStorage(Warehouse warehouse) throws ClientException{
+    public Storage getDefaultStorage(Warehouse warehouse) throws ClientException{
         try {
             Storage storage = getStorageByWarehouseRrnAndName(warehouse, Storage.DEFAULT_STORAGE_NAME);
             if (storage == null) {
@@ -518,7 +518,7 @@ public class MmsServiceImpl implements MmsService {
      * @param warehouse
      * @return
      */
-    private Storage getTargetStorageByMaterialLotAction(MaterialLotAction materialLotAction, @NotNull  Warehouse warehouse) {
+    public Storage getTargetStorageByMaterialLotAction(MaterialLotAction materialLotAction, @NotNull  Warehouse warehouse) {
         try {
             Storage targetStorage;
             if (materialLotAction.getTargetStorageRrn() != null) {

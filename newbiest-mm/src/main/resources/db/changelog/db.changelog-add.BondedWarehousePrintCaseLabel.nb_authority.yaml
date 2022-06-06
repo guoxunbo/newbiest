@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehousePrintCaseLabelManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehousePrintCaseLabelManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehousePrintCaseLabel
+              description: 保税仓库 补打标签
+              tableName: BondedWarehousePrintCaseLabel
+              mobileFlag: N
+              url: /BondedWarehouse/PrintCaseLabel
+              parentRrn: 2021
+              seqNo: 150
+              image: icon-wuliao
+              labelZh: 补打标签
+              labelEn: PrintCaseLabel

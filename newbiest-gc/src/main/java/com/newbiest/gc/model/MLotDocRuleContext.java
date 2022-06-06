@@ -36,6 +36,7 @@ public class MLotDocRuleContext implements Serializable {
 
     public static final String MERGE_DOC_VALIDATE_RULE_ID = "MergeDocRule";  //单据合并验证规则
     public static final String HN_WAREHOUSE_MERGE_DOC_VALIDATE_RULE_ID = "HNWarehouseMergeDocRule";  //湖南仓单据合并验证规则
+    public static final String BS_WAREHOUSE_MERGE_DOC_VALIDATE_RULE_ID = "BSWMergeDocRule"; //保税仓单据合并验证规则
     public static final String FT_RETEST_DOC_VALIDATE_RULE_ID = "FtVboxReTestRule"; //FT真空包重测发料单据验证规则
     public static final String MATERIAL_NAME = "materialName";
     public static final String SOURCE_PRODUCT_ID = "sourceProductId";

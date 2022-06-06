@@ -35,6 +35,8 @@ public class GCErpDocLineMergeController {
             gcService.valaidateAndMergeErpDocLine(requestBody.getDocumentLines(), MLotDocRuleContext.MERGE_DOC_VALIDATE_RULE_ID);
         } else if(GCErpDocLineMergeRequest.ACTION_TYPE_HN_WAREHOUSE_MERGE_DOC.equals(actionType)){
             gcService.valaidateAndMergeErpDocLine(requestBody.getDocumentLines(), MLotDocRuleContext.HN_WAREHOUSE_MERGE_DOC_VALIDATE_RULE_ID);
+        } else if(GCErpDocLineMergeRequest.ACTION_TYPE_BS_WAREHOUSE_MERGE_DOC.equals(actionType)){
+            gcService.valaidateAndMergeErpDocLine(requestBody.getDocumentLines(), MLotDocRuleContext.BS_WAREHOUSE_MERGE_DOC_VALIDATE_RULE_ID);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

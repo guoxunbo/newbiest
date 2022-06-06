@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCBondedWarehouseSaleStockOutMLot_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCBondedWarehouseSaleStockOutMLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWarehouseSaleStockOutMLot
+              description: 保税仓库 成品销售出货物料
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 成品销售出货物料
+              label: SaleStockOutMLot
