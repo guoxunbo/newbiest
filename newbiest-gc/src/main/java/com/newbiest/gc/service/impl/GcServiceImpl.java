@@ -9387,7 +9387,7 @@ public class GcServiceImpl implements GcService {
                     }
                     targetSubcode = MaterialLot.GRADE_FIRST + subcode + endString + MaterialLot.GRADE_FIXED_CHAR_Z;
                 } else {
-                    targetSubcode = MaterialLot.GRADE_UNDEFINED;
+                    targetSubcode = MaterialLot.GRADE_FIRST + subcode + grade;
                 }
             }
             return targetSubcode;
