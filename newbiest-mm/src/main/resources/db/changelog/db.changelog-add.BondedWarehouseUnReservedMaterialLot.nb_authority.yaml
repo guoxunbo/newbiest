@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseUnReservedMaterialLotManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseUnReservedMaterialLotManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehouseUnReservedMLot
+              description: 保税仓库 取消备货
+              tableName: BondedWarehouseUnReservedMLot
+              mobileFlag: N
+              url: /BondedWarehouse/UnReservedMLot
+              parentRrn: 2021
+              seqNo: 160
+              image: icon-wuliao
+              labelZh: 取消备货
+              labelEn: UnReservedMaterialLot
