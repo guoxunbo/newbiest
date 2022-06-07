@@ -1137,19 +1137,21 @@ public class PrintServiceImpl implements PrintService {
     /**
      * RMA来料接收箱标签打印
      * @param materialLotList
+     * @param printCount
      * @throws ClientException
      * @return
      */
     @Override
-    public List<Map<String, Object>> printRmaMaterialLotLabel(List<MaterialLot> materialLotList) throws ClientException {
+    public List<Map<String, Object>> printRmaMaterialLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException {
         try {
             List<Map<String, Object>> mapList = Lists.newArrayList();
 
-            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RMA_BOX_LABEL, "");
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RMA_BOX_LABEL, printCount);
             for(MaterialLot materialLot : materialLotList){
                 Map<String, Object> parameterMap = Maps.newHashMap();
+                String productId = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-"));
                 parameterMap.put("BOXID", materialLot.getMaterialLotId());
-                parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+                parameterMap.put("PRODUCTID", productId);
                 parameterMap.put("GRADE", materialLot.getGrade() + StringUtils.PARAMETER_CODE + materialLot.getCurrentQty());
                 parameterMap.put("LOCATION", materialLot.getReserved6());
                 parameterMap.put("SUBCODE", materialLot.getReserved1());
