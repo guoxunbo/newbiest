@@ -2129,7 +2129,7 @@ public class GcServiceImpl implements GcService {
                 if(!documentLineList.contains(documentLine)){
                     throw new ClientParameterException(GcExceptions.MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME, documentLine.getDocId());
                 }
-                Long totalUnhandledQty = materialLotList.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                Long totalUnhandledQty = materialLots.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
                 if(documentLine.getUnHandledQty().compareTo(new BigDecimal(totalUnhandledQty)) < 0){
                     throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
                 }
