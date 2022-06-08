@@ -69,10 +69,8 @@ public class FTImportMLotThread implements Callable {
                 materialLotAction.setTransQty(currentQty);
                 materialLotAction.setGrade(vboxMLot.getGrade());
                 materialLotAction.setTargetStorageRrn(storage.getObjectRrn());
-                if (!StringUtils.isNullOrEmpty(vboxMLot.getStockId())) {
-                    materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
-                    materialLotAction.setTargetStorageId(vboxMLot.getPointId());
-                }
+                materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+                materialLotAction.setTargetStorageId(vboxMLot.getPointId());
 
                 Map<String, Object> propMap = Maps.newConcurrentMap();
                 if(!StringUtils.isNullOrEmpty(vboxMLot.getStockId())){
@@ -146,6 +144,7 @@ public class FTImportMLotThread implements Callable {
                 MaterialLotAction materialLotAction = new MaterialLotAction();
                 materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
                 materialLotAction.setTransQty(materialLot.getCurrentQty());
+                materialLotAction.setResetStorageId("1");
                 materialLotActions.add(materialLotAction);
             }
 

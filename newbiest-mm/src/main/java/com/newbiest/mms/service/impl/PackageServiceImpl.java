@@ -415,6 +415,9 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(materialLotActions));
             packedMaterialLot.setReceiveQty(packedMaterialLot.getCurrentQty());
             packedMaterialLot.buildPackageMaterialLot(packageType);
+            if(!MaterialLot.RW_PACKCASE.equals(packageType) && StringUtils.isNullOrEmpty(firstMaterialAction.getResetStorageId())){
+                packedMaterialLot.setReserved14(StringUtils.EMPTY);
+            }
             packedMaterialLot.setMaterialType(StringUtils.isNullOrEmpty(materialLotPackageType.getTargetMaterialType()) ? packedMaterialLot.getMaterialType() : materialLotPackageType.getTargetMaterialType());
 
             BigDecimal totalCurrentSubQty = BigDecimal.ZERO;

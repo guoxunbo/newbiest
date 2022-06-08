@@ -1285,12 +1285,9 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setPackageType(packageType);
 
         //TODO 此处为GC客制化
-        // 清除中转箱号以及库位号 清空场外LOTID号
+        // 清除中转箱号 清空场外LOTID号
         this.setReserved8(StringUtils.EMPTY);
         this.setLotId(StringUtils.EMPTY);
-        if(!RW_PACKCASE.equals(packageType)){
-            this.setReserved14(StringUtils.EMPTY);
-        }
     }
 
     public void setMaterial(Material material) {

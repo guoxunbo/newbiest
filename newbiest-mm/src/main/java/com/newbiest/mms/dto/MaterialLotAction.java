@@ -34,6 +34,11 @@ public class MaterialLotAction extends Action {
     private String reserved4;
 
     /**
+     * 重置库位号
+     */
+    private String resetStorageId;
+
+    /**
      * 来源仓库主键
      */
     private Long fromWarehouseRrn;

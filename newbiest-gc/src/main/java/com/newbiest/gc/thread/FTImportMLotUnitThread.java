@@ -123,6 +123,8 @@ public class FTImportMLotUnitThread implements Callable {
             materialLotAction.setTransCount(currentSubQty);
             materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
             materialLotAction.setTargetStorageId(storage.getName());
+            materialLotAction.setTargetStorageRrn(storage.getObjectRrn());
+
             propMap.put("reserved8", waferTempFtModel.getBoxId() == null ? "": waferTempFtModel.getBoxId().trim());
             propMap.put("reserved13", materialLotAction.getTargetWarehouseRrn().toString());
             propMap.put("reserved14", waferTempFtModel.getPointId() == null ? "": waferTempFtModel.getPointId().trim());
@@ -150,6 +152,7 @@ public class FTImportMLotUnitThread implements Callable {
             propMap.put("reserved43", waferTempFtModel.getDataValue24() == null ? "": waferTempFtModel.getDataValue24().trim());
             propMap.put("reserved45", waferTempFtModel.getDataValue25() == null ? "": waferTempFtModel.getDataValue25().trim());
             propMap.put("reserved46", waferTempFtModel.getWoId() == null ? "": waferTempFtModel.getWoId().trim());
+            propMap.put("reserved7", productCategory);
             propMap.put("reserved47", fileName);
             propMap.put("reserved48", importCode);
             propMap.put("reserved49", importType);
