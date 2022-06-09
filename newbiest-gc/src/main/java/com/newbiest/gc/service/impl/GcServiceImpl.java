@@ -6179,6 +6179,14 @@ public class GcServiceImpl implements GcService {
 
     /**
      * wlt封装回货与sensor封装回货获取waferSource信息
+     * 导入型号是GC02M1-3的  如果FAB lot id首位是C 且 FAB device ID 以H00开头，
+     * 或者 FAB lot id首位是A 且 FAB device ID 以C000开头,
+     * 或者FAB lot id首位是E 且 FAB device ID 以P018L开头;
+     * 满足上述条件的GC02M1-3的型号才能导入,
+     * 否则报错提示：型号为GC02M1，LOT ID首位是：XXXX 且FAB DEVICE是:XXXXX 不在管控规则内，不能导入;
+     * 导入型号是GC02M1-3的  如果FAB lot id首位是C 且 FAB device ID 以H00开头，
+     * 或者 FAB lot id首位是A 且 FAB device ID 以C000开头
+     * 满足上述条件的GC02M1-3的型号 导入后变成GC02M1C-3.5
      * @param importType
      * @param materialLotUnitList
      * @return
@@ -6187,7 +6195,18 @@ public class GcServiceImpl implements GcService {
     public List<MaterialLotUnit> packReturnSetWaferSource(String importType,  List<MaterialLotUnit> materialLotUnitList) throws ClientException{
         try {
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                materialLotUnit.setReserved30(materialLotUnit.getReserved30().split("\\.")[0]);
+                String materialName = materialLotUnit.getMaterialName();
+                String fablotId = materialLotUnit.getReserved30();
+                String fabDeviceId = materialLotUnit.getReserved24();
+                if(MaterialLotUnit.RETURN_PRODUCT_ID.equals(materialName)){
+                    if((fablotId.startsWith(MaterialLotUnit.FAB_LOT_ID_C) && fabDeviceId.startsWith(MaterialLotUnit.FAB_DEVICE_ID_H00)) ||
+                            (fablotId.startsWith(MaterialLotUnit.FAB_LOT_ID_A) && fabDeviceId.startsWith(MaterialLotUnit.FAB_DEVICE_ID_C000)) ){
+                        materialLotUnit.setMaterialName(MaterialLotUnit.RETURN_RESET_PRODUCT_ID);
+                    } else if(!(fablotId.startsWith(MaterialLotUnit.FAB_LOT_ID_C) && fabDeviceId.startsWith(MaterialLotUnit.FAB_DEVICE_ID_H00))){
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_IN_RULE_CONTROL_CANNOT_IMPORT, materialName + StringUtils.SEMICOLON_CODE + fablotId + StringUtils.SEMICOLON_CODE + fabDeviceId);
+                    }
+                }
+                materialLotUnit.setReserved30(fablotId.split("\\.")[0]);
                 if(MaterialLotUnit.WLT_PACK_RETURN.equals(importType)){
                     materialLotUnit.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_WLT);
                     materialLotUnit.setReserved49(MaterialLot.IMPORT_WLT);
@@ -8049,16 +8068,6 @@ public class GcServiceImpl implements GcService {
      */
     public List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
         try {
-            Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
-            for(String materialName : materialUnitMap.keySet()){
-                Map<String, List<MaterialLotUnit>> subcodeMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getReserved1));
-                for(String subcode : subcodeMap.keySet()){
-                    GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialName, subcode);
-                    if(gcProductSubcode == null ){
-                        throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST, materialName + StringUtils.SPLIT_CODE + subcode);
-                    }
-                }
-            }
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 // 验证Gross Dies=Sampling Qty+Pass Dies1+Pass Dies2+Pass Dies3+NG Die
                 BigDecimal grossDies = materialLotUnit.getCurrentQty();
@@ -9539,10 +9548,6 @@ public class GcServiceImpl implements GcService {
                 }
             }
             for(MaterialLotUnit materialLotUnit : materialLotUnits){
-                GCProductSubcode gcProductSubcode = getProductAndSubcodeInfo(materialLotUnit.getMaterialName(), materialLotUnit.getReserved1());
-                if(gcProductSubcode == null ){
-                    throw new ClientParameterException(GcExceptions.PRODUCT_AND_SUBCODE_IS_NOT_EXIST, materialLotUnit.getMaterialName() + StringUtils.SPLIT_CODE + materialLotUnit.getReserved1());
-                }
                 materialLotUnit.setLotId(materialLotUnit.getUnitId().toUpperCase());
                 materialLotUnit.setMaterialLotId(materialLotUnit.getUnitId().toUpperCase());
                 materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());

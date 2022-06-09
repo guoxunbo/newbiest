@@ -62,6 +62,7 @@ public class GcExceptions {
     public static final String MATERIAL_LOT_ALREADY_RECEIVE = "gc.material_lot_already_receive";
     public static final String MATERIAL_LOT_UNIT_QTY_IS_ERROR = "gc.material_lot_unit_qty_is_error";
     public static final String THE_QUANTITY_FIELD_MUST_BE_GREATER_THAN_ZERO = "gc.the_quantity_field_must_be_greater_than_zero";
+    public static final String MATERIAL_LOT_NOT_IN_RULE_CONTROL_CANNOT_IMPORT = "gc.material_lot_not_in_rule_control_cannot_import";
 
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";
