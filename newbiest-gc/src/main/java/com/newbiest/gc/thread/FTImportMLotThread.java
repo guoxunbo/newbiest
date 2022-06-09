@@ -7,7 +7,6 @@ import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
-import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.gc.scm.dto.TempFtModel;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
@@ -45,7 +44,6 @@ public class FTImportMLotThread implements Callable {
     private String packageType;
     private String fileName;
     private Material material;
-    private StatusModel statusModel;
     private Date createHisDate;
     private Warehouse warehouse;
     private Storage storage;

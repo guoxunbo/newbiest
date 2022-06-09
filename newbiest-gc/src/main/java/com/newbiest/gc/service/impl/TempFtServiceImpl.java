@@ -9,7 +9,6 @@ import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
-import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.gc.GcExceptions;
@@ -139,12 +138,13 @@ public class TempFtServiceImpl implements TempFtService {
                     //先获取库位信息，不存在新建
                     Map<String, Storage> storageMap = getStorageMapInfo(unPackedackMLotList);
                     Map<String, List<TempFtModel>> waferSourceMap = unPackedackMLotList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
+                    Map<String, Material> materialMap = getMaterialMapInfo(waferSourceMap);
                     for(String waferSource : waferSourceMap.keySet()){
                         List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
                         Map<String, List<TempFtModel>> productFtModelMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel :: getProductId));
                         for(String productId : productFtModelMap.keySet()){
                             List<TempFtModel> tempFtModelList = productFtModelMap.get(productId);
-                            Material material = validateAndGetMaterial(waferSource, productId.trim());
+                            Material material = materialMap.get(productId);
                             for (TempFtModel tempFtModel : tempFtModelList) {
                                 Warehouse warehouse = getWareHoseByStockId(tempFtModel.getStockId().trim());
                                 String pointId = tempFtModel.getPointId();
@@ -154,7 +154,6 @@ public class TempFtServiceImpl implements TempFtService {
                                 } else {
                                     storage = storageMap.get(pointId.trim() + tempFtModel.getStockId().trim());
                                 }
-                                StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                                 Map<String, Object> propMap = Maps.newConcurrentMap();
                                 String productType = tempFtModel.getDataValue14();
                                 getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource, productType == null ? "" : productType);
@@ -177,7 +176,6 @@ public class TempFtServiceImpl implements TempFtService {
                                 ftImportVBoxThread.setFileName(fileName);
                                 ftImportVBoxThread.setImportCode(importCode);
                                 ftImportVBoxThread.setMaterial(material);
-                                ftImportVBoxThread.setStatusModel(statusModel);
                                 ftImportVBoxThread.setWarehouse(warehouse);
                                 ftImportVBoxThread.setStorage(storage);
                                 ftImportVBoxThread.setCreateHisDate(createHisDate);
@@ -192,14 +190,14 @@ public class TempFtServiceImpl implements TempFtService {
                 } else if(CollectionUtils.isNotEmpty(boxedTempFtModelList)){
                     Map<String, Storage> storageMap = getStorageMapInfo(boxedTempFtModelList);
                     Map<String, List<TempFtModel>> waferSourceMap = boxedTempFtModelList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
+                    Map<String, Material> materialMap = getMaterialMapInfo(waferSourceMap);
                     for (String waferSource : waferSourceMap.keySet()) {
                         List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
-                        //处理装箱的真空包
                         Map<String, List<TempFtModel>> boxedTempFtModelMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel::getBoxId));
                         for (String parentMaterialLotId : boxedTempFtModelMap.keySet()) {
                             bboxIdList.add(parentMaterialLotId);
                             List<TempFtModel> boxInfoList = boxedTempFtModelMap.get(parentMaterialLotId);
-                            Material material = validateAndGetMaterial(waferSource, boxInfoList.get(0).getProductId().trim());
+                            Material material = materialMap.get(boxInfoList.get(0).getProductId());
                             Warehouse warehouse = getWareHoseByStockId(boxInfoList.get(0).getStockId().trim());
                             String pointId = boxInfoList.get(0).getPointId();
                             Storage storage = null;
@@ -208,7 +206,6 @@ public class TempFtServiceImpl implements TempFtService {
                             } else {
                                 storage = storageMap.get(pointId.trim() + boxInfoList.get(0).getStockId().trim());
                             }
-                            StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                             String packageType = MaterialLot.DFT_PACKAGE_TYPE;
                             if (parentMaterialLotId.startsWith(TempFtModel.BOX_START_LB)) {
                                 packageType = MaterialLot.LCD_PACKCASE;
@@ -238,7 +235,6 @@ public class TempFtServiceImpl implements TempFtService {
                             ftImportMLotThread.setFileName(fileName);
                             ftImportMLotThread.setImportCode(importCode);
                             ftImportMLotThread.setMaterial(material);
-                            ftImportMLotThread.setStatusModel(statusModel);
                             ftImportMLotThread.setWarehouse(warehouse);
                             ftImportMLotThread.setStorage(storage);
                             ftImportMLotThread.setCreateHisDate(createHisDate);
@@ -290,6 +286,7 @@ public class TempFtServiceImpl implements TempFtService {
             if(CollectionUtils.isNotEmpty(lotUnitList)){
                 Map<String, Storage> storageMap = getStorageMapInfo(lotUnitList);
                 Map<String, List<TempFtModel>> waferSourceMap = lotUnitList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
+                Map<String, Material> materialMap = getMaterialMapInfo(waferSourceMap);
                 List<String> materialLotIdList = Lists.newArrayList();
                 List<Future<FTImportMLotThreadResult>> waferImportCallBackList = Lists.newArrayList();
                 for (String waferSource : waferSourceMap.keySet()) {
@@ -297,7 +294,7 @@ public class TempFtServiceImpl implements TempFtService {
                     Map<String, List<TempFtModel>> productFtModelMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel :: getProductId));
                     for(String productId : productFtModelMap.keySet()) {
                         List<TempFtModel> tempFtModelList = productFtModelMap.get(productId);
-                        Material material = validateAndGetMaterial(waferSource, productId.trim());
+                        Material material = materialMap.get(productId);
                         Map<String, List<TempFtModel>> lotUnitMap = tempFtModelList.stream().collect(Collectors.groupingBy(TempFtModel :: getLotId));
                         for(String lotId : lotUnitMap.keySet()){
                             List<TempFtModel> lotTempCpModels = lotUnitMap.get(lotId);
@@ -310,8 +307,6 @@ public class TempFtServiceImpl implements TempFtService {
                             } else {
                                 storage = storageMap.get(pointId.trim() + firstTempFtModel.getStockId().trim());
                             }
-                            StatusModel statusModel = mmsService.getMaterialStatusModel(material);
-
                             Map<String, Object> propMap = Maps.newConcurrentMap();
                             getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource, firstTempFtModel.getDataValue14() == null ? "" : firstTempFtModel.getDataValue14());
                             String productCategory = (String) propMap.get("reserved7");
@@ -337,7 +332,6 @@ public class TempFtServiceImpl implements TempFtService {
                             ftImportMLotUnitThread.setFirstTempFtModel(firstTempFtModel);
                             ftImportMLotUnitThread.setImportCode(importCode);
                             ftImportMLotUnitThread.setMaterial(material);
-                            ftImportMLotUnitThread.setStatusModel(statusModel);
                             ftImportMLotUnitThread.setWarehouse(warehouse);
                             ftImportMLotUnitThread.setStorage(storage);
                             ftImportMLotUnitThread.setCreateHisDate(createHisDate);
@@ -387,6 +381,29 @@ public class TempFtServiceImpl implements TempFtService {
                 }
             }
             return messageInfo;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取产品信息
+     * @param waferSourceMap
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,Material> getMaterialMapInfo(Map<String,List<TempFtModel>> waferSourceMap) throws ClientException{
+        try {
+            Map<String, Material> materialMap = Maps.newHashMap();
+            for(String waferSource : waferSourceMap.keySet()){
+                List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
+                Map<String, List<TempFtModel>> productFtModelMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel :: getProductId));
+                for(String productId : productFtModelMap.keySet()){
+                    Material material = validateAndGetMaterial(waferSource, productId.trim());
+                    materialMap.put(productId, material);
+                }
+            }
+            return materialMap;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
