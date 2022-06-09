@@ -976,9 +976,11 @@ public class GcServiceImpl implements GcService {
             //原材料接收入库时，如果未入库需将原材料信息写入中间表
             if(CollectionUtils.isNotEmpty(materialLotList)){
                 for(MaterialLot materialLot: materialLotList){
-                    ErpMaterialIn erpMaterialIn = new ErpMaterialIn();
-                    erpMaterialIn.setMaterialLot(materialLot);
-                    erpMaterialInRepository.save(erpMaterialIn);
+                    if(!MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7()) && !MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7())){
+                        ErpMaterialIn erpMaterialIn = new ErpMaterialIn();
+                        erpMaterialIn.setMaterialLot(materialLot);
+                        erpMaterialInRepository.save(erpMaterialIn);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -10506,6 +10508,60 @@ public class GcServiceImpl implements GcService {
                 }
             }
 
+            log.info("scm report materialLots is " + scmReportMLotList);
+            if(CollectionUtils.isNotEmpty(scmReportMLotList)){
+                sendMaterialStateToScmReport(scmReportMLotList, transId);
+            }
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 晶圆工单解绑并记录历史
+     * @param materialLotList
+     * @param transId
+     * @throws ClientException
+     */
+    @Override
+    public void mesMaterialLotUnBindWorkorderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException {
+        try{
+            log.info("unbindWorkorder materialLotList is " + materialLotList);
+            List<MaterialLot> scmReportMLotList = Lists.newArrayList();
+            for(MaterialLot materialLot : materialLotList){
+                materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                if(materialLot != null){
+                    materialLot.setWorkOrderId(null);
+                    materialLot.setWorkOrderPlanputTime(null);
+                    materialLot.setInnerLotId(null);
+                    materialLot.setReserved18("0");
+                    materialLot.setReserved11(null);
+                    materialLot.setReserved15(null);
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                    if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
+                            || MaterialLotUnit.PRODUCT_CATEGORY_SCP.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_CP.equals(materialLot.getReserved7()))){
+                        scmReportMLotList.add(materialLot);
+                    }
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
+                    materialLotHistoryRepository.save(history);
+
+                    List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                    if(CollectionUtils.isNotEmpty(materialLotUnits)){
+                        for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                            materialLotUnit.setWorkOrderId(null);
+                            materialLotUnit.setWorkOrderPlanputTime(null);
+                            materialLotUnit.setInnerLotId(null);
+                            materialLotUnit.setReserved18("0");
+                            materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                            MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, transId);
+                            materialLotUnitHisRepository.save(materialLotUnitHistory);
+                        }
+                    }
+                }
+            }
             log.info("scm report materialLots is " + scmReportMLotList);
             if(CollectionUtils.isNotEmpty(scmReportMLotList)){
                 sendMaterialStateToScmReport(scmReportMLotList, transId);
