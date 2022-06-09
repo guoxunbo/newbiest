@@ -5,12 +5,10 @@ import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.exception.ExceptionManager;
-import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
-import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.common.idgenerator.service.GeneratorService;
 import com.newbiest.common.idgenerator.utils.GeneratorContext;
 import com.newbiest.gc.GcExceptions;
@@ -21,6 +19,7 @@ import com.newbiest.gc.service.TempFtService;
 import com.newbiest.gc.thread.FTImportMLotThread;
 import com.newbiest.gc.thread.FTImportMLotThreadResult;
 import com.newbiest.gc.thread.FTImportMLotUnitThread;
+import com.newbiest.gc.thread.FTImportVBoxThread;
 import com.newbiest.mms.SystemPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
@@ -28,7 +27,6 @@ import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
-import com.newbiest.mms.thread.ImportMLotThreadResult;
 import com.newbiest.msg.ResponseHeader;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,198 +117,229 @@ public class TempFtServiceImpl implements TempFtService {
                 throw new ClientException(GcExceptions.VBOX_AND_WAFER_CANNOT_TOGETHER_IMPORT);
             }
             if(CollectionUtils.isNotEmpty(vboxList)){
-                List<String> vboxIdList = Lists.newArrayList();
-                Map<String, List<TempFtModel>> waferSourceMap = vboxList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
+                //先区分是否装箱，未装箱的直接处理，装箱的多线程处理
+                List<TempFtModel> unPackedackMLotList = vboxList.stream().filter(tempFtModel -> tempFtModel.getBoxId() == null || StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) ||
+                        (!tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)
+                                && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_LB) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_BZZSH))).collect(Collectors.toList());
+
+                //处理装箱的真空包
+                List<TempFtModel> boxedTempFtModelList = vboxList.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) &&
+                        (tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B) || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)
+                                || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_LB) || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_BZZSH))).collect(Collectors.toList());
+
+                if(CollectionUtils.isNotEmpty(unPackedackMLotList) && CollectionUtils.isNotEmpty(boxedTempFtModelList)){
+                    throw new ClientException(GcExceptions.VBOX_AND_BBOX_CANNOT_TOGETHER_IMPORT);
+                }
+
                 List<Future<FTImportMLotThreadResult>> importCallBackList = Lists.newArrayList();
-                for (String waferSource : waferSourceMap.keySet()) {
-                    List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
-                    //先区分是否装箱，未装箱的直接处理，装箱的多线程处理
-                    List<TempFtModel> unPackedackMLotList = tempFtModels.stream().filter(tempFtModel -> tempFtModel.getBoxId() == null || StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) ||
-                            (!tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)
-                                    && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_LB) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_BZZSH))).collect(Collectors.toList());
-
-                    if (CollectionUtils.isNotEmpty(unPackedackMLotList)) {
-                        for (TempFtModel tempFtModel : unPackedackMLotList) {
-                            Material material = validateAndGetMaterial(waferSource, tempFtModel.getProductId().trim());
-                            BigDecimal currentQty = new BigDecimal(tempFtModel.getWaferNum());
-
-                            MaterialLotAction materialLotAction = new MaterialLotAction();
-                            materialLotAction.setTransQty(currentQty);
-                            materialLotAction.setGrade(tempFtModel.getGrade());
-                            if (!StringUtils.isNullOrEmpty(tempFtModel.getStockId())) {
+                List<String> bboxIdList = Lists.newArrayList();
+                List<String> vboxIdList = Lists.newArrayList();
+                if(CollectionUtils.isNotEmpty(unPackedackMLotList)){
+                    //先获取库位信息，不存在新建
+                    Map<String, Storage> storageMap = getStorageMapInfo(unPackedackMLotList);
+                    Map<String, List<TempFtModel>> waferSourceMap = unPackedackMLotList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
+                    Map<String, Material> materialMap = getMaterialMapInfo(waferSourceMap);
+                    for(String waferSource : waferSourceMap.keySet()){
+                        List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
+                        Map<String, List<TempFtModel>> productFtModelMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel :: getProductId));
+                        for(String productId : productFtModelMap.keySet()){
+                            List<TempFtModel> tempFtModelList = productFtModelMap.get(productId);
+                            Material material = materialMap.get(productId);
+                            for (TempFtModel tempFtModel : tempFtModelList) {
                                 Warehouse warehouse = getWareHoseByStockId(tempFtModel.getStockId().trim());
-                                materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
-                                materialLotAction.setTargetStorageId(tempFtModel.getPointId());
+                                String pointId = tempFtModel.getPointId();
+                                Storage storage = null;
+                                if(StringUtils.isNullOrEmpty(pointId)){
+                                    storage = mmsService.getDefaultStorage(warehouse);
+                                } else {
+                                    storage = storageMap.get(pointId.trim() + tempFtModel.getStockId().trim());
+                                }
+                                Map<String, Object> propMap = Maps.newConcurrentMap();
+                                String productType = tempFtModel.getDataValue14();
+                                getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource, productType == null ? "" : productType);
+                                String productCategory = (String) propMap.get("reserved7");
+                                String importType = (String) propMap.get("reserved49");
+                                String targetWaferSource = (String) propMap.get("reserved50");
+                                Date createHisDate = getDate(new Date());
+
+                                FTImportVBoxThread ftImportVBoxThread = new FTImportVBoxThread();
+                                ftImportVBoxThread.setMaterialLotRepository(materialLotRepository);
+                                ftImportVBoxThread.setMaterialLotHistoryRepository(materialLotHistoryRepository);
+                                ftImportVBoxThread.setMmsService(mmsService);
+                                ftImportVBoxThread.setBaseService(baseService);
+                                ftImportVBoxThread.setPackageService(packageService);
+                                ftImportVBoxThread.setSessionContext(ThreadLocalContext.getSessionContext());
+
+                                ftImportVBoxThread.setProductCategory(productCategory);
+                                ftImportVBoxThread.setImportType(importType);
+                                ftImportVBoxThread.setTargetWaferSource(targetWaferSource);
+                                ftImportVBoxThread.setFileName(fileName);
+                                ftImportVBoxThread.setImportCode(importCode);
+                                ftImportVBoxThread.setMaterial(material);
+                                ftImportVBoxThread.setWarehouse(warehouse);
+                                ftImportVBoxThread.setStorage(storage);
+                                ftImportVBoxThread.setCreateHisDate(createHisDate);
+                                ftImportVBoxThread.setTempFtModel(tempFtModel);
+                                vboxIdList.add(tempFtModel.getWaferId());
+
+                                Future<FTImportMLotThreadResult> importCallBack = executorService.submit(ftImportVBoxThread);
+                                importCallBackList.add(importCallBack);
+                            }
+                        }
+                    }
+                } else if(CollectionUtils.isNotEmpty(boxedTempFtModelList)){
+                    Map<String, Storage> storageMap = getStorageMapInfo(boxedTempFtModelList);
+                    Map<String, List<TempFtModel>> waferSourceMap = boxedTempFtModelList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
+                    Map<String, Material> materialMap = getMaterialMapInfo(waferSourceMap);
+                    for (String waferSource : waferSourceMap.keySet()) {
+                        List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
+                        Map<String, List<TempFtModel>> boxedTempFtModelMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel::getBoxId));
+                        for (String parentMaterialLotId : boxedTempFtModelMap.keySet()) {
+                            bboxIdList.add(parentMaterialLotId);
+                            List<TempFtModel> boxInfoList = boxedTempFtModelMap.get(parentMaterialLotId);
+                            Material material = materialMap.get(boxInfoList.get(0).getProductId());
+                            Warehouse warehouse = getWareHoseByStockId(boxInfoList.get(0).getStockId().trim());
+                            String pointId = boxInfoList.get(0).getPointId();
+                            Storage storage = null;
+                            if(StringUtils.isNullOrEmpty(pointId)){
+                                storage = mmsService.getDefaultStorage(warehouse);
+                            } else {
+                                storage = storageMap.get(pointId.trim() + boxInfoList.get(0).getStockId().trim());
+                            }
+                            String packageType = MaterialLot.DFT_PACKAGE_TYPE;
+                            if (parentMaterialLotId.startsWith(TempFtModel.BOX_START_LB)) {
+                                packageType = MaterialLot.LCD_PACKCASE;
                             }
 
                             Map<String, Object> propMap = Maps.newConcurrentMap();
-                            getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource, tempFtModel.getDataValue14() == null ? "" : tempFtModel.getDataValue14());
-                            buildPropMap(propMap, tempFtModel, materialLotAction, fileName, StringUtils.EMPTY, importCode);
-                            materialLotAction.setPropsMap(propMap);
-                            MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, tempFtModel.getWaferId(), materialLotAction);
+                            String productType = boxInfoList.get(0).getDataValue14();
+                            getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource, productType == null ? "" : productType);
+                            String productCategory = (String) propMap.get("reserved7");
+                            String importType = (String) propMap.get("reserved49");
+                            String targetWaferSource = (String) propMap.get("reserved50");
+                            Date createHisDate = getDate(new Date());
 
-                            //没有装箱并且做过出货检验的修改状态
-                            if (!StringUtils.isNullOrEmpty(materialLot.getReserved10())) {
-                                checkOutAndSaveHis(materialLot);
+                            FTImportMLotThread ftImportMLotThread = new FTImportMLotThread();
+                            ftImportMLotThread.setMaterialLotRepository(materialLotRepository);
+                            ftImportMLotThread.setMaterialLotHistoryRepository(materialLotHistoryRepository);
+                            ftImportMLotThread.setMmsService(mmsService);
+                            ftImportMLotThread.setBaseService(baseService);
+                            ftImportMLotThread.setPackageService(packageService);
+                            ftImportMLotThread.setSessionContext(ThreadLocalContext.getSessionContext());
+
+                            ftImportMLotThread.setParentMaterialLotId(parentMaterialLotId);
+                            ftImportMLotThread.setProductCategory(productCategory);
+                            ftImportMLotThread.setImportType(importType);
+                            ftImportMLotThread.setTargetWaferSource(targetWaferSource);
+                            ftImportMLotThread.setPackageType(packageType);
+                            ftImportMLotThread.setFileName(fileName);
+                            ftImportMLotThread.setImportCode(importCode);
+                            ftImportMLotThread.setMaterial(material);
+                            ftImportMLotThread.setWarehouse(warehouse);
+                            ftImportMLotThread.setStorage(storage);
+                            ftImportMLotThread.setCreateHisDate(createHisDate);
+                            ftImportMLotThread.setTempFtModelList(boxInfoList);
+
+                            Future<FTImportMLotThreadResult> importCallBack = executorService.submit(ftImportMLotThread);
+                            importCallBackList.add(importCallBack);
+                        }
+                    }
+                }
+
+                int maxWaitCount = 1000;// 最大等待返回次数 300*100最长30S
+                String resultMessage = StringUtils.EMPTY;
+                for (Future<FTImportMLotThreadResult> ftVboxImportCallBack : importCallBackList) {
+                    if (!StringUtils.isNullOrEmpty(resultMessage) || maxWaitCount <= 0) {
+                        log.warn("There has some import error. please see log get more details.");
+                        log.info("There has import error." + resultMessage);
+                        break;
+                    }
+                    while (true) {
+                        if (ftVboxImportCallBack.isDone()) {
+                            FTImportMLotThreadResult importResult = ftVboxImportCallBack.get();
+                            if (!ResponseHeader.RESULT_SUCCESS.equals(importResult.getResult())) {
+                                resultMessage = importResult.getResultMessage();
                             }
-                            vboxIdList.add(tempFtModel.getWaferId());
-                        }
-                    }
-
-                    //处理装箱的真空包
-                    Map<String, List<TempFtModel>> boxedTempFtModelMap = tempFtModels.stream().filter(tempFtModel -> !StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) &&
-                            (tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B) || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)
-                                    || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_LB) || tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_BZZSH))).collect(Collectors.groupingBy(TempFtModel::getBoxId));
-
-                    List<String> bboxIdList = Lists.newArrayList();
-                    for (String parentMaterialLotId : boxedTempFtModelMap.keySet()) {
-                        bboxIdList.add(parentMaterialLotId);
-                        List<TempFtModel> boxInfoList = boxedTempFtModelMap.get(parentMaterialLotId);
-                        Material material = validateAndGetMaterial(waferSource, boxInfoList.get(0).getProductId().trim());
-                        Warehouse warehouse = getWareHoseByStockId(boxInfoList.get(0).getStockId().trim());
-                        String pointId = boxInfoList.get(0).getPointId();
-                        Storage storage = null;
-                        if(pointId != null && !StringUtils.isNullOrEmpty(pointId)){
-                            MaterialLotAction materialLotAction = new MaterialLotAction();
-                            materialLotAction.setTargetStorageId(pointId);
-                            storage = mmsService.getTargetStorageByMaterialLotAction(materialLotAction, warehouse);
-                        } else {
-                            storage = mmsService.getDefaultStorage(warehouse);
-                        }
-                        StatusModel statusModel = mmsService.getMaterialStatusModel(material);
-                        String packageType = MaterialLot.DFT_PACKAGE_TYPE;
-                        if (parentMaterialLotId.startsWith(TempFtModel.BOX_START_LB)) {
-                            packageType = MaterialLot.LCD_PACKCASE;
-                        }
-
-                        Map<String, Object> propMap = Maps.newConcurrentMap();
-                        String productType = boxInfoList.get(0).getDataValue14();
-                        getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource, productType == null ? "" : productType);
-                        String productCategory = (String) propMap.get("reserved7");
-                        String importType = (String) propMap.get("reserved49");
-                        String targetWaferSource = (String) propMap.get("reserved50");
-                        Date createHisDate = getDate(new Date());
-
-                        FTImportMLotThread ftImportMLotThread = new FTImportMLotThread();
-                        ftImportMLotThread.setMaterialLotRepository(materialLotRepository);
-                        ftImportMLotThread.setMaterialLotHistoryRepository(materialLotHistoryRepository);
-                        ftImportMLotThread.setMmsService(mmsService);
-                        ftImportMLotThread.setBaseService(baseService);
-                        ftImportMLotThread.setPackageService(packageService);
-                        ftImportMLotThread.setSessionContext(ThreadLocalContext.getSessionContext());
-
-                        ftImportMLotThread.setParentMaterialLotId(parentMaterialLotId);
-                        ftImportMLotThread.setProductCategory(productCategory);
-                        ftImportMLotThread.setImportType(importType);
-                        ftImportMLotThread.setTargetWaferSource(targetWaferSource);
-                        ftImportMLotThread.setPackageType(packageType);
-                        ftImportMLotThread.setFileName(fileName);
-                        ftImportMLotThread.setImportCode(importCode);
-                        ftImportMLotThread.setMaterial(material);
-                        ftImportMLotThread.setStatusModel(statusModel);
-                        ftImportMLotThread.setWarehouse(warehouse);
-                        ftImportMLotThread.setStorage(storage);
-                        ftImportMLotThread.setCreateHisDate(createHisDate);
-                        ftImportMLotThread.setTempFtModelList(boxInfoList);
-
-                        Future<FTImportMLotThreadResult> importCallBack = executorService.submit(ftImportMLotThread);
-                        importCallBackList.add(importCallBack);
-                    }
-
-                    int maxWaitCount = 300;// 最大等待返回次数 300*100最长30S
-                    String resultMessage = StringUtils.EMPTY;
-                    for (Future<FTImportMLotThreadResult> ftVboxImportCallBack : importCallBackList) {
-                        if (!StringUtils.isNullOrEmpty(resultMessage) || maxWaitCount <= 0) {
-                            log.warn("There has some import error. please see log get more details.");
-                            log.info("There has import error." + resultMessage);
                             break;
-                        }
-                        while (true) {
-                            if (ftVboxImportCallBack.isDone()) {
-                                FTImportMLotThreadResult importResult = ftVboxImportCallBack.get();
-                                if (!ResponseHeader.RESULT_SUCCESS.equals(importResult.getResult())) {
-                                    resultMessage = importResult.getResultMessage();
-                                }
+                        } else {
+                            Thread.sleep(200);
+                            maxWaitCount--;
+                            if (maxWaitCount == 0) {
+                                resultMessage = MmsException.MM_MATERIAL_LOT_IMPORT_TIME_OUT;
                                 break;
-                            } else {
-                                Thread.sleep(100);
-                                maxWaitCount--;
-                                if (maxWaitCount == 0) {
-                                    resultMessage = MmsException.MM_MATERIAL_LOT_IMPORT_TIME_OUT;
-                                    break;
-                                }
                             }
                         }
                     }
-                    //停止线程
-                    if (!StringUtils.isNullOrEmpty(resultMessage)) {
-                        for (Future<FTImportMLotThreadResult> importCallBack : importCallBackList) {
-                            if (!importCallBack.isDone()) {
-                                importCallBack.cancel(true);
-                            }
+                }
+                //停止线程
+                if (!StringUtils.isNullOrEmpty(resultMessage)) {
+                    for (Future<FTImportMLotThreadResult> importCallBack : importCallBackList) {
+                        if (!importCallBack.isDone()) {
+                            importCallBack.cancel(true);
                         }
-                        deleteImportMaterialLot(importCode, bboxIdList, vboxIdList);
-                        messageInfo = resultMessage;
                     }
+                    deleteImportMaterialLot(importCode, bboxIdList, vboxIdList);
+                    messageInfo = resultMessage;
                 }
             }
 
             if(CollectionUtils.isNotEmpty(lotUnitList)){
+                Map<String, Storage> storageMap = getStorageMapInfo(lotUnitList);
                 Map<String, List<TempFtModel>> waferSourceMap = lotUnitList.stream().collect(Collectors.groupingBy(TempFtModel :: getWaferSource));
+                Map<String, Material> materialMap = getMaterialMapInfo(waferSourceMap);
                 List<String> materialLotIdList = Lists.newArrayList();
                 List<Future<FTImportMLotThreadResult>> waferImportCallBackList = Lists.newArrayList();
                 for (String waferSource : waferSourceMap.keySet()) {
                     List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
-                    Map<String, List<TempFtModel>> lotUnitMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel :: getLotId));
-                    for(String lotId : lotUnitMap.keySet()){
-                        List<TempFtModel> lotTempCpModels = lotUnitMap.get(lotId);
-                        TempFtModel firstTempFtModel = lotTempCpModels.get(0);
-                        Material material = validateAndGetMaterial(waferSource, firstTempFtModel.getProductId());
-                        Warehouse warehouse = getWareHoseByStockId(firstTempFtModel.getStockId().trim());
-                        String pointId = firstTempFtModel.getPointId();
-                        Storage storage = null;
-                        if(pointId != null && !StringUtils.isNullOrEmpty(pointId)){
-                            MaterialLotAction materialLotAction = new MaterialLotAction();
-                            materialLotAction.setTargetStorageId(pointId);
-                            storage = mmsService.getTargetStorageByMaterialLotAction(materialLotAction, warehouse);
-                        } else {
-                            storage = mmsService.getDefaultStorage(warehouse);
+                    Map<String, List<TempFtModel>> productFtModelMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel :: getProductId));
+                    for(String productId : productFtModelMap.keySet()) {
+                        List<TempFtModel> tempFtModelList = productFtModelMap.get(productId);
+                        Material material = materialMap.get(productId);
+                        Map<String, List<TempFtModel>> lotUnitMap = tempFtModelList.stream().collect(Collectors.groupingBy(TempFtModel :: getLotId));
+                        for(String lotId : lotUnitMap.keySet()){
+                            List<TempFtModel> lotTempCpModels = lotUnitMap.get(lotId);
+                            TempFtModel firstTempFtModel = lotTempCpModels.get(0);
+                            Warehouse warehouse = getWareHoseByStockId(firstTempFtModel.getStockId().trim());
+                            String pointId = firstTempFtModel.getPointId();
+                            Storage storage = null;
+                            if(StringUtils.isNullOrEmpty(pointId)){
+                                storage = mmsService.getDefaultStorage(warehouse);
+                            } else {
+                                storage = storageMap.get(pointId.trim() + firstTempFtModel.getStockId().trim());
+                            }
+                            Map<String, Object> propMap = Maps.newConcurrentMap();
+                            getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource, firstTempFtModel.getDataValue14() == null ? "" : firstTempFtModel.getDataValue14());
+                            String productCategory = (String) propMap.get("reserved7");
+                            String importType = (String) propMap.get("reserved49");
+                            String targetWaferSource = (String) propMap.get("reserved50");
+                            Date createHisDate = getDate(new Date());
+
+                            FTImportMLotUnitThread ftImportMLotUnitThread = new FTImportMLotUnitThread();
+                            ftImportMLotUnitThread.setMaterialLotRepository(materialLotRepository);
+                            ftImportMLotUnitThread.setMaterialLotHistoryRepository(materialLotHistoryRepository);
+                            ftImportMLotUnitThread.setMaterialLotUnitRepository(materialLotUnitRepository);
+                            ftImportMLotUnitThread.setMaterialLotUnitHisRepository(materialLotUnitHisRepository);
+                            ftImportMLotUnitThread.setMmsService(mmsService);
+                            ftImportMLotUnitThread.setBaseService(baseService);
+                            ftImportMLotUnitThread.setPackageService(packageService);
+                            ftImportMLotUnitThread.setSessionContext(ThreadLocalContext.getSessionContext());
+
+                            ftImportMLotUnitThread.setProductCategory(productCategory);
+                            ftImportMLotUnitThread.setImportType(importType);
+                            ftImportMLotUnitThread.setTargetWaferSource(targetWaferSource);
+                            ftImportMLotUnitThread.setFileName(fileName);
+                            ftImportMLotUnitThread.setLotId(lotId);
+                            ftImportMLotUnitThread.setFirstTempFtModel(firstTempFtModel);
+                            ftImportMLotUnitThread.setImportCode(importCode);
+                            ftImportMLotUnitThread.setMaterial(material);
+                            ftImportMLotUnitThread.setWarehouse(warehouse);
+                            ftImportMLotUnitThread.setStorage(storage);
+                            ftImportMLotUnitThread.setCreateHisDate(createHisDate);
+                            ftImportMLotUnitThread.setTempFtModelList(lotTempCpModels);
+
+                            Future<FTImportMLotThreadResult> importCallBack = executorService.submit(ftImportMLotUnitThread);
+                            waferImportCallBackList.add(importCallBack);
                         }
-                        StatusModel statusModel = mmsService.getMaterialStatusModel(material);
-
-                        Map<String, Object> propMap = Maps.newConcurrentMap();
-                        getImportTypeAndReserved7AndWaferSourceBySourceWaferSource(propMap, waferSource, firstTempFtModel.getDataValue14() == null ? "" : firstTempFtModel.getDataValue14());
-                        String productCategory = (String) propMap.get("reserved7");
-                        String importType = (String) propMap.get("reserved49");
-                        String targetWaferSource = (String) propMap.get("reserved50");
-                        Date createHisDate = getDate(new Date());
-
-                        FTImportMLotUnitThread ftImportMLotUnitThread = new FTImportMLotUnitThread();
-                        ftImportMLotUnitThread.setMaterialLotRepository(materialLotRepository);
-                        ftImportMLotUnitThread.setMaterialLotHistoryRepository(materialLotHistoryRepository);
-                        ftImportMLotUnitThread.setMaterialLotUnitRepository(materialLotUnitRepository);
-                        ftImportMLotUnitThread.setMaterialLotUnitHisRepository(materialLotUnitHisRepository);
-                        ftImportMLotUnitThread.setMmsService(mmsService);
-                        ftImportMLotUnitThread.setBaseService(baseService);
-                        ftImportMLotUnitThread.setPackageService(packageService);
-                        ftImportMLotUnitThread.setSessionContext(ThreadLocalContext.getSessionContext());
-
-                        ftImportMLotUnitThread.setProductCategory(productCategory);
-                        ftImportMLotUnitThread.setImportType(importType);
-                        ftImportMLotUnitThread.setTargetWaferSource(targetWaferSource);
-                        ftImportMLotUnitThread.setFileName(fileName);
-                        ftImportMLotUnitThread.setLotId(lotId);
-                        ftImportMLotUnitThread.setFirstTempFtModel(firstTempFtModel);
-                        ftImportMLotUnitThread.setImportCode(importCode);
-                        ftImportMLotUnitThread.setMaterial(material);
-                        ftImportMLotUnitThread.setStatusModel(statusModel);
-                        ftImportMLotUnitThread.setWarehouse(warehouse);
-                        ftImportMLotUnitThread.setStorage(storage);
-                        ftImportMLotUnitThread.setCreateHisDate(createHisDate);
-                        ftImportMLotUnitThread.setTempFtModelList(lotTempCpModels);
-
-                        Future<FTImportMLotThreadResult> importCallBack = executorService.submit(ftImportMLotUnitThread);
-                        waferImportCallBackList.add(importCallBack);
                     }
                 }
 
@@ -353,6 +382,88 @@ public class TempFtServiceImpl implements TempFtService {
             }
             return messageInfo;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取产品信息
+     * @param waferSourceMap
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,Material> getMaterialMapInfo(Map<String,List<TempFtModel>> waferSourceMap) throws ClientException{
+        try {
+            Map<String, Material> materialMap = Maps.newHashMap();
+            for(String waferSource : waferSourceMap.keySet()){
+                List<TempFtModel> tempFtModels = waferSourceMap.get(waferSource);
+                Map<String, List<TempFtModel>> productFtModelMap = tempFtModels.stream().collect(Collectors.groupingBy(TempFtModel :: getProductId));
+                for(String productId : productFtModelMap.keySet()){
+                    Material material = validateAndGetMaterial(waferSource, productId.trim());
+                    materialMap.put(productId, material);
+                }
+            }
+            return materialMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 获取库位信息
+     * @param unPackedackMLotList
+     * @return
+     * @throws ClientException
+     */
+    private Map<String,Storage> getStorageMapInfo(List<TempFtModel> unPackedackMLotList) throws ClientException{
+        try {
+            Map<String, Storage> storageMap = Maps.newHashMap();
+            Map<String, List<TempFtModel>> warehouseMap = unPackedackMLotList.stream().collect(Collectors.groupingBy(TempFtModel :: getStockId));
+            for(String warehouseId : warehouseMap.keySet()){
+                List<TempFtModel> tempFtModels = warehouseMap.get(warehouseId);
+                Warehouse warehouse = getWareHoseByStockId(warehouseId.trim());
+                List<TempFtModel> pointIdList = tempFtModels.stream().filter(tempFtModel -> tempFtModel.getPointId() != null || !StringUtils.isNullOrEmpty(tempFtModel.getPointId().trim())).collect(Collectors.toList());
+                Map<String, List<TempFtModel>> pointIdMap = pointIdList.stream().collect(Collectors.groupingBy(TempFtModel :: getPointId));
+                for(String storageId : pointIdMap.keySet()){
+                    Storage storage = getStorageByPointId(storageId.trim(), warehouse);
+                    String key = storageId.trim() + warehouseId.trim();
+                    if(!storageMap.containsKey(key)){
+                        storageMap.put(key, storage);
+                    }
+                }
+            }
+            return storageMap;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 查询库位信息
+     * @param pointId
+     * @param warehouse
+     * @return
+     * @throws ClientException
+     */
+    private Storage getStorageByPointId(String pointId, Warehouse warehouse) throws ClientException{
+        try {
+            Storage storage = null;
+            if(pointId != null && !StringUtils.isNullOrEmpty(pointId)){
+                MaterialLotAction materialLotAction = new MaterialLotAction();
+                materialLotAction.setTargetStorageId(pointId);
+                storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, pointId);
+                if (storage == null ) {
+                    storage = new Storage();
+                    storage.setName(materialLotAction.getTargetStorageId());
+                    storage.setDescription(StringUtils.SYSTEM_CREATE);
+                    storage.setWarehouseRrn(warehouse.getObjectRrn());
+                    storage = storageRepository.saveAndFlush(storage);
+                }
+            } else {
+                storage = mmsService.getDefaultStorage(warehouse);
+            }
+            return storage;
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -429,104 +540,6 @@ public class TempFtServiceImpl implements TempFtService {
             calendar.add(Calendar.MINUTE, 3);
             return calendar.getTime();
         } catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 构建物料批次参数
-     * @param propMap
-     * @param tempFtModel
-     * @param materialLotAction
-     * @param fileName
-     * @throws ClientException
-     */
-    private void buildPropMap(Map<String,Object> propMap, TempFtModel tempFtModel, MaterialLotAction materialLotAction, String fileName, String cstId, String importCode) throws ClientException{
-        try {
-            if(!StringUtils.isNullOrEmpty(tempFtModel.getStockId())){
-                propMap.put("reserved13", materialLotAction.getTargetWarehouseRrn().toString());
-            }
-            propMap.put("reserved14", tempFtModel.getPointId() == null ? "": tempFtModel.getPointId().trim());
-            if(!StringUtils.isNullOrEmpty(tempFtModel.getBoxId()) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_B)
-                    && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB) && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_SBB)
-                    && !tempFtModel.getBoxId().startsWith(TempFtModel.BOX_START_BZZSH)){
-                propMap.put("reserved8", tempFtModel.getBoxId() == null ? "": tempFtModel.getBoxId().trim());
-            }
-            propMap.put("created", tempFtModel.getInTime());
-            propMap.put("receiveDate", tempFtModel.getInTime());
-            propMap.put("reserved1", tempFtModel.getSecondCode() == null ? "": tempFtModel.getSecondCode().trim());
-            propMap.put("reserved3", tempFtModel.getSaleRemarkDesc() == null ? "": tempFtModel.getSaleRemarkDesc().trim());
-            propMap.put("reserved4", tempFtModel.getProdRemarkDesc() == null ? "": tempFtModel.getProdRemarkDesc().trim());
-            propMap.put("reserved6", tempFtModel.getLocation() == null ? "" : tempFtModel.getLocation().trim());
-            propMap.put("reserved22", tempFtModel.getVendor() == null ? "": tempFtModel.getVendor().trim());
-            propMap.put("reserved24", tempFtModel.getFabDevice() == null ? "": tempFtModel.getFabDevice().trim());
-            propMap.put("reserved27", tempFtModel.getPoNo() == null ? "": tempFtModel.getPoNo().trim());
-            propMap.put("reserved29", tempFtModel.getInvoiceId() == null ? "": tempFtModel.getInvoiceId().trim());
-            propMap.put("reserved32", tempFtModel.getWaferNum() == null ? "": tempFtModel.getWaferNum().trim());
-            propMap.put("reserved33", tempFtModel.getDataValue19() == null ? "": tempFtModel.getDataValue19().trim());
-            propMap.put("reserved34", tempFtModel.getPassNum() == null ? "": tempFtModel.getPassNum().trim());
-            propMap.put("reserved35", tempFtModel.getNgNum() == null ? "": tempFtModel.getNgNum().trim());
-            propMap.put("reserved36", tempFtModel.getYield() == null ? "": tempFtModel.getYield().trim());
-            propMap.put("reserved37", tempFtModel.getPackLotId() == null ? "": tempFtModel.getPackLotId().trim());
-            propMap.put("reserved38", tempFtModel.getDataValue16() == null ? "": tempFtModel.getDataValue16().trim());
-            propMap.put("reserved39", tempFtModel.getCartonNo() == null ? "": tempFtModel.getCartonNo().trim());
-            propMap.put("reserved41", tempFtModel.getRemark() == null ? "": tempFtModel.getRemark().trim());
-            propMap.put("reserved42", tempFtModel.getDataValue20() == null ? "": tempFtModel.getDataValue20().trim());
-            propMap.put("reserved43", tempFtModel.getDataValue24() == null ? "": tempFtModel.getDataValue24().trim());
-            propMap.put("reserved45", tempFtModel.getDataValue25() == null ? "": tempFtModel.getDataValue25().trim());
-            propMap.put("reserved46", tempFtModel.getWoId() == null ? "": tempFtModel.getWoId().trim());
-            propMap.put("reserved47", fileName);
-            propMap.put("reserved48", importCode);
-
-            if (tempFtModel.getDataValue8().equals("1")) {
-                propMap.put("holdState", MaterialLot.HOLD_STATE_ON);
-                propMap.put("holdReason", tempFtModel.getHoldDesc() == null ? "": tempFtModel.getHoldDesc().trim());
-            }
-            if(!StringUtils.isNullOrEmpty(tempFtModel.getDataValue12()) && tempFtModel.getDataValue12().equals("Y")){
-                propMap.put("reserved9", tempFtModel.getDataValue12() == null ? "": tempFtModel.getDataValue12().trim());
-            }
-            if(!StringUtils.isNullOrEmpty(tempFtModel.getDataValue13()) && tempFtModel.getDataValue13().equals("Y")){
-
-                propMap.put("reserved10", tempFtModel.getDataValue13() == null ? "": tempFtModel.getDataValue13().trim());
-            }
-            if(!StringUtils.isNullOrEmpty(tempFtModel.getDataValue14()) && MaterialLotUnit.PRODUCT_TYPE_ENG.equals(tempFtModel.getDataValue14())){
-                propMap.put("productType", MaterialLotUnit.PRODUCT_TYPE_ENG);
-            }
-
-            if(!StringUtils.isNullOrEmpty(cstId)){
-                propMap.put("durable", cstId);
-                propMap.put("lotCst", cstId);
-            } else {
-                propMap.put("durable", tempFtModel.getCstId() == null ? "": tempFtModel.getCstId().trim());
-                propMap.put("lotCst", tempFtModel.getCstId() == null ? "": tempFtModel.getCstId().trim());
-            }
-            propMap.put("packDevice", tempFtModel.getPackDevice() == null ? "": tempFtModel.getPackDevice().trim());
-            propMap.put("materialCode", tempFtModel.getMaterialId() == null ? "": tempFtModel.getMaterialId().trim());
-            propMap.put("vboxQrcodeInfo", tempFtModel.getVqrId() == null ? "": tempFtModel.getVqrId().trim());
-            propMap.put("boxQrcodeInfo", tempFtModel.getBqrId() == null ? "": tempFtModel.getBqrId().trim());
-            propMap.put("sourceProductId", tempFtModel.getDataValue29() == null ? "": tempFtModel.getDataValue29().trim());
-            propMap.put("engineerName", tempFtModel.getDataValue3() == null ? "": tempFtModel.getDataValue3().trim());
-            propMap.put("testPurpose", tempFtModel.getDataValue4() == null ? "": tempFtModel.getDataValue4().trim());
-            propMap.put("workRemarks", tempFtModel.getDataValue5() == null ? "": tempFtModel.getDataValue5().trim());
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 出货检验并且记录历史
-     * @param materialLot
-     * @throws ClientException
-     */
-    private void checkOutAndSaveHis(MaterialLot materialLot) throws ClientException{
-        try {
-            materialLot.setReserved9("PASS");
-            materialLot = mmsService.changeMaterialLotState(materialLot, "OQC", "OK");
-
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "OQC");
-            history.setCreated(getDate(materialLot.getCreated()));
-            materialLotHistoryRepository.save(history);
-        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

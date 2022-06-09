@@ -21,7 +21,7 @@ public interface PrintService {
     Map<String, Object> printWltBoxLabel(MaterialLot materialLot, String printCount) throws ClientException;
     List<Map<String, Object>> printWltBboxLabel(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 
-    List<Map<String, Object>> printRmaMaterialLotLabel(List<MaterialLot> materialLotList) throws ClientException;
+    List<Map<String, Object>> printRmaMaterialLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException;
 
     List<Map<String, Object>> printMaterialLotObliqueBoxLabel(List<MaterialLot> materialLotList, String expressNumber) throws ClientException;
     List<Map<String, Object>>  printSamsungOuterBoxLabel(List<DocumentLine> documentLines, Integer printCount) throws ClientException;
