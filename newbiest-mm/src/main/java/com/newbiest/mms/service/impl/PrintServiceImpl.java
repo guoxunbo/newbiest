@@ -1215,8 +1215,14 @@ public class PrintServiceImpl implements PrintService {
                 print(printContext);
             }
 
-            if (!StringUtils.isNullOrEmpty(materialLot.getReserved18()) || !StringUtils.isNullOrEmpty(materialLot.getShipper())){
-                Map<String, Object> customerLabelParams = printCustomerNameLabel(materialLot);
+            if (MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(materialLot.getReserved7())){
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved55())){
+                    Map<String, Object> customerLabelParams = printCustomerNameLabel(materialLot.getReserved55(), materialLot);
+                    mapList.add(customerLabelParams);
+                }
+            } else if(!StringUtils.isNullOrEmpty(materialLot.getReserved18()) || !StringUtils.isNullOrEmpty(materialLot.getShipper())){
+                String cusname = materialLot.getReserved18() == null ? materialLot.getShipper() : materialLot.getReserved18();
+                Map<String, Object> customerLabelParams = printCustomerNameLabel(cusname, materialLot);
                 mapList.add(customerLabelParams);
             }
             return mapList;
@@ -1230,11 +1236,11 @@ public class PrintServiceImpl implements PrintService {
      * @param materialLot
      * @throws ClientException
      */
-    private Map<String, Object> printCustomerNameLabel(MaterialLot materialLot) throws ClientException{
+    private Map<String, Object> printCustomerNameLabel(String cusname, MaterialLot materialLot) throws ClientException{
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_CUSTOMER_NAME_LABEL, "");
             Map<String, Object> parameterMap = Maps.newHashMap();
-            parameterMap.put("CSNAME",materialLot.getReserved18() == null ? materialLot.getShipper() : materialLot.getReserved18());
+            parameterMap.put("CSNAME", cusname);
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
 
@@ -1759,6 +1765,11 @@ public class PrintServiceImpl implements PrintService {
                 mapList.add(params);
             }else {
                 print(printContext);
+            }
+
+            if(!StringUtils.isNullOrEmpty(materialLot.getReserved55())){
+                Map<String, Object> customerLabelParams = printCustomerNameLabel(materialLot.getReserved55(), materialLot);
+                mapList.add(customerLabelParams);
             }
             return mapList;
         } catch (Exception e) {
