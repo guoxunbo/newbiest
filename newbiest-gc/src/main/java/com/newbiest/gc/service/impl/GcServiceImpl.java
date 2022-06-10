@@ -6202,7 +6202,7 @@ public class GcServiceImpl implements GcService {
                     if((fablotId.startsWith(MaterialLotUnit.FAB_LOT_ID_C) && fabDeviceId.startsWith(MaterialLotUnit.FAB_DEVICE_ID_H00)) ||
                             (fablotId.startsWith(MaterialLotUnit.FAB_LOT_ID_A) && fabDeviceId.startsWith(MaterialLotUnit.FAB_DEVICE_ID_C000)) ){
                         materialLotUnit.setMaterialName(MaterialLotUnit.RETURN_RESET_PRODUCT_ID);
-                    } else if(!(fablotId.startsWith(MaterialLotUnit.FAB_LOT_ID_C) && fabDeviceId.startsWith(MaterialLotUnit.FAB_DEVICE_ID_H00))){
+                    } else if(!(fablotId.startsWith(MaterialLotUnit.FAB_LOT_ID_E) && fabDeviceId.startsWith(MaterialLotUnit.FAB_DEVICE_ID_P018L))){
                         throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_IN_RULE_CONTROL_CANNOT_IMPORT, materialName + StringUtils.SEMICOLON_CODE + fablotId + StringUtils.SEMICOLON_CODE + fabDeviceId);
                     }
                 }
@@ -6383,21 +6383,23 @@ public class GcServiceImpl implements GcService {
      */
     private void saveErpInStock(MaterialLot materialLot, String prodCate, String warehouseName) throws ClientException{
         try {
-            ErpInStock erpInStock = new ErpInStock();
-            erpInStock.setProdCate(prodCate);
-            erpInStock.setMaterialLot(materialLot);
-            if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehouseName)){
-                erpInStock.setWarehouse(ErpInStock.ZJ_STOCK);
-            } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehouseName)){
-                erpInStock.setWarehouse(ErpInStock.SH_STOCK);
-            } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehouseName)){
-                erpInStock.setWarehouse(ErpInStock.HK_STOCK);
-            } else if(ErpInStock.WAREHOUSE_BS_STOCK.equals(warehouseName)){
-                erpInStock.setWarehouse(ErpInStock.BS_STOCK);
-            } else {
-                throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouseName);
+            if(!MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7()) && !MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7())) {
+                ErpInStock erpInStock = new ErpInStock();
+                erpInStock.setProdCate(prodCate);
+                erpInStock.setMaterialLot(materialLot);
+                if(ErpInStock.WAREHOUSE_ZJ_STOCK.equals(warehouseName)){
+                    erpInStock.setWarehouse(ErpInStock.ZJ_STOCK);
+                } else if(ErpInStock.WAREHOUSE_SH_STOCK.equals(warehouseName)){
+                    erpInStock.setWarehouse(ErpInStock.SH_STOCK);
+                } else if(ErpInStock.WAREHOUSE_HK_STOCK.equals(warehouseName)){
+                    erpInStock.setWarehouse(ErpInStock.HK_STOCK);
+                } else if(ErpInStock.WAREHOUSE_BS_STOCK.equals(warehouseName)){
+                    erpInStock.setWarehouse(ErpInStock.BS_STOCK);
+                } else {
+                    throw new ClientParameterException(GcExceptions.ERP_WAREHOUSE_CODE_IS_UNDEFINED, warehouseName);
+                }
+                erpInStockRepository.save(erpInStock);
             }
-            erpInStockRepository.save(erpInStock);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -9624,7 +9626,8 @@ public class GcServiceImpl implements GcService {
 
             for(MaterialLot materialLot : materialLotList){
                 String importType = materialLot.getReserved49();
-                if(MaterialLot.IMPORT_CRMA.equals(importType) || MaterialLot.IMPORT_RETURN.equals(importType) || MaterialLot.IMPORT_RMA.equals(importType)){
+                if(MaterialLot.IMPORT_CRMA.equals(importType) || MaterialLot.IMPORT_RETURN.equals(importType) || MaterialLot.IMPORT_RMA.equals(importType) ||
+                        MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7()) && MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7())){
                     continue;
                 }
                 String prodCate = MaterialLotUnit.PRODUCT_TYPE_PROD;

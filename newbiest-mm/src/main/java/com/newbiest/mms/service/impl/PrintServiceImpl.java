@@ -442,7 +442,7 @@ public class PrintServiceImpl implements PrintService {
         try{
             List<Map<String, Object>> mapList = Lists.newArrayList();
             List<Map<String, Object>> clientMapList = Lists.newArrayList();
-            Map<String, List<DocumentLine>> factoryNameMap = documentLines.stream().collect(Collectors.groupingBy(DocumentLine :: getShipCustomer));
+            Map<String, List<DocumentLine>> factoryNameMap = documentLines.stream().collect(Collectors.groupingBy(DocumentLine :: getReserved12));
             for(String factoryName : factoryNameMap.keySet()){
                 List<DocumentLine> documentLineList = factoryNameMap.get(factoryName);
                 Map<String, List<DocumentLine>> docIdMap = documentLineList.stream().collect(Collectors.groupingBy(DocumentLine :: getDocId));
