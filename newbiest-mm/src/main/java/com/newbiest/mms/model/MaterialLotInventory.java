@@ -21,6 +21,9 @@ public class MaterialLotInventory extends NBUpdatable {
 
     private static final long serialVersionUID = 677152248659968811L;
 
+    public static final String SH_DEFAULT_STORAGE_ID = "HJ AZ5000";
+    public static final String ZSH_DEFAULT_STORAGE_ID = "ZHJ AZ6000";
+
     @Column(name = "MATERIAL_LOT_RRN")
     private Long materialLotRrn;
 
