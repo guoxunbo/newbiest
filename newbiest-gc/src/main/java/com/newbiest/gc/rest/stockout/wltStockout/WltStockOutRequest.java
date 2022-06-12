@@ -38,11 +38,15 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_SALE_SHIP = "SaleShip";
 
+	public static final String ACTION_SALE_AND_THREE_SALE_SHIP = "SaleAndthreeSide";
+
 	public static final String ACTION_GC_RW_ATTRIBUTE_CHANGE = "GCRWAttributeChange";
 
 	public static final String ACTION_MOBILE_WLT_STOCK_OUT = "MobileWltStockOut";
 
 	public static final String ACTION_MOBILE_SALE_SHIP = "MobileSaleShip";
+
+	public static final String ACTION_WLT_SHIP_BY_ORDER = "WltOtherShipByOrder";
 
 	private WltStockOutRequestBody body;
 

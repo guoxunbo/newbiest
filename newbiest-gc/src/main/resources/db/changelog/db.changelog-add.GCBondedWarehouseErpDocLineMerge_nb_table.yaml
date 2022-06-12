@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseErpDocLineMerge_to_NB_TABLE
+      author: Youqing Huang
+      comment: add BondedWarehouseErpDocLineMerge to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWarehouseErpDocLineMerge
+              description: 保税仓库 ERP单据合并
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: ERP单据合并
+              label: ErpDocLineMerge

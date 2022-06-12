@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: gc_add_mms_warehouse_0.0.1
+      author: Youqing Huang
+      comment: add mms_warehouse for add warehouse
+      dbms: oracle
+      changes:
+        - sqlFile:
+            encoding: utf8
+            relativeToChangelogFile: true
+            path: sqlfile/insert_mms_warehouse_0.0.2.sql

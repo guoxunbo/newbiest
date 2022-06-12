@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseAddPackageManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseAddPackageManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehouseAddPackageManager
+              description: 保税仓库 补箱
+              tableName: BondedWarehouseAddPackage
+              mobileFlag: N
+              url: /BondedWarehouse/AddPackage
+              parentRrn: 2021
+              seqNo: 135
+              image: icon-wuliao
+              labelZh: 补箱
+              labelEn: AddPackage

@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCBondedWarehouseMLotsOtherShipReservedOrder_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCBondedWarehouseMLotsOtherShipReservedOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWOtherShipReservedOrder
+              description: 保税仓库 成品其他出备货单
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 成品其他出备货单
+              label: OtherShipReservedOrder
+  - changeSet:
+      id: add_GCBondedWarehouseMLotsOtherShipReservedMLot_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCBondedWarehouseMLotsOtherShipReservedMLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWOtherShipReservedMLot
+              description: 保税仓库 成品其他出备货物料
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 成品其他出备货物料
+              label: OtherShipReservedMLot

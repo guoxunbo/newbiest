@@ -73,7 +73,7 @@ public interface GcService {
     GcUnConfirmWaferSet saveUnConfirmWaferTrackSetInfo(GcUnConfirmWaferSet unConfirmWaferSet, String transType) throws ClientException;
     void receiveCOBFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
     void validateAndReceiveCogMLot(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions) throws ClientException;
-    void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLines) throws ClientException;
+    void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLines, String ruleId) throws ClientException;
     void hongKongWarehouseByOrderStockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     boolean validationHKStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     MaterialLot getHKWarehouseStockOutMLot(Long tableRrn, String queryLotId) throws ClientException;
@@ -85,6 +85,7 @@ public interface GcService {
     void mesMaterialLotBindWorkOrderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesMaterialLotUnitBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     void mesMaterialLotUnitUnBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
+    void mesMaterialLotUnBindWorkorderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void reconMaterialLotUnitAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     void lswMaterialLotUnitEngHoldAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
 
@@ -117,6 +118,7 @@ public interface GcService {
     void wltStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String checkSubCode, String actionType) throws ClientException;
     void mobileWltStockOut(List<MaterialLotAction> materialLotActions,String erpTime, String checkSubCode, String actionType) throws ClientException;
     void wltOtherStockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String actionType, String ruleId) throws ClientException;
+    void wltOtherShipByOrder(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     boolean validationWltStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> validateImportWltPackReturn(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     boolean validateStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
@@ -132,6 +134,7 @@ public interface GcService {
     void updateMaterialLotLocation(List<MaterialLot> materialLotList , String location, String remarks) throws ClientException;
     void updateMaterialLotTreasuryNote(List<MaterialLot> materialLotList, String treasuryNote) throws ClientException;
     void updateMaterialLotInfo(MaterialLot materialLot) throws ClientException;
+    void updateMRBComments(List<MaterialLot> materialLotList, String mrbComments) throws ClientException;
     List<MaterialLot> getMaterialLotsByImportFileAndNbTable(List<MaterialLot> materialLotList, NBTable nbTable, String queryParentBoxFlag) throws ClientException;
     List<MaterialLotUnit> getMaterialLotUnitListByImportFileAndNbTable(List<MaterialLotUnit> materialLotUnitList, NBTable nbTable) throws ClientException;
 
@@ -225,4 +228,6 @@ public interface GcService {
     void unPackageIRAs(List<MaterialLotAction> materialLotActions, String packageType)  throws ClientException;
 
     List<MaterialLotUnit> packReturnSetWaferSource(String importType, List<MaterialLotUnit> materialLotUnitList)  throws ClientException;
+
+    void saveMLotPackageShipHis(List<MaterialLot> materialLotList) throws ClientException;
 }

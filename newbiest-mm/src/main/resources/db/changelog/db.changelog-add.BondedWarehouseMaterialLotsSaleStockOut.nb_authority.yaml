@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseMaterialLotsSaleStockOutManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add BondedWarehouseMaterialLotsSaleStockOutManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: BondedWarehouseMLotsSaleStockOut
+              description: 保税仓库 成品销售出货
+              tableName: BondedWarehouseSaleStockOutOrder
+              secondTableName: BondedWarehouseSaleStockOutMLot
+              mobileFlag: N
+              url: /BondedWarehouse/MLotsSaleStockOut
+              parentRrn: 2021
+              seqNo: 130
+              image: icon-wuliao
+              labelZh: 成品销售出货
+              labelEn: MaterialLotsSaleStockOut

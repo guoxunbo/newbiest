@@ -12,6 +12,10 @@ public class GcGetWltBoxPrintParaRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "GCGetWltBoxPrintParamter";
 
+	public static final String ACTION_TYPE_WLT_BBOX_LABEL = "WltBboxLabel";
+
+	public static final String ACTION_TYPE_WAFER_LABEL = "WaferLabel";
+
 	private GcGetWltBoxPrintParaRequestBody body;
 
 }

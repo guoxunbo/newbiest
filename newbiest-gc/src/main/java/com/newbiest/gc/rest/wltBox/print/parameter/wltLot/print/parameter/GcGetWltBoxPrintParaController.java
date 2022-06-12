@@ -1,10 +1,11 @@
 package com.newbiest.gc.rest.wltBox.print.parameter.wltLot.print.parameter;
 
-import com.google.common.collect.Lists;
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PrintService;
+import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -24,9 +25,6 @@ import java.util.Map;
 public class GcGetWltBoxPrintParaController extends AbstractRestController {
 
     @Autowired
-    MmsService mmsService;
-
-    @Autowired
     PrintService printService;
 
     @ApiOperation(value = "获取来料单箱标签参数")
@@ -38,10 +36,18 @@ public class GcGetWltBoxPrintParaController extends AbstractRestController {
         GcGetWltBoxPrintParaResponseBody responseBody = new GcGetWltBoxPrintParaResponseBody();
 
         GcGetWltBoxPrintParaRequestBody requestBody = request.getBody();
+        String actionType = requestBody.getActionType();
         List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
+        if(GcGetWltBoxPrintParaRequest.ACTION_TYPE_WLT_BBOX_LABEL.equals(actionType)){
+            List<Map<String, Object>> parameterMapList = printService.printWltBboxLabel(materialLotUnitList);
+            responseBody.settingClientPrint(parameterMapList);
+        } else if (GcGetWltBoxPrintParaRequest.ACTION_TYPE_WAFER_LABEL.equals(actionType)){
+            List<Map<String, Object>> parameterMapList = printService.printWaferLabel(materialLotUnitList);
+            responseBody.settingClientPrint(parameterMapList);
+        } else {
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+        }
 
-        List<Map<String, Object>> parameterMapList = printService.printWltBboxLabel(materialLotUnitList);
-        responseBody.settingClientPrint(parameterMapList);
 
         response.setBody(responseBody);
         return response;

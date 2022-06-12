@@ -27,6 +27,8 @@ public class ReServedRequestBody extends RequestBody {
 	public static final String ACTION_GET_PACKED_RULE_LIST = "GetPackedRuleList";
 	public static final String ACTION_TYPE_HN_WAREHOUSE_GET_OTHER_SHIP_MATERIAL_LOT = "HNWarehouseGetOtherShipReservedMLot";
 	public static final String ACTION_TYPE_HN_WAREHOUSE_OTHER_SHIP_RESERVED = "HNWarehouseOtherShipReserved";
+	public static final String ACTION_TYPE_BSW_GET_OTHER_SHIP_MATERIAL_LOT = "BSWGetOtherShipReservedMLot";
+	public static final String ACTION_TYPE_BSW_OTHER_SHIP_RESERVED = "BSWOtherShipReserved";
 
 	/**
 	 * 获取包装箱里的批次

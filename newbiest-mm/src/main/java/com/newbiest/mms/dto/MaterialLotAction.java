@@ -34,6 +34,11 @@ public class MaterialLotAction extends Action {
     private String reserved4;
 
     /**
+     * 重置库位号
+     */
+    private String resetStorageId;
+
+    /**
      * 来源仓库主键
      */
     private Long fromWarehouseRrn;
@@ -96,6 +101,11 @@ public class MaterialLotAction extends Action {
      * RW退料入库标记
      */
     private String workOrderId;
+
+    /**
+     * 箱子包装初始化状态
+     */
+    private String boxStatusUseFlag;
 
     public MaterialLotAction(){
     }

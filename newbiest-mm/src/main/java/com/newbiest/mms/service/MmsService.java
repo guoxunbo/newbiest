@@ -44,6 +44,7 @@ public interface MmsService {
     List<MaterialLot> receiveMLotList2Warehouse(Material material, List<MaterialLotAction> materialLotActions) throws ClientException;
 
     MaterialLot stockIn(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
+    MaterialLot stockIn(MaterialLot materialLot, String eventId, MaterialLotAction materialLotAction) throws  ClientException;
     List<MaterialLot> stockIn(List<MaterialLot> materialLots, List<MaterialLotAction> materialLotActionList) throws ClientException;
     MaterialLot stockOut(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
     MaterialLot pick(MaterialLot materialLot, MaterialLotAction materialLotAction) throws ClientException;
@@ -65,6 +66,8 @@ public interface MmsService {
 
     Warehouse getWarehouseByName(String name) throws ClientException;
     Storage getStorageByWarehouseRrnAndName(Warehouse warehouse, String storageId) throws ClientException;
+    Storage getDefaultStorage(Warehouse warehouse) throws ClientException;
+    Storage getTargetStorageByMaterialLotAction(MaterialLotAction materialLotAction, Warehouse warehouse) throws ClientException;
 
     void stockInMaterialLotUnitAndSaveHis(MaterialLot materialLot, String transType)throws ClientException;
 }

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_BondedWarehouseUnReservedMaterialLot_to_NB_TABLE
+      author: Youqing Huang
+      comment: add BondedWarehouseUnReservedMaterialLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWarehouseUnReservedMLot
+              description: 保税仓库 取消备货
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 取消备货
+              label: UnReservedMaterialLot

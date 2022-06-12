@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCBondedWarehouseInTransitMLotWaitReceive_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCBondedWarehouseInTransitMLotWaitReceive to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: BondedWarehouseInTranMLotWait
+              description: 保税仓库 成品在途待接收
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 成品在途待接收
+              label: InTransitMaterialLotLotWaitReceive

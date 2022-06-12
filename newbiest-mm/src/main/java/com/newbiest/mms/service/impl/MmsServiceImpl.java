@@ -495,7 +495,7 @@ public class MmsServiceImpl implements MmsService {
      * 获取默认的库位。这个库位可以挂在任意仓库下面
      *  如果系统中没有默认库位则直接创建一个
      */
-    private Storage getDefaultStorage(Warehouse warehouse) throws ClientException{
+    public Storage getDefaultStorage(Warehouse warehouse) throws ClientException{
         try {
             Storage storage = getStorageByWarehouseRrnAndName(warehouse, Storage.DEFAULT_STORAGE_NAME);
             if (storage == null) {
@@ -518,7 +518,7 @@ public class MmsServiceImpl implements MmsService {
      * @param warehouse
      * @return
      */
-    private Storage getTargetStorageByMaterialLotAction(MaterialLotAction materialLotAction, @NotNull  Warehouse warehouse) {
+    public Storage getTargetStorageByMaterialLotAction(MaterialLotAction materialLotAction, @NotNull  Warehouse warehouse) {
         try {
             Storage targetStorage;
             if (materialLotAction.getTargetStorageRrn() != null) {
@@ -574,7 +574,7 @@ public class MmsServiceImpl implements MmsService {
      * @param materialLotAction 动作需要包含目标仓库以及数量
      * @return
      */
-    private MaterialLot stockIn(MaterialLot materialLot, String eventId, MaterialLotAction materialLotAction) throws ClientException {
+    public MaterialLot stockIn(MaterialLot materialLot, String eventId, MaterialLotAction materialLotAction) throws ClientException {
         try {
             SessionContext sc = ThreadLocalContext.getSessionContext();
             sc.buildTransInfo();
@@ -1013,7 +1013,12 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot receiveMLot(Material material, String mLotId, MaterialLotAction materialLotAction) {
         try {
-            StatusModel statusModel = getMaterialStatusModel(material);
+            StatusModel statusModel;
+            if(material.getStatusModelRrn() != null){
+                statusModel = statusMachineService.getStatusModelByObjectRrn(material.getStatusModelRrn());
+            } else {
+                statusModel = getMaterialStatusModel(material);
+            }
             materialLotAction.setMaterialLotId(mLotId);
             MaterialLot materialLot = createMLot(material, statusModel, materialLotAction);
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);
