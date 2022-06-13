@@ -4562,11 +4562,11 @@ public class GcServiceImpl implements GcService {
                             materialLot.setReserved35("0");
                         }
                         if(MaterialLotUnit.SENSOR_RMA_GOOD_PRODUCT.equals(importType)){
-                            materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_RMA);
+                            materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_RMA);
                             materialLot.setReserved50(MaterialLot.SENSOR_WAFER_SOURCE);
                             materialLot.setReserved49(MaterialLot.IMPORT_SENSOR);
                         } else if(MaterialLotUnit.WLT_RMA_GOOD_PRODUCT.equals(importType)){
-                            materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_RMA);
+                            materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_RMA);
                             materialLot.setReserved50(MaterialLot.WLT_PACK_RETURN_WAFER_SOURCE);
                             materialLot.setReserved49(MaterialLot.IMPORT_WLT);
                         } else if(MaterialLotUnit.RMA_RETURN.equals(importType)){
@@ -9627,7 +9627,7 @@ public class GcServiceImpl implements GcService {
             for(MaterialLot materialLot : materialLotList){
                 String importType = materialLot.getReserved49();
                 if(MaterialLot.IMPORT_CRMA.equals(importType) || MaterialLot.IMPORT_RETURN.equals(importType) || MaterialLot.IMPORT_RMA.equals(importType) ||
-                        MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7()) && MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7())){
+                        MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7())){
                     continue;
                 }
                 String prodCate = MaterialLotUnit.PRODUCT_TYPE_PROD;
