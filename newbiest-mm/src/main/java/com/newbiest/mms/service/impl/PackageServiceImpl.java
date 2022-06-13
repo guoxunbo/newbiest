@@ -283,7 +283,7 @@ public class PackageServiceImpl implements PackageService{
                         // 找到最后一笔包装数据
                         MaterialLotHistory materialLotHistory = materialLotHistoryRepository.findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(waitToUnPackageMLot.getMaterialLotId(), MaterialLotHistory.TRANS_TYPE_PACKAGE);
                         if (materialLotHistory != null) {
-                            String storageId = StringUtils.isNullOrEmpty(materialLotHistory.getTargetStorageId()) ? waitToUnPackageMLot.getReserved14() : materialLotHistory.getTargetStorageId();
+                            String storageId = StringUtils.isNullOrEmpty(materialLotHistory.getTransStorageId()) ? waitToUnPackageMLot.getReserved14() : materialLotHistory.getTransStorageId();
                             Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
                             // 恢复库存数据
                             MaterialLotInventory materialLotInventory = new MaterialLotInventory();
@@ -415,6 +415,9 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot.setCurrentQty(materialLotPackageType.getPackedQty(materialLotActions));
             packedMaterialLot.setReceiveQty(packedMaterialLot.getCurrentQty());
             packedMaterialLot.buildPackageMaterialLot(packageType);
+            if(!MaterialLot.RW_PACKCASE.equals(packageType) && StringUtils.isNullOrEmpty(firstMaterialAction.getResetStorageId())){
+                packedMaterialLot.setReserved14(StringUtils.EMPTY);
+            }
             packedMaterialLot.setMaterialType(StringUtils.isNullOrEmpty(materialLotPackageType.getTargetMaterialType()) ? packedMaterialLot.getMaterialType() : materialLotPackageType.getTargetMaterialType());
 
             BigDecimal totalCurrentSubQty = BigDecimal.ZERO;
@@ -519,7 +522,8 @@ public class PackageServiceImpl implements PackageService{
                                         boolean subtractQtyFlag, boolean updateParentMLotFlag) throws ClientException {
         // 对物料批次做package事件处理 扣减物料批次数量
         for (MaterialLot materialLot : waitToPackingLot) {
-//            materialLot.clearPackedMaterialLot();
+            materialLot.setReserved8(packedMaterialLot.getReserved8());
+            materialLot.setReserved14(packedMaterialLot.getReserved14());
 
             String materialLotId = materialLot.getMaterialLotId();
             MaterialLotAction materialLotAction = materialLotActions.stream().filter(action -> materialLotId.equals(action.getMaterialLotId())).findFirst().get();

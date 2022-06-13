@@ -1013,7 +1013,12 @@ public class MmsServiceImpl implements MmsService {
      */
     public MaterialLot receiveMLot(Material material, String mLotId, MaterialLotAction materialLotAction) {
         try {
-            StatusModel statusModel = getMaterialStatusModel(material);
+            StatusModel statusModel;
+            if(material.getStatusModelRrn() != null){
+                statusModel = statusMachineService.getStatusModelByObjectRrn(material.getStatusModelRrn());
+            } else {
+                statusModel = getMaterialStatusModel(material);
+            }
             materialLotAction.setMaterialLotId(mLotId);
             MaterialLot materialLot = createMLot(material, statusModel, materialLotAction);
             materialLot = changeMaterialLotState(materialLot, MaterialEvent.EVENT_RECEIVE, StringUtils.EMPTY);

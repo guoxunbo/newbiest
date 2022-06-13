@@ -54,6 +54,11 @@ public class MesSaveMLotHisRequest extends Request {
 	public static final String ACTION_UN_BIND_WAFER_WORKORDER = "UnBindWaferWorkOrder";
 
 	/**
+	 * Mes批次解绑工单
+	 */
+	public static final String ACTION_UN_BIND_MLOT_WORKORDER = "UnBindMLotWorkOrder";
+
+	/**
 	 * 晶圆Recon
 	 */
 	public static final String ACTION_UN_RECON_MLOT_UNIT = "ReconMLotUnit";

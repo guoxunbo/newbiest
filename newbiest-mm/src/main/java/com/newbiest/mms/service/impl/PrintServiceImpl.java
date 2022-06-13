@@ -442,7 +442,7 @@ public class PrintServiceImpl implements PrintService {
         try{
             List<Map<String, Object>> mapList = Lists.newArrayList();
             List<Map<String, Object>> clientMapList = Lists.newArrayList();
-            Map<String, List<DocumentLine>> factoryNameMap = documentLines.stream().collect(Collectors.groupingBy(DocumentLine :: getShipCustomer));
+            Map<String, List<DocumentLine>> factoryNameMap = documentLines.stream().collect(Collectors.groupingBy(DocumentLine :: getReserved12));
             for(String factoryName : factoryNameMap.keySet()){
                 List<DocumentLine> documentLineList = factoryNameMap.get(factoryName);
                 Map<String, List<DocumentLine>> docIdMap = documentLineList.stream().collect(Collectors.groupingBy(DocumentLine :: getDocId));
@@ -1137,19 +1137,21 @@ public class PrintServiceImpl implements PrintService {
     /**
      * RMA来料接收箱标签打印
      * @param materialLotList
+     * @param printCount
      * @throws ClientException
      * @return
      */
     @Override
-    public List<Map<String, Object>> printRmaMaterialLotLabel(List<MaterialLot> materialLotList) throws ClientException {
+    public List<Map<String, Object>> printRmaMaterialLotLabel(List<MaterialLot> materialLotList, String printCount) throws ClientException {
         try {
             List<Map<String, Object>> mapList = Lists.newArrayList();
 
-            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RMA_BOX_LABEL, "");
+            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_RMA_BOX_LABEL, printCount);
             for(MaterialLot materialLot : materialLotList){
                 Map<String, Object> parameterMap = Maps.newHashMap();
+                String productId = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-"));
                 parameterMap.put("BOXID", materialLot.getMaterialLotId());
-                parameterMap.put("PRODUCTID", materialLot.getMaterialName());
+                parameterMap.put("PRODUCTID", productId);
                 parameterMap.put("GRADE", materialLot.getGrade() + StringUtils.PARAMETER_CODE + materialLot.getCurrentQty());
                 parameterMap.put("LOCATION", materialLot.getReserved6());
                 parameterMap.put("SUBCODE", materialLot.getReserved1());
@@ -1213,8 +1215,14 @@ public class PrintServiceImpl implements PrintService {
                 print(printContext);
             }
 
-            if (!StringUtils.isNullOrEmpty(materialLot.getReserved18()) || !StringUtils.isNullOrEmpty(materialLot.getShipper())){
-                Map<String, Object> customerLabelParams = printCustomerNameLabel(materialLot);
+            if (MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(materialLot.getReserved7())){
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved55())){
+                    Map<String, Object> customerLabelParams = printCustomerNameLabel(materialLot.getReserved55(), materialLot);
+                    mapList.add(customerLabelParams);
+                }
+            } else if(!StringUtils.isNullOrEmpty(materialLot.getReserved18()) || !StringUtils.isNullOrEmpty(materialLot.getShipper())){
+                String cusname = materialLot.getReserved18() == null ? materialLot.getShipper() : materialLot.getReserved18();
+                Map<String, Object> customerLabelParams = printCustomerNameLabel(cusname, materialLot);
                 mapList.add(customerLabelParams);
             }
             return mapList;
@@ -1228,11 +1236,11 @@ public class PrintServiceImpl implements PrintService {
      * @param materialLot
      * @throws ClientException
      */
-    private Map<String, Object> printCustomerNameLabel(MaterialLot materialLot) throws ClientException{
+    private Map<String, Object> printCustomerNameLabel(String cusname, MaterialLot materialLot) throws ClientException{
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_CUSTOMER_NAME_LABEL, "");
             Map<String, Object> parameterMap = Maps.newHashMap();
-            parameterMap.put("CSNAME",materialLot.getReserved18() == null ? materialLot.getShipper() : materialLot.getReserved18());
+            parameterMap.put("CSNAME", cusname);
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
 
@@ -1757,6 +1765,11 @@ public class PrintServiceImpl implements PrintService {
                 mapList.add(params);
             }else {
                 print(printContext);
+            }
+
+            if(!StringUtils.isNullOrEmpty(materialLot.getReserved55())){
+                Map<String, Object> customerLabelParams = printCustomerNameLabel(materialLot.getReserved55(), materialLot);
+                mapList.add(customerLabelParams);
             }
             return mapList;
         } catch (Exception e) {

@@ -26,4 +26,7 @@ public class RMAMLotManagerRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "物料批次")
 	private List<MaterialLot> materialLots;
+
+	@ApiModelProperty(value = "打印份数")
+	private String printCount;
 }

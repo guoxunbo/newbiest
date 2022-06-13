@@ -6,11 +6,9 @@ import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.exception.ExceptionManager;
 import com.newbiest.base.model.NBHis;
 import com.newbiest.base.service.BaseService;
-import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.SessionContext;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
-import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.gc.scm.dto.TempFtModel;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.*;
@@ -23,12 +21,10 @@ import com.newbiest.mms.service.PackageService;
 import com.newbiest.msg.ResponseHeader;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -50,7 +46,6 @@ public class FTImportMLotUnitThread implements Callable {
     private String packageType;
     private String fileName;
     private Material material;
-    private StatusModel statusModel;
     private Date createHisDate;
     private Warehouse warehouse;
     private Storage storage;
@@ -123,6 +118,8 @@ public class FTImportMLotUnitThread implements Callable {
             materialLotAction.setTransCount(currentSubQty);
             materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
             materialLotAction.setTargetStorageId(storage.getName());
+            materialLotAction.setTargetStorageRrn(storage.getObjectRrn());
+
             propMap.put("reserved8", waferTempFtModel.getBoxId() == null ? "": waferTempFtModel.getBoxId().trim());
             propMap.put("reserved13", materialLotAction.getTargetWarehouseRrn().toString());
             propMap.put("reserved14", waferTempFtModel.getPointId() == null ? "": waferTempFtModel.getPointId().trim());
@@ -150,6 +147,7 @@ public class FTImportMLotUnitThread implements Callable {
             propMap.put("reserved43", waferTempFtModel.getDataValue24() == null ? "": waferTempFtModel.getDataValue24().trim());
             propMap.put("reserved45", waferTempFtModel.getDataValue25() == null ? "": waferTempFtModel.getDataValue25().trim());
             propMap.put("reserved46", waferTempFtModel.getWoId() == null ? "": waferTempFtModel.getWoId().trim());
+            propMap.put("reserved7", productCategory);
             propMap.put("reserved47", fileName);
             propMap.put("reserved48", importCode);
             propMap.put("reserved49", importType);

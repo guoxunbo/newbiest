@@ -7,6 +7,7 @@ import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.Material;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
+import com.newbiest.mms.service.MmsService;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * GlaxyCore MES记录MLot历史
@@ -31,6 +34,9 @@ public class MesSaveMLotHisController extends AbstractRestController {
 
     @Autowired
     GcService gcService;
+
+    @Autowired
+    MmsService mmsService;
 
     @ApiOperation(value = "物料批记录历史", notes = "记录物料、晶圆历史")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "MesSaveMLotHisRequest")
@@ -91,6 +97,14 @@ public class MesSaveMLotHisController extends AbstractRestController {
         } else if(MesSaveMLotHisRequest.ACTION_UN_BIND_WAFER_WORKORDER.equals(actionType)){
             try {
                 gcService.mesMaterialLotUnitUnBindWorkorderAndSaveHis(requestBody.getMaterialLotUnits(), transId);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+        } else if(MesSaveMLotHisRequest.ACTION_UN_BIND_MLOT_WORKORDER.equals(actionType)){
+            try {
+                List<MaterialLotUnit> materialLotUnits = requestBody.getMaterialLotUnits();
+                List<MaterialLot> materialLots = materialLotUnits.stream().map(materialLotUnit -> mmsService.getMLotByMLotId(materialLotUnit.getMaterialLotId(), true)).collect(Collectors.toList());
+                gcService.mesMaterialLotUnBindWorkorderAndSaveHis(materialLots, transId);
             } catch (Exception e) {
                 errorMessage = e.getMessage();
             }

@@ -55,11 +55,11 @@ public class RMAMLotManagerController extends AbstractRestController {
             List<MaterialLot> materialLots = gcService.receiveRmaMLot(materialLotActions);
 
             if(!StringUtils.isNullOrEmpty(printLabel)){
-                List<Map<String, Object>> mapList = printService.printRmaMaterialLotLabel(materialLots);
+                List<Map<String, Object>> mapList = printService.printRmaMaterialLotLabel(materialLots, "");
                 responseBody.settingClientPrint(mapList);
             }
         } else if(RMAMLotManagerRequest.ACTION_TYPE_PRINT.equals(actionType)) {
-            List<Map<String, Object>> mapList = printService.printRmaMaterialLotLabel(requestBody.getMaterialLots());
+            List<Map<String, Object>> mapList = printService.printRmaMaterialLotLabel(requestBody.getMaterialLots(), requestBody.getPrintCount());
             responseBody.settingClientPrint(mapList);
 
         } else {

@@ -85,6 +85,7 @@ public interface GcService {
     void mesMaterialLotBindWorkOrderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void mesMaterialLotUnitBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     void mesMaterialLotUnitUnBindWorkorderAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
+    void mesMaterialLotUnBindWorkorderAndSaveHis(List<MaterialLot> materialLotList, String transId) throws ClientException;
     void reconMaterialLotUnitAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
     void lswMaterialLotUnitEngHoldAndSaveHis(List<MaterialLotUnit> materialLotUnitList, String transId) throws ClientException;
 

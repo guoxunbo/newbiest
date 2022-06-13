@@ -8,6 +8,7 @@ public class GcExceptions {
     public static final String ABNORMAL_FILE_QUANTITY = "gc.abnormal_file_quantity";
     public static final String PRINT_TYPE_IS_NOT_SUPPORTED = "gc.print_type_is_not_supported";
     public static final String VBOX_AND_WAFER_CANNOT_TOGETHER_IMPORT = "gc.vbox_and_wafer_cannot_together_import";
+    public static final String VBOX_AND_BBOX_CANNOT_TOGETHER_IMPORT = "gc.vbox_and_bbox_cannot_together_import";
 
     public static final String ERP_RETEST_ORDER_IS_NOT_EXIST = "gc.erp_retest_order_is_not_exist";
     public static final String ERP_RAW_MATERIAL_ISSUE_ORDER_IS_NOT_EXIST = "gc.erp_raw_material_issue_order_is_not_exist";
@@ -61,6 +62,7 @@ public class GcExceptions {
     public static final String MATERIAL_LOT_ALREADY_RECEIVE = "gc.material_lot_already_receive";
     public static final String MATERIAL_LOT_UNIT_QTY_IS_ERROR = "gc.material_lot_unit_qty_is_error";
     public static final String THE_QUANTITY_FIELD_MUST_BE_GREATER_THAN_ZERO = "gc.the_quantity_field_must_be_greater_than_zero";
+    public static final String MATERIAL_LOT_NOT_IN_RULE_CONTROL_CANNOT_IMPORT = "gc.material_lot_not_in_rule_control_cannot_import";
 
     public static final String WAREHOUSE_CANNOT_EMPTY = "gc.warehouse_cannot_empty";
     public static final String ERP_WAREHOUSE_CODE_IS_UNDEFINED = "gc.erp_undefined_warehouse_code";
