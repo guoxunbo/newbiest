@@ -274,16 +274,32 @@ public class PackageServiceImpl implements PackageService{
                         waitToUnPackageMLot.setStatusCategory(MaterialLot.STATUS_STOCK);
                         waitToUnPackageMLot.setStatus(MaterialLot.STATUS_IN);
                     }
+                    //拆箱恢复库存 保税属性是SH的   默认库位号  HJ AZ5000   保税属性是ZSH的   默认库位号  ZHJ AZ6000
+                    String storageId = StringUtils.EMPTY;
+                    if(MaterialLot.LOCATION_SH.equals(waitToUnPackageMLot.getReserved6())){
+                        storageId = MaterialLotInventory.SH_DEFAULT_STORAGE_ID;
+                        waitToUnPackageMLot.setReserved14(storageId);
+                    } else if(MaterialLot.BONDED_PROPERTY_ZSH.equals(waitToUnPackageMLot.getReserved6())){
+                        storageId = MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID;
+                        waitToUnPackageMLot.setReserved14(storageId);
+                    }
+                    if(!StringUtils.isNullOrEmpty(storageId)){// 恢复库存数据
+                        Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
+                        MaterialLotInventory materialLotInventory = new MaterialLotInventory();
+                        materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
+                        mmsService.saveMaterialLotInventory(materialLotInventory, waitToUnPackageMLot.getCurrentQty());
+                    }
                     materialLotRepository.save(waitToUnPackageMLot);
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(waitToUnPackageMLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
                     history.buildByMaterialLotAction(materialLotAction);
 
-                    if (MaterialStatusCategory.STATUS_CATEGORY_STOCK.equals(waitToUnPackageMLot.getStatusCategory()) || MaterialStatusCategory.STATUS_CATEGORY_OQC.equals(waitToUnPackageMLot.getStatusCategory())) {
+                    if (StringUtils.isNullOrEmpty(storageId) && (MaterialStatusCategory.STATUS_CATEGORY_STOCK.equals(waitToUnPackageMLot.getStatusCategory())
+                            || MaterialStatusCategory.STATUS_CATEGORY_OQC.equals(waitToUnPackageMLot.getStatusCategory()))) {
                         // 找到最后一笔包装数据
                         MaterialLotHistory materialLotHistory = materialLotHistoryRepository.findTopByMaterialLotIdAndTransTypeOrderByCreatedDesc(waitToUnPackageMLot.getMaterialLotId(), MaterialLotHistory.TRANS_TYPE_PACKAGE);
                         if (materialLotHistory != null) {
-                            String storageId = StringUtils.isNullOrEmpty(materialLotHistory.getTransStorageId()) ? waitToUnPackageMLot.getReserved14() : materialLotHistory.getTransStorageId();
+                            storageId = StringUtils.isNullOrEmpty(materialLotHistory.getTransStorageId()) ? waitToUnPackageMLot.getReserved14() : materialLotHistory.getTransStorageId();
                             Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
                             // 恢复库存数据
                             MaterialLotInventory materialLotInventory = new MaterialLotInventory();
@@ -293,9 +309,11 @@ public class PackageServiceImpl implements PackageService{
                             history.setTargetWarehouseId(warehouse.getName());
                             history.setTransStorageId(storage.getName());
                         }
+                    } else {
+                        history.setTargetWarehouseId(warehouse.getName());
+                        history.setTransStorageId(storageId);
                     }
                     materialLotHistoryRepository.save(history);
-
                 }
                 //拆包时将晶圆的状态恢复至In状态
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(waitToUnPackageMLot.getMaterialLotId());
@@ -416,7 +434,13 @@ public class PackageServiceImpl implements PackageService{
             packedMaterialLot.setReceiveQty(packedMaterialLot.getCurrentQty());
             packedMaterialLot.buildPackageMaterialLot(packageType);
             if(!MaterialLot.RW_PACKCASE.equals(packageType) && StringUtils.isNullOrEmpty(firstMaterialAction.getResetStorageId())){
-                packedMaterialLot.setReserved14(StringUtils.EMPTY);
+                if(MaterialLot.LOCATION_SH.equals(packedMaterialLot.getReserved6())){
+                    packedMaterialLot.setReserved14(MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
+                } else if(MaterialLot.BONDED_PROPERTY_ZSH.equals(packedMaterialLot.getReserved6())){
+                    packedMaterialLot.setReserved14(MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
+                } else {
+                    packedMaterialLot.setReserved14(StringUtils.EMPTY);
+                }
             }
             packedMaterialLot.setMaterialType(StringUtils.isNullOrEmpty(materialLotPackageType.getTargetMaterialType()) ? packedMaterialLot.getMaterialType() : materialLotPackageType.getTargetMaterialType());
 
