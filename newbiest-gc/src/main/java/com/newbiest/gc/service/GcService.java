@@ -130,7 +130,7 @@ public interface GcService {
     String saveLCDCOGDetailList(List<MaterialLot> materialLots, String importType)throws ClientException;
 
     void materialLotRelease(List<MaterialLot> materialLotList, String ReleaseReason, String remarks) throws ClientException;
-    void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException;
+    void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks, String holdType) throws ClientException;
     void updateMaterialLotLocation(List<MaterialLot> materialLotList , String location, String remarks) throws ClientException;
     void updateMaterialLotTreasuryNote(List<MaterialLot> materialLotList, String treasuryNote) throws ClientException;
     void updateMaterialLotInfo(MaterialLot materialLot) throws ClientException;

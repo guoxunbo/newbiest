@@ -5610,15 +5610,21 @@ public class GcServiceImpl implements GcService {
     /**
      * 真空包批量HOLD
      */
-    public void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks) throws ClientException{
+    public void materialLotHold(List<MaterialLot> materialLotList, String holdReason, String remarks, String holdType) throws ClientException{
         try {
             //对CP的物料批次Hold时报告状态
             List<MaterialLot> scmReportMLotList = Lists.newArrayList();
             for (MaterialLot materialLot : materialLotList){
                 MaterialLotAction materialLotAction = new MaterialLotAction();
                 materialLotAction.setTransQty(materialLot.getCurrentQty());
-                materialLotAction.setActionComment(remarks);
-                materialLotAction.setActionReason(holdReason);
+                if(MaterialLot.PRODUCT_CATEGORY.equals(materialLot.getReserved7())){
+                    materialLotAction.setActionComment(remarks);
+                    materialLotAction.setActionReason(holdReason);
+                } else {
+                    String newHoldReason = ThreadLocalContext.getUsername() + StringUtils.UNDERLINE_CODE + holdType + StringUtils.UNDERLINE_CODE + remarks;
+                    materialLotAction.setActionComment(newHoldReason);
+                    materialLotAction.setActionReason(remarks);
+                }
                 mmsService.holdMaterialLot(materialLot,materialLotAction);
 
                 //对箱Hold的时候对箱里面的真空包也做HOLD操作
@@ -5654,8 +5660,14 @@ public class GcServiceImpl implements GcService {
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
-                    history.setActionComment(remarks);
-                    history.setActionReason(holdReason);
+                    if(MaterialLot.PRODUCT_CATEGORY.equals(materialLot.getReserved7())){
+                        history.setActionComment(remarks);
+                        history.setActionReason(holdReason);
+                    } else {
+                        String newHoldReason = ThreadLocalContext.getUsername() + StringUtils.UNDERLINE_CODE + holdType + StringUtils.UNDERLINE_CODE + remarks;
+                        history.setActionComment(newHoldReason);
+                        history.setActionReason(remarks);
+                    }
                     materialLotHistoryRepository.save(history);
                 }
             }
@@ -10836,7 +10848,7 @@ public class GcServiceImpl implements GcService {
                 validateAndUpdateErpSoa(documentLine, handledQty);
 
                 if (SystemPropertyUtils.getConnectMscmFlag()) {
-                    scmService.addScmTracking(documentLine.getDocId(), materialLots);
+                    scmService.addScmTracking(documentLine.getDocId(), materialLotList);
                 }
             }
         } catch (Exception e){
