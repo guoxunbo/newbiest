@@ -974,3 +974,9 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.BondedWarehouseUnReservedMaterialLot.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseAddPackageManager.nb_authority.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKWarehouseUnPackMaterialLotManager.nb_authority.yaml
+      relativeToChangelogFile: true

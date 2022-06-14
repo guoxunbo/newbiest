@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseAddPackageManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add HKWarehouseAddPackageManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKWarehouseAddPackageManager
+              description: 香港仓 补箱
+              tableName: HKWarehouseAddPackage
+              mobileFlag: N
+              url: /HKWarehouse/AddPackage
+              parentRrn: 2020
+              seqNo: 35
+              image: icon-rule
+              labelZh: 香港仓补箱
+              labelEn: HongKongWarehouseAddPackage
