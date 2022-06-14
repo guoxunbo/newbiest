@@ -968,3 +968,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCHKWarehouseAddPackage_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCHKWarehouseUnPackMaterialLot_nb_table.yaml
+      relativeToChangelogFile: true
