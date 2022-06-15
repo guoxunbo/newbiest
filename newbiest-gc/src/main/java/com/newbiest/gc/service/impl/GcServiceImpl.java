@@ -968,8 +968,12 @@ public class GcServiceImpl implements GcService {
 
                             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_TRANSFER_PARENT);
                             materialLotHistoryRepository.save(history);
+
+                            updateMaterialLotUnitStorage(packedLot);
                         }
                     }
+                } else {
+                    updateMaterialLotUnitStorage(materialLot);
                 }
             }
 
@@ -984,6 +988,32 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 修改晶圆库位号并记录历史
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void updateMaterialLotUnitStorage(MaterialLot materialLot) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            for (MaterialLotUnit materialLotUnit : materialLotUnits){
+                if(MaterialLotUnit.STATE_CREATE.equals(materialLotUnit.getState())){
+                    materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                }
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved8())){
+                    materialLotUnit.setReserved8(materialLot.getReserved8());
+                }
+                materialLotUnit.setReserved14(materialLot.getReserved14());
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
