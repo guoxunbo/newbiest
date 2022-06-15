@@ -459,7 +459,7 @@ public class PackageServiceImpl implements PackageService{
                 BigDecimal totalReservedQty = materialLots.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLot :: getReservedQty));
                 packedMaterialLot.setReservedQty(totalReservedQty);
             }
-            if(!StringUtils.isNullOrEmpty(firstMaterialAction.getBoxStatusUseFlag())){
+            if(!StringUtils.isNullOrEmpty(firstMaterialAction.getBoxStatusUseFlag()) || !StringUtils.isNullOrEmpty(firstMaterialAction.getCobImportPack()) ){
                 packedMaterialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                 packedMaterialLot.setStatus(MaterialStatus.STATUS_CREATE);
             }
@@ -562,7 +562,12 @@ public class PackageServiceImpl implements PackageService{
                     materialLot.setParentMaterialLotId(packedMaterialLot.getMaterialLotId());
                     materialLot.setParentMaterialLotRrn(packedMaterialLot.getObjectRrn());
                 }
-                materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, MaterialStatus.STATUS_PACKED);
+                //格科客制化，cob导入装箱 不改变箱中Lot装箱，保持Create
+                if(!StringUtils.isNullOrEmpty(materialLotAction.getCobImportPack())){
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
+                } else {
+                    materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, MaterialStatus.STATUS_PACKED);
+                }
             }
 
             // 记录包装详情

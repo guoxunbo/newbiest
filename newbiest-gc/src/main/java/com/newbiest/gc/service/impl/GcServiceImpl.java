@@ -4505,7 +4505,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReserved48(importCode);
                     List<MaterialLotUnit> materialLotUnitList = getMaterialLotUnitList(materialLot);
                     materialLotUnitList = materialLotUnitAssignEng(materialLotUnitList);
-                    materialLotUnitService.createMLot(materialLotUnitList, StringUtils.EMPTY);
+                    materialLotUnitService.createMLot(materialLotUnitList);
                 }
             } else if (importType.equals(MaterialLotUnit.LCD_COG_FINISH_PRODUCT)){
                 //来料导入模板LCD（COG成品-ECRETIVE）数据处理
