@@ -466,7 +466,13 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved6",materialLotUnit.getReserved4());
                     propsMap.put("reserved7",materialLotUnit.getReserved7());
                     propsMap.put("reserved13",materialLotUnit.getReserved13());
-                    propsMap.put("reserved14",materialLotUnit.getReserved14());
+                    if(MaterialLot.LOCATION_SH.equals(materialLotUnit.getReserved14())){
+                        propsMap.put("reserved14", MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
+                    } else if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLotUnit.getReserved14())){
+                        propsMap.put("reserved14",MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
+                    } else {
+                        propsMap.put("reserved14",materialLotUnit.getReserved14());
+                    }
                     propsMap.put("reserved22",materialLotUnit.getReserved22());
                     propsMap.put("reserved23",materialLotUnit.getReserved23());
                     propsMap.put("reserved24",materialLotUnit.getReserved24());
@@ -507,6 +513,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                     materialLotUnit.setLotId(materialLot.getLotId());
                     materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
+                    materialLotUnit.setReserved14(materialLot.getReserved14());
                     materialLotUnit.setReserved48(importCode);
                     materialLotUnit.setMaterial(material);
                     materialLotUnit.setReceiveDate(materialLot.getReceiveDate());

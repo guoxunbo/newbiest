@@ -4523,6 +4523,7 @@ public class GcServiceImpl implements GcService {
                         materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
                         materialLot.setStatus(MaterialStatus.STATUS_CREATE);
                         materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_COG);
+                        initMaterialLotStorageId(materialLot);
                         materialLot.setReserved48(importCode);
                         materialLot.setReserved49(MaterialLot.IMPORT_COG);
                         materialLot.setReserved50("17");
@@ -4560,6 +4561,7 @@ public class GcServiceImpl implements GcService {
                         if(StringUtils.isNullOrEmpty(materialLot.getReserved35())){
                             materialLot.setReserved35("0");
                         }
+                        initMaterialLotStorageId(materialLot);
                         if(MaterialLotUnit.SENSOR_RMA_GOOD_PRODUCT.equals(importType)){
                             materialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_RMA);
                             materialLot.setReserved50(MaterialLot.SENSOR_WAFER_SOURCE);
@@ -4589,6 +4591,7 @@ public class GcServiceImpl implements GcService {
                             MaterialLotUnit materialLotUnit = new MaterialLotUnit();
                             materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                             materialLotUnit.setLotId(materialLot.getMaterialLotId());
+                            materialLotUnit.setReserved14(materialLot.getReserved14());
                             materialLotUnit.setState(MaterialStatus.STATUS_CREATE);
                             materialLotUnit.setMaterial(material);
                             materialLotUnit.setMaterialLot(materialLot);
@@ -4603,6 +4606,23 @@ public class GcServiceImpl implements GcService {
             }
             return importCode;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 来料导入初始化库位号
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void initMaterialLotStorageId(MaterialLot materialLot) throws ClientException{
+        try {
+            if(MaterialLot.LOCATION_SH.equals(materialLot.getReserved6())){
+                materialLot.setReserved14(MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
+            } else if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6())){
+                materialLot.setReserved14(MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
