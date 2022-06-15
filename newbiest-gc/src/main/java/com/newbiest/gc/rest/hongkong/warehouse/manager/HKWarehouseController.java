@@ -43,7 +43,7 @@ public class HKWarehouseController {
         } else if(HKWarehouseRequest.ACTION_HK_STOCK_OUT.equals(actionType)){
             gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), "", actionType);
         } else if(HKWarehouseRequest.ACTION_HK_BYORDER_STOCK_OUT.equals(actionType)) {
-            gcService.hongKongWarehouseByOrderStockOut(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
+            gcService.ftStockOut(requestBody.getMaterialLotActions(), requestBody.getDocumentLines(), MaterialLot.HKWAREHOUSE_BY_ORDER_STOCK_OUT_RULE_ID);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
