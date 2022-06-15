@@ -11068,7 +11068,11 @@ public class GcServiceImpl implements GcService {
                 List<MaterialLot> packedMLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                 for(MaterialLot packedLot : packedMLotList){
                     packedLot.setReserved2(null);
-                    packedLot = materialLotRepository.saveAndFlush(packedLot);
+                    if(MaterialStatus.STATUS_CREATE.equals(packedLot.getStatus())){
+                        packedLot = mmsService.changeMaterialLotState(packedLot, MaterialEvent.EVENT_PACK_LOT_RECEIVE, StringUtils.EMPTY);
+                    } else {
+                        packedLot = materialLotRepository.saveAndFlush(packedLot);
+                    }
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
                     materialLotHistoryRepository.save(history);
