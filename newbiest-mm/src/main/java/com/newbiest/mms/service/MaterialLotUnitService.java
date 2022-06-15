@@ -19,11 +19,13 @@ public interface MaterialLotUnitService {
 
     List<MaterialLotUnit> getUnitsByMaterialLotId(String materialLotId) throws ClientException;
 
-    List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList, String returnMaterialFlag) throws ClientException;
+    List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 
     void receiveMLotWithUnit(MaterialLot materialLots, String warehouseName) throws ClientException;
 
     void validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 
     List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList, String importType) throws ClientException;
+
+    List<MaterialLotUnit> createCobMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
 }

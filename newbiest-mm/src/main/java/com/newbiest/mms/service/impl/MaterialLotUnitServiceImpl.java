@@ -17,12 +17,13 @@ import com.newbiest.mms.SystemPropertyUtils;
 import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.*;
-import com.newbiest.mms.repository.MaterialLotHistoryRepository;
-import com.newbiest.mms.repository.MaterialLotRepository;
-import com.newbiest.mms.repository.MaterialLotUnitHisRepository;
-import com.newbiest.mms.repository.MaterialLotUnitRepository;
+import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
+import com.newbiest.mms.service.PackageService;
+import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatus;
+import com.newbiest.mms.thread.ImportCobMLotThread;
 import com.newbiest.mms.thread.ImportMLotThread;
 import com.newbiest.mms.thread.ImportMLotThreadResult;
 import com.newbiest.msg.ResponseHeader;
@@ -73,6 +74,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
     @Autowired
     GeneratorService generatorService;
 
+    @Autowired
+    PackageService packageService;
+
+    @Autowired
+    PackagedLotDetailRepository packagedLotDetailRepository;
+
     private ExecutorService executorService;
 
     @PostConstruct
@@ -114,6 +121,13 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
 
             mmsService.stockInMaterialLotUnitAndSaveHis(materialLot, MaterialLotUnitHistory.TRANS_TYPE_IN);
 
+            if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved7())){
+                MaterialLot parentMaterialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getParentMaterialLotId(), ThreadLocalContext.getOrgRrn());
+                if(MaterialStatus.STATUS_CREATE.equals(parentMaterialLot.getStatus())){
+                    mmsService.changeMaterialLotState(parentMaterialLot, MaterialEvent.EVENT_BOX_RECEIVE, StringUtils.EMPTY);
+                }
+            }
+
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -125,7 +139,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      * @return
      * @throws ClientException
      */
-    public List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList, String returnMaterialFlag) throws ClientException {
+    public List<MaterialLotUnit> createMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
         try {
             List<MaterialLotUnit> materialLotUnitArrayList = new ArrayList<>();
             Map<String, List<MaterialLotUnit>> materialUnitIdMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getUnitId));
@@ -152,12 +166,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
             List<Future<ImportMLotThreadResult>> importCallBackList = Lists.newArrayList();
             for (String materialName : materialUnitMap.keySet()) {
-                Material material = mmsService.getRawMaterialByName(materialName);
-                if (material == null) {
-                    RawMaterial rawMaterial = new RawMaterial();
-                    rawMaterial.setName(materialName);
-                    material = mmsService.createRawMaterial(rawMaterial);
-                }
+                Material material = validateAndGetMaterial(materialName);
                 StatusModel statusModel = mmsService.getMaterialStatusModel(material);
                 Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
                 for (String lotId : materialLotUnitMap.keySet()) {
@@ -232,11 +241,10 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         importCallBack.cancel(true);
                     }
                 }
-                deleteImportMaterialLotUnit(importCode, returnMaterialFlag);
+                deleteImportMaterialLotUnit(importCode);
                 return mLotUnits;
-            } else if(StringUtils.isNullOrEmpty(returnMaterialFlag) &&
-                    (CollectionUtils.isEmpty(materialLotUnits) || materialLotUnitList.size() != materialLotUnits.size())){
-                deleteImportMaterialLotUnit(importCode, returnMaterialFlag);
+            } else if(CollectionUtils.isEmpty(materialLotUnits) || materialLotUnitList.size() != materialLotUnits.size()){
+                deleteImportMaterialLotUnit(importCode);
                 return mLotUnits;
             } else {
                 return materialLotUnitArrayList;
@@ -252,14 +260,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
      * @param importCode
      * @throws ClientException
      */
-    private void deleteImportMaterialLotUnit(String importCode, String returnMaterialFlag) throws ClientException{
+    private void deleteImportMaterialLotUnit(String importCode) throws ClientException{
         try {
-            if(StringUtils.isNullOrEmpty(returnMaterialFlag)){
-                materialLotUnitRepository.deleteByImportCode(importCode);
-                materialLotRepository.deleteByImportType(importCode);
-                materialLotUnitHisRepository.deleteByImportCode(importCode);
-                materialLotHistoryRepository.deleteByImportCode(importCode);
-            }
+            materialLotUnitRepository.deleteByImportCode(importCode);
+            materialLotRepository.deleteByImportType(importCode);
+            materialLotUnitHisRepository.deleteByImportCode(importCode);
+            materialLotHistoryRepository.deleteByImportCode(importCode);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -277,6 +283,144 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             String importCode = generatorService.generatorId(ThreadLocalContext.getOrgRrn(), generatorContext);
             return importCode;
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * COB成品、COM原料导入  导入自动装箱
+     * 一个Lot一箱
+     * @param materialLotUnitList
+     * @return
+     * @throws ClientException
+     */
+    public List<MaterialLotUnit> createCobMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException {
+        try {
+            List<MaterialLotUnit> materialLotUnitArrayList = new ArrayList<>();
+            Map<String, List<MaterialLotUnit>> materialUnitIdMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getUnitId));
+            for(String unitId : materialUnitIdMap.keySet()){
+                if(materialUnitIdMap.get(unitId).size() > 1){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_ID_REPEATS, unitId);
+                }
+            }
+            //验证箱号是否存在
+            Map<String, List<MaterialLotUnit>> boxIdMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
+            for(String parentMLotId : boxIdMap.keySet()){
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(parentMLotId, ThreadLocalContext.getOrgRrn());
+                if(materialLot != null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, parentMLotId);
+                }
+            }
+            //验证LotId是否已经存在
+            Map<String, List<MaterialLotUnit>> materialLotMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
+            for(String lotId : materialLotMap.keySet()){
+                MaterialLot mLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(lotId, ThreadLocalContext.getOrgRrn());
+                if(mLot != null){
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, lotId);
+                }
+            }
+            String importCode = generatorMLotUnitImportCode(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+
+            Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
+            List<Future<ImportMLotThreadResult>> cobImportCallBackList = Lists.newArrayList();
+            List<String> bboxIdList = Lists.newArrayList();
+            for (String materialName : materialUnitMap.keySet()) {
+                Material material = validateAndGetMaterial(materialName);
+                StatusModel statusModel = mmsService.getMaterialStatusModel(material);
+                Map<String, List<MaterialLotUnit>> mlotDurableMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getDurable));
+                for (String durable : mlotDurableMap.keySet()) {
+                    List<MaterialLotUnit> materialLotUnits = mlotDurableMap.get(durable);
+                    String parentMaterialLotId = materialLotUnits.get(0).getMaterialLotId();
+                    bboxIdList.add(parentMaterialLotId);
+                    ImportCobMLotThread importCobMLotThread = new ImportCobMLotThread();
+                    importCobMLotThread.setMaterialLotRepository(materialLotRepository);
+                    importCobMLotThread.setMmsService(mmsService);
+                    importCobMLotThread.setBaseService(baseService);
+                    importCobMLotThread.setPackageService(packageService);
+                    importCobMLotThread.setMaterialLotUnitRepository(materialLotUnitRepository);
+                    importCobMLotThread.setMaterialLotUnitHisRepository(materialLotUnitHisRepository);
+                    importCobMLotThread.setSessionContext(ThreadLocalContext.getSessionContext());
+                    importCobMLotThread.setMaterialLotId(durable);
+                    importCobMLotThread.setLotId(durable);
+                    importCobMLotThread.setParentMaterialLotId(parentMaterialLotId);
+                    importCobMLotThread.setImportCode(importCode);
+                    importCobMLotThread.setMaterial(material);
+                    importCobMLotThread.setStatusModel(statusModel);
+                    importCobMLotThread.setMaterialLotUnitList(materialLotUnits);
+                    Future<ImportMLotThreadResult> importCallBack = executorService.submit(importCobMLotThread);
+                    cobImportCallBackList.add(importCallBack);
+                }
+            }
+
+            int maxWaitQty = 300;
+            String resultMessage = StringUtils.EMPTY;
+            for (Future<ImportMLotThreadResult> cobImportCallBack : cobImportCallBackList) {
+                if (!StringUtils.isNullOrEmpty(resultMessage) || maxWaitQty <= 0) {
+                    log.warn("Import error. please see log get more details.");
+                    break;
+                }
+                while (true) {
+                    if (cobImportCallBack.isDone()) {
+                        ImportMLotThreadResult cobImportResult = cobImportCallBack.get();
+                        if (ResponseHeader.RESULT_SUCCESS.equals(cobImportResult.getResult())) {
+                            materialLotUnitArrayList.addAll(cobImportResult.getMaterialLotUnits());
+                        } else {
+                            resultMessage = cobImportResult.getResultMessage();
+                        }
+                        break;
+                    } else {
+                        Thread.sleep(100);
+                        maxWaitQty--;
+                        if (maxWaitQty == 0) {
+                            resultMessage = MmsException.MM_MATERIAL_LOT_IMPORT_TIME_OUT;
+                            break;
+                        }
+                    }
+                }
+            }
+            List<MaterialLotUnit> mLotUnits = Lists.newArrayList();
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByReserved48(importCode);
+            if(!StringUtils.isNullOrEmpty(resultMessage)){
+                for(Future<ImportMLotThreadResult> importCallBack : cobImportCallBackList){
+                    if(!importCallBack.isDone()){
+                        importCallBack.cancel(true);
+                    }
+                }
+                deleteImportMaterialLotUnit(importCode);
+                if(CollectionUtils.isNotEmpty(bboxIdList)){
+                    packagedLotDetailRepository.deleteByPackagedLotIdIn(bboxIdList);
+                }
+                return mLotUnits;
+            } else if(CollectionUtils.isEmpty(materialLotUnits) || materialLotUnitList.size() != materialLotUnits.size()){
+                deleteImportMaterialLotUnit(importCode);
+                if(CollectionUtils.isNotEmpty(bboxIdList)){
+                    packagedLotDetailRepository.deleteByPackagedLotIdIn(bboxIdList);
+                }
+                return mLotUnits;
+            } else {
+                return materialLotUnitArrayList;
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证并且获取
+     * @param materialName
+     * @return
+     * @throws ClientException
+     */
+    private Material validateAndGetMaterial(String materialName) throws ClientException{
+        try {
+            Material material = mmsService.getRawMaterialByName(materialName);
+            if (material == null) {
+                RawMaterial rawMaterial = new RawMaterial();
+                rawMaterial.setName(materialName);
+                material = mmsService.createRawMaterial(rawMaterial);
+            }
+            return material;
+        }catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -321,7 +465,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                         }
                     }
                     //重新导入退仓库的晶圆
-                    createMLot(materialLotUnitInfo, MaterialLotUnit.COB_RETURN_MATERIAL_IMPORT);
+                    createCobMLot(materialLotUnitInfo);
                 }
             }
         } catch (Exception e) {
@@ -466,7 +610,13 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("reserved6",materialLotUnit.getReserved4());
                     propsMap.put("reserved7",materialLotUnit.getReserved7());
                     propsMap.put("reserved13",materialLotUnit.getReserved13());
-                    propsMap.put("reserved14",materialLotUnit.getReserved14());
+                    if(MaterialLot.LOCATION_SH.equals(materialLotUnit.getReserved14())){
+                        propsMap.put("reserved14", MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
+                    } else if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLotUnit.getReserved14())){
+                        propsMap.put("reserved14",MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
+                    } else {
+                        propsMap.put("reserved14",materialLotUnit.getReserved14());
+                    }
                     propsMap.put("reserved22",materialLotUnit.getReserved22());
                     propsMap.put("reserved23",materialLotUnit.getReserved23());
                     propsMap.put("reserved24",materialLotUnit.getReserved24());
@@ -507,6 +657,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     materialLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
                     materialLotUnit.setLotId(materialLot.getLotId());
                     materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
+                    materialLotUnit.setReserved14(materialLot.getReserved14());
                     materialLotUnit.setReserved48(importCode);
                     materialLotUnit.setMaterial(material);
                     materialLotUnit.setReceiveDate(materialLot.getReceiveDate());

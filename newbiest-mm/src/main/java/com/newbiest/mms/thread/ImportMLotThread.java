@@ -8,10 +8,7 @@ import com.newbiest.base.utils.StringUtils;
 import com.newbiest.base.utils.ThreadLocalContext;
 import com.newbiest.commom.sm.model.StatusModel;
 import com.newbiest.mms.dto.MaterialLotAction;
-import com.newbiest.mms.model.Material;
-import com.newbiest.mms.model.MaterialLot;
-import com.newbiest.mms.model.MaterialLotUnit;
-import com.newbiest.mms.model.MaterialLotUnitHistory;
+import com.newbiest.mms.model.*;
 import com.newbiest.mms.repository.MaterialLotRepository;
 import com.newbiest.mms.repository.MaterialLotUnitHisRepository;
 import com.newbiest.mms.repository.MaterialLotUnitRepository;
@@ -63,6 +60,7 @@ public class ImportMLotThread implements Callable {
 
             BigDecimal totalQty = materialLotUnits.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
             BigDecimal currentSubQty = new BigDecimal(materialLotUnits.size());
+            String location = materialLotUnits.get(0).getReserved4();
             Map<String, Object> propsMap = Maps.newHashMap();
             propsMap.put("category", MaterialLot.CATEGORY_UNIT);
             if(!StringUtils.isNullOrEmpty(materialLotUnits.get(0).getDurable())){
@@ -80,10 +78,16 @@ public class ImportMLotThread implements Callable {
             }
             propsMap.put("reserved1",subCode);
             propsMap.put("reserved4",materialLotUnits.get(0).getTreasuryNote());
-            propsMap.put("reserved6",materialLotUnits.get(0).getReserved4());
+            propsMap.put("reserved6",location);
             propsMap.put("reserved7",materialLotUnits.get(0).getReserved7());
+            if(MaterialLot.LOCATION_SH.equals(location)){
+                propsMap.put("reserved14", MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
+            } else if(MaterialLot.BONDED_PROPERTY_ZSH.equals(location)){
+                propsMap.put("reserved14",MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
+            } else {
+                propsMap.put("reserved14",materialLotUnits.get(0).getReserved14());
+            }
             propsMap.put("reserved13",materialLotUnits.get(0).getReserved13());
-            propsMap.put("reserved14",materialLotUnits.get(0).getReserved14());
             propsMap.put("reserved22",materialLotUnits.get(0).getReserved22());
             propsMap.put("reserved23",materialLotUnits.get(0).getReserved23());
             propsMap.put("reserved24",materialLotUnits.get(0).getReserved24());
@@ -139,6 +143,7 @@ public class ImportMLotThread implements Callable {
                 materialLotUnit.setReserved1(materialLot.getReserved1());
                 materialLotUnit.setReceiveQty(materialLotUnit.getCurrentQty());
                 materialLotUnit.setCurrentSubQty(BigDecimal.ONE);
+                materialLotUnit.setReserved14(materialLot.getReserved14());
                 materialLotUnit.setReserved18("0");
                 materialLotUnit.setReserved25(materialLot.getReserved25());
                 materialLotUnit.setReserved6(StringUtils.EMPTY);//来料导入时reserved6不是报税属性，暂时清空
