@@ -126,10 +126,10 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 List<MaterialLot> materialLotList = mlotDocMap.get(docLineRrn);
                 DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
                 if(!DocumentLine.CUSCODE_LIST.contains(documentLine.getThreeSideTransaction()) || !DocumentLine.CBUS_TYPE.equals(documentLine.getDocBusType())){
-                    throw new ClientParameterException(GcExceptions.ORDER_IS_NOT_SALE_ORDER, documentLine.getDocId() + "" + documentLine.getDocBusType() + "" + documentLine.getThreeSideTransaction());
+                    gcService.comStockOut(documentLine, materialLotList);
                 } else {
                     comDoNomerStockOut(documentLine, materialLotList, StringUtils.EMPTY);
-                    materialLotThreeSideShip(documentLine, materialLots, "COM");
+                    materialLotThreeSideShip(documentLine, materialLotList, "COM");
                 }
             }
         } catch (Exception e) {
@@ -191,11 +191,11 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
                 String stCode = documentLine.getDocName();
                 if(!DocumentLine.CUSCODE_LIST.contains(documentLine.getThreeSideTransaction()) || !DocumentLine.STCODE_LIST.contains(documentLine.getDocName())){
-                    throw new ClientParameterException(GcExceptions.ORDER_IS_NOT_SALE_ORDER, documentLine.getDocId() + "" + documentLine.getDocName() + "" + documentLine.getThreeSideTransaction());
+                    gcService.ftShipByDocLie(documentLine, materialLotList);
                 } else {
                     if(DocumentLine.STCODE_LIST.contains(stCode)){//根据三方销售码做不同处理
                         ftRwDoNomerStockOut(documentLine, materialLotList, StringUtils.EMPTY);
-                        materialLotThreeSideShip(documentLine, materialLots, StringUtils.EMPTY);
+                        materialLotThreeSideShip(documentLine, materialLotList, StringUtils.EMPTY);
                     } else if(DocumentLine.STCODE_60.equals(stCode)){//修改保税属性为SH，正常出货
                         ftRwDoNomerStockOut(documentLine, materialLotList, BONDED_PROPERTITY_SH);
                     }

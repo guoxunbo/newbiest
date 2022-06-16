@@ -2,6 +2,7 @@ package com.newbiest.gc.rest.hongkong.warehouse.manager;
 
 import com.newbiest.base.exception.ClientException;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.gc.service.ThreeSideShipService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.msg.Request;
 import io.swagger.annotations.Api;
@@ -23,6 +24,9 @@ public class HKWarehouseController {
     @Autowired
     GcService gcService;
 
+    @Autowired
+    ThreeSideShipService threeSideShipService;
+
     @ApiOperation(value = "HKWarehouseManger", notes = "香港仓管理")
     @ApiImplicitParam(name="request", value="request", required = true, dataType = "HKWareshouseRequest")
     @RequestMapping(value = "/HKWarehouseManager", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -43,7 +47,7 @@ public class HKWarehouseController {
         } else if(HKWarehouseRequest.ACTION_HK_STOCK_OUT.equals(actionType)){
             gcService.wltStockOut(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), "", actionType);
         } else if(HKWarehouseRequest.ACTION_HK_BYORDER_STOCK_OUT.equals(actionType)) {
-            gcService.hongKongWarehouseByOrderStockOut(requestBody.getDocumentLine(), requestBody.getMaterialLotActions());
+            threeSideShipService.ftRwMLotSaleShip(requestBody.getDocumentLines(), requestBody.getMaterialLotActions(), MaterialLot.HKWAREHOUSE_BY_ORDER_STOCK_OUT_RULE_ID);
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
