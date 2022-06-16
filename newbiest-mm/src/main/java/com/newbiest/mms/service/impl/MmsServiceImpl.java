@@ -870,7 +870,10 @@ public class MmsServiceImpl implements MmsService {
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_HOLD);
             history.buildByMaterialLotAction(materialLotAction);
-            materialLotHistoryRepository.save(history);
+            MaterialLotHistory his = materialLotHistoryRepository.save(history);
+            if (materialLotAction.getTransUser() != null){
+                materialLotHistoryRepository.updateCreatedByAndUpdatedByObjectRrn(materialLotAction.getTransUser(), materialLotAction.getTransUser(), his.getObjectRrn());
+            }
             return materialLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -1226,6 +1229,7 @@ public class MmsServiceImpl implements MmsService {
                         if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())) {
                             MaterialLotAction materialLotAction = new MaterialLotAction();
                             materialLotAction.setActionReason(gcFutureHoldConfig.getHoldReason());
+                            materialLotAction.setTransUser(gcFutureHoldConfig.getUpdatedBy());
                             holdMaterialLot(materialLot, materialLotAction);
                         }
                     }
@@ -1258,6 +1262,7 @@ public class MmsServiceImpl implements MmsService {
                 if(MaterialLot.HOLD_STATE_OFF.equals(materialLot.getHoldState())){
                     MaterialLotAction materialLotAction = new MaterialLotAction();
                     materialLotAction.setActionReason(waferHoldRelation.getHoldReason());
+                    materialLotAction.setTransUser(waferHoldRelation.getUpdatedBy());
                     holdMaterialLot(materialLot, materialLotAction);
                 }
 

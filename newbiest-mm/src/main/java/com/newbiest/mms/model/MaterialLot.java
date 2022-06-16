@@ -105,6 +105,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * F等级
      */
     public static final String GEADE_F = "F";
+    public static final String GRADE_F3 = "F3";
 
     /**
      * COB装箱规则
