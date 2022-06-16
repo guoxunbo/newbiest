@@ -1241,12 +1241,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     }
 
     public void clearCobReservedDocInfo() {
-        this.setShipper(null);
         this.setReserved16(null);
         this.setReserved17(null);
-        this.setReserved51(null);
-        this.setReserved52(null);
-        this.setReserved53(null);
     }
 
     /**
@@ -1327,6 +1323,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
         this.setReserved55(StringUtils.EMPTY);
         this.setReserved56(StringUtils.EMPTY);
         this.setReserved57(StringUtils.EMPTY);
+        this.setShipper(StringUtils.EMPTY);
         this.setVenderAddress(StringUtils.EMPTY);
         this.setCustomerId(StringUtils.EMPTY);
         this.setTagUser(StringUtils.EMPTY);
