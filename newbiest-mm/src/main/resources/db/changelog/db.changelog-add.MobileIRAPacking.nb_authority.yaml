@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileIRAPackingManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileIRAPackingManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileIRAPacking
+              description: 手持端IRA装箱
+              tableName: GCMobileIRAPacking
+              mobileFlag: Y
+              url: /Mobile/IRAPacking
+              parentRrn: 54
+              seqNo: 145
+              image: icon-rule
+              labelZh: IRA装箱
+              labelEn: IRAPacking

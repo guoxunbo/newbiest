@@ -980,3 +980,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HKWarehouseUnPackMaterialLotManager.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileIRAPacking.nb_authority.yaml
+      relativeToChangelogFile: true
