@@ -107,6 +107,11 @@ public class MaterialLotAction extends Action {
      */
     private String boxStatusUseFlag;
 
+    /**
+     * COB导入自动装箱
+     */
+    private String cobImportPack;
+
     public MaterialLotAction(){
     }
 

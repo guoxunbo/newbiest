@@ -589,9 +589,13 @@ public class MmsServiceImpl implements MmsService {
             }
             materialLot.setCurrentSubQty(materialLotAction.getTransCount());
             // 变更物料库存并改变物料批次状态
-            saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty());
-
-            changeMaterialLotState(materialLot, eventId, StringUtils.EMPTY);
+            //COB导入时自动装箱，接收时直接变更为包装状态
+            if(StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()) || !MaterialLot.IMPORT_COB.equals(materialLot.getReserved7())){
+                saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty());
+                changeMaterialLotState(materialLot, eventId, StringUtils.EMPTY);
+            } else {
+                changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACK_LOT_RECEIVE, StringUtils.EMPTY);
+            }
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
             history.buildByMaterialLotAction(materialLotAction);
@@ -1172,7 +1176,11 @@ public class MmsServiceImpl implements MmsService {
         try {
             List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
-                materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                if(StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                    materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                } else {
+                    materialLotUnit.setState(MaterialLotUnit.STATE_PACKAGE);
+                }
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                 MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);

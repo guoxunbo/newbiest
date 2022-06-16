@@ -73,7 +73,10 @@ public interface GcService {
     GcUnConfirmWaferSet saveUnConfirmWaferTrackSetInfo(GcUnConfirmWaferSet unConfirmWaferSet, String transType) throws ClientException;
     void receiveCOBFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
     void validateAndReceiveCogMLot(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions) throws ClientException;
+
     void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLines, String ruleId) throws ClientException;
+    void ftShipByDocLie(DocumentLine documentLine, List<MaterialLot> materialLotList) throws ClientException;
+
     void hongKongWarehouseByOrderStockOut(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException;
     boolean validationHKStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     MaterialLot getHKWarehouseStockOutMLot(Long tableRrn, String queryLotId) throws ClientException;
@@ -213,6 +216,7 @@ public interface GcService {
     void validationDocLine(DocumentLine documentLine, MaterialLot materialLot) throws ClientException;
 
     void stockOut(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void comStockOut(DocumentLine documentLine, List<MaterialLot> materialLotList) throws ClientException;
     void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String reTestType) throws ClientException;
     void mobileReTest(List<MaterialLotAction> materialLotActions, String erpTime) throws ClientException;
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
