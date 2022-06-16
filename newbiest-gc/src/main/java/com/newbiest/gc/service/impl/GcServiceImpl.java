@@ -574,6 +574,17 @@ public class GcServiceImpl implements GcService {
                 throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLotId);
             } else {
                 materialLot = materialLotList.get(0);
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved56()) && StringUtils.isNullOrEmpty(materialLot.getReserved51())){
+                    String subCode = materialLot.getReserved1() + materialLot.getGrade();
+                    DocumentLine documentLine = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7(materialLot.getReserved56(), materialLot.getMaterialName(), materialLot.getGrade(), subCode, materialLot.getReserved6());
+                    if(documentLine != null){
+                        materialLot.setShipper(documentLine.getReserved12());
+                        materialLot.setReserved51(documentLine.getReserved15());
+                        materialLot.setReserved52(documentLine.getReserved20());
+                        materialLot.setReserved53(documentLine.getReserved21());
+                        materialLot = materialLotRepository.saveAndFlush(materialLot);
+                    }
+                }
             }
             return materialLot;
         } catch (Exception e) {
@@ -12122,6 +12133,7 @@ public class GcServiceImpl implements GcService {
             materialLot.setReserved54(MaterialLot.STOCKOUT_TYPE_4);
             materialLot.setReserved55(abbreviation);
             materialLot.setReserved57(remarks);
+            materialLot.setShipper(abbreviation);
             materialLot.setTagDate(DateUtils.parseDate(nowDate));
             materialLot.setTagUser(ThreadLocalContext.getUsername());
             materialLot = materialLotRepository.saveAndFlush(materialLot);
