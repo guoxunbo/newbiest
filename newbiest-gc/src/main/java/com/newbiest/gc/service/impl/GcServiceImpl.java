@@ -3287,6 +3287,7 @@ public class GcServiceImpl implements GcService {
                     if(workorderRelation != null){
                         MaterialLotAction materialLotAction = new MaterialLotAction();
                         materialLotAction.setActionReason(workorderRelation.getHoldReason());
+                        materialLotAction.setTransUser(workorderRelation.getUpdatedBy());
                         mmsService.holdMaterialLot(materialLot, materialLotAction);
                     }
                     if(!StringUtils.isNullOrEmpty(materialLot.getLotId())){

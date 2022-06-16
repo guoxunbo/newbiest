@@ -112,6 +112,11 @@ public class MaterialLotAction extends Action {
      */
     private String cobImportPack;
 
+    /**
+     * 操作人
+     */
+    private String transUser;
+
     public MaterialLotAction(){
     }
 
