@@ -11126,22 +11126,29 @@ public class GcServiceImpl implements GcService {
      * @param materialLotActionList
      * @throws ClientException
      */
-    public void validateAndReceiveCogMLot(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActionList) throws ClientException{
+    public void validateAndReceiveCogMLot(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActionList,String receiveWithDoc) throws ClientException{
         try {
             List<MaterialLot> materialLots = materialLotActionList.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-            Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID);
-            Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID);
-            for (String key : materialLotMap.keySet()) {
-                if (!documentLineMap.keySet().contains(key)) {
-                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+            if(!StringUtils.isNullOrEmpty(receiveWithDoc)){
+                Map<String, List<DocumentLine>> documentLineMap = groupDocLineByMLotDocRule(documentLineList, MaterialLot.COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID);
+                Map<String, List<MaterialLot>> materialLotMap = groupMaterialLotByMLotDocRule(materialLots, MaterialLot.COG_MLOT_RECEIVE_DOC_VALIDATE_RULE_ID);
+                for (String key : materialLotMap.keySet()) {
+                    if (!documentLineMap.keySet().contains(key)) {
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_NOT_MATCH_ORDER, materialLotMap.get(key).get(0).getMaterialLotId());
+                    }
+                    Long totalMLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                    Long totalDocUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
+                    if (totalMLotQty.compareTo(totalDocUnhandledQty) > 0) {
+                        throw new ClientException(GcExceptions.OVER_DOC_QTY);
+                    }
+                    receiveCogMLot(documentLineMap.get(key), materialLotMap.get(key));
                 }
-                Long totalMLotQty = materialLotMap.get(key).stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
-                Long totalDocUnhandledQty = documentLineMap.get(key).stream().collect(Collectors.summingLong(documentLine -> documentLine.getUnHandledQty().longValue()));
-                if (totalMLotQty.compareTo(totalDocUnhandledQty) > 0) {
-                    throw new ClientException(GcExceptions.OVER_DOC_QTY);
+            } else {
+                for(MaterialLot materialLot : materialLots){
+                    finishProductMaterialLotStockIn(materialLot);
                 }
-                receiveCogMLot(documentLineMap.get(key), materialLotMap.get(key));
             }
+
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }

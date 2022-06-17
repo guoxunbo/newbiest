@@ -592,6 +592,9 @@ public class MmsServiceImpl implements MmsService {
             // 变更物料库存并改变物料批次状态
             //如果箱号做接收，修改箱号状态，以及箱中真空包的状态
             saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty());
+            if(MaterialStatus.STATUS_CREATE.equals(materialLot.getStatus())){
+                materialLot.setReceiveDate(new Date());
+            }
             if(!StringUtils.isNullOrEmpty(materialLot.getPackageType()) && MaterialStatus.STATUS_CREATE.equals(materialLot.getStatus())){
                 changeMaterialLotState(materialLot, MaterialEvent.EVENT_BOX_RECEIVE, StringUtils.EMPTY);
                 List<MaterialLot> materialLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
@@ -599,6 +602,7 @@ public class MmsServiceImpl implements MmsService {
                     packedLot.setReserved8(materialLot.getReserved8());
                     packedLot.setReserved14(materialLot.getReserved14());
                     packedLot.setReserved2(null);
+                    packedLot.setReceiveDate(new Date());
                     if(MaterialStatus.STATUS_CREATE.equals(packedLot.getStatus())){
                         packedLot = changeMaterialLotState(packedLot, MaterialEvent.EVENT_PACK_LOT_RECEIVE, StringUtils.EMPTY);
                     } else {

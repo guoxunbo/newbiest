@@ -72,7 +72,7 @@ public interface GcService {
     List<MaterialLot> receiveRmaMLot(List<MaterialLotAction> materialLotActions) throws ClientException;
     GcUnConfirmWaferSet saveUnConfirmWaferTrackSetInfo(GcUnConfirmWaferSet unConfirmWaferSet, String transType) throws ClientException;
     void receiveCOBFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
-    void validateAndReceiveCogMLot(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void validateAndReceiveCogMLot(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions, String receiveWithDoc) throws ClientException;
 
     void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLines, String ruleId) throws ClientException;
     void ftShipByDocLie(DocumentLine documentLine, List<MaterialLot> materialLotList) throws ClientException;
