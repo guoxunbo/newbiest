@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileIRAPacking_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCMobileIRAPacking to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileIRAPacking
+              description: 手持端IRA装箱
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 手持端IRA装箱
+              label: MobileIRAPacking
