@@ -32,4 +32,8 @@ public class StockOutRequestBody extends RequestBody {
 	@ApiModelProperty(value = "待出货的批次")
 	private List<MaterialLotAction> materialLotActions;
 
+	@ApiModelProperty(value = "仓库")
+	private String warehouseId;
+
+
 }

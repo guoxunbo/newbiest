@@ -27,6 +27,7 @@ import com.newbiest.mms.repository.*;
 import com.newbiest.mms.service.MaterialLotUnitService;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.state.model.MaterialEvent;
+import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.state.model.MaterialStatusModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -589,12 +590,26 @@ public class MmsServiceImpl implements MmsService {
             }
             materialLot.setCurrentSubQty(materialLotAction.getTransCount());
             // 变更物料库存并改变物料批次状态
-            //COB导入时自动装箱，接收时直接变更为包装状态
-            if(StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()) || !MaterialLot.IMPORT_COB.equals(materialLot.getReserved7())){
-                saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty());
-                changeMaterialLotState(materialLot, eventId, StringUtils.EMPTY);
+            //如果箱号做接收，修改箱号状态，以及箱中真空包的状态
+            saveMaterialLotInventory(materialLot, targetWarehouse, targetStorage, materialLotAction.getTransQty());
+            if(!StringUtils.isNullOrEmpty(materialLot.getPackageType()) && MaterialStatus.STATUS_CREATE.equals(materialLot.getStatus())){
+                changeMaterialLotState(materialLot, MaterialEvent.EVENT_BOX_RECEIVE, StringUtils.EMPTY);
+                List<MaterialLot> materialLotList = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                for(MaterialLot packedLot : materialLotList){
+                    packedLot.setReserved8(materialLot.getReserved8());
+                    packedLot.setReserved14(materialLot.getReserved14());
+                    packedLot.setReserved2(null);
+                    if(MaterialStatus.STATUS_CREATE.equals(packedLot.getStatus())){
+                        packedLot = changeMaterialLotState(packedLot, MaterialEvent.EVENT_PACK_LOT_RECEIVE, StringUtils.EMPTY);
+                    } else {
+                        packedLot = materialLotRepository.saveAndFlush(packedLot);
+                    }
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
+                    materialLotHistoryRepository.save(history);
+                }
             } else {
-                changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACK_LOT_RECEIVE, StringUtils.EMPTY);
+                changeMaterialLotState(materialLot, eventId, StringUtils.EMPTY);
             }
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
