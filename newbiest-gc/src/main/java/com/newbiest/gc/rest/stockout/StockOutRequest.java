@@ -18,6 +18,8 @@ public class StockOutRequest extends Request {
 
 	public static final String ACTION_SALESHIP = "SaleShip";
 
+	public static final String ACTION_TRANSFER_SHIP = "TransferShip";
+
 	private StockOutRequestBody body;
 
 }

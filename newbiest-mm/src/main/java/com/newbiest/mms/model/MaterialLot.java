@@ -169,6 +169,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String HN_WAREHOUSE_WLT_OTHER_STOCK_OUT_RULE_ID = "HNWarehouseWltOtherStockOutRule"; //湖南仓其它出单据验证规则
     public static final String FT_RETEST_DOC_VALIDATE_RULE_ID = "FtVboxReTestRule"; //FT真空包重测发料单据验证规则
     public static final String WLT_OTHER_SHIP_BY_ORDER__RULE_ID = "WltOtherByOrderShipDocRule";  //三方销售单据验证规则
+    public static final String MLOT_TRANSFER_SHIP_VALIDATE_RULE_ID = "MLotTransferShipDocRule";  //三方销售单据验证规则
 
 
     public static final String RW_SHIP_TAG_UPDATE_PREVIEW_RULE_ID = "RwShipTagUpdatePreviewRule"; //COB出货标注修改分组筛选
@@ -317,6 +318,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String STOCKOUT_TYPE_35 = "-3.5";
     public static final String STOCKOUT_TYPE_4 = "-4";
+    public static final String STOCKOUT_TYPE_47 = "-4.7";
 
     public static final String ZJ_STOCK = "601";
     public static final String SH_STOCK = "400";

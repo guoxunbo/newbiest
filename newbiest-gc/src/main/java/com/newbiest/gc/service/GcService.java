@@ -72,7 +72,7 @@ public interface GcService {
     List<MaterialLot> receiveRmaMLot(List<MaterialLotAction> materialLotActions) throws ClientException;
     GcUnConfirmWaferSet saveUnConfirmWaferTrackSetInfo(GcUnConfirmWaferSet unConfirmWaferSet, String transType) throws ClientException;
     void receiveCOBFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
-    void validateAndReceiveCogMLot(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions) throws ClientException;
+    void validateAndReceiveCogMLot(List<DocumentLine> documentLines, List<MaterialLotAction> materialLotActions, String receiveWithDoc) throws ClientException;
 
     void ftStockOut(List<MaterialLotAction> materialLotActions, List<DocumentLine> documentLines, String ruleId) throws ClientException;
     void ftShipByDocLie(DocumentLine documentLine, List<MaterialLot> materialLotList) throws ClientException;
@@ -220,6 +220,8 @@ public interface GcService {
     void reTest(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String reTestType) throws ClientException;
     void mobileReTest(List<MaterialLotAction> materialLotActions, String erpTime) throws ClientException;
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
+
+    void transferShip(DocumentLine documentLine, List<MaterialLotAction> materialLotActions, String warehouseId) throws ClientException;
 
     List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
     List<Map> findEntityMapListByQueryText(String queryText, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;

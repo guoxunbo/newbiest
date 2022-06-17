@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCTransferOrderShipManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCTransferOrderShipManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCTransferOrderShipManager
+              description: 调拨单出货
+              tableName: GCTransferOrderShip
+              secondTableName: GCTransferShipMLotScan
+              mobileFlag: N
+              url: /GC/GCTransferOrderShip
+              parentRrn: 1010
+              seqNo: 56
+              image: icon-rule
+              labelZh: 依调拨单出货
+              labelEn: TransferOrderShip
