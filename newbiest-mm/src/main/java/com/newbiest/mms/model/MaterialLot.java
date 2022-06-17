@@ -105,7 +105,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * F等级
      */
     public static final String GEADE_F = "F";
-    public static final String GRADE_F3 = "F3";
 
     /**
      * COB装箱规则
@@ -346,6 +345,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public static final String MLOT_SBB = "SBB";
     public static final String MLOT_SBC = "SBC";
+
+    /**
+     * COM入库ZSH自动转库等级定义
+     */
+    public static final List<String> COM_TRANS_WH_BIN_LIST = Lists.newArrayList("HA", "GA", "LA", "KA", "JA", "IA");
 
     /**
      * 物料批次号
