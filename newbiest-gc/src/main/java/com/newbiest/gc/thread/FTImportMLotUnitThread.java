@@ -119,6 +119,8 @@ public class FTImportMLotUnitThread implements Callable {
             materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
             materialLotAction.setTargetStorageId(storage.getName());
             materialLotAction.setTargetStorageRrn(storage.getObjectRrn());
+            materialLotAction.setStorage(storage);
+            materialLotAction.setWarehouse(warehouse);
 
             propMap.put("reserved8", waferTempFtModel.getBoxId() == null ? "": waferTempFtModel.getBoxId().trim());
             propMap.put("reserved13", materialLotAction.getTargetWarehouseRrn().toString());

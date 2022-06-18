@@ -581,8 +581,19 @@ public class MmsServiceImpl implements MmsService {
             sc.buildTransInfo();
 
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), "TargetWarehouseRrn");
-            Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
-            Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
+            Warehouse targetWarehouse = null;
+            Storage targetStorage = null;
+            if(materialLotAction.getWarehouse() != null){
+                targetWarehouse = materialLotAction.getWarehouse();
+            } else {
+                targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
+            }
+
+            if(materialLotAction.getStorage() != null){
+                targetStorage = materialLotAction.getStorage();
+            } else {
+                targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
+            }
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), targetWarehouse.getObjectRrn(), targetStorage.getObjectRrn());
             if (materialLotInventory != null) {

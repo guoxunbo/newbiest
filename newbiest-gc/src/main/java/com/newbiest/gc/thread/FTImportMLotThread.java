@@ -68,6 +68,8 @@ public class FTImportMLotThread implements Callable {
                 materialLotAction.setGrade(vboxMLot.getGrade());
                 materialLotAction.setTargetStorageRrn(storage.getObjectRrn());
                 materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
+                materialLotAction.setStorage(storage);
+                materialLotAction.setWarehouse(warehouse);
                 materialLotAction.setTargetStorageId(vboxMLot.getPointId());
 
                 Map<String, Object> propMap = Maps.newConcurrentMap();
