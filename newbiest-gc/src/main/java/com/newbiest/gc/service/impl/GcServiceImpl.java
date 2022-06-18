@@ -3374,9 +3374,9 @@ public class GcServiceImpl implements GcService {
                 List<MaterialLot> materialLotList = mmsService.receiveMLotList2Warehouse(material, materialLotActions);
                 for(MaterialLot materialLot : materialLotList){
                     //COM以及FT的，若保税属性为ZSH，进行转库操作，转至SH_STOCK，保税属性修改为SH
-                    if(((MesPackedLot.PRODUCT_CATEGORY_COM.equals(materialLot.getReserved7()) && !MaterialLot.GEADE_F.equals(materialLot.getGrade())
-                            && !MaterialLot.GRADE_F3.equals(materialLot.getGrade())) || MesPackedLot.PRODUCT_CATEGORY_FT.equals(materialLot.getReserved7())
-                            || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(materialLot.getReserved7())) && MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6())) {
+                    if(((MesPackedLot.PRODUCT_CATEGORY_COM.equals(materialLot.getReserved7()) && MaterialLot.COM_TRANS_WH_BIN_LIST.contains(materialLot.getGrade()))
+                            || MesPackedLot.PRODUCT_CATEGORY_FT.equals(materialLot.getReserved7()) || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(materialLot.getReserved7()))
+                            && MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6())) {
                         Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_SH);
                         materialLotTransferWareHouse(materialLot, MaterialLot.LOCATION_SH, warehouse);
                     }
