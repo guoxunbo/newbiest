@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCobMLotAutoPack_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCCobMLotAutoPack to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCobMLotAutoPack
+              description: COB自动装箱
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: COB自动装箱
+              label: CobMLotAutoPack

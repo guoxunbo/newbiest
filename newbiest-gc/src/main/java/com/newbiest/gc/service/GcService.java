@@ -236,4 +236,6 @@ public interface GcService {
     List<MaterialLotUnit> packReturnSetWaferSource(String importType, List<MaterialLotUnit> materialLotUnitList)  throws ClientException;
 
     void saveMLotPackageShipHis(List<MaterialLot> materialLotList) throws ClientException;
+
+    void cobMLotAutoPack(List<MaterialLot> materialLotList) throws ClientException;
 }
