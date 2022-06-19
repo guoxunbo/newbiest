@@ -118,8 +118,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             materialLotAction.setTransQty(materialLot.getCurrentQty());
             materialLotAction.setTransCount(materialLot.getCurrentSubQty());
             mmsService.stockIn(materialLot, materialLotAction);
-
-            mmsService.stockInMaterialLotUnitAndSaveHis(materialLot, MaterialLotUnitHistory.TRANS_TYPE_IN);
+            mmsService.stockInMaterialLotUnitAndSaveHis(materialLot);
 
             if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved7())){
                 MaterialLot parentMaterialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getParentMaterialLotId(), ThreadLocalContext.getOrgRrn());

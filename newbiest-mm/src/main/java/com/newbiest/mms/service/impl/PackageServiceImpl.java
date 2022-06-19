@@ -289,6 +289,9 @@ public class PackageServiceImpl implements PackageService{
                         materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
                         mmsService.saveMaterialLotInventory(materialLotInventory, waitToUnPackageMLot.getCurrentQty());
                     }
+                    if(MaterialLot.RW_WAFER_SOURCE.equals(waitToUnPackageMLot.getReserved50())){
+                        waitToUnPackageMLot.setLotId(waitToUnPackageMLot.getDurable());
+                    }
                     materialLotRepository.save(waitToUnPackageMLot);
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(waitToUnPackageMLot, MaterialLotHistory.TRANS_TYPE_UN_PACKAGE);
@@ -319,11 +322,11 @@ public class PackageServiceImpl implements PackageService{
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(waitToUnPackageMLot.getMaterialLotId());
                 if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                     for(MaterialLotUnit materialLotUnit: materialLotUnitList){
-                        //RW(COB)的拆箱时晶圆将LotId和Durable信息还原为Lot信息
-                        if(MaterialLot.RW_WAFER_SOURCE.equals(waitToUnPackageMLot.getReserved50())){
-                            materialLotUnit.setLotId(waitToUnPackageMLot.getLotId());
-                            materialLotUnit.setDurable(waitToUnPackageMLot.getDurable());
-                        }
+//                        //RW(COB)的拆箱时晶圆将LotId和Durable信息还原为Lot信息
+//                        if(MaterialLot.RW_WAFER_SOURCE.equals(waitToUnPackageMLot.getReserved50())){
+//                            materialLotUnit.setLotId(waitToUnPackageMLot.getLotId());
+//                            materialLotUnit.setDurable(waitToUnPackageMLot.getDurable());
+//                        }
                         materialLotUnit.setState(MaterialLotUnit.STATE_IN);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
@@ -561,6 +564,9 @@ public class PackageServiceImpl implements PackageService{
                 if (updateParentMLotFlag) {
                     materialLot.setParentMaterialLotId(packedMaterialLot.getMaterialLotId());
                     materialLot.setParentMaterialLotRrn(packedMaterialLot.getObjectRrn());
+                }
+                if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
+                    materialLot.setLotId(materialLot.getParentMaterialLotId());
                 }
                 //格科客制化，cob导入装箱 不改变箱中Lot装箱，保持Create
                 if(!StringUtils.isNullOrEmpty(materialLotAction.getCobImportPack())){

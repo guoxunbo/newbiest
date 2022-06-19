@@ -581,8 +581,19 @@ public class MmsServiceImpl implements MmsService {
             sc.buildTransInfo();
 
             PreConditionalUtils.checkNotNull(materialLotAction.getTargetWarehouseRrn(), "TargetWarehouseRrn");
-            Warehouse targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
-            Storage targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
+            Warehouse targetWarehouse = null;
+            Storage targetStorage = null;
+            if(materialLotAction.getWarehouse() != null){
+                targetWarehouse = materialLotAction.getWarehouse();
+            } else {
+                targetWarehouse = (Warehouse) warehouseRepository.findByObjectRrn(materialLotAction.getTargetWarehouseRrn());
+            }
+
+            if(materialLotAction.getStorage() != null){
+                targetStorage = materialLotAction.getStorage();
+            } else {
+                targetStorage = getTargetStorageByMaterialLotAction(materialLotAction, targetWarehouse);
+            }
 
             MaterialLotInventory materialLotInventory = getMaterialLotInv(materialLot.getObjectRrn(), targetWarehouse.getObjectRrn(), targetStorage.getObjectRrn());
             if (materialLotInventory != null) {
@@ -611,6 +622,7 @@ public class MmsServiceImpl implements MmsService {
 
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
                     materialLotHistoryRepository.save(history);
+                    stockInMaterialLotUnitAndSaveHis(packedLot);
                 }
             } else {
                 changeMaterialLotState(materialLot, eventId, StringUtils.EMPTY);
@@ -1191,23 +1203,21 @@ public class MmsServiceImpl implements MmsService {
     /**
      * 晶圆接收入库操作
      * @param materialLot
-     * @param transType
      * @throws ClientException
      */
-    public void stockInMaterialLotUnitAndSaveHis(MaterialLot materialLot, String transType) throws ClientException{
+    public void stockInMaterialLotUnitAndSaveHis(MaterialLot materialLot) throws ClientException{
         try {
             List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
             for (MaterialLotUnit materialLotUnit : materialLotUnits) {
-                if(StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
-                    materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                    materialLotUnit.setState(MaterialStatus.STATUS_PACKAGE);
                 } else {
-                    materialLotUnit.setState(MaterialLotUnit.STATE_PACKAGE);
+                    materialLotUnit.setState(MaterialLotUnit.STATE_IN);
                 }
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                 MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
                 materialLotUnitHisRepository.save(history);
-                log.info("received materialLotUnit is " + materialLotUnit);
             }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
