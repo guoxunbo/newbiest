@@ -5411,7 +5411,7 @@ public class GcServiceImpl implements GcService {
                 MaterialLotAction packMLotAction = new MaterialLotAction();
                 packMLotAction.setMaterialLotId(materialLot.getMaterialLotId());
                 packMLotAction.setTransQty(materialLot.getCurrentQty());
-                materialLotActions.add(materialLotAction);
+                materialLotActions.add(packMLotAction);
                 packageService.packageMLots(materialLotActions, cstId, "COBPackCase");
             }
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLotList.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
@@ -5496,6 +5496,36 @@ public class GcServiceImpl implements GcService {
             getDefaultStorageIdByBondedProperty(materialLotAction, mesPackedLot.getBondedProperty());
             materialLotAction.setPropsMap(otherReceiveProps);
             return materialLotAction;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * COB成品自动装箱
+     * @param materialLotList
+     * @throws ClientException
+     */
+    public void cobMLotAutoPack(List<MaterialLot> materialLotList) throws ClientException{
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                String parentMaterialLotId = materialLot.getMaterialLotId();
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                materialLot.setMaterialLotId(materialLot.getDurable());
+                materialLot.setLotId(materialLot.getDurable());
+                materialLot = materialLotRepository.saveAndFlush(materialLot);
+                for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                    materialLotUnit.setMaterialLotId(materialLot.getDurable());
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                }
+                List<MaterialLotAction> materialLotActions = Lists.newArrayList();
+                MaterialLotAction packMLotAction = new MaterialLotAction();
+                packMLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                packMLotAction.setTransQty(materialLot.getCurrentQty());
+                packMLotAction.setResetStorageId("1");
+                materialLotActions.add(packMLotAction);
+                MaterialLot packageMLot = packageService.packageMLots(materialLotActions, parentMaterialLotId, "COBPackCase");
+            }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }

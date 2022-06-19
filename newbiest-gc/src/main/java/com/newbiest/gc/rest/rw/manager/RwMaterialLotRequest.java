@@ -45,6 +45,7 @@ public class RwMaterialLotRequest extends Request {
 	public static final String ACTION_WAFER_AUTO_PICK = "WaferAutoPick";
 
 	public static final String ACTION_WAFER_STOCK_OUT_TAG = "WaferStockOutTag";
+	public static final String ACTION_COB_AUTO_PACK = "CobAutoPack";
 
 	private RwMaterialLotRequestBody body;
 

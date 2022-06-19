@@ -986,3 +986,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCTransferOrderShip.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCCobMLotAutoPackManager.nb_authority.yaml
+      relativeToChangelogFile: true

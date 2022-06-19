@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCobMLotAutoPackManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add GCCobMLotAutoPackManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCCobMLotAutoPackManager
+              description: Tape扫描接收
+              tableName: GCCobMLotAutoPack
+              mobileFlag: N
+              url: /GC/GCCobMLotAutoPackManager
+              parentRrn: 1001
+              seqNo: 555
+              image: icon-recipe
+              labelZh: COB自动装箱
+              labelEn: CobMLotAutoPack
