@@ -285,6 +285,9 @@ public class PackageServiceImpl implements PackageService{
                     }
                     if(!StringUtils.isNullOrEmpty(storageId)){// 恢复库存数据
                         Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
+                        if(storage == null){
+                            storage = mmsService.createStorage(warehouse, storageId);
+                        }
                         MaterialLotInventory materialLotInventory = new MaterialLotInventory();
                         materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
                         mmsService.saveMaterialLotInventory(materialLotInventory, waitToUnPackageMLot.getCurrentQty());
@@ -304,6 +307,9 @@ public class PackageServiceImpl implements PackageService{
                         if (materialLotHistory != null) {
                             storageId = StringUtils.isNullOrEmpty(materialLotHistory.getTransStorageId()) ? waitToUnPackageMLot.getReserved14() : materialLotHistory.getTransStorageId();
                             Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
+                            if(storage == null){
+                                storage = mmsService.createStorage(warehouse, storageId);
+                            }
                             // 恢复库存数据
                             MaterialLotInventory materialLotInventory = new MaterialLotInventory();
                             materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);

@@ -980,3 +980,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCCobMLotAutoPack_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKLCDMLotPackage_nb_table.yaml
+      relativeToChangelogFile: true

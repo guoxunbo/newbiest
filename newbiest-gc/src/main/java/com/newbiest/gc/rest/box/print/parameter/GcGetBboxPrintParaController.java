@@ -45,7 +45,7 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
         GcGetBboxPrintParaRequestBody requestBody = request.getBody();
 
         MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
-        if(MaterialLot.LCD_PACKCASE.equals(materialLot.getPackageType())){
+        if(MaterialLot.LCD_PACKCASE.equals(materialLot.getPackageType()) || MaterialLot.HK_LCD_PACKCASE.equals(materialLot.getPackageType())){
             List<Map<String, Object>> mapList = printService.printLCDBoxLabel(materialLot, requestBody.getPrintCount());
             responseBody.settingClientPrint(mapList);
         } else {

@@ -512,6 +512,29 @@ public class MmsServiceImpl implements MmsService {
         }
     }
 
+    /**
+     * 新增库位
+     * @param warehouse
+     * @param storageId
+     * @throws ClientException
+     */
+    public Storage createStorage(Warehouse warehouse, String storageId) throws ClientException{
+        try {
+            Storage targetStorage = new Storage();
+            if (SystemPropertyUtils.getAutoCreateStorageFlag()) {
+                targetStorage = new Storage();
+                targetStorage.setName(storageId);
+                targetStorage.setDescription(StringUtils.SYSTEM_CREATE);
+                targetStorage.setWarehouseRrn(warehouse.getObjectRrn());
+                targetStorage = storageRepository.saveAndFlush(targetStorage);
+            } else {
+                throw new ClientParameterException(MmsException.MM_STORAGE_IS_NOT_EXIST, storageId);
+            }
+            return targetStorage;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 
     /**
      * 根据Action上目标库位进行返回库位信息，如果没有指定库位则返回默认库位
