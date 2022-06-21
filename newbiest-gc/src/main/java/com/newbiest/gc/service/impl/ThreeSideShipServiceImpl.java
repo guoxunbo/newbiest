@@ -254,7 +254,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
             Map<String, List<MaterialLot>> materialLotDocMap = mLotList.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             for(String docLineRrn : materialLotDocMap.keySet()){
                 List<MaterialLot> materialLots = materialLotDocMap.get(docLineRrn);
-                Long totalUnhandledQty = mLotList.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                Long totalUnhandledQty = materialLots.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
                 DocumentLine docLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
                 if(!docLineList.contains(docLine)){
                     throw new ClientParameterException(GcExceptions.MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME, docLine.getDocId());
@@ -584,7 +584,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 materialLotThreeSaleShipByWarehouse(materialLots, warehouseRrn, bondedProperty);
             } else if(DocumentLine.CUSCODE_C001.equals(threeSideCode)){
                 //先做出货，再修改仓库:“ZJ_STOCK”保税属性:“ZSH” 清除备货信息 变:Create 记录创建历史
-                if(DocumentLine.MEMO.equals(documentLine.getReserved13()) && StringUtils.isNullOrEmpty(comFlag)){
+                if(!StringUtils.isNullOrEmpty(documentLine.getReserved13()) && documentLine.getReserved13().contains(DocumentLine.MEMO) && StringUtils.isNullOrEmpty(comFlag)){
                     materialLotThreeSaleShipByWarehouse(materialLots, MaterialLot.BS_WAREHOUSE, MaterialLot.BONDED_PROPERTY_HK);
                 } else if(DocumentLine.PLACR_GALAXYCORE.equals(place)){
                     materialLotThreeSaleShipByWarehouse(materialLots, MaterialLot.HK_WAREHOUSE, MaterialLot.BONDED_PROPERTY_HK);

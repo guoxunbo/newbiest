@@ -5353,7 +5353,7 @@ public class GcServiceImpl implements GcService {
                 //2、如果CST是箱号，删除箱中信息，删除发料时物料批次信息
                 String durable = issueCobMLot.getDurable();//CST号
                 if(!StringUtils.isNullOrEmpty(issueCobMLot.getPackageType())){
-                    MaterialLot  issueMLotCst = materialLotRepository.findByLotIdAndWorkOrderIdAndStatus(durable, issueCobMLot.getWorkOrderId(), MaterialLotUnit.STATE_ISSUE);
+                    MaterialLot  issueMLotCst = materialLotRepository.findByMaterialLotIdAndOrgRrn(durable, ThreadLocalContext.getOrgRrn());
                     deletMaterialLotUnitAndSaveHis(issueMLotCst.getMaterialLotId());
                     materialLotRepository.delete(issueMLotCst);
                     MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(issueMLotCst, MaterialLotHistory.TRANS_TYPE_DELETE);
@@ -9228,17 +9228,30 @@ public class GcServiceImpl implements GcService {
             if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
                 changPackageDetailLotStatusAndSaveHis(materialLot);
             } else {
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
-                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                    materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
-                    materialLotUnit.setReserved4(materialLot.getReserved6());
-                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-
-                    MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
-                    materialLotUnitHisRepository.save(materialLotUnitHistory);
-                }
+                materialLotUnitStockOutAndSaveHis(materialLot);
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 晶圆出货并记录历史
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void materialLotUnitStockOutAndSaveHis(MaterialLot materialLot) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
+                materialLotUnit.setReserved4(materialLot.getReserved6());
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -9254,17 +9267,7 @@ public class GcServiceImpl implements GcService {
             for (MaterialLot packageLot : packageDetailLots){
                 packageLot.setReserved6(materialLot.getReserved6());
                 changeMaterialLotStatusAndSaveHistory(packageLot);
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packageLot.getMaterialLotId());
-                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
-                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                        materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
-                        materialLotUnit.setReserved4(materialLot.getReserved6());
-                        materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-
-                        MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
-                        materialLotUnitHisRepository.save(materialLotUnitHistory);
-                    }
-                }
+                materialLotUnitStockOutAndSaveHis(packageLot);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -11029,13 +11032,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.clearCobReservedDocInfo();
                 }
                 changeMaterialLotStatusAndSaveHistory(materialLot);
-
-                List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
-                if(CollectionUtils.isNotEmpty(packageDetailLots)){
-                    for (MaterialLot packageLot : packageDetailLots){
-                        changeMaterialLotStatusAndSaveHistory(packageLot);
-                    }
-                }
+                changPackageDetailLotStatusAndSaveHis(materialLot);
             }
 
             // 验证当前操作数量是否超过待检查数量
