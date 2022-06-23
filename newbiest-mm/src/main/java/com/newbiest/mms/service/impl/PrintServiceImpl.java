@@ -1216,11 +1216,11 @@ public class PrintServiceImpl implements PrintService {
             }
 
             if (MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(materialLot.getReserved7())){
-                if(!StringUtils.isNullOrEmpty(materialLot.getReserved55())){
+                if(!StringUtils.isNullOrEmpty(materialLot.getReserved55()) && !MaterialLot.HK_WAREHOUSE.equals(materialLot.getReserved13())){
                     Map<String, Object> customerLabelParams = printCustomerNameLabel(materialLot.getReserved55(), materialLot);
                     mapList.add(customerLabelParams);
                 }
-            } else if(!StringUtils.isNullOrEmpty(materialLot.getReserved18()) || !StringUtils.isNullOrEmpty(materialLot.getShipper())){
+            } else if((!StringUtils.isNullOrEmpty(materialLot.getReserved18()) || !StringUtils.isNullOrEmpty(materialLot.getShipper())) && !MaterialLot.HK_WAREHOUSE.equals(materialLot.getReserved13())){
                 String cusname = materialLot.getReserved18() == null ? materialLot.getShipper() : materialLot.getReserved18();
                 Map<String, Object> customerLabelParams = printCustomerNameLabel(cusname, materialLot);
                 mapList.add(customerLabelParams);
@@ -1767,7 +1767,7 @@ public class PrintServiceImpl implements PrintService {
                 print(printContext);
             }
 
-            if(!StringUtils.isNullOrEmpty(materialLot.getReserved55())){
+            if(!StringUtils.isNullOrEmpty(materialLot.getReserved55()) && !MaterialLot.HK_WAREHOUSE.equals(materialLot.getReserved13())){
                 Map<String, Object> customerLabelParams = printCustomerNameLabel(materialLot.getReserved55(), materialLot);
                 mapList.add(customerLabelParams);
             }
