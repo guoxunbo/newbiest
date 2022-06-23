@@ -9773,13 +9773,12 @@ public class GcServiceImpl implements GcService {
                     GCProductModelConversion productModelConversion = gcProductModelConversionRepository.findByProductIdAndModelCategory(materialLotUnit.getMaterialName(), MaterialLot.IMPORT_FT);
                     if(productModelConversion == null && materialLotUnit.getMaterialName().endsWith("-3")){
                         materialLotUnit.setMaterialName(materialLotUnit.getMaterialName() + ".5");
-
-                        RawMaterial material = mmsService.getRawMaterialByName(materialLotUnit.getMaterialName());
-                        if(material == null){
-                            material = new RawMaterial();
-                            material.setName(materialLotUnit.getMaterialName());
-                            mmsService.createRawMaterial(material);
-                        }
+                    }
+                    RawMaterial material = mmsService.getRawMaterialByName(materialLotUnit.getMaterialName());
+                    if(material == null){
+                        material = new RawMaterial();
+                        material.setName(materialLotUnit.getMaterialName());
+                        mmsService.createRawMaterial(material);
                     }
                     //若gc_wlatoft_testbit的WLA_TEST_BIT 不为空，二级代码增加一位
                     GcWlatoftTesebit gcWlatoftTesebit = wlatoFtTestBitRepository.findByWaferId(materialLotUnit.getLotId());
