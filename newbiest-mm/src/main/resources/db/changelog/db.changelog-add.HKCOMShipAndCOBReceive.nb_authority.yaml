@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKComStockOutManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKComStockOutManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKComStockOutManager
+              description: 香港仓COM出货
+              tableName: HKWarehouseComStockOutOrder
+              secondTableName: HKWComStockOutMLotScan
+              mobileFlag: N
+              url: /HKWarehouse/HKComStockOutManager
+              parentRrn: 2020
+              seqNo: 50
+              image: icon-wuliao
+              labelZh: 香港仓COM出货
+              labelEn: HKComStockOut
+  - changeSet:
+      id: add_HKCOBReceiveManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKCOBReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKCOBReceiveManager
+              description: 香港仓COB接收
+              tableName: HKCOBWaferReceiveOrder
+              secondTableName: HKCOBWaferReceiveMLotScan
+              thirdTableName: HKCOBWaitReceiveMLot
+              mobileFlag: N
+              url: /HKWarehouse/HKCOBReceiveManager
+              parentRrn: 2020
+              seqNo: 55
+              image: icon-wuliao
+              labelZh: 香港仓COB接收
+              labelEn: HKCOBReceive

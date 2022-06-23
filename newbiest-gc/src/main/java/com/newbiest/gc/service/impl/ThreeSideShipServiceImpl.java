@@ -254,7 +254,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
             Map<String, List<MaterialLot>> materialLotDocMap = mLotList.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             for(String docLineRrn : materialLotDocMap.keySet()){
                 List<MaterialLot> materialLots = materialLotDocMap.get(docLineRrn);
-                Long totalUnhandledQty = mLotList.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
+                Long totalUnhandledQty = materialLots.stream().collect(Collectors.summingLong(materialLot -> materialLot.getCurrentQty().longValue()));
                 DocumentLine docLine = (DocumentLine) documentLineRepository.findByObjectRrn(Long.parseLong(docLineRrn));
                 if(!docLineList.contains(docLine)){
                     throw new ClientParameterException(GcExceptions.MATERIALLOT_RESERVED_DOCID_IS_NOT_SAME, docLine.getDocId());
@@ -525,11 +525,11 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 key.append(materialLot.getReserved1() + StringUtils.SPLIT_CODE);
             }
             key.append(materialLot.getReserved6() + StringUtils.SPLIT_CODE);
-            if(StringUtils.isNullOrEmpty(materialLot.getReserved55())){
-                key.append(materialLot.getReserved55() + StringUtils.SPLIT_CODE);
-            } else{
-                key.append(materialLot.getReserved55().toUpperCase() + StringUtils.SPLIT_CODE);
-            }
+//            if(StringUtils.isNullOrEmpty(materialLot.getReserved55())){
+//                key.append(materialLot.getReserved55() + StringUtils.SPLIT_CODE);
+//            } else{
+//                key.append(materialLot.getReserved55().toUpperCase() + StringUtils.SPLIT_CODE);
+//            }
             return key.toString();
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -551,11 +551,11 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 docShipInfo.append(documentLine.getReserved2() + StringUtils.SPLIT_CODE);
             }
             docShipInfo.append(documentLine.getReserved7() + StringUtils.SPLIT_CODE);
-            if(StringUtils.isNullOrEmpty(documentLine.getReserved8())){
-                docShipInfo.append(documentLine.getReserved8() + StringUtils.SPLIT_CODE);
-            } else {
-                docShipInfo.append(documentLine.getReserved8().toUpperCase() + StringUtils.SPLIT_CODE);
-            }
+//            if(StringUtils.isNullOrEmpty(documentLine.getReserved8())){
+//                docShipInfo.append(documentLine.getReserved8() + StringUtils.SPLIT_CODE);
+//            } else {
+//                docShipInfo.append(documentLine.getReserved8().toUpperCase() + StringUtils.SPLIT_CODE);
+//            }
             return docShipInfo.toString();
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -584,7 +584,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 materialLotThreeSaleShipByWarehouse(materialLots, warehouseRrn, bondedProperty);
             } else if(DocumentLine.CUSCODE_C001.equals(threeSideCode)){
                 //先做出货，再修改仓库:“ZJ_STOCK”保税属性:“ZSH” 清除备货信息 变:Create 记录创建历史
-                if(DocumentLine.MEMO.equals(documentLine.getReserved13()) && StringUtils.isNullOrEmpty(comFlag)){
+                if(!StringUtils.isNullOrEmpty(documentLine.getReserved13()) && documentLine.getReserved13().contains(DocumentLine.MEMO) && StringUtils.isNullOrEmpty(comFlag)){
                     materialLotThreeSaleShipByWarehouse(materialLots, MaterialLot.BS_WAREHOUSE, MaterialLot.BONDED_PROPERTY_HK);
                 } else if(DocumentLine.PLACR_GALAXYCORE.equals(place)){
                     materialLotThreeSaleShipByWarehouse(materialLots, MaterialLot.HK_WAREHOUSE, MaterialLot.BONDED_PROPERTY_HK);
@@ -779,15 +779,10 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
             if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                 materialLot.setCurrentSubQty(new BigDecimal(materialLotUnitList.size()));
             }
-            if(StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
-                materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
-                materialLot.setStatus(MaterialStatus.STATUS_CREATE);
-            } else {
-                materialLot.setStatusCategory(MaterialLot.STATUS_FIN);
-                materialLot.setStatus(MaterialStatus.STATUS_PACKAGE);
-                materialLot.setPreStatusCategory(MaterialStatus.STATUS_STOCK);
-                materialLot.setPreStatus(MaterialStatus.STATUS_IN);
-            }
+            materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+            materialLot.setStatus(MaterialStatus.STATUS_CREATE);
+            materialLot.setPreStatusCategory(null);
+            materialLot.setPreStatus(null);
             materialLot.setCurrentQty(materialLot.getReceiveQty());
             materialLot.resetMLotInfo();
             materialLot.setReserved13(warehouseRrn);
@@ -801,11 +796,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 materialLotUnit.setWorkOrderId(null);
                 materialLotUnit.setWorkOrderPlanputTime(null);
-                if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
-                    materialLotUnit.setState(MaterialStatus.STATUS_PACKAGE);
-                } else {
-                    materialLotUnit.setState(MaterialStatus.STATUS_CREATE);
-                }
+                materialLotUnit.setState(MaterialStatus.STATUS_CREATE);
                 materialLotUnit.setReserved4(bondedProperty);
                 materialLotUnit.setReserved13(warehouseRrn);
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);

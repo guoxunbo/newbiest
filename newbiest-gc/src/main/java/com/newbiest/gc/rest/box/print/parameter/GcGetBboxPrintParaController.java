@@ -45,7 +45,7 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
         GcGetBboxPrintParaRequestBody requestBody = request.getBody();
 
         MaterialLot materialLot = mmsService.getMLotByObjectRrn(requestBody.getMaterialLotRrn());
-        if(MaterialLot.LCD_PACKCASE.equals(materialLot.getPackageType())){
+        if(MaterialLot.LCD_PACKCASE.equals(materialLot.getPackageType()) || MaterialLot.HK_LCD_PACKCASE.equals(materialLot.getPackageType())){
             List<Map<String, Object>> mapList = printService.printLCDBoxLabel(materialLot, requestBody.getPrintCount());
             responseBody.settingClientPrint(mapList);
         } else {
@@ -53,8 +53,10 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
             if(!MaterialLot.PRODUCT_CATEGORY.equals(materialLot.getReserved7())){
                 subcode = gcService.getEncryptionSubCode(materialLot.getGrade(), materialLot.getReserved1());
             }
-            List<Map<String, Object>> mapList = printService.printComBoxAndCustomerLabel(materialLot, subcode, requestBody.getPrintCount());
-            responseBody.settingClientPrint(mapList);
+            if(!MaterialLot.HK_WAREHOUSE.equals(materialLot.getReserved13())){
+                List<Map<String, Object>> mapList = printService.printComBoxAndCustomerLabel(materialLot, subcode, requestBody.getPrintCount());
+                responseBody.settingClientPrint(mapList);
+            }
         }
 
         response.setBody(responseBody);

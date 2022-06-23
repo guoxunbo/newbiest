@@ -1,0 +1,81 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKWarehouseComStockOutOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add HKWarehouseComStockOutOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HKWarehouseComStockOutOrder
+              description: 香港仓COM出货单
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 香港仓COM出货单
+              label: HKComStockOutOrder
+  - changeSet:
+      id: add_HKWComStockOutMLotScan_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add HKWComStockOutMLotScan to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HKWComStockOutMLotScan
+              description: 香港仓COM出货
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓COM出货
+              label: HKWComStockOutMLot
+  - changeSet:
+      id: add_HKCOBWaferReceiveOrder_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add HKCOBWaferReceiveOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HKCOBWaferReceiveOrder
+              description: 香港仓COB晶圆接收单
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 香港仓COB晶圆接收单
+              label: HKWCOBReveiveOrder
+  - changeSet:
+      id: add_HKCOBWaferReceiveMLotScan_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add HKCOBWaferReceiveMLotScan to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HKCOBWaferReceiveMLotScan
+              description: 香港仓COB接收
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓COB接收
+              label: HKCOBReceiveMLot
+  - changeSet:
+      id: add_HKCOBWaitReceiveMLot_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add HKCOBWaitReceiveMLot to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HKCOBWaitReceiveMLot
+              description: 香港仓等待接收
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓COB等待接收批次
+              label: HKCOBWaitReceiveMLot

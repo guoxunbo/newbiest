@@ -136,6 +136,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String HN_PACKCASE = "HNPackCase";
 
+    /**
+     * 香港LCD装箱规则
+     */
+    public static final String HK_LCD_PACKCASE = "HKLCDPackCase";
+
     public static final String RECEIVE_ERROR = "ERROR";
 
     /**
@@ -267,6 +272,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
     public static final String SOC_WAFER_SOURCE_MEASURE = "14";
     public static final String MASK_WAFER_SOURCE = "99";
+    public static final List<String> COB_WAFER_SOURCE_LIST = Lists.newArrayList(COB_WAFER_SOURCE, RW_WAFER_SOURCE);
 
     /**
      * 根据产品结尾数字获取WaferSource

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKLCDMLotPackage_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add HKLCDMLotPackage to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: HKLCDMLotPackage
+              description: LCD包装
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 香港仓LCD装箱
+              label: HKLCDPackage

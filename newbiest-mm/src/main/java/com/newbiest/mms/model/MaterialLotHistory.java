@@ -42,6 +42,8 @@ public class MaterialLotHistory extends NBHis {
     public static final String TRANS_TYPE_TRANSFER_WAREHOUSE = "TransferWarehouse";
     public static final String TRANS_TYPE_SCRAP_SHIP = "ScrapShip";
     public static final String TRANS_TYPE_RAW_MATERIAL_ISSUE = "RawMaterialIssue";
+    public static final String TRANS_TYPE_MES_RETURN_DELETE = "MesReruenDelete";
+    public static final String TRANS_TYPE_MES_RETURN_MATERIAL = "MesReruenMaterial";
 
     public static final String TRANS_TYPE_AUTO_OUT = "AUTO OUT";
     public static final String TRANS_TYPE_AUTO_IN = "AUTO IN";
