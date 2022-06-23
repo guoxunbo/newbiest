@@ -992,3 +992,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HKLCDMLotPackageManager.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.HKCOMShipAndCOBReceive.nb_authority.yaml
+      relativeToChangelogFile: true
