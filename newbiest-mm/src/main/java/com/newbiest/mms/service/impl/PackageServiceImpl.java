@@ -623,7 +623,11 @@ public class PackageServiceImpl implements PackageService{
                         materialLotUnit.setLotId(materialLot.getParentMaterialLotId());
                         materialLotUnit.setDurable(materialLot.getLotId());
                     }
-                    materialLotUnit.setState(MaterialLotUnit.STATE_PACKAGE);
+                    if(!StringUtils.isNullOrEmpty(materialLotAction.getCobImportPack()) || !StringUtils.isNullOrEmpty(materialLotAction.getBoxStatusUseFlag()) ) {
+                        materialLotUnit.setState(MaterialLotUnit.STATE_CREATE);
+                    } else {
+                        materialLotUnit.setState(MaterialLotUnit.STATE_PACKAGE);
+                    }
                     materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_PACKAGE);
