@@ -995,3 +995,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.HKCOMShipAndCOBReceive.nb_authority.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileIRAUnPackage.nb_authority.yaml
+      relativeToChangelogFile: true
