@@ -124,6 +124,8 @@ public class RwMaterialLotController {
             responseBody.setMaterialLotUnitList(materialLotUnitList);
         } else if(RwMaterialLotRequest.ACTION_WAFER_STOCK_OUT_TAG.equals(actionType)){
             gcService.cobMaterialLotUnitStockOutTag(requestBody.getMaterialLotUnitList(), requestBody.getCustomerName(), requestBody.getAbbreviation(), requestBody.getRemarks());
+        } else if(RwMaterialLotRequest.ACTION_COB_AUTO_PACK.equals(actionType)){
+            gcService.cobMLotAutoPack(requestBody.getMaterialLotList());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

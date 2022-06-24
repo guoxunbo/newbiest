@@ -118,8 +118,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             materialLotAction.setTransQty(materialLot.getCurrentQty());
             materialLotAction.setTransCount(materialLot.getCurrentSubQty());
             mmsService.stockIn(materialLot, materialLotAction);
-
-            mmsService.stockInMaterialLotUnitAndSaveHis(materialLot, MaterialLotUnitHistory.TRANS_TYPE_IN);
+            mmsService.stockInMaterialLotUnitAndSaveHis(materialLot);
 
             if(!StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()) && MaterialLot.IMPORT_COB.equals(materialLot.getReserved7())){
                 MaterialLot parentMaterialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getParentMaterialLotId(), ThreadLocalContext.getOrgRrn());
@@ -433,6 +432,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
     public void validateAndCreateMLotUnit(List<MaterialLotUnit> materialLotUnitList) throws ClientException{
         try {
             Warehouse warehouse;
+            List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             Map<String, List<MaterialLotUnit>> materialLotUnitMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialLotId));
             for(String materialLotId : materialLotUnitMap.keySet()){
                 MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotId);
@@ -446,27 +446,67 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     }
                 }
                 if(materialLot != null){
-                    for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
-                        materialLotUnitRepository.updateMLotUnitByUnitIdAndMLotId(materialLotUnit.getUnitId(), materialLotUnit.getMaterialLotId(), MaterialLotUnit.STATE_CREATE);
+                    //如果是已经装箱批次则，复活箱号和批次信息
+                    if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                        materialLot.setCurrentQty(materialLot.getReceiveQty());
+                        materialLot.setStatusCategory(MaterialLotUnit.STATE_CREATE);
+                        materialLot.setStatus(MaterialLotUnit.STATE_CREATE);
+                        materialLot.setPreStatus("");
+                        materialLot.setPreStatusCategory("");
+                        materialLotRepository.saveAndFlush(materialLot);
+
+                        String durable = materialLotUnitInfo.get(0).getDurable();
+                        MaterialLot mLotCst = materialLotRepository.findByMaterialLotIdAndOrgRrn(durable, ThreadLocalContext.getOrgRrn());
+                        if(mLotCst != null){
+                            materialLot.setCurrentQty(materialLot.getReceiveQty());
+                            materialLot.setStatusCategory(MaterialLot.STATUS_FIN);
+                            materialLot.setStatus(MaterialLot.CATEGORY_PACKAGE);
+                            materialLot.setPreStatus(MaterialStatus.STATUS_STOCK);
+                            materialLot.setPreStatusCategory(MaterialStatus.STATUS_IN);
+                            materialLotRepository.saveAndFlush(materialLot);
+
+                            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_MES_RETURN_MATERIAL);
+                            materialLotHistoryRepository.save(history);
+                        }
+                        for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
+                            materialLotUnitRepository.updateMLotUnitByUnitIdAndMLotId(materialLotUnit.getUnitId(), materialLotUnit.getDurable(), MaterialLotUnit.STATE_CREATE);
+                        }
+                    } else {
+                        //删除并重新创建并自动装箱
+                        for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
+                            MaterialLotUnit oldMLotUnit = materialLotUnitRepository.findByMaterialLotIdAndUnitId(materialLotUnit.getMaterialLotId(), materialLotUnit.getUnitId());
+                            if(oldMLotUnit != null){
+                                materialLotUnitRepository.delete(oldMLotUnit);
+
+                                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_MES_RETURN_DELETE);
+                                materialLotUnitHisRepository.save(materialLotUnitHistory);
+                            } else {
+                                materialLotUnitRepository.updateMLotUnitByUnitIdAndMLotId(materialLotUnit.getUnitId(), materialLotUnit.getMaterialLotId(), MaterialLotUnit.STATE_CREATE);
+                            }
+                        }
+                        materialLotRepository.delete(materialLot);
+                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_MES_RETURN_DELETE);
+                        materialLotHistoryRepository.save(history);
+
+                        materialLotUnits.addAll(materialLotUnitInfo);
                     }
-                    materialLot.setCurrentQty(materialLot.getReceiveQty());
-                    materialLot.setStatusCategory(MaterialLotUnit.STATE_CREATE);
-                    materialLot.setStatus(MaterialLotUnit.STATE_CREATE);
-                    materialLot.setPreStatus("");
-                    materialLot.setPreStatusCategory("");
-                    materialLotRepository.saveAndFlush(materialLot);
                 } else{
                     //修改unit表中存在且已发料的晶圆状态
                     for(MaterialLotUnit materialLotUnit : materialLotUnitInfo){
                         List<MaterialLotUnit> issuedMLotUnitInfo = materialLotUnitRepository.findByUnitIdAndState(materialLotUnit.getUnitId(), MaterialLotUnit.STATE_ISSUE);
                         for(MaterialLotUnit issuedMLotUnit : issuedMLotUnitInfo){
-                            issuedMLotUnit.setState(MaterialLotUnit.STATE_SCRAP);
-                            materialLotUnitRepository.saveAndFlush(issuedMLotUnit);
+                            materialLotUnitRepository.delete(issuedMLotUnit);
+
+                            MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_MES_RETURN_DELETE);
+                            materialLotUnitHisRepository.save(materialLotUnitHistory);
                         }
                     }
-                    //重新导入退仓库的晶圆
-                    createCobMLot(materialLotUnitInfo);
+                    materialLotUnits.addAll(materialLotUnitInfo);
                 }
+            }
+            //重新导入退仓库的晶圆
+            if(CollectionUtils.isNotEmpty(materialLotUnits)){
+                createCobMLot(materialLotUnits);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);

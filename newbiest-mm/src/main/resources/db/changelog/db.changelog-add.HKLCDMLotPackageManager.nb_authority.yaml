@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_HKLCDMLotPackageManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add HKLCDMLotPackageManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: HKLCDMLotPackageManager
+              description: 香港 LCD包装
+              tableName: HKLCDMLotPackage
+              mobileFlag: N
+              url: /HK/LCDPackMaterialLot
+              parentRrn: 2020
+              seqNo: 16
+              image: icon-rule
+              labelZh: 香港仓LCD装箱
+              labelEn: HKLCDPackage

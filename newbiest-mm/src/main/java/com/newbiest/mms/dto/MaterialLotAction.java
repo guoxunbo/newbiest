@@ -2,6 +2,8 @@ package com.newbiest.mms.dto;
 
 import com.newbiest.base.dto.Action;
 import com.newbiest.commom.sm.model.StatusModel;
+import com.newbiest.mms.model.Storage;
+import com.newbiest.mms.model.Warehouse;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -116,6 +118,10 @@ public class MaterialLotAction extends Action {
      * 操作人
      */
     private String transUser;
+
+    private Storage storage;
+
+    private Warehouse warehouse;
 
     public MaterialLotAction(){
     }

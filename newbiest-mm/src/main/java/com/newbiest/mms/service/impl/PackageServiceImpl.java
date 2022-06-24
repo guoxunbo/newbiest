@@ -285,9 +285,15 @@ public class PackageServiceImpl implements PackageService{
                     }
                     if(!StringUtils.isNullOrEmpty(storageId)){// 恢复库存数据
                         Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
+                        if(storage == null){
+                            storage = mmsService.createStorage(warehouse, storageId);
+                        }
                         MaterialLotInventory materialLotInventory = new MaterialLotInventory();
                         materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
                         mmsService.saveMaterialLotInventory(materialLotInventory, waitToUnPackageMLot.getCurrentQty());
+                    }
+                    if(MaterialLot.COB_WAFER_SOURCE_LIST.contains(waitToUnPackageMLot.getReserved50())){
+                        waitToUnPackageMLot.setLotId(waitToUnPackageMLot.getDurable());
                     }
                     materialLotRepository.save(waitToUnPackageMLot);
 
@@ -301,6 +307,9 @@ public class PackageServiceImpl implements PackageService{
                         if (materialLotHistory != null) {
                             storageId = StringUtils.isNullOrEmpty(materialLotHistory.getTransStorageId()) ? waitToUnPackageMLot.getReserved14() : materialLotHistory.getTransStorageId();
                             Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
+                            if(storage == null){
+                                storage = mmsService.createStorage(warehouse, storageId);
+                            }
                             // 恢复库存数据
                             MaterialLotInventory materialLotInventory = new MaterialLotInventory();
                             materialLotInventory.setMaterialLot(waitToUnPackageMLot).setWarehouse(warehouse).setStorage(storage);
@@ -319,11 +328,11 @@ public class PackageServiceImpl implements PackageService{
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(waitToUnPackageMLot.getMaterialLotId());
                 if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                     for(MaterialLotUnit materialLotUnit: materialLotUnitList){
-                        //RW(COB)的拆箱时晶圆将LotId和Durable信息还原为Lot信息
-                        if(MaterialLot.RW_WAFER_SOURCE.equals(waitToUnPackageMLot.getReserved50())){
-                            materialLotUnit.setLotId(waitToUnPackageMLot.getLotId());
-                            materialLotUnit.setDurable(waitToUnPackageMLot.getDurable());
-                        }
+//                        //RW(COB)的拆箱时晶圆将LotId和Durable信息还原为Lot信息
+//                        if(MaterialLot.RW_WAFER_SOURCE.equals(waitToUnPackageMLot.getReserved50())){
+//                            materialLotUnit.setLotId(waitToUnPackageMLot.getLotId());
+//                            materialLotUnit.setDurable(waitToUnPackageMLot.getDurable());
+//                        }
                         materialLotUnit.setState(MaterialLotUnit.STATE_IN);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
@@ -562,8 +571,11 @@ public class PackageServiceImpl implements PackageService{
                     materialLot.setParentMaterialLotId(packedMaterialLot.getMaterialLotId());
                     materialLot.setParentMaterialLotRrn(packedMaterialLot.getObjectRrn());
                 }
+                if(MaterialLot.COB_WAFER_SOURCE_LIST.contains(materialLot.getReserved50())){
+                    materialLot.setLotId(materialLot.getParentMaterialLotId());
+                }
                 //格科客制化，cob导入装箱 不改变箱中Lot装箱，保持Create
-                if(!StringUtils.isNullOrEmpty(materialLotAction.getCobImportPack())){
+                if(!StringUtils.isNullOrEmpty(materialLotAction.getCobImportPack()) || !StringUtils.isNullOrEmpty(materialLotAction.getBoxStatusUseFlag()) ){
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
                 } else {
                     materialLot = mmsService.changeMaterialLotState(materialLot, MaterialEvent.EVENT_PACKAGE, MaterialStatus.STATUS_PACKED);
@@ -611,7 +623,11 @@ public class PackageServiceImpl implements PackageService{
                         materialLotUnit.setLotId(materialLot.getParentMaterialLotId());
                         materialLotUnit.setDurable(materialLot.getLotId());
                     }
-                    materialLotUnit.setState(MaterialLotUnit.STATE_PACKAGE);
+                    if(!StringUtils.isNullOrEmpty(materialLotAction.getCobImportPack()) || !StringUtils.isNullOrEmpty(materialLotAction.getBoxStatusUseFlag()) ) {
+                        materialLotUnit.setState(MaterialLotUnit.STATE_CREATE);
+                    } else {
+                        materialLotUnit.setState(MaterialLotUnit.STATE_PACKAGE);
+                    }
                     materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                     MaterialLotUnitHistory unitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_PACKAGE);

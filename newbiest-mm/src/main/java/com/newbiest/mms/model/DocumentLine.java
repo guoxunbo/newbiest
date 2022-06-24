@@ -39,7 +39,7 @@ public class DocumentLine extends NBUpdatable {
     public static final List<String> STCODE_LIST = Lists.newArrayList(STCODE_50, STCODE_55, STCODE_65);
     public static final List<String> ALL_STCODE_LIST = Lists.newArrayList(STCODE_50, STCODE_55, STCODE_60, STCODE_65);
 
-    public static final String MEMO = "出货到保税仓";
+    public static final String MEMO = "保税仓";
     public static final String PLACR_GALAXYCORE = "格科微";
 
     public static final String CBUS_TYPE = "普通销售";

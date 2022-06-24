@@ -58,6 +58,8 @@ public class FTImportVBoxThread implements Callable {
             materialLotAction.setTransQty(currentQty);
             materialLotAction.setGrade(tempFtModel.getGrade());
             materialLotAction.setTargetStorageRrn(storage.getObjectRrn());
+            materialLotAction.setStorage(storage);
+            materialLotAction.setWarehouse(warehouse);
             if (!StringUtils.isNullOrEmpty(tempFtModel.getStockId())) {
                 materialLotAction.setTargetWarehouseRrn(warehouse.getObjectRrn());
                 materialLotAction.setTargetStorageId(tempFtModel.getPointId());

@@ -105,7 +105,6 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * F等级
      */
     public static final String GEADE_F = "F";
-    public static final String GRADE_F3 = "F3";
 
     /**
      * COB装箱规则
@@ -136,6 +135,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      * LCD装箱规则
      */
     public static final String HN_PACKCASE = "HNPackCase";
+
+    /**
+     * 香港LCD装箱规则
+     */
+    public static final String HK_LCD_PACKCASE = "HKLCDPackCase";
 
     public static final String RECEIVE_ERROR = "ERROR";
 
@@ -170,6 +174,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String HN_WAREHOUSE_WLT_OTHER_STOCK_OUT_RULE_ID = "HNWarehouseWltOtherStockOutRule"; //湖南仓其它出单据验证规则
     public static final String FT_RETEST_DOC_VALIDATE_RULE_ID = "FtVboxReTestRule"; //FT真空包重测发料单据验证规则
     public static final String WLT_OTHER_SHIP_BY_ORDER__RULE_ID = "WltOtherByOrderShipDocRule";  //三方销售单据验证规则
+    public static final String MLOT_TRANSFER_SHIP_VALIDATE_RULE_ID = "MLotTransferShipDocRule";  //三方销售单据验证规则
 
 
     public static final String RW_SHIP_TAG_UPDATE_PREVIEW_RULE_ID = "RwShipTagUpdatePreviewRule"; //COB出货标注修改分组筛选
@@ -267,6 +272,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String SOC_WAFER_SOURCE_UNMEASUREN = "13";
     public static final String SOC_WAFER_SOURCE_MEASURE = "14";
     public static final String MASK_WAFER_SOURCE = "99";
+    public static final List<String> COB_WAFER_SOURCE_LIST = Lists.newArrayList(COB_WAFER_SOURCE, RW_WAFER_SOURCE);
 
     /**
      * 根据产品结尾数字获取WaferSource
@@ -318,6 +324,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     public static final String STOCKOUT_TYPE_35 = "-3.5";
     public static final String STOCKOUT_TYPE_4 = "-4";
+    public static final String STOCKOUT_TYPE_47 = "-4.7";
 
     public static final String ZJ_STOCK = "601";
     public static final String SH_STOCK = "400";
@@ -344,6 +351,11 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
 
     public static final String MLOT_SBB = "SBB";
     public static final String MLOT_SBC = "SBC";
+
+    /**
+     * COM入库ZSH自动转库等级定义
+     */
+    public static final List<String> COM_TRANS_WH_BIN_LIST = Lists.newArrayList("HA", "GA", "LA", "KA", "JA", "IA");
 
     /**
      * 物料批次号
