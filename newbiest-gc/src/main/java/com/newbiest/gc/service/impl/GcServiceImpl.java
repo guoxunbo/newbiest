@@ -3197,9 +3197,7 @@ public class GcServiceImpl implements GcService {
                     } else {
                         mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
                     }
-                    if(!MesPackedLot.PRODUCT_CATEGORY_COB.equals(mesPackedLot.getProductCategory()) &&
-                            !MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) &&
-                            !(MesPackedLot.PRODUCT_CATEGORY_RW.equals(mesPackedLot.getProductCategory()) && MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
+                    if(!MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) && !MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
                         if(mesPackedLotRelation == null){
                             throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
                         } else {
@@ -3225,7 +3223,7 @@ public class GcServiceImpl implements GcService {
 
                     // 真空包产地是SH的入SH仓库，是ZJ的入浙江仓库(COM和FT的保税属性是上海的入上海仓库，其他入浙江仓库)
                     String warehouseName = WAREHOUSE_ZJ;
-                    if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) || MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(productCateGory)){
+                    if(MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) || MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory)){
                         if(!StringUtils.isNullOrEmpty(mesPackedLot.getBondedProperty()) && mesPackedLot.getBondedProperty().equals(MaterialLot.LOCATION_SH)){
                             warehouseName = WAREHOUSE_SH;
                         }
@@ -3277,7 +3275,7 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved24", mesPackedLot.getFabDevice());
                     if(mesPackedLotRelation != null && MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(mesPackedLot.getProductCategory())){
                         otherReceiveProps.put("reserved22", mesPackedLotRelation.getVender());
-                    } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(mesPackedLot.getProductCategory()) || (MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory()))){
+                    } else if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
                         if(MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType())){
                             otherReceiveProps.put("reserved22", MesPackedLot.ZJ_SUB_NAME);
                         } else {
@@ -3306,21 +3304,19 @@ public class GcServiceImpl implements GcService {
 
                     materialLotActions.add(materialLotAction);
 
-                    if((MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) && !MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))  || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(productCateGory)){
+                    if((MesPackedLot.PRODUCT_CATEGORY_FT.equals(productCateGory) && !MaterialLotUnit.BOX_TYPE.equals(mesPackedLot.getType()))){
                         // ERP_MOA插入数据
                         ErpMoa erpMoa = new ErpMoa();
                         erpMoa.setFQty(mesPackedLot.getQuantity());
                         erpMoa.setWarehouseCode(warehouseName);
                         erpMoa.setMesPackedLot(mesPackedLot);
-                        //从MM_PACKED_LOT_RELATION表中获取物料型号、物料数据等相关数据
                         erpMoa.setCMemo("EMPTY");
-                        erpMoa.setMaterialBonded(mesPackedLotRelation.getMaterialBonded());
-                        erpMoa.setMaterialCode(mesPackedLotRelation.getMaterialCode());
-                        erpMoa.setMaterialQty(mesPackedLotRelation.getMaterialQty());
-                        erpMoa.setMaterialGrade(mesPackedLotRelation.getMaterialGrade());
-                        erpMoa.setMaterialVersion(mesPackedLotRelation.getMaterialVersion());
-                        erpMoa.setProdCate(mesPackedLotRelation.getProductType());
-
+                        erpMoa.setMaterialBonded(mesPackedLot.getIssueLocation());
+                        erpMoa.setMaterialCode(mesPackedLot.getMaterialName());
+                        erpMoa.setMaterialQty(mesPackedLot.getQuantity());
+                        erpMoa.setMaterialGrade(mesPackedLot.getIssueGrade());
+                        erpMoa.setMaterialVersion(mesPackedLot.getSubcode());
+                        erpMoa.setProdCate(mesPackedLot.getProductType());
                         erpMoaList.add(erpMoa);
                     } else if(MesPackedLot.PRODUCT_CATEGORY_CP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_WLT.equals(productCateGory)
                             || MesPackedLot.PRODUCT_CATEGORY_LSP.equals(productCateGory) || MesPackedLot.PRODUCT_CATEGORY_LCP.equals(productCateGory)
@@ -3369,7 +3365,7 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLot materialLot : materialLotList){
                     //COM以及FT的，若保税属性为ZSH，进行转库操作，转至SH_STOCK，保税属性修改为SH
                     if(((MesPackedLot.PRODUCT_CATEGORY_COM.equals(materialLot.getReserved7()) && MaterialLot.COM_TRANS_WH_BIN_LIST.contains(materialLot.getGrade()))
-                            || MesPackedLot.PRODUCT_CATEGORY_FT.equals(materialLot.getReserved7()) || MesPackedLot.PRODUCT_CATEGORY_WLFT.equals(materialLot.getReserved7()))
+                            || MesPackedLot.PRODUCT_CATEGORY_FT.equals(materialLot.getReserved7()))
                             && MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6())) {
                         Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_SH);
                         materialLotTransferWareHouse(materialLot, MaterialLot.LOCATION_SH, warehouse);
@@ -3522,15 +3518,16 @@ public class GcServiceImpl implements GcService {
                     otherReceiveProps.put("reserved50", MaterialLot.ERROR_WAFER_SOUCE);
                 }
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(productCategory)){
+                otherReceiveProps.put("reserved7", productCategory);
+                if(StringUtils.isNullOrEmpty(mesPackedLot.getWaferSource()) || MaterialLot.SENSOR_WAFER_SOURCE.equals(mesPackedLot.getWaferSource())){
                     otherReceiveProps.put("reserved50", MaterialLot.FT_WAFER_SOURCE);
-                    otherReceiveProps.put("reserved7", productCategory);
+                } else {
+                    otherReceiveProps.put("reserved50", MaterialLot.WLFT_WAFER_SOURCE);
+                }
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_RW.equals(productCategory) && MaterialLotUnit.BOX_TYPE.equals(type)){
                 otherReceiveProps.put("reserved50", MaterialLot.RW_WAFER_SOURCE);
                 otherReceiveProps.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_FT_COB);
-            } else if(MaterialLotUnit.PRODUCT_CATEGORY_WLFT.equals(productCategory)){
-                otherReceiveProps.put("reserved50", MaterialLot.WLFT_WAFER_SOURCE);
-                otherReceiveProps.put("reserved7", productCategory);
-            } else if(MaterialLotUnit.PRODUCT_CATEGORY_FT_COB.equals(productCategory)){
+            }  else if(MaterialLotUnit.PRODUCT_CATEGORY_FT_COB.equals(productCategory)){
                 otherReceiveProps.put("reserved50", MaterialLot.COB_WAFER_SOURCE);
                 otherReceiveProps.put("reserved7", productCategory);
             }else if(MaterialLotUnit.PRODUCT_CATEGORY_SOC.equals(productCategory)){
@@ -5523,6 +5520,9 @@ public class GcServiceImpl implements GcService {
                 packMLotAction.setMaterialLotId(materialLot.getMaterialLotId());
                 packMLotAction.setTransQty(materialLot.getCurrentQty());
                 packMLotAction.setResetStorageId("1");
+                if(MaterialStatus.STATUS_CREATE.equals(materialLot.getStatus())){
+                    packMLotAction.setBoxStatusUseFlag("1");
+                }
                 materialLotActions.add(packMLotAction);
                 MaterialLot packageMLot = packageService.packageMLots(materialLotActions, parentMaterialLotId, "COBPackCase");
             }
@@ -7390,9 +7390,10 @@ public class GcServiceImpl implements GcService {
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
 
             Long seq = 0L;
-            seq = Long.parseLong(documentLine.getReserved1());
             if(DocumentLine.DOC_MERGE.equals(documentLine.getMergeDoc())){
                 seq = Long.parseLong(documentLine.getReserved32());
+            } else {
+                seq = Long.parseLong(documentLine.getReserved1());
             }
             ErpSoa erpSoa = erpSoaOrderRepository.findBySeq(seq);
             return erpSoa;
