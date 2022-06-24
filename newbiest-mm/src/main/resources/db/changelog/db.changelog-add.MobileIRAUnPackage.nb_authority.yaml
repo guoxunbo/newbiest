@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileIRAUnPackageManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileIRAUnPackageManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileIRAUnPackage
+              description: 手持端IRA拆箱
+              tableName: GCMobileIRAUnPackage
+              mobileFlag: Y
+              url: /Mobile/IRAUnPackage
+              parentRrn: 54
+              seqNo: 150
+              image: icon-rule
+              labelZh: IRA拆箱
+              labelEn: IRAUnPackage

@@ -989,3 +989,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCTransferOrderShip_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.MobileIRAUnPackage_nb_table.yaml
+      relativeToChangelogFile: true
