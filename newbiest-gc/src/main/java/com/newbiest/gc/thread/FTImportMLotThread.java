@@ -145,7 +145,6 @@ public class FTImportMLotThread implements Callable {
                 materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
                 materialLotAction.setTransQty(materialLot.getCurrentQty());
                 materialLotAction.setResetStorageId("1");
-                materialLotAction.setBoxStatusUseFlag("1");
                 materialLotActions.add(materialLotAction);
             }
 

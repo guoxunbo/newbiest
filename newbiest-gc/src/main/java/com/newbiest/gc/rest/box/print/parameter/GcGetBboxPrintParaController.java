@@ -53,10 +53,8 @@ public class GcGetBboxPrintParaController extends AbstractRestController {
             if(!MaterialLot.PRODUCT_CATEGORY.equals(materialLot.getReserved7())){
                 subcode = gcService.getEncryptionSubCode(materialLot.getGrade(), materialLot.getReserved1());
             }
-            if(!MaterialLot.HK_WAREHOUSE.equals(materialLot.getReserved13())){
-                List<Map<String, Object>> mapList = printService.printComBoxAndCustomerLabel(materialLot, subcode, requestBody.getPrintCount());
-                responseBody.settingClientPrint(mapList);
-            }
+            List<Map<String, Object>> mapList = printService.printComBoxAndCustomerLabel(materialLot, subcode, requestBody.getPrintCount());
+            responseBody.settingClientPrint(mapList);
         }
 
         response.setBody(responseBody);
