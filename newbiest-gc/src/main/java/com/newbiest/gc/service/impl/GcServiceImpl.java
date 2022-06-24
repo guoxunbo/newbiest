@@ -945,6 +945,7 @@ public class GcServiceImpl implements GcService {
                 if (StringUtils.isNullOrEmpty(materialLot.getReserved13())) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_WAREHOUSE_IS_NULL, materialLot.getMaterialLotId());
                 }
+                materialLot.setReserved14(storageId);
 
                 MaterialLotAction action = new MaterialLotAction();
                 action.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
@@ -963,29 +964,10 @@ public class GcServiceImpl implements GcService {
                 } else {
                     materialLot = mmsService.stockIn(materialLot, action);
                 }
-                materialLot.setReserved14(storageId);
                 materialLotRepository.save(materialLot);
 
                 //如果箱号入库位，将箱中所有真空包或Lot的库位号更新
-                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                    List<MaterialLot> packDetials = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-                    if(CollectionUtils.isNotEmpty(packDetials)){
-                        for(MaterialLot packedLot: packDetials){
-                            packedLot.setReserved14(storageId);
-                            if(StringUtils.isNullOrEmpty(materialLot.getReserved8())){
-                                packedLot.setReserved8(materialLot.getReserved8());
-                            }
-                            packedLot = materialLotRepository.saveAndFlush(packedLot);
-
-                            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_TRANSFER_PARENT);
-                            materialLotHistoryRepository.save(history);
-
-                            updateMaterialLotUnitStorage(packedLot);
-                        }
-                    }
-                } else {
-                    updateMaterialLotUnitStorage(materialLot);
-                }
+                validatePackageLotAndUpdateStorage(materialLot, storageId);
             }
 
             //原材料接收入库时，如果未入库需将原材料信息写入中间表
@@ -999,6 +981,36 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     *  如果箱号入库位，将箱中所有真空包或Lot的库位号更新
+     * @param materialLot
+     * @param storageId
+     * @throws ClientException
+     */
+    private void validatePackageLotAndUpdateStorage(MaterialLot materialLot, String storageId) throws ClientException{
+        try {
+            if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                List<MaterialLot> packDetials = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                for(MaterialLot packedLot : packDetials){
+                    packedLot.setReserved14(storageId);
+                    if(StringUtils.isNullOrEmpty(materialLot.getReserved8())){
+                        packedLot.setReserved8(materialLot.getReserved8());
+                    }
+                    packedLot = materialLotRepository.saveAndFlush(packedLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_TRANSFER_PARENT);
+                    materialLotHistoryRepository.save(history);
+
+                    updateMaterialLotUnitStorage(packedLot);
+                }
+            } else {
+                updateMaterialLotUnitStorage(materialLot);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -4437,6 +4449,7 @@ public class GcServiceImpl implements GcService {
                 action.setTargetStorageId(storageId);
                 action.setTransQty(materialLot.getCurrentQty());
                 action.setTransCount(materialLot.getCurrentSubQty());
+                materialLot.setReserved14(storageId);
 
                 List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
                 // 如果为空就是做入库事件 如果不是空则做转库事件
@@ -4448,12 +4461,10 @@ public class GcServiceImpl implements GcService {
                 } else {
                     materialLot = mmsService.stockIn(materialLot, action);
                 }
-                materialLot.setReserved14(storageId);
                 materialLotRepository.save(materialLot);
 
-
+                validatePackageLotAndUpdateStorage(materialLot, storageId);
             }
-
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
