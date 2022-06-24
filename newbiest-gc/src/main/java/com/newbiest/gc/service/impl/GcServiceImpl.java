@@ -7390,9 +7390,10 @@ public class GcServiceImpl implements GcService {
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
 
             Long seq = 0L;
-            seq = Long.parseLong(documentLine.getReserved1());
             if(DocumentLine.DOC_MERGE.equals(documentLine.getMergeDoc())){
                 seq = Long.parseLong(documentLine.getReserved32());
+            } else {
+                seq = Long.parseLong(documentLine.getReserved1());
             }
             ErpSoa erpSoa = erpSoaOrderRepository.findBySeq(seq);
             return erpSoa;
