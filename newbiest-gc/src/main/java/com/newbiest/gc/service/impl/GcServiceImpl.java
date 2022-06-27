@@ -2809,6 +2809,7 @@ public class GcServiceImpl implements GcService {
                 documentLine.setCrdCode(erpSo.getCrdcode());
                 documentLine.setCrdName(erpSo.getCrdname());
                 documentLine.setCuscode(erpSo.getCuscode());
+                documentLine.setThreeSideTransaction(erpSo.getCuscode());
                 documentLine.setReserved31(ErpSo.SOURCE_TABLE_NAME);
             }
             return documentLine;
