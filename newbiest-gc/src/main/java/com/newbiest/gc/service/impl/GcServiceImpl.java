@@ -3262,7 +3262,6 @@ public class GcServiceImpl implements GcService {
                     // 需要赋值的Map
                     Map<String, Object> otherReceiveProps = Maps.newHashMap();
                     otherReceiveProps.put("reserved1", mesPackedLot.getLevelTwoCode());
-                    otherReceiveProps.put("reserved2", mesPackedLot.getWaferId());
                     otherReceiveProps.put("reserved3", mesPackedLot.getSalesNote());
                     otherReceiveProps.put("reserved4", mesPackedLot.getTreasuryNote());
                     otherReceiveProps.put("reserved5", mesPackedLot.getProductionNote());
