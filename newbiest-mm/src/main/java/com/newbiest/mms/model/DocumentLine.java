@@ -324,7 +324,7 @@ public class DocumentLine extends NBUpdatable {
     private String reserved31;
 
     /**
-     * 记录合单之后的ERP SEQ主键
+     * 记录合单之后的ERP SEQ主键，以及被合单的之后新单据的主键objectRrn
      */
     @Column(name="RESERVED32")
     private String reserved32;
