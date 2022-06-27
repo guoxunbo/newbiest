@@ -945,6 +945,7 @@ public class GcServiceImpl implements GcService {
                 if (StringUtils.isNullOrEmpty(materialLot.getReserved13())) {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_WAREHOUSE_IS_NULL, materialLot.getMaterialLotId());
                 }
+                materialLot.setReserved14(storageId);
 
                 MaterialLotAction action = new MaterialLotAction();
                 action.setTargetWarehouseRrn(Long.parseLong(materialLot.getReserved13()));
@@ -963,29 +964,10 @@ public class GcServiceImpl implements GcService {
                 } else {
                     materialLot = mmsService.stockIn(materialLot, action);
                 }
-                materialLot.setReserved14(storageId);
                 materialLotRepository.save(materialLot);
 
                 //如果箱号入库位，将箱中所有真空包或Lot的库位号更新
-                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
-                    List<MaterialLot> packDetials = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
-                    if(CollectionUtils.isNotEmpty(packDetials)){
-                        for(MaterialLot packedLot: packDetials){
-                            packedLot.setReserved14(storageId);
-                            if(StringUtils.isNullOrEmpty(materialLot.getReserved8())){
-                                packedLot.setReserved8(materialLot.getReserved8());
-                            }
-                            packedLot = materialLotRepository.saveAndFlush(packedLot);
-
-                            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_TRANSFER_PARENT);
-                            materialLotHistoryRepository.save(history);
-
-                            updateMaterialLotUnitStorage(packedLot);
-                        }
-                    }
-                } else {
-                    updateMaterialLotUnitStorage(materialLot);
-                }
+                validatePackageLotAndUpdateStorage(materialLot, storageId);
             }
 
             //原材料接收入库时，如果未入库需将原材料信息写入中间表
@@ -999,6 +981,36 @@ public class GcServiceImpl implements GcService {
                 }
             }
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     *  如果箱号入库位，将箱中所有真空包或Lot的库位号更新
+     * @param materialLot
+     * @param storageId
+     * @throws ClientException
+     */
+    private void validatePackageLotAndUpdateStorage(MaterialLot materialLot, String storageId) throws ClientException{
+        try {
+            if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                List<MaterialLot> packDetials = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
+                for(MaterialLot packedLot : packDetials){
+                    packedLot.setReserved14(storageId);
+                    if(StringUtils.isNullOrEmpty(materialLot.getReserved8())){
+                        packedLot.setReserved8(materialLot.getReserved8());
+                    }
+                    packedLot = materialLotRepository.saveAndFlush(packedLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_TRANSFER_PARENT);
+                    materialLotHistoryRepository.save(history);
+
+                    updateMaterialLotUnitStorage(packedLot);
+                }
+            } else {
+                updateMaterialLotUnitStorage(materialLot);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
@@ -1222,7 +1234,8 @@ public class GcServiceImpl implements GcService {
 
                                 erpMaterialOutOrderSetDocumentLine(documentLine, erpMaterialOutOrder);
                             }
-
+                            documentLine.setReserved8(erpMaterialOutOrder.getCusname());
+                            documentLine.setReserved12(erpMaterialOutOrder.getOther8());
                             totalQty = totalQty.add(erpMaterialOutOrder.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -1350,7 +1363,8 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved9(waferIssueOrder.CATEGORY_WAFER_ISSUE);
                                 erpMaterialOutOrderSetDocumentLine(documentLine, erpMaterialOutOrder);
                             }
-
+                            documentLine.setReserved8(erpMaterialOutOrder.getCusname());
+                            documentLine.setReserved12(erpMaterialOutOrder.getOther8());
                             totalQty = totalQty.add(erpMaterialOutOrder.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpMaterialOutOrder.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -2517,6 +2531,8 @@ public class GcServiceImpl implements GcService {
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
                             documentLine = validateAndSetErpSoToDocumentLine(documentLine, erpSo, erpCreatedDate, Document.CATEGORY_RECEIVE);
 
+                            documentLine.setReserved8(erpSo.getCusname());
+                            documentLine.setReserved12(erpSo.getOther8());
                             totalQty = totalQty.add(erpSo.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -2632,7 +2648,8 @@ public class GcServiceImpl implements GcService {
 
                             Date erpCreatedDate = DateUtils.parseDate(erpSo.getDdate());
                             documentLine = validateAndSetErpSoToDocumentLine(documentLine, erpSo, erpCreatedDate, CogReceiveOrder.CATEGORY_COG_RECEIVE);
-
+                            documentLine.setReserved8(erpSo.getCusname());
+                            documentLine.setReserved12(erpSo.getOther8());
                             totalQty = totalQty.add(erpSo.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -2888,6 +2905,8 @@ public class GcServiceImpl implements GcService {
                             }
                             Date erpCreatedDate = DateUtils.parseDate(erpSo.getDdate());
                             documentLine = validateAndSetErpSoToDocumentLine(documentLine, erpSo, erpCreatedDate, RawMaterialOtherOutOrder.CATEGORY_RAW_MATERIAL_OTHER_SHIP);
+                            documentLine.setReserved8(erpSo.getCusname());
+                            documentLine.setReserved12(erpSo.getOther8());
                             totalQty = totalQty.add(erpSo.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -3004,7 +3023,8 @@ public class GcServiceImpl implements GcService {
                             Date erpCreatedDate = DateUtils.parseDate(erpSo.getDdate());
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
                             documentLine = validateAndSetErpSoToDocumentLine(documentLine, erpSo, erpCreatedDate, DeliveryOrder.CATEGORY_DELIVERY);
-
+                            documentLine.setReserved8(erpSo.getCusname());
+                            documentLine.setReserved12(erpSo.getOther8());
                             totalQty = totalQty.add(erpSo.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSo.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -3250,7 +3270,6 @@ public class GcServiceImpl implements GcService {
                     // 需要赋值的Map
                     Map<String, Object> otherReceiveProps = Maps.newHashMap();
                     otherReceiveProps.put("reserved1", mesPackedLot.getLevelTwoCode());
-                    otherReceiveProps.put("reserved2", mesPackedLot.getWaferId());
                     otherReceiveProps.put("reserved3", mesPackedLot.getSalesNote());
                     otherReceiveProps.put("reserved4", mesPackedLot.getTreasuryNote());
                     otherReceiveProps.put("reserved5", mesPackedLot.getProductionNote());
@@ -4437,6 +4456,7 @@ public class GcServiceImpl implements GcService {
                 action.setTargetStorageId(storageId);
                 action.setTransQty(materialLot.getCurrentQty());
                 action.setTransCount(materialLot.getCurrentSubQty());
+                materialLot.setReserved14(storageId);
 
                 List<MaterialLotInventory> materialLotInvList = mmsService.getMaterialLotInv(materialLot.getObjectRrn());
                 // 如果为空就是做入库事件 如果不是空则做转库事件
@@ -4448,12 +4468,10 @@ public class GcServiceImpl implements GcService {
                 } else {
                     materialLot = mmsService.stockIn(materialLot, action);
                 }
-                materialLot.setReserved14(storageId);
                 materialLotRepository.save(materialLot);
 
-
+                validatePackageLotAndUpdateStorage(materialLot, storageId);
             }
-
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -7475,7 +7493,8 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setDocId(documentId);
                                 documentLine.setReserved9(ErpMaterialOutaOrder.CATEGORY_WAFER_ISSUEA);
                             }
-
+                            documentLine.setReserved8(erpMaterialOutaOrder.getCusname());
+                            documentLine.setReserved12(erpMaterialOutaOrder.getOther8());
                             totalQty = totalQty.add(erpMaterialOutaOrder.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpMaterialOutaOrder.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -7689,7 +7708,8 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved9(MaterialIssueOrder.CATEGORY_WAFER_ISSUE);
                                 documentLine.setDocId(documentId);
                             }
-
+                            documentLine.setReserved8(erpMaterialOutaOrder.getCusname());
+                            documentLine.setReserved12(erpMaterialOutaOrder.getOther8());
                             totalQty = totalQty.add(erpMaterialOutaOrder.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpMaterialOutaOrder.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -7881,7 +7901,8 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved31(ErpSoa.SOURCE_TABLE_NAME);
                                 documentLine.setThreeSideTransaction(erpSoa.getCuscode());
                             }
-
+                            documentLine.setReserved8(erpSoa.getCusname());
+                            documentLine.setReserved12(erpSoa.getCusabbName());
                             totalQty = totalQty.add(erpSoa.getQuantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSoa.getQuantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -8089,7 +8110,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setAutoid(erpSob.getOther16());
                                 documentLine.setReserved31(ErpSob.SOURCE_TABLE_NAME);
                             }
-
+                            documentLine.setReserved8(erpSob.getOther9());
                             totalQty = totalQty.add(erpSob.getIquantity().subtract(documentLine.getQty()));
                             documentLine.setQty(erpSob.getIquantity());
                             documentLine.setUnHandledQty(documentLine.getQty().subtract(documentLine.getHandledQty()));
@@ -12056,8 +12077,12 @@ public class GcServiceImpl implements GcService {
                 }
                 seqList.add(Long.parseLong(docLine.getReserved1()));
 
-                documentLineRepository.deleteById(docLine.getObjectRrn());
-                baseService.saveHistoryEntity(docLine, DocumentLineHistory.TRANS_TYPE_DELETE);
+                //合单不删除原单据，数量至零，以便取消合单回复单据信息，并且记录合单时候的单据主键reserved32
+                docLine.setUnHandledQty(BigDecimal.ZERO);
+                docLine.setUnReservedQty(BigDecimal.ZERO);
+                docLine.setReserved32(documentLine.getObjectRrn().toString());
+                documentLineRepository.saveAndFlush(docLine);
+                baseService.saveHistoryEntity(docLine, DocumentLineHistory.TRANS_TYPE_MERGE_DOC);
             }
 
             //根据单据的类型更新中间表单据的状态
@@ -12068,6 +12093,10 @@ public class GcServiceImpl implements GcService {
                 erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
             } else if(ErpSob.SOURCE_TABLE_NAME.equals(docType)){
                 erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
+            } else if(ErpMaterialOutOrder.SOURCE_TABLE_NAME.equals(docType)){
+                erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
+            } else if(ErpMaterialOutaOrder.SOURCE_TABLE_NAME.equals(docType)){
+                erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
