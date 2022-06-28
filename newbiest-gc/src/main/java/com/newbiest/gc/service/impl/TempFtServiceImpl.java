@@ -168,6 +168,10 @@ public class TempFtServiceImpl implements TempFtService {
                     } else {
                         storage = storageMap.get(pointId.trim() + firstTempFtModel.getStockId().trim());
                     }
+                    String shipper = StringUtils.EMPTY;
+                    if(firstTempFtModel.getDataValue27() != null){
+                        shipper = firstTempFtModel.getDataValue27().split("_ _")[0];
+                    }
                     String parentMaterialLotId = firstTempFtModel.getBoxId();
                     boxIdList.add(parentMaterialLotId);
                     cstIdList.add(cstId);
@@ -196,6 +200,7 @@ public class TempFtServiceImpl implements TempFtService {
                     ftImportCobMLotUnitThread.setMaterial(material);
                     ftImportCobMLotUnitThread.setWarehouse(warehouse);
                     ftImportCobMLotUnitThread.setStorage(storage);
+                    ftImportCobMLotUnitThread.setShipper(shipper);
                     ftImportCobMLotUnitThread.setCreateHisDate(createHisDate);
                     ftImportCobMLotUnitThread.setTempFtModelList(lotTempCpModels);
                     Future<FTImportMLotThreadResult> importCallBack = executorService.submit(ftImportCobMLotUnitThread);

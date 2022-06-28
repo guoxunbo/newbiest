@@ -39,6 +39,7 @@ public class FTImportCobMLotUnitThread implements Callable {
     private String productCategory;
     private String importType;
     private String targetWaferSource;
+    private String shipper;
     private String packageType;
     private String fileName;
     private Material material;
@@ -94,6 +95,8 @@ public class FTImportCobMLotUnitThread implements Callable {
             propMap.put("reserved43", firstTempFtModel.getDataValue24() == null ? "": firstTempFtModel.getDataValue24().trim());
             propMap.put("reserved45", firstTempFtModel.getDataValue25() == null ? "": firstTempFtModel.getDataValue25().trim());
             propMap.put("reserved46", firstTempFtModel.getWoId() == null ? "": firstTempFtModel.getWoId().trim());
+            propMap.put("reserved55", shipper);
+            propMap.put("shipper", shipper);
             if (firstTempFtModel.getDataValue8().equals("1")) {
                 propMap.put("holdState", MaterialLot.HOLD_STATE_ON);
                 propMap.put("holdReason", firstTempFtModel.getHoldDesc() == null ? "": firstTempFtModel.getHoldDesc().trim());
