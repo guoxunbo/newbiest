@@ -69,14 +69,7 @@ public class FTImportCobMLotUnitThread implements Callable {
             propMap.put("lotId", durable.trim());
             propMap.put("durable", durable.trim());
             propMap.put("reserved13", warehouse.getObjectRrn().toString());
-            String location = firstTempFtModel.getLocation() == null ? "" : firstTempFtModel.getLocation().trim();
-            if(MaterialLot.BONDED_PROPERTY_ZSH.equals(location)){
-                propMap.put("reserved14", MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
-            } else if(MaterialLot.LOCATION_SH.equals(location)){
-                propMap.put("reserved14", MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
-            }  else {
-                propMap.put("reserved14", location);
-            }
+            propMap.put("reserved14", firstTempFtModel.getPointId() == null ? "" : firstTempFtModel.getPointId().trim());
             propMap.put("created", firstTempFtModel.getInTime());
             propMap.put("receiveDate", firstTempFtModel.getInTime());
             propMap.put("grade", firstTempFtModel.getGrade()  == null ? "": firstTempFtModel.getGrade().trim());
@@ -144,9 +137,7 @@ public class FTImportCobMLotUnitThread implements Callable {
             MaterialLotAction mLotAction = new MaterialLotAction();
             mLotAction.setMaterialLotId(materialLot.getMaterialLotId());
             mLotAction.setTransQty(materialLot.getCurrentQty());
-            mLotAction.setCobImportPack("1");
-            materialLotAction.setResetStorageId("1");
-            materialLotAction.setBoxStatusUseFlag("1");
+            mLotAction.setResetStorageId("1");
             materialLotActions.add(mLotAction);
             packageService.packageMLots(materialLotActions, parentMaterialLotId, "COBPackCase");
 

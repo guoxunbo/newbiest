@@ -24,7 +24,8 @@ public class GcExceptions {
     public static final String OVER_DOC_QTY = "gc.over_doc_qty";
     public static final String ORDER_IS_NOT_EXIST = "gc.order_is_not_exist";
     public static final String DOCUMENT_LINE_MERGE_RULE_IS_NOE_EXIST = "gc.document_line_merge_rule_is_not_exist";
-    public static final String ORDER_IS_NOT_SALE_ORDER = "gc.order_is_not_sale_order";
+    public static final String THE_DOCUMENT_HAS_BEEN_OPERATED_AND_CANNOT_BE_CANCELED = "gc.the_document_has_been_operated_and_cannot_be_canceled";
+    public static final String THE_DOCUMENT_IS_ERROR_PLEASE_CALL_ENGINNER = "gc.the_document_is_error_please_call_enginner";
 
     public static final String MATERIAL_LOT_NOT_MATCH_ORDER = "gc.meterial_lot_not_match_order";
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "gc.meterial_lot_reserved_by_another";

@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_CancelErpMergeOrderManager_to_NB_AUTHORITY
+      author: Guozhang Luo
+      comment: add CancelErpMergeOrderManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: CancelErpMergeOrderManager
+              description: 取消合单
+              tableName: GCCancelErpMergeDocOrder
+              mobileFlag: N
+              url: /GC/CancelErpMergeOrder
+              parentRrn: 1010
+              seqNo: 62
+              image: icon-rule
+              labelZh: 取消合单
+              labelEn: CancelMergeOrder

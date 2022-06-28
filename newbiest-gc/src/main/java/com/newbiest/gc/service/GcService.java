@@ -209,6 +209,7 @@ public interface GcService {
     void asyncMaterialName() throws ClientException;
 
     void valaidateAndMergeErpDocLine(List<DocumentLine> documentLineList, String ruleId) throws ClientException;
+    void cancelErpMergeDocOrder(List<DocumentLine> documentLineList) throws ClientException;
 
     void checkMaterialInventory(List<MaterialLot> existMaterialLots, List<MaterialLot> errorMaterialLots) throws ClientException;
 

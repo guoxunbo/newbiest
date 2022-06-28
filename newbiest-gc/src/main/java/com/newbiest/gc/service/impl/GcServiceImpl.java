@@ -2383,14 +2383,24 @@ public class GcServiceImpl implements GcService {
                 materialLot.setReserved12(documentLine.getObjectRrn().toString());
                 changeMaterialLotStatusAndSaveHistory(materialLot);
                 List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
-                for (MaterialLot packageLot : packageDetailLots){
-                    changeMaterialLotStatusAndSaveHistory(packageLot);
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    for (MaterialLot packageLot : packageDetailLots){
+                        changeMaterialLotStatusAndSaveHistory(packageLot);
+                        updateMaterialLotUnitWarehouse(packageLot, MaterialLotUnit.STATE_OUT, MaterialLotHistory.TRANS_TYPE_SHIP);
+                    }
+                } else {
+                    updateMaterialLotUnitWarehouse(materialLot, MaterialLotUnit.STATE_OUT, MaterialLotHistory.TRANS_TYPE_SHIP);
                 }
 
                 //批次做完出货之后，根据选择的仓库修改仓库和保税属性，变为Create状态清除备货等信息
                 changeMLotWarehouseAndSaveHistory(materialLot, warehouse, location);
-                for (MaterialLot packageLot : packageDetailLots){
-                    changeMLotWarehouseAndSaveHistory(packageLot, warehouse, location);
+                if(!StringUtils.isNullOrEmpty(materialLot.getPackageType())){
+                    for (MaterialLot packageLot : packageDetailLots){
+                        changeMLotWarehouseAndSaveHistory(packageLot, warehouse, location);
+                        updateMaterialLotUnitWarehouse(materialLot, MaterialLotUnit.STATE_CREATE, MaterialLotHistory.TRANS_TYPE_CREATE);
+                    }
+                } else{
+                    updateMaterialLotUnitWarehouse(materialLot, MaterialLotUnit.STATE_CREATE, MaterialLotHistory.TRANS_TYPE_CREATE);
                 }
             }
             documentLine.setHandledQty(documentLine.getHandledQty().add(handledQty));
@@ -2399,6 +2409,28 @@ public class GcServiceImpl implements GcService {
             baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SHIP);
 
             updateDocQyAndErpSobSynStatusAndQty(documentLine, handledQty);
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 修改晶圆仓库和保税属性
+     * @param materialLot
+     * @throws ClientException
+     */
+    private void updateMaterialLotUnitWarehouse(MaterialLot materialLot, String state, String trnasType) throws ClientException{
+        try {
+            List<MaterialLotUnit> materialLotUnits = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+            for (MaterialLotUnit materialLotUnit : materialLotUnits){
+                materialLotUnit.setState(state);
+                materialLotUnit.setReserved4(materialLot.getReserved6());
+                materialLotUnit.setReserved13(materialLot.getReserved13());
+                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, trnasType);
+                materialLotUnitHisRepository.save(materialLotUnitHistory);
+            }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
@@ -3218,7 +3250,7 @@ public class GcServiceImpl implements GcService {
                     } else {
                         mesPackedLotRelation = mesPackedLotRelationRepository.findByPackedLotRrn(mesPackedLotList.get(0).getPackedLotRrn());
                     }
-                    if(!MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory()) && !MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
+                    if(!MesPackedLot.VBOX_CATEGORY_LIST.contains(mesPackedLot.getProductCategory())){
                         if(mesPackedLotRelation == null){
                             throw new ClientException(GcExceptions.CORRESPONDING_RAW_MATERIAL_INFO_IS_EMPTY);
                         } else {
@@ -12056,48 +12088,41 @@ public class GcServiceImpl implements GcService {
      */
     public void valaidateAndMergeErpDocLine(List<DocumentLine> documentLines, String ruleId) throws ClientException {
         try {
-            List<Long> seqList = Lists.newArrayList();
-            //根据单据验证规则验证单据信息是否满足合批条件
-            validationDocMergeRule(ruleId, documentLines);
+            Map<String, List<DocumentLine>> docTypeMap = documentLines.stream().collect(Collectors.groupingBy(DocumentLine :: getReserved31));
+            for(String docType : docTypeMap.keySet()){
+                List<DocumentLine> documentLineList = docTypeMap.get(docType);
+                List<Long> seqList = Lists.newArrayList();
+                //根据单据验证规则验证单据信息是否满足合批条件
+                validationDocMergeRule(ruleId, documentLines);
 
-            //将所有的单据合并成一条documentLine单据
-            Long totalDocQty = documentLines.stream().collect(Collectors.summingLong(documentLine -> documentLine.getQty().longValue()));
-            DocumentLine documentLine = new DocumentLine();
-            documentLine.setDocumentLine(documentLines.get(0));
-            documentLine.setQty(new BigDecimal(totalDocQty));
-            documentLine.setUnHandledQty(documentLine.getQty());
-            documentLine.setUnReservedQty(documentLine.getQty());
-            documentLine.setMergeDoc(DocumentLine.DOC_MERGE);
-            documentLine = documentLineRepository.saveAndFlush(documentLine);
+                //将所有的单据合并成一条documentLine单据
+                Long totalDocQty = documentLines.stream().collect(Collectors.summingLong(documentLine -> documentLine.getQty().longValue()));
+                DocumentLine documentLine = new DocumentLine();
+                documentLine.setDocumentLine(documentLines.get(0));
+                documentLine.setQty(new BigDecimal(totalDocQty));
+                documentLine.setUnHandledQty(documentLine.getQty());
+                documentLine.setUnReservedQty(documentLine.getQty());
+                documentLine.setMergeDoc(DocumentLine.DOC_MERGE);
+                documentLine = documentLineRepository.saveAndFlush(documentLine);
 
-            baseService.saveHistoryEntity(documentLine, DocumentLineHistory.TRANS_TYPE_MERGE_DOC);
+                baseService.saveHistoryEntity(documentLine, DocumentLineHistory.TRANS_TYPE_MERGE_DOC);
 
-            for(DocumentLine docLine : documentLines){
-                if(StringUtils.isNullOrEmpty(docLine.getReserved1())){
-                    throw new ClientParameterException(GcExceptions.ERP_ORDER_CANNOT_EMPTY, documentLine.getDocId(), "seq" + documentLine.getReserved1());
+                for(DocumentLine docLine : documentLines){
+                    if(StringUtils.isNullOrEmpty(docLine.getReserved1())){
+                        throw new ClientParameterException(GcExceptions.ERP_ORDER_CANNOT_EMPTY, documentLine.getDocId(), "seq" + documentLine.getReserved1());
+                    }
+                    seqList.add(Long.parseLong(docLine.getReserved1()));
+
+                    //合单不删除原单据，数量至零，以便取消合单回复单据信息，并且记录合单时候的单据主键reserved32
+                    docLine.setUnHandledQty(BigDecimal.ZERO);
+                    docLine.setUnReservedQty(BigDecimal.ZERO);
+                    docLine.setReserved32(documentLine.getObjectRrn().toString());
+                    documentLineRepository.saveAndFlush(docLine);
+                    baseService.saveHistoryEntity(docLine, DocumentLineHistory.TRANS_TYPE_MERGE_DOC);
                 }
-                seqList.add(Long.parseLong(docLine.getReserved1()));
 
-                //合单不删除原单据，数量至零，以便取消合单回复单据信息，并且记录合单时候的单据主键reserved32
-                docLine.setUnHandledQty(BigDecimal.ZERO);
-                docLine.setUnReservedQty(BigDecimal.ZERO);
-                docLine.setReserved32(documentLine.getObjectRrn().toString());
-                documentLineRepository.saveAndFlush(docLine);
-                baseService.saveHistoryEntity(docLine, DocumentLineHistory.TRANS_TYPE_MERGE_DOC);
-            }
-
-            //根据单据的类型更新中间表单据的状态
-            String docType = documentLines.get(0).getReserved31();
-            if(ErpSo.SOURCE_TABLE_NAME.equals(docType)){
-                erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
-            } else if(ErpSoa.SOURCE_TABLE_NAME.equals(docType)){
-                erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
-            } else if(ErpSob.SOURCE_TABLE_NAME.equals(docType)){
-                erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
-            } else if(ErpMaterialOutOrder.SOURCE_TABLE_NAME.equals(docType)){
-                erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
-            } else if(ErpMaterialOutaOrder.SOURCE_TABLE_NAME.equals(docType)){
-                erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, Document.SYNC_USER_ID, seqList);
+                //根据单据的类型更新中间表单据的状态
+                updateErpOrderStatusBySeq(docType, DocumentLine.SYNC_STATUS_MERGE, DocumentLine.ERROR_MEMO, seqList);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -12122,6 +12147,72 @@ public class GcServiceImpl implements GcService {
             mLotDocRuleContext.setMLotDocRuleLines(mLotDocLineRule.get(0).getLines());
             mLotDocRuleContext.validationDocMerge();
         } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 取消合单
+     * @param documentLineList
+     * @throws ClientException
+     */
+    @Override
+    public void cancelErpMergeDocOrder(List<DocumentLine> documentLineList) throws ClientException {
+        try {
+            Map<String, List<DocumentLine>> docTypeMap = documentLineList.stream().collect(Collectors.groupingBy(DocumentLine :: getReserved31));
+            for(String docType : docTypeMap.keySet()){
+                List<Long> seqList = Lists.newArrayList();
+                List<DocumentLine> docLineList = docTypeMap.get(docType);
+                for(DocumentLine documentLine : docLineList){
+                    if(documentLine.getHandledQty().compareTo(BigDecimal.ZERO) > 0 || documentLine.getReservedQty().compareTo(BigDecimal.ZERO) > 0){
+                        throw new ClientParameterException(GcExceptions.THE_DOCUMENT_HAS_BEEN_OPERATED_AND_CANNOT_BE_CANCELED , documentLine.getDocId());
+                    }
+                    //恢复原单据数量，清除合单标记，删除已合单据
+                    List<DocumentLine> documentLines = documentLineRepository.findByDocIdAndReserved32(documentLine.getDocId(), documentLine.getObjectRrn().toString());
+                    if(CollectionUtils.isEmpty(documentLines)){
+                        throw new ClientParameterException(GcExceptions.THE_DOCUMENT_IS_ERROR_PLEASE_CALL_ENGINNER, documentLine.getDocId());
+                    }
+                    for(DocumentLine docLine : documentLines){
+                        seqList.add(Long.parseLong(docLine.getReserved1()));
+                        docLine.setUnReservedQty(docLine.getQty());
+                        docLine.setUnHandledQty(docLine.getQty());
+                        docLine.setReserved32(null);
+                        docLine = documentLineRepository.saveAndFlush(docLine);
+                        baseService.saveHistoryEntity(docLine, DocumentLineHistory.TRANS_TYPE_CANCEL_MERGE_DOC);
+                    }
+                    documentLineRepository.deleteById(documentLine.getObjectRrn());
+                    baseService.saveHistoryEntity(documentLine, DocumentLineHistory.TRANS_TYPE_DELETE);
+
+                    updateErpOrderStatusBySeq(docType, ErpSo.SYNC_STATUS_SYNC_SUCCESS, DocumentLine.CANCEL_ERROR_MEMO, seqList);
+                }
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 修改中间表单据状态
+     * @param docType
+     * @param syncStatus
+     * @param errorMemo
+     * @param seqList
+     * @throws ClientException
+     */
+    private void updateErpOrderStatusBySeq(String docType, String syncStatus, String errorMemo, List<Long> seqList) throws ClientException{
+        try {
+            if(ErpSo.SOURCE_TABLE_NAME.equals(docType)){
+                erpSoRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(syncStatus, errorMemo, Document.SYNC_USER_ID, seqList);
+            } else if(ErpSoa.SOURCE_TABLE_NAME.equals(docType)){
+                erpSoaOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(syncStatus, errorMemo, Document.SYNC_USER_ID, seqList);
+            } else if(ErpSob.SOURCE_TABLE_NAME.equals(docType)){
+                erpSobOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(syncStatus, errorMemo, Document.SYNC_USER_ID, seqList);
+            } else if(ErpMaterialOutOrder.SOURCE_TABLE_NAME.equals(docType)){
+                erpMaterialOutOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(syncStatus, errorMemo, Document.SYNC_USER_ID, seqList);
+            } else if(ErpMaterialOutaOrder.SOURCE_TABLE_NAME.equals(docType)){
+                erpMaterialOutAOrderRepository.updateSynStatusAndErrorMemoAndUserIdBySeq(syncStatus, errorMemo, Document.SYNC_USER_ID, seqList);
+            }
+        } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
         }
     }
