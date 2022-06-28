@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCancelErpMergeDocOrder_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCCancelErpMergeDocOrder to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCancelErpMergeDocOrder
+              description: 取消合单
+              tableName: MMS_DOCUMENT_LINE
+              modelName: DocumentLine
+              modelClass: com.newbiest.mms.model.DocumentLine
+              labelZh: 取消合单
+              label: CancelErpMergeOrder

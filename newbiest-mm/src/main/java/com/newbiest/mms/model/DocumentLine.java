@@ -50,6 +50,7 @@ public class DocumentLine extends NBUpdatable {
     public static final String SYNC_STATUS_MERGE = "9";
 
     public static final String ERROR_MEMO = "MergeDoc";
+    public static final String CANCEL_ERROR_MEMO = "CancelMergeDoc";
 
     public static final String DOC_MERGE = "Merge";
 

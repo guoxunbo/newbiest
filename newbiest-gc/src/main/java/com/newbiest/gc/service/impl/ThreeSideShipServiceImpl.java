@@ -324,7 +324,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
             String stCode = documentLine.getDocName();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             valideteWltDocLineAndMLotSaleShipInfo(documentLine, materialLots, checkSubCode);
-            if(StringUtils.isNullOrEmpty(stCode) || !DocumentLine.ALL_STCODE_LIST.contains(stCode) ||! DocumentLine.CUSCODE_LIST.contains(documentLine.getThreeSideTransaction())){//做普通销售出
+            if(StringUtils.isNullOrEmpty(stCode) || !DocumentLine.ALL_STCODE_LIST.contains(stCode) || !DocumentLine.CUSCODE_LIST.contains(documentLine.getThreeSideTransaction())){//做普通销售出
                 wltCpSaleShipOut(documentLine, materialLots, StringUtils.EMPTY);
             } else if(DocumentLine.STCODE_LIST.contains(stCode)){//根据三方销售码做不同处理
                 wltCpSaleShipOut(documentLine, materialLots, StringUtils.EMPTY);

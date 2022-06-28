@@ -12,8 +12,9 @@ import java.util.List;
 @Repository
 public interface DocumentLineRepository extends IRepository<DocumentLine, Long> {
 
-    List<DocumentLine> findByDocId(String docId) throws ClientException;
     DocumentLine findByDocRrnAndReserved1(Long docRrn, String reserved1) throws ClientException;
 
     DocumentLine findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7(@Param("docId")String docId, @Param("materialName")String materialName, @Param("reserved3")String grade, @Param("reserved2")String subCode, @Param("reserved7")String bondedProperty);
+
+    List<DocumentLine> findByDocIdAndReserved32(@Param("docId")String docId, @Param("reserved32")String docRrn);
 }

@@ -20,6 +20,7 @@ public class DocumentLineHistory extends NBHis {
      * 合单
      */
     public static final String TRANS_TYPE_MERGE_DOC = "MergeDoc";
+    public static final String TRANS_TYPE_CANCEL_MERGE_DOC = "CancelMergeDoc";
     public static final String TRANS_TYPE_DELETE = "Delete";
 
     @Column(name="DOC_RRN")
