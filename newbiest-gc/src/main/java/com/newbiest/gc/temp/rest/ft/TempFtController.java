@@ -80,6 +80,7 @@ public class TempFtController extends AbstractRestController {
         fieldMap.put("BQR_ID", "bqrId");//BOX_QRCODE_INFO
         fieldMap.put("DATA_VAL24", "dataValue24");//reserved43
         fieldMap.put("DATA_VAL25", "dataValue25");//reserved45
+        fieldMap.put("DATA_VAL27", "dataValue27");//reserved55 shipper
         fieldMap.put("DATA_VAL29", "dataValue29");//原产品型号SOURCE_PRODUCT_ID
 
 

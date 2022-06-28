@@ -12259,15 +12259,10 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> unpackedMaterialLots = materialLotList.stream().filter(materialLot -> StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())).collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(packedMaterialLots)){
                 packedMaterialLots = packedMaterialLots.stream().sorted(Comparator.comparing(MaterialLot::getCurrentQty).reversed()).collect(Collectors.toList());
-                Map<String, List<MaterialLot>> packedMLotMap = packedMaterialLots.stream().collect(Collectors.groupingBy(MaterialLot::getParentMaterialLotId));
-                for(String parentMLotId : packedMLotMap.keySet()){
-                    List<MaterialLot> materialLots = packedMLotMap.get(parentMLotId);
-                    materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot::getCurrentQty).reversed()).collect(Collectors.toList());
-                    for(MaterialLot materialLot : materialLots){
-                        if(pickQty.compareTo(materialLot.getCurrentQty()) > 0){
-                            pickMLotList.add(materialLot);
-                            pickQty = pickQty.subtract(materialLot.getCurrentQty());
-                        }
+                for(MaterialLot materialLot : packedMaterialLots){
+                    if(pickQty.compareTo(materialLot.getCurrentQty()) > 0){
+                        pickMLotList.add(materialLot);
+                        pickQty = pickQty.subtract(materialLot.getCurrentQty());
                     }
                 }
             }
@@ -12348,11 +12343,11 @@ public class GcServiceImpl implements GcService {
      */
     private void saveMaterialLotTaggingInfoAndSaveHis(MaterialLot materialLot, String customerName, String abbreviation, String remarks, String nowDate) throws ClientException{
         try {
-            materialLot.setCustomerId(customerName);
+            materialLot.setCustomerId(abbreviation);
+            materialLot.setShipper(customerName);
+            materialLot.setReserved55(customerName);
             materialLot.setReserved54(MaterialLot.STOCKOUT_TYPE_4);
-            materialLot.setReserved55(abbreviation);
             materialLot.setReserved57(remarks);
-            materialLot.setShipper(abbreviation);
             materialLot.setTagDate(DateUtils.parseDate(nowDate));
             materialLot.setTagUser(ThreadLocalContext.getUsername());
             materialLot = materialLotRepository.saveAndFlush(materialLot);
