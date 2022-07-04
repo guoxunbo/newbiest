@@ -1,6 +1,7 @@
 package com.newbiest.gc.rest.excelExport;
 
 import com.google.common.collect.Lists;
+import com.newbiest.base.exception.ClientException;
 import com.newbiest.base.model.NBBase;
 import com.newbiest.base.service.BaseService;
 import com.newbiest.base.ui.model.NBTable;
@@ -9,6 +10,7 @@ import com.newbiest.base.utils.ExcelUtils;
 import com.newbiest.gc.service.GcService;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
+import com.newbiest.msg.Request;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +44,16 @@ public class ExportExcelController {
         ExportExcelRequestBody requestBody = request.getBody();
         servletResponse.setHeader("content-Type", "application/vnd.ms-excel;charset=utf-8");
 
+        String actionType = requestBody.getActionType();
         NBTable nbTable = this.uiService.getNBTableByName(request.getBody().getTableName());
-        List<MaterialLotUnit> materialLotUnits = gcService.getMaterialLotUnitListByMaterialLotList(requestBody.getMaterialLotList());
-        ExcelUtils.exportByTable(nbTable, (Collection)materialLotUnits, request.getHeader().getLanguage(), servletResponse.getOutputStream());
+        List<? extends NBBase> dataList = Lists.newArrayList();
+        if(ExportExcelRequest.ACTION_EXT_COB_DATA.equals(actionType)){
+            dataList = gcService.getMaterialLotUnitListByMaterialLotList(requestBody.getMaterialLotList());
+        } else if(ExportExcelRequest.ACTION_EXT_COB_UNIT_DATA.equals(actionType)){
+            dataList = requestBody.getMaterialLotUnitList();
+        } else {
+            throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
+        }
+        ExcelUtils.exportByTable(nbTable, (Collection)dataList, request.getHeader().getLanguage(), servletResponse.getOutputStream());
     }
 }
