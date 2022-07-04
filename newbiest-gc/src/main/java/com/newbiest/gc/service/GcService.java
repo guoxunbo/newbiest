@@ -239,4 +239,6 @@ public interface GcService {
     void saveMLotPackageShipHis(List<MaterialLot> materialLotList) throws ClientException;
 
     void cobMLotAutoPack(List<MaterialLot> materialLotList) throws ClientException;
+
+    List<MaterialLotUnit> getMaterialLotUnitListByMaterialLotList(List<MaterialLot> materialLotList)  throws ClientException;
 }

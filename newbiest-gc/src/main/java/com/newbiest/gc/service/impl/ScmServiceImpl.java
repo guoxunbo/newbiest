@@ -422,7 +422,8 @@ public class ScmServiceImpl implements ScmService {
             for (String key : requestMap.keySet()) {
                 paramStr.add(key + "=" + requestMap.get(key));
             }
-            String url = isProdEnv() ? scmUrl : wScmUrl + MSCM_QUERY_WAFER_BY_WONO_API;
+            String url = isProdEnv() ? scmUrl : wScmUrl;
+            url +=  MSCM_QUERY_WAFER_BY_WONO_API;
             String destination = url + "?" + StringUtils.join(paramStr, "&");
 
             log.info("query waferInfo by wono requestString is " + destination);

@@ -169,7 +169,7 @@ public class TempFtServiceImpl implements TempFtService {
                         storage = storageMap.get(pointId.trim() + firstTempFtModel.getStockId().trim());
                     }
                     String shipper = StringUtils.EMPTY;
-                    if(firstTempFtModel.getDataValue27() != null){
+                    if(firstTempFtModel.getDataValue27() != null && !StringUtils.isNullOrEmpty(firstTempFtModel.getDataValue27().trim())){
                         shipper = firstTempFtModel.getDataValue27().split("_ _")[0];
                     }
                     String parentMaterialLotId = firstTempFtModel.getBoxId();

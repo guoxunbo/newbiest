@@ -1343,6 +1343,8 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     }
 
     public void resetMLotInfo() {
+        this.setReserved9(StringUtils.EMPTY);
+        this.setReserved10(StringUtils.EMPTY);
         this.setReserved12(null);
         this.clearReservedInfo();
         this.clearTaggingInfo();
