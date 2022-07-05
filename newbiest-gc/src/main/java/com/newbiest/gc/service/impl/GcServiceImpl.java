@@ -998,7 +998,7 @@ public class GcServiceImpl implements GcService {
                 List<MaterialLot> packDetials = materialLotRepository.getPackageDetailLots(materialLot.getObjectRrn());
                 for(MaterialLot packedLot : packDetials){
                     packedLot.setReserved14(storageId);
-                    if(StringUtils.isNullOrEmpty(materialLot.getReserved8())){
+                    if(!StringUtils.isNullOrEmpty(materialLot.getReserved8())){
                         packedLot.setReserved8(materialLot.getReserved8());
                     }
                     packedLot = materialLotRepository.saveAndFlush(packedLot);
