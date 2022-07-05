@@ -241,4 +241,6 @@ public interface GcService {
     void cobMLotAutoPack(List<MaterialLot> materialLotList) throws ClientException;
 
     List<MaterialLotUnit> getMaterialLotUnitListByMaterialLotList(List<MaterialLot> materialLotList)  throws ClientException;
+
+    void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException;
 }

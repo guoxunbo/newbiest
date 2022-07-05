@@ -183,7 +183,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             documentLineList = documentLineList.stream().map(documentLine -> (DocumentLine)documentLineRepository.findByObjectRrn(documentLine.getObjectRrn())).collect(Collectors.toList());
 
-            validateCobMaterialLotDocInfo(materialLots);
+            gcService.validateCobMaterialLotDocInfo(materialLots);
             validationStockMLotReservedDocLineByRuleId(documentLineList, materialLots, ruleId);
             Map<String, List<MaterialLot>> mlotDocMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot :: getReserved16));
             for(String docLineRrn : mlotDocMap.keySet()){
@@ -275,34 +275,6 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                             }
                         }
                     }
-                }
-            }
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-    /**
-     * COB出货时临时set单据信息
-     * @param materialLots
-     */
-    private void validateCobMaterialLotDocInfo(List<MaterialLot> materialLots) throws ClientException{
-        try {
-            for(MaterialLot cobMLot : materialLots){
-                if(MaterialLot.RW_WAFER_SOURCE.equals(cobMLot.getReserved50())){
-                    String materialName = cobMLot.getMaterialName();
-                    String grade = cobMLot.getGrade();
-                    String subCode = cobMLot.getReserved1() + cobMLot.getGrade();
-                    String bondedProperty = cobMLot.getReserved6();
-                    DocumentLine documentLine = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7(cobMLot.getReserved56(), materialName, grade, subCode, bondedProperty);
-                    if(documentLine == null){
-                        throw new ClientParameterException(GcExceptions.ORDER_IS_NOT_EXIST, cobMLot.getReserved56());
-                    }
-                    cobMLot.setReserved17(documentLine.getDocId());
-                    cobMLot.setReserved51(documentLine.getReserved15());
-                    cobMLot.setReserved52(documentLine.getReserved20());
-                    cobMLot.setReserved53(documentLine.getReserved21());
-                    cobMLot.setShipper(documentLine.getReserved12());
-                    cobMLot.setReserved16(documentLine.getObjectRrn().toString());
                 }
             }
         } catch (Exception e) {
