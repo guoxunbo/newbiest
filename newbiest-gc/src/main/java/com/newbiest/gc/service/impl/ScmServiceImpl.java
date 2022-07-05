@@ -549,6 +549,7 @@ public class ScmServiceImpl implements ScmService {
                     for (Map responseData : responseDataList) {
                         String lotId = (String) responseData.get("lot_no");
                         String waferId = (String) responseData.get("wafer_id");
+                        String owner = (String) responseData.get("owner");
                         boolean engFlag = (boolean) responseData.get("is_eng");
                         if (engFlag) {
                             String unitId = lotId + StringUtils.SPLIT_CODE + waferId;
@@ -557,6 +558,7 @@ public class ScmServiceImpl implements ScmService {
                             if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                                 MaterialLotUnit materialLotUnit = materialLotUnitList.get(0);
                                 materialLotUnit.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                                materialLotUnit.setEngineerName(owner);
                                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
                                 engMaterialLotUnitList.add(materialLotUnit);
 
@@ -569,8 +571,10 @@ public class ScmServiceImpl implements ScmService {
                     if(CollectionUtils.isNotEmpty(engMaterialLotUnitList)){
                         Map<String, List<MaterialLotUnit>> engMaterialLotMap = engMaterialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit :: getMaterialLotId));
                         for(String materialLotId : engMaterialLotMap.keySet()){
+                            String owner = engMaterialLotMap.get(materialLotId).get(0).getEngineerName();
                             MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
                             materialLot.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                            materialLot.setEngineerName(owner);
                             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, "SCMEng");
@@ -655,6 +659,7 @@ public class ScmServiceImpl implements ScmService {
                 if (CollectionUtils.isNotEmpty(responseDataList)) {
                     for (Map responseData : responseDataList) {
                         String lotId = (String) responseData.get("lot_no");
+                        String owner = (String) responseData.get("owner");
                         lotId = lotId.split("\\.")[0];
                         String waferId = (String) responseData.get("wafer_id");
                         boolean engFlag = (boolean) responseData.get("is_eng");
@@ -663,6 +668,7 @@ public class ScmServiceImpl implements ScmService {
                             for(MaterialLotUnit materialLotUnit: materialLotUnits){
                                 if(unitId.equals(materialLotUnit.getUnitId())){
                                     materialLotUnit.setProductType(MaterialLotUnit.PRODUCT_TYPE_ENG);
+                                    materialLotUnit.setEngineerName(owner);
                                 }
                             }
                             engWaferIdList.add(lotId + StringUtils.SPLIT_CODE + waferId);

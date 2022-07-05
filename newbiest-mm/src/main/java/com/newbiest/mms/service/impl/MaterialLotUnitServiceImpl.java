@@ -644,6 +644,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("lotId", materialLotUnit.getUnitId().toUpperCase());
                     propsMap.put("lotCst", materialLotUnit.getUnitId().toUpperCase().split("-")[0]);
                     propsMap.put("sourceProductId", materialLotUnit.getSourceProductId());
+                    propsMap.put("engineerName", materialLotUnit.getEngineerName());
 
                     propsMap.put("reserved1",subCode);
                     propsMap.put("reserved4",materialLotUnit.getTreasuryNote());
