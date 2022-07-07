@@ -285,7 +285,7 @@ public class ExpressServiceImpl implements ExpressService {
             for(MaterialLot materialLot : materialLots){
                 if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
                     String subCode = materialLot.getReserved1() + materialLot.getGrade();
-                    List<DocumentLine> documentLines = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7AndUnHandledQtyGreaterThan(materialLot.getReserved56(), materialLot.getMaterialName(), materialLot.getGrade(), subCode, materialLot.getReserved6(), BigDecimal.ZERO);
+                    List<DocumentLine> documentLines = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7AndReserved17AndUnHandledQtyGreaterThan(materialLot.getReserved56(), materialLot.getMaterialName(), materialLot.getGrade(), subCode, materialLot.getReserved6(), materialLot.getReserved4(), BigDecimal.ZERO);
                     if(CollectionUtils.isEmpty(documentLines)){
                         throw new ClientParameterException(GcExceptions.ORDER_IS_NOT_EXIST, materialLot.getReserved56());
                     } else if(documentLines.size() > 1){

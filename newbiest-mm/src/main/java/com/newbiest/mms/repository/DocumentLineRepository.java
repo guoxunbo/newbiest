@@ -15,7 +15,7 @@ public interface DocumentLineRepository extends IRepository<DocumentLine, Long> 
 
     DocumentLine findByDocRrnAndReserved1(Long docRrn, String reserved1) throws ClientException;
 
-    List<DocumentLine> findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7AndUnHandledQtyGreaterThan(@Param("docId")String docId, @Param("materialName")String materialName, @Param("reserved3")String grade, @Param("reserved2")String subCode, @Param("reserved7")String bondedProperty, @Param("unHandledQty")BigDecimal unHandledQty);
+    List<DocumentLine> findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7AndReserved17AndUnHandledQtyGreaterThan(@Param("docId")String docId, @Param("materialName")String materialName, @Param("reserved3")String grade, @Param("reserved2")String subCode, @Param("reserved7")String bondedProperty, @Param("reserved17")String treasuryNote, @Param("unHandledQty")BigDecimal unHandledQty);
 
     List<DocumentLine> findByDocIdAndReserved32(@Param("docId")String docId, @Param("reserved32")String docRrn);
 }

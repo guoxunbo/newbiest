@@ -79,14 +79,14 @@ public class RwMaterialLotController {
         } else if(RwMaterialLotRequest.ACTION_STOCK_OUT_TAG.equals(actionType)) {
             gcService.rwMaterialLotStockOutTag(requestBody.getMaterialLotList(), requestBody.getCustomerName(), requestBody.getAbbreviation(), requestBody.getRemarks());
         } else if(RwMaterialLotRequest.ACTION_ADD_SHIP_ORDERID.equals(actionType)) {
-            gcService.rwMaterialLotAddShipOrderId(requestBody.getMaterialLotList(), requestBody.getShipOrderId());
+            gcService.rwMaterialLotAddShipOrderId(requestBody.getMaterialLotActions(), requestBody.getShipOrderId());
         } else if(RwMaterialLotRequest.ACTION_CANCEL_SHIP_ORDERID.equals(actionType)){
-            gcService.rwMaterialLotCancelShipOrderId(requestBody.getMaterialLotList());
+            gcService.rwMaterialLotCancelShipOrderId(requestBody.getMaterialLotActions());
         } else if(RwMaterialLotRequest.ACTION_PREVIEW.equals(actionType)){
             List<MaterialLot> materialLotList = gcService.previewRwShipTagUpdateMaterialLotList(requestBody.getMaterialLotList());
             responseBody.setMaterialLotList(materialLotList);
         } else if(RwMaterialLotRequest.ACTION_UN_STOCK_OUT_TAG.equals(actionType)){
-            gcService.rwMaterialLotCancelStockTag(requestBody.getMaterialLotList());
+            gcService.rwMaterialLotCancelStockTag(requestBody.getMaterialLotActions());
         } else if(RwMaterialLotRequest.ACTION_QUERY_MLOT.equals(actionType)){
             MaterialLot materialLot = gcService.getMaterialLotByTableRrnAndMaterialLotIdOrLotId(requestBody.getTableRrn(), requestBody.getQueryLotId());
             responseBody.setMaterialLot(materialLot);

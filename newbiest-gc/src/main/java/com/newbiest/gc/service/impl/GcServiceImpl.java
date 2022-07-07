@@ -577,7 +577,7 @@ public class GcServiceImpl implements GcService {
                 materialLot = materialLotList.get(0);
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved56()) && StringUtils.isNullOrEmpty(materialLot.getReserved51())){
                     String subCode = materialLot.getReserved1() + materialLot.getGrade();
-                    List<DocumentLine> documentLines = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7AndUnHandledQtyGreaterThan(materialLot.getReserved56(), materialLot.getMaterialName(), materialLot.getGrade(), subCode, materialLot.getReserved6(), BigDecimal.ZERO);
+                    List<DocumentLine> documentLines = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7AndReserved17AndUnHandledQtyGreaterThan(materialLot.getReserved56(), materialLot.getMaterialName(), materialLot.getGrade(), subCode, materialLot.getReserved6(),materialLot.getReserved4(), BigDecimal.ZERO);
                     if(CollectionUtils.isNotEmpty(documentLines)){
                         materialLot.setShipper(documentLines.get(0).getReserved12());
                         materialLot.setReserved51(documentLines.get(0).getReserved15());
@@ -11131,7 +11131,7 @@ public class GcServiceImpl implements GcService {
                     String grade = materialLot.getGrade();
                     String subCode = materialLot.getReserved1() + materialLot.getGrade();
                     String bondedProperty = materialLot.getReserved6();
-                    List<DocumentLine> documentLines = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7AndUnHandledQtyGreaterThan(materialLot.getReserved56(), materialName, grade, subCode, bondedProperty, BigDecimal.ZERO);
+                    List<DocumentLine> documentLines = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7AndReserved17AndUnHandledQtyGreaterThan(materialLot.getReserved56(), materialName, grade, subCode, bondedProperty, materialLot.getReserved4(), BigDecimal.ZERO);
                     if(CollectionUtils.isEmpty(documentLines)){
                         throw new ClientParameterException(GcExceptions.ORDER_IS_NOT_EXIST, materialLot.getReserved56());
                     } else if(documentLines.size() > 1){
@@ -12381,12 +12381,13 @@ public class GcServiceImpl implements GcService {
     /**
      * 物料批次添加快递单号
      * 暂时将出货单号记录到reserved56栏位（于CP出货标注PO共用一个栏位）
-     * @param materialLotList
+     * @param materialLotActions
      * @param shipOrderId
      * @throws ClientException
      */
-    public void rwMaterialLotAddShipOrderId(List<MaterialLot> materialLotList, String shipOrderId) throws ClientException {
+    public void rwMaterialLotAddShipOrderId(List<MaterialLotAction> materialLotActions, String shipOrderId) throws ClientException {
         try {
+            List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
                     .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
             for(String parentMLotId : packedLotMap.keySet()){
@@ -12409,11 +12410,12 @@ public class GcServiceImpl implements GcService {
     /**
      * 物料批次取消快递单号
      * 清除出货单号reserved56
-     * @param materialLotList
+     * @param materialLotActions
      * @throws ClientException
      */
-    public void rwMaterialLotCancelShipOrderId(List<MaterialLot> materialLotList) throws ClientException {
+    public void rwMaterialLotCancelShipOrderId(List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
+            List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             for(MaterialLot materialLot : materialLotList){
                 cancelMaterialLotShipOrderIdAndSaveHis(materialLot);
             }
@@ -12494,11 +12496,12 @@ public class GcServiceImpl implements GcService {
 
     /**
      * RW取消出货标注
-     * @param materialLots
+     * @param materialLotActions
      * @throws ClientException
      */
-    public void rwMaterialLotCancelStockTag(List<MaterialLot> materialLots) throws ClientException {
+    public void rwMaterialLotCancelStockTag(List<MaterialLotAction> materialLotActions) throws ClientException {
         try {
+            List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             for(MaterialLot materialLot : materialLots){
                 unTaggingMaterialLot(materialLot);
             }
