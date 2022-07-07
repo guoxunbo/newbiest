@@ -12387,6 +12387,9 @@ public class GcServiceImpl implements GcService {
      */
     public void rwMaterialLotAddShipOrderId(List<MaterialLotAction> materialLotActions, String shipOrderId) throws ClientException {
         try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            String nowDate = simpleDateFormat.format(new Date());
+            Date date = simpleDateFormat.parse(nowDate);
             List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
                     .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
@@ -12397,10 +12400,10 @@ public class GcServiceImpl implements GcService {
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_SHIP_ORDER_ID_IS_NOT_SAME, parentMLotId);
                 }
 
-                saveMaterialLotShipOrderIdAndSaveHis(materialLot, shipOrderId);
+                saveMaterialLotShipOrderIdAndSaveHis(materialLot, shipOrderId, date);
             }
             for(MaterialLot materialLot : materialLotList){
-                saveMaterialLotShipOrderIdAndSaveHis(materialLot, shipOrderId);
+                saveMaterialLotShipOrderIdAndSaveHis(materialLot, shipOrderId, date);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -12465,9 +12468,10 @@ public class GcServiceImpl implements GcService {
      * @param shipOrderId
      * @throws ClientException
      */
-    private void saveMaterialLotShipOrderIdAndSaveHis(MaterialLot materialLot, String shipOrderId) throws ClientException{
+    private void saveMaterialLotShipOrderIdAndSaveHis(MaterialLot materialLot, String shipOrderId, Date date) throws ClientException{
         try {
             materialLot.setReserved56(shipOrderId);
+            materialLot.setDocDate(date);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
             MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_ADD_SHIP_ORDER_ID);
