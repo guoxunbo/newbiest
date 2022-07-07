@@ -995,3 +995,6 @@ databaseChangeLog:
   - include:
       file: db.changelog-add.GCCancelErpMergeDocOrder_nb_table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: db.changelog-add.GCMaterialLotUnitExport_nb_table.yaml
+      relativeToChangelogFile: true
