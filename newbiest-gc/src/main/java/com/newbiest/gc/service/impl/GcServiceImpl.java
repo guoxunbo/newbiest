@@ -5118,13 +5118,13 @@ public class GcServiceImpl implements GcService {
             saveMaterialLotUnitAndSaveHis(packedLotMap, mesPackedLots, materialLotList);
 
             //验证是否需要转仓库，退料入库的物料批次不需要转仓库
-            for(MesPackedLot mesPackedLot : mesPackedLots){
-                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mesPackedLot.getBoxId(), ThreadLocalContext.getOrgRrn());
-                if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6()) && !MesPackedLot.IN_FLAG_ONE.equals(mesPackedLot.getInFlag())){
-                    Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_SH);
-                    materialLotTransferWareHouse(materialLot, MaterialLot.LOCATION_SH, warehouse);
-                }
-            }
+//            for(MesPackedLot mesPackedLot : mesPackedLots){
+//                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(mesPackedLot.getBoxId(), ThreadLocalContext.getOrgRrn());
+//                if(MaterialLot.BONDED_PROPERTY_ZSH.equals(materialLot.getReserved6()) && !MesPackedLot.IN_FLAG_ONE.equals(mesPackedLot.getInFlag())){
+//                    Warehouse warehouse = mmsService.getWarehouseByName(WAREHOUSE_SH);
+//                    materialLotTransferWareHouse(materialLot, MaterialLot.LOCATION_SH, warehouse);
+//                }
+//            }
 
             mesPackedLotRepository.updatePackedStatusByPackedLotRrnList(MesPackedLot.PACKED_STATUS_RECEIVED, packedLots.stream().map(MesPackedLot :: getPackedLotRrn).collect(Collectors.toList()));
             return mesPackedLots;
