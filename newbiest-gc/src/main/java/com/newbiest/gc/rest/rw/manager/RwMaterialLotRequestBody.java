@@ -1,6 +1,7 @@
 package com.newbiest.gc.rest.rw.manager;
 
 import com.newbiest.gc.model.MesPackedLot;
+import com.newbiest.mms.dto.MaterialLotAction;
 import com.newbiest.mms.model.DocumentLine;
 import com.newbiest.mms.model.MaterialLot;
 import com.newbiest.mms.model.MaterialLotUnit;
@@ -69,5 +70,8 @@ public class RwMaterialLotRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "晶圆列表")
 	private List<MaterialLotUnit> materialLotUnitList;
+
+	@ApiModelProperty(value = "待处理的批次")
+	private List<MaterialLotAction> materialLotActions;
 
 }

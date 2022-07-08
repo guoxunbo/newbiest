@@ -136,14 +136,22 @@ public class FTImportCobMLotUnitThread implements Callable {
 
             MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, durable, materialLotAction);
 
+            if(!StringUtils.isNullOrEmpty(shipper)){
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
+                materialLotHistoryRepository.save(history);
+            }
+
             List<MaterialLotAction> materialLotActions = Lists.newArrayList();
             MaterialLotAction mLotAction = new MaterialLotAction();
             mLotAction.setMaterialLotId(materialLot.getMaterialLotId());
             mLotAction.setTransQty(materialLot.getCurrentQty());
             mLotAction.setResetStorageId("1");
             materialLotActions.add(mLotAction);
-            packageService.packageMLots(materialLotActions, parentMaterialLotId, "COBPackCase");
-
+            MaterialLot packedLot = packageService.packageMLots(materialLotActions, parentMaterialLotId, "COBPackCase");
+            if(!StringUtils.isNullOrEmpty(shipper)){
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
+                materialLotHistoryRepository.save(history);
+            }
             for (TempFtModel tempFtModel : tempFtModelList) {
                 createMaterialLotUnitAndSaveHis(tempFtModel, materialLot);
             }

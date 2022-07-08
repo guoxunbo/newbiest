@@ -621,7 +621,7 @@ public class PackageServiceImpl implements PackageService{
                     //RW(COB)的装箱晶圆将箱号记录到lotId栏位，LotId信息记录到Durable栏位上
                     if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
                         materialLotUnit.setLotId(materialLot.getParentMaterialLotId());
-                        materialLotUnit.setDurable(materialLot.getLotId());
+                        materialLotUnit.setDurable(materialLot.getDurable());
                     }
                     if(!StringUtils.isNullOrEmpty(materialLotAction.getCobImportPack()) || !StringUtils.isNullOrEmpty(materialLotAction.getBoxStatusUseFlag()) ) {
                         materialLotUnit.setState(MaterialLotUnit.STATE_CREATE);

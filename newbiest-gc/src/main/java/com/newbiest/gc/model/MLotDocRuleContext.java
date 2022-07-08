@@ -69,7 +69,7 @@ public class MLotDocRuleContext implements Serializable {
                                 key.append("");
                                 key.append(StringUtils.SPLIT_CODE);
                             } else {
-                                key.append(value.toString());
+                                key.append(value.toString().trim());
                                 key.append(StringUtils.SPLIT_CODE);
                             }
                         } catch (Exception e) {
@@ -106,7 +106,7 @@ public class MLotDocRuleContext implements Serializable {
                                     if(value == null){
                                         key.append("");
                                     } else {
-                                        key.append(value.toString());
+                                        key.append(value.toString().trim());
                                     }
                                 }
                                 key.append(StringUtils.SPLIT_CODE);
@@ -115,7 +115,7 @@ public class MLotDocRuleContext implements Serializable {
                                 if(value == null){
                                     key.append("" + StringUtils.SPLIT_CODE);
                                 } else {
-                                    key.append(value.toString());
+                                    key.append(value.toString().trim());
                                     key.append(StringUtils.SPLIT_CODE);
                                 }
                             }
@@ -151,7 +151,7 @@ public class MLotDocRuleContext implements Serializable {
                             if(mLotObject == null){
                                 compareValue += "";
                             } else {
-                                compareValue += mLotObject.toString();
+                                compareValue += mLotObject.toString().trim();
                             }
                         }
                     } else {
@@ -159,7 +159,7 @@ public class MLotDocRuleContext implements Serializable {
                         if(mLotObject == null){
                             compareValue = "";
                         } else {
-                            compareValue = mLotObject.toString();
+                            compareValue = mLotObject.toString().trim();
                         }
                     }
                 } catch (Exception e) {
@@ -168,7 +168,7 @@ public class MLotDocRuleContext implements Serializable {
                 try {
                     docLineObject = PropertyUtils.getProperty(targetObject, ruleLine.getTargetFiledName());
                     if(docLineObject != null){
-                        targetValue = docLineObject.toString();
+                        targetValue = docLineObject.toString().trim();
                     }
                 } catch (Exception e) {
                     throw new ClientParameterException(ContextException.MERGE_CHECK_OBJ_GET_PROPERTY_ERROR, ruleLine.getTargetFiledName());

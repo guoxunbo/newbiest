@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -284,15 +285,17 @@ public class ExpressServiceImpl implements ExpressService {
             for(MaterialLot materialLot : materialLots){
                 if(MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())){
                     String subCode = materialLot.getReserved1() + materialLot.getGrade();
-                    DocumentLine documentLine = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7(materialLot.getReserved56(), materialLot.getMaterialName(), materialLot.getGrade(), subCode, materialLot.getReserved6());
-                    if(documentLine == null){
+                    List<DocumentLine> documentLines = documentLineRepository.findByDocIdAndMaterialNameAndReserved3AndReserved2AndReserved7AndReserved17AndUnHandledQtyGreaterThan(materialLot.getReserved56(), materialLot.getMaterialName(), materialLot.getGrade(), subCode, materialLot.getReserved6(), materialLot.getReserved4(), BigDecimal.ZERO);
+                    if(CollectionUtils.isEmpty(documentLines)){
                         throw new ClientParameterException(GcExceptions.ORDER_IS_NOT_EXIST, materialLot.getReserved56());
+                    } else if(documentLines.size() > 1){
+                        throw new ClientParameterException(GcExceptions.THERE_ARE_MULTIPLE_DOCUMENTS_PLEASE_MERGE_DOC, materialLot.getReserved56());
                     }
-                    materialLot.setShipper(documentLine.getReserved12());
-                    materialLot.setReserved16(documentLine.getObjectRrn().toString());
-                    materialLot.setReserved51(documentLine.getReserved15());
-                    materialLot.setReserved52(documentLine.getReserved20());
-                    materialLot.setReserved53(documentLine.getReserved21());
+                    materialLot.setShipper(documentLines.get(0).getReserved12());
+                    materialLot.setReserved16(documentLines.get(0).getObjectRrn().toString());
+                    materialLot.setReserved51(documentLines.get(0).getReserved15());
+                    materialLot.setReserved52(documentLines.get(0).getReserved20());
+                    materialLot.setReserved53(documentLines.get(0).getReserved21());
                 }
             }
         } catch (Exception e) {

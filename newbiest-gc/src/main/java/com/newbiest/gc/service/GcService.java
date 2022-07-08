@@ -33,9 +33,9 @@ public interface GcService {
     void receiveTapeMaterial(List<MaterialLot> materialLotList, String tapeSize) throws ClientException;
     List<MaterialLot> getMaterialLotByTapeMaterialCode(String tapeMaterialCode) throws ClientException;
     void rwStockOut(List<MaterialLot> materialLotList, List<DocumentLine> documentLineList) throws ClientException;
-    void rwMaterialLotCancelStockTag(List<MaterialLot> materialLotList) throws ClientException;
-    void rwMaterialLotAddShipOrderId(List<MaterialLot> materialLotList, String shipOrderId) throws ClientException;
-    void rwMaterialLotCancelShipOrderId(List<MaterialLot> materialLotList) throws ClientException;
+    void rwMaterialLotCancelStockTag(List<MaterialLotAction> materialLotActions) throws ClientException;
+    void rwMaterialLotAddShipOrderId(List<MaterialLotAction> materialLotActions, String shipOrderId) throws ClientException;
+    void rwMaterialLotCancelShipOrderId(List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLot> previewRwShipTagUpdateMaterialLotList(List<MaterialLot> materialLotList) throws ClientException;
     void rwMaterialLotStockOutTag(List<MaterialLot> materialLotList, String customerName, String abbreviation, String remarks) throws ClientException;
     void cobMaterialLotUnitStockOutTag(List<MaterialLotUnit> materialLotUnitList, String customerName, String abbreviation, String remarks) throws ClientException;
@@ -239,4 +239,8 @@ public interface GcService {
     void saveMLotPackageShipHis(List<MaterialLot> materialLotList) throws ClientException;
 
     void cobMLotAutoPack(List<MaterialLot> materialLotList) throws ClientException;
+
+    List<MaterialLotUnit> getMaterialLotUnitListByMaterialLotList(List<MaterialLot> materialLotList)  throws ClientException;
+
+    void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException;
 }
