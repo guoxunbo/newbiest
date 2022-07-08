@@ -12456,6 +12456,8 @@ public class GcServiceImpl implements GcService {
                 materialLot.setCurrentSubQty(new BigDecimal(totalCurrentSubQty));
                 materialLots.add(materialLot);
             }
+            materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot :: getMaterialName)
+                    .thenComparing(MaterialLot :: getGrade)).collect(Collectors.toList());
             return materialLots;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
