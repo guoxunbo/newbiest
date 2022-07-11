@@ -2838,6 +2838,7 @@ public class GcServiceImpl implements GcService {
                 documentLine.setReserved27(erpSo.getOther7());
                 documentLine.setReserved28(erpSo.getOther4());
                 documentLine.setReserved30(erpSo.getOther5());
+                documentLine.setReserved34(erpSo.getOther7());
                 documentLine.setDocType(erpSo.getCvouchtype());
                 documentLine.setDocName(erpSo.getCvouchname());
                 documentLine.setDocBusType(erpSo.getCbustype());
