@@ -38,6 +38,7 @@ public interface GcService {
     void rwMaterialLotCancelShipOrderId(List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLot> previewRwShipTagUpdateMaterialLotList(List<MaterialLot> materialLotList) throws ClientException;
     void rwMaterialLotStockOutTag(List<MaterialLot> materialLotList, String customerName, String abbreviation, String remarks) throws ClientException;
+    void shipTagUpdate(List<MaterialLotAction> materialLotActions, String customerName, String abbreviation, String remarks) throws ClientException;
     void cobMaterialLotUnitStockOutTag(List<MaterialLotUnit> materialLotUnitList, String customerName, String abbreviation, String remarks) throws ClientException;
     List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, BigDecimal pickQty) throws ClientException;
     List<MaterialLotUnit> rwTagginggAutoPickMLotUnit(List<MaterialLotUnit> materialLotUnitList, BigDecimal pickQty) throws ClientException;

@@ -12309,17 +12309,43 @@ public class GcServiceImpl implements GcService {
                 MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(parentMaterialLotId, ThreadLocalContext.getOrgRrn());
                 validateMLotTagInfo(materialLot, customerName, abbreviation);
 
-                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks, nowDate);
+                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks, nowDate, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
             }
 
             for(MaterialLot materialLot : materialLotList){
-                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks, nowDate);
+                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks, nowDate, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }
 
+    /**
+     *
+     * @param materialLotActions
+     * @param customerName
+     * @param abbreviation
+     * @param remarks
+     * @throws ClientException
+     */
+    public void shipTagUpdate(List<MaterialLotAction> materialLotActions, String customerName, String abbreviation, String remarks)throws ClientException{
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DateUtils.DEFAULT_DATE_PATTERN);
+            String nowDate = simpleDateFormat.format(new Date());
+            List<MaterialLot> materialLotList = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
+            Map<String, List<MaterialLot>> packedLotMap = materialLotList.stream().filter(materialLot -> !StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId()))
+                    .collect(Collectors.groupingBy(MaterialLot :: getParentMaterialLotId));
+            for(String parentMaterialLotId : packedLotMap.keySet()){
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(parentMaterialLotId, ThreadLocalContext.getOrgRrn());
+                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks, nowDate, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG_UPDATE);
+            }
+            for(MaterialLot materialLot : materialLotList){
+                saveMaterialLotTaggingInfoAndSaveHis(materialLot, customerName, abbreviation, remarks, nowDate, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG_UPDATE);
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
     /**
      * 保存标注信息并记录历史
      * @param materialLot
@@ -12329,7 +12355,7 @@ public class GcServiceImpl implements GcService {
      * @param nowDate
      * @throws ClientException
      */
-    private void saveMaterialLotTaggingInfoAndSaveHis(MaterialLot materialLot, String customerName, String abbreviation, String remarks, String nowDate) throws ClientException{
+    private void saveMaterialLotTaggingInfoAndSaveHis(MaterialLot materialLot, String customerName, String abbreviation, String remarks, String nowDate, String transType) throws ClientException{
         try {
             materialLot.setCustomerId(abbreviation);
             materialLot.setShipper(customerName);
@@ -12340,7 +12366,7 @@ public class GcServiceImpl implements GcService {
             materialLot.setTagUser(ThreadLocalContext.getUsername());
             materialLot = materialLotRepository.saveAndFlush(materialLot);
 
-            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
+            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transType);
             materialLotHistoryRepository.save(history);
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
