@@ -9950,25 +9950,16 @@ public class GcServiceImpl implements GcService {
 
     /**
      * FT来料入中转箱
-     * @param materialLotUnits
      * @param stockInModels
      * @throws ClientException
      */
-    public void stockInFTWafer(List<MaterialLotUnit> materialLotUnits, List<StockInModel> stockInModels) throws ClientException {
+    public void stockInFTWafer(List<StockInModel> stockInModels) throws ClientException {
         try {
             stockIn(stockInModels);
             List<MaterialLot> materialLots = stockInModels.stream().map(model -> mmsService.getMLotByMLotId(model.getMaterialLotId(), true)).collect(Collectors.toList());
             for(MaterialLot materialLot : materialLots){
                 Warehouse warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                 saveErpInStock(materialLot, materialLot.getProductType(), warehouse.getName());
-            }
-            for (MaterialLotUnit materialLotUnit : materialLotUnits){
-                materialLotUnit.setReserved8(materialLotUnit.getRelaxBoxId());
-                materialLotUnit.setReserved14(materialLotUnit.getStorageId());
-                materialLotUnitRepository.save(materialLotUnit);
-
-                MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_STOCK_IN);
-                materialLotUnitHisRepository.save(materialLotUnitHistory);
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
