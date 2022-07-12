@@ -1290,7 +1290,7 @@ public class PrintServiceImpl implements PrintService {
                 } else {
                     parameterMap.put("LotID", materialLotDetail.getLotCst());
                 }
-                parameterMap.put("CSTID", materialLotDetail.getLotId());
+                parameterMap.put("CSTID", materialLotDetail.getDurable());
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLotDetail.getMaterialLotId());
                 parameterMap.put("FrameQty", ""+materialLotUnitList.size());
                 for(int i=0; i<materialLotUnitList.size(); i++){

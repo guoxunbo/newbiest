@@ -38,6 +38,7 @@ public interface GcService {
     void rwMaterialLotCancelShipOrderId(List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLot> previewRwShipTagUpdateMaterialLotList(List<MaterialLot> materialLotList) throws ClientException;
     void rwMaterialLotStockOutTag(List<MaterialLot> materialLotList, String customerName, String abbreviation, String remarks) throws ClientException;
+    void shipTagUpdate(List<MaterialLotAction> materialLotActions, String customerName, String abbreviation, String remarks) throws ClientException;
     void cobMaterialLotUnitStockOutTag(List<MaterialLotUnit> materialLotUnitList, String customerName, String abbreviation, String remarks) throws ClientException;
     List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, BigDecimal pickQty) throws ClientException;
     List<MaterialLotUnit> rwTagginggAutoPickMLotUnit(List<MaterialLotUnit> materialLotUnitList, BigDecimal pickQty) throws ClientException;
@@ -97,7 +98,7 @@ public interface GcService {
     List<MaterialLot> getMaterialLotByPackageRuleAndDocLine(Long documentLineRrn, List<MaterialLotAction> materialLotActions, String packageRule) throws ClientException;
     GCProductNumberRelation saveProductNumberRelation(GCProductNumberRelation productNumberRelation, String transType) throws ClientException;
     void validationMLotMaterialName(List<MaterialLotAction> materialLotActions) throws ClientException;
-    void stockInFTWafer(List<MaterialLotUnit> materialLotUnits ,List<StockInModel> stockInModels) throws ClientException;
+    void stockInFTWafer(List<StockInModel> stockInModels) throws ClientException;
     void receiveFTWafer(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
     List<MaterialLotUnit> createFTMaterialLotAndGetImportCode(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     GCWorkorderRelation saveWorkorderGradeHoldInfo(GCWorkorderRelation workorderRelation, String transType) throws ClientException;
