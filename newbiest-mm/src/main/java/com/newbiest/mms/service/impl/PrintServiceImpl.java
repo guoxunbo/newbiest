@@ -619,9 +619,9 @@ public class PrintServiceImpl implements PrintService {
 
                 lotId = getCobBoxLabelLotIdParam(lotId, materialLotUnitList);
                 parameterMap.put("LOTID", lotId);
-                if(CollectionUtils.isNotEmpty(materialLotUnitList) && materialLotUnitList.size() > 13){
-                    throw new ClientParameterException(MmsException.MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN, materialLot.getMaterialLotId());
-                }
+//                if(CollectionUtils.isNotEmpty(materialLotUnitList) && materialLotUnitList.size() > 13){
+//                    throw new ClientParameterException(MmsException.MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN, materialLot.getMaterialLotId());
+//                }
 
                 int i = 1;
                 if (CollectionUtils.isNotEmpty(materialLotUnitList)){
