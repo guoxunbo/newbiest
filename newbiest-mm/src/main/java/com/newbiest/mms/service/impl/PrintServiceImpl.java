@@ -611,7 +611,7 @@ public class PrintServiceImpl implements PrintService {
             if(CollectionUtils.isNotEmpty(packageDetailLots)){
                 //COB箱号，一箱只装一个真空包
                 MaterialLot packedLot = packageDetailLots.get(0);
-                parameterMap.put("CSTID", packedLot.getLotId());
+                parameterMap.put("CSTID", packedLot.getDurable());
                 parameterMap.put("FRAMEQTY", packedLot.getCurrentSubQty().toPlainString());
 
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedLot.getMaterialLotId());
