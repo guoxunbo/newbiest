@@ -415,12 +415,12 @@ public class PackageServiceImpl implements PackageService{
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
 
             //COB装箱只允许装一个lot，一个lot不允许超过13片
-            if(MaterialLot.COB_PACKCASE.equals(packageType)){
-                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLots.get(0).getMaterialLotId());
-                if (materialLotUnitList.size() > MaterialLot.COB_UNIT_SIZE){
-                    throw new  ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_SIZE_MORE_THAN_THIRTEEN, materialLots.get(0).getMaterialLotId());
-                }
-            }
+//            if(MaterialLot.COB_PACKCASE.equals(packageType)){
+//                List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLots.get(0).getMaterialLotId());
+//                if (materialLotUnitList.size() > MaterialLot.COB_UNIT_SIZE){
+//                    throw new  ClientParameterException(MmsException.MM_MATERIAL_LOT_UNIT_SIZE_MORE_THAN_THIRTEEN, materialLots.get(0).getMaterialLotId());
+//                }
+//            }
 
             //格科要求装过箱的真空包也可以再次装箱，将等待装箱的真空包按照箱号分组，先进行拆箱操作
             materialLots = getWaitPackMaterialLots(materialLots);

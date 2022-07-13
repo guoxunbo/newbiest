@@ -51,6 +51,8 @@ public class ExportExcelController {
             dataList = gcService.getMaterialLotUnitListByMaterialLotList(requestBody.getMaterialLotList());
         } else if(ExportExcelRequest.ACTION_EXT_COB_UNIT_DATA.equals(actionType)){
             dataList = requestBody.getMaterialLotUnitList();
+        } else if(ExportExcelRequest.ACTION_EXT_COB_PREVIEW_DATA.equals(actionType)){
+            dataList = requestBody.getMaterialLotList();
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }
