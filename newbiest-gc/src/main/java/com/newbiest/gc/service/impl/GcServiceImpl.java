@@ -12472,6 +12472,7 @@ public class GcServiceImpl implements GcService {
                 materialLot = mLots.get(0);
                 materialLot.setCurrentQty(new BigDecimal(totalCurrentQty));
                 materialLot.setCurrentSubQty(new BigDecimal(totalCurrentSubQty));
+                materialLot.setScanSeq(mLots.size());
                 materialLots.add(materialLot);
             }
             materialLots = materialLots.stream().sorted(Comparator.comparing(MaterialLot :: getMaterialName)
