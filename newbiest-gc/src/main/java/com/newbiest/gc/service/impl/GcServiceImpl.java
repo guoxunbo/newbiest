@@ -3223,8 +3223,8 @@ public class GcServiceImpl implements GcService {
         return Lists.newArrayList();
     }
 
-    public MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException {
-        return mesPackedLotRepository.findByPackedLotRrn(packedLotRrn);
+    public MesPackedLot findByPackedLotId(String boxId) throws ClientException {
+        return mesPackedLotRepository.findByBoxId(boxId);
     }
 
     public List<MesPackedLot> findByParentRrn(Long parentRrn) throws ClientException {
@@ -12984,6 +12984,55 @@ public class GcServiceImpl implements GcService {
                 materialLotUnits.addAll(materialLotUnitList);
             }
             return materialLotUnits;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 查询补打真空包标签信息
+     * @param tableRrn
+     * @param vboxId
+     * @return
+     * @throws ClientException
+     */
+    public MesPackedLot queryVboxByTableRrnAndVboxId(Long tableRrn, String vboxId) throws ClientException {
+        try {
+            MesPackedLot mesPackedLot = new MesPackedLot();
+            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
+            String _whereClause = nbTable.getWhereClause();
+            String orderBy = nbTable.getOrderBy();
+            StringBuffer clauseBuffer = new StringBuffer();
+            clauseBuffer.append(" boxId = ");
+            clauseBuffer.append("'" + vboxId + "'");
+
+            if (!StringUtils.isNullOrEmpty(_whereClause)) {
+                clauseBuffer.append(" AND ");
+                clauseBuffer.append(_whereClause);
+            }
+            _whereClause = clauseBuffer.toString();
+            List<MesPackedLot> mesPackedLots = mesPackedLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
+            if(CollectionUtils.isNotEmpty(mesPackedLots)){
+                mesPackedLot = mesPackedLots.get(0);
+            } else {
+                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(vboxId, ThreadLocalContext.getOrgRrn());
+                if(materialLot != null){
+                    if(MaterialLot.COG_WAFER_SOURCE.equals(materialLot.getReserved50())){
+                        mesPackedLot.setProductCategory(MaterialLot.IMPORT_COG);
+                    } else {
+                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, vboxId);
+                    }
+                    mesPackedLot.setPackedLotRrn(materialLot.getObjectRrn());
+                    mesPackedLot.setBoxId(materialLot.getMaterialLotId());
+                    mesPackedLot.setProductId(materialLot.getMaterialName());
+                    mesPackedLot.setGrade(materialLot.getGrade());
+                    mesPackedLot.setLevelTwoCode(materialLot.getReserved1());
+                    mesPackedLot.setLocation(materialLot.getReserved6());
+                    mesPackedLot.setFinalOperationTime(materialLot.getUpdated());
+                    mesPackedLot.setQuantity(materialLot.getCurrentQty().intValue());
+                }
+            }
+            return mesPackedLot;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

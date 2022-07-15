@@ -1505,14 +1505,12 @@ public class PrintServiceImpl implements PrintService {
      * @return
      */
     @Override
-    public List<Map<String, Object>> rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException {
+    public List<Map<String, Object>> rePrintVBxoLabel(List<Map<String, Object>> parameterMapList, String labelType) throws ClientException {
         try {
             List<Map<String, Object>> mapList = Lists.newArrayList();
-
-            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COM_VBOX_LABEL, "");
+            PrintContext printContext = buildPrintContext(labelType, "");
             for(Map<String, Object> parameterMap : parameterMapList){
                 printContext.setParameterMap(parameterMap);
-
                 if (printContext.getWorkStation().getIsClientPrint()){
                     Map<String, Object> params = Maps.newHashMap();
                     params = buildClientParameters(printContext);

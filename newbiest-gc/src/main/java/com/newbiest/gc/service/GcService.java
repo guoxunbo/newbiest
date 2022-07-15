@@ -167,7 +167,7 @@ public interface GcService {
 
     void stockIn(List<StockInModel> stockInModels) throws ClientException;
 
-    MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException;
+    MesPackedLot findByPackedLotId(String boxId) throws ClientException;
     List<MesPackedLot> findByParentRrn(Long parentRrn) throws ClientException;
     void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
 
@@ -244,4 +244,6 @@ public interface GcService {
     List<MaterialLotUnit> getMaterialLotUnitListByMaterialLotList(List<MaterialLot> materialLotList)  throws ClientException;
 
     void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException;
+
+    MesPackedLot queryVboxByTableRrnAndVboxId(Long tableRrn, String vboxId) throws ClientException;
 }

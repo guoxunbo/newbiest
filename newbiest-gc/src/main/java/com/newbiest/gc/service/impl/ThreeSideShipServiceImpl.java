@@ -771,10 +771,24 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
             history.setCreated(getDate(new Date(), 10));
             materialLotHistoryRepository.save(history);
 
+            if(lineType.equals("WLT")){
+                MaterialLotHistory materialLotHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_AUTO_IN);
+                materialLotHistory.setCreated(getDate(new Date(), 10));
+                materialLotHistoryRepository.save(materialLotHistory);
+            }
+
             for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                 materialLotUnit.setWorkOrderId(null);
                 materialLotUnit.setWorkOrderPlanputTime(null);
-                materialLotUnit.setState(MaterialStatus.STATUS_CREATE);
+                if(lineType.equals("WLT")){
+                    if(StringUtils.isNullOrEmpty(materialLot.getParentMaterialLotId())){
+                        materialLotUnit.setState(MaterialStatus.STATUS_IN);
+                    } else {
+                        materialLotUnit.setState(MaterialStatus.STATUS_PACKAGE);
+                    }
+                } else {
+                    materialLotUnit.setState(MaterialStatus.STATUS_CREATE);
+                }
                 materialLotUnit.setReserved4(bondedProperty);
                 materialLotUnit.setReserved13(warehouseRrn);
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
@@ -782,6 +796,12 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_AUTO_CREATE);
                 materialLotUnitHistory.setCreated(getDate(new Date(), 10));
                 materialLotUnitHisRepository.save(materialLotUnitHistory);
+
+                if(lineType.equals("WLT")){
+                    MaterialLotUnitHistory mUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotHistory.TRANS_TYPE_AUTO_IN);
+                    mUnitHistory.setCreated(getDate(new Date(), 10));
+                    materialLotUnitHisRepository.save(mUnitHistory);
+                }
             }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
