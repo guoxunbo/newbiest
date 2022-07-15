@@ -167,7 +167,7 @@ public interface GcService {
 
     void stockIn(List<StockInModel> stockInModels) throws ClientException;
 
-    MesPackedLot findByPackedLotRrn(Long packedLotRrn) throws ClientException;
+    MesPackedLot findByPackedLotId(String boxId) throws ClientException;
     List<MesPackedLot> findByParentRrn(Long parentRrn) throws ClientException;
     void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
 
@@ -223,7 +223,7 @@ public interface GcService {
     void mobileReTest(List<MaterialLotAction> materialLotActions, String erpTime) throws ClientException;
     List<DocumentLine> validationAndGetDocumentLineList(List<DocumentLine> documentLines, MaterialLot materialLot) throws ClientException;
 
-    void transferShip(DocumentLine documentLine, List<MaterialLotAction> materialLotActions, String warehouseId) throws ClientException;
+    void transferShip(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String warehouseId) throws ClientException;
 
     List<Map> findEntityMapListByQueryName(String queryName, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
     List<Map> findEntityMapListByQueryText(String queryText, Map<String, Object> paramMap, int firstResult, int maxResult, String whereClause, String orderByClause) throws ClientException;
@@ -244,4 +244,6 @@ public interface GcService {
     List<MaterialLotUnit> getMaterialLotUnitListByMaterialLotList(List<MaterialLot> materialLotList)  throws ClientException;
 
     void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException;
+
+    MesPackedLot queryVboxByTableRrnAndVboxId(Long tableRrn, String vboxId) throws ClientException;
 }

@@ -37,7 +37,7 @@ public interface PrintService {
     List<Map<String, Object>> printBoxQRCodeLabel(MaterialLot materialLot, String printVboxLabelFlag) throws ClientException;
 
     List<Map<String, Object>> printComBoxAndCustomerLabel(MaterialLot materialLot, String subcode, String printCount) throws ClientException;
-    List<Map<String, Object>> rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException;
+    List<Map<String, Object>> rePrintVBxoLabel(List<Map<String, Object>> parameterMapList, String labelType) throws ClientException;
 
     List<Map<String, Object>> printRawMlotIRLabel(List<MaterialLot> materialLots) throws ClientException;
     List<Map<String, Object>> printRawMlotGlueLabel(List<MaterialLot> materialLots) throws ClientException;

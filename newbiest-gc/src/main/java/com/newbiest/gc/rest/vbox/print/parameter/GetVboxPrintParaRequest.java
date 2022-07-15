@@ -12,6 +12,10 @@ public class GetVboxPrintParaRequest extends Request {
 	
 	public static final String MESSAGE_NAME = "GCGetVboxPrintParamter";
 
+	public static final String ACTION_QUERY = "queryVbox";
+
+	public static final String ACTION_PRINT_LABLE = "printLable";
+
 	private GetVboxPrintParaRequestBody body;
 
 }

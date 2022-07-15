@@ -16,4 +16,9 @@ public class GetVboxPrintParaRequestBody extends RequestBody {
 
 	private List<MesPackedLot> mesPackedLots;
 
+	private String actionType;
+
+	private Long tableRrn;
+
+	private String vboxId;
 }
