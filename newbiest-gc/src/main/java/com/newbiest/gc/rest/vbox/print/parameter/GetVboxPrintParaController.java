@@ -145,7 +145,6 @@ public class GetVboxPrintParaController extends AbstractRestController {
                     if(MaterialLot.IMPORT_COG.equals(mesPackedLot.getProductCategory())){
                         for(int i=1; i <= 5; i++){
                             parameterMap.put("PACKED" + i, StringUtils.EMPTY);
-                            parameterMap.put("PACKEDQTY" + i, StringUtils.EMPTY);
                         }
                         parameterMapList.add(parameterMap);
                     } else {
@@ -155,26 +154,18 @@ public class GetVboxPrintParaController extends AbstractRestController {
                             if(tboxList.size() <= 5 ){
                                 for (MesPackedLot tbox : tboxList) {
                                     parameterMap.put("PACKED" + number, tbox.getBoxId());
-                                    parameterMap.put("PACKEDQTY" + number, tbox.getQuantity().toString());
                                     number++;
                                 }
                                 for (int j = number; j <= 5; j++) {
                                     parameterMap.put("PACKED" + j, StringUtils.EMPTY);
-                                    parameterMap.put("PACKEDQTY" + j, StringUtils.EMPTY);
                                 }
                                 parameterMapList.add(parameterMap);
                             } else {
                                 for(number=1; number < 5; number++){
                                     MesPackedLot packedLot = tboxList.get(number);
                                     parameterMap.put("PACKED" + number, packedLot.getBoxId());
-                                    parameterMap.put("PACKEDQTY" + number, packedLot.getQuantity().toString());
-                                }
-                                int count = 0;
-                                for(int j = 4; j< tboxList.size();j++){
-                                    count += tboxList.get(j).getQuantity();
                                 }
                                 parameterMap.put("PACKED5", "OTHERS");
-                                parameterMap.put("PACKEDQTY5", String.valueOf(count));
                                 parameterMapList.add(parameterMap);
                             }
                         }
