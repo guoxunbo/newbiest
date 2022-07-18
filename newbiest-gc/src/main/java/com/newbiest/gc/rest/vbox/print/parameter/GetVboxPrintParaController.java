@@ -3,13 +3,16 @@ package com.newbiest.gc.rest.vbox.print.parameter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbiest.base.exception.ClientException;
+import com.newbiest.base.exception.ClientParameterException;
 import com.newbiest.base.rest.AbstractRestController;
 import com.newbiest.base.utils.CollectionUtils;
 import com.newbiest.base.utils.StringUtils;
 import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.gc.service.GcService;
+import com.newbiest.mms.exception.MmsException;
 import com.newbiest.mms.model.LabelTemplate;
 import com.newbiest.mms.model.MaterialLot;
+import com.newbiest.mms.model.MaterialLotUnit;
 import com.newbiest.mms.service.MmsService;
 import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.service.PrintService;
@@ -57,28 +60,19 @@ public class GetVboxPrintParaController extends AbstractRestController {
         GetVboxPrintParaRequestBody requestBody = request.getBody();
 
         String actionType = requestBody.getActionType();
-        if(GetVboxPrintParaRequest.ACTION_QUERY.equals(actionType)){
-            MesPackedLot mesPackedLot = gcService.queryVboxByTableRrnAndVboxId(requestBody.getTableRrn(), requestBody.getVboxId());
-            responseBody.setMesPackedLot(mesPackedLot);
-        } else if(GetVboxPrintParaRequest.ACTION_PRINT_LABLE.equals(actionType)){
-            List<MesPackedLot> mesPackedLots = requestBody.getMesPackedLots();
-            List<MesPackedLot> comMesPackedList = mesPackedLots.stream().filter(mesPackedLot -> MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory())).collect(Collectors.toList());
-            List<MesPackedLot> ftMesPackedList = mesPackedLots.stream().filter(mesPackedLot -> !MesPackedLot.PRODUCT_CATEGORY_COM.equals(mesPackedLot.getProductCategory())).collect(Collectors.toList());
-            if(CollectionUtils.isNotEmpty(comMesPackedList)){
+       if(GetVboxPrintParaRequest.ACTION_PRINT_LABLE.equals(actionType)){
+            List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
+            List<MaterialLot> comMLotList = materialLotList.stream().filter(materialLot -> MesPackedLot.PRODUCT_CATEGORY_COM.equals(materialLot.getReserved7())).collect(Collectors.toList());
+            List<MaterialLot> ftMLotList = materialLotList.stream().filter(materialLot -> !MesPackedLot.PRODUCT_CATEGORY_COM.equals(materialLot.getReserved7())).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(comMLotList)){
                 List<Map<String, Object>> parameterMapList = Lists.newArrayList();
-                for (MesPackedLot mesPackedLot : comMesPackedList) {
+                for (MaterialLot materialLot : comMLotList) {
                     Map<String, Object> parameterMap = Maps.newHashMap();
-                    MesPackedLot vBox = gcService.findByPackedLotId(mesPackedLot.getBoxId());
+                    MesPackedLot vBox = gcService.findByPackedLotId(materialLot.getMaterialLotId());
                     parameterMap.put("BOXID", vBox.getBoxId());
                     parameterMap.put("DEVICEID", vBox.getProductId());
                     parameterMap.put("GRADE", vBox.getGrade());
-
-                    if(MesPackedLot.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
-                        String subCode = gcService.getEncryptionSubCode(vBox.getGrade(), vBox.getLevelTwoCode());
-                        parameterMap.put("SUBCODE", subCode);
-                    } else {
-                        parameterMap.put("SUBCODE", vBox.getLevelTwoCode() + vBox.getGrade());
-                    }
+                    parameterMap.put("SUBCODE", vBox.getLevelTwoCode() + vBox.getGrade());
                     parameterMap.put("NUMBER", vBox.getQuantity().toString());
                     if(StringUtils.isNullOrEmpty(vBox.getProductionNote()) || StringUtils.isNullOrEmpty(vBox.getWorkorderId())){
                         parameterMap.put("PRODUCTNOTE",StringUtils.EMPTY);
@@ -133,21 +127,25 @@ public class GetVboxPrintParaController extends AbstractRestController {
                 List<Map<String, Object>> mapList = printService.rePrintVBxoLabel(parameterMapList, LabelTemplate.PRINT_COM_VBOX_LABEL);
                 responseBody.settingClientPrint(mapList);
             }
-            if(CollectionUtils.isNotEmpty(ftMesPackedList)){
+            if(CollectionUtils.isNotEmpty(ftMLotList)){
                 List<Map<String, Object>> parameterMapList = Lists.newArrayList();
-                for (MesPackedLot mesPackedLot : ftMesPackedList) {
-                    String subCode = gcService.getEncryptionSubCode(mesPackedLot.getGrade(), mesPackedLot.getLevelTwoCode());
+                for (MaterialLot materialLot : ftMLotList) {
+                    String subCode = gcService.getEncryptionSubCode(materialLot.getGrade(), materialLot.getReserved1());
                     Map<String, Object> parameterMap = Maps.newHashMap();
-                    parameterMap.put("BOXID", mesPackedLot.getBoxId());
-                    parameterMap.put("DEVICEID", mesPackedLot.getProductId().substring(0, mesPackedLot.getProductId().lastIndexOf("-")));
+                    parameterMap.put("BOXID", materialLot.getMaterialLotId());
+                    parameterMap.put("DEVICEID", materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-")));
                     parameterMap.put("SUBCODE", subCode);
-                    parameterMap.put("NUMBER", mesPackedLot.getQuantity().toString());
-                    if(MaterialLot.IMPORT_COG.equals(mesPackedLot.getProductCategory())){
+                    parameterMap.put("NUMBER", materialLot.getCurrentQty().toString());
+                    if(MaterialLotUnit.PRODUCT_CLASSIFY_COG.equals(materialLot.getReserved7())){
                         for(int i=1; i <= 5; i++){
                             parameterMap.put("PACKED" + i, StringUtils.EMPTY);
                         }
                         parameterMapList.add(parameterMap);
                     } else {
+                        MesPackedLot mesPackedLot = gcService.findByPackedLotId(materialLot.getMaterialLotId());
+                        if(mesPackedLot == null){
+                            throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, materialLot.getMaterialLotId());
+                        }
                         List<MesPackedLot> tboxList = gcService.findByParentRrn(mesPackedLot.getPackedLotRrn());
                         int number = 1;
                         if (CollectionUtils.isNotEmpty(tboxList)) {

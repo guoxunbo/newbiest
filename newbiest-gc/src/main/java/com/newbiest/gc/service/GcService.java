@@ -245,5 +245,4 @@ public interface GcService {
 
     void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException;
 
-    MesPackedLot queryVboxByTableRrnAndVboxId(Long tableRrn, String vboxId) throws ClientException;
 }
