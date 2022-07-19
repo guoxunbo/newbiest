@@ -7528,7 +7528,7 @@ public class GcServiceImpl implements GcService {
                         try {
                             DocumentLine documentLine = null;
                             if (otherIssueOrder.getObjectRrn() != null) {
-                                validationIssueOrderQty(otherIssueOrder.getObjectRrn(), erpMaterialOutaOrder);
+                                documentLine = validationIssueOrderQty(otherIssueOrder.getObjectRrn(), erpMaterialOutaOrder);
                             }
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
                             if (documentLine == null) {
@@ -7635,7 +7635,7 @@ public class GcServiceImpl implements GcService {
      * @param issueOrderRrn
      * @param erpMaterialOutaOrder
      */
-    private void validationIssueOrderQty(Long issueOrderRrn, ErpMaterialOutaOrder erpMaterialOutaOrder) throws ClientException{
+    private DocumentLine validationIssueOrderQty(Long issueOrderRrn, ErpMaterialOutaOrder erpMaterialOutaOrder) throws ClientException{
         try {
             DocumentLine documentLine = documentLineRepository.findByDocRrnAndReserved1(issueOrderRrn, String.valueOf(erpMaterialOutaOrder.getSeq()));
             if (documentLine != null) {
@@ -7645,6 +7645,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }
+            return documentLine;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -7743,7 +7744,7 @@ public class GcServiceImpl implements GcService {
                         try {
                             DocumentLine documentLine = null;
                             if (materialIssueOrder.getObjectRrn() != null) {
-                                validationIssueOrderQty(materialIssueOrder.getObjectRrn(), erpMaterialOutaOrder);
+                                documentLine = validationIssueOrderQty(materialIssueOrder.getObjectRrn(), erpMaterialOutaOrder);
                             }
 
                             if (documentLine == null) {
