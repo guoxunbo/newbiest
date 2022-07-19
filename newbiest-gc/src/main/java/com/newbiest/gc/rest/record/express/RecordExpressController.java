@@ -52,15 +52,12 @@ public class RecordExpressController {
         RecordExpressRequestBody requestBody = request.getBody();
 
         List<Map<String, Object>> parameterMapList = Lists.newArrayList();
-
         String actionType = requestBody.getActionType();
         List<MaterialLot> materialLots = Lists.newArrayList();
         if (RecordExpressRequestBody.ACTION_TYPE_AUTO_ORDER.equals(actionType)) {
-            List<MaterialLot> mLot = expressService.planOrder(requestBody.getMaterialLots(), requestBody.getServiceMode(), requestBody.getPayMode(), requestBody.getOrderTime());
-
+            List<MaterialLot> mLot = expressService.planOrder(requestBody.getMaterialLots(), requestBody.getServiceMode(), requestBody.getPayMode(), requestBody.getOrderTime(), requestBody.getCustomerType());
             parameterMapList = printService.printMaterialLotObliqueBoxLabel(mLot, mLot.get(0).getExpressNumber());
             responseBody.settingClientPrint(parameterMapList);
-
         } else if (RecordExpressRequestBody.ACTION_TYPE_MANUAL_ORDER.equals(actionType)) {
             materialLots = expressService.recordExpressNumber(requestBody.getMaterialLots(), requestBody.getExpressNumber(), requestBody.getExpressCompany(), MaterialLot.PLAN_ORDER_TYPE_MANUAL);
         } else if (RecordExpressRequestBody.ACTION_TYPE_CANCEL_ORDER.equals(actionType)) {
@@ -69,10 +66,8 @@ public class RecordExpressController {
             List<DocumentLine> deliveryOrders = expressService.recordExpressNumber(requestBody.getDocumentLineList());
             responseBody.setDocumentLineList(deliveryOrders);
         }else if(RecordExpressRequestBody.ACTION_TYPE_OBLIQUE_LABEL_PRINT.equals(actionType) || RecordExpressRequestBody.ACTION_TYPE_QUERY_PRINTPARAMETER.equals(actionType)){
-
             parameterMapList = printService.printMaterialLotObliqueBoxLabel(requestBody.getMaterialLots(), null);
             responseBody.settingClientPrint(parameterMapList);
-
         } else if(RecordExpressRequestBody.ACTION_TYPE_BATCH_CANCEL_ORDER.equals(actionType)){
             expressService.batchCancelOrderByWayBillNumber(requestBody.getOrderList());
         } else if(RecordExpressRequestBody.ACTION_TYPE_QUERY_ORDER_INFO.equals(actionType)){

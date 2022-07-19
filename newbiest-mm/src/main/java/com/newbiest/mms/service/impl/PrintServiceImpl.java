@@ -153,6 +153,7 @@ public class PrintServiceImpl implements PrintService {
                 throw new ClientParameterException(MmsException.MM_LBL_TEMPLATE_IS_NOT_EXIST, labelTemplateName);
             }
             if(!StringUtils.isNullOrEmpty(printCount)){
+                labelTemplateRepository.getEntityManager().detach(labelTemplate);
                 labelTemplate.setPrintCount(Integer.parseInt(printCount));
             }
             List<LabelTemplateParameter> parameterList = labelTemplateParameterRepository.findByLblTemplateRrn(labelTemplate.getObjectRrn());
