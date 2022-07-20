@@ -44,6 +44,8 @@ public class RecordExpressRequestBody extends RequestBody {
 
 	private String actionType;
 
+	private String customerType;
+
 	private Integer serviceMode;
 
 	private Integer payMode;

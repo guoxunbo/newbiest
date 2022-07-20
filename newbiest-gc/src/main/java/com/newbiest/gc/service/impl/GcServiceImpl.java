@@ -3076,7 +3076,7 @@ public class GcServiceImpl implements GcService {
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
-                            deliveryOrder.setSupplierName(erpSo.getCusname());
+                            deliveryOrder.setSupplierName(erpSo.getOther8());
                             deliveryOrder.setOwner(erpSo.getChandler());
                             deliveryOrder.setReserved32(erpSo.getCreateSeq());
                             if (deliveryOrder.getErpCreated() == null) {
@@ -7528,7 +7528,7 @@ public class GcServiceImpl implements GcService {
                         try {
                             DocumentLine documentLine = null;
                             if (otherIssueOrder.getObjectRrn() != null) {
-                                validationIssueOrderQty(otherIssueOrder.getObjectRrn(), erpMaterialOutaOrder);
+                                documentLine = validationIssueOrderQty(otherIssueOrder.getObjectRrn(), erpMaterialOutaOrder);
                             }
                             // 当系统中已经同步过这个数据，则除了数量栏位，其他都不能改
                             if (documentLine == null) {
@@ -7635,7 +7635,7 @@ public class GcServiceImpl implements GcService {
      * @param issueOrderRrn
      * @param erpMaterialOutaOrder
      */
-    private void validationIssueOrderQty(Long issueOrderRrn, ErpMaterialOutaOrder erpMaterialOutaOrder) throws ClientException{
+    private DocumentLine validationIssueOrderQty(Long issueOrderRrn, ErpMaterialOutaOrder erpMaterialOutaOrder) throws ClientException{
         try {
             DocumentLine documentLine = documentLineRepository.findByDocRrnAndReserved1(issueOrderRrn, String.valueOf(erpMaterialOutaOrder.getSeq()));
             if (documentLine != null) {
@@ -7645,6 +7645,7 @@ public class GcServiceImpl implements GcService {
                     }
                 }
             }
+            return documentLine;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -7743,7 +7744,7 @@ public class GcServiceImpl implements GcService {
                         try {
                             DocumentLine documentLine = null;
                             if (materialIssueOrder.getObjectRrn() != null) {
-                                validationIssueOrderQty(materialIssueOrder.getObjectRrn(), erpMaterialOutaOrder);
+                                documentLine = validationIssueOrderQty(materialIssueOrder.getObjectRrn(), erpMaterialOutaOrder);
                             }
 
                             if (documentLine == null) {
@@ -12992,52 +12993,4 @@ public class GcServiceImpl implements GcService {
         }
     }
 
-    /**
-     * 查询补打真空包标签信息
-     * @param tableRrn
-     * @param vboxId
-     * @return
-     * @throws ClientException
-     */
-    public MesPackedLot queryVboxByTableRrnAndVboxId(Long tableRrn, String vboxId) throws ClientException {
-        try {
-            MesPackedLot mesPackedLot = new MesPackedLot();
-            NBTable nbTable = uiService.getDeepNBTable(tableRrn);
-            String _whereClause = nbTable.getWhereClause();
-            String orderBy = nbTable.getOrderBy();
-            StringBuffer clauseBuffer = new StringBuffer();
-            clauseBuffer.append(" boxId = ");
-            clauseBuffer.append("'" + vboxId + "'");
-
-            if (!StringUtils.isNullOrEmpty(_whereClause)) {
-                clauseBuffer.append(" AND ");
-                clauseBuffer.append(_whereClause);
-            }
-            _whereClause = clauseBuffer.toString();
-            List<MesPackedLot> mesPackedLots = mesPackedLotRepository.findAll(ThreadLocalContext.getOrgRrn(), _whereClause, orderBy);
-            if(CollectionUtils.isNotEmpty(mesPackedLots)){
-                mesPackedLot = mesPackedLots.get(0);
-            } else {
-                MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(vboxId, ThreadLocalContext.getOrgRrn());
-                if(materialLot != null){
-                    if(MaterialLot.COG_WAFER_SOURCE.equals(materialLot.getReserved50())){
-                        mesPackedLot.setProductCategory(MaterialLot.IMPORT_COG);
-                    } else {
-                        throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_NOT_EXIST, vboxId);
-                    }
-                    mesPackedLot.setPackedLotRrn(materialLot.getObjectRrn());
-                    mesPackedLot.setBoxId(materialLot.getMaterialLotId());
-                    mesPackedLot.setProductId(materialLot.getMaterialName());
-                    mesPackedLot.setGrade(materialLot.getGrade());
-                    mesPackedLot.setLevelTwoCode(materialLot.getReserved1());
-                    mesPackedLot.setLocation(materialLot.getReserved6());
-                    mesPackedLot.setFinalOperationTime(materialLot.getUpdated());
-                    mesPackedLot.setQuantity(materialLot.getCurrentQty().intValue());
-                }
-            }
-            return mesPackedLot;
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
 }
