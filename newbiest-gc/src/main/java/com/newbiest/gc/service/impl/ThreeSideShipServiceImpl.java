@@ -484,22 +484,11 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
     private String getMLotSaleShipInfo(MaterialLot materialLot, String checkSubCode) throws ClientException{
         try {
             StringBuffer key = new StringBuffer();
-            String materialName = StringUtils.EMPTY;
-            if(!StringUtils.isNullOrEmpty(materialLot.getReserved7()) && MaterialLotUnit.PRODUCT_CATEGORY_WLT.equals(materialLot.getReserved7())){
-                materialName = materialLot.getMaterialName();
-            } else {
-                materialName = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-")) + materialLot.getReserved54();
-            }
-            key.append(materialName + StringUtils.SPLIT_CODE);
+            key.append(materialLot.getMaterialName() + StringUtils.SPLIT_CODE);
             if(!StringUtils.isNullOrEmpty(checkSubCode)){
                 key.append(materialLot.getReserved1() + StringUtils.SPLIT_CODE);
             }
             key.append(materialLot.getReserved6() + StringUtils.SPLIT_CODE);
-//            if(StringUtils.isNullOrEmpty(materialLot.getReserved55())){
-//                key.append(materialLot.getReserved55() + StringUtils.SPLIT_CODE);
-//            } else{
-//                key.append(materialLot.getReserved55().toUpperCase() + StringUtils.SPLIT_CODE);
-//            }
             return key.toString();
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
@@ -521,11 +510,6 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 docShipInfo.append(documentLine.getReserved2() + StringUtils.SPLIT_CODE);
             }
             docShipInfo.append(documentLine.getReserved7() + StringUtils.SPLIT_CODE);
-//            if(StringUtils.isNullOrEmpty(documentLine.getReserved8())){
-//                docShipInfo.append(documentLine.getReserved8() + StringUtils.SPLIT_CODE);
-//            } else {
-//                docShipInfo.append(documentLine.getReserved8().toUpperCase() + StringUtils.SPLIT_CODE);
-//            }
             return docShipInfo.toString();
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
