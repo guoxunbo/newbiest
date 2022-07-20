@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -309,6 +310,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 MaterialLot materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(parentMLotId, ThreadLocalContext.getOrgRrn());
                 if(materialLot != null){
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, parentMLotId);
+                }
+                //验证晶圆入库备注信息是否一致
+                List<MaterialLotUnit> materialLotUnits = boxIdMap.get(parentMLotId);
+                Set treasuryNoteSet = materialLotUnits.stream().map(materialLotUnit -> materialLotUnit.getTreasuryNote()).collect(Collectors.toSet());
+                if (treasuryNoteSet != null &&  treasuryNoteSet.size() > 1) {
+                    throw new ClientParameterException(MmsException.MATERIALLOT_UNIT_TREASURY_NOTE_IS_NOT_SAME, parentMLotId);
                 }
             }
             //验证LotId是否已经存在
