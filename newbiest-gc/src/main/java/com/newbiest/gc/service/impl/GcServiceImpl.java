@@ -3076,7 +3076,7 @@ public class GcServiceImpl implements GcService {
                             documentLines.add(documentLine);
 
                             // 同一个单据下，所有的客户都是一样的。
-                            deliveryOrder.setSupplierName(erpSo.getCusname());
+                            deliveryOrder.setSupplierName(erpSo.getOther8());
                             deliveryOrder.setOwner(erpSo.getChandler());
                             deliveryOrder.setReserved32(erpSo.getCreateSeq());
                             if (deliveryOrder.getErpCreated() == null) {
