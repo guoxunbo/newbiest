@@ -336,7 +336,7 @@ public class GcServiceImpl implements GcService {
      * @param
      * @return
      */
-    public List<MaterialLot> getWaitForReservedMaterialLot(Long documentLineRrn, Long tableRrn, String stockLocation, String ruleId)  throws ClientException {
+    public List<MaterialLot> getWaitForReservedMaterialLot(Long documentLineRrn, Long tableRrn, String stockLocation, String ruleId, String treasuryNote)  throws ClientException {
         try {
             List<MaterialLot> waitForReservedMaterialLots = Lists.newArrayList();
             DocumentLine documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLineRrn);
@@ -358,6 +358,8 @@ public class GcServiceImpl implements GcService {
                 } else {
                     whereClause.append("and  reserved4 ='" + documentLine.getReserved17() + "'");
                 }
+            } else if(!StringUtils.isNullOrEmpty(treasuryNote)){
+                whereClause.append("and  reserved4 ='" + treasuryNote + "'");
             }
             whereClause.append("and  reserved6 ='" + documentLine.getReserved7() + "'");
             whereClause.append("and  reserved1 ='" + subcode + "'");

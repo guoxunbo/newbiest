@@ -47,16 +47,16 @@ public class ReservedController extends AbstractRestController {
         ReServedRequestBody requestBody = request.getBody();
         String actionType = requestBody.getActionType();
         if (ReServedRequestBody.ACTION_TYPE_GET_MATERIAL_LOT.equals(actionType)) {
-            List<MaterialLot> waitForReservedMaterialLots = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.MLOT_RESERVED_DOC_VALIDATE_RULE_ID);
+            List<MaterialLot> waitForReservedMaterialLots = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.MLOT_RESERVED_DOC_VALIDATE_RULE_ID, StringUtils.EMPTY);
             responseBody.setMaterialLotList(waitForReservedMaterialLots);
         } else if(ReServedRequestBody.ACTION_TYPE_GET_OTHER_SHIP_MATERIAL_LOT.equals(actionType)){
-            List<MaterialLot> otherShipReservedMLotList = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID);
+            List<MaterialLot> otherShipReservedMLotList = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID, requestBody.getTreasuryNote());
             responseBody.setMaterialLotList(otherShipReservedMLotList);
         } else if(ReServedRequestBody.ACTION_TYPE_HN_WAREHOUSE_GET_OTHER_SHIP_MATERIAL_LOT.equals(actionType)){
-            List<MaterialLot> HNWarehouseOtherShipReservedMLotList = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.HN_WAREHOUSE_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID);
+            List<MaterialLot> HNWarehouseOtherShipReservedMLotList = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.HN_WAREHOUSE_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID, requestBody.getTreasuryNote());
             responseBody.setMaterialLotList(HNWarehouseOtherShipReservedMLotList);
         } else if (ReServedRequestBody.ACTION_TYPE_BSW_GET_OTHER_SHIP_MATERIAL_LOT.equals(actionType)){
-            List<MaterialLot> HNWarehouseOtherShipReservedMLotList = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.BSW_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID);
+            List<MaterialLot> HNWarehouseOtherShipReservedMLotList = gcService.getWaitForReservedMaterialLot(requestBody.getDocLineRrn(), requestBody.getTableRrn(), requestBody.getStockLocation(), MaterialLot.BSW_OTHER_SHIP_RESERVED_DOC_VALIDATE_RULE_ID, requestBody.getTreasuryNote());
             responseBody.setMaterialLotList(HNWarehouseOtherShipReservedMLotList);
         } else if (ReServedRequestBody.ACTION_TYPE_GET_MATERIAL_LOT_AND_USER.equals(actionType)) {
             NBTable nbTable = uiService.getDeepNBTable(requestBody.getTableRrn());

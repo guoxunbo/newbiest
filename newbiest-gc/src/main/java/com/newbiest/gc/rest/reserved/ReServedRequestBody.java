@@ -61,4 +61,7 @@ public class ReServedRequestBody extends RequestBody {
 
 	@ApiModelProperty(example = "货架归属地")
 	private String stockLocation;
+
+	@ApiModelProperty(example = "入库备注")
+	private String treasuryNote;
 }
