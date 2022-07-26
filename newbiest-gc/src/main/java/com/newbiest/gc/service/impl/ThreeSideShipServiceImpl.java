@@ -734,6 +734,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
             if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                 materialLot.setCurrentSubQty(new BigDecimal(materialLotUnitList.size()));
             }
+            materialLot.setCurrentQty(materialLot.getReceiveQty());
             if(lineType.equals("WLT")){
                 materialLot.restoreStatus();
                 materialLot.setReserved12(null);
@@ -744,7 +745,6 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 materialLot.setPreStatus(null);
                 materialLot.resetMLotInfo();
             }
-            materialLot.setCurrentQty(materialLot.getReceiveQty());
             materialLot.setReserved13(warehouseRrn);
             materialLot.setReserved6(bondedProperty);
             materialLot = materialLotRepository.saveAndFlush(materialLot);
