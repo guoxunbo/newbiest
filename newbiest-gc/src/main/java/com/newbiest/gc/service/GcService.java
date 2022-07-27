@@ -243,5 +243,6 @@ public interface GcService {
     List<MaterialLotUnit> getMaterialLotUnitListByMaterialLotList(List<MaterialLot> materialLotList)  throws ClientException;
 
     void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException;
+    String getWarehouseIdByWarehouseRrn(String warehouseRrn) throws ClientException;
 
 }

@@ -12913,6 +12913,11 @@ public class GcServiceImpl implements GcService {
             List<MaterialLotUnit> materialLotUnits = Lists.newArrayList();
             for(MaterialLot materialLot : materialLotList){
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                    String warehouseId = getWarehouseIdByWarehouseRrn(materialLotUnit.getReserved13());
+                    materialLotUnitRepository.getEntityManager().detach(materialLotUnit);
+                    materialLotUnit.setReserved13(warehouseId);
+                }
                 materialLotUnits.addAll(materialLotUnitList);
             }
             return materialLotUnits;
@@ -12921,4 +12926,33 @@ public class GcServiceImpl implements GcService {
         }
     }
 
+    /**
+     * 根据仓库主键获取仓库名称
+     * @param warehouseRrn
+     * @return
+     * @throws ClientException
+     */
+    public String getWarehouseIdByWarehouseRrn(String warehouseRrn) throws ClientException{
+        try {
+            String warehouseId = warehouseRrn;
+            if(!StringUtils.isNullOrEmpty(warehouseRrn)){
+                if(MaterialLot.SH_WAREHOUSE.equals(warehouseRrn)){
+                    warehouseId = "上海仓库";
+                } else if(MaterialLot.ZJ_WAREHOUSE.equals(warehouseRrn)){
+                    warehouseId = "浙江仓库";
+                } else if(MaterialLot.HK_WAREHOUSE.equals(warehouseRrn)){
+                    warehouseId = "香港仓库";
+                } else if(MaterialLot.BS_WAREHOUSE.equals(warehouseRrn)){
+                    warehouseId = "保税仓库";
+                } else if(MaterialLot.HN_WAREHOUSE.equals(warehouseRrn)){
+                    warehouseId = "湖南仓库";
+                } else if(MaterialLot.IC_WAREHOUSE.equals(warehouseRrn)){
+                    warehouseId = "格科微电子仓库";
+                }
+            }
+            return warehouseId;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
 }
