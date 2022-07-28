@@ -14,6 +14,8 @@ public class FinishGoodRequest extends Request {
 	public static final String ACTION_COM_RECEIVE = "COMReceive";
 	public static final String ACTION_WLT_RECEIVE = "WLTReceive";
 	public static final String ACTION_COB_RECEIVE = "COBReceive";
+	public static final String ACTION_LS_GRADE_QUERY = "LSGradeQuery";
+	public static final String ACTION_LS_GRADE_RECEIVE = "LSGradeReceive";
 
 	private FinishGoodRequestBody body;
 

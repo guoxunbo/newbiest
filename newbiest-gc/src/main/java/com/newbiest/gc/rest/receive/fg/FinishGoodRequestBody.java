@@ -28,4 +28,7 @@ public class FinishGoodRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "打印份数")
 	private String printCount;
+
+	@ApiModelProperty(value = "表单主键")
+	private Long tableRrn;
 }

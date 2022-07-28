@@ -33,6 +33,7 @@ public class MesPackedLot implements Serializable {
     public static final String PRODUCT_CATEGORY_SCP = "SCP";
     public static final String PRODUCT_CATEGORY_COB = "COB";
     public static final List<String> VBOX_CATEGORY_LIST = Lists.newArrayList(PRODUCT_CATEGORY_FT, PRODUCT_CATEGORY_COM, PRODUCT_CATEGORY_COB);
+    public static final List<String> WLT_CP_CATEGORY_LIST = Lists.newArrayList(PRODUCT_CATEGORY_CP, PRODUCT_CATEGORY_WLT, PRODUCT_CATEGORY_LSP, PRODUCT_CATEGORY_LCP, PRODUCT_CATEGORY_SCP);
 
     public static final String REPLACE_FLAG = "true";
 

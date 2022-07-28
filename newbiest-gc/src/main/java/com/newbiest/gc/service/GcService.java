@@ -114,6 +114,7 @@ public interface GcService {
     MaterialLot getWaitStockInStorageWaferByLotId(String lotId, Long tableRrn) throws ClientException;
     MaterialLot getWaitStockInStorageMaterialLotByLotIdOrMLotId(String mLotId, Long tableRrn) throws ClientException;
     MaterialLot getMaterialLotByMaterialLotIdAndTableRrn(String materialLotId, long tableRrn) throws ClientException;
+    List<MesPackedLot> queryLSGradeMesPakedLotListByTableRrn(Long tableRrn) throws ClientException;
 
     void validationMaterialLotVender(List<MaterialLotAction> materialLotActions) throws ClientException;
     void waferUnStockOutTagging(List<MaterialLotAction> materialLotActions) throws ClientException;
@@ -168,7 +169,7 @@ public interface GcService {
 
     MesPackedLot findByPackedLotId(String boxId) throws ClientException;
     List<MesPackedLot> findByParentRrn(Long parentRrn) throws ClientException;
-    void receiveFinishGood(List<MesPackedLot> packedLotList) throws ClientException;
+    void receiveFinishGood(List<MesPackedLot> packedLotList, String lSGradeFlag) throws ClientException;
 
     void bindRelaxBox(List<MaterialLot> materialLots, String relaxBoxId) throws ClientException;
     void unbindRelaxBox(List<MaterialLot> materialLots) throws ClientException;
