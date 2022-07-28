@@ -1,6 +1,7 @@
 package com.newbiest.gc.rest.receive.fg;
 
 import com.google.common.collect.Lists;
+import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.msg.ResponseBody;
 import lombok.Data;
 
@@ -16,6 +17,8 @@ public class FinishGoodResponseBody extends ResponseBody {
 	private static final long serialVersionUID = 1L;
 
 	private List<Map<String, Object>> parameterMapList = Lists.newArrayList();
+
+	private List<MesPackedLot> packedLotList = Lists.newArrayList();
 
 	private Boolean clientPrint;
 
