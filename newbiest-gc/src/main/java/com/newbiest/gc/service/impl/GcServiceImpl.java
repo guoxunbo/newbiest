@@ -1976,13 +1976,20 @@ public class GcServiceImpl implements GcService {
                     documentLine = documentLineRepository.saveAndFlush(documentLine);
                     baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RECEIVE);
 
-                    ReceiveOrder receiveOrder = (ReceiveOrder) receiveOrderRepository.findByObjectRrn(documentLine.getDocRrn());
-                    receiveOrder.setHandledQty(receiveOrder.getHandledQty().add(handledQty));
-                    receiveOrder.setUnHandledQty(receiveOrder.getUnHandledQty().subtract(handledQty));
-                    receiveOrder = receiveOrderRepository.saveAndFlush(receiveOrder);
-                    baseService.saveHistoryEntity(receiveOrder, MaterialLotHistory.TRANS_TYPE_RECEIVE);
+                    if(ErpSo.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
+                        ReceiveOrder receiveOrder = (ReceiveOrder) receiveOrderRepository.findByObjectRrn(documentLine.getDocRrn());
+                        receiveOrder.setHandledQty(receiveOrder.getHandledQty().add(handledQty));
+                        receiveOrder.setUnHandledQty(receiveOrder.getUnHandledQty().subtract(handledQty));
+                        receiveOrder = receiveOrderRepository.saveAndFlush(receiveOrder);
+                        baseService.saveHistoryEntity(receiveOrder, MaterialLotHistory.TRANS_TYPE_RECEIVE);
 
-                    validateDocAndUpdateErpSo(documentLine, handledQty);
+                        validateDocAndUpdateErpSo(documentLine, handledQty);
+                    } else if(ErpSob.SOURCE_TABLE_NAME.equals(documentLine.getReserved31())){
+                        updateDocQyAndErpSobSynStatusAndQty(documentLine, handledQty);
+                    } else {
+                        throw new ClientParameterException(GcExceptions.THE_DOC_TYPE_IS_ERROR_PLEASE_CALL_ENGINEER, documentLine.getDocId());
+                    }
+
                 }
             }
 
