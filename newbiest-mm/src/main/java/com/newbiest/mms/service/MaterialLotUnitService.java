@@ -28,4 +28,6 @@ public interface MaterialLotUnitService {
     List<MaterialLotUnit> getMaterialLotUnitByFabLotAndWaferId(List<MaterialLotUnit> materialLotUnitList, String importType) throws ClientException;
 
     List<MaterialLotUnit> createCobMLot(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+
+    String importLcdFinishMLot(List<MaterialLot> materialLotList) throws ClientException;
 }

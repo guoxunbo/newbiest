@@ -43,7 +43,6 @@ public interface GcService {
     List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, BigDecimal pickQty) throws ClientException;
     List<MaterialLotUnit> rwTagginggAutoPickMLotUnit(List<MaterialLotUnit> materialLotUnitList, BigDecimal pickQty) throws ClientException;
     List<MesPackedLot> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel, String printCount) throws ClientException;
-    Material saveProductAndSetStatusModelRrn(String name) throws ClientException;
 
     boolean validateMLotByPackageRule(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> materialLotUnitAssignEng(List<MaterialLotUnit> materialLotUnitList) throws ClientException;

@@ -733,7 +733,7 @@ public class TempFtServiceImpl implements TempFtService {
                 }
                 material = mmsService.getProductByName(productId);
                 if (material == null) {
-                    material = gcService.saveProductAndSetStatusModelRrn(productId);
+                    material = mmsService.saveProductAndSetStatusModelRrn(productId);
                 }
             } else if(TempFtModel.WAFER_SOURCE_LIST_35.contains(waferSource)){
                 productId += "-3.5";
@@ -814,7 +814,7 @@ public class TempFtServiceImpl implements TempFtService {
 
                 Material material = mmsService.getProductByName(materialName);
                 if (material == null) {
-                    material = gcService.saveProductAndSetStatusModelRrn(materialName);
+                    material = mmsService.saveProductAndSetStatusModelRrn(materialName);
                 }
 
                 Map<String, List<TempFtVboxModel>> stockIdMap = tempFtVboxModels.stream().collect(Collectors.groupingBy(TempFtVboxModel :: getWarehouseName));
