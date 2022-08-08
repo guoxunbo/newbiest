@@ -332,7 +332,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                     }
                     materialLot.setCurrentQty(currentQty);
                     if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
-                        saveDocLineRrnAndChangeStatus(materialLot, documentLine);
+                        gcService.saveDocLineRrnAndChangeStatus(materialLot, documentLine);
                     }
                 } else {
                     BigDecimal currentSubQty = materialLot.getCurrentSubQty();
@@ -345,7 +345,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                     }
                     materialLot.setCurrentSubQty(currentSubQty);
                     if (materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) == 0){
-                        saveDocLineRrnAndChangeStatus(materialLot, documentLine);
+                        gcService.saveDocLineRrnAndChangeStatus(materialLot, documentLine);
                     }
                 }
             }
@@ -786,43 +786,6 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 }
             }
         } catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 记录单号至物料批次上，并且修改物料批次状态，记录历史
-     * @param mLot
-     * @param docLine
-     */
-    private void saveDocLineRrnAndChangeStatus(MaterialLot mLot, DocumentLine docLine) throws ClientException{
-        try {
-            mLot.setReserved12(docLine.getObjectRrn().toString());
-            changeMaterialLotStatusAndSaveHistory(mLot);
-            if(!StringUtils.isNullOrEmpty(mLot.getParentMaterialLotId())){
-                changPackaedDetailLotStatusAndSaveHis(mLot);
-            } else {
-                changMaterialLotUnitLocationAndDoShip(mLot, mLot.getReserved6());
-            }
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 改变包装批次的状态及记录历史
-     * @param parentMLot
-     * @throws ClientException
-     */
-    private void changPackaedDetailLotStatusAndSaveHis(MaterialLot parentMLot) throws ClientException{
-        try {
-            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(parentMLot.getObjectRrn());
-            for (MaterialLot packageLot : packageDetailLots){
-                packageLot.setReserved6(parentMLot.getReserved6());
-                changeMaterialLotStatusAndSaveHistory(packageLot);
-                changMaterialLotUnitLocationAndDoShip(packageLot, parentMLot.getReserved6());
-            }
-        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

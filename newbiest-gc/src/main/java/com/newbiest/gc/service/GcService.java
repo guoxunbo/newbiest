@@ -244,5 +244,6 @@ public interface GcService {
 
     void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException;
     String getWarehouseIdByWarehouseRrn(String warehouseRrn) throws ClientException;
+    void saveDocLineRrnAndChangeStatus(MaterialLot materialLot, DocumentLine documentLine) throws ClientException;
 
 }

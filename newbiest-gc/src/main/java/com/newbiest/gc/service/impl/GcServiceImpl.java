@@ -9186,7 +9186,7 @@ public class GcServiceImpl implements GcService {
      * @param materialLot
      * @param documentLine
      */
-    private void saveDocLineRrnAndChangeStatus(MaterialLot materialLot, DocumentLine documentLine) throws ClientException{
+    public void saveDocLineRrnAndChangeStatus(MaterialLot materialLot, DocumentLine documentLine) throws ClientException{
         try {
             if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
                 materialLot.setReserved12(documentLine.getObjectRrn().toString());
