@@ -121,6 +121,8 @@ public class TempFtModel implements Serializable {
 
     private String dataValue25;
 
+    private String dataValue27;
+
     private String dataValue29;
 
 }

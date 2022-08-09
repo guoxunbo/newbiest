@@ -71,6 +71,7 @@ public class ImportMLotThread implements Callable {
             propsMap.put("grade", materialLotUnits.get(0).getGrade());
             propsMap.put("lotId", lotId.toUpperCase());
             propsMap.put("sourceProductId", materialLotUnits.get(0).getSourceProductId());
+            propsMap.put("engineerName", materialLotUnits.get(0).getEngineerName());
 
             String subCode = materialLotUnits.get(0).getReserved1();
             if(MaterialLot.IMPORT_WLA.equals(materialLotUnits.get(0).getReserved49()) && !StringUtils.isNullOrEmpty(subCode) && subCode.length() == 3){

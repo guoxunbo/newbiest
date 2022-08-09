@@ -45,7 +45,7 @@ public class StockOutController {
         } else if(StockOutRequest.ACTION_SALESHIP.equals(actionType)){
             threeSideShipService.comSaleShip(requestBody.getDocumentLineList(), requestBody.getMaterialLotActions());
         } else if(StockOutRequest.ACTION_TRANSFER_SHIP.equals(actionType)){
-            gcService.transferShip(requestBody.getDocumentLine(), requestBody.getMaterialLotActions(), requestBody.getWarehouseId());
+            gcService.transferShip(requestBody.getDocumentLineList(), requestBody.getMaterialLotActions(), requestBody.getWarehouseId());
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

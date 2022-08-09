@@ -53,7 +53,7 @@ public class FinishGoodController {
         FinishGoodRequestBody requestBody = request.getBody();
 
         if(FinishGoodRequest.ACTION_COM_RECEIVE.equals(requestBody.getActionType())){
-            gcService.receiveFinishGood(requestBody.getMesPackedLots());
+            gcService.receiveFinishGood(requestBody.getMesPackedLots(), StringUtils.EMPTY);
         } else if(FinishGoodRequest.ACTION_WLT_RECEIVE.equals(requestBody.getActionType())){
             List<MesPackedLot> mesPackedLots = gcService.receiveWltFinishGood(requestBody.getMesPackedLots(), requestBody.getPrintLabel(), requestBody.getPrintCount());
 
@@ -69,6 +69,11 @@ public class FinishGoodController {
             }
         } else if(FinishGoodRequest.ACTION_COB_RECEIVE.equals(requestBody.getActionType())){
             gcService.receiveCOBFinishGood(requestBody.getMesPackedLots());
+        } else if(FinishGoodRequest.ACTION_LS_GRADE_QUERY.equals(requestBody.getActionType())){
+            List<MesPackedLot> mesPackedLots = gcService.queryLSGradeMesPakedLotListByTableRrn(requestBody.getTableRrn());
+            responseBody.setPackedLotList(mesPackedLots);
+        } else if(FinishGoodRequest.ACTION_LS_GRADE_RECEIVE.equals(requestBody.getActionType())){
+            gcService.receiveFinishGood(requestBody.getMesPackedLots(), "LSGrade");
         } else {
             throw new ClientException(Request.NON_SUPPORT_ACTION_TYPE + requestBody.getActionType());
         }

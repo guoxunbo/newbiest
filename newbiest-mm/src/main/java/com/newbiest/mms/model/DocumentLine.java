@@ -50,6 +50,7 @@ public class DocumentLine extends NBUpdatable {
     public static final String SYNC_STATUS_MERGE = "9";
 
     public static final String ERROR_MEMO = "MergeDoc";
+    public static final String CANCEL_ERROR_MEMO = "CancelMergeDoc";
 
     public static final String DOC_MERGE = "Merge";
 
@@ -324,7 +325,7 @@ public class DocumentLine extends NBUpdatable {
     private String reserved31;
 
     /**
-     * 记录合单之后的ERP SEQ主键
+     * 记录合单之后的ERP SEQ主键，以及被合单的之后新单据的主键objectRrn
      */
     @Column(name="RESERVED32")
     private String reserved32;

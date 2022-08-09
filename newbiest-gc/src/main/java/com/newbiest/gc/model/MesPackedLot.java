@@ -1,6 +1,7 @@
 package com.newbiest.gc.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
 import com.newbiest.base.model.NBUpdatable;
 import com.newbiest.base.utils.DateUtils;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Glaxycore 的Mes已经包装好的批次别名
@@ -23,7 +25,6 @@ public class MesPackedLot implements Serializable {
 
     public static final String PRODUCT_CATEGORY_FT = "FT";
     public static final String PRODUCT_CATEGORY_RW = "RW";
-    public static final String PRODUCT_CATEGORY_WLFT = "WLFT";
     public static final String PRODUCT_CATEGORY_WLT = "WLT";
     public static final String PRODUCT_CATEGORY_CP = "CP";
     public static final String PRODUCT_CATEGORY_COM = "COM";
@@ -31,6 +32,8 @@ public class MesPackedLot implements Serializable {
     public static final String PRODUCT_CATEGORY_LCP = "LCP";
     public static final String PRODUCT_CATEGORY_SCP = "SCP";
     public static final String PRODUCT_CATEGORY_COB = "COB";
+    public static final List<String> VBOX_CATEGORY_LIST = Lists.newArrayList(PRODUCT_CATEGORY_FT, PRODUCT_CATEGORY_COM, PRODUCT_CATEGORY_COB);
+    public static final List<String> WLT_CP_CATEGORY_LIST = Lists.newArrayList(PRODUCT_CATEGORY_CP, PRODUCT_CATEGORY_WLT, PRODUCT_CATEGORY_LSP, PRODUCT_CATEGORY_LCP, PRODUCT_CATEGORY_SCP);
 
     public static final String REPLACE_FLAG = "true";
 

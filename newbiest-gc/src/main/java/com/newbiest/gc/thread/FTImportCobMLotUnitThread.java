@@ -39,6 +39,7 @@ public class FTImportCobMLotUnitThread implements Callable {
     private String productCategory;
     private String importType;
     private String targetWaferSource;
+    private String shipper;
     private String packageType;
     private String fileName;
     private Material material;
@@ -69,14 +70,7 @@ public class FTImportCobMLotUnitThread implements Callable {
             propMap.put("lotId", durable.trim());
             propMap.put("durable", durable.trim());
             propMap.put("reserved13", warehouse.getObjectRrn().toString());
-            String location = firstTempFtModel.getLocation() == null ? "" : firstTempFtModel.getLocation().trim();
-            if(MaterialLot.BONDED_PROPERTY_ZSH.equals(location)){
-                propMap.put("reserved14", MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
-            } else if(MaterialLot.LOCATION_SH.equals(location)){
-                propMap.put("reserved14", MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
-            }  else {
-                propMap.put("reserved14", location);
-            }
+            propMap.put("reserved14", firstTempFtModel.getPointId() == null ? "" : firstTempFtModel.getPointId().trim());
             propMap.put("created", firstTempFtModel.getInTime());
             propMap.put("receiveDate", firstTempFtModel.getInTime());
             propMap.put("grade", firstTempFtModel.getGrade()  == null ? "": firstTempFtModel.getGrade().trim());
@@ -101,6 +95,8 @@ public class FTImportCobMLotUnitThread implements Callable {
             propMap.put("reserved43", firstTempFtModel.getDataValue24() == null ? "": firstTempFtModel.getDataValue24().trim());
             propMap.put("reserved45", firstTempFtModel.getDataValue25() == null ? "": firstTempFtModel.getDataValue25().trim());
             propMap.put("reserved46", firstTempFtModel.getWoId() == null ? "": firstTempFtModel.getWoId().trim());
+            propMap.put("reserved55", shipper);
+            propMap.put("shipper", shipper);
             if (firstTempFtModel.getDataValue8().equals("1")) {
                 propMap.put("holdState", MaterialLot.HOLD_STATE_ON);
                 propMap.put("holdReason", firstTempFtModel.getHoldDesc() == null ? "": firstTempFtModel.getHoldDesc().trim());
@@ -140,16 +136,22 @@ public class FTImportCobMLotUnitThread implements Callable {
 
             MaterialLot materialLot = mmsService.receiveMLot2Warehouse(material, durable, materialLotAction);
 
+            if(!StringUtils.isNullOrEmpty(shipper)){
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
+                materialLotHistoryRepository.save(history);
+            }
+
             List<MaterialLotAction> materialLotActions = Lists.newArrayList();
             MaterialLotAction mLotAction = new MaterialLotAction();
             mLotAction.setMaterialLotId(materialLot.getMaterialLotId());
             mLotAction.setTransQty(materialLot.getCurrentQty());
-            mLotAction.setCobImportPack("1");
-            materialLotAction.setResetStorageId("1");
-            materialLotAction.setBoxStatusUseFlag("1");
+            mLotAction.setResetStorageId("1");
             materialLotActions.add(mLotAction);
-            packageService.packageMLots(materialLotActions, parentMaterialLotId, "COBPackCase");
-
+            MaterialLot packedLot = packageService.packageMLots(materialLotActions, parentMaterialLotId, "COBPackCase");
+            if(!StringUtils.isNullOrEmpty(shipper)){
+                MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedLot, MaterialLotHistory.TRANS_TYPE_STOCK_OUT_TAG);
+                materialLotHistoryRepository.save(history);
+            }
             for (TempFtModel tempFtModel : tempFtModelList) {
                 createMaterialLotUnitAndSaveHis(tempFtModel, materialLot);
             }

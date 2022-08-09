@@ -153,6 +153,7 @@ public class PrintServiceImpl implements PrintService {
                 throw new ClientParameterException(MmsException.MM_LBL_TEMPLATE_IS_NOT_EXIST, labelTemplateName);
             }
             if(!StringUtils.isNullOrEmpty(printCount)){
+                labelTemplateRepository.getEntityManager().detach(labelTemplate);
                 labelTemplate.setPrintCount(Integer.parseInt(printCount));
             }
             List<LabelTemplateParameter> parameterList = labelTemplateParameterRepository.findByLblTemplateRrn(labelTemplate.getObjectRrn());
@@ -611,14 +612,17 @@ public class PrintServiceImpl implements PrintService {
             if(CollectionUtils.isNotEmpty(packageDetailLots)){
                 //COB箱号，一箱只装一个真空包
                 MaterialLot packedLot = packageDetailLots.get(0);
-                parameterMap.put("CSTID", packedLot.getLotId());
+                parameterMap.put("CSTID", packedLot.getDurable());
                 parameterMap.put("FRAMEQTY", packedLot.getCurrentSubQty().toPlainString());
 
+                String lotId = packedLot.getDurable();
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(packedLot.getMaterialLotId());
 
-                if(CollectionUtils.isNotEmpty(materialLotUnitList) && materialLotUnitList.size() > 13){
-                    throw new ClientParameterException(MmsException.MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN, materialLot.getMaterialLotId());
-                }
+                lotId = getCobBoxLabelLotIdParam(lotId, materialLotUnitList);
+                parameterMap.put("LOTID", lotId);
+//                if(CollectionUtils.isNotEmpty(materialLotUnitList) && materialLotUnitList.size() > 13){
+//                    throw new ClientParameterException(MmsException.MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN, materialLot.getMaterialLotId());
+//                }
 
                 int i = 1;
                 if (CollectionUtils.isNotEmpty(materialLotUnitList)){
@@ -648,6 +652,30 @@ public class PrintServiceImpl implements PrintService {
             }
 
             return params;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
+    /**
+     * 根据晶圆信息获取COB标签打印参数
+     * @param lotId
+     * @param materialLotUnitList
+     * @return
+     * @throws ClientException
+     */
+    private String getCobBoxLabelLotIdParam(String lotId, List<MaterialLotUnit> materialLotUnitList) throws ClientException{
+        try {
+            if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                materialLotUnitList = materialLotUnitList.stream().sorted(Comparator.comparing(MaterialLotUnit :: getCurrentQty).reversed()).collect(Collectors.toList());
+                String unitId = materialLotUnitList.get(0).getUnitId();
+                String [] unitArr = unitId.split("-");
+                if(unitArr.length > 2){
+                    lotId = unitArr[1];
+                }
+            }
+            return lotId;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
@@ -1285,14 +1313,15 @@ public class PrintServiceImpl implements PrintService {
             List<MaterialLot> materialLotDetails = materialLotRepository.getByParentMaterialLotId(materialLot.getMaterialLotId());
             if (CollectionUtils.isNotEmpty(materialLotDetails)) {
                 MaterialLot materialLotDetail = materialLotDetails.get(0);
-                if(StringUtils.isNullOrEmpty(materialLotDetail.getLotCst())){
-                    parameterMap.put("LotID", StringUtils.EMPTY);
-                } else {
-                    parameterMap.put("LotID", materialLotDetail.getLotCst());
-                }
-                parameterMap.put("CSTID", materialLotDetail.getLotId());
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLotDetail.getMaterialLotId());
-                parameterMap.put("FrameQty", ""+materialLotUnitList.size());
+                parameterMap.put("CSTID", materialLotDetail.getDurable());
+
+                String lotId = materialLotDetail.getLotCst();
+                if(StringUtils.isNullOrEmpty(lotId) || !lotId.contains(".")){
+                    lotId = getCobBoxLabelLotIdParam(lotId, materialLotUnitList);
+                }
+                parameterMap.put("LotID", lotId);
+                parameterMap.put("FrameQty", "" + materialLotUnitList.size());
                 for(int i=0; i<materialLotUnitList.size(); i++){
                     parameterMap.put("FrameID" + i, "" + materialLotUnitList.get(i).getUnitId());
                     parameterMap.put("ChipQty" + i, "" + materialLotUnitList.get(i).getCurrentQty());
@@ -1477,14 +1506,12 @@ public class PrintServiceImpl implements PrintService {
      * @return
      */
     @Override
-    public List<Map<String, Object>> rePrintVBxoLabel(List<Map<String, Object>> parameterMapList) throws ClientException {
+    public List<Map<String, Object>> rePrintVBxoLabel(List<Map<String, Object>> parameterMapList, String labelType) throws ClientException {
         try {
             List<Map<String, Object>> mapList = Lists.newArrayList();
-
-            PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COM_VBOX_LABEL, "");
+            PrintContext printContext = buildPrintContext(labelType, "");
             for(Map<String, Object> parameterMap : parameterMapList){
                 printContext.setParameterMap(parameterMap);
-
                 if (printContext.getWorkStation().getIsClientPrint()){
                     Map<String, Object> params = Maps.newHashMap();
                     params = buildClientParameters(printContext);

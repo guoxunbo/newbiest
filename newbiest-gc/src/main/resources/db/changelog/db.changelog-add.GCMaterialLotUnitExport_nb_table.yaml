@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCCobStockOutTagUnitExport_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCCobStockOutTagUnitExport to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCobStockOutTagUnitExport
+              description: COB出货标注晶圆导出
+              tableName: MMS_MATERIAL_LOT_UNIT
+              modelName: MaterialLotUnit
+              modelClass: com.newbiest.mms.model.MaterialLotUnit
+              labelZh: COB出货标注晶圆导出
+              label: CobStockOutTagUnitExport
+  - changeSet:
+      id: add_GCCobWaferStockOutTagUnitExport_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCCobWaferStockOutTagUnitExport to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCobWaferStockOutTagUnitExport
+              description: COB晶圆出货标注晶圆导出
+              tableName: MMS_MATERIAL_LOT_UNIT
+              modelName: MaterialLotUnit
+              modelClass: com.newbiest.mms.model.MaterialLotUnit
+              labelZh: COB晶圆出货标注晶圆导出
+              label: CobWaferStockOutTagUnitExport
+  - changeSet:
+      id: add_GCCobStockOutTagUpdateUnitExport_to_NB_TABLE
+      author: Guozhang Luo
+      comment: add GCCobStockOutTagUpdateUnitExport to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCCobStockOutTagUpdateUnitExport
+              description: COB晶圆出货标注修改晶圆导出
+              tableName: MMS_MATERIAL_LOT_UNIT
+              modelName: MaterialLotUnit
+              modelClass: com.newbiest.mms.model.MaterialLotUnit
+              labelZh: COB晶圆出货标注修改晶圆导出
+              label: StockOutTagUpdateUnitExport

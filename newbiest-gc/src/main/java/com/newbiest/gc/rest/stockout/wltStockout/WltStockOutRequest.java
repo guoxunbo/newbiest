@@ -34,8 +34,6 @@ public class WltStockOutRequest extends Request {
 
 	public static final String ACTION_VALIDATE_MATERIAL_NAME = "ValidateMaterialName";
 
-	public static final String ACTION_THREESIDE_SHIP = "ThreeSideShip";
-
 	public static final String ACTION_SALE_SHIP = "SaleShip";
 
 	public static final String ACTION_SALE_AND_THREE_SALE_SHIP = "SaleAndthreeSide";

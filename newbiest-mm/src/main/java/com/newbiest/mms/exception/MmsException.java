@@ -12,6 +12,7 @@ public class MmsException {
     public static final String MM_SPARE_ID_IS_EXIST = "mm.spareId_is_exist";
     public static final String MM_PARTS_IS_NOT_EXIST = "mm.parts_is_not_exist";
     public static final String MATERIALLOT_HAS_BEEN_PACKED = "gc.material_lot_has_been_packed";
+    public static final String MATERIALLOT_UNIT_TREASURY_NOTE_IS_NOT_SAME = "gc.material_lot_unit_treasury_note_is_not_same";
 
 
     public static final String MM_MATERIAL_LOT_HAS_EXPIRED = "mm.material_lot_has_expired";

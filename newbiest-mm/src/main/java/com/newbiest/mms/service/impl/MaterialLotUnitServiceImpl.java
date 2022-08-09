@@ -26,6 +26,7 @@ import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.thread.ImportCobMLotThread;
 import com.newbiest.mms.thread.ImportMLotThread;
 import com.newbiest.mms.thread.ImportMLotThreadResult;
+import com.newbiest.mms.utils.CollectorsUtils;
 import com.newbiest.msg.ResponseHeader;
 import freemarker.template.utility.StringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -309,6 +311,12 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 if(materialLot != null){
                     throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, parentMLotId);
                 }
+                //验证晶圆入库备注信息是否一致
+                List<MaterialLotUnit> materialLotUnits = boxIdMap.get(parentMLotId);
+                Set treasuryNoteSet = materialLotUnits.stream().map(materialLotUnit -> materialLotUnit.getTreasuryNote()).collect(Collectors.toSet());
+                if (treasuryNoteSet != null &&  treasuryNoteSet.size() > 1) {
+                    throw new ClientParameterException(MmsException.MATERIALLOT_UNIT_TREASURY_NOTE_IS_NOT_SAME, parentMLotId);
+                }
             }
             //验证LotId是否已经存在
             Map<String, List<MaterialLotUnit>> materialLotMap = materialLotUnitList.stream().collect(Collectors.groupingBy(MaterialLotUnit :: getLotId));
@@ -506,7 +514,97 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
             }
             //重新导入退仓库的晶圆
             if(CollectionUtils.isNotEmpty(materialLotUnits)){
-                createCobMLot(materialLotUnits);
+                String importCode = generatorMLotUnitImportCode(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+                Map<String, List<MaterialLotUnit>> materialUnitMap = materialLotUnits.stream().collect(Collectors.groupingBy(MaterialLotUnit:: getMaterialName));
+                for (String materialName : materialUnitMap.keySet()) {
+                    Material material = validateAndGetMaterial(materialName);
+                    StatusModel statusModel = mmsService.getMaterialStatusModel(material);
+                    Map<String, List<MaterialLotUnit>> mlotDurableMap = materialUnitMap.get(materialName).stream().collect(Collectors.groupingBy(MaterialLotUnit :: getDurable));
+                    for (String durable : mlotDurableMap.keySet()) {
+                        List<MaterialLotUnit> mLotUnits = mlotDurableMap.get(durable);
+                        String parentMaterialLotId = mLotUnits.get(0).getMaterialLotId();
+                        BigDecimal totalQty = mLotUnits.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
+                        BigDecimal currentSubQty = new BigDecimal(mLotUnits.size());
+                        String location = mLotUnits.get(0).getReserved4();
+                        Map<String, Object> propsMap = Maps.newHashMap();
+                        propsMap.put("category", MaterialLot.CATEGORY_UNIT);
+                        propsMap.put("durable", durable.toUpperCase());
+                        propsMap.put("supplier", mLotUnits.get(0).getSupplier());
+                        propsMap.put("shipper", mLotUnits.get(0).getShipper());
+                        propsMap.put("grade", mLotUnits.get(0).getGrade());
+                        propsMap.put("lotId", durable.toUpperCase());
+                        propsMap.put("reserved1",mLotUnits.get(0).getReserved1());
+                        propsMap.put("reserved4",mLotUnits.get(0).getTreasuryNote());
+                        propsMap.put("reserved6",location);
+                        propsMap.put("reserved7",mLotUnits.get(0).getReserved7());
+                        if(MaterialLot.BONDED_PROPERTY_ZSH.equals(location)){
+                            propsMap.put("reserved14", MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
+                        } else if(MaterialLot.LOCATION_SH.equals(location)){
+                            propsMap.put("reserved14", MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
+                        }  else {
+                            propsMap.put("reserved14", materialLotUnitList.get(0).getReserved14());
+                        }
+                        propsMap.put("reserved13", mLotUnits.get(0).getReserved13());
+                        propsMap.put("reserved22", mLotUnits.get(0).getReserved22());
+                        propsMap.put("reserved23", mLotUnits.get(0).getReserved23());
+                        propsMap.put("reserved24", mLotUnits.get(0).getReserved24());
+                        propsMap.put("reserved25", mLotUnits.get(0).getReserved25());
+                        propsMap.put("reserved26", mLotUnits.get(0).getReserved26());
+                        propsMap.put("reserved27", mLotUnits.get(0).getReserved27());
+                        propsMap.put("reserved28", mLotUnits.get(0).getReserved28());
+                        propsMap.put("reserved29", mLotUnits.get(0).getReserved29());
+                        propsMap.put("reserved32", mLotUnits.get(0).getReserved32());
+                        propsMap.put("reserved33", mLotUnits.get(0).getReserved33());
+                        propsMap.put("reserved34", mLotUnits.get(0).getReserved34());
+                        propsMap.put("reserved35", mLotUnits.get(0).getReserved35());
+                        propsMap.put("reserved36", mLotUnits.get(0).getReserved36());
+                        propsMap.put("reserved37", mLotUnits.get(0).getReserved37());
+                        propsMap.put("reserved38", mLotUnits.get(0).getReserved38());
+                        propsMap.put("reserved39", mLotUnits.get(0).getReserved39());
+                        propsMap.put("reserved40", mLotUnits.get(0).getReserved40());
+                        propsMap.put("reserved41", mLotUnits.get(0).getReserved41());
+                        propsMap.put("reserved45", mLotUnits.get(0).getReserved45());
+                        propsMap.put("reserved46", mLotUnits.get(0).getReserved46());
+                        propsMap.put("reserved47", mLotUnits.get(0).getReserved47());
+                        propsMap.put("reserved49", mLotUnits.get(0).getReserved49());
+                        propsMap.put("reserved50", mLotUnits.get(0).getReserved50());
+                        propsMap.put("reserved48", importCode);
+
+                        MaterialLotAction materialLotAction = new MaterialLotAction(durable, StringUtils.EMPTY, propsMap, totalQty, currentSubQty, StringUtils.EMPTY);
+                        MaterialLot materialLot = mmsService.createMLot(material, statusModel, materialLotAction);
+
+                        List<MaterialLotAction> materialLotActions = Lists.newArrayList();
+                        MaterialLotAction mLotAction = new MaterialLotAction();
+                        mLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                        mLotAction.setTransQty(materialLot.getCurrentQty());
+                        mLotAction.setCobImportPack("1");
+                        materialLotActions.add(mLotAction);
+                        packageService.packageMLots(materialLotActions, parentMaterialLotId, "COBPackCase");
+
+                        for (MaterialLotUnit mLotUnit : mLotUnits) {
+                            mLotUnit.setDurable(durable);
+                            mLotUnit.setLotId(parentMaterialLotId);
+                            mLotUnit.setMaterialLotId(materialLot.getMaterialLotId());
+                            mLotUnit.setUnitId(mLotUnit.getUnitId().toUpperCase());
+                            mLotUnit.setMaterialLotRrn(materialLot.getObjectRrn());
+                            mLotUnit.setReceiveDate(materialLot.getReceiveDate());
+                            mLotUnit.setReserved1(materialLot.getReserved1());
+                            mLotUnit.setReceiveQty(mLotUnit.getCurrentQty());
+                            mLotUnit.setCurrentSubQty(BigDecimal.ONE);
+                            mLotUnit.setReserved14(materialLot.getReserved14());
+                            mLotUnit.setReserved18("0");
+                            mLotUnit.setReserved25(materialLot.getReserved25());
+                            mLotUnit.setReserved6(StringUtils.EMPTY);
+                            mLotUnit.setReserved7(StringUtils.EMPTY);
+                            mLotUnit.setReserved48(importCode);
+                            mLotUnit.setMaterial(material);
+                            mLotUnit = materialLotUnitRepository.saveAndFlush(mLotUnit);
+
+                            MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(mLotUnit, NBHis.TRANS_TYPE_CREATE);
+                            materialLotUnitHisRepository.save(history);
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
@@ -644,6 +742,7 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                     propsMap.put("lotId", materialLotUnit.getUnitId().toUpperCase());
                     propsMap.put("lotCst", materialLotUnit.getUnitId().toUpperCase().split("-")[0]);
                     propsMap.put("sourceProductId", materialLotUnit.getSourceProductId());
+                    propsMap.put("engineerName", materialLotUnit.getEngineerName());
 
                     propsMap.put("reserved1",subCode);
                     propsMap.put("reserved4",materialLotUnit.getTreasuryNote());

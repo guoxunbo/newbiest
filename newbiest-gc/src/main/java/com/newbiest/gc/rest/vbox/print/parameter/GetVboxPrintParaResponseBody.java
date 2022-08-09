@@ -1,6 +1,7 @@
 package com.newbiest.gc.rest.vbox.print.parameter;
 
 import com.google.common.collect.Lists;
+import com.newbiest.gc.model.MesPackedLot;
 import com.newbiest.msg.ResponseBody;
 import lombok.Data;
 
@@ -15,6 +16,8 @@ public class GetVboxPrintParaResponseBody extends ResponseBody {
 	private static final long serialVersionUID = 1L;
 
 	private List<Map<String, Object>> parameterMapList = Lists.newArrayList();
+
+	private MesPackedLot mesPackedLot;
 
 	private Boolean clientPrint;
 
