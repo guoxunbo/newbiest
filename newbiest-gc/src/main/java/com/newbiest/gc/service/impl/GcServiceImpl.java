@@ -3529,6 +3529,9 @@ public class GcServiceImpl implements GcService {
             materialLot.setStatus(MaterialStatus.STATUS_CREATE);
             materialLot.setPreStatusCategory(null);
             materialLot.setPreStatus(null);
+            materialLot.setWorkOrderPlanputTime(null);
+            materialLot.setWorkOrderId(null);
+            materialLot.setInnerLotId(null);
             materialLot.setCurrentQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
             if(CollectionUtils.isNotEmpty(materialLotUnits)){
                 materialLot.setCurrentSubQty(BigDecimal.valueOf(materialLotUnits.size()));
@@ -3550,6 +3553,9 @@ public class GcServiceImpl implements GcService {
 
             for(MaterialLotUnit materialLotUnit : materialLotUnits){
                 materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                materialLotUnit.setWorkOrderId(null);
+                materialLotUnit.setWorkOrderPlanputTime(null);
+                materialLotUnit.setInnerLotId(null);
                 materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
                 MaterialLotUnitHistory createHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, NBHis.TRANS_TYPE_CREATE);
