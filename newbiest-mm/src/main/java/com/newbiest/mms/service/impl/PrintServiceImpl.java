@@ -603,7 +603,11 @@ public class PrintServiceImpl implements PrintService {
             materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("BOXID", materialLot.getMaterialLotId());
-            parameterMap.put("SUBCODE", materialLot.getReserved1());
+            String subCode = materialLot.getReserved1();
+            if(!StringUtils.isNullOrEmpty(subCode) && subCode.contains("A")){
+                subCode = "A" + subCode;
+            }
+            parameterMap.put("SUBCODE", subCode);
             parameterMap.put("LOCATION", materialLot.getReserved6());
             parameterMap.put("DEVICEID", materialLot.getMaterialName());
             parameterMap.put("CHIPNUM", materialLot.getCurrentQty().toPlainString());
@@ -620,9 +624,6 @@ public class PrintServiceImpl implements PrintService {
 
                 lotId = getCobBoxLabelLotIdParam(lotId, materialLotUnitList);
                 parameterMap.put("LOTID", lotId);
-//                if(CollectionUtils.isNotEmpty(materialLotUnitList) && materialLotUnitList.size() > 13){
-//                    throw new ClientParameterException(MmsException.MATERIALLOT_WAFER_QTY_MORE_THAN_THIRTEEN, materialLot.getMaterialLotId());
-//                }
 
                 int i = 1;
                 if (CollectionUtils.isNotEmpty(materialLotUnitList)){
@@ -642,8 +643,6 @@ public class PrintServiceImpl implements PrintService {
             }
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
-//            print(printContext);
-
             Map<String, Object> params = Maps.newHashMap();
             if (printContext.getWorkStation().getIsClientPrint()){
                 params = buildClientParameters(printContext);
