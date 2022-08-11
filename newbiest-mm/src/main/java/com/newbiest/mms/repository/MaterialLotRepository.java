@@ -17,6 +17,7 @@ import java.util.List;
 public interface MaterialLotRepository extends IRepository<MaterialLot, Long> {
 
     MaterialLot findByMaterialLotIdAndOrgRrn(String materialLotId, Long orgRrn);
+    MaterialLot findByMaterialLotIdAndStatus(String materialLotId, String status);
 
     @Query("SELECT m FROM MaterialLot m, PackagedLotDetail p where p.materialLotRrn = m.objectRrn and p.packagedLotRrn = :packagedLotRrn order by m.materialLotId")
     List<MaterialLot> getPackageDetailLots(@Param("packagedLotRrn")Long packagedLotRrn);
