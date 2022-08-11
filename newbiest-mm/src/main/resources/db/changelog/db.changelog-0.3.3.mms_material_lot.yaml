@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_material_lot_0.3.3
+      author: GuozhangLuo
+      remarks: mms_material_lot add column FT_WORKORDER_ID
+      changes:
+        - addColumn:
+            tableName: MMS_MATERIAL_LOT
+            columns:
+              - column:
+                  name: FT_WORKORDER_ID
+                  type: varchar(256)
+                  remarks: FT工单号

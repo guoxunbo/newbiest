@@ -1103,6 +1103,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     @Column(name = "MRB_COMMENTS")
     private String mrbComments;
 
+    /**
+     * FT工单号
+     */
+    @Column(name = "FT_WORKORDER_ID")
+    private String ftWorkorderId;
+
     @Transient
     private String documentLineUser;
 
