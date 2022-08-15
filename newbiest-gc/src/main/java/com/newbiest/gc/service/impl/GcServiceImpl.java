@@ -3532,6 +3532,8 @@ public class GcServiceImpl implements GcService {
             materialLot.setWorkOrderPlanputTime(null);
             materialLot.setWorkOrderId(null);
             materialLot.setInnerLotId(null);
+            materialLot.setReserved11(null);
+            materialLot.setReserved15(null);
             materialLot.setReserved41(mesPackedLot.getTreasuryNote());
             materialLot.setCurrentQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
             if(CollectionUtils.isNotEmpty(materialLotUnits)){
@@ -11749,7 +11751,7 @@ public class GcServiceImpl implements GcService {
                         }
                         materialLot.setCurrentQty(currentQty);
                         if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
-                            mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE, StringUtils.EMPTY);
+                            mmsService.changeMaterialLotState(materialLot, GCMaterialEvent.EVENT_SCRAP_SHIP, StringUtils.EMPTY);
                             materialLotInventoryRepository.deleteByMaterialLotRrn(materialLot.getObjectRrn());
                             iterator.remove();
                         } else {
@@ -11762,7 +11764,7 @@ public class GcServiceImpl implements GcService {
                             }
                         }
 
-                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, GCMaterialEvent.EVENT_WAFER_ISSUE);
+                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SCRAP_SHIP);
                         materialLotHistoryRepository.save(history);
 
                         if (unhandedQty.compareTo(BigDecimal.ZERO) == 0) {
@@ -11780,7 +11782,7 @@ public class GcServiceImpl implements GcService {
                         documentLine.setHandledQty(documentLine.getHandledQty().add(handleQty));
                         documentLine.setUnHandledQty(unHandledQty);
                         documentLine = documentLineRepository.saveAndFlush(documentLine);
-                        baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_RAW_MATERIAL_ISSUE);
+                        baseService.saveHistoryEntity(documentLine, MaterialLotHistory.TRANS_TYPE_SCRAP_SHIP);
 
                         RawMaterialOtherOutOrder rawMaterialOtherOutOrder = (RawMaterialOtherOutOrder) rawMaterialOtherOutOrderRepository.findByObjectRrn(documentLine.getDocRrn());
                         rawMaterialOtherOutOrder.setHandledQty(rawMaterialOtherOutOrder.getHandledQty().add(handleQty));
@@ -12956,6 +12958,10 @@ public class GcServiceImpl implements GcService {
                     String warehouseId = getWarehouseIdByWarehouseRrn(materialLotUnit.getReserved13());
                     materialLotUnitRepository.getEntityManager().detach(materialLotUnit);
                     materialLotUnit.setReserved13(warehouseId);
+                    materialLotUnit.setReserved55(materialLot.getReserved55());
+                    materialLotUnit.setReserved56(materialLot.getReserved56());
+                    materialLotUnit.setReserved57(materialLot.getReserved57());
+                    materialLotUnit.setReserved58(materialLot.getReserved58());
                 }
                 materialLotUnits.addAll(materialLotUnitList);
             }
