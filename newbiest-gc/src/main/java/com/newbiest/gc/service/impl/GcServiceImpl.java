@@ -12963,6 +12963,7 @@ public class GcServiceImpl implements GcService {
                     materialLotUnit.setReserved56(materialLot.getReserved56());
                     materialLotUnit.setReserved57(materialLot.getReserved57());
                     materialLotUnit.setReserved58(materialLot.getReserved58());
+                    materialLotUnit.setCustomerId(materialLot.getCustomerId());
                 }
                 materialLotUnits.addAll(materialLotUnitList);
             }

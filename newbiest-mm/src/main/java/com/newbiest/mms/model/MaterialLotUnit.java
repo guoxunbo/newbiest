@@ -590,6 +590,9 @@ public class MaterialLotUnit extends NBUpdatable {
     @Transient
     private String reserved58;
 
+    @Transient
+    private String customerId;
+
     /**二级代码第五位*/
     @Transient
     private String subCode5;
