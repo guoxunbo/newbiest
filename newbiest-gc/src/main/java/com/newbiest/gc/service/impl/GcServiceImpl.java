@@ -8177,6 +8177,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved9(OtherShipOrder.CATEGORY_DELIVERYB);
                                 documentLine.setReserved13(erpSob.getCmemo());
                                 documentLine.setReserved16(erpSob.getOther2());
+                                documentLine.setReserved17(erpSob.getOther4());
                                 documentLine.setReserved19(erpSob.getOther8());
                                 documentLine.setReserved20(erpSob.getOther9());
                                 documentLine.setReserved21(erpSob.getOther10());
