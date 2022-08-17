@@ -3529,15 +3529,20 @@ public class GcServiceImpl implements GcService {
             materialLot.setStatus(MaterialStatus.STATUS_CREATE);
             materialLot.setPreStatusCategory(null);
             materialLot.setPreStatus(null);
-            materialLot.setWorkOrderPlanputTime(null);
             materialLot.setWorkOrderId(null);
+            materialLot.setWorkOrderPlanputTime(null);
             materialLot.setInnerLotId(null);
             materialLot.setReserved11(null);
             materialLot.setReserved15(null);
+            materialLot.setReserved7(MaterialLot.IMPORT_FT);
             materialLot.setReserved41(mesPackedLot.getTreasuryNote());
             materialLot.setCurrentQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
+            materialLot.setSourceProductId(mesPackedLot.getOrgProductId());
             if(CollectionUtils.isNotEmpty(materialLotUnits)){
                 materialLot.setCurrentSubQty(BigDecimal.valueOf(materialLotUnits.size()));
+            }
+            if(!StringUtils.isNullOrEmpty(mesPackedLot.getSplitFlag()) && mesPackedLot.getSplitFlag().equals("Y")){
+                materialLot.setReserved35(null);
             }
             materialLot = materialLotRepository.saveAndFlush(materialLot);
             MaterialLotHistory createhHistory = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
