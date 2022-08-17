@@ -3688,11 +3688,7 @@ public class GcServiceImpl implements GcService {
                 }
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(productCategory)){
                 otherReceiveProps.put("reserved7", productCategory);
-                if(StringUtils.isNullOrEmpty(mesPackedLot.getWaferSource()) || MaterialLot.SENSOR_WAFER_SOURCE.equals(mesPackedLot.getWaferSource())){
-                    otherReceiveProps.put("reserved50", MaterialLot.FT_WAFER_SOURCE);
-                } else {
-                    otherReceiveProps.put("reserved50", MaterialLot.WLFT_WAFER_SOURCE);
-                }
+                otherReceiveProps.put("reserved50", MaterialLot.FT_WAFER_SOURCE);
             } else if(MaterialLotUnit.PRODUCT_CATEGORY_RW.equals(productCategory) && MaterialLotUnit.BOX_TYPE.equals(type)){
                 otherReceiveProps.put("reserved50", MaterialLot.RW_WAFER_SOURCE);
                 otherReceiveProps.put("reserved7", MaterialLotUnit.PRODUCT_CATEGORY_FT_COB);
