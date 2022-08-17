@@ -3371,10 +3371,14 @@ public class GcServiceImpl implements GcService {
                         otherReceiveProps.put("workOrderId", mesPackedLot.getWorkorderId());
                     }
                     otherReceiveProps.put("productType", mesPackedLot.getProductType());
-                    if(!StringUtils.isNullOrEmpty(mesPackedLot.getTestSource())){
-                        otherReceiveProps.put("reserved49", mesPackedLot.getTestSource());
+                    if(MaterialLotUnit.PRODUCT_CATEGORY_FT.equals(mesPackedLot.getProductCategory())){
+                        otherReceiveProps.put("reserved49", MaterialLotUnit.PRODUCT_CATEGORY_FT);
                     } else {
-                        otherReceiveProps.put("reserved49", mesPackedLot.getImportType());
+                        if(!StringUtils.isNullOrEmpty(mesPackedLot.getTestSource())){
+                            otherReceiveProps.put("reserved49", mesPackedLot.getTestSource());
+                        } else {
+                            otherReceiveProps.put("reserved49", mesPackedLot.getImportType());
+                        }
                     }
                     otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
                     otherReceiveProps.put("reserved24", mesPackedLot.getFabDevice());
