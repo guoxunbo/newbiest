@@ -12963,6 +12963,7 @@ public class GcServiceImpl implements GcService {
                 for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                     String warehouseId = getWarehouseIdByWarehouseRrn(materialLotUnit.getReserved13());
                     materialLotUnitRepository.getEntityManager().detach(materialLotUnit);
+                    materialLotUnit.setReserved3(materialLot.getReserved3());
                     materialLotUnit.setReserved13(warehouseId);
                     materialLotUnit.setReserved55(materialLot.getReserved55());
                     materialLotUnit.setReserved56(materialLot.getReserved56());
