@@ -4874,7 +4874,7 @@ public class GcServiceImpl implements GcService {
                     }
                     materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_FT);
                     materialLot.setReserved50(MaterialLot.FT_WAFER_SOURCE);
-                    materialLot.setReserved49(MaterialLot.IMPORT_FT);
+                    materialLot.setReserved49(MaterialLot.IMPORT_FT0);
                     materialLot.setReserved48(importCode);
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
 
@@ -9899,14 +9899,12 @@ public class GcServiceImpl implements GcService {
 
     /**
      * FT晶圆接收(unitId与materialLotId一致)
-     * @param materialLotUnits
+     * @param materialLotList
      * @throws ClientException
      */
-    public void receiveFTWafer(List<MaterialLotUnit> materialLotUnits) throws ClientException {
+    public void receiveFTWafer(List<MaterialLot> materialLotList) throws ClientException {
         try {
-            List<MaterialLot> materialLotList = materialLotUnits.stream().map(materialLotUnit -> mmsService.getMLotByMLotId(materialLotUnit.getMaterialLotId(), true)).collect(Collectors.toList());
-            for(MaterialLotUnit materialLotUnit : materialLotUnits){
-                MaterialLot materialLot = mmsService.getMLotByMLotId(materialLotUnit.getMaterialLotId());
+            for(MaterialLot materialLot : materialLotList){
                 Warehouse warehouse = new Warehouse();
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved13())){
                     warehouse = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
@@ -9921,21 +9919,20 @@ public class GcServiceImpl implements GcService {
                 materialLotAction.setTransCount(materialLot.getCurrentSubQty());
                 mmsService.stockIn(materialLot, materialLotAction);
 
-                materialLotUnit.setState(MaterialLotUnit.STATE_IN);
-                materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
-                MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
-                history.setTransQty(materialLotUnit.getCurrentQty());
-                materialLotUnitHisRepository.save(history);
-            }
-
-            for(MaterialLot materialLot : materialLotList){
+                List<MaterialLotUnit> materialLotUnits = materialLotUnitRepository.findByMaterialLotId(materialLot.getMaterialLotId());
+                for(MaterialLotUnit materialLotUnit : materialLotUnits){
+                    materialLotUnit.setState(MaterialLotUnit.STATE_IN);
+                    materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                    MaterialLotUnitHistory history = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_IN);
+                    history.setTransQty(materialLotUnit.getCurrentQty());
+                    materialLotUnitHisRepository.save(history);
+                }
                 String importType = materialLot.getReserved49();
-                if(MaterialLot.IMPORT_CRMA.equals(importType) || MaterialLot.IMPORT_RETURN.equals(importType) || MaterialLot.IMPORT_RMA.equals(importType) ||
+                if(MaterialLot.IMPORT_CRMA.equals(importType) || MaterialLot.IMPORT_RETURN.equals(importType) || MaterialLot.IMPORT_RMA.equals(importType) || MaterialLot.IMPORT_FT0.equals(importType) ||
                         MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7()) || MaterialLotUnit.PRODUCT_CLASSIFY_RMA.equals(materialLot.getReserved7())){
                     continue;
                 }
                 String prodCate = MaterialLotUnit.PRODUCT_TYPE_PROD;
-                Warehouse warehouse  = warehouseRepository.getOne(Long.parseLong(materialLot.getReserved13()));
                 if(!StringUtils.isNullOrEmpty(materialLot.getProductType())){
                     prodCate = materialLot.getProductType();
                 }

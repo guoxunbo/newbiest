@@ -97,7 +97,7 @@ public interface GcService {
     GCProductNumberRelation saveProductNumberRelation(GCProductNumberRelation productNumberRelation, String transType) throws ClientException;
     void validationMLotMaterialName(List<MaterialLotAction> materialLotActions) throws ClientException;
     void stockInFTWafer(List<StockInModel> stockInModels) throws ClientException;
-    void receiveFTWafer(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+    void receiveFTWafer(List<MaterialLot> materialLotList) throws ClientException;
     List<MaterialLotUnit> createFTMaterialLotAndGetImportCode(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     GCWorkorderRelation saveWorkorderGradeHoldInfo(GCWorkorderRelation workorderRelation, String transType) throws ClientException;
     String getEncryptionSubCode(String grade, String subcode) throws ClientException;
