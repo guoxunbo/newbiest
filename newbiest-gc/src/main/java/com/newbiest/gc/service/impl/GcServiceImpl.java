@@ -4832,6 +4832,63 @@ public class GcServiceImpl implements GcService {
     }
 
     /**
+     * FT成品数据导入
+     * @param materialLotList
+     * @return
+     * @throws ClientException
+     */
+    public String validateAndSaveFtFinishGoodMLot(List<MaterialLot> materialLotList)throws ClientException{
+        try {
+            String importCode = generatorMLotsTransId(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+            Map<String, List<MaterialLot>> materialLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getMaterialName));
+            for(String materialName : materialLotMap.keySet()){
+                Material material = mmsService.getProductByName(materialName);
+                if(material == null){
+                    material = mmsService.saveProductAndSetStatusModelRrn(materialName);
+                }
+                for(MaterialLot materialLot : materialLotMap.get(materialName)){
+                    String materialLotId = materialLot.getReserved30();
+                    MaterialLot sourceMLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLotId, ThreadLocalContext.getOrgRrn());
+                    if(sourceMLot != null){
+                        if(!MaterialLotUnit.STATE_OUT.equals(sourceMLot.getStatus())){
+                            throw new ClientParameterException(GcExceptions.MATERIAL_LOT_ALREADY_IN_INVENTORY, materialLotId);
+                        }
+                        materialLotRepository.delete(sourceMLot);
+                        packagedLotDetailRepository.deleteByMaterialLotId(materialLotId);
+                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_DELETE);
+                        materialLotHistoryRepository.save(history);
+                    }
+                    materialLot.initialMaterialLot();
+                    materialLot.setMaterial(material);
+                    materialLot.setStatusModelRrn(material.getStatusModelRrn());
+                    materialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                    materialLot.setStatus(MaterialStatus.STATUS_CREATE);
+                    materialLot.setMaterialLotId(materialLotId);
+                    materialLot.setReserved32(materialLot.getCurrentQty().toString());
+                    materialLot.setReserved4(materialLot.getReserved41());
+                    String stoorageId = materialLot.getReserved14();
+                    if(MaterialLot.BONDED_PROPERTY_ZSH.equals(stoorageId)){
+                        materialLot.setReserved14(MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
+                    } else if(MaterialLot.LOCATION_SH.equals(stoorageId)){
+                        materialLot.setReserved14(MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
+                    }
+                    materialLot.setReserved7(MaterialLotUnit.PRODUCT_CATEGORY_FT);
+                    materialLot.setReserved50(MaterialLot.FT_WAFER_SOURCE);
+                    materialLot.setReserved49(MaterialLot.IMPORT_FT);
+                    materialLot.setReserved48(importCode);
+                    materialLot = materialLotRepository.saveAndFlush(materialLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, NBHis.TRANS_TYPE_CREATE);
+                    materialLotHistoryRepository.save(history);
+                }
+            }
+            return importCode;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 验证RMA导入的物料批次是否已经存在、Hold、装箱
      * @param materialLotList
      * @return
@@ -6195,7 +6252,7 @@ public class GcServiceImpl implements GcService {
                 if(!StringUtils.isNullOrEmpty(materialLot.getReserved46())){
                     List<Map<String, String>> workNoMapList = scmService.queryScmWaferByWorkOrderNo(materialLot.getReserved46());
                     if(CollectionUtils.isNotEmpty(workNoMapList)){
-                        List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getMaterialLotId());
+                        List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(materialLot.getLotId());
                         List<String> lotNumberList = Lists.newArrayList();
                         for(MaterialLotUnit materialLotUnit : materialLotUnitList){
                             String lotNumber = materialLotUnit.getUnitId().split("-")[1].split("\\.")[0];
