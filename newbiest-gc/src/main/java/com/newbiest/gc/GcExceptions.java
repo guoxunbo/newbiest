@@ -30,6 +30,7 @@ public class GcExceptions {
     public static final String THE_DOCUMENT_GRADE_OR_SUBCODE_IS_NULL = "gc.the_order_grade_or_subcode_is_null";
     public static final String THE_DOC_TYPE_IS_ERROR_PLEASE_CALL_ENGINEER = "gc.the_doc_type_is_error_please_call_engineer";
 
+    public static final String MATERIAL_LOT_ALREADY_IN_INVENTORY = "gc.meterial_lot_already_in_inventory";
     public static final String MATERIAL_LOT_NOT_MATCH_ORDER = "gc.meterial_lot_not_match_order";
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "gc.meterial_lot_reserved_by_another";
     public static final String MATERIAL_LOT_IMPORT_FILE_IS_ERRROR = "gc.meterial_lot_import_file_is_error";

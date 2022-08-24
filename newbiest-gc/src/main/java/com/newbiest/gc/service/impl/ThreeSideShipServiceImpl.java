@@ -96,6 +96,9 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
     @Autowired
     ErpSoRepository erpSoRepository;
 
+    @Autowired
+    WarehouseRepository warehouseRepository;
+
     public static final String WAREHOUSE_SH = "SH_STOCK";
     public static final String WAREHOUSE_ZJ = "ZJ_STOCK";
     public static final String WAREHOUSE_HK = "HK_STOCK";
@@ -712,9 +715,23 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                     }
                     Long totalSubQty = packageDetailLots.stream().collect(Collectors.summingLong(mLot -> mLot.getCurrentSubQty() == null ? 0 : mLot.getCurrentSubQty().longValue()));
                     materialLot.setCurrentSubQty(new BigDecimal(totalSubQty));
-                    reNewMLotAndUpdateWarehouse(materialLot, warehouseRrn, bondedProperty, lineType);
-                } else {
-                    reNewMLotAndUpdateWarehouse(materialLot, warehouseRrn, bondedProperty, lineType);
+                }
+                reNewMLotAndUpdateWarehouse(materialLot, warehouseRrn, bondedProperty, lineType);
+                if(lineType.equals("WLT")){
+                    //恢复库存
+                    Warehouse warehouse = (Warehouse) warehouseRepository.findByObjectRrn(Long.parseLong(warehouseRrn));
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotAction.setTargetWarehouseRrn(Long.parseLong(warehouseRrn));
+                    materialLotAction.setTransQty(materialLot.getCurrentQty());
+                    String storageId = materialLot.getReserved14();
+                    Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
+                    if(storage == null){
+                        storage = mmsService.createStorage(warehouse, storageId);
+                    }
+                    MaterialLotInventory materialLotInventory = new MaterialLotInventory();
+                    materialLotInventory.setMaterialLot(materialLot).setWarehouse(warehouse).setStorage(storage);
+                    mmsService.saveMaterialLotInventory(materialLotInventory, materialLot.getCurrentQty());
                 }
             }
         }  catch (Exception e){

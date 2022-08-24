@@ -51,13 +51,12 @@ public class FTMLotManagerController extends AbstractRestController {
         String actionType = requestBody.getActionType();
 
         if (FTMLotManagerRequest.ACTION_TYPE_RECEIVE.equals(actionType)) {
-            List<MaterialLotUnit> materialLotUnits = requestBody.getMaterialLotUnitList();
-            gcService.receiveFTWafer(materialLotUnits);
+            List<MaterialLot> materialLotList = requestBody.getMaterialLotList();
+            gcService.receiveFTWafer(materialLotList);
         } else if(FTMLotManagerRequest.ACTION_TYPE_QUERY.equals(actionType)){
             List<MaterialLotUnit> materialLotUnitList = gcService.queryFTMLotByUnitIdAndTableRrn(requestBody.getUnitId(), requestBody.getTableRrn());
             responseBody.setMaterialLotUnitList(materialLotUnitList);
         } else if(FTMLotManagerRequest.ACTION_TYPE_STOCK_IN.equals(actionType)){
-            List<MaterialLotUnit> materialLotUnits = requestBody.getMaterialLotUnitList();
             List<StockInModel> stockInModels = requestBody.getStockInModels();
             gcService.stockInFTWafer(stockInModels);
         } else if(FTMLotManagerRequest.ACTION_TYPE_QUERY_WAIT_ISSUE_UNIT.equals(actionType)){

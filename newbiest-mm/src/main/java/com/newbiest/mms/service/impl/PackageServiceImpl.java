@@ -328,11 +328,6 @@ public class PackageServiceImpl implements PackageService{
                 List<MaterialLotUnit> materialLotUnitList = materialLotUnitService.getUnitsByMaterialLotId(waitToUnPackageMLot.getMaterialLotId());
                 if(CollectionUtils.isNotEmpty(materialLotUnitList)){
                     for(MaterialLotUnit materialLotUnit: materialLotUnitList){
-//                        //RW(COB)的拆箱时晶圆将LotId和Durable信息还原为Lot信息
-//                        if(MaterialLot.RW_WAFER_SOURCE.equals(waitToUnPackageMLot.getReserved50())){
-//                            materialLotUnit.setLotId(waitToUnPackageMLot.getLotId());
-//                            materialLotUnit.setDurable(waitToUnPackageMLot.getDurable());
-//                        }
                         materialLotUnit.setState(MaterialLotUnit.STATE_IN);
                         materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
 
@@ -350,6 +345,12 @@ public class PackageServiceImpl implements PackageService{
                 packedMaterialLot.setReserved16(packedMaterialLots.get(0).getReserved16());
                 packedMaterialLot.setReserved17(packedMaterialLots.get(0).getReserved17());
                 packedMaterialLot.setReserved18(packedMaterialLots.get(0).getReserved18());
+                packedMaterialLot.setReserved51(packedMaterialLots.get(0).getReserved51());
+                packedMaterialLot.setReserved52(packedMaterialLots.get(0).getReserved52());
+                packedMaterialLot.setReserved53(packedMaterialLots.get(0).getReserved53());
+                packedMaterialLot.setReserved55(packedMaterialLots.get(0).getReserved55());
+                packedMaterialLot.setShipper(packedMaterialLots.get(0).getShipper());
+                packedMaterialLot.setDocDate(packedMaterialLots.get(0).getDocDate());
 
                 //如果箱中Lot已经被标注，更新箱号的标注信息
                 List<MaterialLot> taggingMLotList = packedMaterialLots.stream().filter(mLot -> !StringUtils.isNullOrEmpty(mLot.getReserved54())).collect(Collectors.toList());

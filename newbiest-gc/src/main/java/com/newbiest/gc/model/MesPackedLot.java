@@ -331,6 +331,12 @@ public class MesPackedLot implements Serializable {
     private String waferSource;
 
     /**
+     * 退料接收时F3是否拆批
+     */
+    @Column(name = "SPLIT_FLAG")
+    private String splitFlag;
+
+    /**
      * IMPORT_TYPE
      */
     @Transient
