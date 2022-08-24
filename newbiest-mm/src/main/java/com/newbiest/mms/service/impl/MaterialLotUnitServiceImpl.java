@@ -24,6 +24,7 @@ import com.newbiest.mms.service.PackageService;
 import com.newbiest.mms.state.model.MaterialEvent;
 import com.newbiest.mms.state.model.MaterialStatus;
 import com.newbiest.mms.thread.ImportCobMLotThread;
+import com.newbiest.mms.thread.ImportLcdMLotThread;
 import com.newbiest.mms.thread.ImportMLotThread;
 import com.newbiest.mms.thread.ImportMLotThreadResult;
 import com.newbiest.mms.utils.CollectorsUtils;
@@ -808,6 +809,165 @@ public class MaterialLotUnitServiceImpl implements MaterialLotUnitService {
                 }
             }
             return materialLotUnits;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+
+    /**
+     * LCD成品导入
+     * @param materialLotList
+     * @return
+     * @throws ClientException
+     */
+    @Override
+    public String importLcdFinishMLot(List<MaterialLot> materialLotList) throws ClientException {
+        try {
+            for(MaterialLot materialLot : materialLotList){
+                MaterialLot oldMaterialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+                if (oldMaterialLot != null) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, materialLot.getMaterialLotId());
+                }
+            }
+            List<String> parentLotIdList = Lists.newArrayList();
+            Map<String, List<MaterialLot>> packedMLotMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot:: getParentMaterialLotId));
+            for(String parentMaterialLotId : packedMLotMap.keySet()){
+                MaterialLot oldMLot = mmsService.getMLotByMLotId(parentMaterialLotId);
+                if (oldMLot != null) {
+                    throw new ClientParameterException(MmsException.MM_MATERIAL_LOT_IS_EXIST, parentMaterialLotId);
+                }
+                List<MaterialLot> materialLots = packedMLotMap.get(parentMaterialLotId);
+                MaterialLotPackageType materialLotPackageType = packageService.getMaterialPackageTypeByName(MaterialLot.LCD_PACKCASE);
+                packageService.validationPackageRule(materialLots, materialLotPackageType);
+                parentLotIdList.add(parentMaterialLotId);
+            }
+            String importCode = generatorMLotUnitImportCode(MaterialLot.GENERATOR_INCOMING_MLOT_IMPORT_CODE_RULE);
+            Map<String, List<MaterialLot>> materialNameMap = materialLotList.stream().collect(Collectors.groupingBy(MaterialLot :: getMaterialName));
+            List<Future<ImportMLotThreadResult>> importCallBackList = Lists.newArrayList();
+            for(String materialName : materialNameMap.keySet()){
+                Material material = mmsService.getProductByName(materialName);
+                if (material == null) {
+                    material = mmsService.saveProductAndSetStatusModelRrn(materialName);
+                }
+                List<MaterialLot> materialLots = materialNameMap.get(materialName);
+                Map<String, List<MaterialLot>> packedLotMap = materialLots.stream().collect(Collectors.groupingBy(MaterialLot:: getParentMaterialLotId));
+                for(String parentMaterialLotId : packedLotMap.keySet()){
+                    List<MaterialLot> packedLotDetialList = packedLotMap.get(parentMaterialLotId);
+                    Integer totalQty = packedLotDetialList.stream().collect(Collectors.summingInt(materialLot -> materialLot.getCurrentQty().intValue()));
+                    //先创建父批次
+                    MaterialLot packedMaterialLot = (MaterialLot) packedLotDetialList.get(0).clone();
+                    packedMaterialLot.setMaterial(material);
+                    packedMaterialLot.setReserved2("N");
+                    packedMaterialLot.setParentMaterialLotId(null);
+                    packedMaterialLot.setStatusModelRrn(material.getStatusModelRrn());
+                    packedMaterialLot.setReserved7(MaterialLotUnit.PRODUCT_CLASSIFY_COG);
+                    packedMaterialLot.setMaterialLotId(parentMaterialLotId);
+                    packedMaterialLot.setCurrentQty(new BigDecimal(totalQty));
+                    packedMaterialLot.initialMaterialLot();
+                    if(MaterialLot.LOCATION_SH.equals(packedMaterialLot.getReserved6())){
+                        packedMaterialLot.setReserved14(MaterialLotInventory.SH_DEFAULT_STORAGE_ID);
+                    } else if(MaterialLot.BONDED_PROPERTY_ZSH.equals(packedMaterialLot.getReserved6())){
+                        packedMaterialLot.setReserved14(MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
+                    }
+                    packedMaterialLot.setPackageType(MaterialLot.LCD_PACKCASE);
+                    packedMaterialLot.setMaterialType(material.getMaterialType());
+                    packedMaterialLot.setStatusCategory(MaterialStatus.STATUS_CREATE);
+                    packedMaterialLot.setStatus(MaterialStatus.STATUS_CREATE);
+                    packedMaterialLot.setReserved48(importCode);
+                    packedMaterialLot.setReserved49(MaterialLot.IMPORT_COG);
+                    packedMaterialLot.setReserved50("17");
+                    packedMaterialLot = materialLotRepository.saveAndFlush(packedMaterialLot);
+
+                    MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packedMaterialLot, MaterialLotHistory.TRANS_TYPE_CREATE_PACKAGE);
+                    materialLotHistoryRepository.save(history);
+
+                    List<List<MaterialLot>> mLotGroupList = getMaterialLotGroupList(packedLotDetialList, 20);
+                    for(List<MaterialLot> mLotList : mLotGroupList){
+                        ImportLcdMLotThread importLcdMLotThread = new ImportLcdMLotThread();
+                        importLcdMLotThread.setMaterialLotRepository(materialLotRepository);
+                        importLcdMLotThread.setMaterialLotHistoryRepository(materialLotHistoryRepository);
+                        importLcdMLotThread.setBaseService(baseService);
+                        importLcdMLotThread.setPackageService(packageService);
+                        importLcdMLotThread.setPackagedLotDetailRepository(packagedLotDetailRepository);
+                        importLcdMLotThread.setSessionContext(ThreadLocalContext.getSessionContext());
+
+                        importLcdMLotThread.setTotalQty(totalQty);
+                        importLcdMLotThread.setMaterialLotList(mLotList);
+                        importLcdMLotThread.setImportCode(importCode);
+                        importLcdMLotThread.setParentMaterialLotId(parentMaterialLotId);
+                        importLcdMLotThread.setPackedMaterialLot(packedMaterialLot);
+                        importLcdMLotThread.setMaterial(material);
+
+                        Future<ImportMLotThreadResult> importCallBack = executorService.submit(importLcdMLotThread);
+                        importCallBackList.add(importCallBack);
+                    }
+                }
+            }
+
+            int maxWaitCount = 1000;
+            String resultMessage = StringUtils.EMPTY;
+            for (Future<ImportMLotThreadResult> lcdImportCallBack : importCallBackList) {
+                if (!StringUtils.isNullOrEmpty(resultMessage) || maxWaitCount <= 0) {
+                    log.info("There has import error." + resultMessage);
+                    break;
+                }
+                while (true) {
+                    if (lcdImportCallBack.isDone()) {
+                        ImportMLotThreadResult importResult = lcdImportCallBack.get();
+                        if (!ResponseHeader.RESULT_SUCCESS.equals(importResult.getResult())) {
+                            resultMessage = importResult.getResultMessage();
+                        }
+                        break;
+                    } else {
+                        Thread.sleep(200);
+                        maxWaitCount--;
+                        if (maxWaitCount == 0) {
+                            resultMessage = MmsException.MM_MATERIAL_LOT_IMPORT_TIME_OUT;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!StringUtils.isNullOrEmpty(resultMessage)) {
+                for (Future<ImportMLotThreadResult> importCallBack : importCallBackList) {
+                    if (!importCallBack.isDone()) {
+                        importCallBack.cancel(true);
+                    }
+                }
+                log.info("----------------" + resultMessage);
+                deleteImportMaterialLotUnit(importCode);
+                if(CollectionUtils.isNotEmpty(parentLotIdList)){
+                    packagedLotDetailRepository.deleteByPackagedLotIdIn(parentLotIdList);
+                }
+                importCode = StringUtils.EMPTY;
+            }
+            return importCode;
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 物料批次分组处理
+     * @param materialLotList
+     * @param num
+     * @return
+     * @throws ClientException
+     */
+    private List<List<MaterialLot>> getMaterialLotGroupList(List<MaterialLot> materialLotList, int num) throws ClientException{
+        try {
+            int totalCount = materialLotList.size();
+            int groupCount = ( totalCount / num ) + (totalCount % num == 0 ? 0 : 1);
+            List<List<MaterialLot>> mLotList = new ArrayList<>(groupCount);
+            for(int i = 0, from = 0, to = 0;  i < groupCount; i++){
+                from = i*num;
+                to = from + num;
+                to = to > totalCount ? totalCount : to;
+                List<MaterialLot> materialLotIds = materialLotList.subList(from, to);
+                mLotList.add(materialLotIds);
+            }
+            return mLotList;
         } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }

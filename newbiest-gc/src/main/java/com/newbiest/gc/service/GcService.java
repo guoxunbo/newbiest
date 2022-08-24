@@ -43,7 +43,6 @@ public interface GcService {
     List<MaterialLot> rwTagginggAutoPickMLot(List<MaterialLot> materialLotList, BigDecimal pickQty) throws ClientException;
     List<MaterialLotUnit> rwTagginggAutoPickMLotUnit(List<MaterialLotUnit> materialLotUnitList, BigDecimal pickQty) throws ClientException;
     List<MesPackedLot> receiveRWFinishPackedLot(List<MesPackedLot> packedLots, String printLabel, String printCount) throws ClientException;
-    Material saveProductAndSetStatusModelRrn(String name) throws ClientException;
 
     boolean validateMLotByPackageRule(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions) throws ClientException;
     List<MaterialLotUnit> materialLotUnitAssignEng(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
@@ -98,7 +97,7 @@ public interface GcService {
     GCProductNumberRelation saveProductNumberRelation(GCProductNumberRelation productNumberRelation, String transType) throws ClientException;
     void validationMLotMaterialName(List<MaterialLotAction> materialLotActions) throws ClientException;
     void stockInFTWafer(List<StockInModel> stockInModels) throws ClientException;
-    void receiveFTWafer(List<MaterialLotUnit> materialLotUnitList) throws ClientException;
+    void receiveFTWafer(List<MaterialLot> materialLotList) throws ClientException;
     List<MaterialLotUnit> createFTMaterialLotAndGetImportCode(List<MaterialLotUnit> materialLotUnits, String importType) throws ClientException;
     GCWorkorderRelation saveWorkorderGradeHoldInfo(GCWorkorderRelation workorderRelation, String transType) throws ClientException;
     String getEncryptionSubCode(String grade, String subcode) throws ClientException;
@@ -153,6 +152,7 @@ public interface GcService {
     void validationStockOutMaterialLot(MaterialLot materialLot,  List<MaterialLotAction> materialLotActions)throws ClientException;
     void validationAndReceiveWafer(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String receiveWithDoc) throws ClientException;
     void saveHNWarehouseImportList(List<MaterialLot> materialLotList) throws ClientException;
+    String validateAndSaveFtFinishGoodMLot(List<MaterialLot> materialLotList) throws ClientException;
 
     void validationAndWaferIssue(List<DocumentLine> documentLineList, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException;
     void mobileValidationAndWaferIssue(String erpTime, List<MaterialLotAction> materialLotActions, String issueWithDoc, String unPlanLot) throws ClientException;
@@ -245,5 +245,6 @@ public interface GcService {
 
     void validateCobMaterialLotDocInfo(List<MaterialLot> materialLotList) throws ClientException;
     String getWarehouseIdByWarehouseRrn(String warehouseRrn) throws ClientException;
+    void saveDocLineRrnAndChangeStatus(MaterialLot materialLot, DocumentLine documentLine) throws ClientException;
 
 }

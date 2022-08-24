@@ -240,6 +240,7 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
     public static final String IMPORT_COG = "COG";
     public static final String IMPORT_SOC = "SOC";
     public static final String IMPORT_FT = "FT";
+    public static final String IMPORT_FT0 = "FT0";
     public static final String IMPORT_MASK = "MASK";
 
     public static final String RETEST_TYPE_COM = "COMReTest";
@@ -1102,6 +1103,12 @@ public class MaterialLot extends NBUpdatable implements StatusLifeCycle{
      */
     @Column(name = "MRB_COMMENTS")
     private String mrbComments;
+
+    /**
+     * FT工单号
+     */
+    @Column(name = "FT_WORKORDER_ID")
+    private String ftWorkorderId;
 
     @Transient
     private String documentLineUser;

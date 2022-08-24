@@ -91,7 +91,7 @@ public class TempServiceImpl implements TempService {
                 } else {
                     Material product = mmsService.getProductByName(materialName);
                     if (product == null) {
-                        product = gcService.saveProductAndSetStatusModelRrn(materialName);
+                        product = mmsService.saveProductAndSetStatusModelRrn(materialName);
                     }
                     materialMap.put(materialName, product);
                 }

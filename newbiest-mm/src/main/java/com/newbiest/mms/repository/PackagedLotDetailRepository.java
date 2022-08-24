@@ -23,4 +23,8 @@ public interface PackagedLotDetailRepository extends IRepository<PackagedLotDeta
     @Modifying
     @Query("DELETE FROM PackagedLotDetail WHERE packagedLotId in (:bboxIdList)")
     void deleteByPackagedLotIdIn(List<String> bboxIdList);
+
+    @Modifying
+    @Query("DELETE FROM PackagedLotDetail WHERE materialLotId = :materialLotId")
+    void deleteByMaterialLotId(String materialLotId);
 }

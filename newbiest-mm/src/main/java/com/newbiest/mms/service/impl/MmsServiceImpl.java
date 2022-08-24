@@ -312,6 +312,34 @@ public class MmsServiceImpl implements MmsService {
     }
 
     /**
+     * 创建产品号
+     * @param name
+     * @throws ClientException
+     */
+    public Material saveProductAndSetStatusModelRrn(String name) throws ClientException{
+        try {
+            SessionContext sc = ThreadLocalContext.getSessionContext();
+            sc.buildTransInfo();
+            Product product = new Product();
+            product.setName(name);
+            product.setMaterialCategory(Material.TYPE_PRODUCT);
+            product.setMaterialType(Material.TYPE_PRODUCT);
+            product = saveProduct(product);
+
+            List<MaterialStatusModel> statusModels = materialStatusModelRepository.findByNameAndOrgRrn(Material.DEFAULT_STATUS_MODEL, sc.getOrgRrn());
+            if (CollectionUtils.isNotEmpty(statusModels)) {
+                product.setStatusModelRrn(statusModels.get(0).getObjectRrn());
+            } else {
+                throw new ClientException(StatusMachineExceptions.STATUS_MODEL_IS_NOT_EXIST);
+            }
+            Material material = productRepository.save(product);
+            return material;
+        } catch (Exception e) {
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
      * 保存备件信息
      * @param parts
      * @return

@@ -867,6 +867,12 @@ public class MaterialLotHistory extends NBHis {
     @Column(name = "MRB_COMMENTS")
     private String mrbComments;
 
+    /**
+     * FT工单号
+     */
+    @Column(name = "FT_WORKORDER_ID")
+    private String ftWorkorderId;
+
     public void setSubMaterialLotFlag(Boolean subMaterialLotFlag) {
         this.subMaterialLotFlag = subMaterialLotFlag ? StringUtils.YES : StringUtils.NO;
     }

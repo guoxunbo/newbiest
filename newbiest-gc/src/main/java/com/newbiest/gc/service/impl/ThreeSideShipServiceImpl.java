@@ -96,6 +96,9 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
     @Autowired
     ErpSoRepository erpSoRepository;
 
+    @Autowired
+    WarehouseRepository warehouseRepository;
+
     public static final String WAREHOUSE_SH = "SH_STOCK";
     public static final String WAREHOUSE_ZJ = "ZJ_STOCK";
     public static final String WAREHOUSE_HK = "HK_STOCK";
@@ -332,7 +335,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                     }
                     materialLot.setCurrentQty(currentQty);
                     if (materialLot.getCurrentQty().compareTo(BigDecimal.ZERO) == 0) {
-                        saveDocLineRrnAndChangeStatus(materialLot, documentLine);
+                        gcService.saveDocLineRrnAndChangeStatus(materialLot, documentLine);
                     }
                 } else {
                     BigDecimal currentSubQty = materialLot.getCurrentSubQty();
@@ -345,7 +348,7 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                     }
                     materialLot.setCurrentSubQty(currentSubQty);
                     if (materialLot.getCurrentSubQty().compareTo(BigDecimal.ZERO) == 0){
-                        saveDocLineRrnAndChangeStatus(materialLot, documentLine);
+                        gcService.saveDocLineRrnAndChangeStatus(materialLot, documentLine);
                     }
                 }
             }
@@ -712,9 +715,23 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                     }
                     Long totalSubQty = packageDetailLots.stream().collect(Collectors.summingLong(mLot -> mLot.getCurrentSubQty() == null ? 0 : mLot.getCurrentSubQty().longValue()));
                     materialLot.setCurrentSubQty(new BigDecimal(totalSubQty));
-                    reNewMLotAndUpdateWarehouse(materialLot, warehouseRrn, bondedProperty, lineType);
-                } else {
-                    reNewMLotAndUpdateWarehouse(materialLot, warehouseRrn, bondedProperty, lineType);
+                }
+                reNewMLotAndUpdateWarehouse(materialLot, warehouseRrn, bondedProperty, lineType);
+                if(lineType.equals("WLT")){
+                    //恢复库存
+                    Warehouse warehouse = (Warehouse) warehouseRepository.findByObjectRrn(Long.parseLong(warehouseRrn));
+                    MaterialLotAction materialLotAction = new MaterialLotAction();
+                    materialLotAction.setMaterialLotId(materialLot.getMaterialLotId());
+                    materialLotAction.setTargetWarehouseRrn(Long.parseLong(warehouseRrn));
+                    materialLotAction.setTransQty(materialLot.getCurrentQty());
+                    String storageId = materialLot.getReserved14();
+                    Storage storage = mmsService.getStorageByWarehouseRrnAndName(warehouse, storageId);
+                    if(storage == null){
+                        storage = mmsService.createStorage(warehouse, storageId);
+                    }
+                    MaterialLotInventory materialLotInventory = new MaterialLotInventory();
+                    materialLotInventory.setMaterialLot(materialLot).setWarehouse(warehouse).setStorage(storage);
+                    mmsService.saveMaterialLotInventory(materialLotInventory, materialLot.getCurrentQty());
                 }
             }
         }  catch (Exception e){
@@ -786,43 +803,6 @@ public class ThreeSideShipServiceImpl implements ThreeSideShipService {
                 }
             }
         } catch (Exception e){
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 记录单号至物料批次上，并且修改物料批次状态，记录历史
-     * @param mLot
-     * @param docLine
-     */
-    private void saveDocLineRrnAndChangeStatus(MaterialLot mLot, DocumentLine docLine) throws ClientException{
-        try {
-            mLot.setReserved12(docLine.getObjectRrn().toString());
-            changeMaterialLotStatusAndSaveHistory(mLot);
-            if(!StringUtils.isNullOrEmpty(mLot.getParentMaterialLotId())){
-                changPackaedDetailLotStatusAndSaveHis(mLot);
-            } else {
-                changMaterialLotUnitLocationAndDoShip(mLot, mLot.getReserved6());
-            }
-        } catch (Exception e) {
-            throw ExceptionManager.handleException(e, log);
-        }
-    }
-
-    /**
-     * 改变包装批次的状态及记录历史
-     * @param parentMLot
-     * @throws ClientException
-     */
-    private void changPackaedDetailLotStatusAndSaveHis(MaterialLot parentMLot) throws ClientException{
-        try {
-            List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(parentMLot.getObjectRrn());
-            for (MaterialLot packageLot : packageDetailLots){
-                packageLot.setReserved6(parentMLot.getReserved6());
-                changeMaterialLotStatusAndSaveHistory(packageLot);
-                changMaterialLotUnitLocationAndDoShip(packageLot, parentMLot.getReserved6());
-            }
-        } catch (Exception e) {
             throw ExceptionManager.handleException(e, log);
         }
     }

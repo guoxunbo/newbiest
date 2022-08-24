@@ -56,6 +56,8 @@ public class IncomingMaterialSaveController {
             materialLotUnitList = gcService.validateAndSetWaferSource(importType, checkFourCodeFlag, materialLotUnitList);
             materialLotUnitList = materialLotUnitService.createMLot(materialLotUnitList);
             importCode = CollectionUtils.isEmpty(materialLotUnitList) ? "" :materialLotUnitList.get(0).getReserved48();
+        }else if(MaterialLotUnit.FINISH_PRODUCT_IMPORT.equals(importType)){
+            importCode = gcService.validateAndSaveFtFinishGoodMLot(requestBody.getMaterialLotList());
         } else if(MaterialLotUnit.COB_FINISH_PRODUCT.equals(importType) || MaterialLotUnit.COB_RAW_MATERIAL_PRODUCT.equals(importType)){
             List<MaterialLotUnit> materialLotUnitList = requestBody.getMaterialLotUnitList();
             materialLotUnitList = gcService.validateAndSetWaferSource(importType, checkFourCodeFlag, materialLotUnitList);

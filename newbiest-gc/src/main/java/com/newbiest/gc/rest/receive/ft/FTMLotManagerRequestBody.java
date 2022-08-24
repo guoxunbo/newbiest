@@ -24,6 +24,9 @@ public class FTMLotManagerRequestBody extends RequestBody {
 	private List<MaterialLotUnit> materialLotUnitList;
 
 	@ApiModelProperty(value = "待处理的WaferID")
+	private List<MaterialLot> materialLotList;
+
+	@ApiModelProperty(value = "待处理的WaferID")
 	private String unitId;
 
 	@ApiModelProperty(value="动态表主键")
