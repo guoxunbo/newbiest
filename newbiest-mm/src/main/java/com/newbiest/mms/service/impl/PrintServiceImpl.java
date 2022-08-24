@@ -625,19 +625,33 @@ public class PrintServiceImpl implements PrintService {
                 lotId = getCobBoxLabelLotIdParam(lotId, materialLotUnitList);
                 parameterMap.put("LOTID", lotId);
 
-                int i = 1;
-                if (CollectionUtils.isNotEmpty(materialLotUnitList)){
-                    for(MaterialLotUnit materialLotUnit : materialLotUnitList){
-                        parameterMap.put("FRAMEID" + i, materialLotUnit.getUnitId());
-                        parameterMap.put("CHIPQTY" + i, materialLotUnit.getCurrentQty().toPlainString());
-                        i++;
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    if(materialLotUnitList.size() <= 13){
+                        int i = 1;
+                        if (CollectionUtils.isNotEmpty(materialLotUnitList)){
+                            for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                                parameterMap.put("FRAMEID" + i, materialLotUnit.getUnitId());
+                                parameterMap.put("CHIPQTY" + i, materialLotUnit.getCurrentQty().toPlainString());
+                                i++;
+                            }
+                        }
+                        for (int j = i; j <= 13; j++) {
+                            parameterMap.put("FRAMEID" + j, StringUtils.EMPTY);
+                            parameterMap.put("CHIPQTY" + j, StringUtils.EMPTY);
+                        }
+                    } else {
+                        for(int i=1; i <= 13; i++){
+                            parameterMap.put("FRAMEID" + i, materialLotUnitList.get(i).getUnitId());
+                            parameterMap.put("CHIPQTY" + i, materialLotUnitList.get(i).getCurrentQty().toPlainString());
+                        }
+                    }
+                } else {
+                    for (int j = 0; j <= 13; j++) {
+                        parameterMap.put("FRAMEID" + j, StringUtils.EMPTY);
+                        parameterMap.put("CHIPQTY" + j, StringUtils.EMPTY);
                     }
                 }
 
-                for (int j = i; j <= 13; j++) {
-                    parameterMap.put("FRAMEID" + j, StringUtils.EMPTY);
-                    parameterMap.put("CHIPQTY" + j, StringUtils.EMPTY);
-                }
             } else {
                 throw new ClientParameterException(MmsException.MATERIALLOT_PACKED_DETIAL_IS_NULL, materialLot.getMaterialLotId());
             }
@@ -1321,13 +1335,27 @@ public class PrintServiceImpl implements PrintService {
                 }
                 parameterMap.put("LotID", lotId);
                 parameterMap.put("FrameQty", "" + materialLotUnitList.size());
-                for(int i=0; i<materialLotUnitList.size(); i++){
-                    parameterMap.put("FrameID" + i, "" + materialLotUnitList.get(i).getUnitId());
-                    parameterMap.put("ChipQty" + i, "" + materialLotUnitList.get(i).getCurrentQty());
-                }
-                for(int j=materialLotUnitList.size();j < 13;j++){
-                    parameterMap.put("FrameID" + j, StringUtils.EMPTY);
-                    parameterMap.put("ChipQty" + j, StringUtils.EMPTY);
+                if(CollectionUtils.isNotEmpty(materialLotUnitList)){
+                    if(materialLotUnitList.size() > 13){
+                        for(int i = 0; i < 13; i++){
+                            parameterMap.put("FrameID" + i, "" + materialLotUnitList.get(i).getUnitId());
+                            parameterMap.put("ChipQty" + i, "" + materialLotUnitList.get(i).getCurrentQty());
+                        }
+                    } else {
+                        for(int i=0; i < materialLotUnitList.size(); i++){
+                            parameterMap.put("FrameID" + i, "" + materialLotUnitList.get(i).getUnitId());
+                            parameterMap.put("ChipQty" + i, "" + materialLotUnitList.get(i).getCurrentQty());
+                        }
+                        for(int j = materialLotUnitList.size(); j < 13; j++){
+                            parameterMap.put("FrameID" + j, StringUtils.EMPTY);
+                            parameterMap.put("ChipQty" + j, StringUtils.EMPTY);
+                        }
+                    }
+                } else {
+                    for(int j = 0; j < 13; j++){
+                        parameterMap.put("FrameID" + j, StringUtils.EMPTY);
+                        parameterMap.put("ChipQty" + j, StringUtils.EMPTY);
+                    }
                 }
             }
             printContext.setBaseObject(materialLot);
@@ -1772,15 +1800,21 @@ public class PrintServiceImpl implements PrintService {
             parameterMap.put("SUBCODE", materialLot.getReserved1());
 
             List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
-            int i = 1;
-            if (CollectionUtils.isNotEmpty(packageDetailLots)) {
-                for (MaterialLot packedMLot : packageDetailLots) {
-                    parameterMap.put("VBox" + i, packedMLot.getMaterialLotId());
-                    i++;
+            if(CollectionUtils.isNotEmpty(packageDetailLots) && packageDetailLots.size() > 20){
+                for (int j = 1; j <= 20; j++) {
+                    parameterMap.put("VBox" + j, StringUtils.EMPTY);
                 }
-            }
-            for (int j = i; j <= 20; j++) {
-                parameterMap.put("VBox" + j, StringUtils.EMPTY);
+            } else {
+                int i = 1;
+                if (CollectionUtils.isNotEmpty(packageDetailLots)) {
+                    for (MaterialLot packedMLot : packageDetailLots) {
+                        parameterMap.put("VBox" + i, packedMLot.getMaterialLotId());
+                        i++;
+                    }
+                }
+                for (int j = i; j <= 20; j++) {
+                    parameterMap.put("VBox" + j, StringUtils.EMPTY);
+                }
             }
             printContext.setBaseObject(materialLot);
             printContext.setParameterMap(parameterMap);
