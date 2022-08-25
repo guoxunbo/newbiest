@@ -244,6 +244,7 @@ public class ExpressServiceImpl implements ExpressService {
             SimpleDateFormat formatter = new SimpleDateFormat(MaterialLot.DEFAULT_NOT_S_DATE_PATTERN);
             String date = formatter.format(new Date());
             orderInfo.setOrderTime(date);
+            orderInfo.setSubscriptionService(OrderInfo.SUB_SCRIPTION_SERVICE);
 
             orderInfo.setOrderId(ExpressConfiguration.PLAN_ORDER_DEFAULT_ORDER_ID);
             if (OrderInfo.RECEIVE_PAY_MODE.equals(payMode)) {
