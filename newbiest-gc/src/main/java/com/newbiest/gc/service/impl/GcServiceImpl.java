@@ -4865,7 +4865,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setStatus(MaterialStatus.STATUS_CREATE);
                     materialLot.setMaterialLotId(materialLotId);
                     materialLot.setReserved32(materialLot.getCurrentQty().toString());
-                    materialLot.setReserved4(materialLot.getReserved41());
+                    materialLot.setReserved4(materialLot.getTreasuryNote());
                     String stoorageId = materialLot.getReserved14();
                     if(MaterialLot.BONDED_PROPERTY_ZSH.equals(stoorageId)){
                         materialLot.setReserved14(MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
