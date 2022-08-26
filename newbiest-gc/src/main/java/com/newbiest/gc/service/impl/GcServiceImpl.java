@@ -5643,6 +5643,7 @@ public class GcServiceImpl implements GcService {
             otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
             otherReceiveProps.put("reserved22", subName);
             otherReceiveProps.put("reserved24", issueCobMLot.getReserved24());
+            otherReceiveProps.put("pcode", issueCobMLot.getPcode());
 
             if(!StringUtils.isNullOrEmpty(mesPackedLot.getProductCategory())){
                 mLotSetWaferSourceAndReserved7(otherReceiveProps, mesPackedLot.getProductCategory(), mesPackedLot);
