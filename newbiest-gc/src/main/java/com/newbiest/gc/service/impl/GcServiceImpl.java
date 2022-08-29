@@ -3541,6 +3541,7 @@ public class GcServiceImpl implements GcService {
             materialLot.setReserved7(MaterialLot.IMPORT_FT);
             materialLot.setReserved41(mesPackedLot.getTreasuryNote());
             materialLot.setCurrentQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
+            materialLot.setReceiveQty(materialLot.getCurrentQty());
             materialLot.setSourceProductId(mesPackedLot.getOrgProductId());
             if(CollectionUtils.isNotEmpty(materialLotUnits)){
                 materialLot.setCurrentSubQty(BigDecimal.valueOf(materialLotUnits.size()));
@@ -4865,7 +4866,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setStatus(MaterialStatus.STATUS_CREATE);
                     materialLot.setMaterialLotId(materialLotId);
                     materialLot.setReserved32(materialLot.getCurrentQty().toString());
-                    materialLot.setReserved4(materialLot.getReserved41());
+                    materialLot.setReserved4(materialLot.getTreasuryNote());
                     String stoorageId = materialLot.getReserved14();
                     if(MaterialLot.BONDED_PROPERTY_ZSH.equals(stoorageId)){
                         materialLot.setReserved14(MaterialLotInventory.ZSH_DEFAULT_STORAGE_ID);
@@ -5642,6 +5643,7 @@ public class GcServiceImpl implements GcService {
             otherReceiveProps.put("reserved21", mesPackedLot.getErpProductId());
             otherReceiveProps.put("reserved22", subName);
             otherReceiveProps.put("reserved24", issueCobMLot.getReserved24());
+            otherReceiveProps.put("pcode", issueCobMLot.getPcode());
 
             if(!StringUtils.isNullOrEmpty(mesPackedLot.getProductCategory())){
                 mLotSetWaferSourceAndReserved7(otherReceiveProps, mesPackedLot.getProductCategory(), mesPackedLot);
@@ -10597,12 +10599,14 @@ public class GcServiceImpl implements GcService {
                 String innerLotId = materialLot.getInnerLotId();
                 String retestWorkorderId = materialLot.getReserved11();
                 String retestTime = materialLot.getReserved15();
+                String ftWorkorderId = materialLot.getFtWorkorderId();
                 materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
                 materialLot.setWorkOrderId(workOrderId);
                 materialLot.setWorkOrderPlanputTime(workOrderPlanputTime);
                 materialLot.setInnerLotId(innerLotId);
                 materialLot.setReserved11(retestWorkorderId);
                 materialLot.setReserved15(retestTime);
+                materialLot.setFtWorkorderId(ftWorkorderId);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
@@ -10837,6 +10841,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReserved18("0");
                     materialLot.setReserved11(null);
                     materialLot.setReserved15(null);
+                    materialLot.setFtWorkorderId(null);
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                     if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())

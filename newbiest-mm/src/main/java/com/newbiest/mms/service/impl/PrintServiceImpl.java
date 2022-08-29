@@ -601,6 +601,7 @@ public class PrintServiceImpl implements PrintService {
         try {
             PrintContext printContext = buildPrintContext(LabelTemplate.PRINT_COB_BOX_LABEL, printCount);
             materialLot = mmsService.getMLotByMLotId(materialLot.getMaterialLotId());
+            String deviceId = materialLot.getMaterialName().substring(0, materialLot.getMaterialName().lastIndexOf("-"));
             Map<String, Object> parameterMap = Maps.newHashMap();
             parameterMap.put("BOXID", materialLot.getMaterialLotId());
             String subCode = materialLot.getReserved1();
@@ -609,8 +610,13 @@ public class PrintServiceImpl implements PrintService {
             }
             parameterMap.put("SUBCODE", subCode);
             parameterMap.put("LOCATION", materialLot.getReserved6());
-            parameterMap.put("DEVICEID", materialLot.getMaterialName());
+            parameterMap.put("DEVICEID", deviceId);
             parameterMap.put("CHIPNUM", materialLot.getCurrentQty().toPlainString());
+            if(StringUtils.isNullOrEmpty(materialLot.getPcode())) {
+                parameterMap.put("PCODE", StringUtils.EMPTY);
+            } else {
+                parameterMap.put("PCODE", materialLot.getReserved45());
+            }
 
             List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
             if(CollectionUtils.isNotEmpty(packageDetailLots)){
