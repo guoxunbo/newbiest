@@ -3538,7 +3538,6 @@ public class GcServiceImpl implements GcService {
             materialLot.setInnerLotId(null);
             materialLot.setReserved11(null);
             materialLot.setReserved15(null);
-            materialLot.setReserved7(MaterialLot.IMPORT_FT);
             materialLot.setReserved41(mesPackedLot.getTreasuryNote());
             materialLot.setCurrentQty(BigDecimal.valueOf(mesPackedLot.getQuantity()));
             materialLot.setReceiveQty(materialLot.getCurrentQty());
