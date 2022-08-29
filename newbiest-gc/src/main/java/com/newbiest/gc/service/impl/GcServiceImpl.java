@@ -10599,12 +10599,14 @@ public class GcServiceImpl implements GcService {
                 String innerLotId = materialLot.getInnerLotId();
                 String retestWorkorderId = materialLot.getReserved11();
                 String retestTime = materialLot.getReserved15();
+                String ftWorkorderId = materialLot.getFtWorkorderId();
                 materialLot = materialLotRepository.findByMaterialLotIdAndOrgRrn(materialLot.getMaterialLotId(), ThreadLocalContext.getOrgRrn());
                 materialLot.setWorkOrderId(workOrderId);
                 materialLot.setWorkOrderPlanputTime(workOrderPlanputTime);
                 materialLot.setInnerLotId(innerLotId);
                 materialLot.setReserved11(retestWorkorderId);
                 materialLot.setReserved15(retestTime);
+                materialLot.setFtWorkorderId(ftWorkorderId);
                 materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, transId);
@@ -10839,6 +10841,7 @@ public class GcServiceImpl implements GcService {
                     materialLot.setReserved18("0");
                     materialLot.setReserved11(null);
                     materialLot.setReserved15(null);
+                    materialLot.setFtWorkorderId(null);
                     materialLot = materialLotRepository.saveAndFlush(materialLot);
 
                     if(!StringUtils.isNullOrEmpty(materialLot.getLotId()) && (MaterialLotUnit.PRODUCT_CATEGORY_LCP.equals(materialLot.getReserved7())
