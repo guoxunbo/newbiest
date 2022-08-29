@@ -17,6 +17,7 @@ public class OrderInfo implements Serializable {
     public static final String ORDER_STATUS_UN_DISPATCH = "未调度";
 
     public static final String RECEIVE_PAY_MODE = "20";
+    public static final String SUB_SCRIPTION_SERVICE = "10";
 
     /**
      * 快递单号 为空的话由跨越速递自动生成
@@ -52,6 +53,11 @@ public class OrderInfo implements Serializable {
      * 物品类型
      */
     private String goodsType = ExpressConfiguration.DEFAULT_GOODS_TYPE;
+
+    /**
+     * 路由订阅服务
+     */
+    private String subscriptionService;
 
     /**
      * ERP订单号
