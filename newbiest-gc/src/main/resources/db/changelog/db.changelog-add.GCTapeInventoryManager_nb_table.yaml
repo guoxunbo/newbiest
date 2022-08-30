@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCTapeInventoryManager_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCTapeInventoryManager to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCTapeInventoryTable
+              description: Tape盘点
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: Tape盘点
+              label: GCTapeInventory

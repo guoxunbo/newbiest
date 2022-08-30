@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCTapeInventoryManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add GCTapeInventoryManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: GCTapeInventoryTable
+              description: Tape盘点
+              tableName: GCTapeInventoryTable
+              url: /GC/GCTapeInventoryManager
+              mobileFlag: N
+              parentRrn: 33
+              seqNo: 55
+              image: icon-rule
+              labelZh: Tape盘点
+              labelEn: GCTapeInventory
