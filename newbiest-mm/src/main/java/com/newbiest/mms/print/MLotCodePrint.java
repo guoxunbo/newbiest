@@ -108,6 +108,7 @@ public class MLotCodePrint {
     public static final String SEIN_FACTORY_NAME = "SEIN";
     public static final String SEIN_FACTORY_ID = "P529-[SEIN]HHP Plant";
 
+    public static final String SAMSUNG_INDIA_FACTORY_NAME = "SAMSUNG INDIA";
     public static final String SIEL_FACTORY_NAME = "SIEL";
     public static final String SIEL_FACTORY_ID = "P538-[SIEL]Mobile Noida";
 
