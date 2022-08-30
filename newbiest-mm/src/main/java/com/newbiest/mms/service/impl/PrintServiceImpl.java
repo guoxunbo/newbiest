@@ -461,7 +461,7 @@ public class PrintServiceImpl implements PrintService {
                         parameterMap.put("FACTORYID", MLotCodePrint.SEV_FACTORY_ID);
                     } else if(MLotCodePrint.SEIN_FACTORY_NAME.equals(factoryName)){
                         parameterMap.put("FACTORYID", MLotCodePrint.SEIN_FACTORY_ID);
-                    } else if(MLotCodePrint.SIEL_FACTORY_NAME.equals(factoryName)){
+                    } else if(MLotCodePrint.SAMSUNG_INDIA_FACTORY_NAME.equals(factoryName)){
                         parameterMap.put("FACTORYID", MLotCodePrint.SIEL_FACTORY_ID);
                     } else if(MLotCodePrint.SEDA_P_FACTORY_NAME.equals(factoryName)){
                         parameterMap.put("FACTORYID", MLotCodePrint.SEDA_P_FACTORY_ID);
@@ -470,7 +470,11 @@ public class PrintServiceImpl implements PrintService {
                     } else if(MLotCodePrint.SEVT_FACTORY_NAME.equals(factoryName)){
                         parameterMap.put("FACTORYID", MLotCodePrint.SEVT_FACTORY_ID);
                     }
-                    parameterMap.put("FACTORYNAME", factoryName);
+                    if (factoryName.equals(MLotCodePrint.SAMSUNG_INDIA_FACTORY_NAME)) {
+                        parameterMap.put("FACTORYNAME", MLotCodePrint.SIEL_FACTORY_NAME);
+                    } else {
+                        parameterMap.put("FACTORYNAME", factoryName);
+                    }
                     parameterMap.put("NUM", i);
                     parameterMap.put("ORDERID", orderId);
                     parameterMap.put("TOTALNUM", printCount);
