@@ -8400,6 +8400,7 @@ public class GcServiceImpl implements GcService {
             List<MaterialLot> materialLots = materialLotActions.stream().map(action -> mmsService.getMLotByMLotId(action.getMaterialLotId())).collect(Collectors.toList());
             for (MaterialLot materialLot : materialLots) {
                 materialLot.setLotId(packedMaterialLotId);
+                materialLot.setReserved8(null);
                 materialLotRepository.saveAndFlush(materialLot);
 
                 MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_IRA_PACKAGE);
