@@ -8034,6 +8034,7 @@ public class GcServiceImpl implements GcService {
                                 documentLine.setReserved27(erpSoa.getOdm());
                                 documentLine.setReserved28(erpSoa.getOther19());
                                 documentLine.setReserved29(erpSoa.getOther18());
+                                documentLine.setSosId(erpSoa.getSosid());
                                 documentLine.setDocName(erpSoa.getStcode());
                                 documentLine.setDocBusType(erpSoa.getBustype());
                                 documentLine.setReserved30(erpSoa.getOther20());

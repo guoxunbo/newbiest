@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: mms_document_line_0.1.4
+      author: Guozhang Luo
+      remarks: mms_document_line add column SOS_ID
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT_LINE
+            columns:
+              - column:
+                  name: SOS_ID
+                  type: varchar2(64)
+                  remarks: 销售订单子表ID
+  - changeSet:
+      id: mms_document_line_his_0.1.4
+      author: Guozhang Luo
+      remarks: mms_document_line add column SOS_ID
+      changes:
+        - addColumn:
+            tableName: MMS_DOCUMENT_LINE_HIS
+            columns:
+              - column:
+                  name: SOS_ID
+                  type: varchar2(64)
+                  remarks: 销售订单子表ID
