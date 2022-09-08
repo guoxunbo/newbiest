@@ -9069,13 +9069,11 @@ public class GcServiceImpl implements GcService {
                     docHandedQty = docHandedQty.add(unitQty);
                     if(materialLot.getCurrentQty().compareTo(unitQty) == 0){
                         materialLot.setCurrentQty(BigDecimal.ZERO);
-                        if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
-                            materialLot.setReserved12(documentLine.getObjectRrn().toString());
-                        } else {
-                            materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
-                        }
+                        materialLot.setReserved12(documentLine.getObjectRrn().toString());
                         changeMaterialLotStatusAndSaveHistory(materialLot);
                         for (MaterialLot packageLot : packageDetailLots){
+                            materialLot.setCurrentQty(BigDecimal.ZERO);
+                            materialLot.setReserved12(documentLine.getObjectRrn().toString());
                             changeMaterialLotStatusAndSaveHistory(packageLot);
                         }
                         for(MaterialLotUnit materialLotUnit : materialLotUnitList){
@@ -9088,15 +9086,16 @@ public class GcServiceImpl implements GcService {
                         List<MaterialLotUnit> inStorageUnitList = materialLotUnitRepository.findByMaterialLotIdAndStateNotIn(materialLotId, Lists.newArrayList(MaterialLotUnit.STATE_OUT, MaterialLotUnit.STATE_ISSUE));
                         BigDecimal currentQty = materialLot.getCurrentQty().subtract(unitQty);
                         materialLot.setCurrentQty(currentQty);
-                        if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
-                            materialLot.setReserved12(documentLine.getObjectRrn().toString());
-                        } else {
-                            materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
-                        }
+                        materialLot.setReserved12(documentLine.getObjectRrn().toString());
                         if(CollectionUtils.isNotEmpty(inStorageUnitList)){
                             materialLot.setReserved1(inStorageUnitList.get(0).getReserved1());
                         }
                         materialLot = materialLotRepository.saveAndFlush(materialLot);
+                        for (MaterialLot packageLot : packageDetailLots){
+                            packageLot.setCurrentQty(currentQty);
+                            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SHIP);
+                            materialLotHistoryRepository.save(history);
+                        }
 
                         MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SHIP);
                         materialLotHistoryRepository.save(history);
