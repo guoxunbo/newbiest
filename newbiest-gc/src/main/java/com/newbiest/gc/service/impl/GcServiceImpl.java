@@ -9028,45 +9028,120 @@ public class GcServiceImpl implements GcService {
      * WLT、CP依单据出货
      * @param documentLine
      * @param materialLotActions
+     * @param subCode
      * @throws ClientException
      */
     @Override
-    public void wltOtherShipByOrder(DocumentLine documentLine, List<MaterialLotAction> materialLotActions) throws ClientException {
+    public void wltOtherShipByOrder(DocumentLine documentLine, List<MaterialLotAction> materialLotActions, String subCode) throws ClientException {
         try {
             documentLine = (DocumentLine) documentLineRepository.findByObjectRrn(documentLine.getObjectRrn());
+            BigDecimal docHandedQty = BigDecimal.ZERO;
             List<ComThrowWaferTab> comThrowWaferTabList = Lists.newArrayList();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
-            BigDecimal handledQty = BigDecimal.ZERO;
-            for(MaterialLot materialLot : materialLots){
-                String materialName = materialLot.getMaterialName();
-                if(materialName.endsWith(MaterialLot.STOCKOUT_TYPE_35) || materialName.endsWith(MaterialLot.STOCKOUT_TYPE_4)){
-                    handledQty = handledQty.add(materialLot.getCurrentQty());
-                } else {
-                    handledQty = handledQty.add(materialLot.getCurrentSubQty());
+            List<MaterialLot> cobMaterialLotList = materialLots.stream().filter(materialLot -> MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
+            if(!StringUtils.isNullOrEmpty(subCode) && CollectionUtils.isNotEmpty(cobMaterialLotList)){
+                if(cobMaterialLotList.size() < materialLots.size()){
+                    throw new ClientParameterException(GcExceptions.MATERIAL_LOT_MUST_BE_COB_LOT);
                 }
-                validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.WLT_OTHER_SHIP_BY_ORDER__RULE_ID);
-            }
-
-            BigDecimal unHandleQty =  documentLine.getUnHandledQty().subtract(handledQty);
-            if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
-                throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
-            }
-
-            BigDecimal docHandedQty = BigDecimal.ZERO;
-            for (MaterialLot materialLot : materialLots) {
-                BigDecimal circleQty = BigDecimal.ZERO;
-                if(materialLot.getMaterialName().endsWith(MaterialLot.STOCKOUT_TYPE_4) || MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54())){
-                    docHandedQty = docHandedQty.add(materialLot.getCurrentQty());
-                    materialLot.setCurrentQty(BigDecimal.ZERO);
-                } else {
-                    circleQty = materialLot.getCurrentSubQty();
-                    docHandedQty = docHandedQty.add(materialLot.getCurrentSubQty());
-                    materialLot.setCurrentSubQty(BigDecimal.ZERO);
+                BigDecimal handledQty = BigDecimal.ZERO;
+                for(MaterialLot materialLot : materialLots){
+                    List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                    String materialLotId = packageDetailLots.get(0).getMaterialLotId();
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotIdAndReserved1(materialLotId, subCode);
+                    if(CollectionUtils.isEmpty(materialLotUnitList)){
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_IS_NOT_EXIST_SUBCODE_UNIT, materialLot.getMaterialLotId());
+                    }
+                    BigDecimal unitQty = materialLotUnitList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
+                    handledQty = handledQty.add(unitQty);
+                    materialLotRepository.getEntityManager().detach(materialLot);
+                    materialLot.setReserved1(subCode);
+                    validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.WLT_OTHER_SHIP_BY_ORDER__RULE_ID);
                 }
-                saveDocLineRrnAndChangeStatus(materialLot, documentLine);
+                BigDecimal unHandleQty =  documentLine.getUnHandledQty().subtract(handledQty);
+                if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
+                    throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
+                }
+                for (MaterialLot materialLot : materialLots) {
+                    List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                    String materialLotId = packageDetailLots.get(0).getMaterialLotId();
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotIdAndReserved1(materialLotId, subCode);
+                    BigDecimal unitQty = materialLotUnitList.stream().collect(CollectorsUtils.summingBigDecimal(MaterialLotUnit :: getCurrentQty));
+                    docHandedQty = docHandedQty.add(unitQty);
+                    if(materialLot.getCurrentQty().compareTo(unitQty) == 0){
+                        materialLot.setCurrentQty(BigDecimal.ZERO);
+                        if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
+                            materialLot.setReserved12(documentLine.getObjectRrn().toString());
+                        } else {
+                            materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
+                        }
+                        changeMaterialLotStatusAndSaveHistory(materialLot);
+                        for (MaterialLot packageLot : packageDetailLots){
+                            changeMaterialLotStatusAndSaveHistory(packageLot);
+                        }
+                        for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                            materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
+                            materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+                            MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
+                            materialLotUnitHisRepository.save(materialLotUnitHistory);
+                        }
+                    } else {
+                        List<MaterialLotUnit> inStorageUnitList = materialLotUnitRepository.findByMaterialLotIdAndStateNotIn(materialLotId, Lists.newArrayList(MaterialLotUnit.STATE_OUT, MaterialLotUnit.STATE_ISSUE));
+                        BigDecimal currentQty = materialLot.getCurrentQty().subtract(unitQty);
+                        materialLot.setCurrentQty(currentQty);
+                        if (StringUtils.isNullOrEmpty(materialLot.getReserved12())) {
+                            materialLot.setReserved12(documentLine.getObjectRrn().toString());
+                        } else {
+                            materialLot.setReserved12(materialLot.getReserved12() + StringUtils.SEMICOLON_CODE + documentLine.getObjectRrn().toString());
+                        }
+                        if(CollectionUtils.isNotEmpty(inStorageUnitList)){
+                            materialLot.setReserved1(inStorageUnitList.get(0).getReserved1());
+                        }
+                        materialLot = materialLotRepository.saveAndFlush(materialLot);
 
-                if(SystemPropertyUtils.getWltStockOutToComThrowWaferTabFlag() && MaterialLot.BONDED_LIST.contains(materialLot.getReserved6())){
-                    comThrowWaferTabList = addUnitToComThrowWaferTab (documentLine, materialLot, circleQty.intValue(), comThrowWaferTabList);
+                        MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SHIP);
+                        materialLotHistoryRepository.save(history);
+
+                        for(MaterialLotUnit materialLotUnit : materialLotUnitList){
+                            materialLotUnit.setState(MaterialLotUnit.STATE_OUT);
+                            materialLotUnit = materialLotUnitRepository.saveAndFlush(materialLotUnit);
+
+                            MaterialLotUnitHistory materialLotUnitHistory = (MaterialLotUnitHistory) baseService.buildHistoryBean(materialLotUnit, MaterialLotUnitHistory.TRANS_TYPE_STOCK_OUT);
+                            materialLotUnitHisRepository.save(materialLotUnitHistory);
+                        }
+                    }
+                }
+            } else {
+                BigDecimal handledQty = BigDecimal.ZERO;
+                for(MaterialLot materialLot : materialLots){
+                    String materialName = materialLot.getMaterialName();
+                    if(materialName.endsWith(MaterialLot.STOCKOUT_TYPE_35) || materialName.endsWith(MaterialLot.STOCKOUT_TYPE_4)){
+                        handledQty = handledQty.add(materialLot.getCurrentQty());
+                    } else {
+                        handledQty = handledQty.add(materialLot.getCurrentSubQty());
+                    }
+                    validateMLotAndDocLineByRule(documentLine, materialLot, MaterialLot.WLT_OTHER_SHIP_BY_ORDER__RULE_ID);
+                }
+
+                BigDecimal unHandleQty =  documentLine.getUnHandledQty().subtract(handledQty);
+                if (unHandleQty.compareTo(BigDecimal.ZERO) < 0) {
+                    throw new ClientParameterException(GcExceptions.OVER_DOC_QTY, documentLine.getDocId());
+                }
+
+                for (MaterialLot materialLot : materialLots) {
+                    BigDecimal circleQty = BigDecimal.ZERO;
+                    if(materialLot.getMaterialName().endsWith(MaterialLot.STOCKOUT_TYPE_4) || MaterialLot.STOCKOUT_TYPE_35.equals(materialLot.getReserved54())){
+                        docHandedQty = docHandedQty.add(materialLot.getCurrentQty());
+                        materialLot.setCurrentQty(BigDecimal.ZERO);
+                    } else {
+                        circleQty = materialLot.getCurrentSubQty();
+                        docHandedQty = docHandedQty.add(materialLot.getCurrentSubQty());
+                        materialLot.setCurrentSubQty(BigDecimal.ZERO);
+                    }
+                    saveDocLineRrnAndChangeStatus(materialLot, documentLine);
+
+                    if(SystemPropertyUtils.getWltStockOutToComThrowWaferTabFlag() && MaterialLot.BONDED_LIST.contains(materialLot.getReserved6())){
+                        comThrowWaferTabList = addUnitToComThrowWaferTab (documentLine, materialLot, circleQty.intValue(), comThrowWaferTabList);
+                    }
                 }
             }
 
