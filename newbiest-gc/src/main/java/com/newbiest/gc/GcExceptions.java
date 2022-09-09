@@ -33,6 +33,7 @@ public class GcExceptions {
     public static final String MATERIAL_LOT_ALREADY_IN_INVENTORY = "gc.meterial_lot_already_in_inventory";
     public static final String MATERIAL_LOT_MUST_BE_COB_LOT = "gc.meterial_lot_must_be_cob";
     public static final String MATERIAL_LOT_IS_NOT_EXIST_SUBCODE_UNIT = "gc.material_lot_is_not_exist_subcode_unit";
+    public static final String MATERIAL_LOT_EXIST_MORE_THAN_ONE_SUBCODE = "gc.material_lot_exist_more_than_one_subcode";
     public static final String MATERIAL_LOT_NOT_MATCH_ORDER = "gc.meterial_lot_not_match_order";
     public static final String MATERIAL_LOT_RESERVED_BY_ANOTHER = "gc.meterial_lot_reserved_by_another";
     public static final String MATERIAL_LOT_IMPORT_FILE_IS_ERRROR = "gc.meterial_lot_import_file_is_error";

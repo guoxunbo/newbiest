@@ -9039,6 +9039,7 @@ public class GcServiceImpl implements GcService {
             List<ComThrowWaferTab> comThrowWaferTabList = Lists.newArrayList();
             List<MaterialLot> materialLots = materialLotActions.stream().map(materialLotAction -> mmsService.getMLotByMLotId(materialLotAction.getMaterialLotId(), true)).collect(Collectors.toList());
             List<MaterialLot> cobMaterialLotList = materialLots.stream().filter(materialLot -> MaterialLot.RW_WAFER_SOURCE.equals(materialLot.getReserved50())).collect(Collectors.toList());
+            validateCobMLotSubcode(cobMaterialLotList, subCode);
             if(!StringUtils.isNullOrEmpty(subCode) && CollectionUtils.isNotEmpty(cobMaterialLotList)){
                 if(cobMaterialLotList.size() < materialLots.size()){
                     throw new ClientParameterException(GcExceptions.MATERIAL_LOT_MUST_BE_COB_LOT);
@@ -9093,7 +9094,7 @@ public class GcServiceImpl implements GcService {
                         materialLot = materialLotRepository.saveAndFlush(materialLot);
                         for (MaterialLot packageLot : packageDetailLots){
                             packageLot.setCurrentQty(currentQty);
-                            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(materialLot, MaterialLotHistory.TRANS_TYPE_SHIP);
+                            MaterialLotHistory history = (MaterialLotHistory) baseService.buildHistoryBean(packageLot, MaterialLotHistory.TRANS_TYPE_SHIP);
                             materialLotHistoryRepository.save(history);
                         }
 
@@ -9159,6 +9160,30 @@ public class GcServiceImpl implements GcService {
                 log.info("comThrowWaferTabList size is " + comThrowWaferTabList.size());
                 comThrowWaferTabRepository.saveAll(comThrowWaferTabList);
                 log.info("comThrowWaferTabList write data end");
+            }
+        } catch (Exception e){
+            throw ExceptionManager.handleException(e, log);
+        }
+    }
+
+    /**
+     * 验证晶圆是否存在多个二级代码
+     * @param cobMaterialLotList
+     * @param subCode
+     * @throws ClientException
+     */
+    private void validateCobMLotSubcode(List<MaterialLot> cobMaterialLotList, String subCode) throws ClientException{
+        try {
+            if(StringUtils.isNullOrEmpty(subCode) && CollectionUtils.isNotEmpty(cobMaterialLotList)){
+                for(MaterialLot materialLot : cobMaterialLotList){
+                    List<MaterialLot> packageDetailLots = packageService.getPackageDetailLots(materialLot.getObjectRrn());
+                    String materialLotId = packageDetailLots.get(0).getMaterialLotId();
+                    List<MaterialLotUnit> materialLotUnitList = materialLotUnitRepository.findByMaterialLotId(materialLotId);
+                    Set<String> subCodeList = materialLotUnitList.stream().map(MaterialLotUnit :: getReserved1).collect(Collectors.toSet());
+                    if (subCodeList.size() > 1) {
+                        throw new ClientParameterException(GcExceptions.MATERIAL_LOT_EXIST_MORE_THAN_ONE_SUBCODE, materialLot.getMaterialLotId());
+                    }
+                }
             }
         } catch (Exception e){
             throw ExceptionManager.handleException(e, log);
