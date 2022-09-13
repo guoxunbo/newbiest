@@ -385,4 +385,11 @@ public class DocumentLineHistory extends NBHis {
      */
     @Column(name="CARGO_CODE")
     private String cargoCode;
+
+
+    /**
+     * SOSID
+     */
+    @Column(name="SOS_ID")
+    private String sosId;
 }

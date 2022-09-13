@@ -15,6 +15,10 @@ public interface MaterialLotUnitRepository extends IRepository<MaterialLotUnit, 
 
     List<MaterialLotUnit> findByMaterialLotId(String materialLotId);
 
+    List<MaterialLotUnit> findByMaterialLotIdAndReserved1(String materialLotId, String reserved1);
+
+    List<MaterialLotUnit> findByMaterialLotIdAndStateNotIn(String materialLotId, List<String> stateList) throws ClientException;
+
     List<MaterialLotUnit> findByUnitIdAndState(@Param("unitId") String unitId, @Param("state") String state) throws ClientException;
 
     List<MaterialLotUnit> findByUnitIdAndWorkOrderIdAndState(@Param("unitId") String unitId, @Param("workOrderId") String workOrderId, @Param("state") String state) throws ClientException;

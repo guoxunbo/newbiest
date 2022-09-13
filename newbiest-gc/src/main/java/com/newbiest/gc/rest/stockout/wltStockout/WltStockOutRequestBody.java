@@ -61,5 +61,8 @@ public class WltStockOutRequestBody extends RequestBody {
 
 	@ApiModelProperty(value = "手持端发料单据日期")
 	private String erpTime;
+
+	@ApiModelProperty(value = "二级代码")
+	private String subCode;
   
 }

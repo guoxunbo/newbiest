@@ -162,6 +162,9 @@ public class ErpSoa implements Serializable {
     @Column(name="ITEMCODE")
     private String itemcode;
 
+    @Column(name="SOSID")
+    private String sosid;
+
     @Column(name="SHIPADDRESS")
     private String shipAddress;
 
