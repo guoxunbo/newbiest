@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_MobileFTMaterialReceiveManager_to_NB_AUTHORITY
+      author: Youqing Huang
+      comment: add MobileFTMaterialReceiveManager to nb_authority
+      dbms: oracle
+      changes:
+        - createAuthority:
+            skipFlag: N
+            authority:
+              name: MobileFTMaterialReceiveManager
+              description: 手持端FT来料接收
+              tableName: GCMobileFTMaterialReceive
+              mobileFlag: Y
+              url: /Mobile/FTMaterialReceive
+              parentRrn: 22
+              seqNo: 210
+              image: icon-rule
+              labelZh: FT来料接收
+              labelEn: FTMaterialReceive

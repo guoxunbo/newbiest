@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_GCMobileFTMaterialReceive_to_NB_TABLE
+      author: Youqing Huang
+      comment: add GCMobileFTMaterialReceive to nb_table
+      dbms: oracle
+      changes:
+        - createOnLineTable:
+            skipFlag: N
+            nbTable:
+              name: GCMobileFTMaterialReceive
+              description: 手持端FT来料接收
+              tableName: MMS_MATERIAL_LOT
+              modelName: MaterialLot
+              modelClass: com.newbiest.mms.model.MaterialLot
+              labelZh: 手持端FT来料接收
+              label: MobileFTMaterialReceive
