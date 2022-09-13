@@ -412,6 +412,12 @@ public class DocumentLine extends NBUpdatable {
     private String cargoCode;
 
     /**
+     * 销售订单子表ID
+     */
+    @Column(name="SOS_ID")
+    private String sosId;
+
+    /**
      * erp_soa的other5
      */
     @Column(name="RESERVED33")
